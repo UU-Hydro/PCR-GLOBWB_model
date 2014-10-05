@@ -1,3 +1,7 @@
+# ignore pcraster maps
+*.map
+*.ldd
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
