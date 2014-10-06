@@ -305,8 +305,8 @@ class LandSurface(object):
                 land_cover_fraction = self.landCoverObj[coverType].fracVegCover
                 vars(self)[var]    += land_cover_states * land_cover_fraction
 
-        # for non spin-up runs that start at the first day of the year (1 January), we have to consider the previous year land cover fractions
-        if (iniConditions == None) and iniItems.startDate[-5:] == "01-01": 
+        #~ # TODO: for non spin-up runs that start at the first day of the year (1 January), we have to consider the previous year land cover fractions
+        #~ if (iniConditions == None) and iniItems.startDate[-5:] == "01-01": 
 
 
     def waterDemandOptions(self,iniItems):
