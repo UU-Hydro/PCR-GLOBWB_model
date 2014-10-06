@@ -184,6 +184,8 @@ class LandSurface(object):
                           'satExcess',
                           'snowMelt']
         #
+        # specific variables for 2 and 3 layer soil module:
+        #
         if self.numberOfSoilLayers == 2:
             self.mainStates += ['storUpp','storLow']
             self.stateVars  += self.mainStates
@@ -202,6 +204,7 @@ class LandSurface(object):
         # Get the initialconditions
         self.getInitialConditions(iniItems, initialState)
 
+        # for reporting 
         self.report = True
         try:
             self.outDailyTotNC = iniItems.landSurfaceOptions['outDailyTotNC'].split(",")
