@@ -290,31 +290,37 @@ class LandSurface(object):
 
     def getInitialConditions(self,iniItems,iniConditions=None):
 
-        # correcting initial land cover fractions 
-        # - this is needed for runs with includeIrrigation and dynamicIrrigationArea
+        # obtaining initial land cover fractions for runs with includeIrrigation and dynamicIrrigationArea
         #
-        # option to consider previous year land cover fraction 
+        # starting year in integer
+        starting_year = int(iniItems.globalOptions['startTime'][0:4])
+        #
+        # check if the run start at the first day of the year:
+        start_on_1_Jan = False
+        if iniItems.globalOptions['startTime'][-5:] == "01-01": start_on_1_Jan = True
+        #
+        # condition to consider previous year land cover fraction 
         consider_previous_year_land_cover_fraction = False
         #
         # For non spin-up runs that start at the first day of the year (1 January), 
         # - we have to consider the previous year land cover fractions, specifically if we consider the dynamic/expansion of irrigation areas
         #
-        if iniConditions == None and iniItems.globalOptions['startTime'][-5:] == "01-01" and \
+        if iniConditions == None and start_on_1_Jan == True and \
            self.dynamicIrrigationArea and self.includeIrrigation: 
             # obtain the previous year land cover fractions:
-            year_in_integer = int(iniItems.globalOptions['startTime'][0:4]) - 1  # the previous year land cover fractions
-            self.scaleDynamicIrrigation(year_in_integer) 
+            self.scaleDynamicIrrigation(starting_year - 1)                       # the previous year land cover fractions
             consider_previous_year_land_cover_fraction = True
         #
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
         #
-        if self.dynamicIrrigationArea and self.includeIrrigation and \
-           consider_previous_year_land_cover_fraction == False:
-            year_in_integer = int(iniItems.globalOptions['startTime'][0:4])      # the current year land cover fractions
-            self.scaleDynamicIrrigation(year_in_integer) 
+        if consider_previous_year_land_cover_fraction == False and \
+           self.dynamicIrrigationArea and self.includeIrrigation: 
+            # just using the current year land cover fractions:
+            self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         
-        # initial land cover fractions
+        # get initial land cover fractions that will be used 
+        #
         for coverType in self.coverTypes:\
             self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
 
@@ -330,7 +336,7 @@ class LandSurface(object):
             else:
                 self.landCoverObj[coverType].getICsLC(iniItems)
             #
-            # summarize/aggregate the initial states/storages (using previousFracVegCover)
+            # summarize/aggregate the initial states/storages (using the initial land cover fractions: previousFracVegCover)
             for var in self.mainStates:
                 land_cover_states   = vars(self.landCoverObj[coverType])[var]
                 land_cover_fraction = self.landCoverObj[coverType].previousFracVegCover
@@ -744,6 +750,7 @@ class LandSurface(object):
         # This method is to update fracVegCover of landCover for historical irrigation areas (done at yearly basis).
         
         # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
+        yearInInterger = int(yearInInterger)
         yearInInterger = min(2010, max(1960, yearInInteger))
         yearInString   = str(yearInInterger) 
         logger.info('Dataset of historical irrigation areas is only available from 1960 to 2010.')
@@ -787,8 +794,8 @@ class LandSurface(object):
     def update(self,meteo,groundwater,routing,currTimeStep):
         
         # updating fracVegCover of each landCover (landCover fraction) 
-        # - considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
-        # - done at yearly basis
+        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # - done at yearly basis, at the beginning of each year
         # - note, for the first time step (timeStepPCR == 1), land cover fractions have been defined in getInitialConditions
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and \
@@ -798,16 +805,19 @@ class LandSurface(object):
             self.scaleDynamicIrrigation(currTimeStep.year)
 
         # transfer some states, due to changes/dynamics in land cover conditions
-        # - if dynamic/historical irrigation areas are considered
-        # - done at yearly basis at the beginning of each year
+        # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
+        # - done at yearly basis, at the beginning of each year
+        # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.doy == 1:
             #
-            # loop for every variable:
+            # loop for all main states:
             for var in self.mainStates:
                 
-                moving_fraction = pcr.scalar(0.0)
-                moving_states   = pcr.scalar(0.0)
+                logger.info("Transfering states for the variable "+str(var))
+
+                moving_fraction = pcr.scalar(0.0)                       # total land cover fractions that will be transferred
+                moving_states   = pcr.scalar(0.0)                       # total states that will be transferred
                 
                 for coverType in self.coverTypes:
                     
@@ -849,9 +859,9 @@ class LandSurface(object):
                 a,b,c = vos.getMinMaxMean(check_map)
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
-                    logger.info("ERROR in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+                    logger.info("WARNING !!!! Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
                 else:     
-                    logger.info("Successful in transfering states for dynamic in land cover fractions ... Min %f Max %f Mean %f" %(a,b,c))
+                    logger.info("Successful in transfering states (for considering dynamic in land cover fractions ... Min %f Max %f Mean %f" %(a,b,c))
         #
         # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
         if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
