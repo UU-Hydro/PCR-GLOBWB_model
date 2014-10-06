@@ -631,6 +631,28 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'This variable can only be reported if 3 layer soil model is used.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# nonIrrWaterConsumption                  
+pcrglobwb_variable_name = 'nonIrrWaterConsumption'
+netcdf_short_name[pcrglobwb_variable_name] = 'consumption_for_non_irrigation_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# nonIrrReturnFlow                  
+pcrglobwb_variable_name = 'nonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_non_irrigation_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = 'return_flow_from_non_irrigation_demand_to_surface_water_bodies'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None
 #~ del pcrglobwb_variable_name

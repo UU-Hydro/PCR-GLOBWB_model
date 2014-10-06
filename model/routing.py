@@ -509,6 +509,12 @@ class Routing(object):
         self.channelStorage  += nonIrrReturnFlowVol
         self.local_input_to_surface_water += nonIrrReturnFlowVol
 
+        # water consumption for non irrigation water demand (m) - this water is removed from the water balance
+        self.nonIrrWaterConsumption = landSurface.nonIrrGrossDemand - \
+                                      self.nonIrrReturnFlow
+        # 
+        # Note that in case of limitAbstraction = True ; landSurface.nonIrrGrossDemand has been reduced by available water                               
+        
         # get routing parameters (based on avgDischarge)
         self.yMean, self.wMean, self.characteristicDistance = \
                 self.getRoutingParamAvgDischarge(self.avgDischarge,\

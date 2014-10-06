@@ -304,6 +304,10 @@ class Reporting(object):
     def additional_post_processing(self):
         # In this method/function, users can add their own post-processing.
         
+        # consumption for and return flow from non irrigation water demand (unit: m/day)  
+        self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
+        self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
+        
         # accumulated runoff (m3) along the drainage network - not including local changes in water bodies
         if "accuRunoff" in self.variables_for_report:
             self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
