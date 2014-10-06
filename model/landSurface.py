@@ -298,7 +298,7 @@ class LandSurface(object):
         #
         # For non spin-up runs that start at the first day of the year (1 January), 
         # - we have to consider the previous year land cover fractions, specifically if we consider the dynamic/expansion of irrigation areas
-        if iniConditions == None and iniItems.startDate[-5:] == "01-01" and \
+        if iniConditions == None and iniItems.globalOptions['startDate'][-5:] == "01-01" and \
            self.dynamicIrrigationArea and self.includeIrrigation: 
             # obtain the previous year land cover fractions:
             self.scaleDynamicIrrigation(currTimeStep.year - 1)          # the previous year land cover fractions 
