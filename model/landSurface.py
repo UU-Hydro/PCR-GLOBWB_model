@@ -859,9 +859,9 @@ class LandSurface(object):
                 a,b,c = vos.getMinMaxMean(check_map)
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
-                    logger.info("WARNING !!!! Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
+                    logger.info("WARNING !!!!! Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
                 else:     
-                    logger.info("Successful in transfering states (for considering dynamic in land cover fractions ... Min %f Max %f Mean %f" %(a,b,c))
+                    logger.info("Successful in transfering states (for considering dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
         #
         # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
         if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
