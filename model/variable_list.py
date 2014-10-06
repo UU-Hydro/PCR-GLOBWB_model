@@ -543,6 +543,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "Including runoff from water bodies."
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# totalActiveStorageThickness
+pcrglobwb_variable_name = 'totalActiveStorageThickness'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_thickness_of_active_water_storage'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "Not including fossil groundwater (unmetDemand)."
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # totalWaterStorageThickness
 pcrglobwb_variable_name = 'totalWaterStorageThickness'
 netcdf_short_name[pcrglobwb_variable_name] = 'total_thickness_of_water_storage'

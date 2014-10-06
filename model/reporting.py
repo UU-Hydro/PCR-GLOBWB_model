@@ -322,14 +322,19 @@ class Reporting(object):
         if "accuTotalRunoff" in self.variables_for_report:
             self.accuTotalRunoff = pcr.catchmenttotal(self.totalRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
+        # total active storage thickness (m) for the entire water column - not including fossil groundwater (unmetDemand) 
+        # - including: interception, snow, soil, amd non fossil groundwater and fossil groundwater (unmetDemand) 
+        self.totalActiveStorageThickness = pcr.ifthen(\
+                                           self._model.routing.landmask, \
+                                           self._model.routing.channelStorage / self._model.routing.cellArea + \
+                                           self._model.landSurface.totalSto + \
+                                           self._model.groundwater.storGroundwater)
+
         # total water storage thickness (m) for the entire water column: 
-        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand) 
-        self.totalWaterStorageThickness = pcr.ifthen(\
-                                          self._model.routing.landmask, \
-                                          self._model.routing.channelStorage / self._model.routing.cellArea + \
-                                          self._model.landSurface.totalSto + \
-                                          self._model.groundwater.storGroundwater - \
-                                          self._model.groundwater.unmetDemand)
+        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand)
+        # - this is usually used for GRACE comparison  
+        self.totalWaterStorageThickness  = self.totalActiveStorageThickness - \
+                                           self._model.groundwater.unmetDemand
 
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
