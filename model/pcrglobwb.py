@@ -26,7 +26,6 @@ class PCRGlobWB(object):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
-        #set clone. Must be first pcraster call.
         pcr.setclone(configuration.cloneMap)
 
         # Read the ldd map.
@@ -34,7 +33,7 @@ class PCRGlobWB(object):
                   configuration.routingOptions['lddMap'],
                   configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'],True)
         #ensure ldd map is correct, and actually of type "ldd"
-        self.lddMap = pcr.lddrepair(self.lddMap)
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         if configuration.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\

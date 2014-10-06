@@ -65,16 +65,20 @@ class LandCover(object):
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
         # avoid small values (in order to avoid rounding error)
+        self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
         self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
         
         # limit 0.0 <= fracVegCover <= 1.0
         self.fracVegCover = pcr.max(0.0,self.fracVegCover)
         self.fracVegCover = pcr.min(1.0,self.fracVegCover)
 
-        self.fractionArea        = None # area (m2) of a certain land cover type ; will be assigned by the landSurface module
-        self.naturalFracVegCover = None # fraction (-) of natural area over (entire) cell ; will be assigned by the landSurface module
-        self.irrTypeFracOverIrr  = None # fraction (m2) of a certain irrigation type over (only) total irrigation area ; will be assigned by the landSurface module
+        self.fractionArea         = None # area (m2) of a certain land cover type ; will be assigned by the landSurface module
+        self.naturalFracVegCover  = None # fraction (-) of natural area over (entire) cell ; will be assigned by the landSurface module
+        self.irrTypeFracOverIrr   = None # fraction (m2) of a certain irrigation type over (only) total irrigation area ; will be assigned by the landSurface module
 
+        # previous fractions of land cover (needed while land cover changes ; for transfering fluxes)
+        self.previousFracVegCover = None
+        
         cellArea = vos.readPCRmapClone(\
           iniItems.routingOptions['cellAreaMap'],
           self.cloneMap,self.tmpDir,self.inputDir)
