@@ -144,6 +144,61 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
+        # list of aggregated variables that MUST be defined in the module:
+        # - aggregated from landCover modules
+        # - some are needed for water balance checking 
+        # - some are needed in other modules (e.g. routing, groundwater)
+        # - some are needed for initialConditions
+        # 
+        # main state variables (unit: m)
+        self.mainStates = ['interceptStor',\
+                           'snowCoverSWE' ,\
+                           'snowFreeWater',\
+                           'topWaterLayer']
+        #
+        # state variables (unit: m)
+        self.stateVars = ['storUppTotal',
+                          'storLowTotal']
+        #
+        # flux variables (unit: m/day)
+        self.fluxVars  = ['infiltration','gwRecharge',
+                          'actualET',
+                          'interceptEvap',
+                          'openWaterEvap',
+                          'actSnowFreeWaterEvap',
+                          'actBareSoilEvap',
+                          'actTranspiUppTotal',
+                          'actTranspiLowTotal',
+                          'actTranspiTotal',                                 
+                          'directRunoff',
+                          'interflow',
+                          'interflowTotal',
+                          'irrGrossDemand',
+                          'nonIrrGrossDemand',
+                          'totalPotentialGrossDemand',
+                          'potGroundwaterAbstract',
+                          'actSurfaceWaterAbstract',
+                          'allocSurfaceWaterAbstract',
+                          'landSurfaceRunoff',
+                          'totalPotET',
+                          'satExcess',
+                          'snowMelt']
+        #
+        if self.numberOfSoilLayers == 2:
+            self.mainStates += ['storUpp','storLow']
+            self.stateVars  += self.mainStates
+            self.fluxVars   += ['actTranspiUpp','actTranspiLow','netPercUpp']
+        #                                                      
+        if self.numberOfSoilLayers == 3:
+            self.mainStates += ['storUpp000005','storUpp005030','storLow030150']
+            self.stateVars  += self.mainStates
+            self.fluxVars   += ['actTranspiUpp000005','actTranspiUpp005030','actTranspiLow030150',
+                                   'netPercUpp000005',   'netPercUpp005030',
+                                                       'interflowUpp005030']
+        
+        # list of all variables that will be calculated/reported in landSurface.py
+        self.aggrVars = self.stateVars + self.fluxVars
+
         # Get the initialconditions
         self.getInitialConditions(iniItems, initialState)
 
@@ -225,61 +280,6 @@ class LandSurface(object):
                     self.netcdfObj.createNetCDF(str(self.outNCDir)+"/"+ \
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
-
-        # list of aggregated variables that MUST be defined in the module:
-        # - aggregated from landCover modules
-        # - some are needed for water balance checking 
-        # - some are needed in other modules (e.g. routing, groundwater)
-        # - some are needed for initialConditions
-        # 
-        # main state variables (unit: m)
-        self.mainStates = ['interceptStor',\
-                           'snowCoverSWE' ,\
-                           'snowFreeWater',\
-                           'topWaterLayer']
-        #
-        # state variables (unit: m)
-        self.stateVars = ['storUppTotal',
-                          'storLowTotal']
-        #
-        # flux variables (unit: m/day)
-        self.fluxVars  = ['infiltration','gwRecharge',
-                          'actualET',
-                          'interceptEvap',
-                          'openWaterEvap',
-                          'actSnowFreeWaterEvap',
-                          'actBareSoilEvap',
-                          'actTranspiUppTotal',
-                          'actTranspiLowTotal',
-                          'actTranspiTotal',                                 
-                          'directRunoff',
-                          'interflow',
-                          'interflowTotal',
-                          'irrGrossDemand',
-                          'nonIrrGrossDemand',
-                          'totalPotentialGrossDemand',
-                          'potGroundwaterAbstract',
-                          'actSurfaceWaterAbstract',
-                          'allocSurfaceWaterAbstract',
-                          'landSurfaceRunoff',
-                          'totalPotET',
-                          'satExcess',
-                          'snowMelt']
-        #
-        if self.numberOfSoilLayers == 2:
-            self.mainStates += ['storUpp','storLow']
-            self.stateVars  += self.mainStates
-            self.fluxVars   += ['actTranspiUpp','actTranspiLow','netPercUpp']
-        #                                                      
-        if self.numberOfSoilLayers == 3:
-            self.mainStates += ['storUpp000005','storUpp005030','storLow030150']
-            self.stateVars  += self.mainStates
-            self.fluxVars   += ['actTranspiUpp000005','actTranspiUpp005030','actTranspiLow030150',
-                                   'netPercUpp000005',   'netPercUpp005030',
-                                                       'interflowUpp005030']
-        
-        # list of all variables that will be calculated/reported in landSurface.py
-        self.aggrVars = self.stateVars + self.fluxVars
 
     def getInitialConditions(self,iniItems,iniConditions=None):
 
