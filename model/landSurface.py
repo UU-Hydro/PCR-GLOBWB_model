@@ -304,8 +304,6 @@ class LandSurface(object):
             # obtain the previous year land cover fractions:
             self.scaleDynamicIrrigation(currTimeStep.year - 1)          # the previous year land cover fractions 
             consider_previous_year_land_cover_fraction = True
-            for coverType in self.coverTypes:\
-                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
         #
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
@@ -313,9 +311,11 @@ class LandSurface(object):
         if self.dynamicIrrigationArea and self.includeIrrigation and \
            consider_previous_year_land_cover_fraction == False:
             self.scaleDynamicIrrigation(currTimeStep.year)              # the current year land cover fractions
-            for coverType in self.coverTypes:\
-                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
         
+        # initial land cover fractions
+        for coverType in self.coverTypes:\
+            self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+
         # get initial conditions
         #
         # first, we set all aggregated states to zero (only the ones in mainStates): 
