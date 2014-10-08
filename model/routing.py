@@ -483,6 +483,7 @@ class Routing(object):
             # - based on wetted area (m2) and wetted perimeter (m), as well as self.beta (dimensionless)
             # - assuming rectangular channel with channel_width = self.wMean and channel_length = self.dist2celllength
             #
+            self.wMean = 10.0
             channel_wetted_area      =   self.water_height * self.wMean                                  # unit: m2
             channel_wetted_perimeter = 2*self.water_height + self.wMean                                  # unit: m  
             #
