@@ -448,7 +448,7 @@ class Routing(object):
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
                                    pcr.areaminimum(\
-                                   pcr.ifthen(((length_of_sub_time_step < vos.secondsPerDay()) and \
+                                   pcr.ifthen(((length_of_sub_time_step < pcr.scalar(vos.secondsPerDay())) and \
                                                (self.water_height > self.critical_water_height) and \
                                                (self.lddMap != 5)), \
                                                 length_of_sub_time_step),self.landmask),\
