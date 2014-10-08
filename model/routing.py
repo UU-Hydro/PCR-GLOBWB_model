@@ -441,7 +441,7 @@ class Routing(object):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
         #
-        discharge_estimate = pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischargeLong)
+        discharge_estimate = pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge)
         length_of_sub_time_step = pcr.ifthen(self.oldDischarge > 0.0, channelStorageForRouting / self.subDischarge, vos.secondsPerDay())
 
         # determine the number of sub time steps
