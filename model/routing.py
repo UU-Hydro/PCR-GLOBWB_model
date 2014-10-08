@@ -445,14 +445,19 @@ class Routing(object):
         length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
 
         # determine the number of sub time steps
-        number_of_sub_time_steps = vos.secondsPerDay() /\
-                                   pcr.cover(
-                                   pcr.areaminimum(\
-                                   pcr.ifthen(((length_of_sub_time_step < pcr.scalar(vos.secondsPerDay())) and \
-                                               (self.water_height > self.critical_water_height) and \
-                                               (self.lddMap != 5)), \
-                                                length_of_sub_time_step),self.landmask),\
-                                             vos.secondsPerDay()/23)   
+        
+        self.critical_water_height = 0.25;					#critical water height used to select stable timestep
+
+        
+        #~ number_of_sub_time_steps = vos.secondsPerDay() /\
+                                   #~ pcr.cover(
+                                   #~ pcr.areaminimum(\
+                                   #~ pcr.ifthen(((length_of_sub_time_step < pcr.scalar(vos.secondsPerDay())) and \
+                                               #~ (self.water_height > self.critical_water_height) and \
+                                               #~ (self.lddMap != 5)), \
+                                                #~ length_of_sub_time_step),self.landmask),\
+                                             #~ vos.secondsPerDay()/23)   
+        number_of_sub_time_steps = 24
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
         #
