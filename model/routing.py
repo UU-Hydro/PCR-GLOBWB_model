@@ -434,18 +434,6 @@ class Routing(object):
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
         
-        #~ # get routing parameters (based on avgDischarge)
-        #~ self.yMean, self.wMean, self.characteristicDistance = \
-                #~ self.getRoutingParamAvgDischarge(self.avgDischarge,\
-                #~ self.dist2celllength)
-#~ 
-        #~ # simulating water bodies fraction
-        #~ channelFraction = pcr.max(0.0, pcr.min(1.0,\
-                          #~ self.wMean * self.cellLengthFD / (self.cellArea)))
-        #~ self.dynamicFracWat = \
-                          #~ pcr.max(channelFraction, self.WaterBodies.fracWat)
-        #~ self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
-#~ 
         # water height (m)
         self.water_height = channelStorageForRouting / (self.dynamicFracWat * self.cellArea)
         
@@ -453,7 +441,7 @@ class Routing(object):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
         #
-        discharge_estimate = pcr.min(self.subDischarge, self.discharge, self.avgDischargeShort, self.avgDischargeLong)
+        discharge_estimate = pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischargeLong)
         length_of_sub_time_step = pcr.ifthen(self.oldDischarge > 0.0, channelStorageForRouting / self.subDischarge, vos.secondsPerDay())
 
         # determine the number of sub time steps
