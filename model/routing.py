@@ -471,7 +471,7 @@ class Routing(object):
         # old-style reporting                  # TODO: remove this one
         self.routing_reporting(currTimeStep)
 
-    def update_using_accu_travel_time(self,landSurface,groundwater,currTimeStep,meteo)
+    def update_using_accu_travel_time(self,landSurface,groundwater,currTimeStep,meteo):
 
         # updating timesteps to calculate long and short term statistics values: avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
