@@ -182,6 +182,12 @@ class Configuration(object):
         """
 
         # adjusment for routingOptions
+        if 'routingMethod' not in self.routingOptions.keys():
+            logger.info('WARNING !!! The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
+            iniItems.routingOptions['routingMethod'] = "accuTravelTime"
+
+        # adjusment for initial conditions in the routingOptions
+        #
         if 'm2tChannelDischargeLongIni' in self.routingOptions.keys():
             self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
         #
@@ -211,4 +217,10 @@ class Configuration(object):
             logger.info('The initial condition "avgSurfaceWaterInputLongIni" is not defined. "avgBaseflowLongIni" is used in this run.')
             self.routingOptions['avgSurfaceWaterInputLongIni'] = self.routingOptions['avgBaseflowLongIni']
             
+        if 'subDischargeIni' not in self.routingOptions.keys():
+            msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run.'
+            msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
+            logger.info(msg)
+            self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
+
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
