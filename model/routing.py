@@ -769,7 +769,7 @@ class Routing(object):
         self.readAvlChannelStorage = pcr.ifthen(self.landmask, self.readAvlChannelStorage)
 
 
-    def routing_reporting(currTimeStep):
+    def routing_reporting(self,currTimeStep):
 
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
