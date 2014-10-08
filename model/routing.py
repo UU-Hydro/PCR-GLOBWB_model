@@ -861,7 +861,8 @@ class Routing(object):
         waterBodyOutflow = pcr.ifthen(\
                            pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                            waterBodyOutflow)                                 # unit: m3/day
-        waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)
+        #
+        self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)
 
         # update channelStorage (m3) after waterBodyOutflow (m3)
         self.channelStorage += waterBodyOutflow
@@ -874,7 +875,7 @@ class Routing(object):
                     self.WaterBodies.waterBodyStorage))     # m3
 
         if self.debugWaterBalance == 'True':\
-           vos.waterBalanceCheck([waterBodyOutflow/self.cellArea],\
+           vos.waterBalanceCheck([self.waterBodyOutflow/self.cellArea],\
                                  [storageAtLakeAndReservoirs/self.cellArea],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
@@ -938,7 +939,7 @@ class Routing(object):
         self.avgBaseflow = pcr.max(0.0, self.avgBaseflow)
 
         # calculate short term average of "input_to_surface_water" # unit: m3/s
-        input_to_surface_water = (self.local_input_to_surface_water + waterBodyOutflow) / vos.secondsPerDay()
+        input_to_surface_water = (self.local_input_to_surface_water + self.waterBodyOutflow) / vos.secondsPerDay()
         deltaAnoSurfaceWaterInput = input_to_surface_water - self.avgSurfaceWaterInput  
         self.avgSurfaceWaterInput = self.avgSurfaceWaterInput +\
                                     deltaAnoSurfaceWaterInput /\
