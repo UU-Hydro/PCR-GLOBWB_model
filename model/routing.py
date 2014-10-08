@@ -436,12 +436,13 @@ class Routing(object):
         
         # water height (m)
         self.water_height = channelStorageForRouting / (self.dynamicFracWat * self.cellArea)
+        self.water_height = pcr.cover(self.water_height, 0.0)
         
         # estimate the length of sub-time step (unit: s):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
         #
-        discharge_estimate = pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge)
+        discharge_estimate = pcr.max(0.0, pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge))
         length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
 
         # determine the number of sub time steps
@@ -507,7 +508,8 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
             #
             self.water_height = channelStorageForRouting / (self.dynamicFracWat * self.cellArea)         # this will be passed to the next loop
-            
+            self.water_height = pcr.cover(self.water_height, 0.0)
+
             # total discharge_volume (m3) until this present i_loop
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
             discharge_volume += storage_change_in_volume
