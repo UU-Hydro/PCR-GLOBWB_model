@@ -491,7 +491,7 @@ class Routing(object):
             # estimate of channel discharge (m3/s) based on water height
             #
             dischargeInitial = pcr.ifthenelse(alpha > 0.0,\
-                                              self.water_height * self.wMean / alpha,\
+                                             (self.water_height * self.wMean / alpha)**(1/self.beta),\
                                               0.0)
             #
             # TODO: use waterBodyOutflow for lakes and/or reservoirs 
