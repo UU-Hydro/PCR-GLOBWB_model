@@ -473,7 +473,7 @@ class Routing(object):
         
         for i_loop in range(number_of_loops):
             
-            msg = "sub-daily time step "+str(i_loop)+" from "+str(number_of_loops)
+            msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
             logger.info(msg)
             
             # calculate alpha (dimensionless), which is the roughness coefficient 
@@ -505,7 +505,7 @@ class Routing(object):
             channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
             #
-            self.water_height = channelStorageForRouting / (self.dynamicFracwat * self.cellArea)         # this will be passed to the next loop
+            self.water_height = channelStorageForRouting / (self.dynamicFracWat * self.cellArea)         # this will be passed to the next loop
             
             # total discharge_volume (m3) until this present i_loop
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
