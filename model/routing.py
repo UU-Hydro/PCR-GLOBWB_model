@@ -465,7 +465,14 @@ class Routing(object):
     def update(self,landSurface,groundwater,currTimeStep,meteo):
 
         logger.info("routing in progress")
-        
+        #
+        if self.method == "accuTravelTime": self.update_using_accu_travel_time(landSurface,groundwater,currTimeStep,meteo)
+
+        # old-style reporting                  # TODO: remove this one
+        self.routing_reporting(currTimeStep):
+
+    def update_using_accu_travel_time(self,landSurface,groundwater,currTimeStep,meteo):
+
         # updating timesteps to calculate long and short term statistics values: avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
 
@@ -669,7 +676,7 @@ class Routing(object):
         ##########################################################################################################################
         # ROUTING OPERATION:
         #
-        if self.method == "accuTravelTime": self.accuTravelTime(currTimeStep) 		
+        self.accuTravelTime(currTimeStep) 		
         #
         ##########################################################################################################################
 
@@ -760,6 +767,9 @@ class Routing(object):
         # ignore small values - less than 1 m3
         self.readAvlChannelStorage = pcr.rounddown(self.readAvlChannelStorage)
         self.readAvlChannelStorage = pcr.ifthen(self.landmask, self.readAvlChannelStorage)
+
+
+    def routing_reporting(currTimeStep):
 
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
@@ -886,4 +896,6 @@ class Routing(object):
                                          var,\
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,currTimeStep.annuaIdx-1)
+
+
 
