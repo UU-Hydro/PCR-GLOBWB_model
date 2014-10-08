@@ -733,8 +733,8 @@ class Routing(object):
         # ROUTING OPERATION:
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         #
-        if self.routingMethod == "accuTravelTime": self.accuTravelTime(currTimeStep) 		
-        if self.routingMethod == "simplifiedKinematicWave": self.simplifiedKinematicWave(currTimeStep) 		
+        if self.method == "accuTravelTime":          self.accuTravelTime(currTimeStep) 		
+        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave(currTimeStep) 		
         #
         ##########################################################################################################################
 
