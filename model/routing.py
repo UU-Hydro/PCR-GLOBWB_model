@@ -511,8 +511,11 @@ class Routing(object):
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
             discharge_volume += storage_change_in_volume
 
-        # calculated channel discharge (m3/day) = self.Q
-        self.Q = discharge_volume / vos.secondsPerDay()
+        # channel discharge (m3/day) = self.Q
+        self.Q = discharge_volume
+
+        # updating subDischarge (m3/s) for the next time step
+        self.subDischarge = discharge
 
         # updating channelStorage (after routing)
         self.channelStorage = channelStorageForRouting
