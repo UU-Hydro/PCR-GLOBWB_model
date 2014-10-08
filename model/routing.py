@@ -330,10 +330,10 @@ class Routing(object):
         yMean = self.eta * pow (avgDischarge, self.nu ) # avgDischarge in m3/s
         wMean = self.tau * pow (avgDischarge, self.phi)
  
-        yMean =   pcr.max(yMean,0.000000001) # channel depth (m)
-        wMean =   pcr.max(wMean,0.000000001) # channel width (m)
-        yMean = pcr.cover(yMean,0.000000001)
-        wMean = pcr.cover(wMean,0.000000001)
+        yMean =   pcr.max(yMean,0.1) # channel depth (m)
+        wMean =   pcr.max(wMean,0.1) # channel width (m)
+        yMean = pcr.cover(yMean,0.1)
+        wMean = pcr.cover(wMean,0.1)
         
         # characteristicDistance (dimensionless)
         # - This will be used for accutraveltimeflux & accutraveltimestate
@@ -483,7 +483,6 @@ class Routing(object):
             # - based on wetted area (m2) and wetted perimeter (m), as well as self.beta (dimensionless)
             # - assuming rectangular channel with channel_width = self.wMean and channel_length = self.dist2celllength
             #
-            self.wMean = 100.0
             channel_wetted_area      =   self.water_height * self.wMean                                  # unit: m2
             channel_wetted_perimeter = 2*self.water_height + self.wMean                                  # unit: m  
             #
