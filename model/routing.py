@@ -330,11 +330,11 @@ class Routing(object):
         yMean = self.eta * pow (avgDischarge, self.nu ) # avgDischarge in m3/s
         wMean = self.tau * pow (avgDischarge, self.phi)
  
-        yMean =   pcr.max(yMean,0.1) # channel depth (m)
-        wMean =   pcr.max(wMean,0.5) # channel width (m)
-        yMean = pcr.cover(yMean,0.1)
-        wMean = pcr.cover(wMean,0.5)
-        
+        yMean =   pcr.max(yMean,0.000000001) # channel depth (m)
+        wMean =   pcr.max(wMean,0.000000001) # channel width (m)
+        yMean = pcr.cover(yMean,0.000000001)
+        wMean = pcr.cover(wMean,0.000000001)
+                
         # characteristicDistance (dimensionless)
         # - This will be used for accutraveltimeflux & accutraveltimestate
         # - discharge & storage = accutraveltimeflux & accutraveltimestate
