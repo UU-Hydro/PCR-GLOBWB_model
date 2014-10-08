@@ -708,7 +708,7 @@ class Routing(object):
         self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)
 
         # update channelStorage (m3) after waterBodyOutflow (m3)
-        self.channelStorage += waterBodyOutflow
+        self.channelStorage += self.waterBodyOutflow
         # Note that local_input_to_surface_water does not include waterBodyOutflow
         
         # obtain new water body storages (for reporting only)
