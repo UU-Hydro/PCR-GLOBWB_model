@@ -434,6 +434,18 @@ class Routing(object):
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
         
+        # get routing parameters (based on avgDischarge)
+        self.yMean, self.wMean, self.characteristicDistance = \
+                self.getRoutingParamAvgDischarge(self.avgDischarge,\
+                self.dist2celllength)
+
+        # simulating water bodies fraction
+        channelFraction = pcr.max(0.0, pcr.min(1.0,\
+                          self.wMean * self.cellLengthFD / (self.cellArea)))
+        self.dynamicFracWat = \
+                          pcr.max(channelFraction, self.WaterBodies.fracWat)
+        self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
+
         # water height (m)
         self.water_height = channelStorageForRouting / (self.dynamicFracwat * self.cellArea)
         
