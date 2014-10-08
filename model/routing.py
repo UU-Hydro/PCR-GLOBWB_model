@@ -473,7 +473,7 @@ class Routing(object):
         if self.method == "accuTravelTime" or "simplifiedKinematicWave": self.update_using_accu_travel_time(landSurface,groundwater,currTimeStep,meteo)
 
         # calculate long and short term statistics values
-        self.calculate_statistics()
+        self.calculate_statistics(groundwater)
         
         # calculate (estimate) volume of water that can be extracted for abstraction in the next time step
         self.estimate_available_volume_for_abstraction()
