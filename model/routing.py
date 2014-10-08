@@ -512,7 +512,7 @@ class Routing(object):
 
             # total discharge_volume (m3) until this present i_loop
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
-            discharge_volume += storage_change_in_volume
+            discharge_volume += pcr.max(0.0, storage_change_in_volume)
 
         # channel discharge (m3/day) = self.Q
         self.Q = discharge_volume
