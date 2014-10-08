@@ -897,7 +897,7 @@ class Routing(object):
         ##########################################################################################################################
 
 
-    def calculate_statistics(self):
+    def calculate_statistics(self, groundwater):
 
         # Calculating avgDischarge
         #
