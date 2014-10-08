@@ -498,7 +498,7 @@ class Routing(object):
             discharge = pcr.kinematic(self.lddMap, dischargeInitial, lateral_inflow, alpha, self.beta, number_of_loops, length_of_sub_time_step, self.dist2celllength)
             
             # update channelStorage (m3)
-            storage_change_in_volume  = pcr.upstream(self.lddMap, self.discharge * length_of_sub_time_step) - self.discharge * length_of_sub_time_step 
+            storage_change_in_volume  = pcr.upstream(self.lddMap, discharge * length_of_sub_time_step) - discharge * length_of_sub_time_step 
             channelStorageForRouting += storage_change_in_volume 
             #
             # route only non negative channelStorage (otherwise stay):
