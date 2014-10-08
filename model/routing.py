@@ -457,15 +457,17 @@ class Routing(object):
                                                #~ (self.lddMap != 5)), \
                                                 #~ length_of_sub_time_step),self.landmask),\
                                              #~ vos.secondsPerDay()/23)   
-        number_of_sub_time_steps = 24
-        number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
-        number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
-        #
-        number_of_loops = max(1, int(pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps))[0]))     # minimum number of sub_time_step = 1 
-        number_of_loops = max(24, number_of_loops)                                                    # minimum length of sub_time_step = 1 hour
-        #
-        number_of_loops = 2 * number_of_loops # to enhance numerical stability
+        #~ number_of_sub_time_steps = 24
+        #~ number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
+        #~ number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
+        #~ #
+        #~ number_of_loops = max(1, int(pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps))[0]))     # minimum number of sub_time_step = 1 
+        #~ number_of_loops = max(24, number_of_loops)                                                    # minimum length of sub_time_step = 1 hour
+        #~ #
+        #~ number_of_loops = 2 * number_of_loops # to enhance numerical stability
                                                      
+        number_of_loops = 48
+        
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops                               
         
