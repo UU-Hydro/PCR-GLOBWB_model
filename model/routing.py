@@ -52,7 +52,7 @@ class Routing(object):
 
         # This variable needed for kinematic wave methods (i.e. kinematicWave and simplifiedKinematicWave)
         #  
-        result['subDischargeIni']          = self.subDischarge               #  m3/s    ; sub-time step discharge
+        result['subDischarge']          = self.subDischarge                  #  m3/s    ; sub-time step discharge
 
         return result
 
