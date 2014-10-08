@@ -495,7 +495,7 @@ class Routing(object):
             # TODO: use waterBodyOutflow for lakes and/or reservoirs 
             
             # discharge (m3/s) based on kinematic wave approximation
-            discharge = pcr.kinematic(self.lddMap, dischargeInitial, lateral_inflow, alpha, self.beta, number_of_loops, self.dist2celllength)
+            discharge = pcr.kinematic(self.lddMap, dischargeInitial, lateral_inflow, alpha, self.beta, number_of_loops, length_of_sub_time_step, self.dist2celllength)
             
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.discharge * length_of_sub_time_step) - self.discharge * length_of_sub_time_step 
