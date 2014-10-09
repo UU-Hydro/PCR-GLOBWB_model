@@ -172,8 +172,9 @@ class Routing(object):
         # get the initialConditions
         self.getICs(iniItems, initialConditions)
 
-        # initiate old style reporting
-        self.initiate_old_style_routing_reporting(self,iniItems)
+        
+        # initiate old style reporting                      # TODO: remove this!
+        self.initiate_old_style_routing_reporting(iniItems)
         
 
     def getICs(self,iniItems,iniConditions = None):
