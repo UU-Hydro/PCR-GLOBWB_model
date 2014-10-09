@@ -156,7 +156,7 @@ class Routing(object):
                      self.inputDir)
 
         # courantNumber criteria for numerical stability in kinematic wave methods/approaches
-        self.courantNumber = 0.5
+        self.courantNumber = 0.75
 
         # empirical values for maximum number of sub-time steps:
         design_flood_speed = 7.5 # m/s
