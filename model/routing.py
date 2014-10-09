@@ -406,9 +406,6 @@ class Routing(object):
                                                      
         number_of_loops = 24
         
-        #
-        number_of_loops = 2 * number_of_loops # to enhance numerical stability
-
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops                               
         
