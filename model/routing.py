@@ -406,15 +406,22 @@ class Routing(object):
         self.Q = pcr.cover(self.Q, 0.0)
         # for very small velocity (i.e. characteristicDistanceForAccuTravelTime), discharge can be missing value.
         # see: http://sourceforge.net/p/pcraster/bugs-and-feature-requests/543/
-        #      http://karssenberg.geo.uu.nl/tt/TravelTimeSpecification.htm        
+        #      http://karssenberg.geo.uu.nl/tt/TravelTimeSpecification.htm
+        #
+        # and make sure that no negative discharge
+        self.Q = pcr.max(0.0, self.Q)                                    # unit: m3/day        
 
         # updating channelStorage (after routing)
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
-                              self.characteristicDistance)
+                              self.characteristicDistance)               # unit: m3
+        #
+        #~ # alternative for updating channelStorage (after routing): using the calculated self.Q - NOT TESTED YET (this may be faster)
+        #~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.Q * 1.0) - self.Q * 1.0 
+        #~ self.channelStorage += storage_change_in_volume               # unit: m3
 
         # return channelStorageThatWillNotMove to channelStorage:
-        self.channelStorage += channelStorageThatWillNotMove 
+        self.channelStorage += channelStorageThatWillNotMove             # unit: m3
         
     def simplifiedKinematicWave(self,currTimeStep): 
         """
