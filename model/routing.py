@@ -386,11 +386,14 @@ class Routing(object):
         discharge_estimate = pcr.max(0.0, pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge))
         length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
 
+        pit = (self.lddMap != 5)
+        pcr.report(pit,"test.map"); os.system("aguila test.map")                     
+        
         # determine the number of sub time steps
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
                              (self.lddMap != 5)
-        pcr.report(critical_condition,"test.map"); os.system("aguila test.map")                     
+        #~ pcr.report(critical_condition,"test.map"); os.system("aguila test.map")                     
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
