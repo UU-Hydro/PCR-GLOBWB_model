@@ -438,7 +438,7 @@ class Routing(object):
                     self.WaterBodies.waterBodyStorage))     # m3
 
         if self.debugWaterBalance == 'True':\
-           vos.waterBalanceCheck([self.waterBodyOutflow/self.cellArea],\
+           vos.waterBalanceCheck([waterBodyOutflow/self.cellArea],\
                                  [storageAtLakeAndReservoirs/self.cellArea],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
