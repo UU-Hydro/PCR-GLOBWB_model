@@ -386,30 +386,22 @@ class Routing(object):
         discharge_estimate = pcr.max(0.0, pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge))
         length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
 
-        
-        test = pcr.ifthen( (length_of_sub_time_step < vos.secondsPerDay()) & \
-                                              (self.water_height > self.critical_water_height), length_of_sub_time_step)
-        
         # determine the number of sub time steps
-        
-        
-        
-        #~ number_of_sub_time_steps = vos.secondsPerDay() /\
-                                   #~ pcr.cover(
-                                   #~ pcr.areaminimum(\
-                                   #~ pcr.ifthen(((length_of_sub_time_step < pcr.scalar(vos.secondsPerDay())) and \
-                                               #~ (self.water_height > self.critical_water_height) and \
-                                               #~ (self.lddMap != 5)), \
-                                                #~ length_of_sub_time_step),self.landmask),\
-                                             #~ vos.secondsPerDay()/23)   
-        #~ number_of_sub_time_steps = 24
-        #~ number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
-        #~ number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
-        #~ #
-        #~ number_of_loops = max(1, int(pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps))[0]))     # minimum number of sub_time_step = 1 
-        #~ number_of_loops = max(24, number_of_loops)                                                    # minimum length of sub_time_step = 1 hour
-                                                     
-        number_of_loops = 24
+        critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
+                             (self.water_height > self.critical_water_height) & \
+                             (self.lddMap != 5)
+        #
+        number_of_sub_time_steps = vos.secondsPerDay() /\
+                                   pcr.cover(
+                                   pcr.areaminimum(\
+                                   pcr.ifthen(critical_condition, \
+                                              length_of_sub_time_step),self.landmask),\
+                                             vos.secondsPerDay()/self.limit_num_of_sub_time_steps)   
+        number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
+        number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
+        #
+        number_of_loops = max(1, int(pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps))[0]))     # minimum number of sub_time_step = 1 
+        number_of_loops = max(self.limit_num_of_sub_time_steps, number_of_loops)
         
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops                               
