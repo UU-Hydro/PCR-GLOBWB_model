@@ -390,6 +390,7 @@ class Routing(object):
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
                              (self.lddMap != 5)
+        pcr.report(critical_condition,"test.map"); os.system("aguila test.map")                     
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
