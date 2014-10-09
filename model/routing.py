@@ -564,7 +564,7 @@ class Routing(object):
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 
 
-    def calculate_exchange_to_groundwater(self,groundwater):
+    def calculate_exchange_to_groundwater(self,groundwater,currTimeStep):
 
         if self.debugWaterBalance == str('True'):\
            preStorage = self.channelStorage                            # unit: m3
@@ -717,7 +717,7 @@ class Routing(object):
         # - exchange between surface water and groundwater 
         # - in the future, this will be the interface between PCR-GLOBWB and MODFLOW
         #
-        self.calculate_exchange_to_groundwater(groundwater) 
+        self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
 
         ##########################################################################################################################
