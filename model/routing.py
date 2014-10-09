@@ -734,7 +734,7 @@ class Routing(object):
          pcr.ifthen(self.landmask,self.WaterBodies.waterBodyIds))
         waterBodyStoragePerCell = \
          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
-         waterBodyStoragePerCell)                         # unit: m3
+         waterBodyStoragePerCell)                                                      # unit: m3
         #
         self.channelStorage = pcr.cover(waterBodyStoragePerCell, self.channelStorage)  # unit: m3
         self.channelStorage = pcr.ifthen(self.landmask, self.channelStorage)
