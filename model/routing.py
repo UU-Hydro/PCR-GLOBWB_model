@@ -167,7 +167,7 @@ class Routing(object):
                                            vos.secondsPerDay() / minimum_length_of_sub_time_step))
         self.limit_num_of_sub_time_steps = maximum_number_of_sub_time_steps
         #
-        if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = 25                                                                     
+        if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = 24                                                                     
         
         # critical water height used to select stable length of sub time step in kinematic wave methods/approaches
         self.critical_water_height = 0.25;					
