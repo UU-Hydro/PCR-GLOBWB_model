@@ -192,7 +192,7 @@ class Configuration(object):
             self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
         #
         if 'waterBodyStorageIni' in self.routingOptions.keys():
-            logger.info("Note that waterBodyStorageIni is not used and not needed (since version 2.0.2). This can be calculated directly from channelStorageIni.")
+            logger.info("Note that waterBodyStorageIni is not used and not needed. This can be calculated directly from channelStorageIni.")
         #
         if 'avgChannelDischargeIni' in self.routingOptions.keys():
             self.routingOptions['avgDischargeLongIni'] = self.routingOptions['avgChannelDischargeIni']
@@ -214,8 +214,7 @@ class Configuration(object):
             self.routingOptions['avgDischargeShortIni'] = self.routingOptions['avgDischargeLongIni']
         #
         if 'avgSurfaceWaterInputLongIni' not in self.routingOptions.keys():
-            logger.info('The initial condition "avgSurfaceWaterInputLongIni" is not defined. "avgBaseflowLongIni" is used in this run.')
-            self.routingOptions['avgSurfaceWaterInputLongIni'] = self.routingOptions['avgBaseflowLongIni']
+            logger.info("Note that avgSurfaceWaterInputLongIni is not used and not needed.")
             
         if 'subDischargeIni' not in self.routingOptions.keys():
             msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run.'
