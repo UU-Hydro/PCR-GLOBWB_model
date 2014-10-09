@@ -388,7 +388,7 @@ class Routing(object):
 
         
         test = pcr.ifthen( (length_of_sub_time_step < vos.secondsPerDay()) pcr.and \
-                                              (self.water_height > self.critical_water_height), test)
+                                              (self.water_height > self.critical_water_height), length_of_sub_time_step)
         
         # determine the number of sub time steps
         
