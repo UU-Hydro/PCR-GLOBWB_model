@@ -400,8 +400,8 @@ class Routing(object):
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundoff(number_of_sub_time_steps)
         #
-        number_of_loops = max(1, int(pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps),1)[1]))     # minimum number of sub_time_step = 1 
-        number_of_loops = max(self.limit_num_of_sub_time_steps, number_of_loops)
+        number_of_loops = max(1, pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_step = 1 
+        number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops                               
