@@ -730,6 +730,20 @@ class Routing(object):
         ##########################################################################################################################
 
 
+        # channel discharge (m3/s): for current time step
+        #
+        self.discharge = self.Q / vos.secondsPerDay()
+        self.discharge = pcr.max(0., self.discharge)                   # reported channel discharge cannot be negative
+        self.discharge = pcr.ifthen(self.landmask, self.discharge)
+        #
+        self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
+                                pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
+        self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
+        self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
+        #
+        self.disChanWaterBody = pcr.max(0.,self.disChanWaterBody)      # reported channel discharge cannot be negative
+
+
     def kinematicWave(self): 
 
         # add more evaporation (limited by remaining potential evaporation)
