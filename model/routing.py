@@ -383,13 +383,13 @@ class Routing(object):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
         #
-        discharge_estimate = pcr.max(0.0, pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge))
-        length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
+        length_of_sub_time_step = pcr.ifthenelse(self.subDischarge > 0.0, 
+                                  self.water_height * self.dynamicFracWat * self.cellArea / self.subDischarge, vos.secondsPerDay())
 
         # determine the number of sub time steps
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
-                             (self.lddMap != 5)
+                             (self.lddMap != pcr.ldd(5))
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
