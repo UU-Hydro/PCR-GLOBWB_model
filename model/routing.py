@@ -425,10 +425,10 @@ class Routing(object):
         waterBodyOutflow = pcr.ifthen(\
                            pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                            waterBodyOutflow)                                 # unit: m3/day
-        waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)
+        self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)
 
         # update channelStorage (m3) after waterBodyOutflow (m3)
-        self.channelStorage += waterBodyOutflow
+        self.channelStorage += self.waterBodyOutflow
         # Note that local_input_to_surface_water does not include waterBodyOutflow
         
         # obtain new water body storages (for reporting only)
@@ -438,7 +438,7 @@ class Routing(object):
                     self.WaterBodies.waterBodyStorage))     # m3
 
         if self.debugWaterBalance == 'True':\
-           vos.waterBalanceCheck([waterBodyOutflow/self.cellArea],\
+           vos.waterBalanceCheck([self.waterBodyOutflow/self.cellArea],\
                                  [storageAtLakeAndReservoirs/self.cellArea],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
