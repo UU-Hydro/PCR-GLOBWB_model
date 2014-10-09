@@ -386,7 +386,12 @@ class Routing(object):
         discharge_estimate = pcr.max(0.0, pcr.min(self.subDischarge, self.avgDischargeShort, self.avgDischarge))
         length_of_sub_time_step = pcr.ifthenelse(discharge_estimate > 0.0, channelStorageForRouting / discharge_estimate, vos.secondsPerDay())
 
+        
+        test = pcr.ifthen( (length_of_sub_time_step < vos.secondsPerDay()) and \
+                                              (self.water_height > self.critical_water_height), test)
+        
         # determine the number of sub time steps
+        
         
         
         #~ number_of_sub_time_steps = vos.secondsPerDay() /\
