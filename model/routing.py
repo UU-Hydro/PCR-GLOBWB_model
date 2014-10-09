@@ -462,7 +462,7 @@ class Routing(object):
         
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForAccuTravelTime = pcr.max(0.0, self.channelStorage)
-        channelStorageForAccuTravelTime = pcr.cover(channelStorageForAccuTravelTime,0.0)              # TODO: check why do we have to use the "cover" operation. 
+        #~ channelStorageForAccuTravelTime = pcr.cover(channelStorageForAccuTravelTime,0.0)       # TODO: check why do we have to use the "cover" operation. 
         
         # self.Q = channel discharge (m3/day)
         self.Q = pcr.accutraveltimeflux(self.lddMap,\
@@ -474,14 +474,14 @@ class Routing(object):
         #      http://karssenberg.geo.uu.nl/tt/TravelTimeSpecification.htm
         #
         # and make sure that no negative discharge
-        self.Q = pcr.max(0.0, self.Q)                                    # unit: m3/day        
+        self.Q = pcr.max(0.0, self.Q)                                                          # unit: m3/day        
 
         # updating channelStorage (after routing)
         #
         #~ self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               #~ channelStorageForAccuTravelTime,\
-                              #~ self.characteristicDistance)               # unit: m3
-        #~ #
+                              #~ self.characteristicDistance)                                  # unit: m3
+        #
         # alternative for updating channelStorage (after routing): using the calculated self.Q - NOT TESTED YET (this may be faster)
         #
         storage_change_in_volume  = pcr.upstream(self.lddMap, self.Q * 1.0) - self.Q * 1.0     # unit: m3
