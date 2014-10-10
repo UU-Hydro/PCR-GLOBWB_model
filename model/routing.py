@@ -600,9 +600,7 @@ class Routing(object):
                                     landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
                                     landSurface.allocSurfaceWaterAbstract)
         maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)
-        maximum_reduction = pcr.min(1.000, maximum_reduction)
-
-        maximum_reduction = pcr.rounddown(maximum_reduction/1000.)*1000.                            
+        maximum_reduction = pcr.rounddown(maximum_reduction/1.)*1.                            
 
         if landSurface.usingAllocSegments == False:
         
@@ -636,7 +634,7 @@ class Routing(object):
             
             # total available water volume in each cell - ignore small values (less than 1 m3)
             cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
-            cellAvlWater = pcr.rounddown( cellAvlWater/100000.)*100000.
+            cellAvlWater = pcr.rounddown( cellAvlWater/.)*1.
             
             # total available surface water volume in each segment/zone  (unit: m3)
             segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
@@ -978,9 +976,8 @@ class Routing(object):
         self.readAvlChannelStorage = safety_factor * pcr.max(0.0, self.readAvlChannelStorage)                                                             
 
         # ignore small values - less than 1 m3
-        self.readAvlChannelStorage = pcr.rounddown(self.readAvlChannelStorage*10.)/10.
+        self.readAvlChannelStorage = pcr.rounddown(self.readAvlChannelStorage*1.)/1.
         self.readAvlChannelStorage = pcr.ifthen(self.landmask, self.readAvlChannelStorage)
-
 
     def initiate_old_style_routing_reporting(self,iniItems):
 
