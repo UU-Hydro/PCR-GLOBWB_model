@@ -974,7 +974,7 @@ class Routing(object):
         self.readAvlChannelStorage = safety_factor * pcr.max(0.0, self.readAvlChannelStorage)                                                             
 
         # ignore small values - less than 1 m3
-        self.readAvlChannelStorage = pcr.rounddown(self.readAvlChannelStorage)
+        self.readAvlChannelStorage = pcr.rounddown(self.readAvlChannelStorage*10.)/10.
         self.readAvlChannelStorage = pcr.ifthen(self.landmask, self.readAvlChannelStorage)
 
 
