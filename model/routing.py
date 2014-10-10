@@ -661,14 +661,12 @@ class Routing(object):
             extraVolAllocSurfaceWaterAbstract  = vos.getValDivZero(\
                                                  cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
                                                  segActWaterAbs                                           # unit: m3 
-            landSurface.volAllocSurfaceWaterAbstract += extraVolAllocSurfaceWaterAbstract                 # unit: m3
             
             # reduction for unmetDemand (unit: m)
             reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
             
             # allocation extra surface water abstraction in meter (unit: m)
-            self.allocSurfaceWaterAbstract    += pcr.ifthen(self.landmask, extraVolAllocSurfaceWaterAbstract)/\
-                                                                           self.cellArea                  # unit: m
+            self.allocSurfaceWaterAbstract    += pcr.ifthen(self.landmask, reduction_for_unmetDemand)     # unit: m
 
             if self.debugWaterBalance == str('True'):
     

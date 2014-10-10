@@ -877,12 +877,12 @@ class LandCover(object):
                                                                      routing.cellArea                        # unit: m
             
             # allocation surface water abstraction volume to each cell (unit: m3)
-            self.volAllocSurfaceWaterAbstract = vos.getValDivZero(\
+            volAllocSurfaceWaterAbstract = vos.getValDivZero(\
                                                 cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
                                                 segActSurWaterAbs                                            # unit: m3 
             
             # allocation surface water abstraction in meter (unit: m)
-            self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.volAllocSurfaceWaterAbstract) /\
+            self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, volAllocSurfaceWaterAbstract) /\
                                                                        routing.cellArea                      # unit: m
 
             if self.debugWaterBalance == str('True'):
