@@ -684,20 +684,9 @@ class Routing(object):
                                        True,\
                                        "",threshold=5e-4)
 
-                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract  *self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract*self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
-            
-                vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
-                                      [pcr.ifthen(self.landmask, allocation)],\
-                                      [pcr.scalar(0.0)],\
-                                      [pcr.scalar(0.0)],\
-                                      'surface water abstraction (after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
-                                       True,\
-                                       "",threshold=5e-4)
-
         # reducing unmetDemand (m)
         groundwater.unmetDemand -= reduction_for_unmetDemand                                       # must be positive
-
+        groundwater.unmetDemand  = pcr.max(0.0, groundwater.unmetDemand)
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
