@@ -607,7 +607,7 @@ class Routing(object):
             logger.info("WARNING! Abstraction is only to satisfy local demand. No network.")
             
             # reducing unmetDemand
-            reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea
+            reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea, \
                                                 maximum_reduction)                           # unit: m
             groundwater.unmetDemand  -= pcr.max(0.0, -\
                                                 groundwater.unmetDemand - reduction_for_unmetDemand)
