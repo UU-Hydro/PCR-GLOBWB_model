@@ -626,23 +626,24 @@ class Routing(object):
             logger.info("Using allocation to reduce unmetDemand.")
 
             # gross/potential demand volume in each cell (unit: m3)
-            cellVolGrossDemand = maximum_reduction*self.cellArea
+            cellVolGrossDemand = pcr.rounddown(
+                                 maximum_reduction*self.cellArea)
             
             # demand in each segment/zone (unit: m3)
             segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
             
             # total available water volume in each cell - ignore small values (less than 1 m3)
             cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
-            cellAvlWater = pcr.rounddown( cellAvlWater/1.)*1.
+            cellAvlWater = pcr.rounddown( cellAvlWater)
             
             # total available surface water volume in each segment/zone  (unit: m3)
             segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
             segAvlWater  = pcr.max(0.00,  segAvlWater)
             
             # total actual extra surface water abstraction volume in each segment/zone (unit: m3)
+            #
             # - not limited to available water - ignore small values (less than 1 m3)
-            segActWaterAbs = pcr.max(0.0,\
-                             pcr.rounddown(segTtlGrossDemand))
+            segActWaterAbs = segTtlGrossDemand
             # 
             # - limited to available water
             segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
@@ -664,6 +665,7 @@ class Routing(object):
             
             # reduction for unmetDemand (unit: m)
             reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
+            reduction_for_unmetDemand = pcr.min(maximum_reduction, reduction_for_unmetDemand)
             
             # allocation extra surface water abstraction in meter (unit: m)
             landSurface.allocSurfaceWaterAbstract += \
