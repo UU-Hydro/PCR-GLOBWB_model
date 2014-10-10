@@ -666,7 +666,8 @@ class Routing(object):
             reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
             
             # allocation extra surface water abstraction in meter (unit: m)
-            self.allocSurfaceWaterAbstract    += pcr.ifthen(self.landmask, reduction_for_unmetDemand)     # unit: m
+            landSurface.allocSurfaceWaterAbstract += \
+                                                 pcr.ifthen(self.landmask, reduction_for_unmetDemand)     # unit: m
 
             if self.debugWaterBalance == str('True'):
     
