@@ -671,8 +671,8 @@ class Routing(object):
 
             if self.debugWaterBalance == str('True'):
     
-                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                    , landSurface.allocSegments)/self.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                    , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
                 vos.waterBalanceCheck([abstraction],\
                                       [allocation],\
@@ -682,8 +682,8 @@ class Routing(object):
                                        True,\
                                        "",threshold=5e-4)
 
-                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract  *self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract*self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract  *self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract*self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
                 vos.waterBalanceCheck([abstraction],\
                                       [allocation],\
