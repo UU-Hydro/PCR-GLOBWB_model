@@ -626,7 +626,7 @@ class Routing(object):
             logger.info("Using allocation to reduce unmetDemand.")
 
             # gross/potential demand volume in each cell (unit: m3)
-            cellVolGrossDemand = maximum_reduction*routing.cellArea
+            cellVolGrossDemand = maximum_reduction*self.cellArea
             
             # demand in each segment/zone (unit: m3)
             segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, self.allocSegments)
@@ -655,7 +655,7 @@ class Routing(object):
             
             # correcting surface water abstraction 
             landSurface.actSurfaceWaterAbstract += pcr.ifthen(self.landmask, volActWaterAbstract) /\
-                                                                             routing.cellArea                # unit: m
+                                                                             self.cellArea                # unit: m
 
             # allocation extra surface water abstraction volume to each cell (unit: m3)
             extraVolAllocSurfaceWaterAbstract  = vos.getValDivZero(\
@@ -664,16 +664,16 @@ class Routing(object):
             self.volAllocSurfaceWaterAbstract += extraVolAllocSurfaceWaterAbstract                           # unit: m3
             
             # reduction for unmetDemand (unit: m)
-            reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / routing.cellArea                 # unit: m
+            reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
             
             # allocation extra surface water abstraction in meter (unit: m)
             self.allocSurfaceWaterAbstract    += pcr.ifthen(self.landmask, extraVolAllocSurfaceWaterAbstract)/\
-                                                                           routing.cellArea                  # unit: m
+                                                                           self.cellArea                  # unit: m
 
             if self.debugWaterBalance == str('True'):
     
                 abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                       , landSurface.allocSegments)/self.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
             
                 vos.waterBalanceCheck([abstraction],\
                                       [allocation],\
@@ -683,8 +683,8 @@ class Routing(object):
                                        True,\
                                        "",threshold=5e-4)
 
-                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract*routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(self.allocSurfaceWaterAbstract     *routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract*self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(self.allocSurfaceWaterAbstract     *self.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
             
                 vos.waterBalanceCheck([abstraction],\
                                       [allocation],\
