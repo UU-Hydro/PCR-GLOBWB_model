@@ -675,8 +675,8 @@ class Routing(object):
                 abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract              , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
                 allocation  = pcr.cover(pcr.areatotal(extraVolAllocSurfaceWaterAbstract, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
-                vos.waterBalanceCheck([abstraction],\
-                                      [allocation],\
+                vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
+                                      [pcr.ifthen(allocation)],\
                                       [pcr.scalar(0.0)],\
                                       [pcr.scalar(0.0)],\
                                       'extra surface water abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
@@ -686,8 +686,8 @@ class Routing(object):
                 abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract  *self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
                 allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract*self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
-                vos.waterBalanceCheck([abstraction],\
-                                      [allocation],\
+                vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
+                                      [pcr.ifthen(allocation)],\
                                       [pcr.scalar(0.0)],\
                                       [pcr.scalar(0.0)],\
                                       'surface water abstraction (after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
