@@ -588,7 +588,7 @@ class Routing(object):
                                   currTimeStep.fulldate,threshold=1e-4)
 
 
-    def reduce_unmet_demand(self,landSurface,groundwater,currTimeStep,meteo):
+    def reduce_unmet_demand(self,landSurface,groundwater,currTimeStep):
 
         logger.info("Reducing unmetDemand by allowing extra surface water abstraction.")
 
