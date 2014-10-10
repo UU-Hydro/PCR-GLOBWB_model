@@ -636,13 +636,13 @@ class Routing(object):
             cellAvlWater = pcr.rounddown( cellAvlWater/1.)*1.
             
             # total available surface water volume in each segment/zone  (unit: m3)
-            segAvlWater  = pcr.areatotal(cellAvlWater, groundwater.allocSegments)
+            segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
             segAvlWater  = pcr.max(0.00,  segAvlWater)
             
             # total actual extra surface water abstraction volume in each segment/zone (unit: m3)
             # - not limited to available water - ignore small values (less than 1 m3)
             segActWaterAbs = pcr.max(0.0,\
-                                   pcr.rounddown(segTtlGrossDemand))
+                             pcr.rounddown(segTtlGrossDemand))
             # 
             # - limited to available water
             segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
@@ -651,7 +651,7 @@ class Routing(object):
             volActWaterAbstract = vos.getValDivZero(\
                                   cellAvlWater, segAvlWater, vos.smallNumber) * \
                                   segActWaterAbs                                                 
-            volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)           # unit: m3
+            volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)                               # unit: m3
             
             # correcting surface water abstraction 
             landSurface.actSurfaceWaterAbstract += pcr.ifthen(self.landmask, volActWaterAbstract) /\
@@ -671,8 +671,8 @@ class Routing(object):
 
             if self.debugWaterBalance == str('True'):
     
-                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                    , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract              , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(extraVolAllocSurfaceWaterAbstract, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
                 vos.waterBalanceCheck([abstraction],\
                                       [allocation],\
