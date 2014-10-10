@@ -46,7 +46,7 @@ class WaterBodies(object):
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
                                cellLengthFD,cellSizeInArcDeg,\
-                               channelStorage,avgInflow,avgOutflow):
+                               channelStorage=None,avgInflow=None,avgOutflow=None):
 
         # parameters for Water Bodies: fracWat 
         #                              waterBodyIds
@@ -225,15 +225,16 @@ class WaterBodies(object):
 
 
         # For each new reservoir (introduced at the beginning of the year)
-        # initiating storage, average inflow and outflow ; 
-        # - at the beginning of simulation period (timeStepPCR = 1)
-        # - set values to zero 
-        if currTimeStep.timeStepPCR == 1:
-            self.getICs(channelStorage,avgInflow,avgOutflow)
-        else:
+        # initiating storage, average inflow and outflow
+        #
+        if currTimeStep.timeStepPCR > 1:
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
             self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
             self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+        else:
+            # at the beginning of simulation period (timeStepPCR = 1)
+            # - we have to define the initial conditions 
+            self.getICs(channelStorage,avgInflow,avgOutflow)
 
         # cropping only in the landmask (ldd) region:
         self.fracWat           = pcr.ifthen(defined(ldd), self.fracWat         )
