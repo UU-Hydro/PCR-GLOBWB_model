@@ -629,7 +629,7 @@ class Routing(object):
             cellVolGrossDemand = maximum_reduction*self.cellArea
             
             # demand in each segment/zone (unit: m3)
-            segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, self.allocSegments)
+            segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
             
             # total available water volume in each cell - ignore small values (less than 1 m3)
             cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
