@@ -454,6 +454,17 @@ class Routing(object):
 
         logger.info("routing in progress")
 
+        # waterBodies: 
+        # - get parameters at the beginning of each year or simulation
+        #   also get initial condition (at the beginning of simulation)
+        if (currTimeStep.doy == 1) or (currTimeStep.timeStepPCR == 1):
+            self.WaterBodies.getParameterFiles(currTimeStep,\
+                                               self.cellArea,\
+                                               self.lddMap,\
+                                               self.cellLengthFD,\
+                                               self.cellSizeInArcDeg,\
+                                               self.channelStorage,self.avgInflow,self.avgOutflow) # the last line is for the initial conditions of lakes/reservoirs
+
         # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
 
@@ -680,17 +691,6 @@ class Routing(object):
 
         if self.debugWaterBalance == str('True'):\
            preStorage = self.channelStorage                                                        # unit: m3
-
-        # waterBodies: 
-        # - get parameters at the beginning of each year or simulation
-        #   also get initial condition (at the beginning of simulation)
-        if (currTimeStep.doy == 1) or (currTimeStep.timeStepPCR == 1):
-            self.WaterBodies.getParameterFiles(currTimeStep,\
-                                               self.cellArea,\
-                                               self.lddMap,\
-                                               self.cellLengthFD,\
-                                               self.cellSizeInArcDeg,\
-                                               self.channelStorage,self.avgInflow,self.avgOutflow) # the last line is for the initial conditions of lakes/reservoirs
 
         # the following variable define total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
