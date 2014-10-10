@@ -475,15 +475,13 @@ class Routing(object):
         #
         if self.method == "kinematicWave": self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo) # this methods are only valid if limitAbstraction = False
 
-        # calculate long and short term statistics values
-        self.calculate_statistics(groundwater)
-        
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
-        # - exchange between surface water and groundwater 
-        # - in the future, this will be the interface between PCR-GLOBWB and MODFLOW
+        # - this exchange fluxes will be handed in the next time step
+        # - in the future, this will be the interface between PCR-GLOBWB & MODFLOW (based on the difference between surface water levels & groundwater heads)
+        #
         self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
-        # calculate (estimate) volume of water that can be extracted for abstraction in the next time step
+        # estimate volume of water that can be extracted for abstraction in the next time step
         self.estimate_available_volume_for_abstraction()
         
         # old-style reporting                             
@@ -588,6 +586,117 @@ class Routing(object):
                                    'channelStorage after surface water infiltration',\
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-4)
+
+
+    def reduce_unmet_demand(self,landSurface,groundwater,currTimeStep,meteo):
+
+        logger.info("Reducing unmetDemand by allowing extra surface water abstraction.")
+
+        # estimate channel storage that can be extracted (unit: m3) - this will return self.readAvlChannelStorage)
+        self.estimate_available_volume_for_abstraction()
+        
+        # demand: maximum reduction (m) 
+        maximum_reduction = pcr.max(0.0,\
+                            pcr.min(groundwater.unmetDemand,\
+                                    landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
+                                    landSurface.allocSurfaceWaterAbstract))
+                                      
+
+        if groundwater.usingAllocSegments == False:
+        
+            logger.info("WARNING! Abstraction is only to satisfy local demand. No network.")
+            
+            # reducing unmetDemand
+            reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea
+                                                maximum_reduction)                           # unit: m
+            groundwater.unmetDemand  -= pcr.max(0.0, -\
+                                                groundwater.unmetDemand - reduction_for_unmetDemand)
+            
+            # correcting surface water abstraction 
+            landSurface.actSurfaceWaterAbstract  += reduction_for_unmetDemand                # unit: m
+            
+            # correcting surface water allocation
+            landSurface.allocSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract      # unit: m
+        
+        if groundwater.usingAllocSegments == True and self.limitAbstraction == False:
+        
+            # TODO: Assuming that there is also network for distributing groundwater abstractions.
+            # Notes: Incorporating distribution network of groundwater source is possible only if limitAbstraction = False.  
+
+            logger.info("Using allocation to reduce unmetDemand.")
+
+            # gross/potential demand volume in each cell (unit: m3)
+            cellVolGrossDemand = maximum_reduction*routing.cellArea
+            
+            # demand in each segment/zone (unit: m3)
+            segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, self.allocSegments)
+            
+            # total available water volume in each cell - ignore small values (less than 1 m3)
+            cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
+            cellAvlWater = pcr.rounddown( cellAvlWater/1.)*1.
+            
+            # total available surface water volume in each segment/zone  (unit: m3)
+            segAvlWater  = pcr.areatotal(cellAvlWater, groundwater.allocSegments)
+            segAvlWater  = pcr.max(0.00,  segAvlWater)
+            
+            # total actual extra surface water abstraction volume in each segment/zone (unit: m3)
+            # - not limited to available water - ignore small values (less than 1 m3)
+            segActWaterAbs = pcr.max(0.0,\
+                                   pcr.rounddown(segTtlGrossDemand))
+            # 
+            # - limited to available water
+            segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
+            
+            # actual extra water abstraction volume in each cell (unit: m3)
+            volActWaterAbstract = vos.getValDivZero(\
+                                  cellAvlWater, segAvlWater, vos.smallNumber) * \
+                                  segActWaterAbs                                                 
+            volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)           # unit: m3
+            
+            # correcting surface water abstraction 
+            landSurface.actSurfaceWaterAbstract += pcr.ifthen(self.landmask, volActWaterAbstract) /\
+                                                                             routing.cellArea                # unit: m
+
+            # allocation extra surface water abstraction volume to each cell (unit: m3)
+            extraVolAllocSurfaceWaterAbstract  = vos.getValDivZero(\
+                                                 cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
+                                                 segActWaterAbs                                              # unit: m3 
+            self.volAllocSurfaceWaterAbstract += extraVolAllocSurfaceWaterAbstract                           # unit: m3
+            
+            # reduction for unmetDemand (unit: m)
+            reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / routing.cellArea                 # unit: m
+            
+            # allocation extra surface water abstraction in meter (unit: m)
+            self.allocSurfaceWaterAbstract    += pcr.ifthen(self.landmask, extraVolAllocSurfaceWaterAbstract)/\
+                                                                           routing.cellArea                  # unit: m
+
+            if self.debugWaterBalance == str('True'):
+    
+                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                       , landSurface.allocSegments)/self.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(reduction_for_unmetDemand*routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+            
+                vos.waterBalanceCheck([abstraction],\
+                                      [allocation],\
+                                      [pcr.scalar(0.0)],\
+                                      [pcr.scalar(0.0)],\
+                                      'surface water abstraction(after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                       True,\
+                                       "",threshold=5e-4)
+
+                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract*routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(self.allocSurfaceWaterAbstract     *routing.cellArea, landSurface.allocSegments)/self.segmentArea, 0.0)
+            
+                vos.waterBalanceCheck([abstraction],\
+                                      [allocation],\
+                                      [pcr.scalar(0.0)],\
+                                      [pcr.scalar(0.0)],\
+                                      'surface water abstraction(after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                       True,\
+                                       "",threshold=5e-4)
+
+        # reducing unmetDemand (m)
+        self.unmetDemand -= reduction_for_unmetDemand                   # must be positive
+
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -742,11 +851,15 @@ class Routing(object):
         #
         ##########################################################################################################################
 
+        # calculate the statistics of long and short term flow values
+        self.calculate_statistics(groundwater)
+        
         # add extra evaporation
         self.calculate_extra_evaporation()
         
-        # try to reduce unmetDemand 
-        
+        # reduce fossil groundwater storage abstraction (unmetDemand)
+        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
+
         # return waterBodyStorage to channelStorage  
         #
         waterBodyStorageTotal = \
@@ -844,12 +957,13 @@ class Routing(object):
                            pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)                
         self.avgBaseflow = pcr.max(0.0, self.avgBaseflow)
 
-    def estimate_available_volume_for_abstraction(self):
-
-        # calculate minimum discharge for environmental flow
+        # calculate minimum discharge for environmental flow (m3/s)
+        #
         minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
         factor = 0.01 # to avoid flip flop
-        minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+        self.minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+
+    def estimate_available_volume_for_abstraction(self):
 
         # available channelStorage that can be extracted for surface water abstraction
         self.readAvlChannelStorage = pcr.max(0.0,self.channelStorage)                                                             
