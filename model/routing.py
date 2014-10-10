@@ -402,10 +402,6 @@ class Routing(object):
             msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
             logger.info(msg)
             
-            # TODO: add more evaporation
-            #       add more surface water abstraction
-            #       update channelStorageForRouting after this extra evaporation and abstraction
-            
             # calculate alpha (dimensionless), which is the roughness coefficient 
             # - for kinewatic wave (see: http://pcraster.geo.uu.nl/pcraster/4.0.0/doc/manual/op_kinematic.html)
             # - based on wetted area (m2) and wetted perimeter (m), as well as self.beta (dimensionless)
@@ -456,7 +452,11 @@ class Routing(object):
 
         # waterBodies: 
         # - get parameters at the beginning of each year or simulation
-        #   also get initial condition (at the beginning of simulation)
+        # - note that the following function should be called first, specifically because  
+        #   we have to define initial conditions at the beginning of simulaution, 
+        #
+        # TODO: for initial conditions, we have ti re-define waterBodyStorageIni as area operations are sensitive to numerical errors 
+        #
         if (currTimeStep.doy == 1) or (currTimeStep.timeStepPCR == 1):
             self.WaterBodies.getParameterFiles(currTimeStep,\
                                                self.cellArea,\
@@ -465,25 +465,31 @@ class Routing(object):
                                                self.cellSizeInArcDeg,\
                                                self.channelStorage,self.avgInflow,self.avgOutflow) # the last line is for the initial conditions of lakes/reservoirs
 
+        
         # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
 
+        
         # routing methods
         if self.method == "accuTravelTime" or "simplifiedKinematicWave": self.simple_update(landSurface,groundwater,currTimeStep,meteo)
         #
         if self.method == "kinematicWave": self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo) # this methods are only valid if limitAbstraction = False
 
+       
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
         # - this exchange fluxes will be handed in the next time step
         # - in the future, this will be the interface between PCR-GLOBWB & MODFLOW (based on the difference between surface water levels & groundwater heads)
         #
         self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
+        
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.estimate_available_volume_for_abstraction()
         
+        
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
+
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -861,15 +867,24 @@ class Routing(object):
         self.channelStorage = pcr.cover(waterBodyStoragePerCell, self.channelStorage)  # unit: m3
         self.channelStorage = pcr.ifthen(self.landmask, self.channelStorage)
 
-
-
     def kinematicWave(self): 
 
-        #~ #
-        #~ # TODO: Within the sub time steps, try to introduce:
-              #~ - extra evaporation  < limited by remaining potential evaporation
-              #~ - extra abstraction to reduce unmetDemand < limited by swAbstractionFraction x totalDemand
-              #~ - allocation while reducing unmetDemand  
+        # 1. Before entering sub-time steps, calculate positive fluxes:
+        #   - runoff
+        #   - return flow from non-irrigation water demand
+        #   - outflow from lakes/reservoirs  
+        #
+        # 2. Before entering sub-time steps, calculate negative fluxes:
+        #      - evaporation  with rate = potential evaporation / number_of_sub_time_steps
+        #      - abstraction with rate 
+        #
+        # 3. Within the sub-time steps, reduce negative fluxes if there is no enough water
+        # 4. Within the sub-time steps, track also gap in satisfying surface water abstraction
+        # 5. Within the sub-time steps, then calculate lake/reservoir outflow 
+        #
+        # 6. After looping, calculate extra evaporation
+        # 7. After looping, compensate gap in satisfying surface water abstraction by unmetDemand
+        # 8. After looping, reduce unmetDemand 
 
         # add more evaporation (limited by remaining potential evaporation)
         #
