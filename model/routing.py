@@ -695,7 +695,7 @@ class Routing(object):
                                        "",threshold=5e-4)
 
         # reducing unmetDemand (m)
-        self.unmetDemand -= reduction_for_unmetDemand                   # must be positive
+        groundwater.unmetDemand -= reduction_for_unmetDemand                                       # must be positive
 
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
