@@ -360,8 +360,10 @@ class Reporting(object):
 
         # Stefanie's post processing: reporting lake and reservoir storage (unit: m3)
         self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \
-                                self._model.routing.waterBodyStorage)
-        #                        
+                                pcr.ifthen(\
+                                pcr.scalar(self._model.routing.WaterBodies.waterBodyIds) > 0.,\
+                                           self._model.routing.WaterBodies.waterBodyStorage))     # Note: This value is after lake/reservoir outflow.
+        #
         # snowMelt (m/day)
         self.snowMelt = self._model.landSurface.snowMelt
 
