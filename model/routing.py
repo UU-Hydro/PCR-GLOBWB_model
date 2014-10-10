@@ -599,7 +599,7 @@ class Routing(object):
         maximum_reduction = pcr.max(0.0,\
                                     landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
                                     landSurface.allocSurfaceWaterAbstract)
-        maximum_reduction = pcr.min(maximum_recution, groundwater.unmetDemand)                            
+        maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)                            
 
         if landSurface.usingAllocSegments == False:
         
