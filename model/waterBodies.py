@@ -354,7 +354,8 @@ class WaterBodies(object):
         self.waterBodyOutflow = pcr.min(self.waterBodyStorage * factor,\
                                         self.waterBodyOutflow)                    # unit: m3/day
         # use round values 
-        self.waterBodyOutflow = pcr.rounddown(self.waterBodyOutflow)              # unit: m3/day
+        self.waterBodyOutflow = pcr.rounddown(self.waterBodyOutflow/10.)*10.      # unit: m3/day
+        #
         
         # outflow in m3 per sec
         waterBodyOutflowInM3PerSec = self.waterBodyOutflow / vos.secondsPerDay()  # unit: m3/s
