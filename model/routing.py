@@ -970,7 +970,7 @@ class Routing(object):
         
         # safety factor to reduce readAvlChannelStorage
         safety_factor = vos.getValDivZero(pcr.max(0.0, pcr.min(self.discharge, self.avgDischargeShort, self.avgDischarge)), \
-                                          minDischargeForEnvironmentalFlow, vos.smallNumber)
+                                          self.minDischargeForEnvironmentalFlow, vos.smallNumber)
         safety_factor = pcr.min(1.00, pcr.max(0.00, safety_factor))
         self.readAvlChannelStorage = safety_factor * pcr.max(0.0, self.readAvlChannelStorage)                                                             
 
