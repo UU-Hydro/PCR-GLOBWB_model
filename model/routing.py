@@ -600,7 +600,7 @@ class Routing(object):
                                     landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
                                     landSurface.allocSurfaceWaterAbstract)
         maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)
-        maximum_reduction = pcr.rounddown(maximum_reduction/1.)*1.                            
+        maximum_reduction = pcr.rounddown(maximum_reduction/1000.)*1000.                            
 
         if landSurface.usingAllocSegments == False:
         
@@ -667,7 +667,7 @@ class Routing(object):
             reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
             reduction_for_unmetDemand = pcr.min(maximum_reduction, reduction_for_unmetDemand)
             
-            # allocation extra surface water abstraction in meter (unit: m)
+            # correcting surface water allocation in meter (unit: m)
             landSurface.allocSurfaceWaterAbstract += \
                                                  pcr.ifthen(self.landmask, reduction_for_unmetDemand)     # unit: m
 
