@@ -348,11 +348,6 @@ class Routing(object):
         The 'simplifiedKinematicWave':
         1. First, assume that 'lateral_inflow' has been added to 'channelStorage'. This is done outside of this function/method.
         2. Then, the 'channelStorage' is routed by using 'pcr.kinematic function' with 'lateral_inflow' = 0.0.
-        #
-        # TODO: Within the sub time steps, try to introduce:
-              - extra evaporation  < limited by remaining potential evaporation
-              - extra abstraction to reduce unmetDemand < limited by swAbstractionFraction x totalDemand
-              - allocation while reducing unmetDemand  
         """
 
         ##########################################################################################################################
@@ -592,7 +587,7 @@ class Routing(object):
                                     landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
                                     landSurface.allocSurfaceWaterAbstract)
         maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)
-        maximum_reduction = pcr.rounddown(maximum_reduction/1000.)*1000.                            
+        maximum_reduction = pcr.rounddown(maximum_reduction/1.)*1.                            
 
         if landSurface.usingAllocSegments == False:
         
@@ -869,6 +864,12 @@ class Routing(object):
 
 
     def kinematicWave(self): 
+
+        #~ #
+        #~ # TODO: Within the sub time steps, try to introduce:
+              #~ - extra evaporation  < limited by remaining potential evaporation
+              #~ - extra abstraction to reduce unmetDemand < limited by swAbstractionFraction x totalDemand
+              #~ - allocation while reducing unmetDemand  
 
         # add more evaporation (limited by remaining potential evaporation)
         #
