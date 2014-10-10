@@ -602,7 +602,7 @@ class Routing(object):
                                     landSurface.allocSurfaceWaterAbstract))
                                       
 
-        if groundwater.usingAllocSegments == False:
+        if landSurface.usingAllocSegments == False:
         
             logger.info("WARNING! Abstraction is only to satisfy local demand. No network.")
             
@@ -618,7 +618,7 @@ class Routing(object):
             # correcting surface water allocation
             landSurface.allocSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract      # unit: m
         
-        if groundwater.usingAllocSegments == True and self.limitAbstraction == False:
+        if landSurface.usingAllocSegments == True and landSurface.limitAbstraction == False:
         
             # TODO: Assuming that there is also network for distributing groundwater abstractions.
             # Notes: Incorporating distribution network of groundwater source is possible only if limitAbstraction = False.  
