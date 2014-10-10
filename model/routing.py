@@ -579,7 +579,7 @@ class Routing(object):
         self.local_input_to_surface_water -= self.riverbedExchange
 
         if self.debugWaterBalance == 'True':\
-           vos.waterBalanceCheck([],\
+           vos.waterBalanceCheck([pcr.scalar(0.0)],\
                                  [self.riverbedExchange/self.cellArea],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
