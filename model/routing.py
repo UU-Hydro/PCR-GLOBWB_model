@@ -609,15 +609,11 @@ class Routing(object):
             # reducing unmetDemand
             reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea, \
                                                 maximum_reduction)                           # unit: m
-            groundwater.unmetDemand  -= pcr.max(0.0, -\
-                                                groundwater.unmetDemand - reduction_for_unmetDemand)
+
+            # actual extra surface water abstraction in meter 
+            extra_surface_water_abstraction = pcr.ifthen(self.landmask, reduction_for_unmetDemand)
+                                                
             
-            # correcting surface water abstraction 
-            landSurface.actSurfaceWaterAbstract  += reduction_for_unmetDemand                # unit: m
-            
-            # correcting surface water allocation
-            landSurface.allocSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract      # unit: m
-        
         if landSurface.usingAllocSegments == True and landSurface.limitAbstraction == False:
         
             # TODO: Assuming that there is also network for distributing groundwater abstractions.
@@ -648,29 +644,23 @@ class Routing(object):
             # - limited to available water
             segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
             
-            # actual extra water abstraction volume in each cell (unit: m3)
+            # actual extra surface water abstraction volume in each cell (unit: m3)
             volActWaterAbstract = vos.getValDivZero(\
                                   cellAvlWater, segAvlWater, vos.smallNumber) * \
                                   segActWaterAbs                                                 
             volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)                               # unit: m3
             
-            # correcting surface water abstraction 
-            landSurface.actSurfaceWaterAbstract += pcr.ifthen(self.landmask, volActWaterAbstract) /\
+            # actual extra surface water abstraction in meter 
+            extra_surface_water_abstraction      = pcr.ifthen(self.landmask, volActWaterAbstract) /\
                                                                              self.cellArea                # unit: m
 
             # allocation extra surface water abstraction volume to each cell (unit: m3)
             extraVolAllocSurfaceWaterAbstract  = vos.getValDivZero(\
                                                  cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
                                                  segActWaterAbs                                           # unit: m3 
-            
             # reduction for unmetDemand (unit: m)
             reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
-            reduction_for_unmetDemand = pcr.min(maximum_reduction, reduction_for_unmetDemand)
             
-            # correcting surface water allocation in meter (unit: m)
-            landSurface.allocSurfaceWaterAbstract += \
-                                                 pcr.ifthen(self.landmask, reduction_for_unmetDemand)     # unit: m
-
             if self.debugWaterBalance == str('True'):
     
                 abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract              , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
@@ -684,9 +674,20 @@ class Routing(object):
                                        True,\
                                        "",threshold=5e-4)
 
+        # correcting surface water abstraction 
+        landSurface.actSurfaceWaterAbstract   += extra_surface_water_abstraction                # unit: m
+            
+        # correcting surface water allocation
+        landSurface.allocSurfaceWaterAbstract += reduction_for_unmetDemand                      # unit: m
+
         # reducing unmetDemand (m)
-        groundwater.unmetDemand -= reduction_for_unmetDemand                                       # must be positive
-        groundwater.unmetDemand  = pcr.max(0.0, groundwater.unmetDemand)
+        groundwater.unmetDemand = pcr.max(0.0, groundwater.unmetDemand - \
+                                  reduction_for_unmetDemand)                                    # must be positive  
+
+        # update channelStorage (m3) after reduction_for_unmetDemand
+        self.channelStorage = self.channelStorage -\
+                              reduction_for_unmetDemand * self.cellArea
+        self.local_input_to_surface_water -= reduction_for_unmetDemand * self.cellArea
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
