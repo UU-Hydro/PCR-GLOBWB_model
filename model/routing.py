@@ -634,7 +634,7 @@ class Routing(object):
             
             # total available water volume in each cell - ignore small values (less than 1 m3)
             cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
-            cellAvlWater = pcr.rounddown( cellAvlWater/.)*1.
+            cellAvlWater = pcr.rounddown( cellAvlWater)
             
             # total available surface water volume in each segment/zone  (unit: m3)
             segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
