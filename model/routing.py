@@ -602,7 +602,7 @@ class Routing(object):
         maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)
         maximum_reduction = pcr.min(1.000, maximum_reduction)
 
-        maximum_reduction = pcr.rounddown(maximum_reduction*1000.)/1000.                            
+        maximum_reduction = pcr.rounddown(maximum_reduction*10.)/10.                            
 
         if landSurface.usingAllocSegments == False:
         
