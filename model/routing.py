@@ -597,10 +597,9 @@ class Routing(object):
         
         # demand: maximum reduction (m) 
         maximum_reduction = pcr.max(0.0,\
-                            pcr.min(groundwater.unmetDemand,\
                                     landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
-                                    landSurface.allocSurfaceWaterAbstract))
-                                      
+                                    landSurface.allocSurfaceWaterAbstract)
+        maximum_reduction = pcr.min(maximum_recution, groundwater.unmetDemand)                            
 
         if landSurface.usingAllocSegments == False:
         
@@ -680,7 +679,7 @@ class Routing(object):
                                       [allocation],\
                                       [pcr.scalar(0.0)],\
                                       [pcr.scalar(0.0)],\
-                                      'surface water abstraction(after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                      'extra surface water abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
                                        True,\
                                        "",threshold=5e-4)
 
@@ -691,7 +690,7 @@ class Routing(object):
                                       [allocation],\
                                       [pcr.scalar(0.0)],\
                                       [pcr.scalar(0.0)],\
-                                      'surface water abstraction(after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                      'surface water abstraction (after extra water) - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
                                        True,\
                                        "",threshold=5e-4)
 
