@@ -53,14 +53,6 @@ class Routing(object):
     def __init__(self,iniItems,initialConditions,lddMap):
         object.__init__(self)
 
-        # if the following is True, channel storage can be negative
-        self.allow_negative_channel_storage = False
-        try:
-            if iniItems.routingOptions['allow_negative_channel_storage'] == "True":\
-                   self.allow_negative_channel_storage = True
-        except:
-            self.allow_negative_channel_storage = False        
-
         self.lddMap = lddMap
 
         self.cloneMap = iniItems.cloneMap
