@@ -297,7 +297,7 @@ class WaterBodies(object):
 
         self.avgInflow        = pcr.cover(avgInflow , 0.0)              # unit: m3/s 
         self.avgOutflow       = pcr.cover(avgOutflow, 0.0)              # unit: m3/s
-        self.waterBodyStorage = pcr.cover(self.waterBodyStorage, 0.0)   # unit: m3
+        self.waterBodyStorage = pcr.cover(waterBodyStorage, 0.0)        # unit: m3
 
     def update(self,newStorageAtLakeAndReservoirs,\
                               timestepsToAvgDischarge,\
