@@ -30,7 +30,7 @@ class WaterBodies(object):
 
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = False
-        if iniItems.routingOptions['debugWaterBalance'] == "True":
+        if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
 
@@ -250,17 +250,18 @@ class WaterBodies(object):
         if abs(a) > threshold or abs(b) > threshold:
             logger.info("WARNING !!!!! Missing information in some lakes and/or reservoirs.")
 
+        # at the beginning of simulation period (timeStepPCR = 1)
+        # - we have to define/get the initial conditions 
+        if currTimeStep.timeStepPCR == 1:
+            self.getICs(initial_condition_dictionary)
+        
         # For each new reservoir (introduced at the beginning of the year)
         # initiating storage, average inflow and outflow
         #
-        if currTimeStep.timeStepPCR > 1:
-            self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
-            self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
-            self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+        self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
+        self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
+        self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
         else:
-            # at the beginning of simulation period (timeStepPCR = 1)
-            # - we have to define the initial conditions 
-            self.getICs(initial_condition_dictionary)
 
         # cropping only in the landmask (ldd) region:
         self.fracWat           = pcr.ifthen(defined(ldd), self.fracWat         )
