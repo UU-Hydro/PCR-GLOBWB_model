@@ -365,13 +365,14 @@ class WaterBodies(object):
                             maxTimestepsToAvgDischargeLong,\
                             avgChannelDischarge,\
                             length_of_time_step = vos.secondsPerDay(),\
-                            downstreamDemand = pcr.scalar(0.0)):
+                            downstreamDemand = None):
 
         # outflow in volume from water bodies with lake type (m3): 
         lakeOutflow = self.getLakeOutflow(avgChannelDischarge,length_of_time_step)  
         self.waterBodyOutflow = lakeOutflow
              
         # outflow in volume from water bodies with reservoir type (m3): 
+        if isinstance(downstreamDemand, types.NoneType): downstreamDemand = pcr.scalar(0.0)
         reservoirOutflow = self.getReservoirOutflow(avgChannelDischarge,length_of_time_step,downstreamDemand)  
         self.waterBodyOutflow = reservoirOutflow
 
@@ -462,7 +463,7 @@ class WaterBodies(object):
         return (lakeOutflow) 
 
     def getReservoirOutflow(self,\
-        currTimeStep,avgChannelDischarge,length_of_time_step = vos.secondsPerDay(),downstreamDemand = pcr.scalar(0.0)):
+        currTimeStep,avgChannelDischarge,length_of_time_step = vos.secondsPerDay(),downstreamDemand):
 
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
