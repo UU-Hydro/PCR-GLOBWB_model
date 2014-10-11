@@ -463,7 +463,7 @@ class WaterBodies(object):
         return (lakeOutflow) 
 
     def getReservoirOutflow(self,\
-        currTimeStep,avgChannelDischarge,length_of_time_step = vos.secondsPerDay(),downstreamDemand):
+        currTimeStep,avgChannelDischarge,length_of_time_step,downstreamDemand):
 
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
