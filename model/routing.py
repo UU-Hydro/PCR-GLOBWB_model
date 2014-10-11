@@ -240,7 +240,7 @@ class Routing(object):
             if not instance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):\
                 self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'],self.cloneMap,self.tmpDir,self.inputDir)
             else:
-                self..waterBodyStorage = None
+                self.waterBodyStorage = None
         else:
             # read initial conditions from the memory
             self.avgInflow        = iniConditions['routing']['avgLakeReservoirInflowShort']
