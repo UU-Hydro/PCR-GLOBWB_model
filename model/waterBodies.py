@@ -324,7 +324,6 @@ class WaterBodies(object):
         self.getWaterBodyOutflow(\
              maxTimestepsToAvgDischargeLong,\
              avgChannelDischarge,\
-             currTimeStep,\
              length_of_time_step,\
              downstreamDemand)
         
