@@ -364,7 +364,7 @@ class WaterBodies(object):
     def getWaterBodyOutflow(self,\
                             maxTimestepsToAvgDischargeLong,\
                             avgChannelDischarge,\
-                            length_of_time_step = vos.secondsPerDay()),\
+                            length_of_time_step = vos.secondsPerDay(),\
                             downstreamDemand = pcr.scalar(0.0)):
 
         # outflow in volume from water bodies with lake type (m3): 
