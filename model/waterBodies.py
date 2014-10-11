@@ -299,7 +299,7 @@ class WaterBodies(object):
                            currTimeStep,\
                            avgChannelDischarge,\
                            length_of_time_step = vos.secondsPerDay(),\
-                           downstreamDemand = pcr.scalar(0.0)):
+                           downstreamDemand = None):
 
         if self.debugWaterBalance == str('True'):\
            preStorage = self.waterBodyStorage    # unit: m
