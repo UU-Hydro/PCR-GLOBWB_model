@@ -252,6 +252,7 @@ class WaterBodies(object):
 
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
+        #
         if currTimeStep.timeStepPCR == 1:
             self.getICs(initial_condition_dictionary)
         
@@ -261,7 +262,6 @@ class WaterBodies(object):
         self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
         self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
         self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
-        else:
 
         # cropping only in the landmask (ldd) region:
         self.fracWat           = pcr.ifthen(defined(ldd), self.fracWat         )
