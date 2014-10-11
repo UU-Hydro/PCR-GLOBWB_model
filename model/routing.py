@@ -694,7 +694,8 @@ class Routing(object):
                               reduction_for_unmetDemand * self.cellArea
         self.local_input_to_surface_water -= reduction_for_unmetDemand * self.cellArea
 
-     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
+
+    def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
         # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
