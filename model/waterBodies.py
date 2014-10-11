@@ -23,7 +23,7 @@ class WaterBodies(object):
 
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = False
-        if iniItems.routingOptions['debugWaterBalance'] == "True"
+        if iniItems.routingOptions['debugWaterBalance'] == "True":
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
 
