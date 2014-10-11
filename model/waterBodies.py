@@ -478,7 +478,6 @@ class WaterBodies(object):
                      avgOutflow,
                      pcr.max(avgChannelDischarge,self.avgInflow,0.001))            # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
         avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
-        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
         # calculate resvOutflow (based on reservoir storage and avgDischarge): 
         # - unit: m3/day (Note that avgDischarge is given in m3/s) 
