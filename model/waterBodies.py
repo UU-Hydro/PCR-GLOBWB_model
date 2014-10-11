@@ -406,7 +406,7 @@ class WaterBodies(object):
         temp = pcr.max(1.0, pcr.min(maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge - 1.0 + length_of_time_step / vos.secondsPerDay()))
         deltaOutflow    = waterBodyOutflowInM3PerSec - self.avgOutflow
         R = deltaOutflow * ( length_of_time_step / vos.secondsPerDay() ) / temp
-        self.avgOutflow = self.avgInflow + R                
+        self.avgOutflow = self.avgOutflow + R                
         self.avgOutflow = pcr.max(0.0, self.avgOutflow)
         #
         # for the reference, see the "weighted incremental algorithm" in http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance                        
