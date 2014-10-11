@@ -66,7 +66,7 @@ class WaterBodies(object):
         # date used for accessing/extracting water body information
         date_used = currTimeStep.fulldate
         year_used = currTimeStep.year
-        if self.onlyNaturalWaterBodies  = True
+        if self.onlyNaturalWaterBodies == True
             date_used = self.dateForNaturalCondition
             year_used = self.dateForNaturalCondition[0:4] 
         
