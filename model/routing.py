@@ -237,10 +237,15 @@ class Routing(object):
             # read initial conditions from pcraster maps listed in the ini file (for the first time step of the model; when the model just starts)
             self.avgInflow  = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirInflowShortIni'],self.cloneMap,self.tmpDir,self.inputDir)
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
+            if not instance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):\
+                self..waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'],self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                self..waterBodyStorage = None
         else:
             # read initial conditions from the memory
-            self.avgInflow  = iniConditions['routing']['avgLakeReservoirInflowShort']
-            self.avgOutflow = iniConditions['routing']['avgLakeReservoirOutflowLong']
+            self.avgInflow        = iniConditions['routing']['avgLakeReservoirInflowShort']
+            self.avgOutflow       = iniConditions['routing']['avgLakeReservoirOutflowLong']
+            self.waterBodyStorage = iniConditions['routing']['waterBodyStorage']
 
 
     def getRoutingParamAvgDischarge(self, avgDischarge, dist2celllength):
