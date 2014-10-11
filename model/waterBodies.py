@@ -305,7 +305,8 @@ class WaterBodies(object):
     def moveFromChannelToWaterBody(self,\
                                    newStorageAtLakeAndReservoirs,\
                                    timestepsToAvgDischarge,\
-                                   maxTimestepsToAvgDischargeShort):
+                                   maxTimestepsToAvgDischargeShort,\
+                                   length_of_time_step = vos.secondsPerDay()):
         
         # new lake and/or reservoir storages (m3)
         newStorageAtLakeAndReservoirs = pcr.cover(\
@@ -316,14 +317,18 @@ class WaterBodies(object):
         self.inflow = newStorageAtLakeAndReservoirs - self.waterBodyStorage
         
         # inflowInM3PerSec (m3/s)
-        inflowInM3PerSec = self.inflow / (vos.secondsPerDay())
+        inflowInM3PerSec = self.inflow / length_of_time_step
 
-        # updating (short term) average inflow (m3/s) ; needed to constrain lake outflow:
+        # updating (short term) average inflow (m3/s) ; 
+        # -needed to constrain lake outflow:
+        #
+        temp = pcr.max(1.0, pcr.min(maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge - 1.0 + length_of_time_step / vos.secondsPerDay()))
         deltaInflow = inflowInM3PerSec - self.avgInflow  
-        self.avgInflow = self.avgInflow +\
-                            deltaInflow/\
-                            pcr.min(maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)                
-        self.avgInflow = pcr.max(0.0, self.avgInflow)                         
+        R = deltaInflow * ( length_of_time_step / vos.secondsPerDay() ) / temp
+        self.avgInflow = self.avgInflow + R                
+        self.avgInflow = pcr.max(0.0, self.avgInflow)
+        #
+        # for the reference, see the "weighted incremental algorithm" in http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance                        
 
         # updating waterBodyStorage (m3)
         self.waterBodyStorage = newStorageAtLakeAndReservoirs
