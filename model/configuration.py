@@ -191,8 +191,9 @@ class Configuration(object):
         if 'm2tChannelDischargeLongIni' in self.routingOptions.keys():
             self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
         #
-        if 'waterBodyStorageIni' in self.routingOptions.keys():
-            logger.info("Note that waterBodyStorageIni is not used and not needed. This can be calculated directly from channelStorageIni.")
+        if 'waterBodyStorageIni' not in self.routingOptions.keys():
+            logger.info("Note that waterBodyStorageIni will be calculated from channelStorageIni.")
+            self.routingOptions['waterBodyStorageIni'] = None
         #
         if 'avgChannelDischargeIni' in self.routingOptions.keys():
             self.routingOptions['avgDischargeLongIni'] = self.routingOptions['avgChannelDischargeIni']

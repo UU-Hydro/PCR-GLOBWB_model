@@ -41,8 +41,9 @@ class Routing(object):
         result['avgBaseflowLong']          = self.avgBaseflow                #  m3/s   ;  long term average baseflow
         result['riverbedExchange']         = self.riverbedExchange           #  m3/day : river bed infiltration (from surface water bdoies to groundwater)
         
-        result['avgLakeReservoirOutflowLong'] = self.avgOutflow              #  m3/s   ; long term average lake & reservoir outflow
-        result['avgLakeReservoirInflowShort'] = self.avgInflow               #  m3/s   ; short term average lake & reservoir inflow
+        result['avgLakeReservoirOutflowLong'] = self.waterBodyStorage        #  m3     ; storages of lakes and reservoirs            # values given are per water body id (not per cell)
+        result['avgLakeReservoirOutflowLong'] = self.avgOutflow              #  m3/s   ; long term average lake & reservoir outflow  # values given are per water body id (not per cell)
+        result['avgLakeReservoirInflowShort'] = self.avgInflow               #  m3/s   ; short term average lake & reservoir inflow  # values given are per water body id (not per cell)
 
         result['avgDischargeShort']        = self.avgDischargeShort          #  m3/s   ; short term average discharge 
 
@@ -693,7 +694,7 @@ class Routing(object):
                               reduction_for_unmetDemand * self.cellArea
         self.local_input_to_surface_water -= reduction_for_unmetDemand * self.cellArea
 
-    def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
+     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
         # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
@@ -783,6 +784,9 @@ class Routing(object):
                                 currTimeStep,\
                                 self.avgDischarge)
 
+        # waterBodyStorage (m3) after outflow:                          # values given are per water body id (not per cell)
+        self.waterBodyStorage = self.WaterBodies.waterBodyStorage
+        
         # transfer outflow from lakes and/or reservoirs to channelStorages
         waterBodyOutflow = pcr.cover(\
                            pcr.ifthen(\
