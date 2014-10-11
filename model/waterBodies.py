@@ -15,13 +15,19 @@ class WaterBodies(object):
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
                 
-        self.debugWaterBalance = iniItems.routingOptions['debugWaterBalance']
+        self.debugWaterBalance = True
+        if iniItems.routingOptions['debugWaterBalance'] == "False":
+            self.debugWaterBalance = False
 
         # TODO: 26 Feb 2014, Edwin found that reasonable runs are only found 
         # if all of these options = True.                    
-        self.includeWaterBodies = True
-        self.includeLakes = True
-        self.includeReservoirs =  True
+        #~ self.includeWaterBodies = True
+        #~ self.includeLakes = True
+        #~ self.includeReservoirs =  True
+
+        self.onlyNaturalWaterBodies = False
+        if iniItems.routingOptions['debugWaterBalance'] == "True"
+            self.onlyNaturalWaterBodies = True
 
         if iniItems.routingOptions['waterBodyInputNC'] == str(None):
             self.useNetCDF = False
@@ -93,7 +99,7 @@ class WaterBodies(object):
                                 pcr.scalar(self.waterBodyIds) > 0.,\
                                 pcr.nominal(self.waterBodyIds))    
 
-            # water body outlets:
+            # water body outlets (correcting outlet positions)
             wbCatchment = pcr.catchmenttotal(pcr.scalar(1),ldd)
             self.waterBodyOut = pcr.ifthen(wbCatchment ==\
                                 pcr.areamaximum(wbCatchment, \
@@ -135,7 +141,7 @@ class WaterBodies(object):
             self.waterBodyArea = pcr.ifthen(self.waterBodyArea > 0.,\
                                  self.waterBodyArea)
                                     
-            # correcting water body ids and outlets (excluding all water bodies with surfaceArea = 0)
+            # correcting water body ids and outlets (exclude all water bodies with surfaceArea = 0)
             self.waterBodyIds = pcr.ifthen(self.waterBodyArea > 0.,
                                 self.waterBodyIds)               
             self.waterBodyOut = pcr.ifthen(pcr.boolean(self.waterBodyIds),
@@ -158,6 +164,7 @@ class WaterBodies(object):
                     self.waterBodyTypInp+str(currTimeStep.year)+".map",\
                     self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
 
+            # excluding wetlands (waterBodyTyp = 0) in all functions related to lakes/reservoirs 
             self.waterBodyTyp = pcr.ifthen(\
                                 pcr.scalar(self.waterBodyTyp) > 0,\
                                 pcr.nominal(self.waterBodyTyp))    
@@ -165,18 +172,18 @@ class WaterBodies(object):
                                 pcr.scalar(self.waterBodyIds) > 0,\
                                 pcr.nominal(self.waterBodyTyp))    
             self.waterBodyTyp = pcr.areamajority(self.waterBodyTyp,\
-                                                 self.waterBodyIds)                        
+                                                 self.waterBodyIds)     # choose only one type: lakes or reservoirs                  
             self.waterBodyTyp = pcr.ifthen(\
                                 pcr.scalar(self.waterBodyTyp) > 0,\
                                 pcr.nominal(self.waterBodyTyp))    
             self.waterBodyTyp = pcr.ifthen(pcr.boolean(self.waterBodyIds),
                                                        self.waterBodyTyp)
 
-            # correcting water body ids and outlets:
-            self.waterBodyIds = pcr.ifthen(pcr.boolean(self.waterBodyTyp),
-                                                       self.waterBodyIds)               
-            self.waterBodyOut = pcr.ifthen(pcr.boolean(self.waterBodyIds),
-                                                       self.waterBodyOut)
+            # correcting lakes and reservoirs ids and outlets
+            self.waterBodyIds = pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0,
+                                                      self.waterBodyIds)               
+            self.waterBodyOut = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0,
+                                                      self.waterBodyOut)
 
         # reservoir maximum capacity (m3):
         self.resMaxCap = pcr.scalar(0.0)
@@ -206,23 +213,34 @@ class WaterBodies(object):
                                                        self.waterBodyCap)
                                                    
             # correcting water body types:                              # Reservoirs that have zero capacities will be assumed as lakes.
+            self.waterBodyTyp = \
+                     pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
+                                           self.waterBodyTyp) 
             self.waterBodyTyp = pcr.ifthenelse(self.waterBodyCap > 0.,\
                                                self.waterBodyTyp,\
                      pcr.ifthenelse(pcr.scalar(self.waterBodyTyp) == 2,\
                                                pcr.nominal(1),\
                                                self.waterBodyTyp)) 
-            self.waterBodyTyp = \
-                     pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
-                                           self.waterBodyTyp) 
 
             # final corrections:
             self.waterBodyTyp = pcr.ifthen(self.waterBodyArea > 0.,\
-                                           self.waterBodyTyp)
+                                           self.waterBodyTyp)                     # make sure that all lakes and/or reservoirs have surface areas
+            self.waterBodyTyp = \
+                     pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
+                                           self.waterBodyTyp)                     # make sure that only types 1 and 2 will be considered in lake/reservoir functions
             self.waterBodyIds = pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
-                                self.waterBodyIds)               
+                                self.waterBodyIds)                                # make sure that all lakes and/or reservoirs have ids
             self.waterBodyOut = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0.,\
-                                                      self.waterBodyOut)
-
+                                                      self.waterBodyOut)          # make sure that all lakes and/or reservoirs have outlets
+            
+            # check that all lakes and/or reservoirs have types, ids, aurface areas and outlets:
+            test = pcr.defined(self.waterBodyTyp) & pcr.defined(self.waterBodyArea) &\
+                   pcr.defined(self.waterBodyIds) & pcr.defined(self.waterBodyOut)
+            #~ pcr.report(test,"test.map"); os.system("aguila test.map")
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test) - pcr.scalar(1.0))
+            threshold = 1e-3
+            if abs(a) > threshold or abs(b) > threshold:
+                logger.info("WARNING !!!!! Missing information in some lakes and/or reservoirs.")
 
         # For each new reservoir (introduced at the beginning of the year)
         # initiating storage, average inflow and outflow
@@ -254,7 +272,7 @@ class WaterBodies(object):
         storageAtLakeAndReservoirs = pcr.cover(\
          pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., channelStorage), 0.0)
         #
-        # - move only non negative values and use rounddown values
+        # - move only non negative values and use rounddown values      # TODO: This must be done outside of this class
         storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
         #
         # lake and reservoir storages = waterBodyStorage (m3) ; values are given for the entire lake / reservoir cells
@@ -271,7 +289,8 @@ class WaterBodies(object):
                            maxTimestepsToAvgDischargeShort,
                            maxTimestepsToAvgDischargeLong,\
                            currTimeStep,\
-                           avgChannelDischarge = None,\
+                           avgChannelDischarge,\
+                           length_of_time_step = vos.secondsPerDay(),\
                            downstreamDemand = None):
 
         if self.includeLakes or self.includeReservoirs:
@@ -279,18 +298,20 @@ class WaterBodies(object):
             if self.debugWaterBalance == str('True'):\
                preStorage = self.waterBodyStorage    # unit: m
      
-            self.timestepsToAvgDischarge = timestepsToAvgDischarge     # TODO: include this one in "currTimeStep"     
+            self.timestepsToAvgDischarge = timestepsToAvgDischarge      # TODO: include this one in "currTimeStep"     
         
             # obtain inflow (and update storage)
             self.moveFromChannelToWaterBody(\
              newStorageAtLakeAndReservoirs,\
                  timestepsToAvgDischarge,\
-                 maxTimestepsToAvgDischargeShort)
+                 maxTimestepsToAvgDischargeShort,\
+                 length_of_time_step)
          
             # calculate outflow (and update storage)
             self.getWaterBodyOutflow(\
                  maxTimestepsToAvgDischargeLong,\
                  avgChannelDischarge,\
+                 length_of_time_step,\
                  downstreamDemand)
          
             if self.debugWaterBalance == 'True':\
@@ -313,14 +334,14 @@ class WaterBodies(object):
                                         pcr.areatotal(newStorageAtLakeAndReservoirs,\
                                                       self.waterBodyIds),0.0)
 
-        # inflow (m3/day)
+        # incoming volume (m3)
         self.inflow = newStorageAtLakeAndReservoirs - self.waterBodyStorage
         
         # inflowInM3PerSec (m3/s)
         inflowInM3PerSec = self.inflow / length_of_time_step
 
         # updating (short term) average inflow (m3/s) ; 
-        # -needed to constrain lake outflow:
+        # - needed to constrain lake outflow:
         #
         temp = pcr.max(1.0, pcr.min(maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge - 1.0 + length_of_time_step / vos.secondsPerDay()))
         deltaInflow = inflowInM3PerSec - self.avgInflow  
@@ -335,7 +356,7 @@ class WaterBodies(object):
 
     def getWaterBodyOutflow(self,\
                             maxTimestepsToAvgDischargeLong,\
-                            avgChannelDischarge = None,\
+                            avgChannelDischarge,\
                             downstreamDemand = None):
 
         # outflow from water bodies with lake type (m3/day): 
@@ -385,55 +406,64 @@ class WaterBodies(object):
              weirWidth # m3/s
         return (weirFormula)
 
-    def getLakeOutflow(self,avgChannelDischarge=None):
+    def getLakeOutflow(self,avgChannelDischarge,length_of_time_step = vos.secondsPerDay()):
 
         # waterHeight (m): temporary variable, a function of storage:
-        minWaterHeight = 0.001 # (m) Rens used 0.001 m - in order to make sure there is at least 
+        minWaterHeight = 0.001 # (m) Rens used 0.001 m as the limit # this is to make sure there is always lake outflow,    
+                                                                    # but it will be still limited by available self.waterBodyStorage 
         waterHeight = pcr.cover(
                       pcr.max(minWaterHeight, \
                       (self.waterBodyStorage - \
                       pcr.cover(self.waterBodyCap, 0.0))/\
                       self.waterBodyArea),0.)
 
-        # weirWidth (m) : estimated from avgOutflow (m3/s)
+        # weirWidth (m) : 
+        # - estimated from avgOutflow (m3/s) using the bankfull discharge formula
+        # 
         avgOutflow = self.avgOutflow
-        try:
+        try:                                                                     # TODO: remove this try/except with doy and timestepPCR? 
             avgOutflow = pcr.ifthenelse(avgOutflow > 0.,\
-                         avgOutflow,pcr.max(avgChannelDischarge,self.avgInflow,0.001))
-            avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
+                         avgOutflow,
+                         pcr.max(avgChannelDischarge,self.avgInflow,0.001))      # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
         except:
             pass 
+        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
+        #
         bankfullWidth = pcr.cover(\
                         pcr.scalar(4.8) * \
                         ((avgOutflow)**(0.5)),0.)
         weirWidthUsed = bankfullWidth
-        weirWidthUsed = pcr.max(weirWidthUsed,self.minWeirWidth)        # TODO: minWeirWidth based on the GRanD database
+        weirWidthUsed = pcr.max(weirWidthUsed,self.minWeirWidth)                 # TODO: minWeirWidth based on the GRanD database
         weirWidthUsed = pcr.cover(
                         pcr.ifthen(\
                         pcr.scalar(self.waterBodyIds) > 0.,\
                         weirWidthUsed),0.0)
 
         # avgInflow <= lakeOutflow (weirFormula) <= waterBodyStorage
-        lakeOutflow = pcr.max(\
-                      self.weirFormula(waterHeight,weirWidthUsed),\
-                      self.avgInflow) * vos.secondsPerDay() # m3/day
+        lakeOutflowInM3PerSec = pcr.max(\
+                                self.weirFormula(waterHeight,weirWidthUsed),\
+                                self.avgInflow)                                  # unit: m3/s
+        
+        # estimate volume of water relased by lakes
+        lakeOutflow = lakeOutflowInM3PerSec * length_of_time_step                # unit: m3
         lakeOutflow = pcr.min(self.waterBodyStorage, lakeOutflow)
-
+        #
         lakeOutflow = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., lakeOutflow)
         lakeOutflow = pcr.ifthen(pcr.scalar(self.waterBodyTyp) == 1, lakeOutflow)
         return (lakeOutflow) # unit: m3/day
 
     def getReservoirOutflow(self,\
-        avgChannelDischarge=None,downstreamDemand=None):
+        avgChannelDischarge,downstreamDemand=None):
 
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
-        try:
+        try:                                                                     # TODO: remove this try/except with doy and timestepPCR? 
             avgOutflow = pcr.ifthenelse(avgOutflow > 0.,\
-                         avgOutflow,pcr.max(avgChannelDischarge,self.avgInflow,0.001))
-            avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)
+                         avgOutflow,
+                         pcr.max(avgChannelDischarge,self.avgInflow,0.001))      # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
         except:
-            pass
+            pass 
+        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
         # calculate resvOutflow (based on reservoir storage and avgDischarge): 
         # - unit: m3/day (Note that avgDischarge is given in m3/s) 
