@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import types
 import math
 
 from pcraster.framework import *
@@ -455,20 +456,21 @@ class Routing(object):
         # - note that the following function should be called first, specifically because  
         #   we have to define initial conditions at the beginning of simulaution, 
         #
-        # TODO: for initial conditions, we have ti re-define waterBodyStorageIni as area operations are sensitive to numerical errors 
-        #
-        if (currTimeStep.doy == 1) or (currTimeStep.timeStepPCR == 1):
+        if currTimeStep.timeStepPCR == 1:
+            initial_conditions_for_water_bodies = self.getState()
             self.WaterBodies.getParameterFiles(currTimeStep,\
                                                self.cellArea,\
                                                self.lddMap,\
                                                self.cellLengthFD,\
                                                self.cellSizeInArcDeg,\
-                                               self.channelStorage,self.avgInflow,self.avgOutflow) # the last line is for the initial conditions of lakes/reservoirs
+                                               initial_conditions_for_water_bodies)               # the last line is for the initial conditions of lakes/reservoirs
 
-        
-        # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
-        self.timestepsToAvgDischarge += 1.
-
+        if (currTimeStep.doy == 1) and (currTimeStep.timeStepPCR > 1):
+            self.WaterBodies.getParameterFiles(currTimeStep,\
+                                               self.cellArea,\
+                                               self.lddMap,\
+                                               self.cellLengthFD,\
+                                               self.cellSizeInArcDeg)                             # the last line is for the initial conditions of lakes/reservoirs
         
         # routing methods
         if self.method == "accuTravelTime" or "simplifiedKinematicWave": self.simple_update(landSurface,groundwater,currTimeStep,meteo)
@@ -482,10 +484,8 @@ class Routing(object):
         #
         self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
-        
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.estimate_available_volume_for_abstraction()
-        
         
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
@@ -695,6 +695,9 @@ class Routing(object):
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
+        # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
+        self.timestepsToAvgDischarge += 1.
+
         if self.debugWaterBalance == str('True'):\
            preStorage = self.channelStorage                                                        # unit: m3
 
@@ -778,8 +781,7 @@ class Routing(object):
                                 self.maxTimestepsToAvgDischargeShort,\
                                 self.maxTimestepsToAvgDischargeLong,\
                                 currTimeStep,\
-                                self.avgDischarge,\
-                                None)
+                                self.avgDischarge)
 
         # transfer outflow from lakes and/or reservoirs to channelStorages
         waterBodyOutflow = pcr.cover(\
