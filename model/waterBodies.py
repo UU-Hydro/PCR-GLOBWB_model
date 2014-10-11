@@ -275,8 +275,8 @@ class WaterBodies(object):
 
     def getICs(self,initial_condition):
 
-        avgInflow  = initial_condition['avgInflow']
-        avgOutflow = initial_condition['avgOutflow']
+        avgInflow  = initial_condition['avgLakeReservoirInflowShort']  
+        avgOutflow = initial_condition['avgLakeReservoirOutflowLong'] 
         #
         if not isinstance(initial_condition['waterBodyStorage'],types.NoneType):
             # read directly 
