@@ -1,8 +1,15 @@
 #!/usr/bin/ python
 # -*- coding: utf-8 -*-
 
+import os
+import types
+
 from pcraster.framework import *
 import pcraster as pcr
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 import virtualOS as vos
 
