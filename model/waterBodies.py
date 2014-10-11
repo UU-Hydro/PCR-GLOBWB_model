@@ -480,8 +480,7 @@ class WaterBodies(object):
                      pcr.max(avgChannelDischarge,self.avgInflow,0.001)) # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
         avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
-        # calculate resvOutflow (based on reservoir storage and avgDischarge): 
-        # - unit: m3/day (Note that avgDischarge is given in m3/s) 
+        # calculate resvOutflow (m2/s) (based on reservoir storage and avgDischarge): 
         # - using reductionFactor in such a way that:
         #   - if relativeCapacity < minResvrFrac : release is terminated
         #   - if relativeCapacity > maxResvrFrac : longterm average
