@@ -33,7 +33,7 @@ class WaterBodies(object):
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
-
+        
         # names of files containing water bodies parameters
         if iniItems.routingOptions['waterBodyInputNC'] == str(None):
             self.useNetCDF = False
@@ -491,10 +491,10 @@ class WaterBodies(object):
           self.waterBodyStorage - self.minResvrFrac*self.waterBodyCap)/\
              (self.maxResvrFrac - self.minResvrFrac)*self.waterBodyCap),0.0)
         #
-        resvOutflow = reductionFactor * avgOutflow                                 # unit: m3/s
+        resvOutflow = reductionFactor * avgOutflow * length_of_time_step                      # unit: m3
 
         # maximum release <= average inflow (especially during dry condition)
-        resvOutflow  = pcr.max(0, pcr.min(resvOutflow, self.avgInflow))            # unit: m3/s                                          
+        resvOutflow  = pcr.max(0, pcr.min(resvOutflow, self.avgInflow * length_of_time_step)) # unit: m3                                          
 
         # downstream demand (m3/s)
         # reduce demand if storage < lower limit
@@ -504,48 +504,45 @@ class WaterBodies(object):
                            downstreamDemand,
                            downstreamDemand*reductionFactor)
         # resvOutflow > downstreamDemand
-        resvOutflow  = pcr.max(resvOutflow, downstreamDemand)                      # unit: m3/s       
+        resvOutflow  = pcr.max(resvOutflow, downstreamDemand * length_of_time_step)           # unit: m3       
 
-        # release in volume (m3)
-        resvOutflowVolume = resvOutflow * length_of_time_step
-        
-        # floodOutflow in volume (m3) : additional release if storage > upper limit
+        # floodOutflow: additional release if storage > upper limit
         ratioQBankfull = 2.3
-        estmStorage  = pcr.max(0.,self.waterBodyStorage - resvOutflowVolume)
+        estmStorage  = pcr.max(0.,self.waterBodyStorage - resvOutflow)
         floodOutflow = \
            pcr.max(0.0, estmStorage - self.waterBodyCap) +\
            pcr.cover(\
            pcr.max(0.0, estmStorage - self.maxResvrFrac*\
                                       self.waterBodyCap)/\
               ((1.-self.maxResvrFrac)*self.waterBodyCap),0.0)*\
-           pcr.max(0.0,ratioQBankfull*avgOutflow*length_of_time_step-\
-                                     resvOutflow*length_of_time_step)
+           pcr.max(0.0,ratioQBankfull*avgOutflow* vos.secondsPerDay()-\
+                                      resvOutflow)
         floodOutflow = pcr.max(0.0,
                        pcr.min(floodOutflow,\
                        estmStorage - self.maxResvrFrac*\
                                      self.waterBodyCap*0.75)) # maximum limit of floodOutflow: bring the reservoir storages only to 3/4 of upper limit capacities
         
-        # update release in volume (m3) after floodOutflow
-        resvOutflowVolume  = pcr.cover(resvOutflowVolume , 0.0) +\
-                             pcr.cover(floodOutflow, 0.0)                                            
+        # update resvOutflow after floodOutflow
+        resvOutflow  = pcr.cover(resvOutflow , 0.0) +\
+                       pcr.cover(floodOutflow, 0.0)                                            
 
         # maximum release if storage > upper limit : bring the reservoir storages only to 3/4 of upper limit capacities
-        resvOutflowVolume  = pcr.ifthenelse(self.waterBodyStorage > 
-                             self.maxResvrFrac*self.waterBodyCap,\
-                             pcr.min(resvOutflowVolume,\
-                             pcr.max(0,self.waterBodyStorage - \
-                             self.maxResvrFrac*self.waterBodyCap*0.75)),
-                             resvOutflowVolume)                                            
+        resvOutflow  = pcr.ifthenelse(self.waterBodyStorage > 
+                       self.maxResvrFrac*self.waterBodyCap,\
+                       pcr.min(resvOutflow,\
+                       pcr.max(0,self.waterBodyStorage - \
+                       self.maxResvrFrac*self.waterBodyCap*0.75)),
+                       resvOutflow)                                            
 
         # if storage > upper limit : resvOutflow > avgInflow
-        resvOutflowVolume = pcr.ifthenelse(self.waterBodyStorage > 
-                            self.maxResvrFrac*self.waterBodyCap,\
-                            pcr.max(0.0, resvOutflowVolume, self.avgInflow*length_of_time_step),
-                            resvOutflowVolume)                                            
+        resvOutflow  = pcr.ifthenelse(self.waterBodyStorage > 
+                       self.maxResvrFrac*self.waterBodyCap,\
+                       pcr.max(0.0, resvOutflow, self.avgInflow),
+                       resvOutflow)                                            
         
         # resvOutflow < waterBodyStorage
-        resvOutflowVolume = pcr.min(self.waterBodyStorage, resvOutflowVolume)
+        resvOutflow = pcr.min(self.waterBodyStorage, resvOutflow)
         
-        resvOutflowVolume = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., resvOutflowVolume)
-        resvOutflowVolume = pcr.ifthen(pcr.scalar(self.waterBodyTyp) == 2, resvOutflowVolume)
-        return (resvOutflow) # unit: m3
+        resvOutflow = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., resvOutflow)
+        resvOutflow = pcr.ifthen(pcr.scalar(self.waterBodyTyp) == 2, resvOutflow)
+        return (resvOutflow) # unit: m3  
