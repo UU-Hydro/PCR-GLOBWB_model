@@ -350,29 +350,8 @@ class Routing(object):
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove            # unit: m3
 
-    def simplifiedKinematicWave(self,currTimeStep): 
-        """
-        The 'simplifiedKinematicWave':
-        1. First, assume that 'lateral_inflow' has been added to 'channelStorage'. This is done outside of this function/method.
-        2. Then, the 'channelStorage' is routed by using 'pcr.kinematic function' with 'lateral_inflow' = 0.0.
-        """
+    def estimate_length_of_sub_time_step(self): 
 
-        ##########################################################################################################################
-
-        logger.info("Using the simplifiedKinematicWave method ! ")
-        
-        # no lateral_inflow as it has been added to 'channelStorageForRouting' (this is done outside of this function/method)
-        lateral_inflow = pcr.scalar(0.0)
-
-        # route only non negative channelStorage (otherwise stay):
-        channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
-        #
-        # channelStorage that will be given to the ROUTING operation:
-        channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
-        
-        # water height (m)
-        self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
-        
         # estimate the length of sub-time step (unit: s):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
@@ -399,10 +378,32 @@ class Routing(object):
         number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
-        length_of_sub_time_step = vos.secondsPerDay() / number_of_loops                               
+        length_of_sub_time_step = vos.secondsPerDay() / number_of_loops
+        return length_of_sub_time_step, number_of_loops                               
+
+    def simplifiedKinematicWave(self): 
+        """
+        The 'simplifiedKinematicWave':
+        1. First, assume that all local fluxes has been added to 'channelStorage'. This is done outside of this function/method.
+        2. Then, the 'channelStorage' is routed by using 'pcr.kinematic function' with 'lateral_inflow' = 0.0.
+        """
+
+        ##########################################################################################################################
+
+        logger.info("Using the simplifiedKinematicWave method ! ")
         
-        # TODO: estimate potential evaporation in volume (m3) (per sub time step?) 
-        #       estimate potential abstraction in volume (m3) (per sub time step?)
+        # route only non negative channelStorage (otherwise stay):
+        channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
+        
+        # channelStorage that will be given to the ROUTING operation:
+        channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
+        
+        # water height (m)
+        self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+        
+        # estimate the length of sub-time step (unit: s):
+        length_of_sub_time_step, number_of_loops = \
+          self.estimate_length_of_sub_time_step()
         
         for i_loop in range(number_of_loops):
             
@@ -425,7 +426,7 @@ class Routing(object):
                                              (self.water_height * self.wMean / alpha)**(1/self.beta),0.0)
             
             # discharge (m3/s) based on kinematic wave approximation
-            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, lateral_inflow, 
+            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               number_of_loops, length_of_sub_time_step, self.cellLengthFD)
             
@@ -540,7 +541,7 @@ class Routing(object):
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
 
-        # calculate potential evaporation from water bodies OVER THE ENTIRE CELL AREA (m/day)
+        # calculate potential evaporation from water bodies OVER THE ENTIRE CELL AREA (m/day) ; not only over surface water bodies
         self.waterBodyPotEvap = self.calculate_potential_evaporation(landSurface,currTimeStep,meteo)
         
         # evaporation volume from water bodies (m3)
@@ -843,8 +844,8 @@ class Routing(object):
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
         #
-        if self.method == "accuTravelTime":          self.accuTravelTime(currTimeStep) 		
-        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave(currTimeStep) 		
+        if self.method == "accuTravelTime":          self.accuTravelTime() 		
+        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave() 		
         #
         #
         # channel discharge (m3/s): for current time step
@@ -919,11 +920,15 @@ class Routing(object):
         self.nonIrrWaterConsumption = landSurface.nonIrrGrossDemand - \
                                       self.nonIrrReturnFlow             # values are over the entire cell area
 
+        # potential evaporation (unit: m/day)
+        potSurfaceWaterEvaporation = \
+         self.calculate_potential_evaporation(landSurface,currTimeStep,\
+                                              meteo)                    # values are over the entire cell area
+
         # potential SurfaceWaterAbstraction (unit: m/day) 
         potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract   # values are over the entire cell area
         
-        # potential evaporation (unit: m/day)
-        potSurfaceWaterEvaporation = 1
+        
         
         # reporting channelStorage after surface water abstraction (unit: m3)
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
@@ -935,16 +940,19 @@ class Routing(object):
         #   - return flow from non-irrigation water demand
         #
         # 2. Before entering sub-time steps, calculate negative fluxes:
-        #      - evaporation  with rate = potential evaporation / number_of_sub_time_steps
-        #      - abstraction with rate 
+        #   - evaporation
+        #   - abstraction 
         #
-        # 3. Within the sub-time steps, reduce negative fluxes if there is no enough water
-        # 4. Within the sub-time steps, track also gap in satisfying surface water abstraction
-        # 5. Within the sub-time steps, then calculate lake/reservoir outflow 
+        # 3. Within the sub-time steps:
+        #    - add all positive fluxes to channelStorage
+        #    - evaporation (limited by available readAvlChannalStorage)
+        #    - abstraction:
+        #      - increase/reduce unmetDemand (depends on abstraction and readAvlChannelStorage)
+        #      - do not forget the allocation
+        #    - calculate lake/reservoir outflow 
         #
-        # 6. After looping, calculate extra evaporation
-        # 7. After looping, compensate gap in satisfying surface water abstraction by unmetDemand
-        # 8. After looping, reduce unmetDemand 
+        # 4. After looping, calculate extra evaporation
+        # 5. After looping, reduce unmetDemand 
 
         # add more evaporation (limited by remaining potential evaporation)
         #
