@@ -965,7 +965,7 @@ class Routing(object):
             msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
             logger.info(msg)
             
-            initiating accumulated values:
+            # initiating accumulated values:
             if i_loop == 0:
                 acc_local_input_to_surface_water  = pcr.scalar(0.0)        # unit: m3                            
                 acc_water_body_evaporation_volume = pcr.scalar(0.0)        # unit: m3
