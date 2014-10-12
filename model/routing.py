@@ -989,21 +989,27 @@ class Routing(object):
             water_body_abstraction_volume      = pcr.max(0.0, available_water - \
                                                           potSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_abstraction_volume
+            channelStorageForRouting           = pcr.max(0.0, channelStorageForRouting)
             acc_local_input_to_surface_water  -= water_body_abstraction_volume
             acc_water_body_abstraction_volume += water_body_abstraction_volume
             
-            # extra surface water abstraction to reduce unmetDemand
-            accesible_surface_water = 1.0
+            # estimate extra surface water abstraction to reduce unmetDemand
+            # - this one will be taken from the difference/surplus between landSurface.actSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()
+            #                                                          and water_body_abstraction_volume
+            #
+            accesible_water = pcr.max(0.0,\
+                                      landSurface.actSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay() - water_body_abstraction_volume)
+            accesible_water = pcr,min(channelStorageForRouting, accesible_water)
             
             if landSurface.usingAllocSegments == False:
         
                 logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
                 
                 # reducing unmetDemand
-                reduction_for_unmetDemand = pcr.min(accesible_surface_water / self.cellArea, \
+                reduction_for_unmetDemand = pcr.min(accesible_water / self.cellArea, \
                                                     potUnmetDemandReduction * length_of_sub_time_step/vos.secondsPerDay())       # unit: m
 
-                # actual extra surface water abstraction in meter 
+                # extra surface water abstraction in meter 
                 extra_surface_water_abstraction = pcr.ifthen(self.landmask, reduction_for_unmetDemand)
 
 
