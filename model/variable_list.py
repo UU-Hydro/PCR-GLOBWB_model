@@ -587,28 +587,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Negative values may be reported, due to excessive demands.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# storGroundwaterVolumeAfterAbstraction
-pcrglobwb_variable_name = 'storGroundwaterVolumeAfterAbstraction'
-netcdf_short_name[pcrglobwb_variable_name] = 'groundwater_volume_after_abstraction'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'This is groundwater volume, immediately after abstraction..'
-latex_symbol[pcrglobwb_variable_name]      = None
-
-# channelStorageVolumeAfterAbstraction 
-pcrglobwb_variable_name = 'channelStorageVolumeAfterAbstraction'
-netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_volume_after_abstraction'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'This is surface water volume, immediately after abstraction. Negative values may be reported, due to excessive demands.'
-latex_symbol[pcrglobwb_variable_name]      = None
-
 # waterBodyStorage 
 pcrglobwb_variable_name = 'waterBodyStorage'
 netcdf_short_name[pcrglobwb_variable_name] = 'lake_and_reservoir_storage'

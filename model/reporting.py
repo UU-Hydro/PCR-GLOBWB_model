@@ -356,9 +356,6 @@ class Reporting(object):
         self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
                                               self.fracNonFossilGroundwaterAllocation + \
                                               self.fracOtherWaterSourceAllocation 
-        # storages of storGroundwater and channelStorage - immediately after abstraction:
-        self.storGroundwaterVolumeAfterAbstraction = self._model.groundwater.storGroundwaterVolumeAfterAbstraction
-        self.channelStorageVolumeAfterAbstraction  = self._model.routing.channelStorageAfterAbstraction
 
         # Stefanie's post processing: reporting lake and reservoir storage (unit: m3)
         self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \

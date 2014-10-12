@@ -317,19 +317,8 @@ class Groundwater(object):
             logger.info("No fossil groundwater abstraction is allowed")
             # TODO: check that self.unmetDemand = 0.0
 
-        # fractions of water demand sources (to satisfy water demand):
-        self.fracNonFossilGroundwater = pcr.ifthen(self.landmask,pcr.ifthenelse(landSurface.totalPotentialGrossDemand > 0.,\
-                      self.allocNonFossilGroundwater/landSurface.totalPotentialGrossDemand, 0.0))
-        self.fracUnmetDemand          = pcr.ifthen(self.landmask,pcr.ifthenelse(landSurface.totalPotentialGrossDemand > 0.,\
-                      self.unmetDemand/landSurface.totalPotentialGrossDemand, 0.0))
-        self.fracSurfaceWater         = pcr.ifthen(self.landmask,pcr.ifthenelse(landSurface.totalPotentialGrossDemand > 0.,\
-                 pcr.max(0.0,1.0 - self.fracNonFossilGroundwater - self.fracUnmetDemand), 0.0)) 
-        
         # update storGoundwater after self.nonFossilGroundwaterAbs
         self.storGroundwater  = pcr.max(0.,self.storGroundwater - self.nonFossilGroundwaterAbs)
-        
-        # reporting storGroundwater volume after non-fossil groundwater abstraction (unit: m3)
-        self.storGroundwaterVolumeAfterAbstraction = pcr.ifthen(self.landmask, self.storGroundwater * routing.cellArea) 
         
         # calculate baseflow and update storage:
         self.baseflow         = pcr.max(0.,\
