@@ -514,20 +514,6 @@ class Routing(object):
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 
-    def calculate_potential_evaporation(self,landSurface,currTimeStep,meteo):
-
-        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1):
-            waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
-                               currTimeStep.fulldate, useDoy = 'month',\
-                                       cloneMapFileName = self.cloneMap)
-            self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
-        #
-        # potential evaporation from water bodies (m) - reduced by evaporation that has been calculated in the landSurface module
-        waterBodyPotEvap = pcr.ifthen(self.landmask, \
-                                      pcr.max(0.0,\
-                                      self.waterKC * meteo.referencePotET -\
-                                      landSurface.actualET ))
-        return waterBodyPotEvap                              
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -536,12 +522,27 @@ class Routing(object):
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
         #
-        self.waterBodyPotEvap = self.calculate_potential_evaporation(landSurface,currTimeStep,meteo)
+        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1):
+            waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
+                               currTimeStep.fulldate, useDoy = 'month',\
+                                       cloneMapFileName = self.cloneMap)
+            self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
         #
-        # evaporation volume from water bodies (m3) - limited to available channelStorage
+        # potential evaporation from water bodies (m) - reduced by evaporation that has been calculated in the landSurface module
+        waterBodyPotEvapOvesSurfaceWaterArea = pcr.ifthen(self.landmask, \
+                                               pcr.max(0.0,\
+                                               self.waterKC * meteo.referencePotET -\
+                                               landSurface.actualET ))              # These values are NOT over the entire cell area.
+        #
+        # potential evaporation from surface water bodies over the entire cell area
+        self.waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * self.dynamicFracWat
+        #
+        # evaporation volume from water bodies (m3)
+        # - not limited to available channelStorage 
+        volLocEvapWaterBody = self.waterBodyPotEvap * self.cellArea
+        # - limited to available channelStorage
         volLocEvapWaterBody = pcr.min(\
-                              pcr.max(0.0,self.channelStorage),
-                              self.waterBodyPotEvap * self.dynamicFracWat * self.cellArea)
+                              pcr.max(0.0,self.channelStorage), volLocEvapWaterBody)
 
         # update channelStorage (m3) after evaporation from water bodies
         self.channelStorage = self.channelStorage -\
@@ -896,25 +897,30 @@ class Routing(object):
 
         # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
-        self.local_input_to_surface_water = pcr.scalar(0.0)          # initiate the variable, start from zero
+        self.local_input_to_surface_water = pcr.scalar(0.0)             # initiate the variable, start from zero
 
-        # runoff from landSurface cells (unit: m/day)
+        # runoff from landSurface cells (unit: m/day)                   
         self.runoff = landSurface.landSurfaceRunoff +\
-                      groundwater.baseflow   
+                      groundwater.baseflow                              # values are over the entire cell area
         
-        # return flow from non irrigation water demand (unit: m/day)
+        # return flow from non irrigation water demand (unit: m/day)    
         self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowFraction*\
-                                landSurface.nonIrrGrossDemand        # m
+                                landSurface.nonIrrGrossDemand           # values are over the entire cell area
         #
         # Note that in case of limitAbstraction = True ; landSurface.nonIrrGrossDemand has been reduced by available water                               
         # 
         # water consumption for non irrigation water demand (m/day) ; this water is removed from the system
         self.nonIrrWaterConsumption = landSurface.nonIrrGrossDemand - \
-                                      self.nonIrrReturnFlow
+                                      self.nonIrrReturnFlow             # values are over the entire cell area
 
         # potential SurfaceWaterAbstraction (unit: m/day) 
-        potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract
+        potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract   # values are over the entire cell area
         
+        # potential evaporation (unit: m/day)
+        potSurfaceWaterEvaporation = 
+        
+        # reporting channelStorage after surface water abstraction (unit: m3)
+        self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
 
 
 
