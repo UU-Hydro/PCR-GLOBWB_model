@@ -535,10 +535,14 @@ class Routing(object):
                                                landSurface.actualET ))              # These values are NOT over the entire cell area.
         
         # potential evaporation from water bodies over the entire cell area (m/day)
-        self.waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * self.dynamicFracWat
+        waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * self.dynamicFracWat
+        return waterBodyPotEvap
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
 
+        # calculate potential evaporation from water bodies OVER THE ENTIRE CELL AREA (m/day)
+        self.waterBodyPotEvap = self.calculate_potential_evaporation(landSurface,currTimeStep,meteo)
+        
         # evaporation volume from water bodies (m3)
         # - not limited to available channelStorage 
         volLocEvapWaterBody = self.waterBodyPotEvap * self.cellArea
