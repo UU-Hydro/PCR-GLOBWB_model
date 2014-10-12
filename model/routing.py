@@ -457,6 +457,7 @@ class Routing(object):
 
         logger.info("routing in progress")
 
+        
         # waterBodies: 
         # - get parameters at the beginning of each year or simulation
         # - note that the following function should be called first, specifically because  
@@ -478,6 +479,7 @@ class Routing(object):
                                                self.cellLengthFD,\
                                                self.cellSizeInArcDeg)
         
+        
         # get routing/channel parameters/dimensions (based on avgDischarge)
         # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
         # 
@@ -491,6 +493,7 @@ class Routing(object):
                           pcr.max(channelFraction, self.WaterBodies.fracWat)
         self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
 
+        
         # routing methods
         if self.method == "accuTravelTime" or "simplifiedKinematicWave": \
            self.simple_update(landSurface,groundwater,currTimeStep,meteo)
@@ -498,6 +501,7 @@ class Routing(object):
         if self.method == "kinematicWave": \
            self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo)                 # NOTE that this method require abstraction from fossil groundwater.
        
+        
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
         # - this exchange fluxes will be handed in the next time step
         # - in the future, this will be the interface between PCR-GLOBWB & MODFLOW (based on the difference between surface water levels & groundwater heads)
@@ -510,6 +514,20 @@ class Routing(object):
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 
+    def calculate_potential_evaporation(self,landSurface,currTimeStep,meteo):
+
+        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1):
+            waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
+                               currTimeStep.fulldate, useDoy = 'month',\
+                                       cloneMapFileName = self.cloneMap)
+            self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
+        #
+        # potential evaporation from water bodies (m) - reduced by evaporation that has been calculated in the landSurface module
+        waterBodyPotEvap = pcr.ifthen(self.landmask, \
+                                      pcr.max(0.0,\
+                                      self.waterKC * meteo.referencePotET -\
+                                      landSurface.actualET ))
+        return waterBodyPotEvap                              
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -518,17 +536,7 @@ class Routing(object):
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
         #
-        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1):
-            waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
-                               currTimeStep.fulldate, useDoy = 'month',\
-                                       cloneMapFileName = self.cloneMap)
-            self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
-        #
-        # potential evaporation from water bodies (m) - reduced by evaporation that has been calculated in the landSurface module
-        self.waterBodyPotEvap = pcr.ifthen(self.landmask, \
-                                           pcr.max(0.0,\
-                                           self.waterKC * meteo.referencePotET -\
-                                           landSurface.actualET ))
+        self.waterBodyPotEvap = self.calculate_potential_evaporation(landSurface,currTimeStep,meteo)
         #
         # evaporation volume from water bodies (m3) - limited to available channelStorage
         volLocEvapWaterBody = pcr.min(\
@@ -882,7 +890,8 @@ class Routing(object):
 
     def kinematic_wave_update(self, landSurface,groundwater,currTimeStep,meteo): 
 
-        # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
+        # updating timesteps to calculate long and short term statistics 
+        # values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
 
         # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
@@ -906,9 +915,6 @@ class Routing(object):
         # potential SurfaceWaterAbstraction (unit: m/day) 
         potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract
         
-        
-        # reporting channelStorage after surface water abstraction (unit: m3)
-        self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
 
 
 
