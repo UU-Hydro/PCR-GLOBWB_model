@@ -312,7 +312,7 @@ class Routing(object):
         return (yMean, wMean, characteristicDistance)
         
 
-    def accuTravelTime(self,currTimeStep):
+    def accuTravelTime(self):
         		
         # accuTravelTime ROUTING OPERATIONS
         ##########################################################################################################################
