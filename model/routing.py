@@ -515,9 +515,9 @@ class Routing(object):
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 
 
-    def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
+    def calculate_potential_evaporation(self,landSurface,currTimeStep,meteo):
 
-        # (additional) evaporation from water bodies
+        # potential evaporation from water bodies
         # current principle: 
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
@@ -527,16 +527,18 @@ class Routing(object):
                                currTimeStep.fulldate, useDoy = 'month',\
                                        cloneMapFileName = self.cloneMap)
             self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
-        #
-        # potential evaporation from water bodies (m) - reduced by evaporation that has been calculated in the landSurface module
+        
+        # potential evaporation from water bodies (m/day)) - reduced by evaporation that has been calculated in the landSurface module
         waterBodyPotEvapOvesSurfaceWaterArea = pcr.ifthen(self.landmask, \
                                                pcr.max(0.0,\
                                                self.waterKC * meteo.referencePotET -\
                                                landSurface.actualET ))              # These values are NOT over the entire cell area.
-        #
-        # potential evaporation from surface water bodies over the entire cell area
+        
+        # potential evaporation from water bodies over the entire cell area (m/day)
         self.waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * self.dynamicFracWat
-        #
+
+    def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
+
         # evaporation volume from water bodies (m3)
         # - not limited to available channelStorage 
         volLocEvapWaterBody = self.waterBodyPotEvap * self.cellArea
