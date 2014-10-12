@@ -790,7 +790,7 @@ class Routing(object):
                                 currTimeStep,\
                                 self.avgDischarge)
 
-        # waterBodyStorage (m3) after outflow:                          # values given are per water body id (not per cell)
+        # waterBodyStorage (m3) after outflow:                               # values given are per water body id (not per cell)
         self.waterBodyStorage = self.WaterBodies.waterBodyStorage
         
         # transfer outflow from lakes and/or reservoirs to channelStorages
