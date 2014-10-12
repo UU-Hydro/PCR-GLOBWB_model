@@ -476,7 +476,7 @@ class Routing(object):
                                                self.cellArea,\
                                                self.lddMap,\
                                                self.cellLengthFD,\
-                                               self.cellSizeInArcDeg)s
+                                               self.cellSizeInArcDeg)
         
         # get routing/channel parameters/dimensions (based on avgDischarge)
         # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
