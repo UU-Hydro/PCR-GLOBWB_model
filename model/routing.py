@@ -917,7 +917,7 @@ class Routing(object):
         potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract   # values are over the entire cell area
         
         # potential evaporation (unit: m/day)
-        potSurfaceWaterEvaporation = 
+        potSurfaceWaterEvaporation = 1
         
         # reporting channelStorage after surface water abstraction (unit: m3)
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
