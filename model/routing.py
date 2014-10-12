@@ -992,7 +992,7 @@ class Routing(object):
             acc_water_body_abstraction_volume += water_body_abstraction_volume
             
             # extra surface water abstraction to reduce unmetDemand
-            accesible_surface_water = 
+            accesible_surface_water = 1.0
             
             if landSurface.usingAllocSegments == False:
         
