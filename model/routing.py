@@ -379,7 +379,8 @@ class Routing(object):
         
         # actual length of sub-time step (s)
         length_of_sub_time_step = vos.secondsPerDay() / number_of_loops
-        return length_of_sub_time_step, number_of_loops                               
+
+        return (length_of_sub_time_step, number_of_loops)                               
 
     def simplifiedKinematicWave(self): 
         """
@@ -711,7 +712,7 @@ class Routing(object):
         self.local_input_to_surface_water -= extra_surface_water_abstraction * self.cellArea
 
         # reducing unmetDemand (m)
-        groundwater.unmetDemand -= pcr.max(0.0, groundwater.unmetDemand - \
+        groundwater.unmetDemand = pcr.max(0.0, groundwater.unmetDemand - \
                                   reduction_for_unmetDemand)                                    # must be positive (otherwise, there are water balance errors) 
         
         # correcting surface water allocation after reduction of unmetDemand
