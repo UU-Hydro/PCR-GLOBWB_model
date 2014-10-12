@@ -899,7 +899,7 @@ class Routing(object):
         #
         dischargeInitial = pcr.ifthenelse(alpha > 0.0,\
                                              (self.water_height * self.wMean / alpha)**(1/self.beta),0.0)
-        return alpha,     
+        return (alpha, dischargeInitial)    
 
 
     def kinematic_wave_update(self, landSurface,groundwater,currTimeStep,meteo): 
