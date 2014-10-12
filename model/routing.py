@@ -856,10 +856,10 @@ class Routing(object):
         
         # add extra evaporation
         self.calculate_extra_evaporation()
-        
-        # reduce fossil groundwater storage abstraction (unmetDemand)
-        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
-
+        #~ 
+        #~ # reduce fossil groundwater storage abstraction (unmetDemand)
+        #~ if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
+#~ 
         # return waterBodyStorage to channelStorage  
         #
         waterBodyStorageTotal = \
