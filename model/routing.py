@@ -884,7 +884,6 @@ class Routing(object):
         # 1. Before entering sub-time steps, calculate positive fluxes:
         #   - runoff
         #   - return flow from non-irrigation water demand
-        #   - outflow from lakes/reservoirs  
         #
         # 2. Before entering sub-time steps, calculate negative fluxes:
         #      - evaporation  with rate = potential evaporation / number_of_sub_time_steps

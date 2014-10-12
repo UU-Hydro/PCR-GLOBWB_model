@@ -353,7 +353,9 @@ class Reporting(object):
         self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
                                               vos.getValDivZero(\
                                               self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
-        # 
+        self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
+                                              self.fracNonFossilGroundwaterAllocation + \
+                                              self.fracOtherWaterSourceAllocation 
         # storages of storGroundwater and channelStorage - immediately after abstraction:
         self.storGroundwaterVolumeAfterAbstraction = self._model.groundwater.storGroundwaterVolumeAfterAbstraction
         self.channelStorageVolumeAfterAbstraction  = self._model.routing.channelStorageAfterAbstraction

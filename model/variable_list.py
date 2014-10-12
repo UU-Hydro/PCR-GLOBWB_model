@@ -433,6 +433,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "Values equal to 0 indicate either zero allocation or zero water demand."
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# totalFracWaterSourceAllocation
+pcrglobwb_variable_name = 'totalFracWaterSourceAllocation'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_fraction_water_allocation'
+netcdf_unit[pcrglobwb_variable_name]       = '1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "All values must be equal to 1. Otherwise, water balance errors."
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # waterBodyActEvaporation
 pcrglobwb_variable_name = 'waterBodyActEvaporation'
 netcdf_short_name[pcrglobwb_variable_name] = 'water_body_actual_evaporation'
