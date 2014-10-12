@@ -476,13 +476,27 @@ class Routing(object):
                                                self.cellArea,\
                                                self.lddMap,\
                                                self.cellLengthFD,\
-                                               self.cellSizeInArcDeg)                             # the last line is for the initial conditions of lakes/reservoirs
+                                               self.cellSizeInArcDeg)s
         
-        # routing methods
-        if self.method == "accuTravelTime" or "simplifiedKinematicWave": self.simple_update(landSurface,groundwater,currTimeStep,meteo)
-        #
-        if self.method == "kinematicWave": self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo) # this methods are only valid if limitAbstraction = False
+        # get routing/channel parameters/dimensions (based on avgDischarge)
+        # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
+        # 
+        self.yMean, self.wMean, self.characteristicDistance = \
+                self.getRoutingParamAvgDischarge(self.avgDischarge,\
+                self.dist2celllength)
+        # 
+        channelFraction = pcr.max(0.0, pcr.min(1.0,\
+                          self.wMean * self.cellLengthFD / (self.cellArea)))
+        self.dynamicFracWat = \
+                          pcr.max(channelFraction, self.WaterBodies.fracWat)
+        self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
 
+        # routing methods
+        if self.method == "accuTravelTime" or "simplifiedKinematicWave": \
+           self.simple_update(landSurface,groundwater,currTimeStep,meteo)
+        #
+        if self.method == "kinematicWave": \
+           self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo)                 # NOTE that this method require abstraction from fossil groundwater.
        
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
         # - this exchange fluxes will be handed in the next time step
@@ -708,7 +722,7 @@ class Routing(object):
         if self.debugWaterBalance == str('True'):\
            preStorage = self.channelStorage                                                        # unit: m3
 
-        # the following variable define total local change (input) to surface water storage bodies # unit: m3 
+        # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
         self.local_input_to_surface_water = pcr.scalar(0.0)          # initiate the variable, start from zero
 
@@ -740,19 +754,6 @@ class Routing(object):
         # 
         # Note that in case of limitAbstraction = True ; landSurface.nonIrrGrossDemand has been reduced by available water                               
         
-        # get routing/channel parameters/dimensions (based on avgDischarge)
-        # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
-        # 
-        self.yMean, self.wMean, self.characteristicDistance = \
-                self.getRoutingParamAvgDischarge(self.avgDischarge,\
-                self.dist2celllength)
-        # 
-        channelFraction = pcr.max(0.0, pcr.min(1.0,\
-                          self.wMean * self.cellLengthFD / (self.cellArea)))
-        self.dynamicFracWat = \
-                          pcr.max(channelFraction, self.WaterBodies.fracWat)
-        self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
-
         # calculate evaporation from water bodies - this will return self.waterBodyEvaporation (unit: m)
         self.calculate_evaporation(landSurface,groundwater,currTimeStep,meteo)
         
@@ -879,7 +880,37 @@ class Routing(object):
         self.channelStorage = pcr.cover(waterBodyStoragePerCell, self.channelStorage)  # unit: m3
         self.channelStorage = pcr.ifthen(self.landmask, self.channelStorage)
 
-    def kinematicWave(self): 
+    def kinematic_wave_update(self, landSurface,groundwater,currTimeStep,meteo): 
+
+        # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
+        self.timestepsToAvgDischarge += 1.
+
+        # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
+        # - only local processes; therefore not considering any routing processes
+        self.local_input_to_surface_water = pcr.scalar(0.0)          # initiate the variable, start from zero
+
+        # runoff from landSurface cells (unit: m/day)
+        self.runoff = landSurface.landSurfaceRunoff +\
+                      groundwater.baseflow   
+        
+        # return flow from non irrigation water demand (unit: m/day)
+        self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowFraction*\
+                                landSurface.nonIrrGrossDemand        # m
+        #
+        # Note that in case of limitAbstraction = True ; landSurface.nonIrrGrossDemand has been reduced by available water                               
+        # 
+        # water consumption for non irrigation water demand (m/day) ; this water is removed from the system
+        self.nonIrrWaterConsumption = landSurface.nonIrrGrossDemand - \
+                                      self.nonIrrReturnFlow
+
+        # potential SurfaceWaterAbstraction (unit: m/day) 
+        potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract
+        
+        
+        # reporting channelStorage after surface water abstraction (unit: m3)
+        self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
+
+
 
         # 1. Before entering sub-time steps, calculate positive fluxes:
         #   - runoff

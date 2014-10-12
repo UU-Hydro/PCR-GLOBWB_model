@@ -855,7 +855,6 @@ class LandSurface(object):
             
                 # check and make sure that previous_state == rescaled_state
                 check_map = previous_state - rescaled_state
-                #~ pcr.report(check_map,"test.map"); os.system("aguila test.map")
                 a,b,c = vos.getMinMaxMean(check_map)
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
