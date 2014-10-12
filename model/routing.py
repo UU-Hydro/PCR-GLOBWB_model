@@ -374,7 +374,7 @@ class Routing(object):
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundup(number_of_sub_time_steps)
         #
-        number_of_loops = max(1.0, pcr.cellvalue(pcr.mapminimum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
+        number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
         number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
@@ -929,10 +929,72 @@ class Routing(object):
         potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract   # values are over the entire cell area
         
         
+        logger.info("Using the fully kinematic wave method! ")
         
-        # reporting channelStorage after surface water abstraction (unit: m3)
-        self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
+        # route only non negative channelStorage (otherwise stay):
+        channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
+        
+        # channelStorage that will be given to the ROUTING operation:
+        channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
+        
+        # water height (m)
+        self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+        
+        # estimate the length of sub-time step (unit: s):
+        length_of_sub_time_step, number_of_loops = \
+          self.estimate_length_of_sub_time_step()
 
+        for i_loop in range(number_of_loops):
+            
+            msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
+            logger.info(msg)
+            
+            # calculate alpha (dimensionless), which is the roughness coefficient 
+            # - for kinewatic wave (see: http://pcraster.geo.uu.nl/pcraster/4.0.0/doc/manual/op_kinematic.html)
+            # - based on wetted area (m2) and wetted perimeter (m), as well as self.beta (dimensionless)
+            # - assuming rectangular channel with channel_width = self.wMean and channel_length = self.dist2celllength
+            #
+            channel_wetted_area      =   self.water_height * self.wMean                                  # unit: m2
+            channel_wetted_perimeter = 2*self.water_height + self.wMean                                  # unit: m  
+            #
+            alpha = (self.manningsN*channel_wetted_perimeter**(2./3.)*self.gradient**(-0.5))**self.beta  # dimensionless
+            
+            # estimate of channel discharge (m3/s) based on water height
+            #
+            dischargeInitial = pcr.ifthenelse(alpha > 0.0,\
+                                             (self.water_height * self.wMean / alpha)**(1/self.beta),0.0)
+            
+            # discharge (m3/s) based on kinematic wave approximation
+            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                              alpha, self.beta, \
+                                              number_of_loops, length_of_sub_time_step, self.cellLengthFD)
+            
+            # update channelStorage (m3)
+            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            channelStorageForRouting += storage_change_in_volume 
+            #
+            # route only non negative channelStorage (otherwise stay):
+            channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
+            channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
+            #
+            # update water_height (this will be passed to the next loop)
+            self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+
+            # total discharge_volume (m3) until this present i_loop
+            if i_loop == 0: discharge_volume = pcr.scalar(0.0)
+            discharge_volume += self.subDischarge * length_of_sub_time_step
+
+
+
+
+
+        # 3. Within the sub-time steps:
+        #    - add all positive fluxes to channelStorage
+        #    - evaporation (limited by available readAvlChannalStorage)
+        #    - abstraction:
+        #      - increase/reduce unmetDemand (depends on abstraction and readAvlChannelStorage)
+        #      - do not forget the allocation
+        #    - calculate lake/reservoir outflow 
 
 
         # 1. Before entering sub-time steps, calculate positive fluxes:
