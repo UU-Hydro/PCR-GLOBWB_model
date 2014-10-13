@@ -414,6 +414,12 @@ class Routing(object):
             # alpha parameter and initial discharge variable needed for kinematci wave
             alpha, dischargeInitial = self.calculate_alpha_and_initial_discharge_for_kinematic_wave()
             
+            # at the lake/reservoir outlets, use the discharge of water bofy outflow
+            waterBodyOutflowInM3PerSec = pcr.ifthen(\
+                                         pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
+                                         self.WaterBodies.waterBodyOutflow) / vos.secondsPerDay()
+            dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
+
             # discharge (m3/s) based on kinematic wave approximation
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
@@ -803,15 +809,16 @@ class Routing(object):
                            pcr.ifthen(\
                            self.WaterBodies.waterBodyOut,
                            self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3/day
-        #
-        # distribute outflow to water body storage
-        # - this is to avoid 'waterBodyOutflow' skipping cells 
-        # - this is done by distributing waterBodyOutflow within lake/reservoir cells 
-        #
-        waterBodyOutflow = pcr.areaaverage(waterBodyOutflow, self.WaterBodies.waterBodyIds)
-        waterBodyOutflow = pcr.ifthen(\
-                           pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
-                           waterBodyOutflow)                                 
+        
+        if self.method == "accuTravelTime":
+            # distribute outflow to water body storage
+            # - this is to avoid 'waterBodyOutflow' skipping cells 
+            # - this is done by distributing waterBodyOutflow within lake/reservoir cells 
+            #
+            waterBodyOutflow = pcr.areaaverage(waterBodyOutflow, self.WaterBodies.waterBodyIds)
+            waterBodyOutflow = pcr.ifthen(\
+                               pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
+                               waterBodyOutflow)                                 
         self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)             # unit: m3/day
 
         # update channelStorage (m3) after waterBodyOutflow (m3)
