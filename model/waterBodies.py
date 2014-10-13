@@ -244,7 +244,7 @@ class WaterBodies(object):
         
         # for a natural run (self.onlyNaturalWaterBodies == True) 
         # which uses only the year 1900, assume all reservoirs are lakes
-        if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:\ 
+        if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:\
             self.waterBodyTyp = \
              pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
                         pcr.nominal(1))                         
