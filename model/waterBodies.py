@@ -245,7 +245,7 @@ class WaterBodies(object):
         
         # for a natural run (self.onlyNaturalWaterBodies == True) 
         # which uses only the year 1900, assume all reservoirs are lakes
-        if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:\
+        if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:
             logger.info("WARNING!! Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.waterBodyTyp = \
              pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
