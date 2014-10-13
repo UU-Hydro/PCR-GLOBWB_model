@@ -1185,7 +1185,8 @@ class Routing(object):
         gap_in_satisfying_surface_water_abstraction = pcr.max(0.0, -\
                                                       landSurface.actSurfaceWaterAbstract - acc_water_body_abstraction_volume / self.cellArea)
         landSurface.actSurfaceWaterAbstract = acc_water_body_abstraction_volume / self.cellArea
-        
+        #
+        # after satifying this gap 
         
         # total unmetDemna d
 
