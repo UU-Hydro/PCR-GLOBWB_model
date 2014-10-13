@@ -241,9 +241,18 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0.,\
                                                   self.waterBodyOut)          # make sure that all lakes and/or reservoirs have outlets
         
-        # check that all lakes and/or reservoirs have types, ids, aurface areas and outlets:
+        
+        # for a natural run (self.onlyNaturalWaterBodies == True) 
+        # which uses only the year 1900, assume all reservoirs are lakes
+        if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:\ 
+            self.waterBodyTyp = \
+             pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
+                        pcr.nominal(1))                         
+        
+        # check that all lakes and/or reservoirs have types, ids, surface areas and outlets:
         test = pcr.defined(self.waterBodyTyp) & pcr.defined(self.waterBodyArea) &\
                pcr.defined(self.waterBodyIds) & pcr.defined(self.waterBodyOut)
+        test = pcr.ifthen(pcr.boolean(self.waterBodyOut), test)       
         #~ pcr.report(test,"test.map"); os.system("aguila test.map")
         a,b,c = vos.getMinMaxMean(pcr.scalar(test) - pcr.scalar(1.0))
         threshold = 1e-3
