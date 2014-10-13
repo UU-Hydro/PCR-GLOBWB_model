@@ -245,7 +245,6 @@ class Groundwater(object):
         
         else: # ( usingAllocSegments == True and limitAbstraction == True )
 
-            # TODO: Assuming that there is also network for distributing groundwater abstractions.
             # Notes: Incorporating distribution network of groundwater source is possible only if limitAbstraction = False.  
 
             logger.info("Using groundwater source allocation.")
