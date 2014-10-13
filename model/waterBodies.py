@@ -251,9 +251,7 @@ class WaterBodies(object):
         
         # check that all lakes and/or reservoirs have types, ids, surface areas and outlets:
         test = pcr.defined(self.waterBodyTyp) & pcr.defined(self.waterBodyArea) &\
-               pcr.defined(self.waterBodyIds) & pcr.defined(self.waterBodyOut)
-        test = pcr.ifthen(pcr.boolean(self.waterBodyOut), test)       
-        #~ pcr.report(test,"test.map"); os.system("aguila test.map")
+               pcr.defined(self.waterBodyIds) & pcr.defined(pcr.areamaximum(self.waterBodyOut, self.waterBodyIds))
         a,b,c = vos.getMinMaxMean(pcr.scalar(test) - pcr.scalar(1.0))
         threshold = 1e-3
         if abs(a) > threshold or abs(b) > threshold:
