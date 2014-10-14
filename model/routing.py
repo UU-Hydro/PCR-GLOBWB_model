@@ -160,14 +160,16 @@ class Routing(object):
         minimum_length_of_sub_time_step  = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
-        maximum_number_of_sub_time_steps = np.int(np.ceil(
-                                           vos.secondsPerDay() / minimum_length_of_sub_time_step))
+        maximum_number_of_sub_time_steps = np.ceil(
+                                           vos.secondsPerDay() / minimum_length_of_sub_time_step)
         self.limit_num_of_sub_time_steps = maximum_number_of_sub_time_steps
         #
-        if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = max(24, self.limit_num_of_sub_time_steps)   # used in Van Beek et al. (2011)                                                                   
+        if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)   # used in Van Beek et al. (2011)                                                                   
+        
+        self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
         # critical water height used to select stable length of sub time step in kinematic wave methods/approaches
-        self.critical_water_height = 0.25;					                                                        # used in Van Beek et al. (2011)
+        self.critical_water_height = 0.25;					                                                          # used in Van Beek et al. (2011)
 
         # get the initialConditions
         self.getICs(iniItems, initialConditions)
