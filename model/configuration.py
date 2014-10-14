@@ -60,9 +60,12 @@ class Configuration(object):
 
         formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
 
-        console_level = getattr(logging, self.globalOptions['log_level_console'].upper(), logging.INFO)
+        log_level_console = "INFO"
+        log_level_file    = "DEBUG"
+
+        console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
-            raise ValueError('Invalid log level: %s', self.globalOptions['log_level_console'])
+            raise ValueError('Invalid log level: %s', log_level_console)
         
         #create handler, add to root logger
         console_handler = logging.StreamHandler()
@@ -72,9 +75,9 @@ class Configuration(object):
 
         log_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.log'
 
-        file_level = getattr(logging, self.globalOptions['log_level_file'], logging.DEBUG)
+        file_level = getattr(logging, log_level_file, logging.DEBUG)
         if not isinstance(console_level, int):
-            raise ValueError('Invalid log level: %s', self.globalOptions['log_level_file'])
+            raise ValueError('Invalid log level: %s', log_level_file)
 
         #create handler, add to root logger
         file_handler = logging.FileHandler(log_filename)

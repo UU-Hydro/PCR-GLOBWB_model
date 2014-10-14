@@ -33,7 +33,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
                                   LatitudeLongitude = False,\
                                   specificFillValue = None):
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    logger.info('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
@@ -131,7 +131,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     #~ print ncFile
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    logger.info('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in filecache.keys():
         f = filecache[ncFile]
@@ -192,7 +192,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "No "+str(dateInput)+" is available. The 'after' option is used while selecting netcdf time."
                     msg += "\n"
                 logger.info(msg)
-                logger.debug(msg)                                   
+                logger.info(msg)                                   
                                                   
     idx = int(idx)                                                  
 
@@ -225,7 +225,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
     if sameClone == False:
         
-        logger.debug('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
+        logger.info('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
         # crop to cloneMap:
         #~ xIdxSta = int(np.where(f.variables['lon'][:] == xULClone + 0.5*cellsizeInput)[0])
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
@@ -237,7 +237,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         cropData = f.variables[varName][idx,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
-        logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+        logger.info('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
         factor = int(float(cellsizeInput)/float(cellsizeClone))
     
     # convert to PCR object and close f
@@ -437,7 +437,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
 	# v: inputMapFileName or floating values
 	# cloneMapFileName: If the inputMap and cloneMap have different clones,
 	#                   resampling will be done.   
-    logger.debug('read file/values: '+str(v))
+    logger.info('read file/values: '+str(v))
     if v == "None":
         PCRmap = str("None")
     elif not re.match(r"[0-9.-]*$",v):
@@ -863,7 +863,7 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
             msg += "\n"
             
             logger.info(msg)
-            logger.debug(msg)
+            logger.info(msg)
 
             #~ pcr.report(inMap + dsMap - outMap,"wb.map")
             #~ os.system("aguila wb.map")
