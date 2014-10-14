@@ -492,6 +492,8 @@ class Routing(object):
         self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)                  
 
         
+        print (self.method)
+        
         # routing methods
         if self.method == "accuTravelTime" or "simplifiedKinematicWave": \
            self.simple_update(landSurface,groundwater,currTimeStep,meteo)
