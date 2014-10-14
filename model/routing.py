@@ -1164,7 +1164,7 @@ class Routing(object):
                                        water_body_abstraction_volume/self.cellArea],\
                                       [preStorage/self.cellArea + storageAtLakeAndReservoirs/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
-                                       'channelStorageForRouting (after abstraction/allocation)',\
+                                       'channelStorageForRouting (after outing)',\
                                        True,\
                                        currTimeStep.fulldate,threshold=5e-4)
 
