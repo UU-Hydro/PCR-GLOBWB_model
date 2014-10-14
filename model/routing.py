@@ -921,7 +921,7 @@ class Routing(object):
          waterBodyStoragePerCell)                                                      # unit: m3
         #
         channelStorage = pcr.cover(waterBodyStoragePerCell, channelStorage)            # unit: m3
-        channelStorage = pcr.ifthen(self.landmask, channelStorageForRouting)
+        channelStorage = pcr.ifthen(self.landmask, channelStorage)
         return channelStorage
 
     def kinematic_wave_update(self, landSurface,groundwater,currTimeStep,meteo): 
