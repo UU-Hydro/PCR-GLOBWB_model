@@ -659,7 +659,7 @@ class Routing(object):
             
             # reduction_for_unmetDemand
             reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea, \
-                                                maximum_unmet_demand)                           # unit: m
+                                                potential_unmet_demand)                           # unit: m
 
             # actual extra surface water abstraction in meter 
             extra_surface_water_abstraction = pcr.ifthen(self.landmask, reduction_for_unmetDemand)
