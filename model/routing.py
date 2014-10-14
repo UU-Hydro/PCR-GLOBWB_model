@@ -898,7 +898,7 @@ class Routing(object):
         return (alpha, dischargeInitial)    
 
 
-    def return_water_body_storage_to_channel(self, channelStorage)
+    def return_water_body_storage_to_channel(self, channelStorage):
 
         # return waterBodyStorage to channelStorage  
         #
