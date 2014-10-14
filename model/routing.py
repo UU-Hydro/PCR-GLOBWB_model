@@ -978,7 +978,7 @@ class Routing(object):
         # the following variable defines total evaporation from surface water bodies # unit: m 
         waterBodyEvaporation = pcr.scalar(0.0)                          # initiate variable, start from zero
 
-
+        #######################################################################################################################
         for i_loop in range(number_of_loops):
             
             msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
@@ -989,8 +989,8 @@ class Routing(object):
                 acc_local_input_to_surface_water    = pcr.scalar(0.0)   # unit: m3                            
                 acc_water_body_evaporation_volume   = pcr.scalar(0.0)   # unit: m3
                 acc_water_body_abstraction_volume   = pcr.scalar(0.0)   # unit: m3
+                acc_water_body_allocation_volume    = pcr.scalar(0.0)   # unit: m3
                 acc_discharge_volume                = pcr.scalar(0.0)   # unit: m3
-                acc_water_allocation_volume         = pcr.scalar(0.0)   # unit: m3
 
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
             channelStorageForRouting          += (self.runoff + nonIrrReturnFlow) * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
@@ -1003,15 +1003,84 @@ class Routing(object):
             acc_local_input_to_surface_water  -= water_body_evaporation_volume
             acc_water_body_evaporation_volume += water_body_evaporation_volume
             
-            # update channelStorage after surface water abstraction 
-            available_water = self.estimate_available_volume_for_abstraction(channelStorageForRouting)        # unit: m3
-            water_body_abstraction_volume      = pcr.max(0.0, available_water - \
-                                                          potSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
-            channelStorageForRouting          -= water_body_abstraction_volume
-            channelStorageForRouting           = pcr.max(0.0, channelStorageForRouting)
-            acc_local_input_to_surface_water  -= water_body_abstraction_volume
-            acc_water_body_abstraction_volume += water_body_abstraction_volume
+            # surface water abstraction and it allocation to meet surface water demand 
+            #
+            # - potential abstraction during this sub time step
+            pot_surface_water_abstract_volume = potSurfaceWaterEvaporation * \
+                                                self.cellArea * length_of_sub_time_step/vos.secondsPerDay()          # unit: m3
+            #
+            # - available_water (m3) for abstraction (during thus sub time step)
+            # - note that this includes storage in lakes and/resevoirs
+            available_water_volume = self.estimate_available_volume_for_abstraction(channelStorageForRouting)        # unit: m3
+            #
+            # - abstraction and allocation
+            ###########################################
+            if landSurface.usingAllocSegments == False:
+        
+                logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
+                
+                # surface water abstraction 
+                water_body_abstraction_volume      = pcr.max(0.0,\
+                                                     available_water_volume - pot_surface_water_abstract_volume)     # unit: m3
+                
+                # allocating surface water abstraction to surface water demand (no network)                          # unit: m3
+                water_body_allocation_volume       = water_body_abstraction_volume
+            #
+            if landSurface.usingAllocSegments == True and landSurface.limitAbstraction == False:
+
+                logger.info("Using surface water allocation.")
+
+                # gross/potential demand volume in each cell (unit: m3)
+                cellVolGrossDemand = pot_surface_water_abstract_volume
             
+                # demand in each segment/zone (unit: m3)
+                segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
+            
+                # total available water volume in each cell - ignore small values (less than 1 m3)
+                cellAvlWater = pcr.max(0.00, available_water_volume)
+                cellAvlWater = pcr.rounddown(cellAvlWater)
+            
+                # total available surface water volume in each segment/zone  (unit: m3)
+                segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
+                segAvlWater  = pcr.max(0.00,  segAvlWater)
+            
+                # total actual surface water abstraction volume in each segment/zone (unit: m3)
+                #
+                # - not limited to available water - ignore small values (less than 1 m3)
+                segActWaterAbs = segTtlGrossDemand
+                # 
+                # - limited to available water
+                segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
+            
+                # surface water abstraction in each cell (unit: m3)
+                volActWaterAbstract = vos.getValDivZero(\
+                                      cellAvlWater, segAvlWater, vos.smallNumber) * \
+                                      segActWaterAbs                                                 
+                water_body_abstraction_volume = pcr.min(cellAvlWater,volActWaterAbstract)
+            
+                # allocation surface water abstraction volume to each cell (unit: m3)
+                water_body_allocation_volume = vos.getValDivZero(\
+                                               cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber)*\
+                                               segActWaterAbs 
+
+                if self.debugWaterBalance == str('True'):
+    
+                    abstraction = pcr.cover(pcr.areatotal(water_body_abstraction_volume, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                    allocation  = pcr.cover(pcr.areatotal(water_body_allocation_volume , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+            
+                    vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
+                                          [pcr.ifthen(self.landmask, allocation)],\
+                                          [pcr.scalar(0.0)],\
+                                          [pcr.scalar(0.0)],\
+                                          'extra surface water abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                                           True,\
+                                           "",threshold=5e-4)
+
+            # - update channelStorageForRouting after abstraction
+            channelStorageForRouting          -= water_body_abstraction_volume   # unit: m3
+            acc_water_body_abstraction_volume += water_body_abstraction_volume   # unit: m3
+            acc_water_body_allocation_volume  += water_body_allocation_volume                                   
+
             # lakes and reservoirs
             # at cells where lakes and/or reservoirs defined, move channelStorage to waterBodyStorage
             #
@@ -1022,7 +1091,7 @@ class Routing(object):
             #
             # - move only non negative values and use rounddown values
             storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
-            self.channelStorage -= storageAtLakeAndReservoirs                    # unit: m3
+            schannelStorageForRouting -= storageAtLakeAndReservoirs                    # unit: m3
 
             # update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
@@ -1072,121 +1141,31 @@ class Routing(object):
             # return waterBodyStorage to channelStorage  
             channelStorageForRouting = self.return_water_body_storage_to_channel(channelStorageForRouting)
 
-            # estimate extra surface water abstraction to reduce unmetDemand
-            # - this one will be taken from the difference/surplus between landSurface.actSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()
-            #                                                          and water_body_abstraction_volume
-            available_water = self.estimate_available_volume_for_abstraction(channelStorageForRouting)
-            # 
-            potential_reduction = potUnmetDemandReduction * self.cellArea *\
-                                  length_of_sub_time_step/vos.secondsPerDay()                       # unit: m3
-            #
-            accesible_water = pcr.max(0.0,\
-                                      landSurface.actSurfaceWaterAbstract * \
-                                      self.cellArea * length_of_sub_time_step/vos.secondsPerDay() - \
-                                      water_body_abstraction_volume)                                # unit: m3
-            accesible_water = pcr.min(available_water, accesible_water)                             # unit: m3
-            
-            if landSurface.usingAllocSegments == False:
-        
-                logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
-                
-                # reducing unmetDemand
-                reduction_for_unmetDemand = pcr.min(accesible_water, \
-                                                    potential_reduction) / self.cellArea            # unit: m
-
-                # actual extra surface water abstraction in meter  
-                extra_surface_water_abstraction = \
-                                            pcr.ifthen(self.landmask, reduction_for_unmetDemand)    # unit: m 
-                
-
-            if landSurface.usingAllocSegments == True and landSurface.limitAbstraction == False:
-
-                # Notes: Incorporating distribution network is possible only if limitAbstraction = False.  
-
-                logger.info("Using allocation to reduce unmetDemand.")
-
-                # gross/potential demand volume in each cell (unit: m3)
-                cellVolGrossDemand = pcr.rounddown(
-                                     potential_reduction*self.cellArea)
-            
-                # demand in each segment/zone (unit: m3)
-                segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
-            
-                # total available water volume in each cell - ignore small values (less than 1 m3)
-                cellAvlWater = pcr.max(0.00, available_water)
-                cellAvlWater = pcr.rounddown( cellAvlWater)
-            
-                # total available surface water volume in each segment/zone  (unit: m3)
-                segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
-                segAvlWater  = pcr.max(0.00,  segAvlWater)
-            
-                # total actual extra surface water abstraction volume in each segment/zone (unit: m3)
-                #
-                # - not limited to available water - ignore small values (less than 1 m3)
-                segActWaterAbs = segTtlGrossDemand
-                # 
-                # - limited to available water
-                segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
-            
-                # actual extra surface water abstraction volume in each cell (unit: m3)
-                volActWaterAbstract = vos.getValDivZero(\
-                                      cellAvlWater, segAvlWater, vos.smallNumber) * \
-                                      segActWaterAbs                                                 
-                volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)                                   # unit: m3
-            
-                # actual extra surface water abstraction in meter 
-                extra_surface_water_abstraction   = pcr.ifthen(self.landmask, volActWaterAbstract) /\
-                                                                             self.cellArea                        # unit: m
-
-                # allocation extra surface water abstraction volume to each cell (unit: m3)
-                extraVolAllocSurfaceWaterAbstract = vos.getValDivZero(\
-                                                     cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
-                                                     segActWaterAbs                                               # unit: m3 
-                
-                # reduction for unmetDemand (unit: m)
-                reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                     # unit: m
-            
-                if self.debugWaterBalance == str('True'):
-    
-                    abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract              , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
-                    allocation  = pcr.cover(pcr.areatotal(extraVolAllocSurfaceWaterAbstract, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
-            
-                    vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
-                                          [pcr.ifthen(self.landmask, allocation)],\
-                                          [pcr.scalar(0.0)],\
-                                          [pcr.scalar(0.0)],\
-                                          'extra surface water abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
-                                           True,\
-                                           "",threshold=5e-4)
-
-            # update channelStorage after extra surface water abstraction 
-            water_body_abstraction_volume      = extra_surface_water_abstraction * self.cellArea
-            channelStorageForRouting          -= water_body_abstraction_volume
-            channelStorageForRouting           = pcr.max(0.0, channelStorageForRouting)
-            acc_local_input_to_surface_water  -= water_body_abstraction_volume
-            acc_water_body_abstraction_volume += water_body_abstraction_volume
-            
             # update water_height (this will be passed to the next loop)
             self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
 
-            # update allocation from surface water (it will be used to reduce unmetDemand)
-            acc_extra_surface_water_allocation_volume = extra_surface_water_abstraction * \
-                                                        self.cellArea                               # unit: m3   
-
+        #######################################################################################################################
+        
         # evaporation (m/day)
         self.waterBodyEvaporation = water_body_evaporation_volume / self.cellArea
         
         # local input to surface water (m3)
         self.local_input_to_surface_water = acc_local_input_to_surface_water
 
-        # gap in satisfying potSurfaceWaterAbstract (m)
-        gap_in_satisfying_surface_water_abstraction = pcr.max(0.0, -\
-                                                      landSurface.actSurfaceWaterAbstract - acc_water_body_abstraction_volume / self.cellArea)
+        # surface water abstraction (unit: m/day)
         landSurface.actSurfaceWaterAbstract = acc_water_body_abstraction_volume / self.cellArea
-        #
-        # after satifying this gap 
         
-        # total unmetDemna d
+        # surplus/gap in satisfying surface water allocation (unit: m/day)
+        surplus_in_surface_water_allocation = landSurface.allocSurfaceWaterAbstract - \
+                                              acc_water_body_allocation_volume / self.cellArea) 
+        # note: positive values indicate surplus 
+        #       negative values indicate gap 
+        
+        # surface water allocation (m/3) 
+        landSurface.allocSurfaceWaterAbstract = acc_water_body_allocation_volume / self.cellArea
+        
+        # cover the gap in satisfying surface water demand by unmetDemand
+        groundwater.unmetDemand -= surplus_in_surface_water_allocation    # Note that this must be positive (otherwise, it indicates water balance errors)
 
         # channel discharge (m3/day) = self.Q
         self.Q = acc_discharge_volume
@@ -1210,6 +1189,17 @@ class Routing(object):
         #
         self.disChanWaterBody = pcr.max(0.,self.disChanWaterBody)      # reported channel discharge cannot be negative
 
+        # calculate the statistics of long and short term flow values
+        self.calculate_statistics(groundwater)
+        
+        # add extra evaporation
+        self.calculate_extra_evaporation()
+        
+        # reduce fossil groundwater storage abstraction (unmetDemand)
+        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
+
+        # return waterBodyStorage to channelStorage  
+        self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
 
     def calculate_statistics(self, groundwater):
 
@@ -1244,6 +1234,12 @@ class Routing(object):
                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
         self.avgDischargeShort = pcr.max(0.0, self.avgDischargeShort)                         
 
+        # calculate minimum discharge for environmental flow (m3/s)
+        #
+        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
+        factor = 0.01 # to avoid flip flop
+        self.minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+
         # long term average baseflow (m3/s)
         # - avgDischarge and avgBaseflow used as proxies for partitioning groundwater and surface water abstractions
         #
@@ -1253,12 +1249,6 @@ class Routing(object):
                            deltaAnoBaseflow/\
                            pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)                
         self.avgBaseflow = pcr.max(0.0, self.avgBaseflow)
-
-        # calculate minimum discharge for environmental flow (m3/s)
-        #
-        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
-        factor = 0.01 # to avoid flip flop
-        self.minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
 
     def estimate_available_volume_for_abstraction(self, channelStorage):
         # input: channelStorage    in m3

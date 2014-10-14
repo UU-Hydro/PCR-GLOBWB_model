@@ -736,8 +736,10 @@ class LandSurface(object):
         swAbstractionFraction = pcr.max(0.0, swAbstractionFraction)
         swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
 
-        # Assume that if swAbstractionFraction > 0.5 , the potential of using surface water is the primary source is high
+        # Assume that if swAbstractionFraction > 50% , the potential of using surface water as its primary source is very high
         swAbstractionFraction = pcr.ifthenelse(swAbstractionFraction > 0.5, 1.0, swAbstractionFraction)
+        swAbstractionFraction = pcr.roundup(swAbstractionFraction*10.)/10.
+        swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
         
         # TODO: constrain swAbstractionFraction with Siebert's map
         
