@@ -1081,7 +1081,7 @@ class Routing(object):
             #                                                          and water_body_abstraction_volume
             available_water = self.estimate_available_volume_for_abstraction(channelStorageForRouting)
             # 
-            potential_reduction = potUnmetDemandReduction * self.cellArea
+            potential_reduction = potUnmetDemandReduction * self.cellArea *\
                                   length_of_sub_time_step/vos.secondsPerDay()                       # unit: m3
             #
             accesible_water = pcr.max(0.0,\
