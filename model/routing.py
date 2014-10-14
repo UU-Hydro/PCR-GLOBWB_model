@@ -503,8 +503,8 @@ class Routing(object):
            self.simple_update(landSurface,groundwater,currTimeStep,meteo)
         #
         if self.method == "kinematicWave": \
-           self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo)                 # NOTE that this method require abstraction from fossil groundwater.
-       
+           self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo)                 
+        # NOTE that this method require abstraction from fossil groundwater.
         
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
         # - this exchange fluxes will be handed in the next time step
