@@ -944,7 +944,7 @@ class Routing(object):
                                       self.nonIrrReturnFlow             # values are over the entire cell area
 
         # potential evaporation (unit: m/day)
-        potSurfaceWaterEvaporation = \
+        self.waterBodyPotEvap = \
          self.calculate_potential_evaporation(landSurface,currTimeStep,\
                                               meteo)                    # values are over the entire cell area
 
@@ -1000,7 +1000,7 @@ class Routing(object):
 
             # update channelStorageForRouting after evaporation
             water_body_evaporation_volume      = pcr.max(0.0, channelStorageForRouting - \
-                                                              potSurfaceWaterEvaporation * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
+                                                              self.waterBodyPotEvap * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_evaporation_volume
             acc_local_input_to_surface_water  -= water_body_evaporation_volume
             acc_water_body_evaporation_volume += water_body_evaporation_volume
@@ -1150,6 +1150,7 @@ class Routing(object):
         
         # evaporation (m/day)
         self.waterBodyEvaporation = water_body_evaporation_volume / self.cellArea
+        self.remainWaterBodyPotEvap = self.waterBodyPotEvap - self.waterBodyEvaporation
         
         # local input to surface water (m3)
         self.local_input_to_surface_water = acc_local_input_to_surface_water
