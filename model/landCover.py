@@ -828,6 +828,9 @@ class LandCover(object):
         totalGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
         self.totalPotentialGrossDemand = totalGrossDemand
 
+        # surface water demand (m): water demand that will be satisfied by surface water abstraction
+        surface_water_demand = totalGrossDemand * swAbstractionFraction
+        
         # surface water abstraction that can be extracted to fulfil totalGrossDemand
         # - based on readAvlChannelStorage
         #        and swAbstractionFraction * totalPotGrossDemand
@@ -839,7 +842,7 @@ class LandCover(object):
             allocSegments = pcr.ifthen(self.landmask, allocSegments)
             
             # gross demand volume in each cell (unit: m3)
-            cellVolGrossDemand = totalGrossDemand*routing.cellArea
+            cellVolGrossDemand = surface_water_demand*routing.cellArea
             
             # total gross demand volume in each segment/zone (unit: m3)
             segTtlGrossDemand = pcr.areatotal(cellVolGrossDemand, allocSegments)
@@ -856,9 +859,7 @@ class LandCover(object):
             # total actual surface water abstraction volume in each segment/zone (unit: m3)
             #
             # - not limited to available water - ignore small values (less than 1 m3)
-            segActSurWaterAbs   = pcr.max(0.0,\
-                                  pcr.rounddown(\
-                                  swAbstractionFraction * segTtlGrossDemand/1.)*1.)
+            segActSurWaterAbs   = segTtlGrossDemand
             # 
             # - limited to available water
             segActSurWaterAbs   = pcr.min(segAvlSurfaceWater, segActSurWaterAbs)
@@ -874,16 +875,16 @@ class LandCover(object):
             
             # actual surface water abstraction volume in meter (unit: m)
             self.actSurfaceWaterAbstract = pcr.ifthen(self.landmask, volActSurfaceWaterAbstract) /\
-                                                                     routing.cellArea                        # unit: m
+                                                                     routing.cellArea              # unit: m
             
             # allocation surface water abstraction volume to each cell (unit: m3)
             volAllocSurfaceWaterAbstract = vos.getValDivZero(\
                                                 cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
-                                                segActSurWaterAbs                                            # unit: m3 
+                                                segActSurWaterAbs                                  # unit: m3 
             
             # allocation surface water abstraction in meter (unit: m)
             self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, volAllocSurfaceWaterAbstract) /\
-                                                                       routing.cellArea                      # unit: m
+                                                                       routing.cellArea            # unit: m
 
             if self.debugWaterBalance == str('True'):
     
