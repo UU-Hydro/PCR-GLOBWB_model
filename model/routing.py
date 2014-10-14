@@ -1182,6 +1182,19 @@ class Routing(object):
             # update water_height (this will be passed to the next loop)
             self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
 
+            if self.debugWaterBalance:\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
+                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
+                                       self.waterBodyOutflow/self.cellArea,\
+                                       storage_change_in_volume/self.cellArea],\
+                                      [water_body_evaporation_volume/self.cellArea,\
+                                       water_body_abstraction_volume/self.cellArea],\
+                                      [preStorage/self.cellArea],\
+                                      [channelStorageForRouting/self.cellArea + channelStorageThatWillNotMove/self.cellArea],\
+                                       'channelStorageForRouting (after routing, without lakes/reservoirs)',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=5e-4)
+
         #######################################################################################################################
         
         # evaporation (m/day)
