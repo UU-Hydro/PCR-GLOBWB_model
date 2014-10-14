@@ -145,7 +145,7 @@ class Configuration(object):
         os.makedirs(self.outNCDir)
 
         # making backup for the python scripts used:
-        self.scriptDir = vos.getFullPath(self.globalOptions['backupScriptDir'], \
+        self.scriptDir = vos.getFullPath("scripts/", \
                                          self.globalOptions['outputDir'])
 
         if os.path.exists(self.scriptDir):
