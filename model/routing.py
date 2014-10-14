@@ -864,9 +864,6 @@ class Routing(object):
         #
         ##########################################################################################################################
 
-        # return waterBodyStorage to channelStorage  
-        self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
-
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
