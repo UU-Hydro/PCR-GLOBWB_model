@@ -155,17 +155,16 @@ class Routing(object):
         # courantNumber criteria for numerical stability in kinematic wave methods/approaches
         self.courantNumber = 0.50
 
-        # empirical values for maximum number of sub-time steps:
-        design_flood_speed = 5.00 # m/s
-        minimum_length_of_sub_time_step  = pcr.cellvalue(
+        # empirical values for minimum number of sub-time steps:
+        design_flood_speed = 7.50 # m/s
+        design_length_of_sub_time_step   = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
-        maximum_number_of_sub_time_steps = np.ceil(
-                                           vos.secondsPerDay() / minimum_length_of_sub_time_step)
-        self.limit_num_of_sub_time_steps = maximum_number_of_sub_time_steps
+        self.limit_num_of_sub_time_steps = np.ceil(
+                                           vos.secondsPerDay() / design_length_of_sub_time_step)
         #
         if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)   # used in Van Beek et al. (2011)                                                                   
-        
+        #        
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
         # critical water height used to select stable length of sub time step in kinematic wave methods/approaches
