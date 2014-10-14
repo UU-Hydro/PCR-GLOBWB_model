@@ -993,8 +993,10 @@ class Routing(object):
                 acc_discharge_volume                = pcr.scalar(0.0)   # unit: m3
 
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
-            channelStorageForRouting          += (self.runoff + nonIrrReturnFlow) * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
-            acc_local_input_to_surface_water  += (self.runoff + nonIrrReturnFlow) * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
+            channelStorageForRouting          += (self.runoff + self.nonIrrReturnFlow) * \
+                                                  self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
+            acc_local_input_to_surface_water  += (self.runoff + self.nonIrrReturnFlow) * \
+                                                  self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
 
             # update channelStorageForRouting after evaporation
             water_body_evaporation_volume      = pcr.max(0.0, channelStorageForRouting - \
