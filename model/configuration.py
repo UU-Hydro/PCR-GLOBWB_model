@@ -217,7 +217,7 @@ class Configuration(object):
         if 'avgSurfaceWaterInputLongIni' not in self.routingOptions.keys():
             logger.info("Note that avgSurfaceWaterInputLongIni is not used and not needed.")
             
-        if 'subDischargeIni' not in self.routingOptions.keys():
+        if 'subDischargeIni' not in self.routingOptions.keys() or self.routingOptions['subDischargeIni'] = str(None):
             msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run.'
             msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
             logger.info(msg)
