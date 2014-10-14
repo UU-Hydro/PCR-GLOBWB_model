@@ -1200,17 +1200,16 @@ class Routing(object):
         # surface water abstraction (unit: m/day)
         landSurface.actSurfaceWaterAbstract = acc_water_body_abstraction_volume / self.cellArea
         
-        # gap/surplus in satisfying surface water allocation (unit: m/day)
-        surplus_in_surface_water_allocation = landSurface.allocSurfaceWaterAbstract - \
-                                              acc_water_body_allocation_volume / self.cellArea 
-        # note: positive values indicate gap 
-        #       negative values indicate surplus 
-        
-        # surface water allocation (m/3) 
+        # surface water allocation (unit: m/day) 
         landSurface.allocSurfaceWaterAbstract = acc_water_body_allocation_volume / self.cellArea
         
-        # cover the gap in satisfying surface water demand by unmetDemand
-        groundwater.unmetDemand += surplus_in_surface_water_allocation    # Note that this must be positive (otherwise, it indicates water balance errors)
+        # unmetDemand (unit: m/day)
+        groundwater.unmetDemand = landSurface.totalPotentialGrossDemand -\
+                                  landSurface.allocSurfaceWaterAbstract -\
+                                  groundwater.allocNonFossilGroundwater
+        #
+        # Note that this must be positive (otherwise, it indicates water balance errors)
+        
         if self.debugWaterBalance:
             test = pcr.ifthen(groundwater.unmetDemand < 0.0, groundwater.unmetDemand)
             a,b,c = vos.getMinMaxMean(pcr.scalar(test))
