@@ -1022,12 +1022,14 @@ class Routing(object):
             # surface water abstraction and it allocation to meet surface water demand 
             #
             # - potential abstraction during this sub time step
-            pot_surface_water_abstract_volume = surface_water_demand * \
-                                                self.cellArea * length_of_sub_time_step/vos.secondsPerDay()          # unit: m3
+            pot_surface_water_abstract_volume = pcr.rounddown(
+                                                surface_water_demand * \
+                                                self.cellArea * length_of_sub_time_step/vos.secondsPerDay())         # unit: m3
             #
             # - available_water (m3) for abstraction (during thus sub time step)
             # - note that this includes storage in lakes and/resevoirs
-            available_water_volume = self.estimate_available_volume_for_abstraction(channelStorageForRouting)        # unit: m3
+            available_water_volume = pcr.rounddown(
+                                     self.estimate_available_volume_for_abstraction(channelStorageForRouting))       # unit: m3
             #
             # - abstraction and allocation
             ###########################################
@@ -1062,7 +1064,7 @@ class Routing(object):
                 # total actual surface water abstraction volume in each segment/zone (unit: m3)
                 #
                 # - not limited to available water - ignore small values (less than 1 m3)
-                segActWaterAbs = segTtlGrossDemand
+                segActWaterAbs = pcr.rounddown(segTtlGrossDemand)
                 # 
                 # - limited to available water
                 segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
