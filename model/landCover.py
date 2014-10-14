@@ -829,7 +829,7 @@ class LandCover(object):
         self.totalPotentialGrossDemand = totalGrossDemand
 
         # surface water demand (m): water demand that should be satisfied by surface water abstraction
-        surface_water_demand = totalGrossDemand * swAbstractionFraction
+        surface_water_demand = self.totalPotentialGrossDemand * swAbstractionFraction
         
         # surface water abstraction that can be extracted to fulfil totalGrossDemand
         # - based on readAvlChannelStorage
@@ -854,19 +854,15 @@ class LandCover(object):
             # total available surface water volume in each segment/zone  (unit: m3)
             segAvlSurfaceWater  = pcr.areatotal(cellAvlSurfaceWater, allocSegments)
             segAvlSurfaceWater  = pcr.max(0.00, segAvlSurfaceWater)
-            segAvlSurfaceWater  = pcr.rounddown(segAvlSurfaceWater) 
             
             # total actual surface water abstraction volume in each segment/zone (unit: m3)
             #
-            # - not limited to available water - ignore small values (less than 1 m3)
-            segActSurWaterAbs   = pcr.rounddown(segTtlGrossDemand)
+            # - not limited to available water
+            segActSurWaterAbs   = segTtlGrossDemand
             # 
             # - limited to available water
             segActSurWaterAbs = pcr.min(segAvlSurfaceWater, segActSurWaterAbs)
             
-            # ignore small values (less than 1 m3) in total available surface water abstraction for each segment/zone
-            segActSurWaterAbs = pcr.rounddown(segActSurWaterAbs) 
-
             # actual surface water abstraction volume in each cell (unit: m3)
             volActSurfaceWaterAbstract = vos.getValDivZero(\
                                          cellAvlSurfaceWater, segAvlSurfaceWater, vos.smallNumber) * \
@@ -911,7 +907,7 @@ class LandCover(object):
         self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
         self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
         
-        self.potGroundwaterAbstract  = pcr.max(0.0, totalGrossDemand - self.allocSurfaceWaterAbstract)              # unit: m
+        self.potGroundwaterAbstract  = pcr.max(0.0, self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract)              # unit: m
             
         # if limitAbstraction == 'True'
         # - no fossil gwAbstraction.

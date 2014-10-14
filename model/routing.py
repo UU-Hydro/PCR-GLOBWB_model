@@ -702,7 +702,7 @@ class Routing(object):
             volActWaterAbstract = pcr.min(cellAvlWater,volActWaterAbstract)                               # unit: m3
             
             # actual extra surface water abstraction in meter 
-            extra_surface_water_abstraction      = pcr.ifthen(self.landmask, volActWaterAbstract) /\
+            extra_surface_water_abstraction    = pcr.ifthen(self.landmask, volActWaterAbstract) /\
                                                                              self.cellArea                # unit: m
 
             # allocation extra surface water abstraction volume to each cell (unit: m3)
