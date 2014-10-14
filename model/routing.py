@@ -864,6 +864,9 @@ class Routing(object):
         #
         ##########################################################################################################################
 
+        # return waterBodyStorage to channelStorage  
+        self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
+
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
@@ -874,7 +877,6 @@ class Routing(object):
         if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
 
         # return waterBodyStorage to channelStorage  
-        #
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
 
     def calculate_alpha_and_initial_discharge_for_kinematic_wave(self): 

@@ -51,7 +51,7 @@ class Groundwater(object):
                                   cloneMapFileName = self.cloneMap)
 
         self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
-        self.recessionCoeff = pcr.max(2.5e-3,self.recessionCoeff)       
+        self.recessionCoeff = pcr.max(1.0e-4,self.recessionCoeff)       # The minimum value is the minimum value used in Van Beek et al. (2011)       
         self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
