@@ -1107,6 +1107,10 @@ class Routing(object):
             # 
             self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)             # unit: m3
             
+            # update channelStorage (m3) after waterBodyOutflow (m3)
+            channelStorageForRouting += self.waterBodyOutflow
+            # Note that local_input_to_surface_water does not include waterBodyOutflow
+
             # alpha parameter and initial discharge variable needed for kinematic wave
             alpha, dischargeInitial = self.calculate_alpha_and_initial_discharge_for_kinematic_wave()
             
