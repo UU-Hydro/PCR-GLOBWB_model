@@ -338,7 +338,7 @@ class PCRGlobWB(object):
     def update(self, report_water_balance=False):
         logger.info("updating model to time %s", self._modelTime)
         
-        if self._configuration.globalOptions['debugWaterBalance'] == "True":
+        if (report_water_balance):
             storesAtBeginning = self.totalStores()
 
         self.meteo.update(self._modelTime)                                         
@@ -346,7 +346,7 @@ class PCRGlobWB(object):
         self.groundwater.update(self.landSurface,self.routing,self._modelTime)
         self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
 
-        if self._configuration.globalOptions['debugWaterBalance'] == "True":
+        if (report_water_balance):
             storesAtEnd = self.totalStores()
             self.checkWaterBalance(storesAtBeginning, storesAtEnd)
         

@@ -130,14 +130,14 @@ class Configuration(object):
             pass # for new outputDir (not exist yet)
 
         # making temporary directory:
-        self.tmpDir = vos.getFullPath(self.globalOptions['tmpDir'], \
+        self.tmpDir = vos.getFullPath("tmp/", \
                                       self.globalOptions['outputDir'])
         
         if os.path.exists(self.tmpDir):
             shutil.rmtree(self.tmpDir)
         os.makedirs(self.tmpDir)
         
-        self.outNCDir = vos.getFullPath(self.globalOptions['outputNCDir'], \
+        self.outNCDir = vos.getFullPath("netcdf/", \
                                          self.globalOptions['outputDir'])
         if os.path.exists(self.outNCDir):
             shutil.rmtree(self.outNCDir)
@@ -157,22 +157,30 @@ class Configuration(object):
             shutil.copy(filename, self.scriptDir)
 
         # making log directory:
-        self.logFileDir = vos.getFullPath(self.globalOptions['logFileDir'], \
+        self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
-        
-        
-        if os.path.exists(self.logFileDir) and self.globalOptions['cleanLogDir'] == "True":
+        cleanLogDir = True
+        if os.path.exists(self.logFileDir) and cleanLogDir:
             shutil.rmtree(self.logFileDir)
         os.makedirs(self.logFileDir)
 
         # making endStateDir directory:
-        self.endStateDir = self.globalOptions['endStateDir']
-        if self.endStateDir != "None":
-            self.endStateDir = vos.getFullPath(self.endStateDir, \
-                                  self.globalOptions['outputDir'])
-            if os.path.exists(self.endStateDir) and self.globalOptions['cleanEndStateDir'] == "True":
-                shutil.rmtree(self.endStateDir)
-            os.makedirs(self.endStateDir)
+        self.endStateDir = vos.getFullPath("states/", \
+                                           self.globalOptions['outputDir'])
+        if os.path.exists(self.endStateDir):
+            shutil.rmtree(self.endStateDir)
+        os.makedirs(self.endStateDir)
+
+        # making pcraster maps directory:
+        self.mapsDir = vos.getFullPath("maps/", \
+                                       self.globalOptions['outputDir'])
+        cleanMapDir = True
+        if os.path.exists(self.mapsDir) and cleanMapDir:
+            shutil.rmtree(self.mapsDir)
+        os.makedirs(self.mapsDir)
+        
+        # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
+        os.chdir(self.mapsDir)
 
 
     def repair_ini_key_names(self):
