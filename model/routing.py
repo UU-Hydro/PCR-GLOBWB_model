@@ -1051,7 +1051,14 @@ class Routing(object):
             if landSurface.limitAbstraction == True and\
               (landSurface.includeIrrigation or landSurface.domesticWaterDemandOption or landSurface.industrycWaterDemandOption):
         
-                logger.info("ERROR !!!! The option kinematicWave cannot be used for a run with water demand and limitAbstraction = True")
+                msg += "\n"
+                msg  = "\n"
+                msg += "=================================================================================================================="
+                msg += "ERROR !!!! The option kinematicWave cannot be used for a run with water demand and limitAbstraction = True"
+                msg += "=================================================================================================================="
+                msg += "\n"
+                msg += "\n"
+                logger.info(msg)
                 water_body_abstraction_volume = None
                 water_body_allocation_volume  = None
 
