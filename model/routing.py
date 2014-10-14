@@ -1093,7 +1093,7 @@ class Routing(object):
             #
             # - move only non negative values and use rounddown values
             storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
-            schannelStorageForRouting -= storageAtLakeAndReservoirs                    # unit: m3
+            channelStorageForRouting -= storageAtLakeAndReservoirs               # unit: m3
 
             # update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
