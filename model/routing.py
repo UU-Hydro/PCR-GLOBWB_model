@@ -1041,7 +1041,10 @@ class Routing(object):
                                      self.estimate_available_volume_for_abstraction(channelStorageForRouting))       # unit: m3
             available_water_volume = pcr.max(0.0, available_water_volume) 
             #
-            # - abstraction and allocation
+            # - initiating abstraction and allocation variables (unit: m3)
+            water_body_abstraction_volume = pcr.scalar(0.0)
+            water_body_allocation_volume  = pcr.scalar(0.0)
+            #
             ###########################################
             if landSurface.usingAllocSegments == False:
         
