@@ -1236,12 +1236,6 @@ class Routing(object):
                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
         self.avgDischargeShort = pcr.max(0.0, self.avgDischargeShort)                         
 
-        # calculate minimum discharge for environmental flow (m3/s)
-        #
-        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
-        factor = 0.01 # to avoid flip flop
-        self.minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
-
         # long term average baseflow (m3/s)
         # - avgDischarge and avgBaseflow used as proxies for partitioning groundwater and surface water abstractions
         #
@@ -1256,12 +1250,18 @@ class Routing(object):
         # input: channelStorage    in m3
         #        current_discharge in m3
 
+        # calculate minimum discharge for environmental flow (m3/s)
+        #
+        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
+        factor = 0.01 # to avoid flip flop
+        minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+
         # available channelStorage that can be extracted for surface water abstraction
         readAvlChannelStorage = pcr.max(0.0,channelStorage)                                                             
         
         # safety factor to reduce readAvlChannelStorage
         safety_factor = vos.getValDivZero(pcr.max(0.0, pcr.min(self.avgDischargeShort, self.avgDischarge)), \
-                                          self.minDischargeForEnvironmentalFlow, vos.smallNumber)
+                                          minDischargeForEnvironmentalFlow, vos.smallNumber)
         safety_factor = pcr.min(1.00, pcr.max(0.00, safety_factor))
         readAvlChannelStorage = safety_factor * pcr.max(0.0, readAvlChannelStorage)                                                             
 
