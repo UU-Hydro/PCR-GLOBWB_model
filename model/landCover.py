@@ -945,6 +945,9 @@ class LandCover(object):
               pcr.min(1.0,pcr.max(0.0, \
               vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*    self.irrGrossDemand,0.0)    
 
+            # correcting total demand 
+            self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
+            
             # potential groundwater abstraction (must be equal to actual no fossil groundwater abstraction)
             self.potGroundwaterAbstract = self.nonIrrGrossDemand + self.irrGrossDemand - self.allocSurfaceWaterAbstract
             
