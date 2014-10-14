@@ -1218,6 +1218,12 @@ class Routing(object):
         
         # cover the gap in satisfying surface water demand by unmetDemand
         groundwater.unmetDemand += surplus_in_surface_water_allocation    # Note that this must be positive (otherwise, it indicates water balance errors)
+        if self.debugWaterBalance:
+            test = pcr.ifthen(groundwater.unmetDemand < 0.0, groundwater.unmetDemand)
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            threshold = 1e-3
+            if abs(a) > threshold or abs(b) > threshold:
+                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c)) 
 
         # channel discharge (m3/day) = self.Q
         self.Q = acc_discharge_volume
