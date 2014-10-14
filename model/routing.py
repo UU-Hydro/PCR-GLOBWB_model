@@ -743,8 +743,8 @@ class Routing(object):
                 abstraction = landSurface.actSurfaceWaterAbstract
                 allocation  = landSurface.allocSurfaceWaterAbstract
                 
-            abstraction *= pcr.scalar(10.E-9.)
-            allocation  *= pcr.scalar(10.E-9.)
+            abstraction *= 1E-9
+            allocation  *= 1E-9
             vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
                                   [pcr.ifthen(self.landmask, allocation)],\
                                   [pcr.scalar(0.0)],\
