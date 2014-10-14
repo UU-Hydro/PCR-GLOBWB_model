@@ -458,7 +458,6 @@ class Routing(object):
 
         logger.info("routing in progress")
 
-        
         # waterBodies: 
         # - get parameters at the beginning of each year or simulation
         # - note that the following function should be called first, specifically because  
@@ -479,7 +478,11 @@ class Routing(object):
                                                self.lddMap,\
                                                self.cellLengthFD,\
                                                self.cellSizeInArcDeg)
-        
+        #
+        # downstreamDemand (m3/s) for reservoirs 
+        # - this one must be called before updating timestepsToAvgDischarge
+        # - estimated based on environmental flow discharge 
+        self.downstreamDemand = self.estimate_discharge_for_environmental_flow(self.channelStorage)
         
         # get routing/channel parameters/dimensions (based on avgDischarge)
         # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
@@ -807,7 +810,9 @@ class Routing(object):
                                 self.maxTimestepsToAvgDischargeShort,\
                                 self.maxTimestepsToAvgDischargeLong,\
                                 currTimeStep,\
-                                self.avgDischarge)
+                                self.avgDischarge,\
+                                vos.secondsPerDay(),\
+                                self.downstreamDemand)
 
         # waterBodyStorage (m3) after outflow:                               # values given are per water body id (not per cell)
         self.waterBodyStorage = self.WaterBodies.waterBodyStorage
@@ -1121,7 +1126,8 @@ class Routing(object):
                                     self.maxTimestepsToAvgDischargeLong,\
                                     currTimeStep,\
                                     self.avgDischarge,\
-                                    length_of_sub_time_step)
+                                    length_of_sub_time_step,\
+                                    self.downstreamDemand)
 
             # waterBodyStorage (m3) after outflow:                               # values given are per water body id (not per cell)
             self.waterBodyStorage = self.WaterBodies.waterBodyStorage
@@ -1169,15 +1175,15 @@ class Routing(object):
                                        True,\
                                        currTimeStep.fulldate,threshold=5e-4)
 
-            # route only non negative channelStorage (otherwise stay):
-            channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
-            channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
-
             # total discharge_volume (m3) until this present i_loop
             acc_discharge_volume += self.subDischarge * length_of_sub_time_step
 
             # return waterBodyStorage to channelStorage  
             channelStorageForRouting = self.return_water_body_storage_to_channel(channelStorageForRouting)
+
+            # route only non negative channelStorage (otherwise stay):
+            channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
+            channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
 
             # update water_height (this will be passed to the next loop)
             self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
@@ -1275,12 +1281,8 @@ class Routing(object):
                            pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)                
         self.avgBaseflow = pcr.max(0.0, self.avgBaseflow)
 
-    def estimate_available_volume_for_abstraction(self, channelStorage):
-        # input: channelStorage    in m3
-        #        current_discharge in m3
+    def estimate_discharge_for_environmental_flow(self, channelStorage):
 
-        # calculate minimum discharge for environmental flow (m3/s)
-        
         # long term variance and standard deviation of discharge values
         varDischarge = self.m2tDischarge / \
                        pcr.max(1.,\
@@ -1288,10 +1290,19 @@ class Routing(object):
                        # see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
         stdDischarge = pcr.max(varDischarge**0.5, 0.0)
         
+        # calculate minimum discharge for environmental flow (m3/s)
         minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.5*stdDischarge)
-        factor = 0.01 # to avoid flip flop
+        factor = 0.20 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+        return minDischargeForEnvironmentalFlow
 
+
+    def estimate_available_volume_for_abstraction(self, channelStorage):
+        # input: channelStorage    in m3
+
+        # estimate minimum discharge for environmental flow (m3/s)
+        minDischargeForEnvironmentalFlow = self.estimate_discharge_for_environmental_flow(channelStorage)
+        
         # available channelStorage that can be extracted for surface water abstraction
         readAvlChannelStorage = pcr.max(0.0,channelStorage)                                                             
         
