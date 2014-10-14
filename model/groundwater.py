@@ -228,7 +228,10 @@ class Groundwater(object):
                                 self.storGroundwater + landSurface.gwRecharge)         
                         
         # potential groundwater abstraction (unit: m)
-        potGroundwaterAbstract = landSurface.potGroundwaterAbstract
+        #~ potGroundwaterAbstract = landSurface.potGroundwaterAbstract
+        potGroundwaterAbstract = landSurface.totalPotentialGrossDemand -\
+                                 landSurface.allocSurfaceWaterAbstract 
+
 
         if self.usingAllocSegments == False or self.limitAbstraction:
         
