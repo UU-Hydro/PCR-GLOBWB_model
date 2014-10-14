@@ -1162,7 +1162,7 @@ class Routing(object):
                                        storage_change_in_volume/self.cellArea],\
                                       [water_body_evaporation_volume/self.cellArea,\
                                        water_body_abstraction_volume/self.cellArea],\
-                                      [preStorage/self.cellArea + storageAtLakeAndReservoirs/self.cellArea],\
+                                      [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
                                        'channelStorageForRouting (after routing)',\
                                        True,\
