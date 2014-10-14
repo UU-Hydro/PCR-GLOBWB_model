@@ -680,20 +680,14 @@ class Routing(object):
             segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
             
             # total available water volume in each cell - ignore small values (less than 1 m3)
-            cellAvlWater = pcr.max(0.00, self.readAvlChannelStorage)
-            cellAvlWater = pcr.rounddown( cellAvlWater)
+            cellAvlWater = pcr.rounddown(pcr.max(0.00, self.readAvlChannelStorage))
             
             # total available surface water volume in each segment/zone  (unit: m3)
             segAvlWater  = pcr.areatotal(cellAvlWater, landSurface.allocSegments)
-            segAvlWater  = pcr.max(0.00,  segAvlWater)
             
             # total actual extra surface water abstraction volume in each segment/zone (unit: m3)
-            #
-            # - not limited to available water - ignore small values (less than 1 m3)
-            segActWaterAbs = segTtlGrossDemand
-            # 
             # - limited to available water
-            segActWaterAbs = pcr.min(segAvlWater, segActWaterAbs)
+            segActWaterAbs = pcr.min(segAvlWater, segTtlGrossDemand)
             
             # actual extra surface water abstraction volume in each cell (unit: m3)
             volActWaterAbstract = vos.getValDivZero(\
@@ -710,7 +704,8 @@ class Routing(object):
                                                  cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
                                                  segActWaterAbs                                           # unit: m3 
             # reduction for unmetDemand (unit: m)
-            reduction_for_unmetDemand = extraVolAllocSurfaceWaterAbstract / self.cellArea                 # unit: m
+            reduction_for_unmetDemand = pcr.ifthen(self.landmask, 
+                                        extraVolAllocSurfaceWaterAbstract / self.cellArea)                # unit: m
             
             if self.debugWaterBalance:
     
