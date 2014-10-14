@@ -1005,7 +1005,7 @@ class Routing(object):
             acc_water_body_evaporation_volume += water_body_evaporation_volume
             
             if self.debugWaterBalance:\
-                vos.waterBalanceCheck([acc_local_input_to_surface_water/self.cellAreaArea],\
+                vos.waterBalanceCheck([acc_local_input_to_surface_water/self.cellArea],\
                                       [pcr.scalar(0.0)],\
                                       [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
