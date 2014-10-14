@@ -1006,7 +1006,7 @@ class Routing(object):
             
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       self.nonIrrReturnFlow * length_of_sub_time_step//vos.secondsPerDay()],\
+                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay()],\
                                       [water_body_evaporation_volume/self.cellArea],\
                                       [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
@@ -1093,7 +1093,7 @@ class Routing(object):
 
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       self.nonIrrReturnFlow * length_of_sub_time_step//vos.secondsPerDay()],\
+                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay()],\
                                       [water_body_evaporation_volume/self.cellArea,\
                                        water_body_abstraction_volume/self.cellArea],\
                                       [preStorage/self.cellArea],\
@@ -1159,7 +1159,6 @@ class Routing(object):
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
                                        self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
-                                       self.waterBodyOutflow/self.cellArea,\
                                        storage_change_in_volume/self.cellArea],\
                                       [water_body_evaporation_volume/self.cellArea,\
                                        water_body_abstraction_volume/self.cellArea],\
