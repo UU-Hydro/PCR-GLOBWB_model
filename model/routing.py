@@ -648,7 +648,7 @@ class Routing(object):
 
         if self.debugWaterBalance:
             test = pcr.ifthen(potential_unmet_demand < 0.0, potential_unmet_demand)
-            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test),True)
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
                 logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
@@ -739,7 +739,7 @@ class Routing(object):
         if self.debugWaterBalance:
 
             test = pcr.ifthen(groundwater.unmetDemand < 0.0, groundwater.unmetDemand)
-            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test),True)
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
                 logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
@@ -1224,7 +1224,7 @@ class Routing(object):
         
         if self.debugWaterBalance:
             test = pcr.ifthen(groundwater.unmetDemand < 0.0, groundwater.unmetDemand)
-            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test),True)
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
                 logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
