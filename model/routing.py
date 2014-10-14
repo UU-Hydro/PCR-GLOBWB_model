@@ -1005,7 +1005,8 @@ class Routing(object):
             acc_water_body_evaporation_volume += water_body_evaporation_volume
             
             if self.debugWaterBalance:\
-                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step, self.nonIrrReturnFlow * length_of_sub_time_step],\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
+                                       self.nonIrrReturnFlow * length_of_sub_time_step//vos.secondsPerDay()],\
                                       [water_body_evaporation_volume/self.cellArea],\
                                       [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
