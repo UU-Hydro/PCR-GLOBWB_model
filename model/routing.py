@@ -1188,15 +1188,6 @@ class Routing(object):
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
-        # add extra evaporation
-        self.calculate_extra_evaporation()
-        
-        # reduce fossil groundwater storage abstraction (unmetDemand)
-        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
-
-        # return waterBodyStorage to channelStorage  
-        self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
-
     def calculate_statistics(self, groundwater):
 
         # short term average inflow (m3/s) and long term average outflow (m3/s) from lake and reservoirs
