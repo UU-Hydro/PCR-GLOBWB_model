@@ -1054,7 +1054,7 @@ class Routing(object):
                 msg += "\n"
                 msg  = "\n"
                 msg += "=================================================================================================================="
-                msg += "ERROR !!!! The option kinematicWave cannot be used for a run with water demand and limitAbstraction = True"
+                msg += "ERROR !!!! The option fully kinematicWave cannot be used for a run with water demand and limitAbstraction = True"
                 msg += "=================================================================================================================="
                 msg += "\n"
                 msg += "\n"
