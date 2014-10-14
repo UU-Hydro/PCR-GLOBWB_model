@@ -118,7 +118,8 @@ class Configuration(object):
 
     def create_output_directories(self):
         # making the root/parent of OUTPUT directory:
-        if self.globalOptions['cleanOutputDir'] == "True":
+        cleanOutputDir = False
+        if cleanOutputDir:
             try: 
                 shutil.rmtree(self.globalOptions['outputDir'])
             except: 
