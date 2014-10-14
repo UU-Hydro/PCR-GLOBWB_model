@@ -318,7 +318,7 @@ class WaterBodies(object):
                            length_of_time_step = vos.secondsPerDay(),\
                            downstreamDemand = None):
 
-        if self.debugWaterBalance == str('True'):\
+        if self.debugWaterBalance:\
            preStorage = self.waterBodyStorage    # unit: m
      
         self.timestepsToAvgDischarge = timestepsToAvgDischarge          # TODO: include this one in "currTimeStep"     
@@ -337,7 +337,7 @@ class WaterBodies(object):
              length_of_time_step,\
              downstreamDemand)
         
-        if self.debugWaterBalance == 'True':\
+        if self.debugWaterBalance:\
            vos.waterBalanceCheck([          self.inflow/self.waterBodyArea],\
                                  [self.waterBodyOutflow/self.waterBodyArea],\
                                  [           preStorage/self.waterBodyArea],\
