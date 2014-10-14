@@ -962,8 +962,8 @@ class Routing(object):
         # - however, the "groundwater.nonFossilGroundwaterAbs" and "groundwater.allocNonFossilGroundwater" should remain the same
         # - consequently, the "groundwater.unmetDemand" will be corrected
         #
-        surface_water_demand = \
-                    landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand     # unit: m
+        surface_water_demand = landSurface.totalPotentialGrossDemand -\
+                               groundwater.allocNonFossilGroundwater
 
         # route only non negative channelStorage (otherwise stay):
         # - note that, the following includes storages in 
