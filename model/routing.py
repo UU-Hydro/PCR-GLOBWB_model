@@ -1155,7 +1155,19 @@ class Routing(object):
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
             channelStorageForRouting += storage_change_in_volume 
-            #
+            
+            if self.debugWaterBalance:\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
+                                       self.nonIrrReturnFlow * length_of_sub_time_step//vos.secondsPerDay(),\
+                                       storage_change_in_volume/self.cellArea],\
+                                      [water_body_evaporation_volume/self.cellArea,\
+                                       water_body_abstraction_volume/self.cellArea],\
+                                      [preStorage/self.cellArea + storageAtLakeAndReservoirs/self.cellArea],\
+                                      [channelStorageForRouting/self.cellArea],\
+                                       'channelStorageForRouting (after abstraction/allocation)',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=5e-4)
+
             # route only non negative channelStorage (otherwise stay):
             channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
