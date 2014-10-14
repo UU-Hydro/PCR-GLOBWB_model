@@ -1005,14 +1005,13 @@ class Routing(object):
             acc_water_body_evaporation_volume += water_body_evaporation_volume
             
             if self.debugWaterBalance:\
-                vos.waterBalanceCheck([self.runoff, self.nonIrrReturnFlow],\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step, self.nonIrrReturnFlow * length_of_sub_time_step],\
                                       [water_body_evaporation_volume/self.cellArea],\
                                       [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
                                        'channelStorageForRouting (before abstraction/allocation)',\
                                        True,\
                                        currTimeStep.fulldate,threshold=1e-3)
-
 
             # surface water abstraction and it allocation to meet surface water demand 
             #
