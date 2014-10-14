@@ -992,8 +992,8 @@ class Routing(object):
                                                   self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
 
             # update channelStorageForRouting after evaporation
-            water_body_evaporation_volume      = pcr.max(0.0, channelStorageForRouting - \
-                                                              self.waterBodyPotEvap * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
+            water_body_evaporation_volume      = pcr.min(channelStorageForRouting, \
+                                                         self.waterBodyPotEvap * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_evaporation_volume
             acc_local_input_to_surface_water  -= water_body_evaporation_volume
             acc_water_body_evaporation_volume += water_body_evaporation_volume
@@ -1015,11 +1015,10 @@ class Routing(object):
                 logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
                 
                 # surface water abstraction 
-                water_body_abstraction_volume      = pcr.max(0.0,\
-                                                     available_water_volume - pot_surface_water_abstract_volume)     # unit: m3
+                water_body_abstraction_volume = pcr.min(available_water_volume, pot_surface_water_abstract_volume)   # unit: m3
                 
                 # allocating surface water abstraction to surface water demand (no network)                          # unit: m3
-                water_body_allocation_volume       = water_body_abstraction_volume
+                water_body_allocation_volume  = water_body_abstraction_volume
             #
             if landSurface.usingAllocSegments == True and landSurface.limitAbstraction == False:
 
