@@ -1252,7 +1252,7 @@ class Routing(object):
                        pcr.max(1.,\
                        pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)-1.)                             
                        # see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-        stdDischarge = pcr.max(self.varDischarge**0.5, 0.0)
+        stdDischarge = pcr.max(varDischarge**0.5, 0.0)
         
         minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*stdDischarge)
         factor = 0.01 # to avoid flip flop
