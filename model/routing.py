@@ -971,13 +971,6 @@ class Routing(object):
         length_of_sub_time_step, number_of_loops = \
           self.estimate_length_of_sub_time_step()
 
-        # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
-        # - only local processes; therefore not considering any routing processes
-        local_input_to_surface_water = pcr.scalar(0.0)                  # initiate variable, start from zero
-
-        # the following variable defines total evaporation from surface water bodies # unit: m 
-        waterBodyEvaporation = pcr.scalar(0.0)                          # initiate variable, start from zero
-
         #######################################################################################################################
         for i_loop in range(number_of_loops):
             
@@ -1008,7 +1001,7 @@ class Routing(object):
             # surface water abstraction and it allocation to meet surface water demand 
             #
             # - potential abstraction during this sub time step
-            pot_surface_water_abstract_volume = potSurfaceWaterEvaporation * \
+            pot_surface_water_abstract_volume = surface_water_demand * \
                                                 self.cellArea * length_of_sub_time_step/vos.secondsPerDay()          # unit: m3
             #
             # - available_water (m3) for abstraction (during thus sub time step)
