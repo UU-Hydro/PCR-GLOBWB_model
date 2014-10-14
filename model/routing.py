@@ -1030,6 +1030,7 @@ class Routing(object):
             # - note that this includes storage in lakes and/resevoirs
             available_water_volume = pcr.rounddown(
                                      self.estimate_available_volume_for_abstraction(channelStorageForRouting))       # unit: m3
+            available_water_volume = pcr.max(0.0, available_water_volume) 
             #
             # - abstraction and allocation
             ###########################################

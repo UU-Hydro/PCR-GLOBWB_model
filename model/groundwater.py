@@ -312,9 +312,6 @@ class Groundwater(object):
                            potGroundwaterAbstract - \
                            self.allocNonFossilGroundwater)              # m  (equal to zero if limitAbstraction = True)
         
-        # TODO: Before going to unmetDemand, extract (remaining) surface water first.  
-        # - Needs further consideration !!                   
-
         if self.limitAbstraction:
             logger.info("No fossil groundwater abstraction is allowed")
             # TODO: check that self.unmetDemand = 0.0
