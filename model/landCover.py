@@ -828,7 +828,7 @@ class LandCover(object):
         totalGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
         self.totalPotentialGrossDemand = totalGrossDemand
 
-        # surface water demand (m): water demand that will be satisfied by surface water abstraction
+        # surface water demand (m): water demand that should be satisfied by surface water abstraction
         surface_water_demand = totalGrossDemand * swAbstractionFraction
         
         # surface water abstraction that can be extracted to fulfil totalGrossDemand
@@ -859,10 +859,10 @@ class LandCover(object):
             # total actual surface water abstraction volume in each segment/zone (unit: m3)
             #
             # - not limited to available water - ignore small values (less than 1 m3)
-            segActSurWaterAbs   = segTtlGrossDemand
+            segActSurWaterAbs   = pcr.rounddown(segTtlGrossDemand)
             # 
             # - limited to available water
-            segActSurWaterAbs   = pcr.min(segAvlSurfaceWater, segActSurWaterAbs)
+            segActSurWaterAbs = pcr.min(segAvlSurfaceWater, segActSurWaterAbs)
             
             # ignore small values (less than 1 m3) in total available surface water abstraction for each segment/zone
             segActSurWaterAbs = pcr.rounddown(segActSurWaterAbs) 
@@ -905,8 +905,8 @@ class LandCover(object):
 
             # only local surface water abstraction is allowed (network is only within a cell)
             self.actSurfaceWaterAbstract = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
-                                                          swAbstractionFraction * totalGrossDemand)                 # unit: m
-            self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                                           # unit: m   
+                                                   surface_water_demand)                 # unit: m
+            self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                # unit: m   
 
         self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
         self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)

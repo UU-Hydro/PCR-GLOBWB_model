@@ -1216,7 +1216,8 @@ class Routing(object):
             a,b,c = vos.getMinMaxMean(pcr.scalar(test))
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
-                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c)) 
+                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
+                pcr.report(test,"test.map"); os.system("aguila test.map") 
 
         # channel discharge (m3/day) = self.Q
         self.Q = acc_discharge_volume
