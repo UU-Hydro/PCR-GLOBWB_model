@@ -1210,6 +1210,7 @@ class Routing(object):
         self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.WaterBodies.avgOutflow, 0.0))
 
         # short term and long term average discharge (m3/s)
+        # - see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
         #
         # - long term average disharge
         #
@@ -1222,11 +1223,6 @@ class Routing(object):
                             pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)
         self.avgDischarge = pcr.max(0.0, self.avgDischarge)                                    
         self.m2tDischarge = self.m2tDischarge + pcr.abs(deltaAnoDischarge*(self.discharge - self.avgDischarge))                             
-        self.varDischarge = self.m2tDischarge / \
-                            pcr.max(1.,\
-                            pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)-1.)                             
-                          # see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-        self.stdDischarge = pcr.max(self.varDischarge**0.5, 0.0)
         #
         # - short term average disharge
         #
@@ -1236,8 +1232,7 @@ class Routing(object):
                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
         self.avgDischargeShort = pcr.max(0.0, self.avgDischargeShort)                         
 
-        # long term average baseflow (m3/s)
-        # - avgDischarge and avgBaseflow used as proxies for partitioning groundwater and surface water abstractions
+        # long term average baseflow (m3/s) ; used as proxies for partitioning groundwater and surface water abstractions
         #
         baseflowM3PerSec = groundwater.baseflow * self.cellArea / vos.secondsPerDay()
         deltaAnoBaseflow = baseflowM3PerSec - self.avgBaseflow  
@@ -1251,8 +1246,15 @@ class Routing(object):
         #        current_discharge in m3
 
         # calculate minimum discharge for environmental flow (m3/s)
-        #
-        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*self.stdDischarge)
+        
+        # long term variance and standard deviation of discharge values
+        varDischarge = self.m2tDischarge / \
+                       pcr.max(1.,\
+                       pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)-1.)                             
+                       # see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+        stdDischarge = pcr.max(self.varDischarge**0.5, 0.0)
+        
+        minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.0*stdDischarge)
         factor = 0.01 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
 
