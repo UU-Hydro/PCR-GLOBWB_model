@@ -740,7 +740,7 @@ class Routing(object):
         
             if landSurface.usingAllocSegments == True:
 
-                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                                  , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                abstraction = pcr.cover(pcr.areatotal(landSurface.actSurfaceWaterAbstract   * self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
                 allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract * self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
             
             if landSurface.usingAllocSegments == False:
