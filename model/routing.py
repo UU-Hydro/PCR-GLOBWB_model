@@ -731,28 +731,6 @@ class Routing(object):
         # correcting surface water allocation after reduction of unmetDemand
         landSurface.allocSurfaceWaterAbstract += reduction_for_unmetDemand                      # unit: m
 
-        if self.debugWaterBalance: 
-        
-            if landSurface.usingAllocSegments == True:
-
-                abstraction = pcr.cover(pcr.areaaverage(landSurface.actSurfaceWaterAbstract   * self.cellArea, landSurface.allocSegments), 0.0)
-                allocation  = pcr.cover(pcr.areaaverage(landSurface.allocSurfaceWaterAbstract * self.cellArea, landSurface.allocSegments), 0.0)
-            
-            if landSurface.usingAllocSegments == False:
-            
-                abstraction = landSurface.actSurfaceWaterAbstract
-                allocation  = landSurface.allocSurfaceWaterAbstract
-                
-            abstraction *= 1E-9
-            allocation  *= 1E-9
-            vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
-                                  [pcr.ifthen(self.landmask, allocation)],\
-                                  [pcr.scalar(0.0)],\
-                                  [pcr.scalar(0.0)],\
-                                  'surface water abstraction/allocation (km3) - after recalculating unmetDemand (PS: Error here may be caused by rounding error.)' ,\
-                                   True,\
-                                   "",threshold=5e-4)
-
         # recalculating unmetDemand (m)
         groundwater.unmetDemand =  landSurface.totalPotentialGrossDemand -\
                                    landSurface.allocSurfaceWaterAbstract -\
