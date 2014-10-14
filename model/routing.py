@@ -638,23 +638,28 @@ class Routing(object):
         extra_surface_water_abstraction = pcr.scalar(0.0)
         reduction_for_unmetDemand       = pcr.scalar(0.0)
         
-        # estimate channel storage that can be extracted (unit: m3) - this will return self.readAvlChannelStorage)
+        # estimate channel storage that can be extracted (unit: m3)
         self.readAvlChannelStorage = self.estimate_available_volume_for_abstraction(self.channelStorage)
         
-        # demand: maximum reduction (m) 
-        maximum_reduction = pcr.max(0.0,\
-                                    landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
-                                    landSurface.allocSurfaceWaterAbstract)
-        maximum_reduction = pcr.min(maximum_reduction, groundwater.unmetDemand)
-        maximum_reduction = pcr.rounddown(maximum_reduction/1.)*1.                            
+        # potential_unmet_demand (unit: m) 
+        potential_unmet_demand = landSurface.totalPotentialGrossDemand -\
+                                 landSurface.allocSurfaceWaterAbstract -\
+                                 groundwater.allocNonFossilGroundwater
+
+        if self.debugWaterBalance:
+            test = pcr.ifthen(potential_unmet_demand < 0.0, potential_unmet_demand)
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            threshold = 1e-3
+            if abs(a) > threshold or abs(b) > threshold:
+                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
 
         if landSurface.usingAllocSegments == False and landSurface.limitAbstraction == False:
         
             logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
             
-            # reducing unmetDemand
+            # reduction_for_unmetDemand
             reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea, \
-                                                maximum_reduction)                           # unit: m
+                                                maximum_unmet_demand)                           # unit: m
 
             # actual extra surface water abstraction in meter 
             extra_surface_water_abstraction = pcr.ifthen(self.landmask, reduction_for_unmetDemand)
@@ -667,9 +672,9 @@ class Routing(object):
 
             logger.info("Using allocation to reduce unmetDemand.")
 
-            # gross/potential demand volume in each cell (unit: m3)
+            # gross/potential demand volume in each cell (unit: m3) - ignore small values (less than 1 m3)
             cellVolGrossDemand = pcr.rounddown(
-                                 maximum_reduction*self.cellArea)
+                                 potential_unmet_demand*self.cellArea)
             
             # demand in each segment/zone (unit: m3)
             segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, landSurface.allocSegments)
@@ -728,12 +733,41 @@ class Routing(object):
                               extra_surface_water_abstraction * self.cellArea
         self.local_input_to_surface_water -= extra_surface_water_abstraction * self.cellArea
 
-        # reducing unmetDemand (m)
-        groundwater.unmetDemand = pcr.max(0.0, groundwater.unmetDemand - \
-                                  reduction_for_unmetDemand)                                    # must be positive (otherwise, there are water balance errors) 
-        
         # correcting surface water allocation after reduction of unmetDemand
         landSurface.allocSurfaceWaterAbstract += reduction_for_unmetDemand                      # unit: m
+
+        if self.debugWaterBalance: 
+        
+            if landSurface.usingAllocSegments == True:
+
+                abstraction = pcr.cover(pcr.areatotal(volActWaterAbstract                                  , landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+                allocation  = pcr.cover(pcr.areatotal(landSurface.allocSurfaceWaterAbstract * self.cellArea, landSurface.allocSegments)/landSurface.segmentArea, 0.0)
+            
+            if landSurface.usingAllocSegments == False:
+            
+                abstraction = landSurface.actSurfaceWaterAbstract
+                allocation  = landSurface.allocSurfaceWaterAbstract
+                
+            vos.waterBalanceCheck([pcr.ifthen(self.landmask,abstraction)],\
+                                  [pcr.ifthen(self.landmask, allocation)],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)],\
+                                  'surface water abstraction/allocation - after recalculating unmetDemand (PS: Error here may be caused by rounding error.)' ,\
+                                   True,\
+                                   "",threshold=5e-4)
+
+        # recalculating unmetDemand (m)
+        groundwater.unmetDemand =  landSurface.totalPotentialGrossDemand -\
+                                   landSurface.allocSurfaceWaterAbstract -\
+                                   groundwater.allocNonFossilGroundwater
+
+        if self.debugWaterBalance:
+
+            test = pcr.ifthen(groundwater.unmetDemand < 0.0, groundwater.unmetDemand)
+            a,b,c = vos.getMinMaxMean(pcr.scalar(test))
+            threshold = 1e-3
+            if abs(a) > threshold or abs(b) > threshold:
+                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -957,7 +991,7 @@ class Routing(object):
                                               meteo)                    # values are over the entire cell area
 
         # surface_water_demand (unit: m/day) 
-        # - this is based on landSurface.totalPotentialGrossDemand and landSurface.swAbstractionFraction
+        # - this is based on landSurface.totalPotentialGrossDemand
         # - the 'landSurface.actSurfaceWaterAbstract' and 'landSurface.allocSurfaceWaterAbstract' will be corrected
         # - however, the "groundwater.nonFossilGroundwaterAbs" and "groundwater.allocNonFossilGroundwater" should remain the same
         # - consequently, the "groundwater.unmetDemand" will be corrected
@@ -1219,7 +1253,6 @@ class Routing(object):
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
                 logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
-                pcr.report(test,"test.map"); os.system("aguila test.map") 
 
         # channel discharge (m3/day) = self.Q
         self.Q = acc_discharge_volume

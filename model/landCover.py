@@ -841,8 +841,8 @@ class LandCover(object):
             
             allocSegments = pcr.ifthen(self.landmask, allocSegments)
             
-            # gross demand volume in each cell (unit: m3)
-            cellVolGrossDemand = surface_water_demand*routing.cellArea
+            # gross demand volume in each cell (unit: m3) - ignore small values (less than 1 m3)
+            cellVolGrossDemand = pcr.rounddown(surface_water_demand*routing.cellArea)
             
             # total gross demand volume in each segment/zone (unit: m3)
             segTtlGrossDemand = pcr.areatotal(cellVolGrossDemand, allocSegments)
