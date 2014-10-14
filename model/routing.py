@@ -948,17 +948,17 @@ class Routing(object):
          self.calculate_potential_evaporation(landSurface,currTimeStep,\
                                               meteo)                    # values are over the entire cell area
 
-        # potential SurfaceWaterAbstraction (unit: m/day) 
-        potSurfaceWaterAbstract = landSurface.actSurfaceWaterAbstract
-        
-        # potential reduction to unmetDemand (unit: m/day)
-        potUnmetDemandReduction = pcr.max(0.0,\
-                                          landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand -\
-                                          landSurface.allocSurfaceWaterAbstract)
-        potUnmetDemandReduction = pcr.min(potUnmetDemandReduction, groundwater.unmetDemand)
-        potUnmetDemandReduction = pcr.rounddown(potUnmetDemandReduction/1.)*1.                            
+        # surface_water_demand (unit: m/day) 
+        # - this is based on landSurface.totalPotentialGrossDemand and landSurface.swAbstractionFraction
+        # - the 'landSurface.actSurfaceWaterAbstract' and 'landSurface.allocSurfaceWaterAbstract' will be corrected
+        # - however, the "groundwater.nonFossilGroundwaterAbs" and "groundwater.allocNonFossilGroundwater" should remain the same
+        # - consequently, the "groundwater.unmetDemand" will be corrected
+        #
+        surface_water_demand = \
+                    landSurface.swAbstractionFraction * landSurface.totalPotentialGrossDemand     # unit: m
 
         # route only non negative channelStorage (otherwise stay):
+        # - note that, the following includes storages in 
         channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
         
         # channelStorage that will be given to the ROUTING operation:
@@ -986,12 +986,11 @@ class Routing(object):
             
             # initiating accumulated values:
             if i_loop == 0:
-                acc_local_input_to_surface_water           = pcr.scalar(0.0)        # unit: m3                            
-                acc_water_body_evaporation_volume          = pcr.scalar(0.0)        # unit: m3
-                acc_water_body_abstraction_volume          = pcr.scalar(0.0)        # unit: m3
-                acc_discharge_volume                       = pcr.scalar(0.0)        # unit: m3
-                acc_extra_surface_water_abstraction_volume = pcr.scalar(0.0)        # unit: m3
-                acc_extra_surface_water_allocation_volume  = pcr.scalar(0.0)        # unit: m3
+                acc_local_input_to_surface_water    = pcr.scalar(0.0)   # unit: m3                            
+                acc_water_body_evaporation_volume   = pcr.scalar(0.0)   # unit: m3
+                acc_water_body_abstraction_volume   = pcr.scalar(0.0)   # unit: m3
+                acc_discharge_volume                = pcr.scalar(0.0)   # unit: m3
+                acc_water_allocation_volume         = pcr.scalar(0.0)   # unit: m3
 
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
             channelStorageForRouting          += (self.runoff + nonIrrReturnFlow) * self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
@@ -1005,7 +1004,7 @@ class Routing(object):
             acc_water_body_evaporation_volume += water_body_evaporation_volume
             
             # update channelStorage after surface water abstraction 
-            available_water = self.estimate_available_volume_for_abstraction(channelStorageForRouting)
+            available_water = self.estimate_available_volume_for_abstraction(channelStorageForRouting)        # unit: m3
             water_body_abstraction_volume      = pcr.max(0.0, available_water - \
                                                           potSurfaceWaterAbstract * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_abstraction_volume
@@ -1239,7 +1238,6 @@ class Routing(object):
         #
         # - short term average disharge
         #
-        dishargeUsed           = pcr.max(0.0, self.discharge)
         deltaAnoDischargeShort = dishargeUsed - self.avgDischargeShort  
         self.avgDischargeShort = self.avgDischargeShort +\
                                  deltaAnoDischargeShort/\
