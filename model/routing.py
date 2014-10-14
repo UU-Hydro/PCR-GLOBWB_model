@@ -1048,14 +1048,14 @@ class Routing(object):
             #
             ###########################################
 
-            if landSurface.limitAbstraction == True\
+            if landSurface.limitAbstraction == True and\
               (landSurface.includeIrrigation or landSurface.domesticWaterDemandOption or landSurface.industrycWaterDemandOption):
         
                 logger.info("ERROR !!!! The option kinematicWave cannot be used for a run with water demand and limitAbstraction = True")
                 water_body_abstraction_volume = None
                 water_body_allocation_volume  = None
 
-            if landSurface.usingAllocSegments == False and landSurface.limitAbstraction == False\
+            if landSurface.usingAllocSegments == False and landSurface.limitAbstraction == False and\
               (landSurface.includeIrrigation or landSurface.domesticWaterDemandOption or landSurface.industrycWaterDemandOption):
         
                 logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
