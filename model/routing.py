@@ -427,9 +427,11 @@ class Routing(object):
             dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
 
             # discharge (m3/s) based on kinematic wave approximation
+            logger.info('start pcr.kinematic')
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               number_of_loops, length_of_sub_time_step, self.cellLengthFD)
+            logger.info('done')
             
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
@@ -1190,9 +1192,11 @@ class Routing(object):
             dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
             
             # discharge (m3/s) based on kinematic wave approximation
+            logger.info('start pcr.kinematic')
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               number_of_loops, length_of_sub_time_step, self.cellLengthFD)
+            logger.info('done')
             
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
