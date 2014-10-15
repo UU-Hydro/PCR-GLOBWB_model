@@ -1327,7 +1327,7 @@ class Routing(object):
         
         # calculate minimum discharge for environmental flow (m3/s)
         minDischargeForEnvironmentalFlow = pcr.max(0.001, self.avgDischarge - 3.5*stdDischarge)
-        factor = 0.20 # to avoid flip flop
+        factor = 0.10 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
         return minDischargeForEnvironmentalFlow
 
