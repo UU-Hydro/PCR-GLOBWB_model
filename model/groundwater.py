@@ -58,7 +58,7 @@ class Groundwater(object):
         self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
         #
         if 'minRecessionCoeff' in iniItems.groundwaterOptions.keys():
-            minRecessionCoeff = iniItems.groundwaterOptions['minRecessionCoeff']
+            minRecessionCoeff = float(iniItems.groundwaterOptions['minRecessionCoeff'])
         else:
             minRecessionCoeff = 1.0e-4                                       # This is the minimum value used in Van Beek et al. (2011). 
         self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
