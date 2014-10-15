@@ -34,7 +34,10 @@ class Groundwater(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
 
-        self.debugWaterBalance = iniItems.groundwaterOptions['debugWaterBalance']
+        # option to activate water balance check
+        self.debugWaterBalance = True
+        if iniItems.routingOptions['debugWaterBalance'] == "False":
+            self.debugWaterBalance = False
 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
             # assign the recession coefficient parameter(s)
@@ -50,10 +53,16 @@ class Groundwater(object):
                                   groundwaterPropertiesNC,'recessionCoeff',\
                                   cloneMapFileName = self.cloneMap)
 
+        # groundwater recession coefficient (day-1_
         self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
-        self.recessionCoeff = pcr.max(1.0e-4,self.recessionCoeff)       # The minimum value is the minimum value used in Van Beek et al. (2011)       
         self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
-
+        #
+        if 'minRecessionCoeff' in iniItems.groundwaterOptions.keys():
+            minRecessionCoeff = iniItems.groundwaterOptions['minRecessionCoeff']
+        else:
+            minRecessionCoeff = 1.0e-4                                       # This is the minimum value used in Van Beek et al. (2011). 
+        self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
+        
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
             # assign aquifer specific yield
             self.specificYield  = vos.readPCRmapClone(\
