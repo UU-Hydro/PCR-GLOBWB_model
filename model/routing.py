@@ -428,9 +428,14 @@ class Routing(object):
 
             # discharge (m3/s) based on kinematic wave approximation
             logger.info('start pcr.kinematic')
+            #~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                              #~ alpha, self.beta, \
+                                              #~ number_of_loops, length_of_sub_time_step, self.cellLengthFD)
+
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
-                                              number_of_loops, length_of_sub_time_step, self.cellLengthFD)
+                                              1, length_of_sub_time_step, self.cellLengthFD)
+
             logger.info('done')
             
             # update channelStorage (m3)
