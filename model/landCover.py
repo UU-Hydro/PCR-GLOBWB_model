@@ -498,8 +498,7 @@ class LandCover(object):
                                   currTimeStep.fulldate,threshold=1e-5)
 
         # fraction of potential bare soil evaporation and transpiration
-        self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, \
-                                                       vos.smallNumber), 0.)
+        self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, vos.smallNumber)
         self.fracPotTranspiration = pcr.scalar(1.0 - self.fracPotBareSoilEvap)
 
     def interceptionUpdate(self,meteo,currTimeStep):
