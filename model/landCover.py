@@ -478,16 +478,30 @@ class LandCover(object):
                                     cloneMapFileName = self.cloneMap)
         self.cropKC = pcr.max( cropKC, self.minCropKC)                                
 
-        # calculate potential ET:
+        # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
 
-        # calculate potential bare soil evaporation and transpiration
+        # calculate potential bare soil evaporation and transpiration (unit: m/day)
         self.potBareSoilEvap  = pcr.ifthen(self.landmask,\
                                 self.minCropKC * meteo.referencePotET)
         self.potTranspiration = pcr.ifthen(self.landmask,\
                                 self.cropKC    * meteo.referencePotET - self.potBareSoilEvap)
     
+        if self.debugWaterBalance == str('True'):
+            vos.waterBalanceCheck([self.totalPotET],\
+                                  [self.potBareSoilEvap],\
+                                  [],\
+                                  [],\
+                                  'partitioning potential evaporation',\
+                                  True,\
+                                  currTimeStep.fulldate,threshold=1e-5)
+
+        # fraction of potential bare soil evaporation and transpiration
+        self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, \
+                                                       vos.smallNumber), 0.)
+        self.fracPotTranspiration = pcr.scalar(1.0 - self.fracPotBareSoilEvap)
+
     def interceptionUpdate(self,meteo,currTimeStep):
         
         if self.debugWaterBalance == str('True'):
@@ -506,10 +520,11 @@ class LandCover(object):
                                     'coverFractionInput',\
                                      currTimeStep.doy, useDoy = 'Yes',\
                                      cloneMapFileName = self.cloneMap)
-            # self.coverFractionInput = coverFraction # needed only for reporting
             coverFraction = pcr.cover(coverFraction, 0.0)
             interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
         self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
+        
+        # canopy/cover fraction over the entire cell area (unit: m2)
         
         # throughfall = surplus above the interception storage threshold 
         self.throughfall   = pcr.max(0.0, self.interceptStor + \
@@ -532,19 +547,26 @@ class LandCover(object):
 
         self.liquidPrecip  = self.throughfall - self.snowfall            # original Rens line: PRP = PRP-SNOW
 
-        # evaporation from intercepted water (based on potTranspiration)
+        # potential interception flux (m/day)
+        self.potInterceptionFlux = self.totalPotET                       # added by Edwin to extend the interception scope/definition
+        
+        # evaporation from intercepted water (based on potInterceptionFlux)
         self.interceptEvap = pcr.min(self.interceptStor, \
-                                     self.potTranspiration * \
+                                     self.potInterceptionFlux * \
              (vos.getValDivZero(self.interceptStor, self.interceptCap, \
               vos.smallNumber, 0.) ** (2.00/3.00)))                      
                                                                          # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
         self.interceptEvap = pcr.min(self.interceptEvap, \
-                                     self.potTranspiration)
-
-        # update interception storage and potTranspiration 
+                                     self.potInterceptionFlux)
+                                     
+        # update interception storage 
         self.interceptStor = self.interceptStor - self.interceptEvap     # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
-        self.potTranspiration = pcr.max(0, \
-                         self.potTranspiration - self.interceptEvap)     # T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
+        
+        
+        # update potBareSoilEvap and potTranspiration 
+        self.potBareSoilEvap  -= self.fracPotBareSoilEvap  * self.interceptEvap
+        self.potTranspiration -= self.fracPotTranspiration * self.interceptEvap  # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
+                                                                                 # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
 
         # update actual evaporation (after interceptEvap) 
         self.actualET  = 0.  # interceptEvap is the first flux in ET 
