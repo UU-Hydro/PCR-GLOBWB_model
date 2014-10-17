@@ -146,7 +146,7 @@ class Routing(object):
                         pcr.cover(self.gradient, minGradient))
 
         # initiate/create WaterBody class
-        self.WaterBodies = waterBodies.WaterBodies(iniItems)
+        self.WaterBodies = waterBodies.WaterBodies(iniItems,self.landmask)
 
         self.fileCropKC = vos.getFullPath(\
                      iniItems.routingOptions['cropCoefficientWaterNC'],\
@@ -245,6 +245,7 @@ class Routing(object):
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
             if not isinstance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):\
                 self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'],self.cloneMap,self.tmpDir,self.inputDir)
+                self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
             else:
                 self.waterBodyStorage = None
         else:

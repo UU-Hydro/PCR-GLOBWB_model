@@ -15,13 +15,14 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self,iniItems):
+    def __init__(self,iniItems,landmask):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
+        self.landmask = landmask
                 
         # option to activate water balance check
         self.debugWaterBalance = True
@@ -68,8 +69,9 @@ class WaterBodies(object):
         #                              waterBodyTyp
         #                              waterBodyCap
         
-        # cell surface area (m2)
+        # cell surface area (m2) and ldd
         self.cellArea = cellArea
+        ldd = pcr.ifthen(self.landmask, ldd)
         
         # date used for accessing/extracting water body information
         date_used = currTimeStep.fulldate
@@ -272,16 +274,16 @@ class WaterBodies(object):
         self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
         self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
 
-        # cropping only in the landmask (ldd) region:
-        self.fracWat           = pcr.ifthen(defined(ldd), self.fracWat         )
-        self.waterBodyIds      = pcr.ifthen(defined(ldd), self.waterBodyIds    ) 
-        self.waterBodyOut      = pcr.ifthen(defined(ldd), self.waterBodyOut    )
-        self.waterBodyArea     = pcr.ifthen(defined(ldd), self.waterBodyArea   )
-        self.waterBodyTyp      = pcr.ifthen(defined(ldd), self.waterBodyTyp    )  
-        self.waterBodyCap      = pcr.ifthen(defined(ldd), self.waterBodyCap    )
-        self.waterBodyStorage  = pcr.ifthen(defined(ldd), self.waterBodyStorage)
-        self.avgInflow         = pcr.ifthen(defined(ldd), self.avgInflow       )
-        self.avgOutflow        = pcr.ifthen(defined(ldd), self.avgOutflow      )
+        # cropping only in the landmask region:
+        self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
+        self.waterBodyIds      = pcr.ifthen(self.landmask, self.waterBodyIds    ) 
+        self.waterBodyOut      = pcr.ifthen(self.landmask, self.waterBodyOut    )
+        self.waterBodyArea     = pcr.ifthen(self.landmask, self.waterBodyArea   )
+        self.waterBodyTyp      = pcr.ifthen(self.landmask, self.waterBodyTyp    )  
+        self.waterBodyCap      = pcr.ifthen(self.landmask, self.waterBodyCap    )
+        self.waterBodyStorage  = pcr.ifthen(self.landmask, self.waterBodyStorage)
+        self.avgInflow         = pcr.ifthen(self.landmask, self.avgInflow       )
+        self.avgOutflow        = pcr.ifthen(self.landmask, self.avgOutflow      )
 
     def getICs(self,initial_condition):
 
@@ -304,6 +306,7 @@ class WaterBodies(object):
             waterBodyStorage = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., \
                                           pcr.areatotal(storageAtLakeAndReservoirs,\
                                                         self.waterBodyIds))
+            waterBodyStorage = pcr.ifthen(self.landmask, waterBodyStorage)                                            
 
         self.avgInflow        = pcr.cover(avgInflow , 0.0)              # unit: m3/s 
         self.avgOutflow       = pcr.cover(avgOutflow, 0.0)              # unit: m3/s
