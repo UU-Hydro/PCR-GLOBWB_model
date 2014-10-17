@@ -306,6 +306,9 @@ class WaterBodies(object):
             waterBodyStorage = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., \
                                           pcr.areatotal(storageAtLakeAndReservoirs,\
                                                         self.waterBodyIds))
+        
+        avgInflow        = pcr.ifthen(self.landmask, avgInflow)
+        avgOutflow       = pcr.ifthen(self.landmask, avgOutflow)
         waterBodyStorage = pcr.ifthen(self.landmask, waterBodyStorage)                                            
 
         self.avgInflow        = pcr.cover(avgInflow , 0.0)              # unit: m3/s 

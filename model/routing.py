@@ -1140,17 +1140,6 @@ class Routing(object):
             acc_water_body_abstraction_volume += water_body_abstraction_volume   # unit: m3
             acc_water_body_allocation_volume  += water_body_allocation_volume                                   
 
-            if self.debugWaterBalance:\
-                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay()],\
-                                      [water_body_evaporation_volume/self.cellArea,\
-                                       water_body_abstraction_volume/self.cellArea],\
-                                      [preStorage/self.cellArea],\
-                                      [channelStorageForRouting/self.cellArea],\
-                                       'channelStorageForRouting (after abstraction/allocation)',\
-                                       True,\
-                                       currTimeStep.fulldate,threshold=5e-4)
-
             # lakes and reservoirs
             # at cells where lakes and/or reservoirs defined, move channelStorage to waterBodyStorage
             #
