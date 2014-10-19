@@ -167,7 +167,7 @@ class SoilAndTopoParameters(object):
             self.storCapUpp = self.thickUpp * \
                              (self.satVolMoistContUpp - self.resVolMoistContUpp)
             self.storCapLow = self.thickLow * \
-                             (self.satVolMoistContUpp - self.resVolMoistContLow)
+                             (self.satVolMoistContLow - self.resVolMoistContLow)
             self.rootZoneWaterStorageCap = self.storCapUpp + \
                                            self.storCapLow
         if self.numberOfLayers == 3:
