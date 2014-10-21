@@ -146,13 +146,13 @@ class PCRGlobWB(object):
         self.runoffAcc           += self.routing.runoff
         self.unmetDemandAcc      += self.groundwater.unmetDemand
 
-        waterBalance = \
+        self.waterBalance = \
           (storesAtBeginning - storesAtEnd +\
            self.meteo.precipitation + self.landSurface.irrGrossDemand + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
-        self.waterBalanceAcc    =    self.waterBalanceAcc + waterBalance
-        self.absWaterBalanceAcc = self.absWaterBalanceAcc + pcr.abs(waterBalance)
+        self.waterBalanceAcc    =    self.waterBalanceAcc + self.waterBalance
+        self.absWaterBalanceAcc = self.absWaterBalanceAcc + pcr.abs(self.waterBalance)
 
         if self._modelTime.isLastDayOfYear():
             self.dumpState(self._configuration.endStateDir)
@@ -229,7 +229,7 @@ class PCRGlobWB(object):
         return result
         
     
-    def totalStores(self):
+    def totalLandStores(self):
         
         if self.numberOfSoilLayers == 2: total = \
                 self.landSurface.interceptStor  +\
@@ -339,7 +339,7 @@ class PCRGlobWB(object):
         logger.info("updating model to time %s", self._modelTime)
         
         if (report_water_balance):
-            storesAtBeginning = self.totalStores()
+            storesAtBeginning = self.totalLandStores()
 
         self.meteo.update(self._modelTime)                                         
         self.landSurface.update(self.meteo,self.groundwater,self.routing,self._modelTime)      
@@ -347,7 +347,7 @@ class PCRGlobWB(object):
         self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
 
         if (report_water_balance):
-            storesAtEnd = self.totalStores()
+            storesAtEnd = self.totalLandStores()
             self.checkWaterBalance(storesAtBeginning, storesAtEnd)
         
         if (report_water_balance):    

@@ -370,6 +370,9 @@ class Reporting(object):
         if self._model.landSurface.numberOfSoilLayers == 3:
             self.storUppSurface   = self._model.landSurface.storUpp000005    # unit: m
             self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
+        
+        # reporting water balance from the land surface part (excluding surface water bodies)
+        self.land_surface_water_balance = self._model.waterBalance    
 
     def report(self):
 
