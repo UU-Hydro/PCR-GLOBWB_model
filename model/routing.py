@@ -521,6 +521,13 @@ class Routing(object):
         #
         self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
+        # volume water released in pits (losses: to the ocean / endorheic basin)
+        self.outgoing_volume_at_pits = pcr.ifthen(
+                                       pcr.cover(
+                                       pcr.ifthen(self.lddMap == pcr.ldd(5), self.Q), 0.0)
+        #
+        # TODO: accumulate water in endorheic basins that are considered as lakes/reservoirs
+        
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.readAvlChannelStorage = self.estimate_available_volume_for_abstraction(self.channelStorage)
         

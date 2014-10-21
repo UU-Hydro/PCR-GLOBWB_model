@@ -254,6 +254,33 @@ class PCRGlobWB(object):
         
         return total
     
+    def totalCatchmentStores(self, total_land_stores):
+        
+        catchment_total = self.routing.channelStorage
+        
+        if self.numberOfSoilLayers == 2: total = \
+                self.landSurface.interceptStor  +\
+                self.landSurface.snowFreeWater  +\
+                self.landSurface.snowCoverSWE   +\
+                self.landSurface.topWaterLayer  +\
+                self.landSurface.storUpp        +\
+                self.landSurface.storLow        +\
+                self.groundwater.storGroundwater
+
+        if self.numberOfSoilLayers == 3: total = \
+                self.landSurface.interceptStor  +\
+                self.landSurface.snowFreeWater  +\
+                self.landSurface.snowCoverSWE   +\
+                self.landSurface.topWaterLayer  +\
+                self.landSurface.storUpp000005  +\
+                self.landSurface.storUpp005030  +\
+                self.landSurface.storLow030150  +\
+                self.groundwater.storGroundwater
+        
+        total = pcr.ifthen(self.landmask, total)
+        
+        return total
+
     def checkWaterBalance(self, storesAtBeginning, storesAtEnd):
 		# for the entire modules: snow + interception + soil + groundwater + waterDemand
 		# except: river/routing 
