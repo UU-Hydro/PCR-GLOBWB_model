@@ -307,13 +307,13 @@ class WaterBodies(object):
                                           pcr.areatotal(storageAtLakeAndReservoirs,\
                                                         self.waterBodyIds))
         
-        avgInflow        = pcr.ifthen(self.landmask, avgInflow)
-        avgOutflow       = pcr.ifthen(self.landmask, avgOutflow)
-        waterBodyStorage = pcr.ifthen(self.landmask, waterBodyStorage)                                            
-
         self.avgInflow        = pcr.cover(avgInflow , 0.0)              # unit: m3/s 
         self.avgOutflow       = pcr.cover(avgOutflow, 0.0)              # unit: m3/s
         self.waterBodyStorage = pcr.cover(waterBodyStorage, 0.0)        # unit: m3
+
+        self.avgInflow        = pcr.ifthen(self.landmask, self.avgInflow)
+        self.avgOutflow       = pcr.ifthen(self.landmask, self.avgOutflow)
+        self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)                                            
 
     def update(self,newStorageAtLakeAndReservoirs,\
                               timestepsToAvgDischarge,\
