@@ -163,7 +163,8 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
-        if cellSizeInArcMin >= 30.0: self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)   # used in Van Beek et al. (2011)                                                                   
+        # minimum number of sub-time steps : 24 (hourly resolution)
+        self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)   # hourly resolution used in Van Beek et al. (2011)                                                                   
         #        
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
