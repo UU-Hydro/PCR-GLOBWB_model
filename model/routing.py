@@ -156,7 +156,7 @@ class Routing(object):
         self.courantNumber = 0.50
 
         # empirical values for minimum number of sub-time steps:
-        design_flood_speed = 5.00 # m/s
+        design_flood_speed = 7.50 # m/s
         design_length_of_sub_time_step   = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
