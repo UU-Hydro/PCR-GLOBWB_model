@@ -42,6 +42,9 @@ class PCRGlobWB(object):
         else:
             self.landmask = pcr.defined(self.lddMap)
         
+        # defining catchment areas
+        self.catchment_class = 1.0
+        
         # number of upperSoilLayers:
         self.numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
 
@@ -256,7 +259,7 @@ class PCRGlobWB(object):
     
     def totalCatchmentStores(self, total_land_stores):
         
-        catchment_total = self.routing.channelStorage
+        total_per_catchment = self.routing.channelStorage
         
         if self.numberOfSoilLayers == 2: total = \
                 self.landSurface.interceptStor  +\

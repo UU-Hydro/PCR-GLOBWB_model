@@ -156,7 +156,7 @@ class Routing(object):
         self.courantNumber = 0.50
 
         # empirical values for minimum number of sub-time steps:
-        design_flood_speed = 7.50 # m/s
+        design_flood_speed = 2.50 # m/s
         design_length_of_sub_time_step   = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
@@ -522,9 +522,9 @@ class Routing(object):
         self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
 
         # volume water released in pits (losses: to the ocean / endorheic basin)
-        self.outgoing_volume_at_pits = pcr.ifthen(
+        self.outgoing_volume_at_pits = pcr.ifthen(self.landmask,
                                        pcr.cover(
-                                       pcr.ifthen(self.lddMap == pcr.ldd(5), self.Q), 0.0)
+                                       pcr.ifthen(self.lddMap == pcr.ldd(5), self.Q), 0.0))
         #
         # TODO: accumulate water in endorheic basins that are considered as lakes/reservoirs
         
@@ -900,11 +900,12 @@ class Routing(object):
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
-        # add extra evaporation
-        self.calculate_extra_evaporation()
-        
-        # reduce fossil groundwater storage abstraction (unmetDemand)
-        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
+        self.allow_extra_evaporation_and_abstraction = False # This option is still EXPERIMENTAL
+        if self.allow_extra_evaporation_and_abstraction:
+            # add extra evaporation
+            self.calculate_extra_evaporation()
+            # reduce fossil groundwater storage abstraction (unmetDemand)
+            if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
 
         # return waterBodyStorage to channelStorage  
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
