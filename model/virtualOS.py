@@ -865,8 +865,8 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
             logger.info(msg)
             logger.info(msg)
 
-            #~ pcr.report(inMap + dsMap - outMap,"wb.map")
-            #~ os.system("aguila wb.map")
+            pcr.report(inMap + dsMap - outMap,"wb.map")
+            os.system("aguila wb.map")
             
             #~ # for debugging:
             #~ error = inMap + dsMap- outMap

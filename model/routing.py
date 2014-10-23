@@ -1030,7 +1030,8 @@ class Routing(object):
                 acc_discharge_volume                = pcr.scalar(0.0)   # unit: m3
 
             if self.debugWaterBalance:\
-                preStorage = channelStorageForRouting
+                preStorage = pcr.ifthen(self.landmask,\
+                             channelStorageForRouting)
                 
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
             channelStorageForRouting          += (self.runoff + self.nonIrrReturnFlow) * \
