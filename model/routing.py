@@ -910,7 +910,7 @@ class Routing(object):
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
-        self.allow_extra_evaporation_and_abstraction = False # This option is still EXPERIMENTAL
+        self.allow_extra_evaporation_and_abstraction = True # This option is still EXPERIMENTAL
         if self.allow_extra_evaporation_and_abstraction:
             # add extra evaporation
             self.calculate_extra_evaporation()
