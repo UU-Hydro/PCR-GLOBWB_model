@@ -1187,12 +1187,10 @@ class Routing(object):
             waterBodyOutflow = pcr.cover(\
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut,
-                               self.WaterBodies.waterBodyOutflow), 0.0)
-            # 
-            self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)             # unit: m3
+                               self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3
             
             # update channelStorage (m3) after waterBodyOutflow (m3)
-            channelStorageForRouting += self.waterBodyOutflow
+            channelStorageForRouting += waterBodyOutflow
             # Note that local_input_to_surface_water does not include waterBodyOutflow
 
             # alpha parameter and initial discharge variable needed for kinematic wave
@@ -1200,9 +1198,10 @@ class Routing(object):
             
             # at the lake/reservoir outlets, use the discharge of water body outflow
             waterBodyOutflowInM3PerSec = pcr.ifthen(\
-                                         pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
+                                         self.WaterBodies.waterBodyOut,
                                          self.WaterBodies.waterBodyOutflow) / length_of_sub_time_step
             dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
+            dischargeInitial = pcr.ifthen(self.landmask, dischargeInitial)
             
             # discharge (m3/s) based on kinematic wave approximation
             logger.info('start pcr.kinematic')
