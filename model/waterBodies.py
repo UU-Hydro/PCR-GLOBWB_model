@@ -300,8 +300,8 @@ class WaterBodies(object):
             storageAtLakeAndReservoirs = pcr.cover(\
              pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., initial_condition['channelStorage']), 0.0)
             #
-            #~ # - move only non negative values and use rounddown values
-            #~ storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
+            # - move only non negative values and use rounddown values
+            storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
             #
             # lake and reservoir storages = waterBodyStorage (m3) ; values are given for the entire lake / reservoir cells
             waterBodyStorage = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., \
