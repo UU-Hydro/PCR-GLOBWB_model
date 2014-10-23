@@ -41,7 +41,7 @@ class Routing(object):
         result['avgBaseflowLong']          = self.avgBaseflow                #  m3/s   ;  long term average baseflow
         result['riverbedExchange']         = self.riverbedExchange           #  m3/day : river bed infiltration (from surface water bdoies to groundwater)
         
-        result['waterBodyStorage']            = pcr.ifthen(self.landmask, self.waterBodyStorage)        #  m3     ; storages of lakes and reservoirs            # values given are per water body id (not per cell)
+        result['waterBodyStorage']            = self.waterBodyStorage        #  m3     ; storages of lakes and reservoirs            # values given are per water body id (not per cell)
         result['avgLakeReservoirOutflowLong'] = self.avgOutflow              #  m3/s   ; long term average lake & reservoir outflow  # values given are per water body id (not per cell)
         result['avgLakeReservoirInflowShort'] = self.avgInflow               #  m3/s   ; short term average lake & reservoir inflow  # values given are per water body id (not per cell)
 
