@@ -123,6 +123,7 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
+        # TODO: Please also consider endorheic lakes!                    
 
         # correcting water body ids
         self.waterBodyIds = pcr.ifthen(\
@@ -391,12 +392,10 @@ class WaterBodies(object):
 
         # outflow in volume from water bodies with lake type (m3): 
         lakeOutflow = self.getLakeOutflow(avgChannelDischarge,length_of_time_step)  
-        self.waterBodyOutflow = lakeOutflow
              
         # outflow in volume from water bodies with reservoir type (m3): 
         if isinstance(downstreamDemand, types.NoneType): downstreamDemand = pcr.scalar(0.0)
         reservoirOutflow = self.getReservoirOutflow(avgChannelDischarge,length_of_time_step,downstreamDemand)  
-        self.waterBodyOutflow = reservoirOutflow
 
         # outgoing/release volume from lakes and/or reservoirs
         self.waterBodyOutflow = pcr.cover(reservoirOutflow, lakeOutflow)  
@@ -482,6 +481,9 @@ class WaterBodies(object):
         #
         lakeOutflow = pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0., lakeOutflow)
         lakeOutflow = pcr.ifthen(pcr.scalar(self.waterBodyTyp) == 1, lakeOutflow)
+        
+        # TODO: Consider endorheic lake/basin. No outflow for endorheic lake/basin!
+
         return (lakeOutflow) 
 
     def getReservoirOutflow(self,\

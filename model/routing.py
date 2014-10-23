@@ -156,7 +156,7 @@ class Routing(object):
         self.courantNumber = 0.50
 
         # empirical values for minimum number of sub-time steps:
-        design_flood_speed = 7.50 # m/s
+        design_flood_speed = 8.00 # m/s
         design_length_of_sub_time_step   = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
@@ -177,9 +177,17 @@ class Routing(object):
         # 
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
-        # critical water height used to select stable length of sub time step in kinematic wave methods/approaches
+        # critical water height (m) used to select stable length of sub time step in kinematic wave methods/approaches
         self.critical_water_height = 0.25;					                                                          # used in Van Beek et al. (2011)
 
+        # assumption for the minimum fracwat value used for calculating water height
+        self.min_fracwat_for_water_height = 0.0001
+        
+        # assumption for minimum crop coefficient for surface water bodies 
+        self.minCropWaterKC = 0.00
+        if 'minCropWaterKC' in iniItems.routingOptions.keys():
+            self.minCropWaterKC = float(iniItems.routingOptions['minCropWaterKC'])
+        
         # get the initialConditions
         self.getICs(iniItems, initialConditions)
         
@@ -417,7 +425,7 @@ class Routing(object):
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
         
         # water height (m)
-        self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+        self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat * self.cellArea))
         
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = \
@@ -458,7 +466,7 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
             #
             # update water_height (this will be passed to the next loop)
-            self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+            self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat * self.cellArea))
 
             # total discharge_volume (m3) until this present i_loop
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
@@ -556,8 +564,10 @@ class Routing(object):
             waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
                                currTimeStep.fulldate, useDoy = 'month',\
                                        cloneMapFileName = self.cloneMap)
-            self.waterKC = pcr.min(1.0,pcr.max(0.0,pcr.cover(waterKC, 0.0)))                       
-        
+            self.waterKC = pcr.ifthen(self.landmask,\
+                           pcr.cover(waterKC, 0.0))
+            self.waterKC = pcr.max(self.minCropWaterKC, self.waterKC)
+            
         # potential evaporation from water bodies (m/day)) - reduced by evaporation that has been calculated in the landSurface module
         waterBodyPotEvapOvesSurfaceWaterArea = pcr.ifthen(self.landmask, \
                                                pcr.max(0.0,\
@@ -910,15 +920,20 @@ class Routing(object):
         # calculate the statistics of long and short term flow values
         self.calculate_statistics(groundwater)
         
-        self.allow_extra_evaporation_and_abstraction = False # This option is still EXPERIMENTAL
-        if self.allow_extra_evaporation_and_abstraction:
-            # add extra evaporation
-            self.calculate_extra_evaporation()
-            # reduce fossil groundwater storage abstraction (unmetDemand)
-            if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
+        self.allow_extra_evaporation_and_abstraction = False # This option is still EXPERIMENTAL (and not recommended)
+        if self.allow_extra_evaporation_and_abstraction:\
+           self.update_with_extra_evaporation_and_unmet_demand_reduction()
 
         # return waterBodyStorage to channelStorage  
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
+
+    def update_with_extra_evaporation_and_unmet_demand_reduction(self): 
+        # This function is still EXPERIMENTAL (and not recommended)
+
+        # add extra evaporation
+        self.calculate_extra_evaporation()
+        # reduce fossil groundwater storage abstraction (unmetDemand)
+        if groundwater.limitAbstraction == False: self.reduce_unmet_demand(landSurface,groundwater,currTimeStep) 
 
     def calculate_alpha_and_initial_discharge_for_kinematic_wave(self): 
 
@@ -1009,7 +1024,7 @@ class Routing(object):
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
         
         # water height (m)
-        self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+        self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat * self.cellArea))
         
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = \
@@ -1082,7 +1097,7 @@ class Routing(object):
                 msg += "\n"
                 msg += "=================================================================================================================="
                 msg += "\n"
-                msg += "ERROR !!!! The option fully kinematicWave cannot be used for a run with water demand and limitAbstraction = True"
+                msg += "ERROR!! The option fully kinematicWave cannot be used for a run with water demand that has limitAbstraction = True"
                 msg += "\n"
                 msg += "=================================================================================================================="
                 msg += "\n"
@@ -1242,7 +1257,7 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
 
             # update water_height (this will be passed to the next loop)
-            self.water_height = channelStorageForRouting / (pcr.max(0.005, self.dynamicFracWat * self.cellArea))
+            self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat * self.cellArea))
 
         #######################################################################################################################
         
@@ -1263,7 +1278,6 @@ class Routing(object):
         groundwater.unmetDemand = landSurface.totalPotentialGrossDemand -\
                                   landSurface.allocSurfaceWaterAbstract -\
                                   groundwater.allocNonFossilGroundwater
-        #
         # Note that this must be positive (otherwise, it indicates water balance errors)
         
         if self.debugWaterBalance:
