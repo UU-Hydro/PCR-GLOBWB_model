@@ -156,16 +156,25 @@ class Routing(object):
         self.courantNumber = 0.50
 
         # empirical values for minimum number of sub-time steps:
-        design_flood_speed = 5.00 # m/s
+        design_flood_speed = 2.50 # m/s
         design_length_of_sub_time_step   = pcr.cellvalue(
                                            pcr.mapminimum(
                                            self.courantNumber * self.cellLengthFD / design_flood_speed),1)[0]
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
-        # minimum number of sub-time steps : 24 (hourly resolution)
-        self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)   # hourly resolution used in Van Beek et al. (2011)                                                                   
-        #        
+        # minimum number of sub-time steps: 24 ; hourly resolution as used in Van Beek et al. (2011) 
+        self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps) 
+                
+        # minimum number of a sub time step based on the configuration/ini file:  
+        if 'maxiumLengthOfSubTimeStep' in iniItems.routingOptions.keys():
+            maxiumLengthOfSubTimeStep = float(iniItems.routingOptions['maxiumLengthOfSubTimeStep'])
+            minimum_number_of_sub_time_step  = np.ceil(
+                                               vos.secondsPerDay() / maxiumLengthOfSubTimeStep )
+            self.limit_num_of_sub_time_steps = max(\
+                                               minimum_number_of_sub_time_step, \
+                                               self.limit_num_of_sub_time_steps)                                 
+        # 
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
         # critical water height used to select stable length of sub time step in kinematic wave methods/approaches
