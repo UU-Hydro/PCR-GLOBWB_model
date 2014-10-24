@@ -121,16 +121,18 @@ class Routing(object):
         # option to use minimum channel width (m)
         self.minChannelWidth = pcr.scalar(0.0)
         if "minimumChannelWidth" in iniItems.routingOptions.keys():
-            self.minChannelWidth = vos.readPCRmapClone(\
-                                   iniItems.routingOptions['minimumChannelWidth'],
-                                   self.cloneMap,self.tmpDir,self.inputDir)
+            if iniItems.routingOptions['minimumChannelWidth'] != "None":\
+               self.minChannelWidth = vos.readPCRmapClone(\
+                                      iniItems.routingOptions['minimumChannelWidth'],
+                                      self.cloneMap,self.tmpDir,self.inputDir)
         
         # option to use constant channel width (m)
         self.constantChannelWidth = None
         if "constantChannelWidth" in iniItems.routingOptions.keys():
-            self.constantChannelWidth = vos.readPCRmapClone(\
-                                        iniItems.routingOptions['constantChannelWidth'],
-                                        self.cloneMap,self.tmpDir,self.inputDir)
+            if iniItems.routingOptions['constantChannelWidth'] != "None":\
+               self.constantChannelWidth = vos.readPCRmapClone(\
+                                           iniItems.routingOptions['constantChannelWidth'],
+                                           self.cloneMap,self.tmpDir,self.inputDir)
 
         # an assumption for broad sheet flow in kinematic wave methods/approaches        
         self.beta = 0.6 
