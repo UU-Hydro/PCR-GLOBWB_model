@@ -372,7 +372,11 @@ class Reporting(object):
             self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
         
         # reporting water balance from the land surface part (excluding surface water bodies)
-        self.land_surface_water_balance = self._model.waterBalance    
+        self.land_surface_water_balance = self._model.waterBalance
+        
+        # channel width (m)
+        self.channel_width = pcr.ifthen(self._model.routing.landmask,\
+                                        self._model.routing.wMean)    
 
     def report(self):
 

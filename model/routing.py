@@ -118,6 +118,20 @@ class Routing(object):
         self.tau = 8.00
         self.phi = 0.58
 
+        # option to use minimum channel width (m)
+        self.minChannelWidth = pcr.scalar(0.0)
+        if "minimumChannelWidth" in iniItems.routingOptions.keys():
+            self.minChannelWidth = vos.readPCRmapClone(\
+                                   iniItems.routingOptions['minimumChannelWidth'],
+                                   self.cloneMap,self.tmpDir,self.inputDir)
+        
+        # option to use constant channel width (m)
+        self.constantChannelWidth = None
+        if "constantChannelWidth" in iniItems.routingOptions.keys():
+            self.constantChannelWidth = vos.readPCRmapClone(\
+                                        iniItems.routingOptions['constantChannelWidth'],
+                                        self.cloneMap,self.tmpDir,self.inputDir)
+
         # an assumption for broad sheet flow in kinematic wave methods/approaches        
         self.beta = 0.6 
 
@@ -283,9 +297,18 @@ class Routing(object):
  
         yMean =   pcr.max(yMean,0.01) # channel depth (m)
         wMean =   pcr.max(wMean,0.01) # channel width (m)
+
+        # option to use constant channel width (m)
+        if not isinstance(self.constantChannelWidth,types.NoneType):\
+           wMean = pcr.cover(self.constantChannelWidth, wMean)
+
+        # minimum channel width (m)
+        wMean = pcr.max(self.minChannelWidth, wMean)
+
+        # channel width and channel depth (m)
         yMean = pcr.cover(yMean,0.01)
         wMean = pcr.cover(wMean,0.01)
-                
+
         # characteristicDistance (dimensionless)
         # - This will be used for accutraveltimeflux & accutraveltimestate
         # - discharge & storage = accutraveltimeflux & accutraveltimestate

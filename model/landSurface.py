@@ -208,7 +208,11 @@ class LandSurface(object):
         # Get the initialconditions
         self.getInitialConditions(iniItems, initialState)
 
-        # for reporting 
+        # initiate old style reporting                                  # TODO: remove this!
+        self.initiate_old_style_land_surface_reporting(iniItems)
+
+    def initiate_old_style_land_surface_reporting(self,iniItems):
+
         self.report = True
         try:
             self.outDailyTotNC = iniItems.landSurfaceOptions['outDailyTotNC'].split(",")
@@ -922,7 +926,6 @@ class LandSurface(object):
                         self.storUpp000005 + self.storUpp005030 +\
                         self.storLow030150
 
-
         # saturation degrees (needed only for reporting):
         #
         if self.numberOfSoilLayers == 2:
@@ -959,6 +962,11 @@ class LandSurface(object):
                   vos.smallNumber,0.)
             self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
             self.satDegLowTotal = self.satDegLow030150
+
+        # old-style reporting                             
+        self.old_style_land_surface_reporting(currTimeStep)             # TODO: remove this one
+
+    def old_style_land_surface_reporting(self,currTimeStep):
 
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
