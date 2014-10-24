@@ -510,6 +510,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "direct_runoff + interflow + baseflow, but not including local runoff from water bodies."
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# accuBaseflow
+pcrglobwb_variable_name = 'accuBaseflow'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_land_surface_baseflow'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = "m3.month-1" 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = "m3.year-1"
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # discharge
 pcrglobwb_variable_name = 'discharge'
 netcdf_short_name[pcrglobwb_variable_name] = 'discharge'
