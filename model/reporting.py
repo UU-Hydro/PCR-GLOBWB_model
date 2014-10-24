@@ -379,10 +379,11 @@ class Reporting(object):
         self.land_surface_water_balance = self._model.waterBalance
         
         # evaporation from irrigation areas (m/day) - values are average over the entire cell area
-        self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
-                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
-                                           self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
-                                           self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover 
+        if self._model.landSurface.includeIrrigation:\
+           self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
+                                              self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover 
 
     def report(self):
 
