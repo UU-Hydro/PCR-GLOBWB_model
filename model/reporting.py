@@ -379,10 +379,10 @@ class Reporting(object):
                                         self._model.routing.wMean)
         
         # evaporation from irrigation areas (m/day) - values are average over the entire cell area
-        self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * 
-                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover +\
-                                           self._model.landSurface.landCoverObj['irrPaddy'].actualET * 
-                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover 
+        self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
+                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                           self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
+                                           self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover 
 
     def report(self):
 
