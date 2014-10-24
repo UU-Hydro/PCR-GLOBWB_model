@@ -374,10 +374,6 @@ class Reporting(object):
         # reporting water balance from the land surface part (excluding surface water bodies)
         self.land_surface_water_balance = self._model.waterBalance
         
-        # channel width (m)
-        self.channel_width = pcr.ifthen(self._model.routing.landmask,\
-                                        self._model.routing.wMean)
-        
         # evaporation from irrigation areas (m/day) - values are average over the entire cell area
         self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
                                            self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \

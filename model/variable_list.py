@@ -664,17 +664,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Excluding surface water bodies.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# channel_width                  
-pcrglobwb_variable_name = 'channel_width'
-netcdf_short_name[pcrglobwb_variable_name] = 'channel_width'
-netcdf_unit[pcrglobwb_variable_name]       = 'm'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'Excluding surface water bodies.'
-latex_symbol[pcrglobwb_variable_name]      = None
-
 # evaporation_from_irrigation
 pcrglobwb_variable_name = 'evaporation_from_irrigation'
 netcdf_short_name[pcrglobwb_variable_name] = 'evaporation_from_irrigation'
