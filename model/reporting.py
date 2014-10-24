@@ -314,7 +314,7 @@ class Reporting(object):
         
         # accumulated baseflow (m3) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
-            self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+            self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap)
 
         # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
         self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
