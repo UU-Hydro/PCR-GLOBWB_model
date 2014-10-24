@@ -297,9 +297,6 @@ class Routing(object):
         yMean = self.eta * pow (avgDischarge, self.nu ) # avgDischarge in m3/s
         wMean = self.tau * pow (avgDischarge, self.phi)
  
-        yMean =   pcr.max(yMean,0.01) # channel depth (m)
-        wMean =   pcr.max(wMean,0.01) # channel width (m)
-
         # option to use constant channel width (m)
         if not isinstance(self.constantChannelWidth,types.NoneType):\
            wMean = pcr.cover(self.constantChannelWidth, wMean)
@@ -307,7 +304,8 @@ class Routing(object):
         # minimum channel width (m)
         wMean = pcr.max(self.minChannelWidth, wMean)
 
-        # channel width and channel depth (m)
+        yMean =   pcr.max(yMean,0.01) # channel depth (m)
+        wMean =   pcr.max(wMean,0.01) # channel width (m)
         yMean = pcr.cover(yMean,0.01)
         wMean = pcr.cover(wMean,0.01)
 
