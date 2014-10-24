@@ -376,7 +376,13 @@ class Reporting(object):
         
         # channel width (m)
         self.channel_width = pcr.ifthen(self._model.routing.landmask,\
-                                        self._model.routing.wMean)    
+                                        self._model.routing.wMean)
+        
+        # evaporation from irrigation areas (m/day) - values are average over the entire cell area
+        self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * 
+                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover +\
+                                           self._model.landSurface.landCoverObj['irrPaddy'].actualET * 
+                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover 
 
     def report(self):
 
