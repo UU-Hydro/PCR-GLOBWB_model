@@ -19,6 +19,9 @@ class Groundwater(object):
         result = {}
         result['storGroundwater'] = self.storGroundwater
         
+        if self.limitFossilGroundwaterAbstraction:
+           result['storGroundwaterFossil'] = self.storGroundwaterFossil
+           
         return result
 
     def getPseudoState(self):
@@ -94,6 +97,29 @@ class Groundwater(object):
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
+        # option for limitting fossil groundwater abstractions - This option is only defined 
+        self.limitFossilGroundwaterAbstraction = False
+        if self.limitAbstraction == False and\
+           "extraOptionsforProjectWithIWMI" in iniItems.allSections and\
+           iniItems.extraOptionsforProjectWithIWMI['limitFossilGroundWaterAbstraction'] == True:
+            
+            logger.info('Fossil groundwater abstraction limit is used (IWMI project).')
+            self.limitFossilGroundWaterAbstraction = True
+            
+            # estimate of thickness (unit: mm) of aceesible groundwater: shallow and deep 
+            totalGroundwaterThickness = vos.readPCRmapClone(\
+                                        iniItems.extraOptionsforProjectWithIWMI[''],
+                                        self.cloneMap,self.tmpDir,self.inputDir)
+
+            # estimate of capacity (unit: m) of renewable groundwater (shallow)
+            storGroundwaterCap =  vos.readPCRmapClone(\
+                                  iniItems.extraOptionsforProjectWithIWMI[''],
+                                  self.cloneMap,self.tmpDir,self.inputDir)
+
+            # fossil groundwater capacity (unit: m)
+            self.fossilWaterCap = pcr.max(0.0,\
+                                  totalGroundwaterThickness*self.specificYield - storGroundwaterCap)
+             
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
         if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None": self.usingAllocSegments = True
@@ -210,6 +236,18 @@ class Groundwater(object):
         self.storGroundwater = pcr.max(0.,self.storGroundwater)                                    
         self.storGroundwater = pcr.ifthen(self.landmask,\
                                          self.storGroundwater)
+        
+        if self.limitFossilGroundwaterAbstraction:
+            if iniConditions == None:
+                try:
+                    self.storGroundwaterFossil = vos.readPCRmapClone(\
+                                                 iniItems.groundwaterOptions['storGroundwaterFossilIni'],
+                                                 self.cloneMap,self.tmpDir,self.inputDir)
+                except:                                 
+                    logger.info("Assuming 'full' storGroundwaterCap as the initial condition for fossil groundater storage (as it is not defined in the ini file.")
+                    self.storGroundwaterFossil = self.storGroundwaterCap
+            else:        
+                self.storGroundwaterFossil = iniConditions['groundwater'][ 'storGroundwaterFossil']
 
     def perturb(self, name, **parameters):
         

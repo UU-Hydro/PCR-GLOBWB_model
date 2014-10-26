@@ -96,17 +96,40 @@ class Configuration(object):
                                      os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.ini')
 
     def parse_configuration_file(self, modelFileName):
+
         config = ConfigParser.ConfigParser()
         config.optionxform = str
-        config.sections()
         config.read(modelFileName)
-        for sec in config.sections():
-            options = config.options(sec)  # example: logFileDir
-            vars(self)[sec] = {}  # example: to instantiate self.globalOptions 
+
+        # all sections provided in the configuration/ini file
+        self.allSections  = config.sections()
+
+        # main sections that must be available in the configuration/ini file 
+        mainSection = ['globalOptions',
+                       'meteoOptions',
+                       'landSurfaceOptions',
+                       'forestOptions',
+                       'grasslandOptions',
+                       'irrPaddyOptions',
+                       'irrNonPaddyOptions',
+                       'groundwaterOptions',
+                       'routingOptions',
+                       'reportingOptions']
+        
+        # boolean/condition if there are any extra options/sections provided in the ini file
+        self.usingExtraSections = False
+        
+        # read all sections 
+        for sec in self.allSections:
+            vars(self)[sec] = {}                               # example: to instantiate self.globalOptions 
+            options = config.options(sec)                      # example: logFileDir
             for opt in options:
-                val = config.get(sec, opt)
-                self.__getattribute__(sec)[opt] = val
-    
+                val = config.get(sec, opt)                     # value defined in every option 
+                self.__getattribute__(sec)[opt] = val          # example: self.globalOptions['logFileDir'] = val
+        
+    def get_extra_options(self):
+
+
     def set_input_files(self):
         # fullPath of CLONE:
         self.cloneMap = vos.getFullPath(self.globalOptions['cloneMap'], \
