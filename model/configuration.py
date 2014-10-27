@@ -127,9 +127,6 @@ class Configuration(object):
                 val = config.get(sec, opt)                     # value defined in every option 
                 self.__getattribute__(sec)[opt] = val          # example: self.globalOptions['logFileDir'] = val
         
-    def get_extra_options(self):
-
-
     def set_input_files(self):
         # fullPath of CLONE:
         self.cloneMap = vos.getFullPath(self.globalOptions['cloneMap'], \
