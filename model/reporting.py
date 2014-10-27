@@ -327,7 +327,7 @@ class Reporting(object):
             self.accuTotalRunoff = pcr.catchmenttotal(self.totalRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
         # total active storage thickness (m) for the entire water column - not including fossil groundwater (unmetDemand) 
-        # - including: interception, snow, soil, amd non fossil groundwater and fossil groundwater (unmetDemand) 
+        # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
                                            self._model.routing.landmask, \
                                            self._model.routing.channelStorage / self._model.routing.cellArea + \
@@ -337,8 +337,12 @@ class Reporting(object):
         # total water storage thickness (m) for the entire water column: 
         # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand)
         # - this is usually used for GRACE comparison  
-        self.totalWaterStorageThickness  = self.totalActiveStorageThickness - \
-                                           self._model.groundwater.unmetDemand
+        if self._modelTime.timeStepPCR == 1:
+            self.accUnmetDemand  = pcr.scalar(0.0)  
+        else:
+            self.accUnmetDemand -= self._model.groundwater.unmetDemand  
+        self.totalWaterStorageThickness  = self.totalActiveStorageThickness + \
+                                           self.accUnmetDemand
 
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
