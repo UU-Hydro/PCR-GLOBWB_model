@@ -398,6 +398,9 @@ class Routing(object):
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove            # unit: m3
 
+        # for non kinematic wave approach, set subDishcarge to missing values
+        self.subDischarge = pcr.scalar(vos.MV) 
+
     def estimate_length_of_sub_time_step(self): 
 
         # estimate the length of sub-time step (unit: s):
