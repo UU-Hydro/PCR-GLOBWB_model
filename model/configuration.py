@@ -104,21 +104,6 @@ class Configuration(object):
         # all sections provided in the configuration/ini file
         self.allSections  = config.sections()
 
-        # main sections that must be available in the configuration/ini file 
-        mainSection = ['globalOptions',
-                       'meteoOptions',
-                       'landSurfaceOptions',
-                       'forestOptions',
-                       'grasslandOptions',
-                       'irrPaddyOptions',
-                       'irrNonPaddyOptions',
-                       'groundwaterOptions',
-                       'routingOptions',
-                       'reportingOptions']
-        
-        # boolean/condition if there are any extra options/sections provided in the ini file
-        self.usingExtraSections = False
-        
         # read all sections 
         for sec in self.allSections:
             vars(self)[sec] = {}                               # example: to instantiate self.globalOptions 
