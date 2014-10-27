@@ -977,7 +977,7 @@ class LandCover(object):
  
         else:
 	        logger.info('Fossil groundwater abstractions are allowed.')
-	    
+
 	    if groundwater.limitFossilGroundWaterAbstraction:
 
             logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
