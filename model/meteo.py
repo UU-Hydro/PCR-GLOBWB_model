@@ -184,7 +184,7 @@ class Meteo(object):
         # forcing smoothing options: - THIS is still experimental. PS: MUST BE TESTED.
         self.forcingSmoothing = False
         if 'meteoDownscalingOptions' in iniItems.allSections and \
-           'smoothingWindowsLength' in iniItems.meteoDownscalingOptions.keys()
+           'smoothingWindowsLength' in iniItems.meteoDownscalingOptions.keys():
 
             if iniItems.meteoDownscalingOptions['smoothingWindowsLength'] != "0" or\
                iniItems.meteoDownscalingOptions['smoothingWindowsLength'] != "None" or\
