@@ -964,7 +964,7 @@ class LandCover(object):
             self.irrGrossDemand = \
               pcr.ifthenelse(totalGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*    self.irrGrossDemand,0.0)    
+              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
 
             # correcting total demand 
             self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
@@ -977,6 +977,45 @@ class LandCover(object):
  
         else:
 	        logger.info('Fossil groundwater abstractions are allowed.')
+	    
+	    if groundwater.limitFossilGroundWaterAbstraction:    
+
+            logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
+
+            # calculate accesiblevlWater (non-fossil groundwater + channel + accessible fossil groundwater) 
+            
+            # - from storGroundwater
+            #  -- avoid small values and to avoid excessive abstractions 
+            #     from dry groundwater ( <= 0.00005)
+            readAvlStorGroundwater = pcr.ifthenelse(groundwater.storGroundwater > 0.00005, groundwater.storGroundwater, pcr.scalar(0.0))
+            readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)
+            
+            # - from non-fossil groundwater and surface water bodies
+            renewableAvlWater = readAvlStorGroundwater + self.allocSurfaceWaterAbstract
+
+            # reducing nonIrrGrossDemand if renewableAvlWater < maxGrossDemand  
+            #
+            self.nonIrrGrossDemand = \
+              pcr.ifthenelse(totalGrossDemand > 0.0, \
+              pcr.min(1.0,pcr.max(0.0, \
+              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
+
+            # reducing irrGrossWaterDemand if maxGrossDemand < renewableAvlWater 
+            #
+            self.irrGrossDemand = \
+              pcr.ifthenelse(totalGrossDemand > 0.0, \
+              pcr.min(1.0,pcr.max(0.0, \
+              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
+
+            # correcting total demand 
+            self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
+            
+            # potential groundwater abstraction (must be equal to actual no fossil groundwater abstraction)
+            self.potGroundwaterAbstract = self.nonIrrGrossDemand + self.irrGrossDemand - self.allocSurfaceWaterAbstract
+            
+            # variable to reduce/limit gw abstraction (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
+            self.reducedGroundWaterAbstraction = self.potGroundwaterAbstract
+
 
     def calculateDirectRunoff(self, parameters):
 
