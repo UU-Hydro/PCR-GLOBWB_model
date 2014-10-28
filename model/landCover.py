@@ -996,11 +996,7 @@ class LandCover(object):
             renewableAvlWater = readAvlStorGroundwater + self.allocSurfaceWaterAbstract
 
             # estimate of demand that will be satisfied by renewableAvlWater  
-            #
-            allocRenewableAvlWater = \
-              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
-              pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, self.totalPotentialGrossDemand, vos.smallNumber)))*allocRenewableAvlWater, 0.0)
+            allocRenewableAvlWater = pcr.min(renewableAvlWater, self.totalPotentialGrossDemand)
 
             # variable to reduce/limit capillary rise (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
             self.reducedCapRise = allocRenewableAvlWater - self.allocSurfaceWaterAbstract
