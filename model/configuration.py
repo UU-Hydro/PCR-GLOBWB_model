@@ -235,9 +235,17 @@ class Configuration(object):
             logger.info("Note that avgSurfaceWaterInputLongIni is not used and not needed.")
             
         if 'subDischargeIni' not in self.routingOptions.keys() or self.routingOptions['subDischargeIni'] == str(None):
-            msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run.'
+            msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run. '
             msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
             logger.info(msg)
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
-
+        #
+        if 'storGroundwaterFossilIni' not in self.groundwaterOptions.keys():
+            logger.info(".")
+            msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
+            msg += 'Zero initial condition is assumed here.'
+            logger.info(msg)
+            self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
+            # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
+             
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 

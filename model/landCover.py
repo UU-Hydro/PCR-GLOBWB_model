@@ -845,14 +845,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > 0.0001, self.irrGrossDemand, 0)                 # ignore demand if less than 0.1 mm
 
         
-        # totalGrossDemand (m): total maximum (potential) water demand: irrigation and non irrigation
-        totalGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
-        self.totalPotentialGrossDemand = totalGrossDemand
+        # totalPotentialGrossDemand (m): total maximum (potential) water demand: irrigation and non irrigation
+        self.totalPotentialGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
 
         # surface water demand (m): water demand that should be satisfied by surface water abstraction
         surface_water_demand = self.totalPotentialGrossDemand * swAbstractionFraction
         
-        # surface water abstraction that can be extracted to fulfil totalGrossDemand
+        # surface water abstraction that can be extracted to satisfy totalPotentialGrossDemand
         # - based on readAvlChannelStorage
         #        and swAbstractionFraction * totalPotGrossDemand
         # 
@@ -928,14 +927,14 @@ class LandCover(object):
         self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
         self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
         
-        self.potGroundwaterAbstract  = pcr.max(0.0, self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract)              # unit: m
+        self.potGroundwaterAbstract = pcr.max(0.0, self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract)              # unit: m
             
         # if limitAbstraction == 'True'
         # - no fossil gwAbstraction.
         # - limitting abstraction with avlWater in channelStorage (m3) and storGroundwater (m)
         # - water demand may be reduced
         #
-        self.reducedGroundWaterAbstraction = 0.0                           # variable to reduce/limit groundwater abstraction (> 0 if limitAbstraction = True)  
+        self.reducedCapRise = 0.0                           # variable to reduce/limit groundwater abstraction (> 0 if limitAbstraction = True)  
         #
         if self.limitAbstraction:
 
@@ -952,19 +951,19 @@ class LandCover(object):
             # - from non-fossil groundwater and surface water bodies
             renewableAvlWater = readAvlStorGroundwater + self.allocSurfaceWaterAbstract
 
-            # reducing nonIrrGrossDemand if renewableAvlWater < maxGrossDemand  
+            # reducing nonIrrGrossDemand < renewableAvlWater  
             #
             self.nonIrrGrossDemand = \
-              pcr.ifthenelse(totalGrossDemand > 0.0, \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
+              vos.getValDivZero(renewableAvlWater, self.totalPotentialGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
 
-            # reducing irrGrossWaterDemand if maxGrossDemand < renewableAvlWater 
+            # reducing irrGrossWaterDemand < renewableAvlWater 
             #
             self.irrGrossDemand = \
-              pcr.ifthenelse(totalGrossDemand > 0.0, \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
+              vos.getValDivZero(renewableAvlWater, self.totalPotentialGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
 
             # correcting total demand 
             self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
@@ -972,17 +971,20 @@ class LandCover(object):
             # potential groundwater abstraction (must be equal to actual no fossil groundwater abstraction)
             self.potGroundwaterAbstract = self.nonIrrGrossDemand + self.irrGrossDemand - self.allocSurfaceWaterAbstract
             
-            # variable to reduce/limit gw abstraction (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
-            self.reducedGroundWaterAbstraction = self.potGroundwaterAbstract
+            # variable to reduce/limit capillary rise (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
+            self.reducedCapRise = self.potGroundwaterAbstract
  
         else:
-            logger.info('Fossil groundwater abstractions are allowed.')
+            logger.info('Fossil groundwater abstraction is allowed.')
 
-        if groundwater.limitFossilGroundwaterAbstraction:
+        if self.limitAbstraction == False and\
+           groundwater.limitFossilGroundwaterAbstraction and groundwater.usingAllocSegments == False:
 
-            logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
+            # Note: For simplicity, limitFossilGroundwaterAbstraction can only be combined with local (groundwater) source assumption
 
-            # calculate accesiblevlWater (non-fossil groundwater + channel + accessible fossil groundwater) 
+            logger.info('Fossil groundwater abstraction is allowed with LIMIT.')
+
+            # calculate renewableAvlWater (non-fossil groundwater and channel) 
             
             # - from storGroundwater
             #  -- avoid small values and to avoid excessive abstractions 
@@ -993,29 +995,42 @@ class LandCover(object):
             # - from non-fossil groundwater and surface water bodies
             renewableAvlWater = readAvlStorGroundwater + self.allocSurfaceWaterAbstract
 
-            # reducing nonIrrGrossDemand if renewableAvlWater < maxGrossDemand  
+            # estimate of demand that will be satisfied by renewableAvlWater  
             #
-            self.nonIrrGrossDemand = \
-              pcr.ifthenelse(totalGrossDemand > 0.0, \
+            allocRenewableAvlWater = \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
+              vos.getValDivZero(renewableAvlWater, self.totalPotentialGrossDemand, vos.smallNumber)))*allocRenewableAvlWater, 0.0)
 
-            # reducing irrGrossWaterDemand if maxGrossDemand < renewableAvlWater 
+            # variable to reduce/limit capillary rise (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
+            self.reducedCapRise = allocRenewableAvlWater - self.allocSurfaceWaterAbstract
+
+            # calculate accessibleWater (unit: m) 
+            accessibleWater = pcr.max(0.0,\
+                              self.allocSurfaceWaterAbstract +\
+                              groundwater.storGroundwater +\
+                              groundwater.storGroundwaterFossil)
+
+            # total nonIrrGrossDemand < accessibleWater  
+            self.nonIrrGrossDemand = \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
+              pcr.min(1.0,pcr.max(0.0, \
+              vos.getValDivZero(accessibleWater, self.totalPotentialGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
+
+            # total irrGrossWaterDemand < accessibleWater 
             #
             self.irrGrossDemand = \
-              pcr.ifthenelse(totalGrossDemand > 0.0, \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
-              vos.getValDivZero(renewableAvlWater, totalGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
+              vos.getValDivZero(accessibleWater, self.totalPotentialGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
 
             # correcting total demand 
             self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
             
-            # potential groundwater abstraction (must be equal to actual no fossil groundwater abstraction)
+            # potential groundwater abstraction
             self.potGroundwaterAbstract = self.nonIrrGrossDemand + self.irrGrossDemand - self.allocSurfaceWaterAbstract
             
-            # variable to reduce/limit gw abstraction (to ensure that there are enough water for supplying nonIrrGrossDemand + irrGrossDemand)
-            self.reducedGroundWaterAbstraction = self.potGroundwaterAbstract
-
+            # TODO: Include pumping capacity
 
     def calculateDirectRunoff(self, parameters):
 
@@ -1389,12 +1404,12 @@ class LandCover(object):
                               #~ pcr.min(\
                               #~ groundwater.storGroundwater,self.capRiseLow))
             # 
-            # also limited with reducedGroundWaterAbstraction 
+            # also limited with reducedCapRise 
             #
             self.capRiseLow = pcr.max(0.,\
                               pcr.min(\
                               pcr.max(0.,\
-                              groundwater.storGroundwater-self.reducedGroundWaterAbstraction),self.capRiseLow))
+                              groundwater.storGroundwater-self.reducedCapRise),self.capRiseLow))
 
             # capillary rise to storUpp is limited to available storLow
             #
@@ -1433,13 +1448,13 @@ class LandCover(object):
             self.interflow           = ADJUST*self.interflow   
 
             # capillary rise to storLow is limited to available storGroundwater 
-            # and also limited with reducedGroundWaterAbstraction 
+            # and also limited with reducedCapRise 
             #
             self.capRiseLow030150 = pcr.max(0.,\
                                     pcr.min(\
                                     pcr.max(0.,\
                                     groundwater.storGroundwater-\
-                                    self.reducedGroundWaterAbstraction),\
+                                    self.reducedCapRise),\
                                     self.capRiseLow030150))
 
             # capillary rise to storUpp005030 is limited to available storLow030150
