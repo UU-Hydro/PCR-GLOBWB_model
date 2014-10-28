@@ -409,7 +409,7 @@ class Groundwater(object):
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-4)
 
-        if self.debugWaterBalance and self.limitFossilGroundwaterAbstraction
+        if self.debugWaterBalance and self.limitFossilGroundwaterAbstraction:
             vos.waterBalanceCheck([pcr.scalar(0.0)],\
                                   [self.unmetDemand],\
                                   [pcr.max(0.0,  preStorGroundwaterFossil)],\
