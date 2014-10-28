@@ -120,7 +120,7 @@ class Groundwater(object):
                                         pcr.mapmaximum(totalGroundwaterThickness))
 
             # set minimum thickness to 50 m:
-            totalGroundwaterThickness = pcr.min(50.0, totalGroundwaterThickness)
+            totalGroundwaterThickness = pcr.max(50.0, totalGroundwaterThickness)
             
             # estimate of capacity (unit: m) of renewable groundwater (shallow)
             storGroundwaterCap =  pcr.cover(
@@ -261,8 +261,6 @@ class Groundwater(object):
                                          iniItems.groundwaterOptions['storGroundwaterFossilIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
         self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
-
-        self.initialStorGroundwaterFossil = self.storGroundwaterFossil                                 
 
         # make sure that active storGroundwater cannot be negative
         self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
