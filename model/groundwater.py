@@ -119,6 +119,9 @@ class Groundwater(object):
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.mapmaximum(totalGroundwaterThickness))
 
+            # set minimum thickness to 50 m:
+            totalGroundwaterThickness = pcr.min(50.0, totalGroundwaterThickness)
+            
             # estimate of capacity (unit: m) of renewable groundwater (shallow)
             storGroundwaterCap =  pcr.cover(
                                   vos.readPCRmapClone(\
