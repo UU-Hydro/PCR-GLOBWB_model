@@ -943,9 +943,8 @@ class LandCover(object):
             # calculate renewableAvlWater (non-fossil groundwater and channel) 
             
             # - from storGroundwater
-            #  -- avoid small values and to avoid excessive abstractions 
-            #     from dry groundwater ( <= 0.00005)
-            readAvlStorGroundwater = pcr.ifthenelse(groundwater.storGroundwater > 0.00005, groundwater.storGroundwater, pcr.scalar(0.0))
+            #  -- avoid small values 
+            readAvlStorGroundwater = pcr.rounddown(readAvlStorGroundwater*10000.)/10000.
             readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)
             
             # - from non-fossil groundwater and surface water bodies
@@ -987,9 +986,8 @@ class LandCover(object):
             # calculate renewableAvlWater (non-fossil groundwater and channel) 
             
             # - from storGroundwater
-            #  -- avoid small values and to avoid excessive abstractions 
-            #     from dry groundwater ( <= 0.00005)
-            readAvlStorGroundwater = pcr.ifthenelse(groundwater.storGroundwater > 0.00005, groundwater.storGroundwater, pcr.scalar(0.0))
+            #  -- avoid small values 
+            readAvlStorGroundwater = pcr.rounddown(readAvlStorGroundwater*10000.)/10000.
             readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)
             
             # - from non-fossil groundwater and surface water bodies

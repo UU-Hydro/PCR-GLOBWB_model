@@ -432,7 +432,7 @@ class Groundwater(object):
                                   [self.storGroundwaterFossil],\
                                        'storGroundwaterFossil',\
                                    True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
+                                   currTimeStep.fulldate,threshold=1e-3)
 
         if self.debugWaterBalance and self.limitFossilGroundwaterAbstraction:
             vos.waterBalanceCheck([pcr.scalar(0.0)],\
@@ -441,7 +441,7 @@ class Groundwater(object):
                                   [pcr.max(0.0,self.storGroundwaterFossil)],\
                                        'storGroundwaterFossil (with limitFossilGroundwaterAbstraction)',\
                                    True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
+                                   currTimeStep.fulldate,threshold=1e-3)
 
         if self.debugWaterBalance and landSurface.limitAbstraction:
             vos.waterBalanceCheck([potGroundwaterAbstract],\
