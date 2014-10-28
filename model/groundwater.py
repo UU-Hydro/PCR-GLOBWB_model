@@ -240,7 +240,7 @@ class Groundwater(object):
 
         print iniItems.groundwaterOptions['storGroundwaterFossilIni']
         
-        if iniConditions == None:
+        if iniConditions == None: # when the model just start 
             self.storGroundwater       = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['storGroundwaterIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
@@ -252,9 +252,13 @@ class Groundwater(object):
                 self.storGroundwaterFossil = vos.readPCRmapClone(\
                                              iniItems.groundwaterOptions['storGroundwaterFossilIni'],
                                              self.cloneMap,self.tmpDir,self.inputDir)
-        else:
+
+            # The initial condition of storGroundwaterFossil will be re-used in and after spin-up cycles. 
+            self.initialStorGroundwaterFossil = self.storGroundwaterFossil                                 
+
+        else: # during/after spinUp
             self.storGroundwater       = iniConditions['groundwater'][ 'storGroundwater']
-            self.storGroundwaterFossil = iniConditions['groundwater'][ 'storGroundwaterFossil']
+            self.storGroundwaterFossil = self.initialStorGroundwaterFossil
 
         # make sure that active storGroundwater cannot be negative
         self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
