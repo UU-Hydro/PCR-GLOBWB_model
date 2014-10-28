@@ -391,10 +391,15 @@ class Routing(object):
 
         # updating channelStorage (after routing)
         #
+        # - alternative 1: using accutraveltimestate
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
                               self.characteristicDistance)              # unit: m3
-        #
+
+        #~ # - alternative 2: using the calculated Q
+        #~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.Q) - self.Q
+        #~ channelStorageForRouting += storage_change_in_volume 
+
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove            # unit: m3
 

@@ -111,9 +111,13 @@ class Groundwater(object):
                                         iniItems.extraOptionsforProjectWithIWMI['estimateOfTotalGroundwaterThickness'],
                                         self.cloneMap,self.tmpDir,self.inputDir)
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 1.0))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 1.5))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 2.5))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 5.0))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 7.5))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
