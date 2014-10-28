@@ -110,19 +110,26 @@ class Groundwater(object):
             totalGroundwaterThickness = vos.readPCRmapClone(\
                                         iniItems.extraOptionsforProjectWithIWMI['estimateOfTotalGroundwaterThickness'],
                                         self.cloneMap,self.tmpDir,self.inputDir)
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 1.5))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 2.5))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 7.5))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.mapmaximum(totalGroundwaterThickness))
 
             # estimate of capacity (unit: m) of renewable groundwater (shallow)
-            storGroundwaterCap =  vos.readPCRmapClone(\
+            storGroundwaterCap =  pcr.cover(
+                                  vos.readPCRmapClone(\
                                   iniItems.extraOptionsforProjectWithIWMI['estimateOfRenewableGroundwaterCapacity'],
-                                  self.cloneMap,self.tmpDir,self.inputDir)
+                                  self.cloneMap,self.tmpDir,self.inputDir),\
+                                  0.0)
 
             # fossil groundwater capacity (unit: m)
             self.fossilWaterCap = pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap)
             
-            pcr.report(self.fossilWaterCap,"fossilWaterCap.map"); os.system("aguila fossilWaterCap.map")
-                                  
-             
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
         if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None": self.usingAllocSegments = True
