@@ -367,7 +367,6 @@ class Groundwater(object):
                            self.allocNonFossilGroundwater)              # m (equal to zero if limitAbstraction = True)
         
         if self.limitAbstraction:
-            self.unmetDemand = 
             logger.info("No fossil groundwater abstraction is allowed")
             # TODO: check that self.unmetDemand = 0.0
 
