@@ -396,7 +396,7 @@ class Routing(object):
                               channelStorageForAccuTravelTime,\
                               self.characteristicDistance)              # unit: m3
 
-        #~ # - alternative 2: using the calculated Q
+        #~ # - alternative 2: using the calculated Q (Can we do this?)
         #~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.Q) - self.Q
         #~ channelStorageForRouting += storage_change_in_volume 
 
@@ -478,14 +478,9 @@ class Routing(object):
 
             # discharge (m3/s) based on kinematic wave approximation
             logger.info('start pcr.kinematic')
-            #~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              #~ alpha, self.beta, \
-                                              #~ number_of_loops, length_of_sub_time_step, self.cellLengthFD)
-
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.cellLengthFD)
-
             logger.info('done')
             
             # update channelStorage (m3)
@@ -1252,9 +1247,6 @@ class Routing(object):
             
             # discharge (m3/s) based on kinematic wave approximation
             logger.info('start pcr.kinematic')
-            #~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              #~ alpha, self.beta, \
-                                              #~ number_of_loops, length_of_sub_time_step, self.cellLengthFD)
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.cellLengthFD)
