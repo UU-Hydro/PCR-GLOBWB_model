@@ -240,28 +240,29 @@ class Groundwater(object):
 
         print iniItems.groundwaterOptions['storGroundwaterFossilIni']
         
+        # initial condition for storGroundwater (unit: m)
         if iniConditions == None: # when the model just start 
             self.storGroundwater       = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['storGroundwaterIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
-            if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "None":
-                logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
-                self.storGroundwaterFossil = self.fossilWaterCap
-            else:
-                logger.info("Using a pre-defined initial condition for fossil groundwater storage.")
-                self.storGroundwaterFossil = vos.readPCRmapClone(\
-                                             iniItems.groundwaterOptions['storGroundwaterFossilIni'],
-                                             self.cloneMap,self.tmpDir,self.inputDir)
-            
-            self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
-
-            # The initial condition of storGroundwaterFossil will be re-used in and after spin-up cycles. 
-            # Why? This is to avoid that storGroundwaterFossil depleted during the spin-up. 
-            self.initialStorGroundwaterFossil = self.storGroundwaterFossil                                 
-
-        else: # during/after spinUp
+        else:                     # during/after spinUp
             self.storGroundwater       = iniConditions['groundwater'][ 'storGroundwater']
-            self.storGroundwaterFossil = self.initialStorGroundwaterFossil
+
+        # initial condition for storGroundwaterFossil (unit: m)
+        #
+        # Note that storGroundwaterFossil should not be depleted during the spin-up. 
+        #
+        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "None":
+            logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
+            self.storGroundwaterFossil = self.fossilWaterCap
+        else:
+            logger.info("Using a pre-defined initial condition for fossil groundwater storage.")
+            self.storGroundwaterFossil = vos.readPCRmapClone(\
+                                         iniItems.groundwaterOptions['storGroundwaterFossilIni'],
+                                         self.cloneMap,self.tmpDir,self.inputDir)
+        self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
+
+        self.initialStorGroundwaterFossil = self.storGroundwaterFossil                                 
 
         # make sure that active storGroundwater cannot be negative
         self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
