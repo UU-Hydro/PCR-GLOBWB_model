@@ -363,7 +363,7 @@ class Routing(object):
     def accuTravelTime(self):
         		
         # accuTravelTime ROUTING OPERATIONS
-        ##########################################################################################################################
+        ##############n############################################################################################################
 
         # route only non negative channelStorage (otherwise stay):
         channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
@@ -713,11 +713,11 @@ class Routing(object):
             a,b,c = vos.getMinMaxMean(pcr.scalar(test),True)
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
-                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
+                logger.info("WARNING !!!!! Water Balance Error. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
 
         if landSurface.usingAllocSegments == False and landSurface.limitAbstraction == False:
         
-            logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
+            logger.info("Surface water abstraction is only to satisfy local demand. No network.")
             
             # reduction_for_unmetDemand
             reduction_for_unmetDemand = pcr.min(self.readAvlChannelStorage / self.cellArea, \
@@ -804,7 +804,7 @@ class Routing(object):
             a,b,c = vos.getMinMaxMean(pcr.scalar(test),True)
             threshold = 1e-3
             if abs(a) > threshold or abs(b) > threshold:
-                logger.info("WARNING !!!!! Water balance errors. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
+                logger.info("WARNING !!!!! Water Balance Error. There is negative unmetDemand ... Min %f Max %f Mean %f" %(a,b,c))
 
     def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -1136,7 +1136,7 @@ class Routing(object):
             if landSurface.usingAllocSegments == False and landSurface.limitAbstraction == False and\
               (landSurface.includeIrrigation or landSurface.domesticWaterDemandOption or landSurface.industrycWaterDemandOption):
         
-                logger.info("WARNING! Surface water abstraction is only to satisfy local demand. No network.")
+                logger.info("Surface water abstraction is only to satisfy local demand. No network.")
                 
                 # surface water abstraction 
                 water_body_abstraction_volume = pcr.min(available_water_volume, pot_surface_water_abstract_volume)   # unit: m3

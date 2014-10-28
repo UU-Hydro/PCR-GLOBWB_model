@@ -311,7 +311,7 @@ class Groundwater(object):
              
             # Note: For simplicity, no network for a run with limitAbstraction. 
         
-            logger.info("WARNING! Groundwater abstraction is only to satisfy local demand. No network for distributing groundwater.")
+            logger.info("Groundwater abstraction is only to satisfy local demand. No network for distributing groundwater.")
 
             # nonFossil groundwater abstraction (unit: m) to fulfill water demand 
             # - assumption: Groundwater is only abstracted to satisfy local demand.

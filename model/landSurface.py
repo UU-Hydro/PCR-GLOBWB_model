@@ -381,9 +381,9 @@ class LandSurface(object):
             if iniItems.landSurfaceOptions['historicalIrrigationArea'] != "None":
                 self.dynamicIrrigationArea = True
             else:
-                logger.info("WARNING! Extent of irrigation areas is SAME for EVERY YEAR.")
+                logger.info("Extent of irrigation areas is SAME for EVERY YEAR.")
         except:
-            logger.info("WARNING! Extent of irrigation areas is SAME for EVERY YEAR.")
+            logger.info("Extent of irrigation areas is SAME for EVERY YEAR.")
         #
         if self.dynamicIrrigationArea:
             self.dynamicIrrigationAreaFile = vos.getFullPath(\
@@ -731,7 +731,7 @@ class LandSurface(object):
             averageUpstreamInput = pcr.cover(pcr.areamaximum(averageUpstreamInput, self.allocSegments), 0.0)
 
         else:
-            logger.info("WARNING! Water demand can only be satisfied by local source.")
+            logger.info("Water demand can only be satisfied by local source.")
 
         swAbstractionFraction = vos.getValDivZero(\
                                 averageUpstreamInput, 

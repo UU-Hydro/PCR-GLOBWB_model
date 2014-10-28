@@ -855,7 +855,7 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
             msg  = "\n"
             msg += "\n"
             msg += "##############################################################################################################################################\n"
-            msg += "WARNING !!!!!!!! WBError %s Min %f Max %f Mean %f" %(processName,a,b,c)
+            msg += "WARNING !!!!!!!! Water Balance Error %s Min %f Max %f Mean %f" %(processName,a,b,c)
             msg += "\n"
             msg += "##############################################################################################################################################\n"
             msg += "\n"

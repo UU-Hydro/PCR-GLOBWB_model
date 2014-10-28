@@ -200,7 +200,7 @@ class Configuration(object):
 
         # adjusment for routingOptions
         if 'routingMethod' not in self.routingOptions.keys():
-            logger.info('WARNING !!! The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
+            logger.info('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
             iniItems.routingOptions['routingMethod'] = "accuTravelTime"
 
         # adjusment for initial conditions in the routingOptions

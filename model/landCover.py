@@ -917,7 +917,7 @@ class LandCover(object):
 
         else: 
             
-            logger.info("WARNING! Surface water abstraction is only to satisfy local demand (no surface water network).")
+            logger.info("Surface water abstraction is only to satisfy local demand (no surface water network).")
 
             # only local surface water abstraction is allowed (network is only within a cell)
             self.actSurfaceWaterAbstract = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
