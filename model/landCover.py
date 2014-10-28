@@ -944,7 +944,7 @@ class LandCover(object):
             
             # - from storGroundwater
             #  -- avoid small values 
-            readAvlStorGroundwater = pcr.rounddown(readAvlStorGroundwater*10000.)/10000.
+            readAvlStorGroundwater = pcr.rounddown(groundwater.storGroundwater*10000.)/10000.
             readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)
             
             # - from non-fossil groundwater and surface water bodies
@@ -987,7 +987,7 @@ class LandCover(object):
             
             # - from storGroundwater
             #  -- avoid small values 
-            readAvlStorGroundwater = pcr.rounddown(readAvlStorGroundwater*10000.)/10000.
+            readAvlStorGroundwater = pcr.rounddown(groundwater.storGroundwater*10000.)/10000.
             readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)
             
             # - from non-fossil groundwater and surface water bodies
