@@ -108,17 +108,20 @@ class Groundwater(object):
             
             # estimate of thickness (unit: mm) of aceesible groundwater: shallow and deep 
             totalGroundwaterThickness = vos.readPCRmapClone(\
-                                        iniItems.extraOptionsforProjectWithIWMI[''],
+                                        iniItems.extraOptionsforProjectWithIWMI['estimateOfTotalGroundwaterThickness'],
                                         self.cloneMap,self.tmpDir,self.inputDir)
 
             # estimate of capacity (unit: m) of renewable groundwater (shallow)
             storGroundwaterCap =  vos.readPCRmapClone(\
-                                  iniItems.extraOptionsforProjectWithIWMI[''],
+                                  iniItems.extraOptionsforProjectWithIWMI['estimateOfRenewableGroundwaterCapacity'],
                                   self.cloneMap,self.tmpDir,self.inputDir)
 
             # fossil groundwater capacity (unit: m)
             self.fossilWaterCap = pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap)
+            
+            pcr.report(self.fossilWaterCap,"fossilWaterCap.map"); os.system("aguila fossilWaterCap.map")
+                                  
              
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
