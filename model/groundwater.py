@@ -252,8 +252,11 @@ class Groundwater(object):
                 self.storGroundwaterFossil = vos.readPCRmapClone(\
                                              iniItems.groundwaterOptions['storGroundwaterFossilIni'],
                                              self.cloneMap,self.tmpDir,self.inputDir)
+            
+            self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
 
             # The initial condition of storGroundwaterFossil will be re-used in and after spin-up cycles. 
+            # Why? This is to avoid that storGroundwaterFossil depleted during the spin-up. 
             self.initialStorGroundwaterFossil = self.storGroundwaterFossil                                 
 
         else: # during/after spinUp
