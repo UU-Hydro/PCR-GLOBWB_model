@@ -356,6 +356,28 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# storGroundwaterFossil                 
+pcrglobwb_variable_name = 'storGroundwaterFossil'
+netcdf_short_name[pcrglobwb_variable_name] = 'fossil_groundwater_storage'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# storGroundwaterTotal                 
+pcrglobwb_variable_name = 'storGroundwaterTotal'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_groundwater_storage'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Non fossil and fossil groundwater storage.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # surfaceWaterAbstraction         
 pcrglobwb_variable_name = 'surfaceWaterAbstraction'
 netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_abstraction'

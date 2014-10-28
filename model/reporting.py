@@ -326,6 +326,13 @@ class Reporting(object):
         if "accuTotalRunoff" in self.variables_for_report:
             self.accuTotalRunoff = pcr.catchmenttotal(self.totalRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
+        # fossil groundwater storage
+        self.storGroundwaterFossil = self._model.groundwater.storGroundwaterFossil
+        
+        # total groundwater storage: (non fossil and fossil)
+        self.storGroundwaterTotal  = self._model.groundwater.storGroundwater + \
+                                     self._model.groundwater.storGroundwaterFossil
+        
         # total active storage thickness (m) for the entire water column - not including fossil groundwater (unmetDemand) 
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
