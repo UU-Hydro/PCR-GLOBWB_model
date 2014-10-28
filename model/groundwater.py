@@ -104,7 +104,7 @@ class Groundwater(object):
            iniItems.extraOptionsforProjectWithIWMI['limitFossilGroundWaterAbstraction'] == "True":
             
             logger.info('Fossil groundwater abstraction limit is used (IWMI project).')
-            self.limitFossilGroundWaterAbstraction = True
+            self.limitFossilGroundwaterAbstraction = True
             
             # estimate of thickness (unit: mm) of aceesible groundwater: shallow and deep 
             totalGroundwaterThickness = vos.readPCRmapClone(\
