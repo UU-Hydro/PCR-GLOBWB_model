@@ -225,6 +225,8 @@ class Groundwater(object):
     
     def getICs(self,iniItems,iniConditions = None):
 
+        print iniItems.groundwaterOptions['storGroundwaterFossilIni']
+        
         if iniConditions == None:
             self.storGroundwater       = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['storGroundwaterIni'],
