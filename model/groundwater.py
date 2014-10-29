@@ -144,11 +144,11 @@ class Groundwater(object):
             logger.info('Limit for regional groundwater abstraction is used (IWMI project).')
             self.limitRegionalAnnualGroundwaterAbstraction = True
             
-            self.region_ids = vos.readPCRmapClone(\
-                                  iniItems.extraOptionsforProjectWithIWMI['regionIds'],
-                                  self.cloneMap,self.tmpDir,self.inputDir),
+            region_ids = vos.readPCRmapClone(\
+                         iniItems.extraOptionsforProjectWithIWMI['regionIds'],
+                         self.cloneMap,self.tmpDir,self.inputDir),
             self.region_ids = pcr.ifthen(self.landmask,\
-                              pcr.nominal(self.region_ids))
+                              pcr.nominal(region_ids))
             
             self.regionalAnnualGroundwaterAbstractionLimit = vos.readPCRmapClone(\
                                                                  iniItems.extraOptionsforProjectWithIWMI['pumpingCapacity'],
