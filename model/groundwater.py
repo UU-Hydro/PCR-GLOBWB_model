@@ -435,7 +435,7 @@ class Groundwater(object):
 
         # calculate the average groundwater abstraction (m/day) from the last 365 days:
         totalAbstraction    = self.unmetDemand + self.nonFossilGroundwaterAbs
-        deltaAbstraction    = totalLocalAbstraction - self.avgAbstraction  
+        deltaAbstraction    = totalAbstraction - self.avgAbstraction  
         self.avgAbstraction = self.avgAbstraction +\
                                  deltaAbstraction/\
                               pcr.min(365., routing.timestepsToAvgDischarge)
