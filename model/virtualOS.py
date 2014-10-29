@@ -708,7 +708,7 @@ def getLastDayOfMonth(date):
 
 
 
-def getMinMaxMean(mapFile,ignoreEmptyMap=True):
+def getMinMaxMean(mapFile,ignoreEmptyMap=False):
     mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
     mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
     nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 ) [0] #/ getNumNonMissingValues(mapFile)

@@ -1033,9 +1033,10 @@ class LandCover(object):
                                                                  groundwater.region_ids)
                                                                  
             # reduction factor to reduce groundwater abstraction
-            reductionFactorForPotGroundwaterAbstract = pcr.max(0.00, groundwater.regionalAnnualGroundwaterAbstractionLimit -\
-                                                                     regionalAnnualGroundwaterAbstraction) /\
-                                                                     regionalAnnualGroundwaterAbstraction
+            reductionFactorForPotGroundwaterAbstract = vos.getValDivZero(\
+                                                       pcr.max(0.00, groundwater.regionalAnnualGroundwaterAbstractionLimit -\
+                                                                     regionalAnnualGroundwaterAbstraction),\
+                                                                     regionalAnnualGroundwaterAbstraction, vos.smallNumber)
             reductionFactorForPotGroundwaterAbstract = pcr.rounddown(reductionFactorForPotGroundwaterAbstract*100.)/100.                                                         
             reductionFactorForPotGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
             
