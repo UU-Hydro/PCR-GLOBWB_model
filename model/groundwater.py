@@ -147,6 +147,8 @@ class Groundwater(object):
             region_ids = vos.readPCRmapClone(\
                          iniItems.extraOptionsforProjectWithIWMI['regionIds'],
                          self.cloneMap,self.tmpDir,self.inputDir),
+            pcr.report(region_ids,"region_ids.map"); os.system("aguil region_ids.map")
+            
             self.region_ids = pcr.nominal(region_ids)
             self.region_ids = pcr.ifthen(self.landmask, self.region_ids)
             
