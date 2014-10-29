@@ -1036,7 +1036,7 @@ class LandCover(object):
             reductionFactorForPotGroundwaterAbstract = pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
                                                        vos.getValDivZero(\
                                                        pcr.max(0.00, groundwater.regionalAnnualGroundwaterAbstractionLimit -\
-                                                                     regionalAnnualGroundwaterAbstraction) /
+                                                                     regionalAnnualGroundwaterAbstraction),\
                                                                      regionalAnnualGroundwaterAbstraction, vos.smallNumber), 1.0)
             reductionFactorForPotGroundwaterAbstract = pcr.rounddown(reductionFactorForPotGroundwaterAbstract*100.)/100.                                                         
             reductionFactorForPotGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
