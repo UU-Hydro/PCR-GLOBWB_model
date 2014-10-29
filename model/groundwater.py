@@ -152,7 +152,7 @@ class Groundwater(object):
             
             self.regionalAnnualGroundwaterAbstractionLimit = vos.readPCRmapClone(\
                                                                  iniItems.extraOptionsforProjectWithIWMI['pumpingCapacity'],
-                                                                 self.cloneMap,self.tmpDir,self.inputDir),
+                                                                 self.cloneMap,self.tmpDir,self.inputDir)
             self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit*1000.)/1000.
             self.regionalAnnualGroundwaterAbstractionLimit = pcr.cover(self.regionalAnnualGroundwaterAbstractionLimit, 0.0)
             
