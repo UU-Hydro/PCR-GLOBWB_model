@@ -439,7 +439,7 @@ class Groundwater(object):
         deltaAbstraction    = totalAbstraction - self.avgAbstraction  
         self.avgAbstraction = self.avgAbstraction +\
                                  deltaAbstraction/\
-                              pcr.min(365., routing.timestepsToAvgDischarge)
+                              pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
         self.avgAbstraction = pcr.max(0.0, self.avgAbstraction)                                    
 
         # update storGroundwaterFossil after unmetDemand 

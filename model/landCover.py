@@ -1040,10 +1040,10 @@ class LandCover(object):
             reductionFactorForPotGroundwaterAbstract = pcr.rounddown(reductionFactorForPotGroundwaterAbstract*100.)/100.                                                         
             reductionFactorForPotGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
             
-            pcr.report(reductionFactorForPotGroundwaterAbstract,"test.map"); os.system("aguila test.map")
+            #~ pcr.report(reductionFactorForPotGroundwaterAbstract,"test.map"); os.system("aguila test.map")
             
             # potential groundwater abstraction (m/day) after reduction 
-            self.potGroundwaterAbstract = reductionFactorForPotGroundwaterAbstract * self.potGroundwaterAbstract
+            self.potGroundwaterAbstract *= reductionFactorForPotGroundwaterAbstract
 
             # calculate accessibleWater (unit: m) 
             accessibleWater = self.allocSurfaceWaterAbstract + self.potGroundwaterAbstract
