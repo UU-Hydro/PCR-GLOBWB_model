@@ -809,7 +809,7 @@ class LandCover(object):
                                         self.storUpp005030 + \
                                         self.storLow030150)
 
-    def calculateWaterDemand(self, parameters, nonIrrGrossDemand, swAbstractionFraction, groundwater, routing, allocSegments):
+    def calculateWaterDemand(self, parameters, nonIrrGrossDemand, swAbstractionFraction, groundwater, routing, allocSegments, currTimeStep):
 
         # non irrigation water demand
         self.nonIrrGrossDemand = pcr.cover(nonIrrGrossDemand, 0.0)                   # TODO: Please check! Do we really have to cover?    
@@ -1794,7 +1794,7 @@ class LandCover(object):
         self.calculateWaterDemand(parameters, \
                                   nonIrrGrossDemand, swAbstractionFraction, \
                                   groundwater, routing, \
-                                  allocSegments)
+                                  allocSegments, currTimeStep)
 
         # calculate openWaterEvap: open water evaporation from the paddy field, 
         # and update topWaterLayer after openWaterEvap.  
