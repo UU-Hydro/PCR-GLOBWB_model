@@ -841,10 +841,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > (1.0/routing.cellArea), self.irrGrossDemand, 0) # ignore demand if less than 1 m3
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > 0.0001, self.irrGrossDemand, 0)                 # ignore demand if less than 0.1 mm
-
+        # added by Edwin on 29 October 2014 (this is not defined in Wada et al., 2014)
+        # - reduced irrGrossDemand by netLqWaterToSoil
+        self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
         
+        # ignore small demand < 0.1 mm
+        self.irrGrossDemand = pcr.rounddown(self.irrGrossDemand*1000.)/1000.
+
         # totalPotentialGrossDemand (m): total maximum (potential) water demand: irrigation and non irrigation
         self.totalPotentialGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
 
@@ -1077,8 +1080,7 @@ class LandCover(object):
 
         # update topWaterLayer (above soil) 
         # with netLqWaterToSoil and irrGrossDemand
-        self.topWaterLayer = self.topWaterLayer + \
-                             pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
+        self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
         		        
         # topWaterLater is partitioned into directRunoff (and infiltration)
         self.directRunoff = self.improvedArnoScheme(\
