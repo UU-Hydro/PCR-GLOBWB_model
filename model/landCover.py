@@ -1028,6 +1028,8 @@ class LandCover(object):
             
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
+            logger.info('Total groundwater abstraction is limited by regional annual pumping capacity.')
+
             # estimate of total groundwater abstraction (m3) from the last 365 days:
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(365., routing.timestepsToAvgDischarge)
