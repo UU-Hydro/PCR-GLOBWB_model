@@ -272,7 +272,7 @@ class Groundwater(object):
             self.storGroundwater = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['storGroundwaterIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
-            self.avgAbstraction  = vos.readPCRmapClone(\                      
+            self.avgAbstraction  = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['avgAbstractionIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
         else:                     # during/after spinUp
