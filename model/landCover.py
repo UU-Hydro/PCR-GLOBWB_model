@@ -1012,7 +1012,6 @@ class LandCover(object):
               vos.getValDivZero(accessibleWater, self.totalPotentialGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
 
             # total irrGrossWaterDemand < accessibleWater 
-            #
             self.irrGrossDemand = \
               pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
               pcr.min(1.0,pcr.max(0.0, \
@@ -1021,10 +1020,57 @@ class LandCover(object):
             # correcting total demand 
             self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
             
-            # potential groundwater abstraction
-            self.potGroundwaterAbstract = self.nonIrrGrossDemand + self.irrGrossDemand - self.allocSurfaceWaterAbstract
+            # potential groundwater abstraction (m/day)
+            self.potGroundwaterAbstract = self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract
             
-            # TODO: Include pumping capacity
+        if groundwater.limitRegionalAnnualGroundwaterAbstraction:
+
+            # estimate of total groundwater abstraction (m3) from the last 365 days:
+            annualGroundwaterAbstraction = groundwater.averageAbstraction * routing.cellArea
+                                           pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
+            # at regional scale
+            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0),\
+                                                                 groundwater.abstraction_region_ids)
+                                                                 
+            # reduction factor to reduce groundwater abstraction
+            reductionFactorForPotGroundwaterAbstract = pcr.max(0.00, groundwater.regionalAnnualGroundwaterAbstractionLimit -\
+                                                                     regionalAnnualGroundwaterAbstraction) /\
+                                                                     regionalAnnualGroundwaterAbstraction
+            reductionFactorForPotGroundwaterAbstract = pcr.rounddown(reductionFactorForPotGroundwaterAbstract*100.)/100.                                                         
+            reductionFactorForPotGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
+            
+            # potential groundwater abstraction (m/day) after reduction 
+            self.potGroundwaterAbstract = reductionFactorForPotGroundwaterAbstract * self.potGroundwaterAbstract
+
+            # calculate accessibleWater (unit: m) 
+            accessibleWater = self.allocSurfaceWaterAbstract + self.potGroundwaterAbstract
+
+            # total nonIrrGrossDemand   < accessibleWater  
+            self.nonIrrGrossDemand = \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
+              pcr.min(1.0,pcr.max(0.0, \
+              vos.getValDivZero(accessibleWater, self.totalPotentialGrossDemand, vos.smallNumber)))*self.nonIrrGrossDemand, 0.0)
+
+            # total irrGrossWaterDemand < accessibleWater 
+            #
+            self.irrGrossDemand = \
+              pcr.ifthenelse(self.totalPotentialGrossDemand > 0.0, \
+              pcr.min(1.0,pcr.max(0.0, \
+              vos.getValDivZero(accessibleWater, self.totalPotentialGrossDemand, vos.smallNumber)))*   self.irrGrossDemand, 0.0)    
+
+            # correcting total demand 
+            self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
+            #~ # - should be the same as the following: 
+            #~ self.totalPotentialGrossDemand = self.potGroundwaterAbstract + self.allocSurfaceWaterAbstract
+
+            if self.debugWaterBalance:\
+                vos.waterBalanceCheck([accessibleWater],\
+                                      [self.totalPotentialGrossDemand],\
+                                      [pcr.scalar(0.0)],\
+                                      [pcr.scalar(0.0)],\
+                                       'totalPotentialGrossDemand (limitRegionalAnnualGroundwaterAbstraction)',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=1e-4)
 
     def calculateDirectRunoff(self, parameters):
 
