@@ -825,10 +825,16 @@ class LandCover(object):
                                                                            #               topWaterLayer (water available in the irrigation field), and 
                                                                            #               netLqWaterToSoil (amout of liquid precipitation)  
         if self.name == 'irrNonPaddy':
+            #~ adjDeplFactor = \
+                     #~ pcr.max(0.1,\
+                     #~ pcr.min(0.8,(self.cropDeplFactor + \
+                                  #~ 40.*(0.005-self.totalPotET))))        # from Wada et al. (2014)
             adjDeplFactor = \
-                     pcr.max(0.0001,\
+                     pcr.max(0.1,\
                      pcr.min(0.8,(self.cropDeplFactor + \
-                                  40.*(0.005-self.totalPotET))))
+                                  0.04.*(5-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
+                                                                           # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#total available water (taw)
+
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
