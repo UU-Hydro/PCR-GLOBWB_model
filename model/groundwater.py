@@ -159,6 +159,7 @@ class Groundwater(object):
             self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
             self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
                                                                          self.regionalAnnualGroundwaterAbstractionLimit)
+            pcr.report(self.regionalAnnualGroundwaterAbstractionLimit,"test.map"); os.system("aguila test.map")                                                             
 
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
