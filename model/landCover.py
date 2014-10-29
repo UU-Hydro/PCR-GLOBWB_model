@@ -1026,8 +1026,8 @@ class LandCover(object):
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            annualGroundwaterAbstraction = groundwater.averageAbstraction * routing.cellArea
-                                           pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
+            annualGroundwaterAbstraction = groundwater.averageAbstraction * routing.cellArea *\
+                                           pcr.min(365., routing.timestepsToAvgDischarge)
             # at regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0),\
                                                                  groundwater.abstraction_region_ids)
