@@ -821,13 +821,12 @@ class LandCover(object):
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
-                                (self.topWaterLayer + \
-                                 self.netLqWaterToSoil)), 0.)              # a function of cropKC (evaporation and transpiration),
+                                (self.topWaterLayer )), 0.)              # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field), and 
                                                                            #               netLqWaterToSoil (amout of liquid precipitation)  
         if self.name == 'irrNonPaddy':
             adjDeplFactor = \
-                     pcr.max(0.1,\
+                     pcr.max(0.0001,\
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   40.*(0.005-self.totalPotET))))
             self.irrGrossDemand = \
@@ -845,7 +844,7 @@ class LandCover(object):
         # - reduced irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
         
-        # ignore small demand < 0.1 mm
+        # ignore small demand < 1 mm
         self.irrGrossDemand = pcr.rounddown(self.irrGrossDemand*1000.)/1000.
 
         # totalPotentialGrossDemand (m): total maximum (potential) water demand: irrigation and non irrigation
