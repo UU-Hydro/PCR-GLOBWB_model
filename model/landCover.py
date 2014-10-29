@@ -1030,7 +1030,7 @@ class LandCover(object):
                                            pcr.min(365., routing.timestepsToAvgDischarge)
             # at regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0),\
-                                                                 groundwater.abstraction_region_ids)
+                                                                 groundwater.region_ids)
                                                                  
             # reduction factor to reduce groundwater abstraction
             reductionFactorForPotGroundwaterAbstract = pcr.max(0.00, groundwater.regionalAnnualGroundwaterAbstractionLimit -\
