@@ -1213,7 +1213,7 @@ class LandCover(object):
         # update top water layer after infiltration
         self.topWaterLayer = self.topWaterLayer - self.infiltration
 
-    def estimateTranspirationAndBareSoilEvap(self, parameters, returnTotal = False):
+    def estimateTranspirationAndBareSoilEvap(self, parameters, returnTotalEstimation = False):
 
         # TRANSPIRATION
         #
@@ -1256,15 +1256,19 @@ class LandCover(object):
                                 self.adjRootFrLow030150*self.storLow030150/ dividerTranspFracs, \
                                 self.adjRootFrLow030150)
 
-        # - relActTranspiration = fraction actual transpiration over potential transpiration 
-        relActTranspiration = (parameters.rootZoneWaterStorageCap  + \
+        relActTranspiration = pcr.scalar(1.0)
+        if returnTotalEstimation == False:
+            # reduction factor for transpiration
+            #
+            # - relActTranspiration = fraction actual transpiration over potential transpiration 
+            relActTranspiration = (parameters.rootZoneWaterStorageCap  + \
                        self.arnoBeta*self.rootZoneWaterStorageRange*(1.- \
                    (1.+self.arnoBeta)/self.arnoBeta*self.WFRACB)) / \
                                   (parameters.rootZoneWaterStorageCap  + \
                        self.arnoBeta*self.rootZoneWaterStorageRange*(1.- self.WFRACB))   # original Rens's line: 
                                                                                          # FRACTA[TYPE] = (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-(1+BCF[TYPE])/BCF[TYPE]*WFRACB))/
                                                                                          #                (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-WFRACB));
-        relActTranspiration = (1.-self.satAreaFrac) / \
+            relActTranspiration = (1.-self.satAreaFrac) / \
               (1.+(pcr.max(0.01,relActTranspiration)/self.effSatAt50)**\
                                            (self.effPoreSizeBetaAt50*pcr.scalar(-3.0)))  # original Rens's line:
                                                                                          # FRACTA[TYPE] = (1-SATFRAC_L)/(1+(max(0.01,FRACTA[TYPE])/THEFF_50[TYPE])**(-3*BCH_50));
@@ -1310,12 +1314,12 @@ class LandCover(object):
         
         # return the calculated variables:
         if self.numberOfLayers == 2:
-            if returnTotal:
+            if returnTotalEstimation:
                 return actBareSoilEvap+ actTranspiUpp+ actTranspiLow 
             else:
                 return actBareSoilEvap, actTranspiUpp, actTranspiLow 
         if self.numberOfLayers == 3:
-            if returnTotal:
+            if returnTotalEstimation:
                 return actBareSoilEvap+ actTranspiUpp000005+ actTranspiUpp005030+ actTranspiLow030150
             else:
                 return actBareSoilEvap, actTranspiUpp000005, actTranspiUpp005030, actTranspiLow030150
