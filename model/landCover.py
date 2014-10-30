@@ -1839,7 +1839,7 @@ class LandCover(object):
 
         # estimate bare soil evaporation and transpiration:
         if self.numberOfLayers == 2: 
-            self.actBareSoilEvap, self.actTranspiUpp, self.actTranspiLow030150 = \
+            self.actBareSoilEvap, self.actTranspiUpp, self.actTranspiLow = \
                    self.estimateTranspirationAndBareSoilEvap(parameters)
         if self.numberOfLayers == 3: 
             self.actBareSoilEvap, self.actTranspiUpp000005, self.actTranspiUpp005030, self.actTranspiLow030150 = \
