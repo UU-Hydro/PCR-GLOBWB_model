@@ -822,8 +822,8 @@ class LandCover(object):
                  pcr.ifthenelse( self.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)              # a function of cropKC (evaporation and transpiration),
-                                                                           #               topWaterLayer (water available in the irrigation field), and 
-                                                                           #               netLqWaterToSoil (amout of liquid precipitation)  
+                                                                           #               topWaterLayer (water available in the irrigation field) 
+
         if self.name == 'irrNonPaddy':
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -834,14 +834,21 @@ class LandCover(object):
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#total available water (taw)
-
-            self.irrGrossDemand = \
+            # maximum irrigation demand (to fill the entire totAvlWater)
+            maxIrrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
                                   adjDeplFactor*self.totAvlWater, \
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #               readAvlWater (available water in the root zone), and 
-                                                                           #               netLqWaterToSoil (amout of liquid precipitation)
+                                                                           #               readAvlWater (available water in the root zone)
+            # estimate of deficit in ET (principle: try to optimize ET) 
+            deficitET = pcr.max(0.0, self.potBareSoilEvap  +\
+                                     self.potTranspiration -\
+                                     self.estimateTranspirationAndBareSoilEvap(parameters, returnTotal = True))
+            #
+            # irrigation demand for non paddy
+            self.irrGrossDemand = pcr.min(maxIrrGrossDemand, \
+                                          deficitET)                        
 
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
@@ -850,8 +857,8 @@ class LandCover(object):
         # - reduced irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
         
-        # ignore small demand < 1 mm
-        self.irrGrossDemand = pcr.rounddown(self.irrGrossDemand*1000.)/1000.
+        # ignore small demand < 0.1 mm
+        self.irrGrossDemand = pcr.rounddown(self.irrGrossDemand*10000.)/10000.
 
         # totalPotentialGrossDemand (m): total maximum (potential) water demand: irrigation and non irrigation
         self.totalPotentialGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
@@ -1206,7 +1213,7 @@ class LandCover(object):
         # update top water layer after infiltration
         self.topWaterLayer = self.topWaterLayer - self.infiltration
 
-    def estimateTranspirationAndBareSoilEvap(self, parameters):
+    def estimateTranspirationAndBareSoilEvap(self, parameters, returnTotal = False):
 
         # TRANSPIRATION
         #
@@ -1266,38 +1273,53 @@ class LandCover(object):
         
         # estimates of actual transpiration fluxes:
         if self.numberOfLayers == 2:
-            self.actTranspiUpp = \
+            actTranspiUpp = \
               relActTranspiration*transpFracUpp*self.potTranspiration
-            self.actTranspiLow = \
+            actTranspiLow = \
               relActTranspiration*transpFracLow*self.potTranspiration
         if self.numberOfLayers == 3:
-            self.actTranspiUpp000005 = \
+            actTranspiUpp000005 = \
               relActTranspiration*transpFracUpp000005*self.potTranspiration
-            self.actTranspiUpp005030 = \
+            actTranspiUpp005030 = \
               relActTranspiration*transpFracUpp005030*self.potTranspiration
-            self.actTranspiLow030150 = \
+            actTranspiLow030150 = \
               relActTranspiration*transpFracLow030150*self.potTranspiration
         
         # BARE SOIL EVAPORATION
         #        
         # actual bare soil evaporation (potential)
-        self.actBareSoilEvap = pcr.scalar(0.0)
+        actBareSoilEvap = pcr.scalar(0.0)
         if self.numberOfLayers == 2:
-            self.actBareSoilEvap =     self.satAreaFrac * pcr.min(\
+            actBareSoilEvap =     self.satAreaFrac * pcr.min(\
                                    self.potBareSoilEvap,parameters.kSatUpp) + \
                                   (1.-self.satAreaFrac)* pcr.min(\
                                    self.potBareSoilEvap,self.kUnsatUpp)            # ES_a[TYPE] =  SATFRAC_L *min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+
                                                                                    #            (1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice());
         if self.numberOfLayers == 3:
-            self.actBareSoilEvap =     self.satAreaFrac * pcr.min(\
+            actBareSoilEvap =     self.satAreaFrac * pcr.min(\
                                    self.potBareSoilEvap,parameters.kSatUpp000005) + \
                                   (1.-self.satAreaFrac)* pcr.min(\
                                    self.potBareSoilEvap,self.kUnsatUpp000005)
+        actBareSoilEvap = pcr.max(0.0, actBareSoilEvap)
+        actBareSoilEvap = pcr.min(actBareSoilEvap,self.potBareSoilEvap)                            
 
         # no bare soil evaporation in the inundated paddy field 
         if self.name == 'irrPaddy':
-            self.actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > 0.0, 0.0, self.actBareSoilEvap) 
-
+            treshold = 0.0001 # unit: m ; no bare soil evaporation if topWaterLayer is above treshold
+            actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > treshold, 0.0, actBareSoilEvap)
+        
+        # return the calculated variables:
+        if self.numberOfLayers == 2:
+            if returnTotal:
+                return actBareSoilEvap+ actTranspiUpp+ actTranspiLow 
+            else:
+                return actBareSoilEvap, actTranspiUpp, actTranspiLow 
+        if self.numberOfLayers == 3:
+            if returnTotal:
+                return actBareSoilEvap+ actTranspiUpp000005+ actTranspiUpp005030+ actTranspiLow030150
+            else:
+                return actBareSoilEvap, actTranspiUpp000005, actTranspiUpp005030, actTranspiLow030150
+ 
 
     def estimateSoilFluxes(self,parameters,capRiseFrac):
 
@@ -1815,8 +1837,13 @@ class LandCover(object):
         self.calculateDirectRunoff(parameters)
         self.calculateInfiltration(parameters)
 
-        # estimate transpiration and bare soil evaporation:
-        self.estimateTranspirationAndBareSoilEvap(parameters)
+        # estimate bare soil evaporation and transpiration:
+        if self.numberOfLayers == 2: 
+            self.actBareSoilEvap, self.actTranspiUpp, self.actTranspiLow030150 = \
+                   self.estimateTranspirationAndBareSoilEvap(parameters)
+        if self.numberOfLayers == 3: 
+            self.actBareSoilEvap, self.actTranspiUpp000005, self.actTranspiUpp005030, self.actTranspiLow030150 = \
+                   self.estimateTranspirationAndBareSoilEvap(parameters)
         
         # estimate percolation and capillary rise, as well as interflow
         self.estimateSoilFluxes(parameters,capRiseFrac)

@@ -174,6 +174,8 @@ class LandSurface(object):
         # non irrigation water demand options: 
         self.waterDemandOptions(iniItems)
         
+        # 
+        
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {} # initialize land cover objects
         for coverType in self.coverTypes:
@@ -415,6 +417,9 @@ class LandSurface(object):
 
         except:
             logger.info("Water demand can only be satisfied by the local cell.")
+        
+        # TODO: include desalinization water use
+            
 
     def scaleNaturalLandCoverFractions(self): 
         ''' rescales natural land cover fractions (make sure the total = 1)'''
