@@ -844,7 +844,7 @@ class LandCover(object):
             # estimate of deficit in ET (principle: try to optimize ET) 
             deficitET = pcr.max(0.0, self.potBareSoilEvap  +\
                                      self.potTranspiration -\
-                                     self.estimateTranspirationAndBareSoilEvap(parameters, returnTotal = True))
+                                     self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
             #
             # irrigation demand for non paddy
             self.irrGrossDemand = pcr.min(maxIrrGrossDemand, \
