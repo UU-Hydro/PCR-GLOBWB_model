@@ -1292,14 +1292,14 @@ class LandCover(object):
         # BARE SOIL EVAPORATION
         #        
         # actual bare soil evaporation (potential)
-        actBareSoilEvap = pcr.scalar(0.0)
-        if self.numberOfLayers == 2:
+        actBareSoilEvap = self.potBareSoilEvap
+        if self.numberOfLayers == 2 and returnTotalEstimation == False:
             actBareSoilEvap =     self.satAreaFrac * pcr.min(\
                                    self.potBareSoilEvap,parameters.kSatUpp) + \
                                   (1.-self.satAreaFrac)* pcr.min(\
                                    self.potBareSoilEvap,self.kUnsatUpp)            # ES_a[TYPE] =  SATFRAC_L *min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+
                                                                                    #            (1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice());
-        if self.numberOfLayers == 3:
+        if self.numberOfLayers == 3 and returnTotalEstimation == False:
             actBareSoilEvap =     self.satAreaFrac * pcr.min(\
                                    self.potBareSoilEvap,parameters.kSatUpp000005) + \
                                   (1.-self.satAreaFrac)* pcr.min(\
