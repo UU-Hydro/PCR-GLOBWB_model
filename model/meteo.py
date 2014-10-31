@@ -39,7 +39,7 @@ class Meteo(object):
 
         # daily time step
         self.usingDailyTimeStepForcingData = False
-        if iniItems.timeStep == 1.0 and iniItems.timeStepUnit = "day":
+        if iniItems.timeStep == 1.0 and iniItems.timeStepUnit == "day":
             self.usingDailyTimeStepForcingData = True
         
         # forcing downscaling options:
