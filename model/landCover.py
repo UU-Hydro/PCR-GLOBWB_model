@@ -476,6 +476,7 @@ class LandCover(object):
         cropKC = vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
                                     currTimeStep.doy, useDoy = 'Yes',\
                                     cloneMapFileName = self.cloneMap)
+        cropKC = pcr.cover(cropKC, 0.0)
         self.cropKC = pcr.max( cropKC, self.minCropKC)                                
 
         # calculate potential ET (unit: m/day)
