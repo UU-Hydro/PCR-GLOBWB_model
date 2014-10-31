@@ -253,11 +253,17 @@ class Configuration(object):
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
         #
         if 'storGroundwaterFossilIni' not in self.groundwaterOptions.keys():
-            logger.info(".")
             msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
             msg += 'Zero initial condition is assumed here.'
             logger.info(msg)
             self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
             # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
              
+        if 'avgTotalGroundwaterAbstractionIni' not in self.groundwaterOptions.keys():
+            msg  = 'The initial condition "avgTotalGroundwaterAbstractionIni" is not defined. '
+            msg += 'Zero initial condition is assumed here.'
+            logger.info(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
+
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
+
