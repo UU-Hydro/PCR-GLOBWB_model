@@ -96,6 +96,7 @@ class Routing(object):
 
         pcr.report(self.landmask,"Mississippi30min.landmask.map")
         pcr.report(self.lddMap,"Mississippi30min.ldd.map")
+        os.system('aguila *.map')
         
         self.cellArea = vos.readPCRmapClone(\
                   iniItems.routingOptions['cellAreaMap'],
