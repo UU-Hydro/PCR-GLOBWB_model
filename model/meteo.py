@@ -330,8 +330,6 @@ class Meteo(object):
         # Downscaling referenceETPot (based on temperature)
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
         
-        pcr.report(self.referencePotET, "referencePotET.map"); os.system("aguila referencePotET.map")
-
         # smoothing:
         if self.forcingSmoothing == True:
             logger.info("Forcing data are smoothed.")   

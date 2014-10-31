@@ -483,8 +483,6 @@ class LandCover(object):
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
 
-        pcr.report(self.cropKC * meteo.referencePotET, "totalPotET.map"); os.system("aguila totalPotET.map")
-
         # calculate potential bare soil evaporation and transpiration (unit: m/day)
         self.potBareSoilEvap  = pcr.ifthen(self.landmask,\
                                 self.minCropKC * meteo.referencePotET)
