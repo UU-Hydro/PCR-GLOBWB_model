@@ -17,9 +17,9 @@ class Groundwater(object):
     
     def getState(self):
         result = {}
-        result['storGroundwater']       = self.storGroundwater          # unit: m
-        result['storGroundwaterFossil'] = self.storGroundwaterFossil    # unit: m
-        result['avgAbstraction']        = self.avgAbstraction           # unit: m
+        result['storGroundwater']                   = self.storGroundwater       # unit: m
+        result['storGroundwaterFossil']             = self.storGroundwaterFossil # unit: m
+        result['avgTotalGroundwaterAbstractionIni'] = self.avgAbstraction        # unit: m
            
         return result
 
@@ -273,11 +273,11 @@ class Groundwater(object):
                                          iniItems.groundwaterOptions['storGroundwaterIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
             self.avgAbstraction  = vos.readPCRmapClone(\
-                                         iniItems.groundwaterOptions['avgAbstractionIni'],
+                                         iniItems.groundwaterOptions['avgTotalGroundwaterAbstractionIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
         else:                     # during/after spinUp
             self.storGroundwater = iniConditions['groundwater'][ 'storGroundwater']
-            self.avgAbstraction  = iniConditions['groundwater'][ 'avgAbstraction']      
+            self.avgAbstraction  = iniConditions['groundwater'][ 'avgTotalGroundwaterAbstractionIni']      
 
         # initial condition for storGroundwaterFossil (unit: m)
         #
