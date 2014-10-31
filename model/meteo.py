@@ -191,9 +191,7 @@ class Meteo(object):
         if 'meteoDownscalingOptions' in iniItems.allSections and \
            'smoothingWindowsLength' in iniItems.meteoDownscalingOptions.keys():
 
-            if float(iniItems.meteoDownscalingOptions['smoothingWindowsLength']) > 0.0 or\
-               iniItems.meteoDownscalingOptions['smoothingWindowsLength'] != "None" or\
-               iniItems.meteoDownscalingOptions['smoothingWindowsLength'] != "False":
+            if float(iniItems.meteoDownscalingOptions['smoothingWindowsLength']) > 0.0:
                 self.forcingSmoothing = True
                 self.smoothingWindowsLength = vos.readPCRmapClone(\
                    iniItems.meteoDownscalingOptions['smoothingWindowsLength'],
