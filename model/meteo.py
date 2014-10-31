@@ -332,8 +332,6 @@ class Meteo(object):
         # Downscaling referenceETPot (based on temperature)
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
         
-        pcr.report(self.referencePotET, "referencePotET.map"); os.system("aguila referencePotET.map")
-
         # smoothing:
         if self.forcingSmoothing == True:
             logger.info("Forcing data are smoothed.")   
@@ -346,6 +344,9 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
  
+        pcr.report(self.referencePotET, "referencePotET.map"); os.system("aguila referencePotET.map")
+
+
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
