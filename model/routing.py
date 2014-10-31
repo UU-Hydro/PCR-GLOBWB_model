@@ -94,10 +94,6 @@ class Routing(object):
         # ldd mask 
         self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
 
-        pcr.report(self.landmask,"Mississippi30min.landmask.map")
-        pcr.report(self.lddMap,"Mississippi30min.ldd.map")
-        os.system('aguila *.map')
-        
         self.cellArea = vos.readPCRmapClone(\
                   iniItems.routingOptions['cellAreaMap'],
                   self.cloneMap,self.tmpDir,self.inputDir)
