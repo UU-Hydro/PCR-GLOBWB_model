@@ -198,6 +198,18 @@ class Configuration(object):
         This is needed because Edwin was very stupid as once he changed some key names of initial conditions!  
         """
 
+        # temporal resolution of the model
+        self.timeStep = 1.0
+        self.timeStepUnit = "day"
+        if 'timeStep' in self.globalOptions.keys() and \
+           'timeStepUnit'in self.globalOptions.keys():
+
+            if float(self.globalOptions['timeStep']) != 1.0 or \
+                     self.globalOptions['timeStepUnit'] != "day":
+                logger.info('The model runs only on daily time step. Please check your ini/configuration file')
+                self.timeStep     = None
+                self.timeStepUnit = None
+        
         # adjusment for routingOptions
         if 'routingMethod' not in self.routingOptions.keys():
             logger.info('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')

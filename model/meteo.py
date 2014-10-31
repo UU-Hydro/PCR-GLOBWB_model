@@ -37,6 +37,11 @@ class Meteo(object):
         if self.refETPotMethod == 'Input': self.etpFileNC = \
                              iniItems.meteoOptions['refETPotFileNC']              
 
+        # daily time step
+        self.usingDailyTimeStepForcingData = False
+        if iniItems.timeStep == 1.0 and iniItems.timeStepUnit = "day":
+            self.usingDailyTimeStepForcingData = True
+        
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
@@ -294,6 +299,10 @@ class Meteo(object):
         self.precipitation = pcr.max(0.,self.precipitation*\
                 precipitationCorrectionFactor)
         self.precipitation = pcr.cover( self.precipitation, 0.0)
+        
+        # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
+        if self.usingDailyTimeStepForcingData:
+            self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         # reading temperature
         self.temperature = vos.netcdf2PCRobjClone(\

@@ -14,7 +14,7 @@ from ncConverter import *
 
 class LandCover(object):
 
-    def __init__(self,iniItems,NameOfSectionInIniFile,parameters,landmask,usingAllocSegments = False):
+    def __init__(self,iniItems,nameOfSectionInIniFile,parameters,landmask,usingAllocSegments = False):
         object.__init__(self)
 
         self.cloneMap = iniItems.cloneMap
@@ -27,7 +27,7 @@ class LandCover(object):
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
         # configuration for a certain land cover type
-        self.iniItemsLC = iniItems.__getattribute__(NameOfSectionInIniFile)
+        self.iniItemsLC = iniItems.__getattribute__(nameOfSectionInIniFile)
         self.name = self.iniItemsLC['name']
         self.debugWaterBalance = self.iniItemsLC['debugWaterBalance']
 
@@ -507,7 +507,8 @@ class LandCover(object):
             prevStates = [self.interceptStor]
        
         # get interceptCap:
-        interceptCap = pcr.scalar(self.minInterceptCap)
+        interceptCap  = pcr.scalar(self.minInterceptCap)
+        coverFraction = pcr.scalar(1.0)
         if not self.iniItemsLC['name'].startswith("irr"):
             interceptCap = \
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
@@ -524,6 +525,7 @@ class LandCover(object):
         self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
         
         # canopy/cover fraction over the entire cell area (unit: m2)
+        self.coverFraction = coverFraction
         
         # throughfall = surplus above the interception storage threshold 
         self.throughfall   = pcr.max(0.0, self.interceptStor + \
@@ -539,12 +541,13 @@ class LandCover(object):
         estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
                                        meteo.precipitation, 0.0)         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
                                                                          # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
+        #
         self.snowfall = estimSnowfall * \
-                        pcr.ifthenelse(meteo.precipitation > 0.0, \
               vos.getValDivZero(self.throughfall, meteo.precipitation, \
-              vos.smallNumber), 0.)                                      # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
-
-        self.liquidPrecip  = self.throughfall - self.snowfall            # original Rens line: PRP = PRP-SNOW
+              vos.smallNumber)                                           # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
+        #
+        self.liquidPrecip = pcr.max(0.0,\
+                                    self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
 
         # potential interception flux (m/day)
         self.potInterceptionFlux = self.totalPotET                       # added by Edwin to extend the interception scope/definition
@@ -1256,7 +1259,7 @@ class LandCover(object):
                                 self.adjRootFrLow030150*self.storLow030150/ dividerTranspFracs, \
                                 self.adjRootFrLow030150)
 
-        relActTranspiration = pcr.scalar(1.0)
+        relActTranspiration = pcr.scalar(1.0) # no reduction in case of returnTotalEstimation
         if returnTotalEstimation == False:
             # reduction factor for transpiration
             #
@@ -1291,7 +1294,7 @@ class LandCover(object):
         
         # BARE SOIL EVAPORATION
         #        
-        # actual bare soil evaporation (potential)
+        # actual bare soil evaporation (potential) # no reduction in case of returnTotalEstimation
         actBareSoilEvap = self.potBareSoilEvap
         if self.numberOfLayers == 2 and returnTotalEstimation == False:
             actBareSoilEvap =     self.satAreaFrac * pcr.min(\
@@ -1309,7 +1312,7 @@ class LandCover(object):
 
         # no bare soil evaporation in the inundated paddy field 
         if self.name == 'irrPaddy':
-            treshold = 0.0001 # unit: m ; no bare soil evaporation if topWaterLayer is above treshold
+            treshold = 0.0005 # unit: m ; no bare soil evaporation if topWaterLayer is above treshold
             actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > treshold, 0.0, actBareSoilEvap)
         
         # return the calculated variables:

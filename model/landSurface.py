@@ -767,9 +767,10 @@ class LandSurface(object):
         
         # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
         yearInInteger = int(yearInInteger)
+        if yearInInteger < 1960 or yearInInteger > 2010:\
+           logger.info('Dataset of historical irrigation areas is only available from 1960 to 2010.')
         yearInInteger = min(2010, max(1960, yearInInteger))
         yearInString   = str(yearInInteger) 
-        logger.info('Dataset of historical irrigation areas is only available from 1960 to 2010.')
         
         # read historical irrigation areas  
         if self.dynamicIrrigationAreaFile.endswith(('.nc4','.nc')):
