@@ -283,15 +283,19 @@ class Groundwater(object):
         #
         # Note that storGroundwaterFossil should not be depleted during the spin-up. 
         #
-        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "None":
-            logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
-            self.storGroundwaterFossil = self.fossilWaterCap
-        else:
+        if iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum":
             logger.info("Using a pre-defined initial condition for fossil groundwater storage.")
             self.storGroundwaterFossil = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['storGroundwaterFossilIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
-        self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
+        #
+        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum":
+            logger.info("The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity).")
+            self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
+        #
+        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum":
+            logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
+            self.storGroundwaterFossil = self.fossilWaterCap
 
         # make sure that active storGroundwater and avgAbstraction cannot be negative
         #
