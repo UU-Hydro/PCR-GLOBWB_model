@@ -492,8 +492,8 @@ class LandCover(object):
         if self.debugWaterBalance == str('True'):
             vos.waterBalanceCheck([self.totalPotET],\
                                   [self.potBareSoilEvap,self.potTranspiration],\
-                                  [],\
-                                  [],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)],\
                                   'partitioning potential evaporation',\
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-5)
