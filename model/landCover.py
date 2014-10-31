@@ -479,6 +479,8 @@ class LandCover(object):
         cropKC = pcr.cover(cropKC, 0.0)
         self.cropKC = pcr.max( cropKC, self.minCropKC)                                
 
+        pcr.report(self.cropKC, "cropKC.map"); os.system("aguila cropKC.map")
+        
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
@@ -489,6 +491,7 @@ class LandCover(object):
         self.potTranspiration = pcr.ifthen(self.landmask,\
                                 self.cropKC    * meteo.referencePotET - self.potBareSoilEvap)
     
+        
         if self.debugWaterBalance == str('True'):
             vos.waterBalanceCheck([self.totalPotET],\
                                   [self.potBareSoilEvap,self.potTranspiration],\
