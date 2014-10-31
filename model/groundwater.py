@@ -359,7 +359,7 @@ class Groundwater(object):
             #
             self.allocNonFossilGroundwater = self.nonFossilGroundwaterAbs
         
-        if self.usingAllocSegments and self.limitAsbtraction == False:
+        if self.usingAllocSegments and self.limitAbstraction == False:
 
             # Note: Incorporating distribution network of groundwater source is possible only if limitAbstraction = False.  
 
