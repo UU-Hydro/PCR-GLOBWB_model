@@ -9,32 +9,19 @@ A cookbook about how to run PCR-GLOBWB and contribute to its development:
 - http://goo.gl/8d9frs (created on May 2014).
 - Examples of model input files can be obtained from git@github.com:UU-Hydro/PCR-GLOBWB_input_example.git (including ini files). 
 
-The version number is 2.0.2 if you (just) clone this repo from:
-- the master branch of git@github.com:UU-Hydro/PCR-GLOBWB.git ; or from
-- the master branch of git@edwin1.geo.uu.nl:~/pcrglobwb.git
+This is a pre-release for the version 2.0.3 (alpha)
 
-This version 2.0.2 is released on 5 October 2014. 
+This version 2.0.3 includes kinematic routing features and some bug fixes for the previous version 2.0.2.  
+Very short summary of changes introduced in this version 2.0.3 (compared to the version 2.0.2):
 
-This version 2.0.2 is basically a bug fix version for 2.0.1.  
-Very short summary of changes introduced in this version 2.0.2 (compared to the version 2.0.1):
-
-- Bug fixing while opening refETPotFileNC file that is given without its absolute path. 
-
-- Bug fixing to allow model runs with the option limitAbstraction = True. 
-
-- Fixing (small) rounding errors while scaling/correcting land cover fractions. 
+- Fixing water balance errors (at the beginning of each year) while using the option "historicalIrrigationArea".
 
 - Add more water balance debugs/checks.  
 
-- Remove the option to allow model runs without lakes and/or reservoirs (as they may produce unrealistic results, e.g. near Caspian Sea).    
+- Kinematic routing features. There are two options for kinematic waves: "simplifiedKinematicWave" and "kinematicWave". To avoid numeric instability, sub-time steps are needed while routing surface water storage (i.e. "channelStorage"). The difference between "simplifiedKinematicWave" and "kinematicWave" is on how each method calculates gains and losses (e.g. evaporation, abstraction & allocation and lake/reservoir inflow & outflow fluxes) in "channelStorage". The method "simplifiedKinematicWave" is relative similar to "accuTravelTime", which calculates first daily gains and losses in "channelStorage" (for one full day time step) and subsequently routes the water along drainage network. In the "kinematicWave" method, gains and losses in "channelStorage" are calculated within the sub-time step (not on the daily time step level). 
+- The option for accuTravelTime is still available.     
 
-- Remove the initial condition waterBodyStorageIni (as this can be directly calculated from channelStorageIni). 
+- Add posibility to use fixed/constant channel width. 
+- Add/return the initial condition waterBodyStorageIni. This is optional (as this can also be directly calculated from channelStorageIni).
 
-- New-style reporting: Add "reporting.py" and "variable_list.py" modules.  
-- Please list variable names that you want to report in the (new) field "reportingOptions" of your configuration/ini file (see ini file examples).  
-- The "variable_list.py" contains information of all variables that can be reported. 
-- The list in "variable_list.py" includes "variable_names" and "units" that will be used in netcdf files. 
-- Note that old-style/previous version (2.0.1) reporting and old-style/previous format configuration ini file should still work. 
-
-- Add “known_issues.txt”. 
 - For known issues/bugs that have not been solved, please refer to the file “known_issues.txt”.

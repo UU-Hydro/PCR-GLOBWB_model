@@ -167,7 +167,7 @@ class SoilAndTopoParameters(object):
             self.storCapUpp = self.thickUpp * \
                              (self.satVolMoistContUpp - self.resVolMoistContUpp)
             self.storCapLow = self.thickLow * \
-                             (self.satVolMoistContUpp - self.resVolMoistContLow)
+                             (self.satVolMoistContLow - self.resVolMoistContLow)
             self.rootZoneWaterStorageCap = self.storCapUpp + \
                                            self.storCapLow
         if self.numberOfLayers == 3:
@@ -183,17 +183,24 @@ class SoilAndTopoParameters(object):
 
     def readSoil(self,iniItems):
 
-        # read soil parameters which are constant/uniform for the entire domain:
+        # default values of soil parameters that are constant/uniform for the entire domain:
+        self.clappAddCoeff   = pcr.scalar(3.0)        # dimensionless
+        self.matricSuctionFC = pcr.scalar(1.0)        # unit: m
+        self.matricSuction50 = pcr.scalar(10./3.)     # unit: m
+        self.matricSuctionWP = pcr.scalar(156.0)      # unit: m
+        self.maxGWCapRise    = pcr.scalar(5.0)        # unit: m
+        #  
+        # values defined in the ini/configuration file:
         soilParameterConstants = ['clappAddCoeff',        
                                   'matricSuctionFC',      
                                   'matricSuction50',      
                                   'matricSuctionWP',      
                                   'maxGWCapRise']
         for var in soilParameterConstants:
-            input = iniItems.landSurfaceOptions[str(var)]
-            vars(self)[var] = \
-                           vos.readPCRmapClone(input,self.cloneMap,\
-                                         self.tmpDir,self.inputDir)
+            if var in iniItems.landSurfaceOptions.keys():
+                input = iniItems.landSurfaceOptions[str(var)]
+                vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,\
+                                                            self.tmpDir,self.inputDir)
         
         # read soil parameter based on the FAO soil map:
         self.readSoilMapOfFAO(iniItems)                                 

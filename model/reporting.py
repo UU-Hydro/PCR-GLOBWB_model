@@ -304,10 +304,18 @@ class Reporting(object):
     def additional_post_processing(self):
         # In this method/function, users can add their own post-processing.
         
-        # accumulated runoff (m3) along the drainage network - not including local changes in water bodies
+        # consumption for and return flow from non irrigation water demand (unit: m/day)  
+        self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
+        self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
+        
+        # accumulated runoff (m3/s) along the drainage network - not including local changes in water bodies
         if "accuRunoff" in self.variables_for_report:
             self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
         
+        # accumulated baseflow (m3) along the drainage network
+        if "accuBaseflow" in self.variables_for_report:
+            self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap)
+
         # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
         self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
         
@@ -318,14 +326,26 @@ class Reporting(object):
         if "accuTotalRunoff" in self.variables_for_report:
             self.accuTotalRunoff = pcr.catchmenttotal(self.totalRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
+        # fossil groundwater storage
+        self.storGroundwaterFossil = self._model.groundwater.storGroundwaterFossil
+        
+        # total groundwater storage: (non fossil and fossil)
+        self.storGroundwaterTotal  = self._model.groundwater.storGroundwater + \
+                                     self._model.groundwater.storGroundwaterFossil
+        
+        # total active storage thickness (m) for the entire water column - not including fossil groundwater (unmetDemand) 
+        # - including: interception, snow, soil and non fossil groundwater 
+        self.totalActiveStorageThickness = pcr.ifthen(\
+                                           self._model.routing.landmask, \
+                                           self._model.routing.channelStorage / self._model.routing.cellArea + \
+                                           self._model.landSurface.totalSto + \
+                                           self._model.groundwater.storGroundwater)
+
         # total water storage thickness (m) for the entire water column: 
-        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand) 
-        self.totalWaterStorageThickness = pcr.ifthen(\
-                                          self._model.routing.landmask, \
-                                          self._model.routing.channelStorage / self._model.routing.cellArea + \
-                                          self._model.landSurface.totalSto + \
-                                          self._model.groundwater.storGroundwater - \
-                                          self._model.groundwater.unmetDemand)
+        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand)
+        # - this is usually used for GRACE comparison  
+        self.totalWaterStorageThickness  = self.totalActiveStorageThickness + \
+                                           self._model.groundwater.storGroundwaterFossil
 
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
@@ -344,15 +364,16 @@ class Reporting(object):
         self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
                                               vos.getValDivZero(\
                                               self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
-        # 
-        # storages of storGroundwater and channelStorage - immediately after abstraction:
-        self.storGroundwaterVolumeAfterAbstraction = self._model.groundwater.storGroundwaterVolumeAfterAbstraction
-        self.channelStorageVolumeAfterAbstraction  = self._model.routing.channelStorageAfterAbstraction
+        self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
+                                              self.fracNonFossilGroundwaterAllocation + \
+                                              self.fracOtherWaterSourceAllocation 
 
         # Stefanie's post processing: reporting lake and reservoir storage (unit: m3)
         self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \
-                                self._model.routing.waterBodyStorage)
-        #                        
+                                pcr.ifthen(\
+                                pcr.scalar(self._model.routing.WaterBodies.waterBodyIds) > 0.,\
+                                           self._model.routing.WaterBodies.waterBodyStorage))     # Note: This value is after lake/reservoir outflow.
+        #
         # snowMelt (m/day)
         self.snowMelt = self._model.landSurface.snowMelt
 
@@ -360,6 +381,16 @@ class Reporting(object):
         if self._model.landSurface.numberOfSoilLayers == 3:
             self.storUppSurface   = self._model.landSurface.storUpp000005    # unit: m
             self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
+        
+        # reporting water balance from the land surface part (excluding surface water bodies)
+        self.land_surface_water_balance = self._model.waterBalance
+        
+        # evaporation from irrigation areas (m/day) - values are average over the entire cell area
+        if self._model.landSurface.includeIrrigation:\
+           self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
+                                              self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover 
 
     def report(self):
 

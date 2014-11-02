@@ -37,6 +37,11 @@ class Meteo(object):
         if self.refETPotMethod == 'Input': self.etpFileNC = \
                              iniItems.meteoOptions['refETPotFileNC']              
 
+        # daily time step
+        self.usingDailyTimeStepForcingData = False
+        if iniItems.timeStep == 1.0 and iniItems.timeStepUnit == "day":
+            self.usingDailyTimeStepForcingData = True
+        
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
@@ -125,7 +130,29 @@ class Meteo(object):
         self.downscalePrecipitationOption  = False
         self.downscaleTemperatureOption    = False
         self.downscaleReferenceETPotOption = False
-        try:
+
+        if 'meteoDownscalingOptions' in iniItems.allSections:
+
+            # downscaling options
+            if iniItems.meteoDownscalingOptions['downscalePrecipitation']  == "True":
+                self.downscalePrecipitationOption  = True  
+                logger.info("Precipitation forcing will be downscaled to the cloneMap resolution.")
+
+            if iniItems.meteoDownscalingOptions['downscaleTemperature']    == "True":
+                self.downscaleTemperatureOption    = True  
+                logger.info("Temperature forcing will be downscaled to the cloneMap resolution.")
+
+            if iniItems.meteoDownscalingOptions['downscaleReferenceETPot'] == "True" and self.refETPotMethod != 'Hamon':
+                self.downscaleReferenceETPotOption = True 
+                logger.info("Reference potential evaporation will be downscaled to the cloneMap resolution.")
+
+            # Note that for the Hamon method: referencePotET will be calculated based on temperature,  
+            # therefore, we do not have to downscale it (particularly if temperature is already provided at high resolution). 
+
+        if self.downscalePrecipitationOption or\
+           self.downscaleTemperatureOption   or\
+           self.downscaleReferenceETPotOption:
+
             # creating anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(\
                iniItems.meteoDownscalingOptions['highResolutionDEM'],
@@ -156,32 +183,21 @@ class Meteo(object):
             self.precipitCorrelNC  = vos.getFullPath(iniItems.meteoDownscalingOptions[\
                                         'precipitCorrelNC'],self.inputDir)                    # TODO: Remove this criteria.                           
 
-            # downscaling options
-            if iniItems.meteoDownscalingOptions['downscalePrecipitation']  == "True":\
-                                            self.downscalePrecipitationOption  = True  
-            if iniItems.meteoDownscalingOptions['downscaleTemperature']    == "True":\
-                                            self.downscaleTemperatureOption    = True  
-            if iniItems.meteoDownscalingOptions['downscaleReferenceETPot'] == "True":\
-                                            self.downscaleReferenceETPotOption = True 
-
-            # for Hamon method: referencePotET will be calculated based on temperature
-            if self.refETPotMethod == 'Hamon':\
-                                            self.downscaleReferenceETPotOption = False 
-
-        except:
+        else:
             logger.info("No forcing downscaling is implemented.")
 
-        # forcing smoothing options:                                    # PS: MUST BE TESTED.
+        # forcing smoothing options: - THIS is still experimental. PS: MUST BE TESTED.
         self.forcingSmoothing = False
-        try:
-            if iniItems.meteoDownscalingOptions['smoothingWindowsLength'] != "0":
+        if 'meteoDownscalingOptions' in iniItems.allSections and \
+           'smoothingWindowsLength' in iniItems.meteoDownscalingOptions.keys():
+
+            if float(iniItems.meteoDownscalingOptions['smoothingWindowsLength']) > 0.0:
                 self.forcingSmoothing = True
                 self.smoothingWindowsLength = vos.readPCRmapClone(\
                    iniItems.meteoDownscalingOptions['smoothingWindowsLength'],
                    self.cloneMap,self.tmpDir,self.inputDir)
-                logger.info("Warning!!! Forcing data are smoothed.")   
-        except:
-            pass
+                msg = "Forcing data are smoothed with 'windowaverage' using the window length:"+str(iniItems.meteoDownscalingOptions['smoothingWindowsLength'])
+                logger.info(msg)   
  
     def perturb(self, name, **parameters):
 
@@ -281,6 +297,10 @@ class Meteo(object):
         self.precipitation = pcr.max(0.,self.precipitation*\
                 precipitationCorrectionFactor)
         self.precipitation = pcr.cover( self.precipitation, 0.0)
+        
+        # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
+        if self.usingDailyTimeStepForcingData:
+            self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         # reading temperature
         self.temperature = vos.netcdf2PCRobjClone(\
