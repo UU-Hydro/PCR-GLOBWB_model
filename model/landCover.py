@@ -859,8 +859,7 @@ class LandCover(object):
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # added by Edwin on 29 October 2014 (this is not defined in Wada et al., 2014)
-        # - reduced irrGrossDemand by netLqWaterToSoil
+        # reduced irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
         
         # ignore small demand < 0.1 mm
