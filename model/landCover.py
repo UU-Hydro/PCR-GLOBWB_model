@@ -846,14 +846,15 @@ class LandCover(object):
                                   adjDeplFactor*self.totAvlWater, \
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #               readAvlWater (available water in the root zone)
-            # estimate of deficit in ET (principle: try to optimize ET) 
-            deficitET = pcr.max(0.0, self.potBareSoilEvap  +\
-                                     self.potTranspiration -\
-                                     self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            self.irrGrossDemand = maxIrrGrossDemand                        
             #
-            # irrigation demand for non paddy
-            self.irrGrossDemand = pcr.min(maxIrrGrossDemand, \
-                                          deficitET)                        
+            #~ # estimate of deficit in ET (principle: try to optimize ET) - This is based on de Graaf et al., 2013. 
+            #~ deficitET = pcr.max(0.0, self.potBareSoilEvap  +\
+                                     #~ self.potTranspiration -\
+                                     #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            #~ # irrigation demand for non paddy
+            #~ self.irrGrossDemand = pcr.min(maxIrrGrossDemand, \
+                                          #~ deficitET)                        
 
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)

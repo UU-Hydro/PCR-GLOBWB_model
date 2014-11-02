@@ -14,7 +14,7 @@ This is a pre-release for the version 2.0.3 (alpha)
 This version 2.0.3 includes kinematic routing features and some bug fixes for version for 2.0.3.  
 Very short summary of changes introduced in this version 2.0.3 (compared to the version 2.0.2):
 
-- Fixing water balance errors while using the option "historicalIrrigationArea".
+- Fixing water balance errors (at the beginning of each year) while using the option "historicalIrrigationArea".
 
 - Add more water balance debugs/checks.  
 
