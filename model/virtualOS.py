@@ -191,6 +191,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                     msg += "No "+str(dateInput)+" is available. The 'after' option is used while selecting netcdf time."
                     msg += "\n"
+                logger.info(msg)
                 logger.info(msg)                                   
                                                   
     idx = int(idx)                                                  
@@ -854,13 +855,14 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
             msg  = "\n"
             msg += "\n"
             msg += "##############################################################################################################################################\n"
-            msg += "WARNING !!!!!!!! WBError %s Min %f Max %f Mean %f" %(processName,a,b,c)
+            msg += "WARNING !!!!!!!! Water Balance Error %s Min %f Max %f Mean %f" %(processName,a,b,c)
             msg += "\n"
             msg += "##############################################################################################################################################\n"
             msg += "\n"
             msg += "\n"
             msg += "\n"
             
+            logger.info(msg)
             logger.info(msg)
 
             #~ pcr.report(inMap + dsMap - outMap,"wb.map")

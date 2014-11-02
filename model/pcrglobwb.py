@@ -26,7 +26,6 @@ class PCRGlobWB(object):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
-        #set clone. Must be first pcraster call.
         pcr.setclone(configuration.cloneMap)
 
         # Read the ldd map.
@@ -34,7 +33,7 @@ class PCRGlobWB(object):
                   configuration.routingOptions['lddMap'],
                   configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'],True)
         #ensure ldd map is correct, and actually of type "ldd"
-        self.lddMap = pcr.lddrepair(self.lddMap)
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         if configuration.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\
@@ -42,6 +41,9 @@ class PCRGlobWB(object):
             configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
         else:
             self.landmask = pcr.defined(self.lddMap)
+        
+        # defining catchment areas
+        self.catchment_class = 1.0
         
         # number of upperSoilLayers:
         self.numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
@@ -147,13 +149,13 @@ class PCRGlobWB(object):
         self.runoffAcc           += self.routing.runoff
         self.unmetDemandAcc      += self.groundwater.unmetDemand
 
-        waterBalance = \
+        self.waterBalance = \
           (storesAtBeginning - storesAtEnd +\
            self.meteo.precipitation + self.landSurface.irrGrossDemand + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
-        self.waterBalanceAcc    =    self.waterBalanceAcc + waterBalance
-        self.absWaterBalanceAcc = self.absWaterBalanceAcc + pcr.abs(waterBalance)
+        self.waterBalanceAcc    =    self.waterBalanceAcc + self.waterBalance
+        self.absWaterBalanceAcc = self.absWaterBalanceAcc + pcr.abs(self.waterBalance)
 
         if self._modelTime.isLastDayOfYear():
             self.dumpState(self._configuration.endStateDir)
@@ -230,7 +232,7 @@ class PCRGlobWB(object):
         return result
         
     
-    def totalStores(self):
+    def totalLandStores(self):
         
         if self.numberOfSoilLayers == 2: total = \
                 self.landSurface.interceptStor  +\
@@ -255,6 +257,33 @@ class PCRGlobWB(object):
         
         return total
     
+    def totalCatchmentStores(self, total_land_stores):
+        
+        total_per_catchment = self.routing.channelStorage
+        
+        if self.numberOfSoilLayers == 2: total = \
+                self.landSurface.interceptStor  +\
+                self.landSurface.snowFreeWater  +\
+                self.landSurface.snowCoverSWE   +\
+                self.landSurface.topWaterLayer  +\
+                self.landSurface.storUpp        +\
+                self.landSurface.storLow        +\
+                self.groundwater.storGroundwater
+
+        if self.numberOfSoilLayers == 3: total = \
+                self.landSurface.interceptStor  +\
+                self.landSurface.snowFreeWater  +\
+                self.landSurface.snowCoverSWE   +\
+                self.landSurface.topWaterLayer  +\
+                self.landSurface.storUpp000005  +\
+                self.landSurface.storUpp005030  +\
+                self.landSurface.storLow030150  +\
+                self.groundwater.storGroundwater
+        
+        total = pcr.ifthen(self.landmask, total)
+        
+        return total
+
     def checkWaterBalance(self, storesAtBeginning, storesAtEnd):
 		# for the entire modules: snow + interception + soil + groundwater + waterDemand
 		# except: river/routing 
@@ -339,16 +368,16 @@ class PCRGlobWB(object):
     def update(self, report_water_balance=False):
         logger.info("updating model to time %s", self._modelTime)
         
-        if self._configuration.globalOptions['debugWaterBalance'] == "True":
-            storesAtBeginning = self.totalStores()
+        if (report_water_balance):
+            storesAtBeginning = self.totalLandStores()
 
         self.meteo.update(self._modelTime)                                         
         self.landSurface.update(self.meteo,self.groundwater,self.routing,self._modelTime)      
         self.groundwater.update(self.landSurface,self.routing,self._modelTime)
         self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
 
-        if self._configuration.globalOptions['debugWaterBalance'] == "True":
-            storesAtEnd = self.totalStores()
+        if (report_water_balance):
+            storesAtEnd = self.totalLandStores()
             self.checkWaterBalance(storesAtBeginning, storesAtEnd)
         
         if (report_water_balance):    
