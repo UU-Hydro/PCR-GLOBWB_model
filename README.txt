@@ -13,7 +13,7 @@ The version number is 2.0.3 if you (just) clone this repo from the the master br
 
 The version 2.0.3 is released on 12 November 2014.
 
-This version 2.0.3 includes kinematic routing features and some bug fixes for the previous version 2.0.2.  
+This version 2.0.3 includes kinematic wave routing features and some bug fixes for the previous version 2.0.2.  
 Very short summary of changes introduced in this version 2.0.3 (compared to the version 2.0.2):
 
 - Add more water balance checks/debugs.
