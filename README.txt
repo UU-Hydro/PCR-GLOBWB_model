@@ -1,5 +1,5 @@
 PCR-GLOBWB git repository.
-For questions, please contact E.H.Sutanudjaja@uu.nl.
+For questions, please contact Edwin Sutanudjaja (e-mail: E.H.Sutanudjaja@uu.nl).
 
 Some git reference cards:
 - https://help.github.com/articles/git-cheatsheet
