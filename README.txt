@@ -9,32 +9,27 @@ A cookbook about how to run PCR-GLOBWB and contribute to its development:
 - http://goo.gl/8d9frs (created on May 2014).
 - Examples of model input files can be obtained from git@github.com:UU-Hydro/PCR-GLOBWB_input_example.git (including ini files). 
 
-The version number is 2.0.2 if you (just) clone this repo from:
-- the master branch of git@github.com:UU-Hydro/PCR-GLOBWB.git ; or from
-- the master branch of git@edwin1.geo.uu.nl:~/pcrglobwb.git
+The version number is 2.0.3 if you (just) clone this repo from the the master branch of git@github.com:UU-Hydro/PCR-GLOBWB.git
 
-This version 2.0.2 is released on 5 October 2014. 
+The version 2.0.3 is released on 12 November 2014.
 
-This version 2.0.2 is basically a bug fix version for 2.0.1.  
-Very short summary of changes introduced in this version 2.0.2 (compared to the version 2.0.1):
+This version 2.0.3 includes kinematic routing features and some bug fixes for the previous version 2.0.3.  
+Very short summary of changes introduced in this version 2.0.3 (compared to the version 2.0.2):
 
-- Bug fixing while opening refETPotFileNC file that is given without its absolute path. 
+- Add more water balance checks/debugs.
 
-- Bug fixing to allow model runs with the option limitAbstraction = True. 
+- Kinematic routing features. There are two kinematic wave methods: "simplifiedKinematicWave" and "kinematicWave". To avoid numeric instability in using these methods, sub-time steps are required while routing surface water storage (i.e. "channelStorage"). The difference between "simplifiedKinematicWave" and "kinematicWave" is on how each method update "channelStorage" with local gains/losses (e.g. runoff, river bed exchange, evaporation, abstraction & allocation, and lake/reservoir inflow & outflow). The method "simplifiedKinematicWave" is relative similar to "accuTravelTime", which update first "channelStorage" with daily local gains/losses (for one full day time step) and subsequently routes the "channelStorage" along drainage network. In the "kinematicWave" method, local gains/losses are added/substracted to/from "channelStorage" within the sub-time step (not on the daily time step level).  
 
-- Fixing (small) rounding errors while scaling/correcting land cover fractions. 
+- The routing option "accuTravelTime" is still available.
 
-- Add more water balance debugs/checks.  
+- Add possibility to use fixed/constant channel widths (see "constantChannelWidth" in the routingOptions of the ini or configuration file). This is optional as channel widths can also be estimated in the model.
 
-- Remove the option to allow model runs without lakes and/or reservoirs (as they may produce unrealistic results, e.g. near Caspian Sea).    
+- Add possibility to constrain channel widths (with certain minimum values, see "constantChannelWidth" in the routingOptions of the ini or configuration file). This is also optional.
 
-- Remove the initial condition waterBodyStorageIni (as this can be directly calculated from channelStorageIni). 
+- Add/restore the initial condition "waterBodyStorageIni". This is optional (as this can also be directly calculated from the initial condition "channelStorageIni").
 
-- New-style reporting: Add "reporting.py" and "variable_list.py" modules.  
-- Please list variable names that you want to report in the (new) field "reportingOptions" of your configuration/ini file (see ini file examples).  
-- The "variable_list.py" contains information of all variables that can be reported. 
-- The list in "variable_list.py" includes "variable_names" and "units" that will be used in netcdf files. 
-- Note that old-style/previous version (2.0.1) reporting and old-style/previous format configuration ini file should still work. 
+- Fixing small/minor water balance errors (at the beginning of each year) for runs using the option "historicalIrrigationArea".
 
-- Add “known_issues.txt”. 
+- Add possibility to perform runs considering only natural water bodies (i.e. only lakes, no reservoirs). To activate this option, please set the option "onlyNaturalWaterBodies" to "True" (see "routingOptions" in the ini or configuration file).
+
 - For known issues/bugs that have not been solved, please refer to the file “known_issues.txt”.
