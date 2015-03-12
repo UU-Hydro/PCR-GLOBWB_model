@@ -3,11 +3,13 @@
 
 import os
 import math
-import logging
 
 import pcraster as pcr
 
 import virtualOS as vos
+
+import logging
+logger = logging.getLogger(__name__)
 
 class SpinUp(object):
 
@@ -123,7 +125,7 @@ class SpinUp(object):
         
         convSoilSto = math.fabs(100*(endSoilSto-beginSoilSto)/beginSoilSto)
                     
-        logging.getLogger('spinup').info('Delta SoilStorage = %.2f percent ; SpinUp No. %i of %i' \
+        logger.info('Delta SoilStorage = %.2f percent ; SpinUp No. %i of %i' \
                     %(convSoilSto, spinUpRun, self.noSpinUps)) 
         
         #calculate convergence of ground water storage
@@ -133,7 +135,7 @@ class SpinUp(object):
         
         convGwatSto =  math.fabs(100*(endGwatSto-beginGwatSto)/beginGwatSto)
         
-        logging.getLogger('spinup').info('Delta GwatStorage = %.2f percent' %(convGwatSto))
+        logger.info('Delta GwatStorage = %.2f percent' %(convGwatSto))
         
         #calculate convergence of channel storage
         
@@ -142,7 +144,7 @@ class SpinUp(object):
           
         convChanSto = math.fabs(100*(endChanSto-beginChanSto)/beginChanSto)
         
-        logging.getLogger('spinup').info('Delta ChanStorage = %.2f percent' \
+        logger.info('Delta ChanStorage = %.2f percent' \
                     %(convChanSto))
 
         #calculate convergence of total water storage
@@ -152,7 +154,7 @@ class SpinUp(object):
 
         convTotlSto = math.fabs(100*(endTotlSto-beginTotlSto)/beginTotlSto)
          
-        logging.getLogger('spinup').info('Delta TotlStorage = %.2f percent' \
+        logger.info('Delta TotlStorage = %.2f percent' \
                     %(convTotlSto))
         
         return convSoilSto <= self.minConvForSoilSto and  convGwatSto <= self.minConvForGwatSto\

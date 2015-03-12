@@ -8,34 +8,34 @@ import sys
 import virtualOS as vos
 import time
 import datetime
-import logging
 import shutil
 import glob
 
+import logging
 logger = logging.getLogger(__name__)
-
-
-    
 
 class Configuration(object):
 
-    def __init__(self):
+    def __init__(self, iniFileName, debug_mode = False, no_modification = True):
         object.__init__(self)
 
         # timestamp of this run, used in logging file names, etc
         self._timestamp = datetime.datetime.now()
         
-        # reading configuration file name from command line arguments
-        # Note: this may not be very useful
-        usage = 'usage: %prog [options] <model options> '
-        parser = optparse.OptionParser(usage=usage)
-        (options, arguments) = parser.parse_args()
+        # get the full path of iniFileName
+        self.iniFileName = os.path.abspath(iniFileName)
 
-        self.iniFileName = os.path.abspath(arguments[0])
+        # debug option
+        self.debug_mode = debug_mode
         
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
         
+        # if no_modification, set configuration directly (otherwise, the function/method  
+        if no_modification: self.set_configuration()
+
+    def set_configuration(self):
+
         # set all paths, clean output when requested
         self.set_input_files()
         self.create_output_directories()
@@ -55,38 +55,63 @@ class Configuration(object):
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
 
-        #set root logger to debug level        
+        # set root logger to debug level        
         logging.getLogger().setLevel(logging.DEBUG)
 
+        # logging format 
         formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
 
-        log_level_console = "INFO"
-        log_level_file    = "DEBUG"
+        # default logging levels
+        log_level_console    = "INFO"
+        log_level_file       = "INFO"
+        # order: DEBUG, INFO, WARNING, ERROR, CRITICAL
+        
+        # log level based on ini/configuration file:
+        if "log_level_console" in self.globalOptions.keys():
+            log_level_console = self.globalOptions['log_level_console']        
+        if "log_level_file" in self.globalOptions.keys():
+            log_level_file = self.globalOptions['log_level_file']        
 
+        # log level for debug mode:
+        if self.debug_mode == True: 
+            log_level_console = "DEBUG"
+            log_level_file    = "DEBUG"
+        
         console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
             raise ValueError('Invalid log level: %s', log_level_console)
         
-        #create handler, add to root logger
+        # create handler, add to root logger
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        console_handler.setLevel(logging.DEBUG)
+        console_handler.setLevel(console_level)
         logging.getLogger().addHandler(console_handler)
 
+        # log file name
         log_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.log'
 
-        file_level = getattr(logging, log_level_file, logging.DEBUG)
+        file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
             raise ValueError('Invalid log level: %s', log_level_file)
 
-        #create handler, add to root logger
+        # create handler, add to root logger
         file_handler = logging.FileHandler(log_filename)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(file_level)
         logging.getLogger().addHandler(file_handler)
         
+        # file name for debug log 
+        dbg_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.dbg'
+
+        #create handler, add to root logger
+        debug_handler = logging.FileHandler(dbg_filename)
+        debug_handler.setFormatter(formatter)
+        debug_handler.setLevel(logging.DEBUG)
+        logging.getLogger().addHandler(debug_handler)
+
         logger.info('Model run started at %s', self._timestamp)
         logger.info('Logging output to %s', log_filename)
+        logger.info('Debugging output to %s', dbg_filename)
         
     def backup_configuration(self):
         
@@ -160,7 +185,7 @@ class Configuration(object):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
         
-        path_of_this_module = os.path.dirname(__file__)
+        path_of_this_module = os.path.abspath(os.path.dirname(__file__))
                            
         for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
             shutil.copy(filename, self.scriptDir)
@@ -206,22 +231,53 @@ class Configuration(object):
 
             if float(self.globalOptions['timeStep']) != 1.0 or \
                      self.globalOptions['timeStepUnit'] != "day":
-                logger.info('The model runs only on daily time step. Please check your ini/configuration file')
+                logger.error('The model runs only on daily time step. Please check your ini/configuration file')
                 self.timeStep     = None
                 self.timeStepUnit = None
         
-        # adjusment for routingOptions
+        # adjustment for limitAbstraction (to use only renewable water)
+        if 'limitAbstraction' not in self.landSurfaceOptions.keys():
+            self.landSurfaceOptions['limitAbstraction'] = False
+
+        # irrigation efficiency map 
+        if 'irrigationEfficiency' not in self.landSurfaceOptions.keys():
+            logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
+            self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
+        
+        # adjustment for desalinationWater
+        if 'desalinationWater' not in self.landSurfaceOptions.keys():
+            self.landSurfaceOptions['desalinationWater'] = "None"
+
+        # adjustment for routingOptions
         if 'routingMethod' not in self.routingOptions.keys():
-            logger.info('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
+            logger.warning('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
             iniItems.routingOptions['routingMethod'] = "accuTravelTime"
 
-        # adjusment for initial conditions in the routingOptions
+        # adjustment for option 'limitRegionalAnnualGroundwaterAbstraction'
+        if 'pumpingCapacityNC' not in self.groundwaterOptions.keys():
+            msg  = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) '
+            msg += 'is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'We assume no annual pumping limit used in this run. '
+            msg += 'It may result too high groundwater abstraction.'
+            logger.warning(msg)
+            self.groundwaterOptions['pumpingCapacityNC'] = "None"
+        
+        # adjustment of option 'allocationSegmentsForGroundSurfaceWater'
+        if 'allocationSegmentsForGroundSurfaceWater' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Here, water demand will be satisfied by local source only. '
+            logger.warning(msg)
+            self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
+        
+        # adjustment for initial conditions in the routingOptions
         #
         if 'm2tChannelDischargeLongIni' in self.routingOptions.keys():
             self.routingOptions['m2tDischargeLongIni'] = self.routingOptions['m2tChannelDischargeLongIni']
         #
         if 'waterBodyStorageIni' not in self.routingOptions.keys():
-            logger.info("Note that waterBodyStorageIni will be calculated from channelStorageIni.")
+            logger.warning("Note that 'waterBodyStorageIni' is not defined in the ini/configuration file will be calculated from 'channelStorageIni'.")
+            self.routingOptions['waterBodyStorageIni'] = "None"
+        if self.routingOptions['waterBodyStorageIni'] == "None":
             self.routingOptions['waterBodyStorageIni'] = None
         #
         if 'avgChannelDischargeIni' in self.routingOptions.keys():
@@ -232,38 +288,48 @@ class Configuration(object):
         #
         if 'avgBaseflowIni' in self.routingOptions.keys():
             self.routingOptions['avgBaseflowLongIni'] = self.routingOptions['avgBaseflowIni']
-        #
+
         if 'avgInflowLakeReservIni' in self.routingOptions.keys():
             self.routingOptions['avgLakeReservoirInflowShortIni'] = self.routingOptions['avgInflowLakeReservIni']
-        #
+
         if 'avgOutflowDischargeIni' in self.routingOptions.keys():
             self.routingOptions['avgLakeReservoirOutflowLongIni'] = self.routingOptions['avgOutflowDischargeIni']
-        #
+
         if 'avgDischargeShortIni' not in self.routingOptions.keys():
-            logger.info('The initial condition "avgDischargeShortIni" is not defined. "avgDischargeLongIni" is used in this run.')
+            logger.warning('The initial condition "avgDischargeShortIni" is not defined. "avgDischargeLongIni" is used in this run.')
             self.routingOptions['avgDischargeShortIni'] = self.routingOptions['avgDischargeLongIni']
-        #
-        if 'avgSurfaceWaterInputLongIni' not in self.routingOptions.keys():
-            logger.info("Note that avgSurfaceWaterInputLongIni is not used and not needed.")
+
+        if 'avgSurfaceWaterInputLongIni' in self.routingOptions.keys():
+            logger.warning("Note that avgSurfaceWaterInputLongIni is not used and not needed in the ini/configuration file.")
             
         if 'subDischargeIni' not in self.routingOptions.keys() or self.routingOptions['subDischargeIni'] == str(None):
             msg  = 'The initial condition "subDischargeIni" is not defined. Either "avgDischargeShortIni" or "avgDischargeLongIni" is used in this run. '
             msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
-            logger.info(msg)
+            logger.warning(msg)
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
-        #
+
         if 'storGroundwaterFossilIni' not in self.groundwaterOptions.keys():
             msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
-            msg += 'Zero initial condition is assumed here.'
-            logger.info(msg)
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
             self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
             # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
              
         if 'avgTotalGroundwaterAbstractionIni' not in self.groundwaterOptions.keys():
-            msg  = 'The initial condition "avgTotalGroundwaterAbstractionIni" is not defined. '
-            msg += 'Zero initial condition is assumed here.'
-            logger.info(msg)
+            msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
+            msg += 'zero initial condition is assumed here. '
+            logger.warning(msg)
             self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
 
-        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
+        if 'avgNonFossilGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'] = "0.0"
 
+        if 'avgNonFossilGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationShortIni' is not defined, "
+            msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
+            logger.warning(msg)
+            self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
+        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 

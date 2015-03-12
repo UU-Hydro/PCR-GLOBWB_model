@@ -19,13 +19,16 @@ import variable_list as varDicts
 
 class Reporting(object):
 
-    #list of all output variables
-    
     def __init__(self, configuration, model, modelTime):
 
         self._model = model
         self._modelTime = modelTime
 
+        # initiate reporting tool/object and its configuration
+        self.initiate_reporting(configuration)
+
+    def initiate_reporting(self, configuration):
+        
         # output directory storing netcdf files:
         self.outNCDir  = str(configuration.outNCDir)
 
@@ -230,13 +233,15 @@ class Reporting(object):
 
     def basic_post_processing(self):
 
+        # forcing 
         self.precipitation  = self._model.meteo.precipitation 
         self.temperature    = self._model.meteo.temperature
         self.referencePotET = self._model.meteo.referencePotET 
 
+        # potential and actual evaporation from land surface part (m)
         self.totalLandSurfacePotET = self._model.landSurface.totalPotET 
         self.totLandSurfaceActuaET = self._model.landSurface.actualET
-        
+        #
         self.fractionLandSurfaceET = vos.getValDivZero(self.totLandSurfaceActuaET,\
                                                        self.totalLandSurfacePotET,\
                                                        vos.smallNumber)
@@ -264,8 +269,9 @@ class Reporting(object):
         
         self.infiltration         = self._model.landSurface.infiltration
         self.gwRecharge           = self._model.landSurface.gwRecharge
-        self.gwNetCapRise         = pcr.ifthen(self._model.landSurface.gwRecharge < 0.0, self.gwRecharge*(-1.0))
+        self.gwNetCapRise         = pcr.ifthenelse(self._model.landSurface.gwRecharge < 0.0, self.gwRecharge*(-1.0), 0.0)
         
+        # water demand (m)
         self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
         self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
         self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
@@ -277,13 +283,51 @@ class Reporting(object):
         
         self.baseflow             = self._model.groundwater.baseflow
 
+        # abstraction (m)
+        self.desalinationAbstraction         = self._model.landSurface.desalinationAbstraction
         self.surfaceWaterAbstraction         = self._model.landSurface.actSurfaceWaterAbstract
         self.nonFossilGroundWaterAbstraction = self._model.groundwater.nonFossilGroundwaterAbs
         self.otherWaterSourceAbstraction     = self._model.groundwater.unmetDemand
-        self.totalAbstraction                = self.surfaceWaterAbstraction +\
+        self.totalAbstraction                = self.desalinationAbstraction +\
+                                               self.surfaceWaterAbstraction +\
                                                self.nonFossilGroundWaterAbstraction +\
                                                self.otherWaterSourceAbstraction
         
+        # total evaporation (m), from land and water fractions
+        self.totalEvaporation = self._model.landSurface.actualET + \
+                                self._model.routing.waterBodyEvaporation
+        #
+        self.fractionTotalEvaporation = vos.getValDivZero(self.totalEvaporation,\
+                                       self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap,\
+                                        vos.smallNumber)
+
+        # runoff (m) from land surface - not including local changes in water bodies
+        self.runoff = self._model.routing.runoff
+        
+        # discharge (unit: m3/s)
+        self.discharge = self._model.routing.disChanWaterBody
+
+        # soil moisture state from (approximately) the first 5 cm soil  
+        if self._model.landSurface.numberOfSoilLayers == 3:
+            self.storUppSurface   = self._model.landSurface.storUpp000005    # unit: m
+            self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
+        
+        # reporting water balance from the land surface part (excluding surface water bodies)
+        self.land_surface_water_balance = self._model.waterBalance
+
+    def additional_post_processing(self):
+        # In this method/function, users can add their own post-processing.
+        
+        # accumulated baseflow (m3/s) along the drainage network
+        if "accuBaseflow" in self.variables_for_report:
+            self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
+        # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
+        self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
+        
+        # total runoff (m) from local land surface runoff and local changes in water bodies 
+        self.totalRunoff = self.runoff + self.local_water_body_flux     # actually this is equal to self._model.routing.local_input_to_surface_water / self._model.routing.cellArea
+
         # water body evaporation (m) - from surface water fractions only
         self.waterBodyActEvaporation = self._model.routing.waterBodyEvaporation
         self.waterBodyPotEvaporation = self._model.routing.waterBodyPotEvap
@@ -291,40 +335,9 @@ class Reporting(object):
         self.fractionWaterBodyEvaporation = vos.getValDivZero(self.waterBodyActEvaporation,\
                                                               self.waterBodyPotEvaporation,\
                                                               vos.smallNumber)
-        # total evaporation (m), from land and water fractions
-        self.totalEvaporation = self._model.landSurface.actualET + \
-                                self._model.routing.waterBodyEvaporation
-        
-        # runoff (m) from land surface - not including local changes in water bodies
-        self.runoff = self._model.routing.runoff
-        
-        # discharge (unit: m3/s)
-        self.discharge = self._model.routing.disChanWaterBody
 
-    def additional_post_processing(self):
-        # In this method/function, users can add their own post-processing.
-        
-        # consumption for and return flow from non irrigation water demand (unit: m/day)  
-        self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
-        self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
-        
-        # accumulated runoff (m3/s) along the drainage network - not including local changes in water bodies
-        if "accuRunoff" in self.variables_for_report:
-            self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-        
-        # accumulated baseflow (m3) along the drainage network
-        if "accuBaseflow" in self.variables_for_report:
-            self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap)
-
-        # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
-        self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
-        
-        # total runoff (m) from local land surface runoff and local changes in water bodies 
-        self.totalRunoff = self.runoff + self.local_water_body_flux     # actually this is equal to self._model.routing.local_input_to_surface_water / self._model.routing.cellArea
-        
-        # accumulated total runoff (m3) along the drainage network - not including local changes in water bodies
-        if "accuTotalRunoff" in self.variables_for_report:
-            self.accuTotalRunoff = pcr.catchmenttotal(self.totalRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+        # land surface evaporation (m)
+        self.actualET = self._model.landSurface.actualET
 
         # fossil groundwater storage
         self.storGroundwaterFossil = self._model.groundwater.storGroundwaterFossil
@@ -359,38 +372,47 @@ class Reporting(object):
         self.fracNonFossilGroundwaterAllocation = pcr.ifthen(self._model.routing.landmask, \
                                                   vos.getValDivZero(\
                                                   self._model.groundwater.allocNonFossilGroundwater, self.totalGrossDemand, vos.smallNumber))
-        self.fracNonFossilGroundwaterAllocation = pcr.ifthenelse(self.totalGrossDemand < vos.smallNumber, 0.0, self.fracNonFossilGroundwaterAllocation)
         #
         self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
                                               vos.getValDivZero(\
                                               self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
+        #
+        self.fracDesalinatedWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                              vos.getValDivZero(\
+                                              self._model.landSurface.desalinationAllocation, self.totalGrossDemand, vos.smallNumber))
+        #
         self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
                                               self.fracNonFossilGroundwaterAllocation + \
-                                              self.fracOtherWaterSourceAllocation 
+                                              self.fracOtherWaterSourceAllocation + \
+                                              self.fracDesalinatedWaterAllocation
 
-        # Stefanie's post processing: reporting lake and reservoir storage (unit: m3)
+        # Stefanie's post processing:
+        # -  reporting lake and reservoir storage (unit: m3)
         self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \
                                 pcr.ifthen(\
                                 pcr.scalar(self._model.routing.WaterBodies.waterBodyIds) > 0.,\
                                            self._model.routing.WaterBodies.waterBodyStorage))     # Note: This value is after lake/reservoir outflow.
-        #
-        # snowMelt (m/day)
+        # - snowMelt (m)
         self.snowMelt = self._model.landSurface.snowMelt
 
-        # soil moisture state from (approximately) the first 5 cm soil  
-        if self._model.landSurface.numberOfSoilLayers == 3:
-            self.storUppSurface   = self._model.landSurface.storUpp000005    # unit: m
-            self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
-        
-        # reporting water balance from the land surface part (excluding surface water bodies)
-        self.land_surface_water_balance = self._model.waterBalance
-        
-        # evaporation from irrigation areas (m/day) - values are average over the entire cell area
+        # An example to report variables from certain land cover types 
+        # - evaporation from irrigation areas (m/day) - values are average over the entire cell area
         if self._model.landSurface.includeIrrigation:\
            self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
                                               self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                               self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
-                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover 
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+        
+        # Total groundwater abstraction (m) (assuming otherWaterSourceAbstraction as fossil groundwater abstraction
+        self.totalGroundwaterAbstraction = self.nonFossilGroundWaterAbstraction +\
+                                           self.otherWaterSourceAbstraction
+
+        # net liquid water passing to the soil 
+        self.net_liquid_water_to_soil = self._model.landSurface.netLqWaterToSoil
+        
+        # consumptive water use and return flow from non irrigation water demand (unit: m/day)  
+        self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
+        self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
 
     def report(self):
 
@@ -543,6 +565,9 @@ class Reporting(object):
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
 
+                # calculating average & reporting at the end of the year:
+                if self._modelTime.endYear == True:
+
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -552,4 +577,3 @@ class Reporting(object):
                        vos.MV),timeStamp)
 
         logger.info("reporting for time %s", self._modelTime.currTime)
-        

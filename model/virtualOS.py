@@ -12,6 +12,7 @@ import gc
 import re
 import math
 import sys
+import types
 
 import netCDF4 as nc
 import numpy as np
@@ -33,7 +34,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
                                   LatitudeLongitude = False,\
                                   specificFillValue = None):
     
-    logger.info('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
@@ -43,11 +44,11 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
     # Get netCDF file and variable name:
     if ncFile in filecache.keys():
         f = filecache[ncFile]
-        print "Cached: ", ncFile
+        #~ print "Cached: ", ncFile
     else:
         f = nc.Dataset(ncFile)
         filecache[ncFile] = f
-        print "New: ", ncFile
+        #~ print "New: ", ncFile
     
     #print ncFile
     #f = nc.Dataset(ncFile)  
@@ -131,15 +132,15 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     #~ print ncFile
     
-    logger.info('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in filecache.keys():
         f = filecache[ncFile]
-        print "Cached: ", ncFile
+        #~ print "Cached: ", ncFile
     else:
         f = nc.Dataset(ncFile)
         filecache[ncFile] = f
-        print "New: ", ncFile
+        #~ print "New: ", ncFile
     
     varName = str(varName)
     
@@ -182,17 +183,16 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                                                       select='before')
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "No "+str(dateInput)+" is available. The 'before' option is used while selecting netcdf time."
+                    msg += "The date "+str(dateInput)+" is NOT available. The 'before' option is used while selecting netcdf time."
                     msg += "\n"
                 except:
                     idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                       select='after')
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "No "+str(dateInput)+" is available. The 'after' option is used while selecting netcdf time."
+                    msg += "The date "+str(dateInput)+" is NOT available. The 'after' option is used while selecting netcdf time."
                     msg += "\n"
-                logger.info(msg)
-                logger.info(msg)                                   
+                logger.warning(msg)
                                                   
     idx = int(idx)                                                  
 
@@ -225,7 +225,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
     if sameClone == False:
         
-        logger.info('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
+        logger.debug('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
         # crop to cloneMap:
         #~ xIdxSta = int(np.where(f.variables['lon'][:] == xULClone + 0.5*cellsizeInput)[0])
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
@@ -237,7 +237,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         cropData = f.variables[varName][idx,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
-        logger.info('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+        logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
         factor = int(float(cellsizeInput)/float(cellsizeClone))
     
     # convert to PCR object and close f
@@ -437,7 +437,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
 	# v: inputMapFileName or floating values
 	# cloneMapFileName: If the inputMap and cloneMap have different clones,
 	#                   resampling will be done.   
-    logger.info('read file/values: '+str(v))
+    logger.debug('read file/values: '+str(v))
     if v == "None":
         PCRmap = str("None")
     elif not re.match(r"[0-9.-]*$",v):
@@ -862,8 +862,7 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
             msg += "\n"
             msg += "\n"
             
-            logger.info(msg)
-            logger.info(msg)
+            logger.error(msg)
 
             #~ pcr.report(inMap + dsMap - outMap,"wb.map")
             #~ os.system("aguila wb.map")
@@ -878,6 +877,8 @@ def waterBalanceCheck(fluxesIn,fluxesOut,preStorages,endStorages,processName,Pri
     #~ wb = inMap + dsMap - outMap
     #~ maxWBError = pcr.cellvalue(pcr.mapmaximum(pcr.abs(wb)), 1, 1)[0]
     #~ #return wb
+
+
 
 
 def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOnlyErrors,  dateStr,threshold=1e-5):
@@ -952,11 +953,82 @@ def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOn
 
     return inMap + dsMap - outMap
 
-def swapRows(a):
-    #-swaps an array upside-down
-    b = a.copy()
-    for rowCnt in xrange(a.shape[0]):
-        revRowCnt= a.shape[0]-(rowCnt+1)
-        b[revRowCnt,:]= a[rowCnt,:]
-    return b
+
+
+def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,allocation_zones,\
+                                  zone_area = None,
+                                  high_volume_treshold = 1000000.,
+                                  debug_water_balance = True,\
+                                  extra_info_for_water_balance_reporting = "",
+                                  ignore_small_values = True):
+
+    logger.debug("Allocation of abstraction.")
     
+    # demand volume in each cell (unit: m3)
+    if ignore_small_values: # ignore small values to avoid runding error
+        cellVolDemand = pcr.rounddown(pcr.max(0.0, water_demand_volume))
+    else:
+        cellVolDemand = pcr.max(0.0, water_demand_volume)
+    
+    # total demand volume in each zone/segment (unit: m3)
+    zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
+    
+    # total available water volume in each cell
+    if ignore_small_values: # ignore small values to avoid runding error
+        cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume))
+    else:
+        cellAvlWater = pcr.max(0.00, available_water_volume)
+    
+    # total available water volume in each zone/segment (unit: m3)
+    # - to minimize numerical errors, separating cellAvlWater 
+    if not isinstance(high_volume_treshold,types.NoneType):
+        # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
+        mask = pcr.cover(\
+               pcr.ifthen(cellAvlWater > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
+        zoneAvlWater  = pcr.areatotal(
+                        pcr.ifthenelse(mask, 0.0, cellAvlWater), allocation_zones)
+        zoneAvlWater += pcr.areatotal(                
+                        pcr.ifthenelse(mask, cellAvlWater, 0.0), allocation_zones)
+    else:
+        zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
+    
+    # total actual surface water abstraction volume in each zone/segment (unit: m3)
+    # - limited to available water
+    zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
+    
+    # actual water abstraction volume in each cell (unit: m3)
+    cellAbstraction = getValDivZero(\
+                      cellAvlWater, zoneAvlWater, smallNumber)*zoneAbstraction
+    cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
+    if ignore_small_values: # ignore small values to avoid runding error
+        cellAbstraction = pcr.rounddown(pcr.max(0.00, cellAbstraction))
+    # to minimize numerical errors, separating cellAbstraction 
+    if not isinstance(high_volume_treshold,types.NoneType):
+        # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
+        mask = pcr.cover(\
+               pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
+        zoneAbstraction  = pcr.areatotal(
+                           pcr.ifthenelse(mask, 0.0, cellAbstraction), allocation_zones)
+        zoneAbstraction += pcr.areatotal(                
+                           pcr.ifthenelse(mask, cellAbstraction, 0.0), allocation_zones)
+    else:
+        zoneAbstraction  = pcr.areatotal(cellAbstraction, allocation_zones)    
+    
+    # allocation water to meet water demand (unit: m3)
+    cellAllocation  = getValDivZero(\
+                      cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
+    
+    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+
+        abstraction = pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)
+        allocation  = pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)
+    
+        waterBalanceCheck([abstraction],\
+                          [allocation],\
+                          [pcr.scalar(0.0)],\
+                          [pcr.scalar(0.0)],\
+                          'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
+                           True,\
+                           extra_info_for_water_balance_reporting,threshold=1e-4)
+    
+    return cellAbstraction, cellAllocation

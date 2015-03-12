@@ -196,7 +196,7 @@ class Meteo(object):
                 self.smoothingWindowsLength = vos.readPCRmapClone(\
                    iniItems.meteoDownscalingOptions['smoothingWindowsLength'],
                    self.cloneMap,self.tmpDir,self.inputDir)
-                msg = "Forcing data are smoothed with 'windowaverage' using the window length:"+str(iniItems.meteoDownscalingOptions['smoothingWindowsLength'])
+                msg = "Forcing data will be smoothed with 'windowaverage' using the window length:"+str(iniItems.meteoDownscalingOptions['smoothingWindowsLength'])
                 logger.info(msg)   
  
     def perturb(self, name, **parameters):
@@ -332,7 +332,7 @@ class Meteo(object):
         
         # smoothing:
         if self.forcingSmoothing == True:
-            logger.info("Forcing data are smoothed.")   
+            logger.debug("Forcing data are smoothed.")   
             self.precipitation  = pcr.windowaverage(self.precipitation , self.smoothingWindowsLength)
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)

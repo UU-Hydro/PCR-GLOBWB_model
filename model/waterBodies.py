@@ -32,7 +32,7 @@ class WaterBodies(object):
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = False
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
-            logger.info("WARNING!! Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
+            logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
         
@@ -249,7 +249,7 @@ class WaterBodies(object):
         # for a natural run (self.onlyNaturalWaterBodies == True) 
         # which uses only the year 1900, assume all reservoirs are lakes
         if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:
-            logger.info("WARNING!! Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
+            logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.waterBodyTyp = \
              pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
                         pcr.nominal(1))                         
@@ -257,10 +257,10 @@ class WaterBodies(object):
         # check that all lakes and/or reservoirs have types, ids, surface areas and outlets:
         test = pcr.defined(self.waterBodyTyp) & pcr.defined(self.waterBodyArea) &\
                pcr.defined(self.waterBodyIds) & pcr.boolean(pcr.areamaximum(pcr.scalar(self.waterBodyOut), self.waterBodyIds))
-        a,b,c = vos.getMinMaxMean(pcr.scalar(test) - pcr.scalar(1.0))
+        a,b,c = vos.getMinMaxMean(pcr.cover(pcr.scalar(test), 1.0) - pcr.scalar(1.0))
         threshold = 1e-3
         if abs(a) > threshold or abs(b) > threshold:
-            logger.info("WARNING !!!!! Missing information in some lakes and/or reservoirs.")
+            logger.warning("Missing information in some lakes and/or reservoirs.")
 
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
@@ -345,13 +345,13 @@ class WaterBodies(object):
              downstreamDemand)
         
         if self.debugWaterBalance:\
-           vos.waterBalanceCheck([          self.inflow/self.waterBodyArea],\
-                                 [self.waterBodyOutflow/self.waterBodyArea],\
-                                 [           preStorage/self.waterBodyArea],\
-                                 [self.waterBodyStorage/self.waterBodyArea],\
-                                   'WaterBodyStorage',\
+           vos.waterBalanceCheck([          pcr.cover(self.inflow/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)],\
+                                 [           pcr.cover(preStorage/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0)],\
+                                   'WaterBodyStorage (unit: m)',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-3)
+                                  currTimeStep.fulldate,threshold=5e-3)
 
     def moveFromChannelToWaterBody(self,\
                                    newStorageAtLakeAndReservoirs,\

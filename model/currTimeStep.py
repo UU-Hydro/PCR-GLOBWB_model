@@ -98,7 +98,7 @@ class ModelTime(object):
         self._timeStepPCR = timeStepPCR
         self._currTime = self._startTime + datetime.timedelta(days=1 * (timeStepPCR - 1))
         self._fulldate = str(self.currTime.strftime('%Y-%m-%d'))
-        print(self._fulldate)
+        #~ print(self._fulldate)
         if self._spinUpStatus == True : 
             logger.info("Spin-Up "+str(self._noSpinUp)+" of "+str(self._maxSpinUps))
 
@@ -145,5 +145,5 @@ class ModelTime(object):
         return self.isLastDayOfYear()
     
     def __str__(self):
-        print self._currTime
+        #~ print self._currTime
         return str(self._currTime)

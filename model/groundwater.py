@@ -17,10 +17,11 @@ class Groundwater(object):
     
     def getState(self):
         result = {}
-        result['storGroundwater']                   = self.storGroundwater       # unit: m
-        result['storGroundwaterFossil']             = self.storGroundwaterFossil # unit: m
-        result['avgTotalGroundwaterAbstractionIni'] = self.avgAbstraction        # unit: m
-           
+        result['storGroundwater']                        = self.storGroundwater                # unit: m
+        result['storGroundwaterFossil']                  = self.storGroundwaterFossil          # unit: m
+        result['avgTotalGroundwaterAbstraction']         = self.avgAbstraction                 # unit: m
+        result['avgNonFossilGroundwaterAllocationLong']  = self.avgNonFossilAllocation         # unit: m
+        result['avgNonFossilGroundwaterAllocationShort'] = self.avgNonFossilAllocationShort    # unit: m
         return result
 
     def getPseudoState(self):
@@ -96,15 +97,41 @@ class Groundwater(object):
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
-        # option for limitting fossil groundwater abstractions - This option is only defined for IWMI project 
+
+        # option for limitting regional groundwater abstractions
+        self.limitRegionalAnnualGroundwaterAbstraction = False
+        if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
+
+            logger.info('Limit for annual regional groundwater abstraction is used.')
+            self.limitRegionalAnnualGroundwaterAbstraction = True
+            
+            self.pumpingCapacityNC = vos.getFullPath(\
+                                     iniItems.groundwaterOptions['pumpingCapacityNC'],self.inputDir,False)
+ 
+            #~ # old method (using pcraster file)
+            #~ region_ids = vos.readPCRmapClone(\
+                         #~ iniItems.groundwaterOptions['regionIds'],\
+                         #~ self.cloneMap,self.tmpDir,self.inputDir)
+            #~ self.region_ids = pcr.ifthen(self.landmask, pcr.nominal(region_ids))
+            #~ 
+            #~ self.regionalAnnualGroundwaterAbstractionLimit = vos.readPCRmapClone(\
+                                                                 #~ iniItems.groundwaterOptions['pumpingCapacity'],
+                                                                 #~ self.cloneMap,self.tmpDir,self.inputDir)
+            #~ self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit*1000000.)/1000000.
+            #~ self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit, self.region_ids)
+            #~ 
+            #~ self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
+            #~ self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
+                                                                         #~ self.regionalAnnualGroundwaterAbstractionLimit)
+        else:
+            logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
+        
+        # option for limitting fossil groundwater abstractions - This option is defined for IWMI project 
         self.limitFossilGroundwaterAbstraction = False
-        if self.limitAbstraction == False and\
-           "extraOptionsforProjectWithIWMI" in iniItems.allSections and\
-           iniItems.extraOptionsforProjectWithIWMI['limitFossilGroundWaterAbstraction'] == "True":
-            
-            logger.info('Fossil groundwater abstraction limit is used (IWMI project).')
-            self.limitFossilGroundwaterAbstraction = True
-            
+        #
+        # estimate of fossil groundwater capacity (needed only for IWMI project)
+        if "extraOptionsforProjectWithIWMI" in iniItems.allSections: 
+            #
             # estimate of thickness (unit: mm) of aceesible groundwater: shallow and deep 
             totalGroundwaterThickness = vos.readPCRmapClone(\
                                         iniItems.extraOptionsforProjectWithIWMI['estimateOfTotalGroundwaterThickness'],
@@ -121,44 +148,24 @@ class Groundwater(object):
                                         pcr.windowaverage(totalGroundwaterThickness, 7.5))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.mapmaximum(totalGroundwaterThickness))
-
-            # set minimum thickness to 50 m:
-            totalGroundwaterThickness = pcr.max(50.0, totalGroundwaterThickness)
-            
+            #
+            # set minimum thickness to 100 m:
+            totalGroundwaterThickness = pcr.max(100.0, totalGroundwaterThickness)
+            #            
             # estimate of capacity (unit: m) of renewable groundwater (shallow)
             storGroundwaterCap =  pcr.cover(
                                   vos.readPCRmapClone(\
                                   iniItems.extraOptionsforProjectWithIWMI['estimateOfRenewableGroundwaterCapacity'],
-                                  self.cloneMap,self.tmpDir,self.inputDir),\
-                                  0.0)
-
+                                  self.cloneMap,self.tmpDir,self.inputDir), 0.0)
+            #
             # fossil groundwater capacity (unit: m)
             self.fossilWaterCap = pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap)
             
-        # option for limitting regional groundwater abstractions - This option is only defined 
-        self.limitRegionalAnnualGroundwaterAbstraction = False
-        if "extraOptionsforProjectWithIWMI" in iniItems.allSections and\
-           iniItems.extraOptionsforProjectWithIWMI['limitRegionalAnnualGroundwaterAbstraction'] == "True":
-
-            logger.info('Limit for regional groundwater abstraction is used (IWMI project).')
-            self.limitRegionalAnnualGroundwaterAbstraction = True
-            
-            region_ids = vos.readPCRmapClone(\
-                         iniItems.extraOptionsforProjectWithIWMI['regionIds'],
-                         self.cloneMap,self.tmpDir,self.inputDir)
-            self.region_ids = pcr.nominal(region_ids)
-            self.region_ids = pcr.ifthen(self.landmask, self.region_ids)
-            
-            self.regionalAnnualGroundwaterAbstractionLimit = vos.readPCRmapClone(\
-                                                                 iniItems.extraOptionsforProjectWithIWMI['pumpingCapacity'],
-                                                                 self.cloneMap,self.tmpDir,self.inputDir)
-            self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit*1000.)/1000.
-            self.regionalAnnualGroundwaterAbstractionLimit = pcr.cover(self.regionalAnnualGroundwaterAbstractionLimit, 0.0)
-            
-            self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
-            self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
-                                                                         self.regionalAnnualGroundwaterAbstractionLimit)
+        if self.limitAbstraction == False and "extraOptionsforProjectWithIWMI" in iniItems.allSections:
+            if iniItems.extraOptionsforProjectWithIWMI['limitFossilGroundWaterAbstraction'] == "True":
+                logger.info('Fossil groundwater abstraction limit is used (IWMI project).')
+                self.limitFossilGroundwaterAbstraction = True
 
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
@@ -180,6 +187,13 @@ class Groundwater(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
+        # get initial conditions
+        self.getICs(iniItems,spinUp)
+
+        # initiate old style reporting                                  # TODO: remove this!
+        self.initiate_old_style_groundwater_reporting(iniItems)
+
+    def initiate_old_style_groundwater_reporting(self,iniItems):
 
         self.report = True
         try:
@@ -260,13 +274,8 @@ class Groundwater(object):
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
 
-        #get initial conditions
-        self.getICs(iniItems,spinUp)
-    
     def getICs(self,iniItems,iniConditions = None):
 
-        print iniItems.groundwaterOptions['storGroundwaterFossilIni']
-        
         # initial condition for storGroundwater (unit: m)
         if iniConditions == None: # when the model just start 
             self.storGroundwater = vos.readPCRmapClone(\
@@ -275,13 +284,26 @@ class Groundwater(object):
             self.avgAbstraction  = vos.readPCRmapClone(\
                                          iniItems.groundwaterOptions['avgTotalGroundwaterAbstractionIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
+            self.avgNonFossilAllocation   = vos.readPCRmapClone(\
+                                         iniItems.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'],
+                                         self.cloneMap,self.tmpDir,self.inputDir)
+            self.avgNonFossilAllocationShort = \
+                                   vos.readPCRmapClone(\
+                                         iniItems.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'],
+                                         self.cloneMap,self.tmpDir,self.inputDir)
         else:                     # during/after spinUp
-            self.storGroundwater = iniConditions['groundwater'][ 'storGroundwater']
-            self.avgAbstraction  = iniConditions['groundwater'][ 'avgTotalGroundwaterAbstractionIni']      
+            self.storGroundwater    = iniConditions['groundwater'][ 'storGroundwater']
+            self.avgAbstraction     = iniConditions['groundwater'][ 'avgTotalGroundwaterAbstraction']      
+            self.avgNonFossilAllocation      = iniConditions['groundwater'][ 'avgNonFossilGroundwaterAllocationLong']      
+            self.avgNonFossilAllocationShort = iniConditions['groundwater'][ 'avgNonFossilGroundwaterAllocationShort']      
 
         # initial condition for storGroundwaterFossil (unit: m)
         #
         # Note that storGroundwaterFossil should not be depleted during the spin-up. 
+        #
+        if iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum":
+            logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
+            self.storGroundwaterFossil = self.fossilWaterCap
         #
         if iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum":
             logger.info("Using a pre-defined initial condition for fossil groundwater storage.")
@@ -289,15 +311,13 @@ class Groundwater(object):
                                          iniItems.groundwaterOptions['storGroundwaterFossilIni'],
                                          self.cloneMap,self.tmpDir,self.inputDir)
         #
-        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum":
+        if iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum" and\
+           self.limitFossilGroundwaterAbstraction:
             logger.info("The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity).")
-            self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)                                 
-        #
-        if self.limitFossilGroundwaterAbstraction and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum":
-            logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
-            self.storGroundwaterFossil = self.fossilWaterCap
+            self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)
+            self.storGroundwaterFossil = pcr.max(0.0, self.storGroundwaterFossil)                                 
 
-        # make sure that active storGroundwater and avgAbstraction cannot be negative
+        # make sure that active storGroundwater, avgAbstraction and avgNonFossilAllocation cannot be negative
         #
         self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
         self.storGroundwater = pcr.max(0.,self.storGroundwater)                                    
@@ -308,7 +328,18 @@ class Groundwater(object):
         self.avgAbstraction  = pcr.max(0.,self.avgAbstraction)                                    
         self.avgAbstraction  = pcr.ifthen(self.landmask,\
                                           self.avgAbstraction)
-        
+        #
+        self.avgNonFossilAllocation   = pcr.cover( self.avgNonFossilAllocation,0.0)
+        self.avgNonFossilAllocation   = pcr.max(0.,self.avgNonFossilAllocation)                                    
+        self.avgNonFossilAllocation   = pcr.ifthen(self.landmask,\
+                                          self.avgNonFossilAllocation)
+        #
+        self.avgNonFossilAllocationShort = pcr.cover( self.avgNonFossilAllocationShort,0.0)
+        self.avgNonFossilAllocationShort = pcr.max(0.,self.avgNonFossilAllocationShort)                                    
+        self.avgNonFossilAllocationShort = pcr.ifthen(self.landmask,\
+                                             self.avgNonFossilAllocationShort)
+
+
         # storGroundwaterFossil can be negative (particularly if limitFossilGroundwaterAbstraction == False)
         self.storGroundwaterFossil = pcr.ifthen(self.landmask,\
                                                 self.storGroundwaterFossil)
@@ -327,6 +358,8 @@ class Groundwater(object):
 
     def update(self,landSurface,routing,currTimeStep):
 
+        logger.info("Updating groundwater")
+        
         if self.debugWaterBalance:
             preStorGroundwater       = self.storGroundwater
             preStorGroundwaterFossil = self.storGroundwaterFossil
@@ -339,23 +372,24 @@ class Groundwater(object):
         self.storGroundwater  = pcr.max(0.,\
                                 self.storGroundwater + landSurface.gwRecharge)         
                         
-        # potential groundwater abstraction (unit: m)
-        potGroundwaterAbstract = landSurface.totalPotentialGrossDemand -\
-                                 landSurface.allocSurfaceWaterAbstract 
-
+        # potential groundwater demand (unit: m)
+        potGroundwaterDemand = pcr.max(0.0,\
+                               landSurface.totalPotentialGrossDemand-\
+                               landSurface.desalinationAllocation   -\
+                               landSurface.allocSurfaceWaterAbstract )
 
         if self.usingAllocSegments == False or self.limitAbstraction:   
              
-            # Note: For simplicity, no network for a run with limitAbstraction. 
+            # Note: For simplicity, limitAbstraction can only be combined with local (groundwater) source assumption
         
-            logger.info("Groundwater abstraction is only to satisfy local demand. No network for distributing groundwater.")
+            logger.debug("Groundwater abstraction is only to satisfy local demand. No network for distributing groundwater.")
 
             # nonFossil groundwater abstraction (unit: m) to fulfill water demand 
             # - assumption: Groundwater is only abstracted to satisfy local demand.
             self.nonFossilGroundwaterAbs = \
                                            pcr.max(0.0,
                                            pcr.min(self.storGroundwater,\
-                                           potGroundwaterAbstract)) 
+                                           potGroundwaterDemand)) 
             #
             self.allocNonFossilGroundwater = self.nonFossilGroundwaterAbs
         
@@ -363,81 +397,51 @@ class Groundwater(object):
 
             # Note: Incorporating distribution network of groundwater source is possible only if limitAbstraction = False.  
 
-            logger.info("Using groundwater source allocation.")
+            logger.debug("Allocation of non fossil groundwater abstraction.")
 
-            # gross/potential demand volume in each cell (unit: m3)
-            cellVolGrossDemand = potGroundwaterAbstract*routing.cellArea
+            volActNonFossilGroundwaterAbstract, volActNonFossilGroundwaterAllocation = \
+             vos.waterAbstractionAndAllocation(
+             water_demand_volume = potGroundwaterDemand*routing.cellArea,\
+             available_water_volume = pcr.max(0.00, self.storGroundwater*routing.cellArea),\
+             allocation_zones = self.allocSegments,\
+             zone_area = self.segmentArea,\
+             high_volume_treshold = 1000000.,\
+             debug_water_balance = True,\
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
             
-            # total gross demand volume in each segment/zone (unit: m3)
-            segTtlGrossDemand  = pcr.areatotal(cellVolGrossDemand, self.allocSegments)
-            
-            # total available groundwater water volume in each cell - ignore small values (less than 1 m3)
-            cellAvlGroundwater = pcr.max(0.00, self.storGroundwater* routing.cellArea)
-            cellAvlGroundwater = pcr.rounddown( cellAvlGroundwater/1.)*1.
-            
-            # total available surface water volume in each segment/zone  (unit: m3)
-            segAvlGroundwater  = pcr.areatotal(cellAvlGroundwater, self.allocSegments)
-            segAvlGroundwater  = pcr.max(0.00,  segAvlGroundwater)
-            
-            # total actual surface water abstraction volume in each segment/zone (unit: m3)
-            #
-            # - not limited to available water - ignore small values (less than 1 m3)
-            segActGroundwaterAbs = pcr.max(0.0,\
-                                   pcr.rounddown(segTtlGrossDemand))
-            # 
-            # - limited to available water
-            segActGroundwaterAbs = pcr.min(segAvlGroundwater, segActGroundwaterAbs)
-            
-            # actual surface water abstraction volume in each cell (unit: m3)
-            volActGroundwaterAbstract = vos.getValDivZero(\
-                                        cellAvlGroundwater, segAvlGroundwater, vos.smallNumber) * \
-                                        segActGroundwaterAbs                                                 
-            volActGroundwaterAbstract = pcr.min(cellAvlGroundwater , volActGroundwaterAbstract)              # unit: m3
-            
-            # actual non fossil groundwater abstraction volume in meter (unit: m)
-            self.nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, volActGroundwaterAbstract) /\
-                                                                     routing.cellArea                        # unit: m
-            
-            # allocation non fossil groundwater abstraction volume to each cell (unit: m3)
-            self.volAllocGroundwaterAbstract = vos.getValDivZero(\
-                                               cellVolGrossDemand, segTtlGrossDemand, vos.smallNumber) *\
-                                               segActGroundwaterAbs                                          # unit: m3 
-            
-            # allocation surface water abstraction in meter (unit: m)
-            self.allocNonFossilGroundwater   = pcr.ifthen(self.landmask, self.volAllocGroundwaterAbstract)/\
-                                                                         routing.cellArea                    # unit: m
+            # non fossil groundwater abstraction volume (unit: m)
+            self.nonFossilGroundwaterAbs    = pcr.ifthen(self.landmask, volActNonFossilGroundwaterAbstract) /\
+                                                                        routing.cellArea                       # unit: m
 
-            if self.debugWaterBalance == str('True'):
-    
-                abstraction = pcr.cover(pcr.areatotal(self.nonFossilGroundwaterAbs  *routing.cellArea, self.allocSegments)/self.segmentArea, 0.0)
-                allocation  = pcr.cover(pcr.areatotal(self.allocNonFossilGroundwater*routing.cellArea, self.allocSegments)/self.segmentArea, 0.0)
-            
-                vos.waterBalanceCheck([abstraction],\
-                                      [allocation],\
-                                      [pcr.scalar(0.0)],\
-                                      [pcr.scalar(0.0)],\
-                                      'non fossil groundwater abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
-                                       True,\
-                                       "",threshold=5e-4)
+            # allocation non fossil groundwater (unit: m)
+            self.allocNonFossilGroundwater  = pcr.ifthen(self.landmask, volActNonFossilGroundwaterAllocation)/\
+                                                                        routing.cellArea                        # unit: m
 
         # update storGoundwater after self.nonFossilGroundwaterAbs
-        self.storGroundwater  = pcr.max(0.,self.storGroundwater - self.nonFossilGroundwaterAbs)
+        self.storGroundwater = pcr.max(0.,self.storGroundwater - self.nonFossilGroundwaterAbs)
 
-        # unmetDemand (m), satisfied by fossil gwAbstractions           # TODO: Include desalinization
-        self.unmetDemand = pcr.max(0.0,
-                           potGroundwaterAbstract - \
-                           self.allocNonFossilGroundwater)              # m (equal to zero if limitAbstraction = True)
-        
-        if self.limitAbstraction:
+        # unmetDemand (m), this will be satisfied by fossil groundwater abstraction
+        self.unmetDemand = pcr.scalar(0.0)
+        if self.limitAbstraction: 
             logger.info("No fossil groundwater abstraction is allowed")
-            # TODO: check that self.unmetDemand = 0.0
+        else: 
+            self.unmetDemand = potGroundwaterDemand - \
+                               self.allocNonFossilGroundwater           # Note that this is equal to zero if limitAbstraction = True
 
         # correcting unmetDemand with available fossil groundwater
-        # Note: For simplicity, limitFossilGroundwaterAbstraction can only be combined with local source assumption
-        if self.usingAllocSegments == False and self.limitFossilGroundwaterAbstraction:
+        # - For simplicity, limitFossilGroundwaterAbstraction can only be combined with local source assumption
+        if self.limitFossilGroundwaterAbstraction and self.usingAllocSegments:
             self.unmetDemand = pcr.min(pcr.max(0.0, self.storGroundwaterFossil), self.unmetDemand)
 
-        # calculate the average groundwater abstraction (m/day) from the last 365 days:
+        # update storGroundwaterFossil after unmetDemand 
+        self.storGroundwaterFossil -= self.unmetDemand
+
+        # fossil groundwater cannot be negative if limitFossilGroundwaterAbstraction is used
+        # - For simplicity, limitFossilGroundwaterAbstraction can only be combined with local source assumption
+        if self.limitFossilGroundwaterAbstraction and self.usingAllocSegments:
+            self.storGroundwaterFossil = pcr.max(0.0, self.storGroundwaterFossil)
+
+        # calculate the average total groundwater abstraction (m/day) from the last 365 days:
         totalAbstraction    = self.unmetDemand + self.nonFossilGroundwaterAbs
         deltaAbstraction    = totalAbstraction - self.avgAbstraction  
         self.avgAbstraction = self.avgAbstraction +\
@@ -445,9 +449,20 @@ class Groundwater(object):
                               pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
         self.avgAbstraction = pcr.max(0.0, self.avgAbstraction)                                    
 
-        # update storGroundwaterFossil after unmetDemand 
-        self.storGroundwaterFossil -= self.unmetDemand
-        
+        # calculate the average non fossil groundwater allocation (m/day) 
+        # - from the last 365 days:
+        deltaAllocation     = self.allocNonFossilGroundwater  - self.avgNonFossilAllocation  
+        self.avgNonFossilAllocation  = self.avgNonFossilAllocation +\
+                                 deltaAllocation/\
+                              pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
+        self.avgNonFossilAllocation = pcr.max(0.0, self.avgNonFossilAllocation)
+        # - from the last 7 days:
+        deltaAllocationShort    = self.allocNonFossilGroundwater - self.avgNonFossilAllocationShort  
+        self.avgNonFossilAllocationShort = self.avgNonFossilAllocationShort +\
+                                     deltaAllocationShort/\
+                                  pcr.min(7., pcr.max(1.0, routing.timestepsToAvgDischarge))
+        self.avgNonFossilAllocationShort = pcr.max(0.0, self.avgNonFossilAllocationShort)                                    
+
         # calculate baseflow and update storage:
         self.baseflow         = pcr.max(0.,\
                                 pcr.min(self.storGroundwater,\
@@ -497,14 +512,32 @@ class Groundwater(object):
                                    currTimeStep.fulldate,threshold=1e-4)
 
         if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.unmetDemand, self.allocNonFossilGroundwater, landSurface.allocSurfaceWaterAbstract],\
+            vos.waterBalanceCheck([landSurface.desalinationAllocation,\
+                                   self.unmetDemand, \
+                                   self.allocNonFossilGroundwater, \
+                                   landSurface.allocSurfaceWaterAbstract],\
                                   [landSurface.totalPotentialGrossDemand],\
                                   [pcr.scalar(0.)],\
                                   [pcr.scalar(0.)],\
-                                  'water demand allocation (from surface water, groundwater and unmetDemand)',\
+                                  'demand allocation (desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
                                    True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
+                                   currTimeStep.fulldate,threshold=1e-3)
 
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([self.unmetDemand, \
+                                   self.allocNonFossilGroundwater, \
+                                   landSurface.allocSurfaceWaterAbstract],\
+                                  [landSurface.totalGrossDemandAfterDesalination],\
+                                  [pcr.scalar(0.)],\
+                                  [pcr.scalar(0.)],\
+                                  'demand allocation (surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-3)
+
+        # old-style reporting                             
+        self.old_style_groundwater_reporting(currTimeStep)              # TODO: remove this one
+
+    def old_style_groundwater_reporting(self,currTimeStep):
 
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
