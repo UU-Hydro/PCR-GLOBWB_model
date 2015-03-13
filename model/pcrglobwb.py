@@ -119,8 +119,6 @@ class PCRGlobWB(object):
 
             for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.scalar(0.0))            
 
-            self.nonFossilGroundwaterAbsAcc   = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.allocNonFossilGroundwaterAcc = pcr.ifthen(self.landmask, pcr.scalar(0.0))
             self.baseflowAcc                  = pcr.ifthen(self.landmask, pcr.scalar(0.0))
 
             self.surfaceWaterInfAcc           = pcr.ifthen(self.landmask, pcr.scalar(0.0))
@@ -152,8 +150,6 @@ class PCRGlobWB(object):
         self.precipitationAcc   += self.meteo.precipitation
         for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] += vars(self.landSurface)[var]            
 
-        self.nonFossilGroundwaterAbsAcc += self.groundwater.nonFossilGroundwaterAbs
-        self.allocNonFossilGroundwaterAcc += self.groundwater.allocNonFossilGroundwater
         self.baseflowAcc         += self.groundwater.baseflow
 
         self.surfaceWaterInfAcc  += self.groundwater.surfaceWaterInf
@@ -202,8 +198,6 @@ class PCRGlobWB(object):
             logger.info(msg)
 
             variableList = ['precipitation',
-                            'nonFossilGroundwaterAbs',
-                            'allocNonFossilGroundwater',
                             'baseflow',
                             'surfaceWaterInf',
                             'runoff',

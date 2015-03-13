@@ -244,6 +244,20 @@ class Configuration(object):
             logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
             self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
         
+        # adjustment for the option 'includeLivestockWaterDemand'
+        if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
+
+        # adjustment for the option 'livestockWaterDemandFile'
+        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
+
         # adjustment for desalinationWater
         if 'desalinationWater' not in self.landSurfaceOptions.keys():
             self.landSurfaceOptions['desalinationWater'] = "None"
@@ -262,12 +276,18 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['pumpingCapacityNC'] = "None"
         
-        # adjustment of option 'allocationSegmentsForGroundSurfaceWater'
+        # adjustment for option 'allocationSegmentsForGroundSurfaceWater'
         if 'allocationSegmentsForGroundSurfaceWater' not in self.landSurfaceOptions.keys():
             msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '
             msg += 'We assume "None" for this option. Here, water demand will be satisfied by local source only. '
             logger.warning(msg)
             self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
+        
+        # adjustment for option 'dynamicFloodPlain'
+        if 'dynamicFloodPlain' in self.routingOptions.keys():
+            msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
+            self.routingOptions['dynamicFloodPlain'] == "False"
         
         # adjustment for initial conditions in the routingOptions
         #
@@ -317,9 +337,21 @@ class Configuration(object):
              
         if 'avgTotalGroundwaterAbstractionIni' not in self.groundwaterOptions.keys():
             msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
-            msg += 'zero initial condition is assumed here. '
+            msg += 'Zero initial condition is assumed here. '
             logger.warning(msg)
             self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
+
+        if 'avgTotalGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgTotalGroundwaterAllocationLongIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAllocationLongIni'] = "0.0"
+
+        if 'avgTotalGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgTotalGroundwaterAllocationShortIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAllocationShortIni'] = "0.0"
 
         if 'avgNonFossilGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
             msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "

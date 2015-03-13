@@ -45,7 +45,8 @@ class SoilAndTopoParameters(object):
                                     topoPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-        self.tanslope = pcr.max(self.tanslope, 0.00001)
+
+        #~ self.tanslope = pcr.max(self.tanslope, 0.00001)
         
         # maps of relative elevation above flood plains 
         dzRel = ['dzRel0001','dzRel0005',
@@ -96,6 +97,10 @@ class SoilAndTopoParameters(object):
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
+        # make sure that resVolWC1 <= satVolWC1
+        self.resVolWC1 = pcr.min(self.resVolWC1, self.satVolWC1)
+        self.resVolWC2 = pcr.min(self.resVolWC2, self.satVolWC2)
+        
         if self.numberOfLayers == 2:
             self.satVolMoistContUpp = self.satVolWC1                         # saturated volumetric moisture content (m3.m-3)
             self.satVolMoistContLow = self.satVolWC2
@@ -125,7 +130,7 @@ class SoilAndTopoParameters(object):
             self.kSatUpp005030            = self.KSat1         
             self.kSatLow030150            = self.KSat2
 
-        self.percolationImp = self.percolationImp                            # fractional area where percolation to groundwater store is impeded (dimensionless)
+        self.percolationImp = pcr.cover(self.percolationImp, 0.0)            # fractional area where percolation to groundwater store is impeded (dimensionless)
 
         # soil thickness and storage variable names 
         # as given either in the ini or netCDF file:
@@ -169,7 +174,7 @@ class SoilAndTopoParameters(object):
             self.storCapLow = self.thickLow * \
                              (self.satVolMoistContLow - self.resVolMoistContLow)
             self.rootZoneWaterStorageCap = self.storCapUpp + \
-                                           self.storCapLow
+                                           self.storCapLow                                    # This is called as WMAX in the original pcrcalc script. 
         if self.numberOfLayers == 3:
             self.storCapUpp000005 = self.thickUpp000005 * \
                              (self.satVolMoistContUpp000005 - self.resVolMoistContUpp000005)
@@ -210,90 +215,90 @@ class SoilAndTopoParameters(object):
         #
         if self.numberOfLayers == 2:
 
-            self.campbellBetaUpp = 2.*self.poreSizeBetaUpp + \
-                                      self.clappAddCoeff                # Campbell's (1974) coefficient ; Rens's line: BCB = 2*BCH + BCH_ADD
-            self.campbellBetaLow = 2.*self.poreSizeBetaLow + \
+            self.campbellBetaUpp = self.poreSizeBetaUpp*2.0 + \
+                                      self.clappAddCoeff                       # Campbell's (1974) coefficient ; Rens's line: BCB = 2*BCH + BCH_ADD
+            self.campbellBetaLow = self.poreSizeBetaLow*2.0 + \
                                       self.clappAddCoeff                
 
             self.effSatAtFieldCapUpp = \
                      (self.matricSuctionFC / self.airEntryValueUpp)**\
-                                        (-1 / self.poreSizeBetaUpp )    # saturation degree at field capacity ; THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
+                                        (-1.0/ self.poreSizeBetaUpp )          # saturation degree at field capacity       : THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
             self.effSatAtFieldCapLow = \
                      (self.matricSuctionFC / self.airEntryValueLow)**\
-                                        (-1 / self.poreSizeBetaLow )
+                                        (-1.0/ self.poreSizeBetaLow )
 
             self.kUnsatAtFieldCapUpp = pcr.max(0., \
-             self.effSatAtFieldCapUpp ** self.poreSizeBetaUpp * self.kSatUpp)
+             (self.effSatAtFieldCapUpp ** self.campbellBetaUpp) * self.kSatUpp)  # unsaturated conductivity at field capacity: KTHEFF_FC = max(0,THEFF_FC[TYPE]**BCB*KS1)
             self.kUnsatAtFieldCapLow = pcr.max(0., \
-             self.effSatAtFieldCapLow ** self.poreSizeBetaLow * self.kSatLow)
+             (self.effSatAtFieldCapLow ** self.campbellBetaLow) * self.kSatLow)
         #
         if self.numberOfLayers == 3:
 
-            self.campbellBetaUpp000005 = 2.*self.poreSizeBetaUpp000005 + \
+            self.campbellBetaUpp000005 = self.poreSizeBetaUpp000005*2.0 + \
                                             self.clappAddCoeff
-            self.campbellBetaUpp005030 = 2.*self.poreSizeBetaUpp005030 + \
+            self.campbellBetaUpp005030 = self.poreSizeBetaUpp005030*2.0 + \
                                             self.clappAddCoeff                
-            self.campbellBetaLow030150 = 2.*self.poreSizeBetaLow030150 + \
+            self.campbellBetaLow030150 = self.poreSizeBetaLow030150*2.0 + \
                                             self.clappAddCoeff                
 
             self.effSatAtFieldCapUpp000005 = \
                      (self.matricSuctionFC / self.airEntryValueUpp000005)**\
-                                        (-1 / self.poreSizeBetaUpp000005)
+                                        (-1.0/ self.poreSizeBetaUpp000005)
             self.effSatAtFieldCapUpp005030 = \
                      (self.matricSuctionFC / self.airEntryValueUpp005030)**\
-                                        (-1 / self.poreSizeBetaUpp005030)
+                                        (-1.0/ self.poreSizeBetaUpp005030)
             self.effSatAtFieldCapLow030150 = \
                      (self.matricSuctionFC / self.airEntryValueLow030150)**\
-                                        (-1 / self.poreSizeBetaLow030150)
+                                        (-1.0/ self.poreSizeBetaLow030150)
 
             self.kUnsatAtFieldCapUpp000005 = pcr.max(0., \
-             self.effSatAtFieldCapUpp000005 ** self.poreSizeBetaUpp000005 * self.kSatUpp000005)
+             (self.effSatAtFieldCapUpp000005 ** self.campbellBetaUpp000005) * self.kSatUpp000005)
             self.kUnsatAtFieldCapUpp005030 = pcr.max(0., \
-             self.effSatAtFieldCapUpp005030 ** self.poreSizeBetaUpp005030 * self.kSatUpp005030)
+             (self.effSatAtFieldCapUpp005030 ** self.campbellBetaUpp005030) * self.kSatUpp005030)
             self.kUnsatAtFieldCapLow030150 = pcr.max(0., \
-             self.effSatAtFieldCapLow030150 ** self.poreSizeBetaLow030150 * self.kSatLow030150)
+             (self.effSatAtFieldCapLow030150 ** self.campbellBetaLow030150) * self.kSatLow030150)
 
         # calculate degree of saturation at which transpiration is halved (50) 
         # and at wilting point
         #
         if self.numberOfLayers == 2:
             self.effSatAt50Upp = (self.matricSuction50/self.airEntryValueUpp)**\
-                                                    (-1/self.poreSizeBetaUpp)
+                                                    (-1.0/self.poreSizeBetaUpp)
             self.effSatAt50Low = (self.matricSuction50/self.airEntryValueLow)**\
-                                                    (-1/self.poreSizeBetaLow)
+                                                    (-1.0/self.poreSizeBetaLow)
             self.effSatAtWiltPointUpp = \
                                  (self.matricSuctionWP/self.airEntryValueUpp)**\
-                                                    (-1/self.poreSizeBetaUpp)
+                                                    (-1.0/self.poreSizeBetaUpp)
             self.effSatAtWiltPointLow = \
                                  (self.matricSuctionWP/self.airEntryValueLow)**\
-                                                    (-1/self.poreSizeBetaLow)
+                                                    (-1.0/self.poreSizeBetaLow)
         if self.numberOfLayers == 3:
             self.effSatAt50Upp000005 = (self.matricSuction50/self.airEntryValueUpp000005)**\
-                                                          (-1/self.poreSizeBetaUpp000005)
+                                                          (-1.0/self.poreSizeBetaUpp000005)
             self.effSatAt50Upp005030 = (self.matricSuction50/self.airEntryValueUpp005030)**\
-                                                          (-1/self.poreSizeBetaUpp005030)
+                                                          (-1.0/self.poreSizeBetaUpp005030)
             self.effSatAt50Low030150 = (self.matricSuction50/self.airEntryValueLow030150)**\
-                                                          (-1/self.poreSizeBetaLow030150)
+                                                          (-1.0/self.poreSizeBetaLow030150)
             self.effSatAtWiltPointUpp000005 = \
                                        (self.matricSuctionWP/self.airEntryValueUpp000005)**\
-                                                          (-1/self.poreSizeBetaUpp000005)
+                                                          (-1.0/self.poreSizeBetaUpp000005)
             self.effSatAtWiltPointUpp005030 = \
                                        (self.matricSuctionWP/self.airEntryValueUpp005030)**\
-                                                          (-1/self.poreSizeBetaUpp005030)
+                                                          (-1.0/self.poreSizeBetaUpp005030)
             self.effSatAtWiltPointLow030150 = \
                                        (self.matricSuctionWP/self.airEntryValueLow030150)**\
-                                                          (-1/self.poreSizeBetaLow030150)
+                                                          (-1.0/self.poreSizeBetaLow030150)
 
         # calculate interflow parameter (TCL): 
         #
         if self.numberOfLayers == 2:
-            self.interflowConcTime = (2.* self.kSatLow * self.tanslope) / \
+            self.interflowConcTime = (self.kSatLow * self.tanslope*2.0) / \
                      (self.slopeLength * (1.- self.effSatAtFieldCapLow) * \
                     (self.satVolMoistContLow - self.resVolMoistContLow))    # TCL = Duration*(2*KS2*TANSLOPE)/(LSLOPE*(1-THEFF2_FC)*(THETASAT2-THETARES2))
         #
         if self.numberOfLayers == 3:
-            self.interflowConcTime = (2.* self.kSatLow030150 * self.tanslope) / \
+            self.interflowConcTime = (self.kSatLow030150 * self.tanslope*2.0) / \
                      (self.slopeLength * (1.-self.effSatAtFieldCapLow030150) * \
              (self.satVolMoistContLow030150 - self.resVolMoistContLow030150))
         
-        self.interflowConcTime = pcr.cover(self.interflowConcTime, 0.0)     
+        self.interflowConcTime = pcr.max(0.0, pcr.cover(self.interflowConcTime, 0.0))     

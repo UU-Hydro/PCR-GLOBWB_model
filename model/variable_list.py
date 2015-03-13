@@ -400,8 +400,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# nonFossilGroundWaterAbstraction 
-pcrglobwb_variable_name = 'nonFossilGroundWaterAbstraction'
+# nonFossilGroundwaterAbstraction 
+pcrglobwb_variable_name = 'nonFossilGroundwaterAbstraction'
 netcdf_short_name[pcrglobwb_variable_name] = 'non_fossil_groundwater_abstraction'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
@@ -411,9 +411,9 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# otherWaterSourceAbstraction     
-pcrglobwb_variable_name = 'otherWaterSourceAbstraction'
-netcdf_short_name[pcrglobwb_variable_name] = 'other_water_source_abstraction'
+# fossilGroundwaterAbstraction     
+pcrglobwb_variable_name = 'fossilGroundwaterAbstraction'
+netcdf_short_name[pcrglobwb_variable_name] = 'fossil_groundwater_abstraction'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
@@ -661,7 +661,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "Not including fossil groundwater (unmetDemand)."
+comment[pcrglobwb_variable_name]           = "Not including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # totalWaterStorageThickness
@@ -672,7 +672,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "Including fossil groundwater (unmetDemand)."
+comment[pcrglobwb_variable_name]           = "Including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # surfaceWaterStorage
@@ -795,6 +795,29 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
 latex_symbol[pcrglobwb_variable_name]      = None
+
+# fractioon_of_surface_water
+pcrglobwb_variable_name = 'dynamicFracWat'
+netcdf_short_name[pcrglobwb_variable_name] = 'fractioon_of_surface_water'
+netcdf_unit[pcrglobwb_variable_name]       = '1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Fraction of surface water over the cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# totalPotentialMaximumGrossDemand
+pcrglobwb_variable_name = 'totalPotentialMaximumGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'totalPotentialMaximumGrossDemand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None

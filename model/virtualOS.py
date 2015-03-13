@@ -31,7 +31,7 @@ filecache = dict()
 
 def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
                                   cloneMapFileName  = None,\
-                                  LatitudeLongitude = False,\
+                                  LatitudeLongitude = True,\
                                   specificFillValue = None):
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
@@ -96,7 +96,9 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
         yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
-        factor = int(float(cellsizeInput)/float(cellsizeClone))
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
+
+        if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
     
     # convert to PCR object and close f
     if specificFillValue != None:
@@ -237,9 +239,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         cropData = f.variables[varName][idx,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
-        logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
-        factor = int(float(cellsizeInput)/float(cellsizeClone))
-    
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
+        if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+
     # convert to PCR object and close f
     if specificFillValue != None:
         outPCR = pcr.numpy2pcr(pcr.Scalar, \
@@ -992,7 +994,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     else:
         zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
     
-    # total actual surface water abstraction volume in each zone/segment (unit: m3)
+    # total actual water abstraction volume in each zone/segment (unit: m3)
     # - limited to available water
     zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
     
@@ -1018,13 +1020,33 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAllocation  = getValDivZero(\
                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
     
+    #~ # extraAbstraction to minimize numerical errors:
+    #~ zoneDeficitAbstraction = pcr.max(0.0,\
+                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
+    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            #~ remainingCellAvlWater, 
+                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            #~ smallNumber)                        
+    #~ # 
+    #~ # extraAllocation to minimize numerical errors:
+    #~ zoneDeficitAllocation = pcr.max(0.0,\
+                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
+    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          #~ remainingCellDemand, 
+                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          #~ smallNumber)                        
+    
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
-        abstraction = pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)
-        allocation  = pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)
+        zoneAbstraction = pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)
+        zoneAllocation  = pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)
     
-        waterBalanceCheck([abstraction],\
-                          [allocation],\
+        waterBalanceCheck([zoneAbstraction],\
+                          [zoneAllocation],\
                           [pcr.scalar(0.0)],\
                           [pcr.scalar(0.0)],\
                           'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\

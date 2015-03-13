@@ -18,7 +18,7 @@ def HamonPotET(airT,doy,lat):
 def dayLength(doy,lat):
     """ daylength fraction of day  """
     lat = lat * pcr.scalar(math.pi) /  180.0
-    M_PI_2 = pcr.spatial(pcr.scalar(math.pi / 2))
+    M_PI_2 = pcr.spatial(pcr.scalar(math.pi / 2.0))
     dec = pcr.sin( (6.224111 + 0.017202  * doy) *  180 / math.pi)
     dec = pcr.scalar(0.39785 * pcr.sin ((4.868961 + .017203 *  doy + 0.033446 * pcr.sin (dec*   180 / math.pi)) *  180 / math.pi))
     dec = pcr.scalar(pcr.asin(dec))

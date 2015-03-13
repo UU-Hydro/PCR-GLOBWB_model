@@ -93,9 +93,9 @@ class LandCover(object):
         # make sure that minminSoilDepthFrac <= maxSoilDepthFrac:
         self.minSoilDepthFrac = pcr.min(self.minSoilDepthFrac, self.maxSoilDepthFrac) 
         
-        #~ # avoid small values (in order to avoid rounding error)
-        #~ self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
-        #~ self.fracVegCover = pcr.rounddown(self.fracVegCover * 10000.)/10000.
+        # avoid small values (in order to avoid rounding error)
+        self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
+        self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
         
         # limit 0.0 <= fracVegCover <= 1.0
         self.fracVegCover = pcr.max(0.0,self.fracVegCover)
@@ -597,60 +597,15 @@ class LandCover(object):
         self.coverFraction = coverFraction
         
         # throughfall = surplus above the interception storage threshold 
-        if self.extendedInterception == False:
-            self.throughfall = pcr.max(self.coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
-                                                                         # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0)
-        else:
-            self.throughfall = pcr.max(0.0, self.interceptStor + \
-                                            meteo.precipitation - \
-                                            self.interceptCap)           # Edwin modified this line to extend the interception scope (not only canopy interception).
-        
+        self.throughfall   = pcr.max(0.0, self.interceptStor + \
+                                         meteo.precipitation - \
+                                         self.interceptCap)              # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
+                                                                         # Edwin modified this line to extend the interception scope (not only canopy interception).
         # update interception storage after throughfall 
         self.interceptStor = pcr.max(0.0, self.interceptStor + \
                                     meteo.precipitation - \
                                     self.throughfall)                    # original Rens line: INTS_L[TYPE] = max(0,INTS_L[TYPE]+PRPTOT-PRP)
          
-        # potential interception flux (m/day)
-        if self.extendedInterception == False:
-            self.potInterceptionFlux = self.potTranspiration
-        else:
-            self.potInterceptionFlux = self.totalPotET                   # modified by Edwin to extend the interception scope/definition
-        
-        # evaporation from intercepted water (based on potInterceptionFlux)
-        self.interceptEvap = pcr.min(self.interceptStor, \
-                                     self.potInterceptionFlux)
-        if self.extendedInterception == False:
-            self.interceptEvap = pcr.min(self.interceptStor, \
-                                     self.potInterceptionFlux * \
-                        (pcr.ifthenelse(self.interceptCap > 0.0, \
-                      vos.getValDivZero(self.interceptStor, self.interceptCap, vos.smallNumber, 0.0), 0.0) ** (2.00/3.00)))                      
-                                                                         # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
-        self.interceptEvap = pcr.min(self.interceptEvap, \
-                                     self.potInterceptionFlux)
-                                     
-        # update interception storage after interceptEvap
-        self.interceptEvap = pcr.min(self.interceptEvap, \
-                                     self.potInterceptionFlux)
-        self.interceptStor = self.interceptStor - self.interceptEvap     # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
-        
-        # update potBareSoilEvap and potTranspiration 
-        if self.extendedInterception == False:
-            self.potTranspiration -= self.fracPotTranspiration * self.interceptEvap  
-        else:
-            self.potBareSoilEvap  -= self.fracPotBareSoilEvap  * self.interceptEvap
-            self.potTranspiration -= self.fracPotTranspiration * self.interceptEvap  
-                                                                          # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
-                                                                          # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
-
-        # update actual evaporation (after interceptEvap) 
-        self.actualET  = 0. # interceptEvap is the first flux in ET 
-        self.actualET += self.interceptEvap
-
-        #~ # the residence time of interception storage should be less than a day - Shall we use this?
-        #~ if self.extendedInterception:
-            #~ self.throughfall   += self.interceptStor
-            #~ self.interceptStor  = pcr.scalar(0.0)
-
         # partitioning throughfall into snowfall and liquid Precipitation:
         estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
                                        meteo.precipitation, 0.0)         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
@@ -662,6 +617,31 @@ class LandCover(object):
         #
         self.liquidPrecip = pcr.max(0.0,\
                                     self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
+
+        # potential interception flux (m/day)
+        self.potInterceptionFlux = self.totalPotET                       # added by Edwin to extend the interception scope/definition
+        
+        # evaporation from intercepted water (based on potInterceptionFlux)
+        self.interceptEvap = pcr.min(self.interceptStor, \
+                                     self.potInterceptionFlux * \
+             (vos.getValDivZero(self.interceptStor, self.interceptCap, \
+              vos.smallNumber, 0.) ** (2.00/3.00)))                      
+                                                                         # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
+        self.interceptEvap = pcr.min(self.interceptEvap, \
+                                     self.potInterceptionFlux)
+                                     
+        # update interception storage 
+        self.interceptStor = self.interceptStor - self.interceptEvap     # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
+        
+        
+        # update potBareSoilEvap and potTranspiration 
+        self.potBareSoilEvap  -= self.fracPotBareSoilEvap  * self.interceptEvap
+        self.potTranspiration -= self.fracPotTranspiration * self.interceptEvap  # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
+                                                                                 # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
+
+        # update actual evaporation (after interceptEvap) 
+        self.actualET  = 0. # interceptEvap is the first flux in ET 
+        self.actualET += self.interceptEvap
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.throughfall],\
@@ -790,7 +770,7 @@ class LandCover(object):
             # - exchange between layers capped at field capacity 
             self.kThVertUppLow  = pcr.min(\
                           pcr.sqrt(self.kUnsatUpp*self.kUnsatLow),\
-                                  (self.kUnsatUpp*self.kUnsatLow*\
+                                  (self.kUnsatUpp*self.kUnsatLow* \
                                   parameters.kUnsatAtFieldCapUpp*\
                                   parameters.kUnsatAtFieldCapLow)**0.25)       # KTHVERT = min(sqrt(KTHEFF1*KTHEFF2),(KTHEFF1*KTHEFF2*KTHEFF1_FC*KTHEFF2_FC)**0.25)
         
@@ -906,7 +886,7 @@ class LandCover(object):
                                    desalinationWaterUse,\
                                    groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
 
-        # non irrigation water demand (not limited to available water)
+        # non irrigation water demand
         self.nonIrrGrossDemand = pcr.cover(nonIrrGrossDemand, 0.0)                   # TODO: Please check! Do we really have to cover?    
         self.nonIrrGrossDemand = pcr.ifthen(self.landmask, self.nonIrrGrossDemand)
         
@@ -989,28 +969,6 @@ class LandCover(object):
         #~ self.totalPotentialGrossDemand = pcr.rounddown(self.totalPotentialGrossDemand*routing.cellArea)/\
                                                                                       #~ routing.cellArea
 
-        #~ #################################################################################################################                                       
-        #~ # The following is to increase the demand if desalinationWaterUse > totalPotentialMaximumGrossDemand
-        #~ # 
-        #~ # Note: This assumption is only valid if there is NO allocation for desalinationWaterUse
-        #~ # 
-        #~ # additional water demand due to desalination (m) 
-        #~ totalGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
-        #~ additional_water_demand_due_to_desalination = pcr.max(0.0,\
-                                                              #~ desalinationWaterUse - totalGrossDemand)
-        #~ additional_irrigation_water_demand = pcr.rounddown(\
-                                             #~ vos.getValDivZero(\
-                                             #~ self.irrGrossDemand, totalGrossDemand, vos.smallNumber)*\
-                                             #~ additional_water_demand_due_to_desalination*1000.)/1000.
-        #~ additional_non_irrigation_demand   = pcr.max(0.0,\
-                                             #~ additional_water_demand_due_to_desalination -\
-                                             #~ additional_irrigation_water_demand)
-        #~ # correcting water demand
-        #~ self.irrGrossDemand    += additional_irrigation_water_demand                                                                                         
-        #~ self.nonIrrGrossDemand += additional_non_irrigation_demand
-        #~ self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand
-        #~ #
-        #~ #################################################################################################################                                       
 
 
         # Abstraction and Allocation of DESALINATED WATER
@@ -1262,13 +1220,6 @@ class LandCover(object):
         #~ #
         # alternative: added by Edwin H. Sutanudjaja (2 November 2014): No directRunoff in irrigation areas (principle: minimizing directRunoff in any irrigation areas) - used in the IWMI project
         if self.name.startswith('irr'): self.directRunoff = 0.
-        #~ #
-        #~ # an idea from Edwin (12 Nov 2014): no directRunoff if the paddy field, but only during its growing (cropKC > 0.75) 
-        #~ if self.name == 'irrPaddy': self.directRunoff = pcr.ifthenelse(self.cropKC > 0.75, 0.0, self.directRunoff)
-        #
-        #~ # an idea again from Edwin (12 Feb 2015): no directRunoff if all irrigation areas (paddy & nonPaddy), but only during its growing 
-        #~ if self.name == 'irrPaddy': self.directRunoff = pcr.ifthenelse(self.cropKC > 0.75, 0.0, self.directRunoff)
-        #~ if self.name == 'irrNonPaddy': self.directRunoff = pcr.ifthenelse(self.cropKC > 0.20, 0.0, self.directRunoff)
 
         # update topWaterLayer (above soil) after directRunoff
         self.topWaterLayer = pcr.max(0.0, self.topWaterLayer - self.directRunoff)
@@ -1633,57 +1584,12 @@ class LandCover(object):
                               parameters.interflowConcTime*percToInterflow  +\
               (pcr.scalar(1.)-parameters.interflowConcTime)*self.interflow, 0.0)
 
-        # for irrigation areas: interflow will be minimized - used in the IWMI project
-        if self.name.startswith('irr'): self.interflow = 0.
 
     def scaleAllFluxes(self, parameters, groundwater):
 
-        #~ # An idea from edwin:
-        #~ # if the remaining irrigation losses are still far above the estimated total deep percolation and interflow
-        #~ # - we will reduce infiltration 
-        #~ # - then we will increase directRunoff
-        #~ # - purpose: make sure that enough return flow returned to the system
-        #~ if self.name.startswith('irr'):
-            #~ if self.numberOfLayers == 2: percolation_loss = self.percLow + self.interflow
-            #~ if self.numberOfLayers == 3: percolation_loss = self.percLow030150 + self.interflow
-            #~ if self.name ==  "irrPaddy": percolation_loss =  pcr.ifthenelse(self.cropKC > 0.75, pcr.max(percolation_loss, self.infiltration), percolation_loss)
-            #~ maximumReductionFac = 0.25 
-            #~ reducedInfiltration = pcr.min(maximumReductionFac*self.infiltration, \
-                                  #~ pcr.max(0.0, self.potential_irrigation_loss - percolation_loss))
-            #~ reducedInfiltration = pcr.max(0.0, self.infiltration - reducedInfiltration)
-            #~ self.infiltration  -= reducedInfiltration
-            #~ self.directRunoff  += reducedInfiltration
-            #~ self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - reducedInfiltration) 
-
-        #~ # Minimizing irrigation losses:
-        #~ # - in irrigation areas, particularly during their growing period, deep percolation and infiltration losses should be minimized
-        #~ # - it is limited to potential irrigation loss, but also with extra water above field capacity
-        #~ #
-        #~ if self.numberOfLayers == 2 and self.name.startswith('irr'):
-            #~ estIrrigationLoss = self.percLow + self.interflow
-            #~ if self.name == "irrNonPaddy":
-                #~ maxIrrigationLoss = pcr.ifthenelse(self.cropKC > 0.20, pcr.min(estIrrigationLoss, pcr.max(self.potential_irrigation_loss, pcr.max(0.0, self.readAvlWater - self.totAvlWater))), estIrrigationLoss)
-            #~ if self.name == "irrPaddy":
-                #~ maxIrrigationLoss = pcr.ifthenelse(self.cropKC > 0.75, pcr.min(estIrrigationLoss, pcr.max(self.potential_irrigation_loss, pcr.max(0.0, self.readAvlWater - self.totAvlWater))), estIrrigationLoss)
-            #~ ADJUST = pcr.ifthenelse(estIrrigationLoss > 0.0, \
-                     #~ pcr.min(1.0, maxIrrigationLoss / estIrrigationLoss),0.)
-            #~ self.percLow   = ADJUST * self.percLow
-            #~ self.interflow = ADJUST * self.interflow
-
-        #~ if self.numberOfLayers == 3 and self.name.startswith('irr'):
-            #~ estIrrigationLoss = self.percLow030150 + self.interflow
-            #~ if self.name == "irrNonPaddy":
-                #~ maxIrrigationLoss = pcr.ifthenelse(self.cropKC > 0.20, pcr.min(estIrrigationLoss, pcr.max(self.potential_irrigation_loss, pcr.max(0.0, self.readAvlWater - self.totAvlWater))), estIrrigationLoss)
-            #~ if self.name == "irrPaddy":
-                #~ maxIrrigationLoss = pcr.ifthenelse(self.cropKC > 0.75, pcr.min(estIrrigationLoss, pcr.max(self.potential_irrigation_loss, pcr.max(0.0, self.readAvlWater - self.totAvlWater))), estIrrigationLoss)
-            #~ ADJUST = pcr.ifthenelse(estIrrigationLoss > 0.0, \
-                     #~ pcr.min(1.0, maxIrrigationLoss / estIrrigationLoss),0.)
-            #~ self.percLow030150 = ADJUST * self.percLow030150
-            #~ self.interflow     = ADJUST * self.interflow
-
-
         # We re-scale all fluxes (based on available water).
         ########################################################################################################################################
+        # 
 
         if self.numberOfLayers == 2:
 

@@ -98,6 +98,7 @@ class Groundwater(object):
         # limitAbstraction options
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        
 
         # option for limitting regional groundwater abstractions
         if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":

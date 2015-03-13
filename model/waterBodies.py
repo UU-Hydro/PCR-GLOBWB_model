@@ -59,7 +59,6 @@ class WaterBodies(object):
         self.maxResvrFrac = 0.75
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
-                               cellLengthFD,cellSizeInArcDeg,\
                                initial_condition_dictionary = None):
 
         # parameters for Water Bodies: fracWat              

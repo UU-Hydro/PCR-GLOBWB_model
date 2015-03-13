@@ -29,10 +29,25 @@ class LandCover(object):
         # irrigation efficiency map
         self.irrigationEfficiency = irrigationEfficiency
         
+        # interception definition
+        # - The default option is to include not only canopy areas, 
+        # - but also non canopy areas as part of interception capacity 
+        self.extendedInterception = True 
+        #
+        if "extendedInterception" in iniItems.landSurfaceOptions.keys():
+            if iniItems.landSurfaceOptions['extendedInterception'] == "False": self.extendedInterception = False
+        
+        # option to assume surface water as the first priority/alternative for water source 
+        self.surfaceWaterPiority = False
+        
         # configuration for a certain land cover type
         self.iniItemsLC = iniItems.__getattribute__(nameOfSectionInIniFile)
         self.name = self.iniItemsLC['name']
-        self.debugWaterBalance = self.iniItemsLC['debugWaterBalance']
+
+        # option to activate water balance check
+        self.debugWaterBalance = True
+        if self.iniItemsLC['debugWaterBalance'] == "False":
+            self.debugWaterBalance = False
 
         # Improved Arno Scheme's method:
         # - In the "Original" work of van Beek et al., 2011 there is no "directRunoff reduction"
@@ -75,6 +90,9 @@ class LandCover(object):
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
+        # make sure that minminSoilDepthFrac <= maxSoilDepthFrac:
+        self.minSoilDepthFrac = pcr.min(self.minSoilDepthFrac, self.maxSoilDepthFrac) 
+        
         # avoid small values (in order to avoid rounding error)
         self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
         self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
@@ -220,26 +238,26 @@ class LandCover(object):
     def estimate_paddy_infiltration_loss(self,parameters):
         
         if self.name == 'irrPaddy':
-            #~ #
+
             # Due to compaction infiltration/percolation loss rate can be much smaller than original soil saturated conductivity
             # - Wada et al. (2014) assume it will be 10 times smaller
             if self.numberOfLayers == 2:\
                self.design_percolation_loss = parameters.kSatUpp/10.           # unit: m/day 
             if self.numberOfLayers == 3:\
                self.design_percolation_loss = parameters.kSatUpp000005/10.     # unit: m/day 
+
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
-            min_percolation_loss = 0.006 # unit: m/day
-            max_percolation_loss = 0.008 # unit: m/day
+            #
+            min_percolation_loss = 0.000 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
+            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
-            #
-            #~ # ALTERNATIVE: using average percolation loss, based on FAO reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
-            #~ self.design_percolation_loss = 0.006 # unit: m/day (this can also be defined as a spatially varying input map) 
-            #
+
             # If soil condition is already 'good', we will use its original infiltration/percolation rate
             if self.numberOfLayers == 2:\
-               self.design_percolation_loss = pcr.min(parameters.kSatUpp, self.design_percolation_loss) 
+               self.design_percolation_loss = pcr.min(parameters.kSatUpp      , self.design_percolation_loss) 
             if self.numberOfLayers == 3:\
                self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss) 
 
@@ -254,7 +272,7 @@ class LandCover(object):
             #                                                                   # RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
             # if not defined, put everything in the first layer:
             self.adjRootFrUpp = pcr.cover(self.adjRootFrUpp,1.0) 
-            self.adjRootFrLow = 1.0 - self.adjRootFrUpp 
+            self.adjRootFrLow = pcr.scalar(1.0) - self.adjRootFrUpp 
 
         if self.numberOfLayers == 3: 
             # root fractions
@@ -268,7 +286,7 @@ class LandCover(object):
             # if not defined, put everything in the first layer:
             self.adjRootFrUpp000005 = pcr.cover(self.adjRootFrUpp000005,1.0) 
             self.adjRootFrUpp005030 = pcr.ifthenelse(self.adjRootFrUpp000005 < 1.0, self.adjRootFrUpp005030, 0.0) 
-            self.adjRootFrLow030150 = 1.0 - (self.adjRootFrUpp000005 + self.adjRootFrUpp005030) 
+            self.adjRootFrLow030150 = pcr.scalar(1.0) - (self.adjRootFrUpp000005 + self.adjRootFrUpp005030) 
 
     def calculateParametersAtHalfTranspiration(self,parameters):
 
@@ -326,6 +344,10 @@ class LandCover(object):
                          (parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
                           parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
                           parameters.storCapLow030150*self.adjRootFrLow030150 )
+
+        self.effSatAt50          = pcr.cover(self.effSatAt50, 0.0)
+        self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.0)    
+
 
     def calculateTotAvlWaterCapacityInRootZone(self,parameters):
 
@@ -419,7 +441,8 @@ class LandCover(object):
                  currTimeStep,\
                  allocSegments,\
                  desalinationWaterUse,\
-                 groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
+                 groundwater_pumping_region_ids,\
+                 regionalAnnualGroundwaterAbstractionLimit):
 
         self.getPotET(meteo,currTimeStep)              # calculate total PotET (based on meteo and cropKC) 
         self.interceptionUpdate(meteo,currTimeStep)    # calculate interception and update storage	 
@@ -517,9 +540,10 @@ class LandCover(object):
     def getPotET(self,meteo,currTimeStep):
 
         # get crop coefficient:
-        cropKC = vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+        cropKC = pcr.cover(
+                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
                                     currTimeStep.doy, useDoy = 'Yes',\
-                                    cloneMapFileName = self.cloneMap)
+                                    cloneMapFileName = self.cloneMap), 0.0)
         self.cropKC = pcr.max( cropKC, self.minCropKC)                                
 
         # calculate potential ET (unit: m/day)
@@ -532,7 +556,7 @@ class LandCover(object):
         self.potTranspiration = pcr.ifthen(self.landmask,\
                                 self.cropKC    * meteo.referencePotET - self.potBareSoilEvap)
     
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             vos.waterBalanceCheck([self.totalPotET],\
                                   [self.potBareSoilEvap,self.potTranspiration],\
                                   [],\
@@ -547,7 +571,7 @@ class LandCover(object):
 
     def interceptionUpdate(self,meteo,currTimeStep):
         
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             prevStates = [self.interceptStor]
        
         # get interceptCap:
@@ -555,15 +579,17 @@ class LandCover(object):
         coverFraction = pcr.scalar(1.0)
         if not self.iniItemsLC['name'].startswith("irr"):
             interceptCap = \
+                     pcr.cover(
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
                                     'interceptCapInput',\
                                      currTimeStep.doy, useDoy = 'Yes',\
-                                     cloneMapFileName = self.cloneMap)
+                                     cloneMapFileName = self.cloneMap), 0.0)
             coverFraction = \
+                     pcr.cover(
                      vos.netcdf2PCRobjClone(self.coverFractionNC,\
                                     'coverFractionInput',\
                                      currTimeStep.doy, useDoy = 'Yes',\
-                                     cloneMapFileName = self.cloneMap)
+                                     cloneMapFileName = self.cloneMap), 0.0)
             coverFraction = pcr.cover(coverFraction, 0.0)
             interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
         self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
@@ -615,10 +641,10 @@ class LandCover(object):
                                                                                  # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
 
         # update actual evaporation (after interceptEvap) 
-        self.actualET  = 0.  # interceptEvap is the first flux in ET 
+        self.actualET  = 0. # interceptEvap is the first flux in ET 
         self.actualET += self.interceptEvap
 
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             vos.waterBalanceCheck([self.throughfall],\
                                   [self.snowfall,self.liquidPrecip],\
                                   [],\
@@ -648,14 +674,15 @@ class LandCover(object):
         #              self.snowWaterHoldingCap,
         #              self.refreezingCoeff
 
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             prevStates = [self.snowCoverSWE,self.snowFreeWater]
 
         # changes in snow cover: - melt ; + gain in snow or refreezing
         deltaSnowCover = \
             pcr.ifthenelse(meteo.temperature <= self.freezingT, \
             self.refreezingCoeff*self.snowFreeWater, \
-           -pcr.min(self.snowCoverSWE, \
+            pcr.scalar(-1.0)* \
+            pcr.min(self.snowCoverSWE, \
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor))                              # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice())) 
 
@@ -672,8 +699,8 @@ class LandCover(object):
                              self.liquidPrecip                          # SCF_L[TYPE] = SCF_L[TYPE]-DSC[TYPE]+PRP;
                                      
         # netLqWaterToSoil = net liquid transferred to soil
-        self.netLqWaterToSoil = pcr.max(0, self.snowFreeWater - \
-                self.snowWaterHoldingCap * self.snowCoverSWE)           # Pn = max(0,SCF_L[TYPE]-CWH*SC_L[TYPE])
+        self.netLqWaterToSoil = pcr.max(0., self.snowFreeWater - \
+                 self.snowWaterHoldingCap * self.snowCoverSWE)          # Pn = max(0,SCF_L[TYPE]-CWH*SC_L[TYPE])
         
         # update snowFreeWater (after netPfromSnowFreeWater) 
         self.snowFreeWater    = pcr.max(0., self.snowFreeWater - \
@@ -693,7 +720,7 @@ class LandCover(object):
         # update actual evaporation (after evaporation from snowFreeWater) 
         self.actualET += self.actSnowFreeWaterEvap                      # EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
 
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             vos.waterBalanceCheck([self.snowfall,self.liquidPrecip],
                                   [self.netLqWaterToSoil,\
                                    self.actSnowFreeWaterEvap],
@@ -703,6 +730,7 @@ class LandCover(object):
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-4)
 
+f
     def getSoilStates(self,parameters):
 
         if self.numberOfLayers == 2: 
@@ -749,8 +777,8 @@ class LandCover(object):
                                   parameters.kUnsatAtFieldCapLow)**0.25)       # KTHVERT = min(sqrt(KTHEFF1*KTHEFF2),(KTHEFF1*KTHEFF2*KTHEFF1_FC*KTHEFF2_FC)**0.25)
         
             # gradient for capillary rise (index indicating target store to its underlying store)
-            self.gradientUppLow = pcr.max(0.,2.*\
-                         (self.matricSuctionUpp-self.matricSuctionLow)/\
+            self.gradientUppLow = pcr.max(0.0,\
+                         (self.matricSuctionUpp-self.matricSuctionLow)*2./\
                          (  parameters.thickUpp+  parameters.thickLow)-1.)     # GRAD = max(0,2*(PSI1-PSI2)/(Z1[TYPE]+Z2[TYPE])-1);
         
              
@@ -765,6 +793,7 @@ class LandCover(object):
                                #~ (parameters.satVolWC2 -parameters.resVolWC2) *\
                         #~ pcr.min(parameters.storCapLow,\
                         #~ pcr.max(self.maxRootDepth-parameters.storCapUpp,0.)) # DW's code (using storCapUpp and storCapLow). Edwin does not agree with this.  
+            #
             self.readAvlWater     = \
                                (pcr.max(0.,\
                                                self.effSatUpp - parameters.effSatAtWiltPointUpp))*\
@@ -774,7 +803,7 @@ class LandCover(object):
                                                self.effSatLow - parameters.effSatAtWiltPointLow))*\
                                (parameters.satVolMoistContLow -   parameters.resVolMoistContLow )*\
                         pcr.min(parameters.thickLow,\
-                        pcr.max(self.maxRootDepth-parameters.thickUpp,0.))      # Edwin modified this line. Edwin uses soil thickness thickUpp and thickLow (instead of storCapUpp and storCapLow). 
+                        pcr.max(self.maxRootDepth-parameters.thickUpp,0.))      # Edwin modified this line. Edwin uses soil thickness thickUpp & thickLow (instead of storCapUpp & storCapLow). 
                                                                                 # And Rens support this. 
 
         if self.numberOfLayers == 3: 
@@ -871,12 +900,6 @@ class LandCover(object):
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
-            #~ # alternative: including percolation loss
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.75, \
-                     #~ pcr.max(0.0,self.minTopWaterLayer + self.design_percolation_loss - \
-                                #~ (self.topWaterLayer )), 0.)
-
         if self.name == 'irrNonPaddy':
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -895,74 +918,68 @@ class LandCover(object):
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #               readAvlWater (available water in the root zone)
             #
-            # irrigation demand based on deficit in ET - THIS MUST BE IMPLEMTED (otherwise water demand may be too high)
-            #~ deficit = pcr.max(0.0, self.potBareSoilEvap  +\
-                                   #~ self.potTranspiration -\
-                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            # irrigation demand based on deficit in transpiration (alternative)
-            deficit = pcr.max(0.0, self.potTranspiration -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ # irrigation demand based on deficit in ET - THIS SHOULD BE IMPLEMENTED (otherwise water demand may be too high)
+            deficit = pcr.max(0.0, self.potBareSoilEvap  +\
+                                   self.potTranspiration -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            #~ # irrigation demand based on deficit in transpiration (alternative)
+            #~ deficit = pcr.max(0.0, self.potTranspiration -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             self.irrGrossDemand = pcr.min(self.irrGrossDemand, deficit)                        
             #
             # Assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand, 0.0)
-        self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
+        # reduce irrGrossDemand by netLqWaterToSoil
+        self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
+        # note: This demand does not include irrigation efficiency.  
 
-        # potential loss (m) of irrigation
+        # potential loss (m) of irrigation (defined for paddy fields)
         self.potential_irrigation_loss = pcr.scalar(0.0)
         # for paddy fields, the minimum infiltration/percolation loss is self.design_percolation_loss
         if self.name == 'irrPaddy': self.potential_irrigation_loss += self.design_percolation_loss
 
-        # potential loss (m) of irrigation due to inefficient irrigation
+        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: using yearly time series of inefficiency
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-        if self.name == 'irrPaddy':
-            # for paddy fields we assume that irrigation efficiency is 10% lower
-            irrigationEfficiencyUsed = pcr.max(0.10, irrigationEfficiencyUsed - 0.10)
-            #~ # and maximum irrigationEfficieny is 50%
-            #~ irrigationEfficiencyUsed = pcr.min(0.50, irrigationEfficiencyUsed)
-         
-        self.potential_irrigation_loss += self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - \
-                                          self.irrGrossDemand
+
+        # idea on 13 Feb 2015: efficiency is to consider ONLY losses during abstraction and transport (de Graaf et al., 2014)
+        self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
+                                                 self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - \
+                                                 self.irrGrossDemand)
+
+        # idea on 12 Mar 2015: set maximum daily irrigation
+        maximIrrGrossDemand = 0.3 # unit: m/day
+        self.irrGrossDemand = pcr.min(maximIrrGrossDemand, self.irrGrossDemand)
         
-        #~ # irrigation demand (m) including its inefficiency - Shall we used this ??
-        #~ self.irrGrossDemand = self.irrGrossDemand + self.potential_irrigation_loss
+        # the following irrigation demand is not limited to available water
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand + self.potential_irrigation_loss, 0.0)
+        self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # added by Edwin on 29 October 2014 (this is not defined in Wada et al., 2014)
-        # - reduced irrGrossDemand by netLqWaterToSoil
-        self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
-
-        # ignore small irrigation demand < 0.005 m
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > 0.005,\
-                              pcr.rounddown( self.irrGrossDemand*1000.)/1000., 0.0)
+        #~ # ignore small irrigation demand
+        #~ self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+        # minimum demand for start irrigating
+        #~ minimum_demand = 0.005 # unit: m
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
+                                             #~ self.irrGrossDemand , 0.0)
 
         # totalGrossDemand (m): irrigation and non irrigation
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
         self.totalPotentialGrossDemand        = self.totalPotentialMaximumGrossDemand         # this value will be reduced by available/accesible water
+        #
+        #~ # - avoid small values (less than 1 m3) - # 
+        #~ self.totalPotentialGrossDemand = pcr.rounddown(self.totalPotentialGrossDemand*routing.cellArea)/\
+                                                                                      #~ routing.cellArea
 
-        #~ # additional water demand due to desalination (m) 
-        #~ totalGrossDemand = pcr.cover(self.nonIrrGrossDemand + self.irrGrossDemand, 0.0)
-        #~ additional_water_demand_due_to_desalination = pcr.max(0.0,\
-                                                              #~ desalinationWaterUse - totalGrossDemand)
-        #~ additional_irrigation_water_demand = pcr.rounddown(\
-                                             #~ vos.getValDivZero(\
-                                             #~ self.irrGrossDemand, totalGrossDemand, vos.smallNumber)*\
-                                             #~ additional_water_demand_due_to_desalination*1000.)/1000.
-        #~ additional_non_irrigation_demand   = pcr.max(0.0,\
-                                             #~ additional_water_demand_due_to_desalination -\
-                                             #~ additional_irrigation_water_demand)
-        #~ # correcting water demand
-        #~ self.irrGrossDemand    += additional_irrigation_water_demand                                                                                         
-        #~ self.nonIrrGrossDemand += additional_non_irrigation_demand
-        #~ self.totalPotentialGrossDemand = self.nonIrrGrossDemand + self.irrGrossDemand                                       
-        
 
-        # desalination water to satisfy water demand (only for satisfying local demand)
-        if self.usingAllocSegments:      # using zone/segment at which supply network is defined
 
+        # Abstraction and Allocation of DESALINATED WATER
+        # ##################################################################################################################
+        # - desalination water to satisfy water demand
+        if self.usingAllocSegments: # using zone/segments at which networks are defined (as defined in the landSurface options)
+        #  
             logger.debug("Allocation of supply from desalination water.")
+        #  
             volDesalinationAbstraction, volDesalinationAllocation = \
               vos.waterAbstractionAndAllocation(
               water_demand_volume = self.totalPotentialGrossDemand*routing.cellArea,\
@@ -972,54 +989,51 @@ class LandCover(object):
               high_volume_treshold = 1000000.,\
               debug_water_balance = True,\
               extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
-
+        #     
             self.desalinationAbstraction = volDesalinationAbstraction / routing.cellArea
             self.desalinationAllocation  = volDesalinationAllocation  / routing.cellArea
-
+        #     
         else: 
-
+        #     
             logger.debug("Supply from desalination water is only for satisfying local demand (no network).")
             self.desalinationAbstraction = pcr.min(desalinationWaterUse, self.totalPotentialGrossDemand)
             self.desalinationAllocation  = self.desalinationAbstraction
-        
+        #     
         self.desalinationAbstraction = pcr.ifthen(self.landmask, self.desalinationAbstraction)
         self.desalinationAllocation  = pcr.ifthen(self.landmask, self.desalinationAllocation)
-        
+        #     
         # total gross demand (m) after desalination
         self.totalGrossDemandAfterDesalination = pcr.max(0.0,\
                                                  self.totalPotentialGrossDemand -\
                                                  self.desalinationAllocation)
-        
-        # allocation desalinated water for satisfying non-irrigation and irrigation water demand (m)
-        # - the priority is to satisfy non-irrigation water demand
-        self.desalinationAllocationForNonIrrigatDemand = pcr.min(self.nonIrrGrossDemand,\
-                                                                 self.desalinationAllocation)
-        # - then, satisfying irrigation water demand
-        self.desalinationAllocationForIrrigationDemand = pcr.max(0.0,\
-                                                         self.desalinationAllocation - \
-                                                         self.desalinationAllocationForNonIrrigatDemand) 
-        
-        # irrigation and non-irrigation water demand (m) after desalination
-        self.nonIrrGrossDemandAfterDesalination = pcr.max(0.0, 
-                                                  self.nonIrrGrossDemand - self.desalinationAllocationForNonIrrigatDemand)
-        self.irrGrossDemandAfterDesalination    = pcr.max(0.0,\
-                                                  self.irrGrossDemand - self.desalinationAllocationForIrrigationDemand)
+        # ##################################################################################################################
+        # - end of Abstraction and Allocation of DESALINATED WATER
 
-        # surface water demand (m): water demand that should be satisfied by surface water abstraction
-        swAbstractionFractionUsed = pcr.max(swAbstractionFraction,\
-                                            1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
-        surface_water_demand = self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed
 
-        #~ # if surface water abstraction as the first priority
-        #~ surface_water_demand = self.totalGrossDemandAfterDesalination
 
-        # surface water abstraction that can be extracted to satisfy totalGrossDemandAfterDesalination
-        # - based on readAvlChannelStorage and surface_water_demand
-        # 
+        # Abstraction and Allocation of SURFACE WATER
+        # #############################################################################################################################
+        #  
+        # surface water demand (m): water demand that should be satisfied by surface water abstraction (not limited by available water)
+        if self.surfaceWaterPiority:
+            # If surface water abstraction as the first priority
+            surface_water_demand = self.totalGrossDemandAfterDesalination
+        else:
+            # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
+            swAbstractionFractionUsed = swAbstractionFraction     
+            # - as a function of non fossil groundwater allocation
+            swAbstractionFractionUsed = pcr.max(swAbstractionFractionUsed,\
+                                                1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
+            swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed, pcr.max(0.0, swAbstractionFractionUsed))
+            surface_water_demand = pcr.max(0.0, self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed)
+            # - as a function of allocation of total groundwater (fossil and non fossil)
+            surface_water_demand = pcr.min(surface_water_demand, \
+                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        #  
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
-
+        #  
             logger.debug("Allocation of surface water abstraction.")
-            
+        #  
             volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
              vos.waterAbstractionAndAllocation(
              water_demand_volume = surface_water_demand*routing.cellArea,\
@@ -1029,119 +1043,27 @@ class LandCover(object):
              high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
-
+        #  
             self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
             self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
-
+        #  
         else: 
-            
+        #  
             logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
-
-            # only local surface water abstraction is allowed (network is only within a cell)
-            self.actSurfaceWaterAbstract = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
-                                                   surface_water_demand)                              # unit: m
+            self.actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
+                                                     surface_water_demand)                            # unit: m
             self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                             # unit: m   
-
+        #  
         self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
         self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
-        
-        # water demand that must be satisfied by groundwater abstraction
-        self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)     # unit: m
-            
-        # if limitAbstraction == 'True'
-        # - no fossil gwAbstraction.
-        # - limitting abstraction with avlWater in channelStorage (m3) and storGroundwater (m)
-        # - water demand may be reduced
-        #
-        # variable to reduce capillary rise (> 0 if limitAbstraction = True) ; this is to avoid water balance error 
-        self.reducedCapRise = 0.0                            
-        #
-        if self.limitAbstraction and groundwater.usingAllocSegments == False:
+        #  
+        # ##################################################################################################################
+        # - end of Abstraction and Allocation of SURFACE WATER
 
-            # Note: For simplicity, limitAbstraction can only be combined with local (groundwater) source assumption
 
-            logger.debug('Fossil groundwater abstractions are NOT allowed.')
+        # water demand that must be satisfied by groundwater abstraction (not limited to available water)
+        self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)   # unit: m
 
-            # calculate renewableAvlWater (unit: m, from non-fossil groundwater and channel) 
-            #
-            # - from storGroundwater
-            #
-            readAvlStorGroundwater = pcr.max(0.0, storGroundwater)
-            readAvlStorGroundwater = pcr.cover(readAvlStorGroundwater, 0.0)                                                     # unit: m
-            #
-            # - from non-fossil groundwater and surface water bodies
-            renewableAvlWater = readAvlStorGroundwater + self.allocSurfaceWaterAbstract                                         # unit: m
-            #
-            # - ratio of renewable available water to demand
-            ratio_to_demand = pcr.ifthenelse(self.totalGrossDemandAfterDesalination > 0.0, \
-                              pcr.min(1.0,pcr.max(0.0, \
-                              vos.getValDivZero(renewableAvlWater,self.totalGrossDemandAfterDesalination, vos.smallNumber))), 0.0)
-
-            # reducing water demand (limited by renewableAvlWater) 
-            self.irrGrossDemandAfterDesalination    *= ratio_to_demand                                                          # unit: m
-            self.nonIrrGrossDemandAfterDesalination *= ratio_to_demand                                                          # unit: m
-            self.totalGrossDemandAfterDesalination   = self.irrGrossDemandAfterDesalination +\
-                                                       self.nonIrrGrossDemandAfterDesalination                                  # unit: m
-            
-            self.irrGrossDemand    = self.desalinationAllocationForIrrigationDemand + self.irrGrossDemandAfterDesalination      # unit: m
-            self.nonIrrGrossDemand = self.desalinationAllocationForNonIrrigatDemand + self.nonIrrGrossDemandAfterDesalination   # unit: m
-            
-            self.totalPotentialGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand                                       # unit: m
-
-            # potential groundwater abstraction (unit: m ; this must be equal to actual no fossil groundwater abstraction)
-            self.potGroundwaterAbstract = self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract -\
-                                                                           self.desalinationAllocation                          # unit: m  
-            
-            # variable to reduce capillary rise 
-            # - this is to ensure that there are enough water for supplying water demand
-            self.reducedCapRise = self.potGroundwaterAbstract                                                                   # unit: m
- 
-        else:
-            logger.debug('Fossil groundwater abstraction is allowed.')
-
-        if self.limitAbstraction == False and\
-           groundwater.limitFossilGroundwaterAbstraction and groundwater.usingAllocSegments == False:
-
-            # Note: For simplicity, limitFossilGroundwaterAbstraction can only be combined with local (groundwater) source assumption
-
-            logger.debug('Fossil groundwater abstraction is allowed with LIMIT.')
-
-            # calculate renewableAvlWater (non-fossil groundwater and channel) 
-            renewableAvlWater = pcr.cover(pcr.max(0.0, groundwater.storGroundwater), 0.0) + self.allocSurfaceWaterAbstract      # unit: m
-
-            # estimate of demand that will be satisfied by renewableAvlWater  
-            allocRenewableAvlWater = pcr.min(renewableAvlWater, self.totalGrossDemandAfterDesalination)                         # unit: m
-
-            # variable to reduce/limit capillary rise (to ensure that there are enough water for supplying water demand)
-            self.reducedCapRise = allocRenewableAvlWater - self.allocSurfaceWaterAbstract                                       # unit: m
-
-            # calculate accessibleWater (unit: m) - including fossil water
-            accessibleWater = pcr.max(0.0,\
-                              self.allocSurfaceWaterAbstract +\
-                              groundwater.storGroundwater +\
-                              pcr.max(0.0, groundwater.storGroundwaterFossil))        
-                              # Note that storGroundwaterFossil always >= 0.0 for limitFossilGroundwaterAbstraction == True. 
-            #
-            # - ratio of accessibleWater to demand
-            ratio_to_demand = pcr.ifthenelse(self.totalGrossDemandAfterDesalination > 0.0, \
-                              pcr.min(1.0,pcr.max(0.0, \
-                              vos.getValDivZero(accessibleWater,self.totalGrossDemandAfterDesalination, vos.smallNumber))), 0.0)
-
-            # correcting water demand (limited by accessibleWater) 
-            self.irrGrossDemandAfterDesalination    *= ratio_to_demand                                                          # unit: m
-            self.nonIrrGrossDemandAfterDesalination *= ratio_to_demand                                                          # unit: m
-            self.totalGrossDemandAfterDesalination   = self.irrGrossDemandAfterDesalination +\
-                                                       self.nonIrrGrossDemandAfterDesalination                                  # unit: m
-            
-            self.irrGrossDemand    = self.desalinationAllocationForIrrigationDemand + self.irrGrossDemandAfterDesalination      # unit: m
-            self.nonIrrGrossDemand = self.desalinationAllocationForNonIrrigatDemand + self.nonIrrGrossDemandAfterDesalination   # unit: m
-            
-            self.totalPotentialGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand                                       # unit: m
-
-            # potential groundwater abstraction (unit: m ; this must be equal to actual no fossil groundwater abstraction)
-            self.potGroundwaterAbstract = self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract -\
-                                                                           self.desalinationAllocation                          # unit: m  
-            
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
@@ -1154,67 +1076,139 @@ class LandCover(object):
                                                                  
             # reduction factor to reduce groundwater abstraction
             reductionFactorForPotGroundwaterAbstract = pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
-                                                       pcr.max(0.00, regionalAnnualGroundwaterAbstractionLimit -\
-                                                                     regionalAnnualGroundwaterAbstraction) /
-                                                                     regionalAnnualGroundwaterAbstraction, 1.0)
-            reductionFactorForPotGroundwaterAbstract = pcr.roundup(reductionFactorForPotGroundwaterAbstract*100.)/100.                                                         
-            reductionFactorForPotGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
+                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                                      regionalAnnualGroundwaterAbstraction) /
+                                                                      regionalAnnualGroundwaterAbstraction , 1.0)
+            # minimum reduction factor:
+            minReductionFactor = 0.25
+            self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
+                                           pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
-            # potential groundwater abstraction (m/day) after reduction 
-            self.potGroundwaterAbstract *= reductionFactorForPotGroundwaterAbstract
-
-            # calculate accessibleWater (unit: m) 
-            accessibleWater = self.allocSurfaceWaterAbstract + self.potGroundwaterAbstract
-            #
-            # - ratio of accessibleWater to demand
-            ratio_to_demand = pcr.ifthenelse(self.totalGrossDemandAfterDesalination > 0.0, \
-                              pcr.min(1.0,pcr.max(0.0, \
-                              vos.getValDivZero(accessibleWater,self.totalGrossDemandAfterDesalination, vos.smallNumber))), 0.0)
-
-            # correcting water demand (limited by accessibleWater) 
-            self.irrGrossDemandAfterDesalination    *= ratio_to_demand                                                          # unit: m
-            self.nonIrrGrossDemandAfterDesalination *= ratio_to_demand                                                          # unit: m
-            self.totalGrossDemandAfterDesalination   = self.irrGrossDemandAfterDesalination +\
-                                                       self.nonIrrGrossDemandAfterDesalination                                  # unit: m
-            
-            self.irrGrossDemand    = self.desalinationAllocationForIrrigationDemand + self.irrGrossDemandAfterDesalination      # unit: m
-            self.nonIrrGrossDemand = self.desalinationAllocationForNonIrrigatDemand + self.nonIrrGrossDemandAfterDesalination   # unit: m
-            
-            self.totalPotentialGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand                                       # unit: m
-
-            # potential groundwater abstraction (unit: m)
-            self.potGroundwaterAbstract = self.totalPotentialGrossDemand - self.allocSurfaceWaterAbstract -\
-                                                                           self.desalinationAllocation                          # unit: m  
-
-            if self.debugWaterBalance:\
-                vos.waterBalanceCheck([accessibleWater],\
-                                      [self.totalGrossDemandAfterDesalination],\
-                                      [pcr.scalar(0.0)],\
-                                      [pcr.scalar(0.0)],\
-                                       'totalPotentialGrossDemand (limitRegionalAnnualGroundwaterAbstraction)',\
-                                       True,\
-                                       currTimeStep.fulldate,threshold=1e-3)
-
-            if self.debugWaterBalance:\
-                vos.waterBalanceCheck([accessibleWater,self.desalinationAllocation],\
-                                      [self.totalPotentialGrossDemand],\
-                                      [pcr.scalar(0.0)],\
-                                      [pcr.scalar(0.0)],\
-                                       'totalPotentialGrossDemand (limitRegionalAnnualGroundwaterAbstraction)',\
-                                       True,\
-                                       currTimeStep.fulldate,threshold=1e-3)
-
         else:
 
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
 
 
+        # Abstraction and Allocation of NON FOSSIL GROUNDWATER
+        # #############################################################################################################################
+        #
+        # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
+        readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
+        #
+        if groundwater.usingAllocSegments:
+
+            logger.debug('Allocation of non fossil groundwater abstraction.')
+
+            # non fossil groundwater abstraction and allocation in volume (unit: m3)
+            volActGroundwaterAbstract, volAllocGroundwaterAbstract = \
+             vos.waterAbstractionAndAllocation(
+             water_demand_volume = self.potGroundwaterAbstract*routing.cellArea,\
+             available_water_volume = pcr.max(0.00, readAvlStorGroundwater*routing.cellArea),\
+             allocation_zones = groundwater.allocSegments,\
+             zone_area = groundwater.segmentArea,\
+             high_volume_treshold = 1000000.,\
+             debug_water_balance = True,\
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+            
+            # non fossil groundwater abstraction and allocation in meter
+            self.nonFossilGroundwaterAbs   = volActGroundwaterAbstract  / routing.cellArea 
+            self.allocNonFossilGroundwater = volAllocGroundwaterAbstract/ routing.cellArea 
+
+        else:
+            
+            logger.debug('Non fossil groundwater abstraction is only for satisfying local demand.')
+        
+            self.nonFossilGroundwaterAbs   = pcr.min(readAvlStorGroundwater, self.potGroundwaterAbstract) 
+            self.allocNonFossilGroundwater = self.nonFossilGroundwaterAbs
+        #
+        # variable to reduce capillary rise in order to ensure there is enough water to supply non fossil groundwater abstraction 
+        self.reducedCapRise = self.nonFossilGroundwaterAbs                            
+        #  
+        # ########################################################################################################################
+        # - end of Abstraction and Allocation of NON FOSSIL GROUNDWATER
+
+
+        # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water)
+        self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - self.allocNonFossilGroundwater)   # unit: m
+
+        if self.limitAbstraction:
+            
+            logger.debug('Fossil groundwater abstractions are NOT allowed')
+            
+            # groundwater abstraction is only from the non fossil part: 
+            self.potFossilGroundwaterAbstract = self.allocNonFossilGroundwater
+            self.fossilGroundwaterAbstr = pcr.scalar(0.0)
+            self.fossilGroundwaterAlloc = pcr.scalar(0.0)
+
+        else:
+
+            logger.debug('Fossil groundwater abstractions are allowed.')
+            
+            if groundwater.limitFossilGroundwaterAbstraction == False:
+
+                # Note: If limitFossilGroundwaterAbstraction == False, 
+                #       allocation of fossil groundwater abstraction is not needed.  
+                logger.debug('Fossil groundwater abstractions are without limit for satisfying local demand.')
+                
+                # fossil groundwater abstraction and its allocation 
+                self.fossilGroundwaterAbstr = pcr.max(0.0, self.potFossilGroundwaterAbstract - self.allocNonFossilGroundwater)
+                self.fossilGroundwaterAlloc = self.fossilGroundwaterAbstr
+        
+            else: #        limitFossilGroundwaterAbstraction == True:
+
+                logger.debug('Fossil groundwater abstractions are allowed, but with limit.')
+                
+                if groundwater.usingAllocSegments:
+                
+                    logger.debug('Allocation of fossil groundwater abstraction.')
+                
+                    # non fossil groundwater abstraction and allocation in volume (unit: m3)
+                    volActGroundwaterAbstract, volAllocGroundwaterAbstract = \
+                     vos.waterAbstractionAndAllocation(
+                     water_demand_volume = self.potFossilGroundwaterAbstract*routing.cellArea,\
+                     available_water_volume = pcr.max(0.00, groundwater.storGroundwaterFossil*routing.cellArea),\
+                     allocation_zones = groundwater.allocSegments,\
+                     zone_area = groundwater.segmentArea,\
+                     high_volume_treshold = 1000000.,\
+                     debug_water_balance = True,\
+                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+                    
+                    # non fossil groundwater abstraction and allocation in meter
+                    self.fossilGroundwaterAbstr = volActGroundwaterAbstract  /routing.cellArea 
+                    self.fossilGroundwaterAlloc = volAllocGroundwaterAbstract/routing.cellArea 
+                
+                else:
+                    
+                    logger.debug('Fossil groundwater abstraction is only for satisfying local demand.')
+                
+                    self.fossilGroundwaterAbstr = pcr.min(pcr.max(0.0, groundwater.storGroundwaterFossil), self.potFossilGroundwaterAbstract)
+                    self.fossilGroundwaterAlloc = self.fossilGroundwaterAbstr 
+        
+
+        # water demand limited to available/allocated water
+        self.totalPotentialGrossDemand = self.fossilGroundwaterAlloc +\
+                                         self.allocNonFossilGroundwater +\
+                                         self.allocSurfaceWaterAbstract +\
+                                         self.desalinationAllocation
+
+        # demand reduction factor
+        demand_reduction_factor = pcr.min(1.0,\
+                                  pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.0,  
+                                                 self.totalPotentialGrossDemand/\
+                                                 self.totalPotentialMaximumGrossDemand , 0.0))
+        
+        # irrigation and non irrigation water demand limited to available/allocated water
+        self.irrGrossDemand    *= demand_reduction_factor 
+        self.nonIrrGrossDemand *= demand_reduction_factor
+        
+        # reducing potential_irrigation_loss due to reduced irrigation demand
+        self.potential_irrigation_loss *= demand_reduction_factor
+        if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.min(self.irrGrossDemand,\
+                                                                     pcr.max(self.design_percolation_loss, self.potential_irrigation_loss))
+
+
     def calculateDirectRunoff(self, parameters):
 
-        # update topWaterLayer (above soil) 
-        # with netLqWaterToSoil and irrGrossDemand
-        self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
-        		        
         # topWaterLater is partitioned into directRunoff (and infiltration)
         self.directRunoff = self.improvedArnoScheme(\
                             iniWaterStorage = self.soilWaterStorage,\
@@ -1223,14 +1217,11 @@ class LandCover(object):
                             directRunoffReductionMethod = self.improvedArnoSchemeMethod)
         self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
         
-        #~ # Yet, no directRunoff in the paddy field.
-        #~ if self.name == 'irrPaddy': self.directRunoff = 0.
-        #~ #
-        # alternative: added by Edwin H. Sutanudjaja (2 November 2014): No directRunoff in irrigation areas (principle: minimizing directRunoff in any irrigation areas)
-        if self.name.startswith('irr'): self.directRunoff = 0.
-        #~ #
-        #~ # a new idea from Edwin (12 Nov 2014): no directRunoff if the paddy field, but only during its growing (cropKC > 0.75) 
-        #~ if self.name == 'irrPaddy': self.directRunoff = pcr.ifthenelse(self.cropKC > 0.75, 0.0, self.directRunoff)
+        # Yet, no directRunoff in the paddy field.
+        if self.name == 'irrPaddy': self.directRunoff = 0.
+        #
+        #~ # alternative: added by Edwin H. Sutanudjaja (2 November 2014): No directRunoff in irrigation areas (principle: minimizing directRunoff in any irrigation areas) - used in the IWMI project
+        #~ if self.name.startswith('irr'): self.directRunoff = 0.
 
         # update topWaterLayer (above soil) after directRunoff
         self.topWaterLayer = pcr.max(0.0, self.topWaterLayer - self.directRunoff)
@@ -1306,11 +1297,16 @@ class LandCover(object):
 
     def calculateOpenWaterEvap(self):
 
-        # openWaterEvap is evaporation from paddy field areas
-        
-        self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
+        # update topWaterLayer (above soil) 
+        # - with netLqWaterToSoil and irrGrossDemand
+        self.topWaterLayer += pcr.max(0.,self.netLqWaterToSoil + self.irrGrossDemand)
+
+        # potential evaporation for openWaterEvap
         remainingPotETP = self.potBareSoilEvap + self.potTranspiration   # Edwin's principle: LIMIT = self.potBareSoilEvap +self.potTranspiration 
         # remainingPotETP = self.totalPotET                              # DW, RvB, and YW use self.totalPotETP
+        
+        # openWaterEvap is ONLY for evaporation from paddy field areas
+        self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
 
         # open water evaporation from the paddy field
         if self.name == 'irrPaddy':
@@ -1319,7 +1315,7 @@ class LandCover(object):
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
                # PS: self.potBareSoilEvap +self.potTranspiration = LIMIT
                #     - DW, RvB, and YW use self.totalPotETP as the LIMIT. EHS does not agree (24 April 2013).
-        #
+        
         # update potBareSoilEvap & potTranspiration (after openWaterEvap)
         self.potBareSoilEvap  =       pcr.cover( self.potBareSoilEvap -\
                                (self.potBareSoilEvap/remainingPotETP)*
@@ -1342,16 +1338,23 @@ class LandCover(object):
 
         # infiltration during paddy development (cropKC > 0.75)
         if self.name == 'irrPaddy':
-            #~ # option 1: infiltration rate is limited by design_percolation_loss
-            #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               #~ pcr.min(self.design_percolation_loss, self.infiltration), self.infiltration)
-            # option 2: infiltration rate depend on the the maximum from design_percolation_loss and potential_irrigation_loss (irrigation efficiency)
             self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               pcr.min(pcr.max(self.design_percolation_loss,self.potential_irrigation_loss), self.infiltration), self.infiltration)
+                                               pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
 
         # update top water layer after infiltration
         self.topWaterLayer = pcr.max(0.0,\
                              self.topWaterLayer - self.infiltration)
+
+        # release excess topWaterLayer above minTopWaterLayer as additional direct runoff
+        self.directRunoff += pcr.max(0.0,\
+                             self.topWaterLayer - self.minTopWaterLayer)
+        # and consider it as irrigation loss
+        self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
+                                                                                       self.topWaterLayer - self.minTopWaterLayer))
+
+        # update topWaterLayer after additional direct runoff
+        self.topWaterLayer = pcr.min( self.topWaterLayer , \
+                                      self.minTopWaterLayer)
 
     def estimateTranspirationAndBareSoilEvap(self, parameters, returnTotalEstimation = False, returnTotalTranspirationOnly = False):
 
@@ -1575,9 +1578,6 @@ class LandCover(object):
             self.interflow = pcr.max(\
                               parameters.interflowConcTime*percToInterflow  +\
               (pcr.scalar(1.)-parameters.interflowConcTime)*self.interflow, 0.0)
-
-        # for irrigation areas: interflow will be minimized
-        if self.name.startswith('irr'): self.interflow = 0.
 
 
     def scaleAllFluxes(self, parameters, groundwater):
@@ -1961,7 +1961,7 @@ class LandCover(object):
                         desalinationWaterUse,\
                         groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
 
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             netLqWaterToSoil = self.netLqWaterToSoil # input            
             preTopWaterLayer = self.topWaterLayer
             if self.numberOfLayers == 2: 
@@ -2011,7 +2011,7 @@ class LandCover(object):
         # update all soil states (including get final/corrected fluxes) 
         self.updateSoilStates(parameters)
 
-        if self.debugWaterBalance == str('True'):
+        if self.debugWaterBalance:
             #
             vos.waterBalanceCheck([netLqWaterToSoil,\
                                    self.irrGrossDemand,\

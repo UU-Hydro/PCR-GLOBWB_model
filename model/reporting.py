@@ -286,12 +286,12 @@ class Reporting(object):
         # abstraction (m)
         self.desalinationAbstraction         = self._model.landSurface.desalinationAbstraction
         self.surfaceWaterAbstraction         = self._model.landSurface.actSurfaceWaterAbstract
-        self.nonFossilGroundWaterAbstraction = self._model.groundwater.nonFossilGroundwaterAbs
-        self.otherWaterSourceAbstraction     = self._model.groundwater.unmetDemand
+        self.nonFossilGroundwaterAbstraction = self._model.groundwater.nonFossilGroundwaterAbs
+        self.fossilGroundwaterAbstraction    = self._model.groundwater.fossilGroundwaterAbstr
         self.totalAbstraction                = self.desalinationAbstraction +\
                                                self.surfaceWaterAbstraction +\
-                                               self.nonFossilGroundWaterAbstraction +\
-                                               self.otherWaterSourceAbstraction
+                                               self.nonFossilGroundwaterAbstraction +\
+                                               self.fossilGroundwaterAbstraction
         
         # total evaporation (m), from land and water fractions
         self.totalEvaporation = self._model.landSurface.actualET + \
@@ -311,6 +311,9 @@ class Reporting(object):
         if self._model.landSurface.numberOfSoilLayers == 3:
             self.storUppSurface   = self._model.landSurface.storUpp000005    # unit: m
             self.satDegUppSurface = self._model.landSurface.satDegUpp000005  # unit: percentage
+        
+        # fraction of surface water bodies.
+        self.dynamicFracWat = self._model.routing.dynamicFracWat
         
         # reporting water balance from the land surface part (excluding surface water bodies)
         self.land_surface_water_balance = self._model.waterBalance
@@ -346,7 +349,7 @@ class Reporting(object):
         self.storGroundwaterTotal  = self._model.groundwater.storGroundwater + \
                                      self._model.groundwater.storGroundwaterFossil
         
-        # total active storage thickness (m) for the entire water column - not including fossil groundwater (unmetDemand) 
+        # total active storage thickness (m) for the entire water column - not including fossil groundwater
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
                                            self._model.routing.landmask, \
@@ -355,7 +358,7 @@ class Reporting(object):
                                            self._model.groundwater.storGroundwater)
 
         # total water storage thickness (m) for the entire water column: 
-        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater (unmetDemand)
+        # - including: interception, snow, soil, non fossil groundwater and fossil groundwater
         # - this is usually used for GRACE comparison  
         self.totalWaterStorageThickness  = self.totalActiveStorageThickness + \
                                            self._model.groundwater.storGroundwaterFossil
@@ -404,8 +407,8 @@ class Reporting(object):
                                               self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
         
         # Total groundwater abstraction (m) (assuming otherWaterSourceAbstraction as fossil groundwater abstraction
-        self.totalGroundwaterAbstraction = self.nonFossilGroundWaterAbstraction +\
-                                           self.otherWaterSourceAbstraction
+        self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbstraction +\
+                                           self.fossilGroundwaterAbstraction
 
         # net liquid water passing to the soil 
         self.net_liquid_water_to_soil = self._model.landSurface.netLqWaterToSoil
@@ -413,6 +416,10 @@ class Reporting(object):
         # consumptive water use and return flow from non irrigation water demand (unit: m/day)  
         self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
         self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
+        
+        # total potential water demand - not considering water availability
+        self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
+
 
     def report(self):
 
