@@ -730,7 +730,6 @@ class LandCover(object):
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-4)
 
-f
     def getSoilStates(self,parameters):
 
         if self.numberOfLayers == 2: 
