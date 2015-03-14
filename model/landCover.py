@@ -1213,8 +1213,8 @@ class LandCover(object):
                             directRunoffReductionMethod = self.improvedArnoSchemeMethod)
         self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
         
-        # Yet, no directRunoff in the paddy field.
-        if self.name == 'irrPaddy': self.directRunoff = 0.
+        # Yet, we minimize directRunoff in the irrigation areas:
+        if self.name.startswith('irr'): self.directRunoff = 0.
 
         # update topWaterLayer (above soil) after directRunoff
         self.topWaterLayer = pcr.max(0.0, self.topWaterLayer - self.directRunoff)
@@ -1714,7 +1714,7 @@ class LandCover(object):
             self.percUpp         = pcr.min(self.percUpp,\
                                    pcr.max(0.0, self.storUpp + self.infiltration - \
                                                 self.actBareSoilEvap - \
-                                                self.actTranspiUpp)
+                                                self.actTranspiUpp))
             
             # scale fluxes (for Low)
             # - remaining potential transpiration will be used to boost the transpiration process
