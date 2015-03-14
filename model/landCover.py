@@ -917,16 +917,13 @@ class LandCover(object):
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #               readAvlWater (available water in the root zone)
             #
-            #~ # irrigation demand based on deficit in ET - THIS SHOULD BE IMPLEMENTED (otherwise water demand may be too high)
-            deficit = pcr.max(0.0, self.potBareSoilEvap  +\
-                                   self.potTranspiration -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            #~ # irrigation demand based on deficit in transpiration (alternative)
-            #~ deficit = pcr.max(0.0, self.potTranspiration -\
-                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            self.irrGrossDemand = pcr.min(self.irrGrossDemand, deficit)                        
+            # irrigation demand based on deficit in ET - THIS SHOULD BE IMPLEMENTED (otherwise water demand may be too high)
+            evaporationDeficit = pcr.max(0.0, self.potBareSoilEvap  +\
+                                 self.potTranspiration -\
+                                 self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
-            # Assume that smart farmers do not irrigate higher than infiltration capacities
+            # - assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
@@ -1315,17 +1312,6 @@ class LandCover(object):
                # PS: self.potBareSoilEvap +self.potTranspiration = LIMIT
                #     - DW, RvB, and YW use self.totalPotETP as the LIMIT. EHS does not agree (24 April 2013).
         
-        # update potBareSoilEvap & potTranspiration (after openWaterEvap)
-        self.potBareSoilEvap  =       pcr.cover( self.potBareSoilEvap -\
-                               (self.potBareSoilEvap/remainingPotETP)*
-                                self.openWaterEvap, 0.0)       
-        self.potTranspiration =       pcr.cover( self.potTranspiration-\
-                              (self.potTranspiration/remainingPotETP)*
-                                self.openWaterEvap, 0.0)       
-
-        # update top water layer after openWaterEvap
-        self.topWaterLayer = pcr.max(0.,self.topWaterLayer - self.openWaterEvap)
-
     def calculateInfiltration(self, parameters):
 
         # infiltration, limited with KSat1 and available water in topWaterLayer
@@ -1695,6 +1681,156 @@ class LandCover(object):
                                                     (self.actTranspiUpp005030 + self.percUpp005030))
             self.capRiseUpp000005 = pcr.min(\
                                     estimateStorUpp005030BeforeCapRise,self.capRiseUpp000005)
+
+    def scaleAllFluxes(self, parameters, groundwater):
+
+        # We re-scale all fluxes (based on available water).
+        ########################################################################################################################################
+        # 
+
+        if self.numberOfLayers == 2:
+
+            # scale fluxes (for Upp)
+            ADJUST = self.actBareSoilEvap + self.actTranspiUpp + self.percUpp
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
+            if self.name.starswith('irr'): ADJUST = self.actBareSoilEvap + self.potTranspiration + self.percUpp 
+            #
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp + \
+                                              self.infiltration) / ADJUST),0.)
+            self.actBareSoilEvap = ADJUST*self.actBareSoilEvap
+            self.percUpp         = ADJUST*self.percUpp                      
+            self.actTranspiUpp   = pcr.min(self.potTranspiration, \
+                                   pcr.max(0.0, self.storUpp + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.percUpp))
+                                                                            # original Rens's line:
+                                                                            # ADJUST = ES_a[TYPE]+T_a1[TYPE]+P1_L[TYPE];
+                                                                            # ADJUST = if(ADJUST>0,min(1,(max(0,S1_L[TYPE]+P0_L[TYPE]))/ADJUST),0);
+                                                                            # ES_a[TYPE] = ADJUST*ES_a[TYPE];
+                                                                            # T_a1[TYPE] = ADJUST*T_a1[TYPE];
+                                                                            # P1_L[TYPE] = ADJUST*P1_L[TYPE];
+
+            # scale fluxes (for Low)
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
+            if self.name.starswith('irr'): self.actTranspiLow = pcr.max(0.0, self.potTranspiration -\
+                                                                             self.actTranspiUpp) 
+            #
+            ADJUST = self.actTranspiLow + self.percLow + self.interflow
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow + \
+                                              self.percUpp)/ADJUST),0.)
+            self.actTranspiLow = ADJUST*self.actTranspiLow
+            self.percLow       = ADJUST*self.percLow
+            self.interflow     = ADJUST*self.interflow                      # original Rens's line:
+                                                                            # ADJUST = T_a2[TYPE]+P2_L[TYPE]+Q2_L[TYPE];
+                                                                            # ADJUST = if(ADJUST>0,min(1,max(S2_L[TYPE]+P1_L[TYPE],0)/ADJUST),0);
+                                                                            # T_a2[TYPE] = ADJUST*T_a2[TYPE];
+                                                                            # P2_L[TYPE] = ADJUST*P2_L[TYPE];
+                                                                            # Q2_L[TYPE] = ADJUST*Q2_L[TYPE];
+
+            # capillary rise to storLow is limited to available storGroundwater 
+            # 
+            # The following is for a conservative approach (used by Rens)
+            #  - using fracVegCover as "safectyFactor".                     # EHS (02 Sep 2013): NOT NEEDED
+            #~ self.capRiseLow = \
+                             #~ pcr.min(self.fracVegCover*\
+                             #~ groundwater.storGroundwater,\
+                             #~ self.capRiseLow)                            # CR2_L[TYPE]= min(VEGFRAC[TYPE]*S3,CR2_L[TYPE])
+            # 
+            #~ #  - without fracVegCover (without safetyFactor)
+            #~ self.capRiseLow = pcr.max(0.,\
+                              #~ pcr.min(\
+                              #~ groundwater.storGroundwater,self.capRiseLow))  # This line is not necessary. 
+            # 
+            # also limited with reducedCapRise 
+            #
+            self.capRiseLow = pcr.max(0.,\
+                              pcr.min(\
+                              pcr.max(0.,\
+                              groundwater.storGroundwater-self.reducedCapRise),self.capRiseLow))
+
+            # capillary rise to storUpp is limited to available storLow
+            #
+            estimateStorLowBeforeCapRise = pcr.max(0,self.storLow + self.percUpp - \
+                                              (self.actTranspiLow + self.percLow + self.interflow ))
+            self.capRiseUpp = pcr.min(\
+                              estimateStorLowBeforeCapRise,self.capRiseUpp)     # original Rens's line: 
+                                                                                #  CR1_L[TYPE] = min(max(0,S2_L[TYPE]+P1_L[TYPE]-(T_a2[TYPE]+P2_L[TYPE]+Q2_L[TYPE])),CR1_L[TYPE])
+
+        if self.numberOfLayers == 3:
+
+            # scale fluxes (for Upp000005)
+            ADJUST = self.actBareSoilEvap + self.actTranspiUpp000005 + self.percUpp000005
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
+            if self.name.starswith('irr'): ADJUST = self.actBareSoilEvap + self.potTranspiration + self.percUpp 
+            #
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp000005 + \
+                                              self.infiltration) / ADJUST),0.)
+            self.actBareSoilEvap     = ADJUST*self.actBareSoilEvap
+            self.percUpp000005       = ADJUST*self.percUpp000005
+
+            self.actTranspiUpp000005 = pcr.min(self.potTranspiration, \
+                                       pcr.max(0.0, self.storUpp + self.infiltration - \
+                                                    self.actBareSoilEvap - \
+                                                    self.percUpp000005))
+            
+            # scale fluxes (for Upp005030)
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
+            if self.name.starswith('irr'): self.actTranspiUpp005030 = pcr.max(0.0, self.potTranspiration -\
+                                                                                   self.actTranspiUpp000005) 
+            #
+            ADJUST = self.actTranspiUpp005030 + self.percUpp005030
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp005030 + \
+                                              self.percUpp000005)/ ADJUST),0.)
+            self.actTranspiUpp005030 = ADJUST*self.actTranspiUpp005030
+            self.percUpp005030       = ADJUST*self.percUpp005030
+
+            # scale fluxes (for Low030150)
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
+            if self.name.starswith('irr'): self.actTranspiLow030150 = pcr.max(0.0, self.potTranspiration   -\
+                                                                                   self.actTranspiUpp000005-\
+                                                                                   self.actTranspiUpp005030) 
+            #
+            ADJUST = self.actTranspiLow030150 + self.percLow030150 + self.interflow
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow030150 + \
+                                              self.percUpp005030)/ADJUST),0.)
+            self.actTranspiLow030150 = ADJUST*self.actTranspiLow030150
+            self.percLow030150       = ADJUST*self.percLow030150
+            self.interflow           = ADJUST*self.interflow   
+
+            # capillary rise to storLow is limited to available storGroundwater 
+            # and also limited with reducedCapRise 
+            #
+            self.capRiseLow030150 = pcr.max(0.,\
+                                    pcr.min(\
+                                    pcr.max(0.,\
+                                    groundwater.storGroundwater-\
+                                    self.reducedCapRise),\
+                                    self.capRiseLow030150))
+
+            # capillary rise to storUpp005030 is limited to available storLow030150
+            #
+            estimateStorLow030150BeforeCapRise = pcr.max(0,self.storLow030150 + self.percUpp005030 - \
+                                                    (self.actTranspiLow030150 + self.percLow030150 + self.interflow ))
+            self.capRiseUpp005030 = pcr.min(\
+                                    estimateStorLow030150BeforeCapRise,self.capRiseUpp005030)
+
+            # capillary rise to storUpp000005 is limited to available storUpp005030
+            #
+            estimateStorUpp005030BeforeCapRise = pcr.max(0,self.storUpp005030 + self.percUpp000005 - \
+                                                    (self.actTranspiUpp005030 + self.percUpp005030))
+            self.capRiseUpp000005 = pcr.min(\
+                                    estimateStorUpp005030BeforeCapRise,self.capRiseUpp000005)
+
 
     def updateSoilStates(self, parameters):
 
