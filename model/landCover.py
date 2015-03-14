@@ -1311,6 +1311,17 @@ class LandCover(object):
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
                # PS: self.potBareSoilEvap +self.potTranspiration = LIMIT
                #     - DW, RvB, and YW use self.totalPotETP as the LIMIT. EHS does not agree (24 April 2013).
+        #
+        # update potBareSoilEvap & potTranspiration (after openWaterEvap)
+        self.potBareSoilEvap  =       pcr.cover( self.potBareSoilEvap -\
+                               (self.potBareSoilEvap/remainingPotETP)*
+                                self.openWaterEvap, 0.0)       
+        self.potTranspiration =       pcr.cover( self.potTranspiration-\
+                              (self.potTranspiration/remainingPotETP)*
+                                self.openWaterEvap, 0.0)       
+
+        # update top water layer after openWaterEvap
+        self.topWaterLayer = pcr.max(0.,self.topWaterLayer - self.openWaterEvap)
         
     def calculateInfiltration(self, parameters):
 
