@@ -1759,7 +1759,7 @@ class LandCover(object):
             self.percUpp000005       = pcr.min(self.percUpp000005,\
                                        pcr.max(0.0, self.storUpp000005 + self.infiltration - \
                                                     self.actBareSoilEvap - \
-                                                    self.actTranspistorUpp000005)
+                                                    self.actTranspistorUpp000005))
 
             # scale fluxes (for Upp005030)
             # - remaining potential transpiration will be used to boost the transpiration process
