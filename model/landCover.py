@@ -1691,21 +1691,17 @@ class LandCover(object):
         if self.numberOfLayers == 2:
 
             # scale fluxes (for Upp)
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used to boost the transpiration process
+            if self.name.starswith('irr'): self.actTranspiUpp = self.potTranspiration 
+            #
             ADJUST = self.actBareSoilEvap + self.actTranspiUpp + self.percUpp
-            #
-            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            if self.name.starswith('irr'): ADJUST = self.actBareSoilEvap + self.potTranspiration + self.percUpp 
-            #
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storUpp + \
                                               self.infiltration) / ADJUST),0.)
             self.actBareSoilEvap = ADJUST*self.actBareSoilEvap
             self.percUpp         = ADJUST*self.percUpp                      
-            self.actTranspiUpp   = pcr.min(self.potTranspiration, \
-                                   pcr.max(0.0, self.storUpp + self.infiltration - \
-                                                self.actBareSoilEvap - \
-                                                self.percUpp))
-                                                                            # original Rens's line:
+            self.actTranspiUpp   = ADJUST*self.actTranspiUpp                # original Rens's line:
                                                                             # ADJUST = ES_a[TYPE]+T_a1[TYPE]+P1_L[TYPE];
                                                                             # ADJUST = if(ADJUST>0,min(1,(max(0,S1_L[TYPE]+P0_L[TYPE]))/ADJUST),0);
                                                                             # ES_a[TYPE] = ADJUST*ES_a[TYPE];
@@ -1763,21 +1759,17 @@ class LandCover(object):
         if self.numberOfLayers == 3:
 
             # scale fluxes (for Upp000005)
+            #
+            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used to boost the transpiration process
+            if self.name.starswith('irr'):  self.actTranspiUpp000005 = self.potTranspiration 
+
             ADJUST = self.actBareSoilEvap + self.actTranspiUpp000005 + self.percUpp000005
-            #
-            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            if self.name.starswith('irr'): ADJUST = self.actBareSoilEvap + self.potTranspiration + self.percUpp 
-            #
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storUpp000005 + \
                                               self.infiltration) / ADJUST),0.)
             self.actBareSoilEvap     = ADJUST*self.actBareSoilEvap
             self.percUpp000005       = ADJUST*self.percUpp000005
-
-            self.actTranspiUpp000005 = pcr.min(self.potTranspiration, \
-                                       pcr.max(0.0, self.storUpp + self.infiltration - \
-                                                    self.actBareSoilEvap - \
-                                                    self.percUpp000005))
+            self.actTranspiUpp000005 = ADJUST*self.actTranspiUpp000005
             
             # scale fluxes (for Upp005030)
             #
