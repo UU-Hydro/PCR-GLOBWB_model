@@ -1773,7 +1773,7 @@ class LandCover(object):
             # - percolation fluxes depend on the remaining water
             self.percUpp005030       = pcr.min(self.percUpp005030,\
                                        pcr.max(0.0, self.storUpp005030 + self.percUpp000005 - \
-                                                    self.actTranspiUpp005030)
+                                                    self.actTranspiUpp005030))
 
             # scale fluxes (for Low030150)
             # - remaining potential transpiration will be used to boost the transpiration process
