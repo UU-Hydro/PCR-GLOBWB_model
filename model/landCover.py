@@ -1730,6 +1730,8 @@ class LandCover(object):
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storLow + \
                                               self.percUpp - self.actTranspiLow)/ADJUST),0.)
+            self.percLow       = ADJUST*self.percLow
+            self.interflow     = ADJUST*self.interflow                      
 
             # capillary rise to storLow is limited to available storGroundwater 
             # - also limited with reducedCapRise 
