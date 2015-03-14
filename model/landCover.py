@@ -1693,7 +1693,7 @@ class LandCover(object):
             # scale fluxes (for Upp)
             #
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used to boost the transpiration process
-            if self.name.starswith('irr'): self.actTranspiUpp = self.potTranspiration 
+            if self.name.startswith('irr'): self.actTranspiUpp = self.potTranspiration 
             #
             ADJUST = self.actBareSoilEvap + self.actTranspiUpp + self.percUpp
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
@@ -1711,7 +1711,7 @@ class LandCover(object):
             # scale fluxes (for Low)
             #
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            if self.name.starswith('irr'): self.actTranspiLow = pcr.max(0.0, self.potTranspiration -\
+            if self.name.startswith('irr'): self.actTranspiLow = pcr.max(0.0, self.potTranspiration -\
                                                                              self.actTranspiUpp) 
             #
             ADJUST = self.actTranspiLow + self.percLow + self.interflow
@@ -1761,7 +1761,7 @@ class LandCover(object):
             # scale fluxes (for Upp000005)
             #
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used to boost the transpiration process
-            if self.name.starswith('irr'):  self.actTranspiUpp000005 = self.potTranspiration 
+            if self.name.startswith('irr'):  self.actTranspiUpp000005 = self.potTranspiration 
 
             ADJUST = self.actBareSoilEvap + self.actTranspiUpp000005 + self.percUpp000005
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
@@ -1774,7 +1774,7 @@ class LandCover(object):
             # scale fluxes (for Upp005030)
             #
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            if self.name.starswith('irr'): self.actTranspiUpp005030 = pcr.max(0.0, self.potTranspiration -\
+            if self.name.startswith('irr'): self.actTranspiUpp005030 = pcr.max(0.0, self.potTranspiration -\
                                                                                    self.actTranspiUpp000005) 
             #
             ADJUST = self.actTranspiUpp005030 + self.percUpp005030
@@ -1787,7 +1787,7 @@ class LandCover(object):
             # scale fluxes (for Low030150)
             #
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            if self.name.starswith('irr'): self.actTranspiLow030150 = pcr.max(0.0, self.potTranspiration   -\
+            if self.name.startswith('irr'): self.actTranspiLow030150 = pcr.max(0.0, self.potTranspiration   -\
                                                                                    self.actTranspiUpp000005-\
                                                                                    self.actTranspiUpp005030) 
             #
