@@ -846,13 +846,6 @@ class LandSurface(object):
 
         # This method is to update fracVegCover of landCover for historical irrigation areas (done at yearly basis).
         
-        # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
-        yearInInteger = int(yearInInteger)
-        #~ print yearInInteger
-        if float(yearInInteger) < 1960. or float(yearInInteger) > 2010.:
-            msg = 'Dataset for the year '+str(yearInInteger)+" is not available. Dataset of historical irrigation areas is only available from 1960 to 2010."
-            logger.warning(msg)
-        yearInInteger = min(2010, max(1960, yearInInteger))
         yearInString   = str(yearInInteger) 
         
         # read historical irrigation areas  
