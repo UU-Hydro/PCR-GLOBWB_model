@@ -176,6 +176,27 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 date = datetime.datetime(date.year,int(1),int(1))
             if useDoy == "monthly":\
                 date = datetime.datetime(date.year,date.month,int(1))
+            if useDoy == "yearly" or useDoy == "monthly":
+                # if the desired year is not available, use the first year or the last year that is available
+                first_year_in_nc_file = findFirstYearInNCTime(nctime)
+                last_year_in_nc_file  =  findLastYearInNCTime(nctime)
+                #
+                if date.year < first_year_in_nc_file:  
+                    date.year = first_year_in_nc_file
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(dateInput)+" is NOT available. "
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
+                    msg += "\n"
+                    logger.warning(msg)
+                if date.year > end_year_in_nc_file:  
+                    date.year = end_year_in_nc_file
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(dateInput)+" is NOT available. "
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
+                    msg += "\n"
+                    logger.warning(msg)
             try:
                 idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                   select='exact')
@@ -1054,3 +1075,36 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                            extra_info_for_water_balance_reporting,threshold=1e-4)
     
     return cellAbstraction, cellAllocation
+
+
+def findLastYearInNCFile(ncFile):
+
+    # open a netcdf file:
+    if ncFile in filecache.keys():
+        f = filecache[ncFile]
+    else:
+        f = nc.Dataset(ncFile)
+        filecache[ncFile] = f
+
+    # last datetime
+    last_datetime_year = findLastYearInNCTime(f.variables['time']) 
+    
+    return last_datetime_year
+    
+def findLastYearInNCTime(ncTimeVariable):
+
+    # last datetime
+    last_datetime = nc.num2date(ncTimeVariable[len(ncTimeVariable) - 1],\
+                                ncTimeVariable.units,\
+                                ncTimeVariable.calendar) 
+    
+    return last_datetime.year
+
+def findFirstYearInNCTime(ncTimeVariable):
+
+    # first datetime
+    first_datetime = nc.num2date(ncTimeVariable[0],\
+                                ncTimeVariable.units,\
+                                ncTimeVariable.calendar) 
+    
+    return first_datetime.year

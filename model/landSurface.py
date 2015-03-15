@@ -821,12 +821,10 @@ class LandSurface(object):
         #~ swAbstractionFraction = pcr.roundup(swAbstractionFraction*10.)/10.
         #~ swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
 
-        # TODO: constrain swAbstractionFraction with Siebert's map
-        
         if self.usingAllocSegments:
             swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
             
-        # a new idea by Edwin: 
+        # a new idea by Edwin: - not used in IWMI project
         # - if regional limit of groundwater abstraction is used: 
         # - we set the first priority is groundwater, 
         #   but this groundwater abstraction is limited by regional groundwater abstraction
@@ -834,6 +832,10 @@ class LandSurface(object):
             swAbstractionFraction = pcr.scalar(0.0)
             #~ swAbstractionFraction = pcr.max(0.25, swAbstractionFraction)
 
+        # TODO: constrain swAbstractionFraction with Siebert's map
+
+        
+        
         swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
         swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
         gwAbstractionFraction = 1.0 - swAbstractionFraction
