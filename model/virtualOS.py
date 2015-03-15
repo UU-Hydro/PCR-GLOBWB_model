@@ -189,8 +189,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                     msg += "\n"
                     logger.warning(msg)
-                if date.year > end_year_in_nc_file:  
-                    date.year = end_year_in_nc_file
+                if date.year > last_year_in_nc_file:  
+                    date.year = last_year_in_nc_file
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                     msg += "The date "+str(dateInput)+" is NOT available. "
