@@ -832,15 +832,24 @@ class LandSurface(object):
             swAbstractionFraction = pcr.scalar(0.0)
             #~ swAbstractionFraction = pcr.max(0.25, swAbstractionFraction)
 
-        # TODO: constrain swAbstractionFraction with Siebert's map
-
-        
-        
-        swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
-        swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
-        gwAbstractionFraction = 1.0 - swAbstractionFraction
+        #~ swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
+        #~ swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
+        #~ gwAbstractionFraction = 1.0 - swAbstractionFraction
         
         return swAbstractionFraction
+
+    def partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFractionEstimate,\
+                                                          swAbstractionFractionData,\
+                                                          swAbstractionFractionDataQuality):
+
+        # surface water source fraction based on Stefan Siebert's map: 
+        data_weight_value = pcr.scalar(1.0) - \
+                            pcr.min(5., swAbstractionFractionDataQuality)/10.0
+                            
+        swAbstractionFraction = data_weight_value * swAbstractionFractionData +\
+                         (1.0 - data_weight_value)* swAbstractionFractionEstimate
+        
+        return swAbstractionFraction                  
 
     def scaleDynamicIrrigation(self,yearInInteger):
 
