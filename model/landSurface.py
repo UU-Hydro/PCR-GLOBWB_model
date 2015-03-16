@@ -846,24 +846,26 @@ class LandSurface(object):
         data_weight_value = pcr.scalar(1.0) - \
                             pcr.min(5., swAbstractionFractionDataQuality)/10.0
                             
-        swAbstractionFraction = data_weight_value * swAbstractionFractionData +\
+        swAbstractionFractionForIrrigation = data_weight_value * swAbstractionFractionData +\
                          (1.0 - data_weight_value)* swAbstractionFractionEstimate
         
-        return swAbstractionFraction                  
+        return swAbstractionFractionForIrrigation                  
 
     def scaleDynamicIrrigation(self,yearInInteger):
-
         # This method is to update fracVegCover of landCover for historical irrigation areas (done at yearly basis).
         
-        # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
-        yearInInteger = int(yearInInteger)
-        #~ print yearInInteger
-        if float(yearInInteger) < 1960. or float(yearInInteger) > 2010.:
-            msg = 'Dataset for the year '+str(yearInInteger)+" is not available. Dataset of historical irrigation areas is only available from 1960 to 2010."
-            logger.warning(msg)
-        yearInInteger = min(2010, max(1960, yearInInteger))
         
+        #~ # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
+        #~ yearInInteger = int(yearInInteger)
+        #~ if float(yearInInteger) < 1960. or float(yearInInteger) > 2010.:
+            #~ msg = 'Dataset for the year '+str(yearInInteger)+" is not available. Dataset of historical irrigation areas is only available from 1960 to 2010."
+            #~ logger.warning(msg)
+        #~ yearInInteger = min(2010, max(1960, yearInInteger))
+        #
+        # TODO: Generally, I do not need the aforementioned lines as I have defined the functions "findLastYearInNCTime" and "findFirstYearInNCTime" in the module virtualOS.py
+        #       However, Niko still need them for his DA scheme as we somehow his DA scheme cannot handle the netcdf file of historical irrigation areas (and therefore we have to use pcraster map files). 
         
+
         yearInString   = str(yearInInteger) 
         
         # read historical irrigation areas  

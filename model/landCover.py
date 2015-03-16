@@ -885,7 +885,9 @@ class LandCover(object):
                                    allocSegments, \
                                    currTimeStep, \
                                    desalinationWaterUse,\
-                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
+                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit,\
+                                   swAbstractionFractionForIrrigation = None,\
+                                   livestockWaterDemand = "NotAlwaysNeeded"):
 
         # non irrigation water demand
         self.nonIrrGrossDemand = pcr.cover(nonIrrGrossDemand, 0.0)                   # TODO: Please check! Do we really have to cover?    
@@ -963,11 +965,6 @@ class LandCover(object):
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
         self.totalPotentialGrossDemand        = self.totalPotentialMaximumGrossDemand         # this value will be reduced by available/accesible water
         #
-        #~ # - avoid small values (less than 1 m3) - # 
-        #~ self.totalPotentialGrossDemand = pcr.rounddown(self.totalPotentialGrossDemand*routing.cellArea)/\
-                                                                                      #~ routing.cellArea
-
-
 
         # Abstraction and Allocation of DESALINATED WATER
         # ##################################################################################################################
@@ -1011,18 +1008,38 @@ class LandCover(object):
         # #############################################################################################################################
         #  
         # surface water demand (m): water demand that should be satisfied by surface water abstraction (not limited by available water)
-        if self.surfaceWaterPiority:
-            # If surface water abstraction as the first priority
-            surface_water_demand = self.totalGrossDemandAfterDesalination
-        else:
-            # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
-            swAbstractionFractionUsed = swAbstractionFraction     
-            # - as a function of non fossil groundwater allocation
-            swAbstractionFractionUsed = pcr.max(swAbstractionFractionUsed,\
-                                                1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
-            swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed, pcr.max(0.0, swAbstractionFractionUsed))
-            surface_water_demand = pcr.max(0.0, self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed)
-            # - as a function of allocation of total groundwater (fossil and non fossil)
+        if swAbstractionFractionForIrrigation == None:
+            #
+            if self.surfaceWaterPiority:
+                # If surface water abstraction as the first priority
+                surface_water_demand = self.totalGrossDemandAfterDesalination
+            else:
+                # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
+                swAbstractionFractionUsed = swAbstractionFraction     
+                # - as a function of non fossil groundwater allocation
+                swAbstractionFractionUsed = pcr.max(swAbstractionFractionUsed,\
+                                                    1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
+                swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed, pcr.max(0.0, swAbstractionFractionUsed))
+                surface_water_demand = pcr.max(0.0, self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed)
+                # - as a function of allocation of total groundwater (fossil and non fossil)
+                surface_water_demand = pcr.min(surface_water_demand, \
+                                       pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        #
+        # using the map from Siebert to constrain surface water fraction
+        if swAbstractionFractionForIrrigation != None:
+            #
+            # calculate the remaining demand
+            remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
+                                                          self.irrGrossDemand + livestockWaterDemand ,\
+                                                          self.totalPotentialMaximumGrossDemand , 0.0) * self.totalGrossDemandAfterDesalination
+            remainingIndusrialDomestic   = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
+                                                   remainingIrrigationLivestock                                                     
+            #
+            # calculate the estimate of surface water demand:
+            surface_water_demand = swAbstractionFraction * remainingIndusrialDomestic +\
+                                   swAbstractionFractionForIrrigation * remainingIrrigationLivestock
+            #
+            # corrected with the average groundwater abstraction
             surface_water_demand = pcr.min(surface_water_demand, \
                                    pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         #  
