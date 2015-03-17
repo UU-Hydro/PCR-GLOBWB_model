@@ -866,7 +866,8 @@ class LandSurface(object):
             
         return swAbstractionFraction
 
-    def partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFractionEstimate,\
+    def partitioningGroundSurfaceAbstractionForIrrigation(self,\
+                                                          swAbstractionFractionEstimate,\
                                                           swAbstractionFractionData,\
                                                           swAbstractionFractionDataQuality):
 
