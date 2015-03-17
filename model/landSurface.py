@@ -192,13 +192,13 @@ class LandSurface(object):
             #
             self.swAbstractionFractionData = pcr.cover(\
                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
-                                                                 self.cloneMaps,self.tmpDir,self.inputDir), 0.0)
+                                                                 self.cloneMap,self.tmpDir,self.inputDir), 0.0)
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
                                                         self.swAbstractionFractionData )
             self.swAbstractionFractionDataQuality = \
                                              pcr.cover(\
                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
-                                                                 self.cloneMaps,self.tmpDir,self.inputDir), 0.0)
+                                                                 self.cloneMap,self.tmpDir,self.inputDir), 0.0)
             # ignore value with the quality above 5 
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
                                                         self.swAbstractionFractionData)                                                                          
