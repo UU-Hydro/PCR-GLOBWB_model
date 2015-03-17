@@ -858,7 +858,9 @@ class LandSurface(object):
         if not isinstance(self.swAbstractionFractionData,types.NoneType):
             swAbstractionFractionDict = {}
             swAbstractionFractionDict['estimate']             = swAbstractionFraction
-            swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction)
+            swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction,\
+                                                                                                                       swAbstractionFractionData,\
+                                                                                                                       swAbstractionFractionDataQuality)
             swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
             swAbstractionFraction = swAbstractionFractionDict
             
@@ -870,10 +872,10 @@ class LandSurface(object):
 
         # surface water source fraction based on Stefan Siebert's map: 
         data_weight_value = pcr.scalar(1.0) - \
-                            pcr.min(5., swAbstractionFractionDataQuality)/10.0
+                            pcr.min(5., pcr.max(0.0, swAbstractionFractionDataQuality))/10.0
                             
-        swAbstractionFractionForIrrigation = data_weight_value * swAbstractionFractionData +\
-                         (1.0 - data_weight_value)* swAbstractionFractionEstimate
+        swAbstractionFractionForIrrigation = data_weight_value  * swAbstractionFractionData +\
+                                      (1.0 - data_weight_value) * swAbstractionFractionEstimate
         
         swAbstractionFractionForIrrigation = pcr.cover(swAbstractionFractionForIrrigation, swAbstractionFractionEstimate)
         swAbstractionFractionForIrrigation = pcr.cover(swAbstractionFractionForIrrigation, 1.0)
