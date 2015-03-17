@@ -1000,13 +1000,6 @@ class LandCover(object):
         # ##################################################################################################################
         # - end of Abstraction and Allocation of DESALINATED WATER
 
-
-            swAbstractionFractionDict['estimate']             = swAbstractionFraction
-            swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction)
-            swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
-
-
-
         # Abstraction and Allocation of SURFACE WATER
         # #############################################################################################################################
         #  
