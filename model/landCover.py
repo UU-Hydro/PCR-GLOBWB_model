@@ -1013,7 +1013,7 @@ class LandCover(object):
                                                           self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
                                                           self.totalPotentialMaximumGrossDemand), 0.0) * self.totalGrossDemandAfterDesalination
             remainingIndusrialDomestic   = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
-                                                   remainingIrrigationLivestock                                                     
+                                                   remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of surface water demand:
             surface_water_demand = swAbstractionFraction['estimate']   * remainingIndusrialDomestic +\
