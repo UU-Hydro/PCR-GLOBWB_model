@@ -186,9 +186,10 @@ class LandSurface(object):
         self.waterDemandOptions(iniItems)
         
         # pre-defined fractions for groundwater and surface water source partitioning:
-        self.swAbstractionFractionData = None
         if 'swAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
            'swAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
+            #
+            logger.info('Using/incorporating the predefined fractions of surface water source.')
             #
             self.swAbstractionFractionData = pcr.cover(\
                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
@@ -201,7 +202,11 @@ class LandSurface(object):
                                                                  self.cloneMap,self.tmpDir,self.inputDir), 0.0)
             # ignore value with the quality above 5 
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
-                                                        self.swAbstractionFractionData)                                                                          
+                                                        self.swAbstractionFractionData)
+        else:                                                                                                                          
+            logger.info('Not using/incorporating the predefined fractions of surface water source.')
+            self.swAbstractionFractionData = None
+
         
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {} # initialize land cover objects
@@ -856,6 +861,9 @@ class LandSurface(object):
         
         # incorporating the predefined fraction of surface water source:  
         if not isinstance(self.swAbstractionFractionData,types.NoneType):
+            
+            logger.debug('Using/incorporating the predefined fractions of surface water source.')
+            
             swAbstractionFractionDict = {}
             swAbstractionFractionDict['estimate']             = swAbstractionFraction
             swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction,\
@@ -863,7 +871,11 @@ class LandSurface(object):
                                                                                                                   self.swAbstractionFractionDataQuality)
             swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
             swAbstractionFraction = swAbstractionFractionDict
+        
+        else:    
             
+            logger.debug('Not using/incorporating the predefined fractions of surface water source.')
+
         return swAbstractionFraction
 
     def partitioningGroundSurfaceAbstractionForIrrigation(self,\
