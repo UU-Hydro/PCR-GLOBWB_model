@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import types
 import pcraster as pcr
 import virtualOS as vos
 
@@ -165,6 +166,7 @@ class LandSurface(object):
 
         self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
 
+        
         # landCover types included in the simulation: 
         self.coverTypes = ["forest","grassland"]
         #
@@ -174,7 +176,7 @@ class LandSurface(object):
             self.coverTypes += ["irrPaddy","irrNonPaddy"]
             logger.info("Irrigation is included/considered in this run.")
         else:     
-            logger.info("Irrigation is not included/considered in this run.")
+            logger.info("Irrigation is NOT included/considered in this run.")
 
         # limitAbstraction
         self.limitAbstraction = False
@@ -182,6 +184,24 @@ class LandSurface(object):
 
         # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
         self.waterDemandOptions(iniItems)
+        
+        # pre-defined fractions for groundwater and surface water source partitioning:
+        self.swAbstractionFractionData = None
+        if 'swAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
+           'swAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
+            #
+            self.swAbstractionFractionData = pcr.cover(\
+                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
+                                                                 self.cloneMaps,self.tmpDir,self.inputDir), 0.0)
+            self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
+                                                        self.swAbstractionFractionData )
+            self.swAbstractionFractionDataQuality = \
+                                             pcr.cover(\
+                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
+                                                                 self.cloneMaps,self.tmpDir,self.inputDir), 0.0)
+            # ignore value with the quality above 5 
+            self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
+                                                        self.swAbstractionFractionData)                                                                          
         
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {} # initialize land cover objects
@@ -824,18 +844,24 @@ class LandSurface(object):
         if self.usingAllocSegments:
             swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
             
-        # a new idea by Edwin: - not used in IWMI project
-        # - if regional limit of groundwater abstraction is used: 
-        # - we set the first priority is groundwater, 
-        #   but this groundwater abstraction is limited by regional groundwater abstraction
-        if groundwater.limitRegionalAnnualGroundwaterAbstraction:
-            swAbstractionFraction = pcr.scalar(0.0)
-            #~ swAbstractionFraction = pcr.max(0.25, swAbstractionFraction)
+        #~ # a new idea by Edwin: - not used in IWMI project
+        #~ # - if regional limit of groundwater abstraction is used: 
+        #~ # - we set the first priority is groundwater, 
+        #~ #   but this groundwater abstraction is limited by regional groundwater abstraction
+        #~ if groundwater.limitRegionalAnnualGroundwaterAbstraction:
+            #~ swAbstractionFraction = pcr.scalar(0.0)
 
-        #~ swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
-        #~ swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
-        #~ gwAbstractionFraction = 1.0 - swAbstractionFraction
+        swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
+        swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
         
+        # incorporating the predefined fraction of surface water source:  
+        if not isinstance(self.swAbstractionFractionData,types.NoneType):
+            swAbstractionFractionDict = {}
+            swAbstractionFractionDict['estimate']             = swAbstractionFraction
+            swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction)
+            swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
+            swAbstractionFraction = swAbstractionFractionDict
+            
         return swAbstractionFraction
 
     def partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFractionEstimate,\
@@ -848,6 +874,10 @@ class LandSurface(object):
                             
         swAbstractionFractionForIrrigation = data_weight_value * swAbstractionFractionData +\
                          (1.0 - data_weight_value)* swAbstractionFractionEstimate
+        
+        swAbstractionFractionForIrrigation = pcr.cover(swAbstractionFractionForIrrigation, swAbstractionFractionEstimate)
+        swAbstractionFractionForIrrigation = pcr.cover(swAbstractionFractionForIrrigation, 1.0)
+        swAbstractionFractionForIrrigation = pcr.ifthen(self.landmask, swAbstractionFractionForIrrigation)
         
         return swAbstractionFractionForIrrigation                  
 
