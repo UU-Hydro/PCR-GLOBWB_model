@@ -859,8 +859,8 @@ class LandSurface(object):
             swAbstractionFractionDict = {}
             swAbstractionFractionDict['estimate']             = swAbstractionFraction
             swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction,\
-                                                                                                                       swAbstractionFractionData,\
-                                                                                                                       swAbstractionFractionDataQuality)
+                                                                                                                  self.swAbstractionFractionData,\
+                                                                                                                  self.swAbstractionFractionDataQuality)
             swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
             swAbstractionFraction = swAbstractionFractionDict
             
