@@ -1733,7 +1733,7 @@ class LandCover(object):
             #
             # - allowing more transpiration
             remainingPotET = pcr.max(0.0, remainingPotET -\
-                                         (self.actBareSoilEvap + self.actTranspiUpp)
+                                         (self.actBareSoilEvap + self.actTranspiUpp))
             extraTranspiration   = pcr.min(remainingPotET,\
                                    pcr.max(0.0, self.storUpp + self.infiltration - \
                                                 self.actBareSoilEvap - \
@@ -1789,7 +1789,7 @@ class LandCover(object):
             #
             # - allowing more transpiration
             remainingPotET = pcr.max(0.0, remainingPotET -\
-                                         (self.actBareSoilEvap + self.actTranspiUpp000005)
+                                         (self.actBareSoilEvap + self.actTranspiUpp000005))
             extraTranspiration   = pcr.min(remainingPotET,\
                                    pcr.max(0.0, self.storUpp000005 + self.infiltration - \
                                                 self.actBareSoilEvap - \
