@@ -2179,7 +2179,7 @@ class LandCover(object):
             pcr.report(self.satExcess     ,"test.map"); os.system('aguila test.map')
             pcr.report(self.directRunoff  ,"test.map"); os.system('aguila test.map')
             pcr.report(self.openWaterEvap ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.infiltration] ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.infiltration  ,"test.map"); os.system('aguila test.map')
             pcr.report(  preTopWaterLayer ,"test.map"); os.system('aguila test.map')
             pcr.report(self.topWaterLayer ,"test.map"); os.system('aguila test.map')
             #
