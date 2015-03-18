@@ -1717,6 +1717,9 @@ class LandCover(object):
         # - percolation and interfflow losses depend on the remaining water
         ########################################################################################################################################
 
+        # remaining total energy for evaporation fluxes:
+        remainingPotET = self.potBareSoilEvap + self.potTranspiration
+        
         if self.numberOfLayers == 2:
 
             # scale fluxes (for Upp)
@@ -1727,6 +1730,17 @@ class LandCover(object):
                                               self.infiltration) / ADJUST),0.)
             self.actBareSoilEvap = ADJUST*self.actBareSoilEvap
             self.actTranspiUpp   = ADJUST*self.potTranspiration                
+            #
+            # - allowing more transpiration
+            remainingPotET = pcr.max(0.0, remainingPotET -\
+                                         (self.actBareSoilEvap + self.actTranspiUpp)
+            extraTranspiration   = pcr.min(remainingPotET,\
+                                   pcr.max(0.0, self.storUpp + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp))
+            self.actTranspiUpp  += extraTranspiration
+            remainingPotET = pcr.max(0.0, remainingPotET - extraTranspiration)                                   
+            #
             # - percolation fluxes depend on the remaining water
             self.percUpp         = pcr.min(self.percUpp,\
                                    pcr.max(0.0, self.storUpp + self.infiltration - \
@@ -1734,14 +1748,12 @@ class LandCover(object):
                                                 self.actTranspiUpp))
             
             # scale fluxes (for Low)
-            # - remaining potential transpiration will be used to boost the transpiration process
-            self.potTranspiration = self.potTranspiration - self.actTranspiUpp
-            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            ADJUST = self.potTranspiration
+            # - remaining potential evaporation will be used to boost the transpiration process
+            ADJUST = remainingPotET
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storLow + \
                                               self.percUpp)/ADJUST),0.)
-            self.actTranspiLow = ADJUST*self.potTranspiration
+            self.actTranspiLow = ADJUST*remainingPotET
             # - percolation and interflow fluxes depend on the remaining water
             ADJUST = self.percLow + self.interflow
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
@@ -1774,35 +1786,44 @@ class LandCover(object):
                                               self.infiltration) / ADJUST),0.)
             self.actBareSoilEvap     = ADJUST*self.actBareSoilEvap
             self.actTranspiUpp000005 = ADJUST*self.potTranspiration
+            #
+            # - allowing more transpiration
+            remainingPotET = pcr.max(0.0, remainingPotET -\
+                                         (self.actBareSoilEvap + self.actTranspiUpp000005)
+            extraTranspiration   = pcr.min(remainingPotET,\
+                                   pcr.max(0.0, self.storUpp000005 + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp000005))
+            self.actTranspiUpp000005 += extraTranspiration
+            remainingPotET = pcr.max(0.0, remainingPotET - extraTranspiration)                                   
+            #
             # - percolation fluxes depend on the remaining water
-            self.percUpp000005       = pcr.min(self.percUpp000005,\
-                                       pcr.max(0.0, self.storUpp000005 + self.infiltration - \
-                                                    self.actBareSoilEvap - \
-                                                    self.actTranspistorUpp000005))
+            self.percUpp000005   = pcr.min(self.percUpp000005,\
+                                   pcr.max(0.0, self.storUpp000005 + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspistorUpp000005))
 
             # scale fluxes (for Upp005030)
-            # - remaining potential transpiration will be used to boost the transpiration process
-            self.potTranspiration = self.potTranspiration - self.actTranspiUpp000005
-            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            ADJUST = self.potTranspiration
+            # - remaining potential evaporation will be used to boost the transpiration process
+            ADJUST = remainingPotET
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storUpp005030 + \
                                               self.percUpp000005)/ADJUST),0.)
-            self.actTranspiUpp005030 = ADJUST*self.potTranspiration
+            self.actTranspiUpp005030 = ADJUST*remainingPotET
             # - percolation fluxes depend on the remaining water
             self.percUpp005030       = pcr.min(self.percUpp005030,\
                                        pcr.max(0.0, self.storUpp005030 + self.percUpp000005 - \
                                                     self.actTranspiUpp005030))
 
             # scale fluxes (for Low030150)
-            # - remaining potential transpiration will be used to boost the transpiration process
-            self.potTranspiration = self.potTranspiration - self.actTranspiUpp005030
+            # - remaining potential evaporation will be used to boost the transpiration process
+            remainingPotET = pcr.max(0.0, remainingPotET - self.actTranspiUpp005030)
             # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
-            ADJUST = self.potTranspiration
+            ADJUST = remainingPotET
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storLow030150 + \
                                               self.percUpp005030)/ADJUST),0.)
-            self.actTranspiLow030150 = ADJUST*self.potTranspiration
+            self.actTranspiLow030150 = ADJUST*remainingPotET
             # - percolation and interflow fluxes depend on the remaining water
             ADJUST = self.percLow030150 + self.interflow
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
