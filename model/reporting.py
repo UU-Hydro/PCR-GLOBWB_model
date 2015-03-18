@@ -353,7 +353,8 @@ class Reporting(object):
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
                                            self._model.routing.landmask, \
-                                           self._model.routing.channelStorage / self._model.routing.cellArea + \
+                                           pcr.max(0.0, self._model.routing.channelStorage) /\
+                                           self._model.routing.cellArea + \
                                            self._model.landSurface.totalSto + \
                                            self._model.groundwater.storGroundwater)
 
