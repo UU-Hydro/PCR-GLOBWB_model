@@ -1818,7 +1818,6 @@ class LandCover(object):
             # scale fluxes (for Low030150)
             # - remaining potential evaporation will be used to boost the transpiration process
             remainingPotET = pcr.max(0.0, remainingPotET - self.actTranspiUpp005030)
-            # idea on 14 march 2015: in irrigated areas, potential transpiration will be used
             ADJUST = remainingPotET
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.storLow030150 + \
@@ -2175,14 +2174,23 @@ class LandCover(object):
 
         if self.debugWaterBalance:
             #
-            vos.waterBalanceCheck([netLqWaterToSoil,\
-                                   self.irrGrossDemand,\
-                                   self.satExcess],\
-                                  [self.directRunoff,
-                                   self.openWaterEvap,
-                                   self.infiltration],\
-                                  [  preTopWaterLayer],\
-                                  [self.topWaterLayer],\
+            pcr.report(netLqWaterToSoil   ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.irrGrossDemand,"test.map"); os.system('aguila test.map')
+            pcr.report(self.satExcess     ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.directRunoff  ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.openWaterEvap ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.infiltration] ,"test.map"); os.system('aguila test.map')
+            pcr.report(  preTopWaterLayer ,"test.map"); os.system('aguila test.map')
+            pcr.report(self.topWaterLayer ,"test.map"); os.system('aguila test.map')
+            #
+            vos.waterBalanceCheck([netLqWaterToSoil    ,\
+                                   self.irrGrossDemand ,\
+                                   self.satExcess     ],\
+                                  [self.directRunoff   ,\
+                                   self.openWaterEvap  ,\
+                                   self.infiltration]  ,\
+                                  [  preTopWaterLayer ],\
+                                  [self.topWaterLayer ] ,\
                                        'topWaterLayer',True,\
                                    currTimeStep.fulldate,threshold=1e-4)
             
