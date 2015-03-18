@@ -557,28 +557,24 @@ class Routing(object):
         # estimating channel discharge (m3/day)
         self.Q = pcr.accutraveltimeflux(self.lddMap,\
                                         channelStorageForAccuTravelTime,\
-                                        self.characteristicDistance)
+                                        pcr.max(0.0, self.characteristicDistance))
         self.Q = pcr.cover(self.Q, 0.0)
         # for very small velocity (i.e. characteristicDistanceForAccuTravelTime), discharge can be missing value.
         # see: http://sourceforge.net/p/pcraster/bugs-and-feature-requests/543/
         #      http://karssenberg.geo.uu.nl/tt/TravelTimeSpecification.htm
         #
         # and make sure that no negative discharge
-        self.Q = pcr.max(0.0, self.Q)                                   # unit: m3/day        
+        self.Q = pcr.max(0.0, self.Q)                                    # unit: m3/day        
 
         # updating channelStorage (after routing)
         #
         # - alternative 1: using accutraveltimestate
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
-                              self.characteristicDistance)              # unit: m3
-
-        #~ # - alternative 2: using the calculated Q (Can we do this?)
-        #~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.Q) - self.Q
-        #~ channelStorageForRouting += storage_change_in_volume 
+                              pcr.max(0.0, self.characteristicDistance)) # unit: m3
 
         # return channelStorageThatWillNotMove to channelStorage:
-        self.channelStorage += channelStorageThatWillNotMove            # unit: m3
+        self.channelStorage += channelStorageThatWillNotMove             # unit: m3
 
         # for non kinematic wave approach, set subDishcarge to self.Q in m3/s
         self.subDischarge = self.Q / vos.secondsPerDay()
@@ -792,7 +788,7 @@ class Routing(object):
         # TODO: accumulate water in endorheic basins that are considered as lakes/reservoirs
                 
         # estimate volume of water that can be extracted for abstraction in the next time step
-        self.readAvlChannelStorage = self.estimate_available_volume_for_abstraction(self.channelStorage)
+        self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
         
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
@@ -872,7 +868,7 @@ class Routing(object):
                                 riverbedConductivity * self.dynamicFracWat * self.cellArea, \
                                 0.0), 0.0)))
         self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)                         
-        factor = 0.05 # to avoid flip flop
+        factor = 0.25 # to avoid flip flop
         self.riverbedExchange = pcr.min(self.riverbedExchange, (1.0-factor)*pcr.max(0.0,self.channelStorage))                                                             
         self.riverbedExchange = pcr.ifthenelse(self.channelStorage < 0.0, 0.0, self.riverbedExchange)
         self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
@@ -1055,11 +1051,11 @@ class Routing(object):
         if self.floodPlain:
             
             # return flood fraction and flood/innundation depth  above the flood plain
-            floodFraction, floodDepth = self.returnFloodedFraction(self.channelStorage)
+            floodFraction, floodDepth = self.returnFloodedFraction(channelStorage)
             
             # channel wetted area
             channel_wetted_area    = pcr.max(channel_wetted_area,\
-                                           channelStorage / self.channelLength)                     # unit: m2
+                                             channelStorage / self.channelLength)                   # unit: m2
             
             # wetter perimeter
             flood_only_wetted_perimeter   = pcr.max(0.0, floodFraction*self.cellArea/\
@@ -1445,6 +1441,8 @@ class Routing(object):
         minDischargeForEnvironmentalFlow = pcr.max(0.0, self.avgDischarge - z_score * stdDischarge)
         factor = 0.10 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
+        minDischargeForEnvironmentalFlow = pcr.max(0.0, minDischargeForEnvironmentalFlow)
+        
         return minDischargeForEnvironmentalFlow
 
 
@@ -1455,7 +1453,7 @@ class Routing(object):
         minDischargeForEnvironmentalFlow = self.estimate_discharge_for_environmental_flow(channelStorage)
 
         # available channelStorage that can be extracted for surface water abstraction
-        readAvlChannelStorage = pcr.max(0.0,channelStorage)
+        readAvlChannelStorage  = pcr.max(0.0,channelStorage)
         
         # reduce readAvlChannelStorage if the average discharge < minDischargeForEnvironmentalFlow
         readAvlChannelStorage *= pcr.min(1.0,\
@@ -1470,9 +1468,11 @@ class Routing(object):
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # minimum safety factor is 50% (to avoid flip flop)
-        readAvlChannelStorage = pcr.max(readAvlChannelStorage, \
+        readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                            0.5*channelStorage)
-
+        readAvlChannelStorage = pcr.max(0.0,\
+                                        readAvlChannelStorage)
+                                                
         # ignore small volume values - less than 1 m3
         readAvlChannelStorage = pcr.rounddown(readAvlChannelStorage*1.)/1.
         readAvlChannelStorage = pcr.ifthen(self.landmask, readAvlChannelStorage)
