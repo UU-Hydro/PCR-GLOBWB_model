@@ -2175,14 +2175,14 @@ class LandCover(object):
 
         if self.debugWaterBalance:
             #
-            pcr.report(netLqWaterToSoil   ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.irrGrossDemand,"test.map"); os.system('aguila test.map')
-            pcr.report(self.satExcess     ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.directRunoff  ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.openWaterEvap ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.infiltration  ,"test.map"); os.system('aguila test.map')
-            pcr.report(  preTopWaterLayer ,"test.map"); os.system('aguila test.map')
-            pcr.report(self.topWaterLayer ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(netLqWaterToSoil   ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.irrGrossDemand,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.satExcess     ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.directRunoff  ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.openWaterEvap ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.infiltration  ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(  preTopWaterLayer ,"test.map"); os.system('aguila test.map')
+            #~ pcr.report(self.topWaterLayer ,"test.map"); os.system('aguila test.map')
             #
             vos.waterBalanceCheck([netLqWaterToSoil    ,\
                                    self.irrGrossDemand ,\
