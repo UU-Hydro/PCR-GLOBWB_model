@@ -1435,7 +1435,7 @@ class LandCover(object):
         relActTranspiration = pcr.min(1.0, relActTranspiration)
         
         # an idea by Edwin - 23 March 2015: no transpiration reduction in irrigated areas:
-        if self.startswith('irr'): relActTranspiration = pcr.scalar(1.0)
+        if self.name.startswith('irr'): relActTranspiration = pcr.scalar(1.0)
         
         # estimates of actual transpiration fluxes:
         if self.numberOfLayers == 2:
