@@ -1434,7 +1434,7 @@ class LandCover(object):
         relActTranspiration = pcr.max(0.0, relActTranspiration)
         relActTranspiration = pcr.min(1.0, relActTranspiration)
         
-        # an idea by Edwin - 23 March 2015: no tranpiration reduction in irrigated areas:
+        # an idea by Edwin - 23 March 2015: no transpiration reduction in irrigated areas:
         if self.startswith('irr'): relActTranspiration = pcr.scalar(1.0)
         
         # estimates of actual transpiration fluxes:
@@ -1471,7 +1471,9 @@ class LandCover(object):
 
         # no bare soil evaporation in the inundated paddy field 
         if self.name == 'irrPaddy':
-            treshold = 0.0005 # unit: m ; no bare soil evaporation if topWaterLayer is above treshold
+            # no bare soil evaporation if topWaterLayer is above treshold
+            #~ treshold = 0.0005 # unit: m ; 
+            treshold = self.potBareSoilEvap + self.potTranspiration                # an idea by Edwin on 23 march 2015
             actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > treshold, 0.0, actBareSoilEvap)
         
         # return the calculated variables:
