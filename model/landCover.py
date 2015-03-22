@@ -249,7 +249,7 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.000 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
+            min_percolation_loss = 0.004 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
             max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
@@ -1076,6 +1076,11 @@ class LandCover(object):
 
         # water demand that must be satisfied by groundwater abstraction (not limited to available water)
         self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)   # unit: m
+
+        # using the map from Siebert to constrain surface water fraction
+        if isinstance(swAbstractionFraction, dict):
+            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
+                                                  (1.0 - swAbstractionFractionUsed) * self.totalGrossDemandAfterDesalination)
 
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
