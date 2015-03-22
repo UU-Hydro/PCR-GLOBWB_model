@@ -1016,10 +1016,11 @@ class LandCover(object):
                                                    remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of surface water demand:
-            surface_water_demand = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
-                                   swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
+            surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
+                                            swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
             #
             # corrected with the average groundwater abstraction
+            surface_water_demand = surface_water_demand_estimate
             surface_water_demand = pcr.min(surface_water_demand, \
                                    pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         else:
@@ -1077,10 +1078,10 @@ class LandCover(object):
         # water demand that must be satisfied by groundwater abstraction (not limited to available water)
         self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)   # unit: m
 
-        # using the map from Siebert to constrain surface water fraction
+        # using the map from Siebert to constrain groundwater source fraction
         if isinstance(swAbstractionFraction, dict):
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
-                                          pcr.max(0.0, self.totalGrossDemandAfterDesalination - surface_water_demand))
+                                          pcr.max(0.0, self.totalGrossDemandAfterDesalination - surface_water_demand_estimate))
 
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
