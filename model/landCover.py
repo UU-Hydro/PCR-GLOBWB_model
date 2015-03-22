@@ -1080,7 +1080,7 @@ class LandCover(object):
         # using the map from Siebert to constrain surface water fraction
         if isinstance(swAbstractionFraction, dict):
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
-                                                  (1.0 - swAbstractionFractionUsed) * self.totalGrossDemandAfterDesalination)
+                                          pcr.max(0.0, self.totalGrossDemandAfterDesalination - surface_water_demand)
 
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
