@@ -1021,8 +1021,8 @@ class LandCover(object):
             #
             # corrected with the average groundwater abstraction
             surface_water_demand = surface_water_demand_estimate
-            surface_water_demand = pcr.min(surface_water_demand, \
-                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+            surface_water_demand = pcr.max(surface_water_demand, \
+                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         else:
             #
             if self.surfaceWaterPiority:
