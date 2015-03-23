@@ -917,15 +917,15 @@ class LandCover(object):
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #               readAvlWater (available water in the root zone)
             #
-            #~ # irrigation demand based on deficit in ET - THIS SHOULD BE IMPLEMENTED (otherwise water demand may be too high)
-            #~ evaporationDeficit = pcr.max(0.0, self.potBareSoilEvap  +\
-                                 #~ self.potTranspiration -\
-                                 #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
+            # irrigation demand based on deficit in ET
+            evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
+                                  self.potTranspiration -\
+                                  self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            self.irrGrossDemand = pcr.max(self.irrGrossDemand, evaporationDeficit)                        
             #
-            #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
-            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
-            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
+            # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1325,8 +1325,8 @@ class LandCover(object):
         # openWaterEvap is ONLY for evaporation from paddy field areas
         self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
 
-        if self.name.startswith('irr'): # open water evaporation from all irrigated areas
-        #~ if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
+        #~ if self.name.startswith('irr'): # open water evaporation from all irrigated areas
+        if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
             self.openWaterEvap =  \
              pcr.min(\
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
