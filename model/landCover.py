@@ -1100,7 +1100,7 @@ class LandCover(object):
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstraction , 1.0)
             # minimum reduction factor:
-            minReductionFactor = 0.20
+            minReductionFactor = 0.00
             self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
                                            pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
