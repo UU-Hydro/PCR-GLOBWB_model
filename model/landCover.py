@@ -1019,10 +1019,11 @@ class LandCover(object):
             surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
             #
-            # corrected with the average groundwater abstraction
             surface_water_demand = surface_water_demand_estimate
-            surface_water_demand = pcr.max(surface_water_demand, \
-                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+            #
+            #~ # reduce surface water demand with average allocation from groundwater source
+            #~ surface_water_demand = pcr.min(surface_water_demand, \
+                                   #~ pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         else:
             #
             if self.surfaceWaterPiority:

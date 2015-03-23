@@ -884,8 +884,9 @@ class LandSurface(object):
                                                           swAbstractionFractionDataQuality):
 
         # surface water source fraction based on Stefan Siebert's map: 
+        factor = 0.5 # using this factor, the minimum value for the following 'data_weight_value' is 0.75 (for swAbstractionFractionDataQuality == 5) 
         data_weight_value = pcr.scalar(1.0) - \
-                            pcr.min(5., pcr.max(0.0, swAbstractionFractionDataQuality))/10.0
+                           (pcr.min(5., pcr.max(0.0, swAbstractionFractionDataQuality))/10.0)*factor
                             
         swAbstractionFractionForIrrigation = data_weight_value  * swAbstractionFractionData +\
                                       (1.0 - data_weight_value) * swAbstractionFractionEstimate
