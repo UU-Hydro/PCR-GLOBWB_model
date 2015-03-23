@@ -1088,9 +1088,9 @@ class LandCover(object):
 
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
-            # estimate of total groundwater abstraction (m3) from the last 365 days, with the tolerance of 75 days (2.5 months):
+            # estimate of total groundwater abstraction (m3) from the last 365 days, with the tolerance of 30 days (1 month):
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
-                                           pcr.min(365. - 75., routing.timestepsToAvgDischarge)
+                                           pcr.min(365. - 30., routing.timestepsToAvgDischarge)
             # at regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
