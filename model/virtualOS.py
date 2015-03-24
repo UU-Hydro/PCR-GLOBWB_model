@@ -197,6 +197,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                     msg += "\n"
                     logger.warning(msg)
+            print date
             try:
                 idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                   select='exact')
