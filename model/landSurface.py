@@ -958,11 +958,11 @@ class LandSurface(object):
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
             if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             
-                self.groundwater_pumping_region_ids = \
-                     pcr.ifthen(self.landmask,\
-                     pcr.nominal(
-                     vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
-                         currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)))
+                #~ self.groundwater_pumping_region_ids = \
+                     #~ pcr.ifthen(self.landmask,\
+                     #~ pcr.nominal(
+                     #~ vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
+                         #~ currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)))
 
                 self.regionalAnnualGroundwaterAbstractionLimit = \
                      pcr.ifthen(self.landmask,\
