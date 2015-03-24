@@ -921,7 +921,7 @@ class LandCover(object):
             evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
                                   self.potTranspiration -\
                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            self.irrGrossDemand = pcr.max(self.irrGrossDemand, evaporationDeficit)                        
+            self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
             # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
@@ -945,7 +945,7 @@ class LandCover(object):
                                                  self.irrGrossDemand)
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximIrrGrossDemand = 0.3 # unit: m/day
+        maximIrrGrossDemand = 0.1 # unit: m/day
         self.irrGrossDemand = pcr.min(maximIrrGrossDemand, self.irrGrossDemand)
         
         # the following irrigation demand is not limited to available water
@@ -2178,6 +2178,7 @@ class LandCover(object):
         # all fluxes are limited to available (source) storage
         if self.name.startswith('irr'):
             self.scaleAllFluxesForIrrigatedAreas(parameters, groundwater)
+            #~ self.scaleAllFluxes(parameters, groundwater)
         else:    
             self.scaleAllFluxes(parameters, groundwater)
 
@@ -2185,15 +2186,6 @@ class LandCover(object):
         self.updateSoilStates(parameters)
 
         if self.debugWaterBalance:
-            #
-            #~ pcr.report(netLqWaterToSoil   ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.irrGrossDemand,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.satExcess     ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.directRunoff  ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.openWaterEvap ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.infiltration  ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(  preTopWaterLayer ,"test.map"); os.system('aguila test.map')
-            #~ pcr.report(self.topWaterLayer ,"test.map"); os.system('aguila test.map')
             #
             vos.waterBalanceCheck([netLqWaterToSoil    ,\
                                    self.irrGrossDemand ,\
