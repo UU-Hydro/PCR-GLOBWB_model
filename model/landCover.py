@@ -923,9 +923,9 @@ class LandCover(object):
                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
             self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
-            # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
+            #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
+            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
+            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1021,9 +1021,9 @@ class LandCover(object):
             #
             surface_water_demand = surface_water_demand_estimate
             #
-            #~ # reduce surface water demand with average allocation from groundwater source
-            #~ surface_water_demand = pcr.min(surface_water_demand, \
-                                   #~ pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+            # maximize surface water demand with average allocation from groundwater source
+            surface_water_demand = pcr.max(surface_water_demand, \
+                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         else:
             #
             if self.surfaceWaterPiority:
@@ -1325,8 +1325,8 @@ class LandCover(object):
         # openWaterEvap is ONLY for evaporation from paddy field areas
         self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
 
-        #~ if self.name.startswith('irr'): # open water evaporation from all irrigated areas
-        if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
+        if self.name.startswith('irr'): # open water evaporation from all irrigated areas
+        #~ if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
             self.openWaterEvap =  \
              pcr.min(\
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
