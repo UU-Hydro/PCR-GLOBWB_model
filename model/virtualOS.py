@@ -199,7 +199,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     logger.warning(msg)
             try:
                 idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
-                                                  select='exact')
+                                                  select='nearest')
             except:                                  
                 try:
                     idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
