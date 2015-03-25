@@ -1467,9 +1467,9 @@ class Routing(object):
                                                pcr.max(0.0,\
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
-        # minimum safety factor is 50% (to avoid flip flop)
+        # minimum safety factor is 25% (to avoid flip flop)
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
-                                           0.5*channelStorage)
+                                          0.25*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\
                                         readAvlChannelStorage)
                                                 

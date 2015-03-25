@@ -249,7 +249,7 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
+            min_percolation_loss = 0.004 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
             max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
@@ -921,7 +921,13 @@ class LandCover(object):
             evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
                                   self.potTranspiration -\
                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
+            #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
+            #
+            # idea on 25 march - also compensating infiltration losses 
+            #                  - openWaterEvap should tackle evaporationDefiict
+            #
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005)
             #
             #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
