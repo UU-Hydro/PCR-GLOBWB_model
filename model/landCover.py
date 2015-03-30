@@ -928,9 +928,9 @@ class LandCover(object):
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
-            # idea on 30 march - irrigation demand < evaporationDeficit + infiltration_capacity
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005)
+            # idea on 30 march - irrigation demand < max(evaporationDeficit, infiltration_capacity) - this should be combined with zero openWaterEvap in non-paddy fields
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, pcr.max(evaporationDeficit, parameters.kSatUpp))
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, pcr.max(evaporationDeficit, parameters.kSatUpp000005))
             #
             #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
@@ -1334,8 +1334,8 @@ class LandCover(object):
         # openWaterEvap is ONLY for evaporation from paddy field areas
         self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
 
-        if self.name.startswith('irr'): # open water evaporation from all irrigated areas
-        #~ if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
+        #~ if self.name.startswith('irr'): # open water evaporation from all irrigated areas
+        if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
             self.openWaterEvap =  \
              pcr.min(\
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
