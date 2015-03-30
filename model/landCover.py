@@ -928,9 +928,14 @@ class LandCover(object):
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
-            # idea on 30 march - irrigation demand < max(evaporationDeficit, infiltration_capacity) - this should be combined with zero openWaterEvap in non-paddy fields
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, pcr.max(evaporationDeficit, parameters.kSatUpp))
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, pcr.max(evaporationDeficit, parameters.kSatUpp000005))
+            # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
+            #
+            # idea on 30 march: reduce irrigation demand to 25% if evaporationDeficit = 0
+            reduction_factor = 0.25
+            self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0., self.irrGrossDemand, reduction_factor*self.irrGrossDemand)
+            #
             #
             #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
