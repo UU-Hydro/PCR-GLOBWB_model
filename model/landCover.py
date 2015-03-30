@@ -924,10 +924,13 @@ class LandCover(object):
             #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
             # idea on 25 march - also compensating infiltration losses 
-            #                  - openWaterEvap should tackle evaporationDefiict
+            #                  - openWaterEvap should tackle evaporationDeficit
+            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
+            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
+            # idea on 30 march - irrigation demand < evaporationDeficit + infiltration_capacity
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005)
             #
             #~ # - assume that smart farmers do not irrigate higher than infiltration capacities - THIS SHOULD NOT BE IMPLEMENTED IF WE ALLOW OPENWATEREVAP FROM NON-PADDY FIELDS
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
@@ -958,12 +961,12 @@ class LandCover(object):
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand + self.potential_irrigation_loss, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        #~ # ignore small irrigation demand
-        #~ self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
-        # minimum demand for start irrigating
-        #~ minimum_demand = 0.005 # unit: m
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
-                                             #~ self.irrGrossDemand , 0.0)
+        # ignore small irrigation demand
+        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+        #~ # minimum demand for start irrigating
+        minimum_demand = 0.005 # unit: m
+        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
+                                             self.irrGrossDemand , 0.0)
 
         # totalGrossDemand (m): irrigation and non irrigation
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
