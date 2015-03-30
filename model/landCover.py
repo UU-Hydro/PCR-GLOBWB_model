@@ -918,9 +918,12 @@ class LandCover(object):
                                                                            #               readAvlWater (available water in the root zone)
             #
             # irrigation demand based on deficit in ET
-            evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
+            #~ evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
+                                  #~ self.potTranspiration -\
+                                  #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            evaporationDeficit  = pcr.max(0.0, 
                                   self.potTranspiration -\
-                                  self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+                                  self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
             # idea on 25 march - also compensating infiltration losses 
@@ -928,7 +931,7 @@ class LandCover(object):
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
-            # idea on 30 march
+            # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
             evaporationDeficit = pcr.min(evaporationDeficit, self.irrGrossDemand)
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
