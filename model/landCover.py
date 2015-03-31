@@ -916,6 +916,8 @@ class LandCover(object):
                                   adjDeplFactor*self.totAvlWater, \
                 pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #               readAvlWater (available water in the root zone)
+            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
+            self.irrGrossDemand *= adjDeplFactor 
             #
             # irrigation demand based on deficit in ET
             #~ evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
