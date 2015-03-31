@@ -910,22 +910,26 @@ class LandCover(object):
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             # irrigation demand (to fill the entire totAvlWater)
+            #~ self.irrGrossDemand = \
+                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
+                 #~ pcr.ifthenelse( self.readAvlWater < \
+                                  #~ adjDeplFactor*self.totAvlWater, \
+                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
+                                                                           #~ #               readAvlWater (available water in the root zone)
+            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
                                   adjDeplFactor*self.totAvlWater, \
-                pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #               readAvlWater (available water in the root zone)
-            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
-            self.irrGrossDemand *= adjDeplFactor 
+                    pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             # irrigation demand based on deficit in ET
             #~ evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
                                   #~ self.potTranspiration -\
                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            evaporationDeficit  = pcr.max(0.0, 
-                                  self.potTranspiration -\
-                                  self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ evaporationDeficit  = pcr.max(0.0, 
+                                  #~ self.potTranspiration -\
+                                  #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
             # idea on 25 march - also compensating infiltration losses 
@@ -934,9 +938,9 @@ class LandCover(object):
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
             # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
-            evaporationDeficit = pcr.min(evaporationDeficit, self.irrGrossDemand)
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
+            #~ evaporationDeficit = pcr.min(evaporationDeficit, self.irrGrossDemand)
+            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
+            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
             #
             # - assume that smart farmers do not irrigate higher than infiltration capacities - this should be combined with zero openWaterEvap in non-paddy fields
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
