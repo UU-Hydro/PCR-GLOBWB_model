@@ -259,7 +259,9 @@ class LandCover(object):
             if self.numberOfLayers == 2:\
                self.design_percolation_loss = pcr.min(parameters.kSatUpp      , self.design_percolation_loss) 
             if self.numberOfLayers == 3:\
-               self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss) 
+               self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss)
+            
+            # PS: The 'design_percolation_loss' is the minimum loss occuring in paddy fields.     
 
     def scaleRootFractions(self):
                                          
@@ -910,18 +912,18 @@ class LandCover(object):
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             # irrigation demand (to fill the entire totAvlWater)
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                  #~ adjDeplFactor*self.totAvlWater, \
-                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #~ #               readAvlWater (available water in the root zone)
-            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
                                   adjDeplFactor*self.totAvlWater, \
-                    pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
+                pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
+                                                                           #               readAvlWater (available water in the root zone)
+            #~ # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
+            #~ self.irrGrossDemand = \
+                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
+                 #~ pcr.ifthenelse( self.readAvlWater < \
+                                  #~ adjDeplFactor*self.totAvlWater, \
+                    #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             # irrigation demand based on deficit in ET
             #~ evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
@@ -950,33 +952,33 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
         # note: This demand does not include irrigation efficiency.  
 
+        # idea on 12 Mar 2015: set maximum daily irrigation
+        maximIrrGrossDemand = 0.1 # unit: m/day
+        self.irrGrossDemand = pcr.min(maximIrrGrossDemand, self.irrGrossDemand)
+
+        # minimum demand for start irrigating
+        minimum_demand = 0.005 # unit: m
+        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
+                                             self.irrGrossDemand , 0.0)
+
         # potential loss (m) of irrigation (defined for paddy fields)
         self.potential_irrigation_loss = pcr.scalar(0.0)
         # for paddy fields, the minimum infiltration/percolation loss is self.design_percolation_loss
         if self.name == 'irrPaddy': self.potential_irrigation_loss += self.design_percolation_loss
 
-        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: using yearly time series of inefficiency
+        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-
-        # idea on 13 Feb 2015: efficiency is to consider ONLY losses during abstraction and transport (de Graaf et al., 2014)
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - \
-                                                 self.irrGrossDemand)
+                                                 self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
 
-        # idea on 12 Mar 2015: set maximum daily irrigation
-        maximIrrGrossDemand = 0.1 # unit: m/day
-        self.irrGrossDemand = pcr.min(maximIrrGrossDemand, self.irrGrossDemand)
+        # irrigation demand , including its inefficiency
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand + self.potential_irrigation_loss, 0.0)
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # ignore small irrigation demand
+        # ignore small irrigation demand (less than 1 mm)
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
-        #~ # minimum demand for start irrigating
-        minimum_demand = 0.005 # unit: m
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
-                                             self.irrGrossDemand , 0.0)
 
         # totalGrossDemand (m): irrigation and non irrigation
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
@@ -1242,8 +1244,7 @@ class LandCover(object):
         
         # reducing potential_irrigation_loss due to reduced irrigation demand
         self.potential_irrigation_loss *= demand_reduction_factor
-        if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.min(self.irrGrossDemand,\
-                                                                     pcr.max(self.design_percolation_loss, self.potential_irrigation_loss))
+        if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.max(self.design_percolation_loss, self.potential_irrigation_loss)
 
 
     def calculateDirectRunoff(self, parameters):
