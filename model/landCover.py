@@ -73,7 +73,7 @@ class LandCover(object):
                          'rootFraction1','rootFraction2',
                          'maxRootDepth',
                          'fracVegCover']
-        if self.iniItemsLC['landCoverMapsNC'] == stedwinkost@gmail.comr(None):
+        if self.iniItemsLC['landCoverMapsNC'] == str(None):
             for var in landCovParams:
                 input = self.iniItemsLC[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
