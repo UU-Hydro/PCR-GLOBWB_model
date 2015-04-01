@@ -246,20 +246,20 @@ class LandCover(object):
             if self.numberOfLayers == 3:\
                self.design_percolation_loss = parameters.kSatUpp000005/10.     # unit: m/day 
 
-            #~ # However, it can be much smaller especially in well-puddled paddy fields
-            #~ # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
-            #~ #
-            #~ min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
-            #~ max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
-            #~ #
-            #~ self.design_percolation_loss = pcr.max(min_percolation_loss, \
-                                           #~ pcr.min(max_percolation_loss, self.design_percolation_loss))
-            #~ #
-            #~ # If soil condition is already 'good', we will use its original infiltration/percolation rate
-            #~ if self.numberOfLayers == 2:\
-               #~ self.design_percolation_loss = pcr.min(parameters.kSatUpp      , self.design_percolation_loss) 
-            #~ if self.numberOfLayers == 3:\
-               #~ self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss)
+            # However, it can be much smaller especially in well-puddled paddy fields
+            # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
+            #
+            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
+            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            #
+            self.design_percolation_loss = pcr.max(min_percolation_loss, \
+                                           pcr.min(max_percolation_loss, self.design_percolation_loss))
+            #
+            # If soil condition is already 'good', we will use its original infiltration/percolation rate
+            if self.numberOfLayers == 2:\
+               self.design_percolation_loss = pcr.min(parameters.kSatUpp      , self.design_percolation_loss) 
+            if self.numberOfLayers == 3:\
+               self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss)
             
             # PS: The 'design_percolation_loss' is the minimum loss occuring in paddy fields.     
 
@@ -887,7 +887,7 @@ class LandCover(object):
                                    allocSegments, \
                                    currTimeStep, \
                                    desalinationWaterUse,\
-                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
+nn                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
 
         # non irrigation water demand
         self.nonIrrGrossDemand = pcr.cover(nonIrrGrossDemand, 0.0)                   # TODO: Please check! Do we really have to cover?    
@@ -973,11 +973,11 @@ class LandCover(object):
         #~ # demand , including its inefficiency
         #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
-        # idea on 1 April 2015
-        # - efficiency map is used to introduce minimum losses (particularly in paddy fields);
-        irrigationEfficiencyUsed = pcr.min(0.9, pcr.max(0.10, self.irrigationEfficiency))
-        self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 self.irrGrossDemand*(1.0- irrigationEfficiencyUsed))
+        #~ # idea on 1 April 2015
+        #~ # - efficiency map is used to introduce minimum losses (particularly in paddy fields);
+        #~ irrigationEfficiencyUsed = pcr.min(0.9, pcr.max(0.10, self.irrigationEfficiency))
+        #~ self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
+                                                 #~ self.irrGrossDemand*(1.0- irrigationEfficiencyUsed))
         # - however, we are not changing its demand
         # self.irrGrossDemand = self.irrGrossDemand
         
