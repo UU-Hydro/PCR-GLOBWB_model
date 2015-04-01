@@ -73,7 +73,7 @@ class LandCover(object):
                          'rootFraction1','rootFraction2',
                          'maxRootDepth',
                          'fracVegCover']
-        if self.iniItemsLC['landCoverMapsNC'] == str(None):
+        if self.iniItemsLC['landCoverMapsNC'] == stedwinkost@gmail.comr(None):
             for var in landCovParams:
                 input = self.iniItemsLC[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
@@ -249,9 +249,8 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # On 10 March 2015, we agree to see these values to 0.000 m/day and 0.008 m/day
-            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
-            #
+            min_percolation_loss = 0.004 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            max_percolation_loss = 0.006 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -261,7 +260,7 @@ class LandCover(object):
             if self.numberOfLayers == 3:\
                self.design_percolation_loss = pcr.min(parameters.kSatUpp000005, self.design_percolation_loss)
             
-            # PS: The 'design_percolation_loss' is the minimum loss occuring in paddy fields.     
+            # PS: The 'design_percolation_loss' is the maximum loss occuring in paddy fields.     
 
     def scaleRootFractions(self):
                                          
@@ -277,7 +276,7 @@ class LandCover(object):
             self.adjRootFrLow = pcr.scalar(1.0) - self.adjRootFrUpp 
 
         if self.numberOfLayers == 3: 
-            # root fractions6.8
+            # root fractions
             rootFracUpp000005 = 0.05/0.30 * self.rootFraction1
             rootFracUpp005030 = 0.25/0.30 * self.rootFraction1
             rootFracLow030150 = 1.20/1.20 * self.rootFraction2
@@ -911,7 +910,7 @@ class LandCover(object):
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
-            #~ # irrigation demand (to fill the entire totAvlWater)
+            # irrigation demand (to fill the entire totAvlWater)
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
@@ -966,20 +965,12 @@ class LandCover(object):
         # for paddy fields, the minimum infiltration/percolation loss is self.design_percolation_loss
         if self.name == 'irrPaddy': self.potential_irrigation_loss += self.design_percolation_loss
 
-        #~ # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
-        #~ irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-        #~ self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 #~ self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        #~ # demand , including its inefficiency
-        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
-        
-        #~ # idea on 1 April 2015
-        #~ # - efficiency map is used to introduce minimum losses (particularly in paddy fields);
-        #~ irrigationEfficiencyUsed = pcr.min(0.9, pcr.max(0.10, self.irrigationEfficiency))
-        #~ self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 #~ self.irrGrossDemand*(1.0- irrigationEfficiencyUsed))
-        # - however, we are not changing its demand
-        # self.irrGrossDemand = self.irrGrossDemand
+        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
+        irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+        self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
+                                                 self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
+        # demand , including its inefficiency
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
