@@ -55,7 +55,7 @@ class LandCover(object):
         self.improvedArnoSchemeMethod = "Default"
         if "improvedArnoSchemeMethod" in iniItems.landSurfaceOptions.keys():
             self.improvedArnoSchemeMethod = iniItems.landSurfaceOptions['improvedArnoSchemeMethod']
-            if self.improved6.8ArnoSchemeMethod == "Original": logger.warning("Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff.")
+            if self.improvedArnoSchemeMethod == "Original": logger.warning("Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff.")
 
         # get snow module type and its parameters:
         self.snowModuleType = self.iniItemsLC['snowModuleType']
