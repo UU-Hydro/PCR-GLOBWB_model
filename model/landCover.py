@@ -954,7 +954,7 @@ class LandCover(object):
 
         # idea on 12 Mar 2015: set maximum daily irrigation
         maximum_demand = 0.100  # unit: m/day
-        self.irrGrossDemand = pcr.min(maximIrrGrossDemand, self.irrGrossDemand)
+        self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
         minimum_demand = 0.005  # unit: m/day
