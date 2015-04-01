@@ -934,12 +934,12 @@ class LandCover(object):
                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
             #
-            # idea on 25 march - also compensating infiltration losses 
-            #                  - openWaterEvap should tackle evaporationDeficit
+            #~ # idea on 25 march - also compensating infiltration losses 
+            #~ #                  - openWaterEvap should tackle evaporationDeficit
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
             #
-            # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
+            #~ # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
             #~ evaporationDeficit = pcr.min(evaporationDeficit, self.irrGrossDemand)
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
@@ -953,11 +953,11 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.050  # unit: m/day
+        maximum_demand = 0.100  # unit: m/day
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005  # unit: m/day
+        minimum_demand = 0.020  # unit: m/day
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
                                              self.irrGrossDemand , 0.0)
 
@@ -966,19 +966,26 @@ class LandCover(object):
         # for paddy fields, the minimum infiltration/percolation loss is self.design_percolation_loss
         if self.name == 'irrPaddy': self.potential_irrigation_loss += self.design_percolation_loss
 
-        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
-        irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+        #~ # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
+        #~ irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+        #~ self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
+                                                 #~ self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
+        #~ # demand , including its inefficiency
+        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        
+        # idea on 1 April 2015
+        # - efficiency map is used to introduce minimum losses (particularly in paddy fields);
+        irrigationEfficiencyUsed = pcr.min(0.9, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-
-        # irrigation demand , including its inefficiency
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+                                                 self.irrGrossDemand*(1.0- irrigationEfficiencyUsed))
+        # - however, we are not changing its demand
+        # self.irrGrossDemand = self.irrGrossDemand
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # ignore small irrigation demand (less than 1 mm)
-        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+        # ignore small irrigation demand (less than 10 mm)
+        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *100.)/100.
 
         # totalGrossDemand (m): irrigation and non irrigation
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
