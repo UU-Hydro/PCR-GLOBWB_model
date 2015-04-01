@@ -887,7 +887,7 @@ class LandCover(object):
                                    allocSegments, \
                                    currTimeStep, \
                                    desalinationWaterUse,\
-nn                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
+                                   groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
 
         # non irrigation water demand
         self.nonIrrGrossDemand = pcr.cover(nonIrrGrossDemand, 0.0)                   # TODO: Please check! Do we really have to cover?    
