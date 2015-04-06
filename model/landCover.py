@@ -1100,16 +1100,31 @@ class LandCover(object):
 
         # using the map from Siebert to constrain groundwater source fraction
         if isinstance(swAbstractionFraction, dict):
+            # calculate the remaining demand
+            remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
+                                                          pcr.min(1.0,\
+                                                          self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
+                                                          self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
+            remainingIndustrialDomestic  = pcr.max(0.000, self.potGroundwaterAbstract - \
+                                                          remainingIrrigationLivestock)                                                     
+            #
+            # calculate the estimate of groundwater water demand:
+            # - irrigation groundwater demand should be low 
+            #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
+            groundwater_water_demand_estimate = (1.0 - swAbstractionFraction['irrigation']) * remainingIrrigationLivestock +\
+                                                 remainingIndustrialDomestic
+            #
+            # water demand that must be satisfied by groundwater abstraction (not limited to available water)
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
-                                          pcr.max(0.0, self.totalGrossDemandAfterDesalination - surface_water_demand_estimate))
+                                          pcr.max(0.0, groundwater_water_demand_estimate))
 
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
-            # estimate of total groundwater abstraction (m3) from the last 365 days, with the tolerance of 30 days (1 month):
+            # estimate of total groundwater abstraction (m3) from the last 365 days:
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
-                                           pcr.min(365. - 30., routing.timestepsToAvgDischarge)
+                                           pcr.min(365., routing.timestepsToAvgDischarge)
             # at regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  

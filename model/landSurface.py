@@ -978,7 +978,8 @@ class LandSurface(object):
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
                                                                          self.regionalAnnualGroundwaterAbstractionLimit)
                 # minimum value (unit: m3/year at regional scale)
-                self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(10 * 1000 * 1000 * 1000.,\
+                minimum_value = 0.001 * 1000. * 1000. * 1000.
+                self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value * .,\
                                                                   self.regionalAnnualGroundwaterAbstractionLimit)                                                         
         else:
             logger.debug('Total groundwater abstraction is NOT limited by regional annual pumping capacity.')
