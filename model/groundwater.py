@@ -154,13 +154,20 @@ class Groundwater(object):
 
         # zones at which groundwater allocations are determined
         self.usingAllocSegments = False
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None": self.usingAllocSegments = True
+        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "None":
+        	self.usingAllocSegments = True
+        	groundwaterAllocationSegments = iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']
+        #
+        if "allocationSegmentsForGroundwater" in iniItems.groundwaterOptions.keys():
+            if iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] != "None": self.usingAllocSegments = True
+        	self.usingAllocSegments = True
+        	groundwaterAllocationSegments = iniItems.groundwaterOptions['allocationSegmentsForGroundwater']
         
         # incorporating groundwater distribution network:
         if self.usingAllocSegments:
 
             self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
+             groundwaterAllocationSegments,
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
 
