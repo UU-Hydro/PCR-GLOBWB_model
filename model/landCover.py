@@ -1117,7 +1117,7 @@ class LandCover(object):
                                           swAbstractionFraction['estimate']))
             groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.25,
                                                   1.0, groundwater_fraction)                              
-            groundwater_water_demand_estimate += groundwater_fraction *
+            groundwater_water_demand_estimate += groundwater_fraction *\
                                                  remainingIndustrialDomestic
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
