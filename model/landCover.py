@@ -1109,12 +1109,15 @@ class LandCover(object):
                                                           remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of groundwater water demand:
+            groundwater_water_demand_estimate  = remainingIndustrialDomestic 
             # - irrigation groundwater demand should be low 
             #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
-            groundwater_water_demand_estimate = (1.0 - 
-                                                 pcr.max(\
-                                                 swAbstractionFraction['irrigation'],\
-                                                 swAbstractionFraction['estimate'])) * remainingIrrigationLivestock +\
+            groundwater_fraction = (1.0 - pcr.max(\
+                                          swAbstractionFraction['irrigation'],\
+                                          swAbstractionFraction['estimate']))
+            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.25,
+                                                  1.0, groundwater_fraction)                              
+            groundwater_water_demand_estimate += groundwater_fraction *
                                                  remainingIndustrialDomestic
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
