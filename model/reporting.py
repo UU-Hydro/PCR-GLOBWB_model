@@ -298,7 +298,7 @@ class Reporting(object):
                                 self._model.routing.waterBodyEvaporation
         #
         self.fractionTotalEvaporation = vos.getValDivZero(self.totalEvaporation,\
-                                       self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap,\
+                                        self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap,\
                                         vos.smallNumber)
 
         # runoff (m) from land surface - not including local changes in water bodies
