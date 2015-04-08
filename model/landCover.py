@@ -443,9 +443,10 @@ class LandCover(object):
                  allocSegments,\
                  desalinationWaterUse,\
                  groundwater_pumping_region_ids,\
-                 regionalAnnualGroundwaterAbstractionLimit):
+                 regionalAnnualGroundwaterAbstractionLimit,\
+                 minCropKC):
 
-        self.getPotET(meteo,currTimeStep)              # calculate total PotET (based on meteo and cropKC) 
+        self.getPotET(meteo,currTimeStep,minCropKC)    # calculate total PotET (based on meteo and cropKC) 
         self.interceptionUpdate(meteo,currTimeStep)    # calculate interception and update storage	 
 
          # calculate snow melt (or refreezing)
@@ -459,7 +460,7 @@ class LandCover(object):
                              currTimeStep,\
                              allocSegments,\
                              desalinationWaterUse,\
-                             groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
+                             groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit,minCropKC)
 
         if self.report == True:
             # writing Output to netcdf files
@@ -538,15 +539,18 @@ class LandCover(object):
                                          timeStamp,currTimeStep.monthIdx-1)
 
 
-    def getPotET(self,meteo,currTimeStep):
+    def getPotET(self,meteo,currTimeStep,minCropCoefficientForIrrigation = 0.0):
 
         # get crop coefficient:
         cropKC = pcr.cover(
                  vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
                                     currTimeStep.doy, useDoy = 'Yes',\
                                     cloneMapFileName = self.cloneMap), 0.0)
-        self.cropKC = pcr.max( cropKC, self.minCropKC)                                
+        self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
+        # limit cropKC
+        self.cropKC = pcr.max(cropKC, minCropCoefficientForIrrigation)
+        
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
@@ -925,25 +929,18 @@ class LandCover(object):
                     #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             # irrigation demand based on deficit in ET
-            #~ evaporationDeficit  = pcr.max(0.0, self.potBareSoilEvap  +\
-                                  #~ self.potTranspiration -\
-                                  #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            #~ evaporationDeficit  = pcr.max(0.0, 
-                                  #~ self.potTranspiration -\
-                                  #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            #~ self.irrGrossDemand = pcr.min(self.irrGrossDemand, evaporationDeficit)                        
+            evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
+                                   self.potTranspiration -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            transpirationDeficit  = pcr.max(0.0, 
+                                   self.potTranspiration -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            #~ # idea on 25 march - also compensating infiltration losses 
-            #~ #                  - openWaterEvap should tackle evaporationDeficit
-            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp      ), 0.0)
-            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(evaporationDeficit > 0, pcr.min(self.irrGrossDemand, evaporationDeficit + parameters.kSatUpp000005), 0.0)
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, pcr.max(self.irrGrossDemand, deficit), 0.0)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, pcr.max(self.irrGrossDemand, deficit), 0.0)
             #
-            #~ # idea on 30 march - this should be combined with zero openWaterEvap in non-paddy fields
-            #~ evaporationDeficit = pcr.min(evaporationDeficit, self.irrGrossDemand)
-            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp))
-            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.max(evaporationDeficit, pcr.min(self.irrGrossDemand, parameters.kSatUpp000005))
-            #
-            # - assume that smart farmers do not irrigate higher than infiltration capacities - this should be combined with zero openWaterEvap in non-paddy fields
+            # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
@@ -952,12 +949,12 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.100  # unit: m/day
+        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.020  # unit: m/day
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
+        minimum_demand = 0.020  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
         # potential loss (m) of irrigation (defined for paddy fields)

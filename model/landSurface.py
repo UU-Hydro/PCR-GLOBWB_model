@@ -1089,6 +1089,9 @@ class LandSurface(object):
         # update (loop per each land cover type):
         for coverType in self.coverTypes:
             
+            # minimum crop coefficient for irrigation
+            minCropCoefficientForIrrigation = 0.0
+            
             logger.info("Updating land cover: "+str(coverType))
             #~ print(coverType)
             self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,\
@@ -1098,7 +1101,11 @@ class LandSurface(object):
                                                   currTimeStep,\
                                                   self.allocSegments,\
                                                   self.desalinationWaterUse,\
-                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit)
+                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit,
+                                                  minCropCoefficientForIrrigation)
+            
+            # saving minimum cropKC for irrigatio
+            if self.includeIrrigation and coverType == "grassland": minCropCoefficientForIrrigation = self.landCoverObj[coverType]
 
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
