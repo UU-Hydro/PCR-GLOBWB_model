@@ -1104,8 +1104,8 @@ class LandSurface(object):
                                                   self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit,
                                                   minCropCoefficientForIrrigation)
             
-            # saving minimum cropKC for irrigatio
-            if self.includeIrrigation and coverType == "grassland": minCropCoefficientForIrrigation = self.landCoverObj[coverType]
+            #~ # saving minimum cropKC for irrigation
+            #~ if self.includeIrrigation and coverType == "grassland": minCropCoefficientForIrrigation = self.landCoverObj[coverType]
 
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)

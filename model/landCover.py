@@ -935,11 +935,10 @@ class LandCover(object):
             evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
                                    self.potTranspiration -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            transpirationDeficit  = pcr.max(0.0, 
+            transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            deficit = transpirationDeficit
+            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
