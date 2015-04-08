@@ -444,10 +444,13 @@ class LandCover(object):
                  desalinationWaterUse,\
                  groundwater_pumping_region_ids,\
                  regionalAnnualGroundwaterAbstractionLimit,\
-                 minCropKC):
+                 minCropCoefficientForIrrigation):
 
-        self.getPotET(meteo,currTimeStep,minCropKC)    # calculate total PotET (based on meteo and cropKC) 
-        self.interceptionUpdate(meteo,currTimeStep)    # calculate interception and update storage	 
+        # calculate total PotET (based on meteo and cropKC)
+        self.getPotET(meteo,currTimeStep,minCropCoefficientForIrrigation) 
+        
+        # calculate interception and update storage
+        self.interceptionUpdate(meteo,currTimeStep)    	 
 
          # calculate snow melt (or refreezing)
         if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
@@ -460,7 +463,7 @@ class LandCover(object):
                              currTimeStep,\
                              allocSegments,\
                              desalinationWaterUse,\
-                             groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit,minCropKC)
+                             groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
 
         if self.report == True:
             # writing Output to netcdf files
