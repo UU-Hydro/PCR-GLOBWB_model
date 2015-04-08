@@ -952,7 +952,7 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.100  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
@@ -969,8 +969,8 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        #~ # demand, including its inefficiency - In calculating demand, we exclude this one !
-        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        # demand, including its inefficiency - In calculating demand, we exclude this one !
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
@@ -1112,9 +1112,7 @@ class LandCover(object):
             groundwater_water_demand_estimate  = remainingOtherDemand 
             # - irrigation groundwater demand should be low 
             #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
-            groundwater_fraction = (1.0 - pcr.max(\
-                                          swAbstractionFraction['irrigation'],\
-                                          swAbstractionFraction['estimate']))
+            groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
             groundwater_water_demand_estimate += groundwater_fraction * remainingIrrigation
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
