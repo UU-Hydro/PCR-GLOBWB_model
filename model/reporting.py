@@ -40,7 +40,7 @@ class Reporting(object):
         # - daily output in netCDF files:
         self.outDailyTotNC = ["None"]
         try:
-            self.outDailyTotNC = configuration.reportingOptions['outDailyTotNC'].split(",")
+            self.outDailyTotNC = list(set(configuration.reportingOptions['outDailyTotNC'].split(","))
         except:
             pass
         #
@@ -64,7 +64,7 @@ class Reporting(object):
         # -- cummulative
         self.outMonthTotNC = ["None"]
         try:
-            self.outMonthTotNC = configuration.reportingOptions['outMonthTotNC'].split(",")
+            self.outMonthTotNC = list(set(configuration.reportingOptions['outMonthTotNC'].split(",")))
         except:
             pass
         if self.outMonthTotNC[0] != "None":
@@ -89,7 +89,7 @@ class Reporting(object):
         # -- average
         self.outMonthAvgNC = ["None"]
         try:
-            self.outMonthAvgNC = configuration.reportingOptions['outMonthAvgNC'].split(",")
+            self.outMonthAvgNC = list(set(configuration.reportingOptions['outMonthAvgNC'].split(",")))
         except:
             pass
         if self.outMonthAvgNC[0] != "None":
@@ -118,7 +118,7 @@ class Reporting(object):
         # -- last day of the month
         self.outMonthEndNC = ["None"]
         try:
-            self.outMonthEndNC = configuration.reportingOptions['outMonthEndNC'].split(",")
+            self.outMonthEndNC = list(set(configuration.reportingOptions['outMonthEndNC'].split(",")))
         except:
             pass
         if self.outMonthEndNC[0] != "None":
@@ -142,7 +142,7 @@ class Reporting(object):
         # -- cummulative
         self.outAnnuaTotNC = ["None"]
         try:
-            self.outAnnuaTotNC = configuration.reportingOptions['outAnnuaTotNC'].split(",")
+            self.outAnnuaTotNC = list(set(configuration.reportingOptions['outAnnuaTotNC'].split(",")))
         except:
             pass
         if self.outAnnuaTotNC[0] != "None":
@@ -168,7 +168,7 @@ class Reporting(object):
         # -- average
         self.outAnnuaAvgNC = ["None"]
         try:
-            self.outAnnuaAvgNC = configuration.reportingOptions['outAnnuaAvgNC'].split(",")
+            self.outAnnuaAvgNC = list(set(configuration.reportingOptions['outAnnuaAvgNC'].split(",")))
         except:
             pass
         if self.outAnnuaAvgNC[0] != "None":
@@ -197,7 +197,7 @@ class Reporting(object):
         # -- last day of the year
         self.outAnnuaEndNC = ["None"]
         try:
-            self.outAnnuaEndNC = configuration.reportingOptions['outAnnuaEndNC'].split(",")
+            self.outAnnuaEndNC = list(set(configuration.reportingOptions['outAnnuaEndNC'].split(",")))
         except:
             pass
         if self.outAnnuaEndNC[0] != "None":
