@@ -250,7 +250,7 @@ class LandCover(object):
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
             min_percolation_loss = 0.004 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = 0.006 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -931,6 +931,10 @@ class LandCover(object):
                                   #~ adjDeplFactor*self.totAvlWater, \
                     #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
+            # irrigation factor (for adjusting demand)
+            irrigation factor    = 0.30
+            self.irrGrossDemand *= irrigation factor
+            #
             # irrigation demand based on deficit in ET
             evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
                                    self.potTranspiration -\
@@ -938,10 +942,12 @@ class LandCover(object):
             transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            deficit = transpirationDeficit
             #
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
+            deficit_treshold = 0.005
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
@@ -969,8 +975,8 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        #~ # demand, including its inefficiency - In calculating demand, we exclude this one!
-        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        # demand, including its inefficiency - In calculating demand, we exclude this one!
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
