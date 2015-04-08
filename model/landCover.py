@@ -932,8 +932,8 @@ class LandCover(object):
                     #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             # irrigation factor (for adjusting demand)
-            irrigation factor    = 0.30
-            self.irrGrossDemand *= irrigation factor
+            irrigation_factor    = 0.30
+            self.irrGrossDemand *= irrigation_factor
             #
             # irrigation demand based on deficit in ET
             evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
@@ -942,8 +942,8 @@ class LandCover(object):
             transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            deficit = transpirationDeficit
+            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            #~ deficit = transpirationDeficit
             #
             deficit_treshold = 0.005
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
