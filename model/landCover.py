@@ -941,8 +941,8 @@ class LandCover(object):
             #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             deficit = transpirationDeficit
             #
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, deficit), 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, deficit), 0.0)
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > 0, self.irrGrossDemand, 0.0)
             #
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
