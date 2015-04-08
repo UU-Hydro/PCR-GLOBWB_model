@@ -969,8 +969,8 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        # demand , including its inefficiency
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        #~ # demand, including its inefficiency - In calculating demand, we exclude this one !
+        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
@@ -1101,24 +1101,21 @@ class LandCover(object):
         # using the map from Siebert to constrain groundwater source fraction
         if isinstance(swAbstractionFraction, dict):
             # calculate the remaining demand
-            remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
-                                                          pcr.min(1.0,\
-                                                          self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
-                                                          self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
-            remainingIndustrialDomestic  = pcr.max(0.000, self.potGroundwaterAbstract - \
-                                                          remainingIrrigationLivestock)                                                     
+            remainingIrrigation  = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
+                                                  pcr.min(1.0,\
+                                                  self.irrGrossDemand/\
+                                                  self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
+            remainingOtherDemand = pcr.max(0.000, self.potGroundwaterAbstract - \
+                                                  remainingIrrigation)                                                     
             #
             # calculate the estimate of groundwater water demand:
-            groundwater_water_demand_estimate  = remainingIndustrialDomestic 
+            groundwater_water_demand_estimate  = remainingOtherDemand 
             # - irrigation groundwater demand should be low 
             #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
             groundwater_fraction = (1.0 - pcr.max(\
                                           swAbstractionFraction['irrigation'],\
                                           swAbstractionFraction['estimate']))
-            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.25,
-                                                  1.0, groundwater_fraction)                              
-            groundwater_water_demand_estimate += groundwater_fraction *\
-                                                 remainingIrrigationLivestock
+            groundwater_water_demand_estimate += groundwater_fraction * remainingIrrigation
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
