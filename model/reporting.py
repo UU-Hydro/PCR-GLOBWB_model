@@ -40,7 +40,7 @@ class Reporting(object):
         # - daily output in netCDF files:
         self.outDailyTotNC = ["None"]
         try:
-            self.outDailyTotNC = list(set(configuration.reportingOptions['outDailyTotNC'].split(","))
+            self.outDailyTotNC = list(set(configuration.reportingOptions['outDailyTotNC'].split(",")))
         except:
             pass
         #
