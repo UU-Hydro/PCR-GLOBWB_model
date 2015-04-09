@@ -970,8 +970,8 @@ class LandSurface(object):
                      vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'regional_pumping_limit',\
                          currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap), 0.0))
             
-                self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit*1000000.)/1000000.
-                self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit)
+                #~ self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit*1000000.)/1000000.
+                #~ self.regionalAnnualGroundwaterAbstractionLimit = pcr.roundup(self.regionalAnnualGroundwaterAbstractionLimit)
                 self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit, self.groundwater_pumping_region_ids)
             
                 self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
