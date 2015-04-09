@@ -952,7 +952,7 @@ class LandCover(object):
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
             irrigation_interval = 5.
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
-                                          self.totalPotET * irrigation_interval - self.readAvlWater),\
+                                          self.potTranspiration * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
             #
             # assume that smart farmers do not irrigate higher than infiltration capacities
