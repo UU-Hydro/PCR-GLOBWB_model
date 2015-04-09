@@ -917,19 +917,19 @@ class LandCover(object):
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
-            # irrigation demand (to fill the entire totAvlWater)
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                  #~ adjDeplFactor*self.totAvlWater, \
-                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #~ #               readAvlWater (available water in the root zone)
-            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
+            #~ # irrigation demand (to fill the entire totAvlWater)
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
                                   adjDeplFactor*self.totAvlWater, \
-                    pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
+                pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
+                                                                           #               readAvlWater (available water in the root zone)
+            #~ # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
+            #~ self.irrGrossDemand = \
+                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
+                 #~ pcr.ifthenelse( self.readAvlWater < \
+                                  #~ adjDeplFactor*self.totAvlWater, \
+                    #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             #~ # irrigation factor (for adjusting demand)
             #~ irrigation_factor    = 0.20
@@ -951,7 +951,7 @@ class LandCover(object):
             #
             # idea on 9 april: demand is limnited by potential evaporation for the next coming days
             irrigation_interval = 7.
-            self.irrGrossDemand = pcr.min(self.totalPotET * irrigation_interval,\
+            self.irrGrossDemand = pcr.min(self.totalPotET * irrigation_interval - self.readAvlWater,\
                                           self.irrGrossDemand)
             #
             # assume that smart farmers do not irrigate higher than infiltration capacities
@@ -1776,6 +1776,31 @@ class LandCover(object):
 
         # remaining total energy for evaporation fluxes:
         remainingPotET = self.potBareSoilEvap + self.potTranspiration
+        
+        # for non paddy, deep percolation will be minimized
+        if self.name == 'irrNonPaddy': 
+
+            if self.numberOfLayers == 2:
+                maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
+                ADJUST = maximum_deep_percolation
+                ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                         pcr.min(1.0,pcr.max(0.0, self.percLow + \
+                                                  self.interflow)/ADJUST),0.)
+                ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
+                                        ADJUST, 1.0)
+                self.percLow   = ADJUST*self.percLow
+                self.interflow = ADJUST*self.interflow                      
+
+            if self.numberOfLayers == 3:
+                maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
+                ADJUST = maximum_deep_percolation
+                ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                         pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
+                                                  self.interflow)/ADJUST),0.)
+                ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
+                                        ADJUST, 1.0)
+                self.percLow030150 = ADJUST*self.percLow030150
+                self.interflow     = ADJUST*self.interflow                      
         
         if self.numberOfLayers == 2:
 
