@@ -924,12 +924,12 @@ class LandCover(object):
                                   #~ adjDeplFactor*self.totAvlWater, \
                 #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
                                                                            #~ #               readAvlWater (available water in the root zone)
-            #~ # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                  #~ adjDeplFactor*self.totAvlWater, \
-                    #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
+            # - idea on 31 march 2015: modified by Edwin - reduced with adjDeplFactor
+            self.irrGrossDemand = \
+                 pcr.ifthenelse( self.cropKC > 0.20, \
+                 pcr.ifthenelse( self.readAvlWater < \
+                                  adjDeplFactor*self.totAvlWater, \
+                    pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             #~ # irrigation factor (for adjusting demand)
             #~ irrigation_factor    = 0.20
