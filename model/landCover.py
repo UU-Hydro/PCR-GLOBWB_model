@@ -945,7 +945,7 @@ class LandCover(object):
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #~ deficit = transpirationDeficit
             #
-            deficit_treshold = 0.005
+            deficit_treshold = 0.010
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
@@ -975,7 +975,7 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        # demand, including its inefficiency - In calculating demand, we exclude this one!
+        # demand, including its inefficiency
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
