@@ -1041,7 +1041,7 @@ class LandCover(object):
             # calculate the remaining demand
             remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
                                                           pcr.min(1.0,\
-                                                          self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
+                                                         (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand'])/\
                                                           self.totalPotentialMaximumGrossDemand), 0.0) * self.totalGrossDemandAfterDesalination
             remainingIndustrialDomestic  = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
                                                    remainingIrrigationLivestock)                                                     
