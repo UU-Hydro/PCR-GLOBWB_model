@@ -949,7 +949,7 @@ class LandCover(object):
             #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
-            # idea on 9 april: demand is limnited by potential evaporation for the next coming days
+            # idea on 9 april: demand is limited by potential evaporation for the next coming days
             irrigation_interval = 7.
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
