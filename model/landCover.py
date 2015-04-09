@@ -932,7 +932,7 @@ class LandCover(object):
                     #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
             # irrigation factor (for adjusting demand)
-            irrigation_factor    = 0.30
+            irrigation_factor    = 0.20
             self.irrGrossDemand *= irrigation_factor
             #
             # irrigation demand based on deficit in ET
@@ -975,8 +975,8 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        #~ # demand, including its inefficiency - SHALL WE INCLUDE THIS ?
-        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        # demand, including its inefficiency - SHALL WE INCLUDE THIS ?
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
