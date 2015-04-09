@@ -917,7 +917,13 @@ class LandCover(object):
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
-            #~ # irrigation demand (to fill the entire totAvlWater)
+            # idea on 9 april: use potTranspiration
+            adjDeplFactor = \
+                     pcr.max(0.1,\
+                     pcr.min(0.8,(self.cropDeplFactor + \
+                                  0.04*(5.-self.potTranspiration*1000.))))
+            #
+            # irrigation demand (to fill the entire totAvlWater)
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
@@ -950,7 +956,7 @@ class LandCover(object):
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential transpiration for the next coming days
-            irrigation_interval = 5.
+            irrigation_interval = 7.
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.potTranspiration * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
