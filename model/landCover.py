@@ -1071,10 +1071,6 @@ class LandCover(object):
                 # - as a function of allocation of total groundwater (fossil and non fossil)
                 surface_water_demand = pcr.min(surface_water_demand, \
                                        pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
-
-
-
-
         #  
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
         #  
@@ -1115,7 +1111,7 @@ class LandCover(object):
             # calculate the remaining demand
             remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
                                                           pcr.min(1.0,\
-                                                          self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
+                                                         (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand'])/\
                                                           self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
             remainingIndustrialDomestic  = pcr.max(0.000, self.potGroundwaterAbstract - \
                                                           remainingIrrigationLivestock)                                                     
