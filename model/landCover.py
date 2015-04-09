@@ -1774,30 +1774,28 @@ class LandCover(object):
         # remaining total energy for evaporation fluxes:
         remainingPotET = self.potBareSoilEvap + self.potTranspiration
         
-        # for non paddy, deep percolation will be minimized
-        if self.name == 'irrNonPaddy': 
-
-            if self.numberOfLayers == 2:
-                maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
-                ADJUST = maximum_deep_percolation
-                ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                         pcr.min(1.0,pcr.max(0.0, self.percLow + \
-                                                  self.interflow)/ADJUST),0.)
-                ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
-                                        ADJUST, 1.0)
-                self.percLow   = ADJUST*self.percLow
-                self.interflow = ADJUST*self.interflow                      
-
-            if self.numberOfLayers == 3:
-                maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
-                ADJUST = maximum_deep_percolation
-                ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                         pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
-                                                  self.interflow)/ADJUST),0.)
-                ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
-                                        ADJUST, 1.0)
-                self.percLow030150 = ADJUST*self.percLow030150
-                self.interflow     = ADJUST*self.interflow                      
+        #~ # for non paddy, deep percolation will be minimized
+        #~ if self.name == 'irrNonPaddy': 
+            #~ if self.numberOfLayers == 2:
+                #~ maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
+                #~ ADJUST = maximum_deep_percolation
+                #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                         #~ pcr.min(1.0,pcr.max(0.0, self.percLow + \
+                                                  #~ self.interflow)/ADJUST),0.)
+                #~ ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
+                                        #~ ADJUST, 1.0)
+                #~ self.percLow   = ADJUST*self.percLow
+                #~ self.interflow = ADJUST*self.interflow                      
+            #~ if self.numberOfLayers == 3:
+                #~ maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
+                #~ ADJUST = maximum_deep_percolation
+                #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                         #~ pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
+                                                  #~ self.interflow)/ADJUST),0.)
+                #~ ADJUST = pcr.ifthenelse(self.cropKC > 0.20,\
+                                        #~ ADJUST, 1.0)
+                #~ self.percLow030150 = ADJUST*self.percLow030150
+                #~ self.interflow     = ADJUST*self.interflow                      
         
         if self.numberOfLayers == 2:
 
