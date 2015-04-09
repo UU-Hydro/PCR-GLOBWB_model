@@ -1111,8 +1111,8 @@ class LandCover(object):
                                                           pcr.min(1.0,\
                                                           self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']/\
                                                           self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
-            remainingIndustrialDomestic  = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
-                                                   remainingIrrigationLivestock)                                                     
+            remainingIndustrialDomestic  = pcr.max(0.000, self.potGroundwaterAbstract - \
+                                                          remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of groundwater water demand:
             groundwater_water_demand_estimate  = remainingIndustrialDomestic 
