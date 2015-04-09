@@ -2217,8 +2217,8 @@ class LandCover(object):
 
         # all fluxes are limited to available (source) storage
         if self.name.startswith('irr'):
-            self.scaleAllFluxesForIrrigatedAreas(parameters, groundwater)
-            #~ self.scaleAllFluxes(parameters, groundwater)
+            #~ self.scaleAllFluxesForIrrigatedAreas(parameters, groundwater)
+            self.scaleAllFluxes(parameters, groundwater)
         else:    
             self.scaleAllFluxes(parameters, groundwater)
 
