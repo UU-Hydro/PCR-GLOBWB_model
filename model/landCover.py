@@ -1774,6 +1774,9 @@ class LandCover(object):
         # remaining total energy for evaporation fluxes:
         remainingPotET = self.potBareSoilEvap + self.potTranspiration
         
+        # for irrigation areas: interflow will be minimized                                                                                                                                        
+        if self.name.startswith('irr'): self.interflow = 0.                                                                                                                                        
+
         # deep percolation will be minimized during crop growths: 
         # 
         # - starting cropKC when crops start to grow:
