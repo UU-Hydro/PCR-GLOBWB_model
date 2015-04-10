@@ -249,8 +249,8 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.004 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = 0.006 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -989,8 +989,8 @@ class LandCover(object):
         irrigationEfficiencyUsed = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
         self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
                                                  self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed) - self.irrGrossDemand)
-        # demand, including its inefficiency - SHALL WE INCLUDE THIS ?
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
+        #~ # demand, including its inefficiency - SHALL WE INCLUDE THIS ?
+        #~ self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
@@ -1785,30 +1785,30 @@ class LandCover(object):
         # for irrigation areas: interflow will be minimized                                                                                                                                        
         if self.name.startswith('irr'): self.interflow = 0.                                                                                                                                        
 
-        # deep percolation will be minimized during crop growths: 
-        # 
-        # - starting cropKC when crops start to grow:
-        if self.name == 'irrPaddy': startingCropKC = 0.2
-        if self.name == 'irrNonPaddy': startingCropKC = 0.75
-        
-        if self.numberOfLayers == 2:
-            maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
-            ADJUST = maximum_deep_percolation
-            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                     pcr.min(1.0,pcr.max(0.0, self.percLow + \
-                                              self.interflow)/ADJUST),0.)
-            ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
-            self.percLow   = ADJUST*self.percLow
-            self.interflow = ADJUST*self.interflow                      
-        if self.numberOfLayers == 3:
-            maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
-            ADJUST = maximum_deep_percolation
-            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                     pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
-                                              self.interflow)/ADJUST),0.)
-            ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
-            self.percLow030150 = ADJUST*self.percLow030150
-            self.interflow     = ADJUST*self.interflow                      
+        #~ # deep percolation will be minimized during crop growths: 
+        #~ # 
+        #~ # - starting cropKC when crops start to grow:
+        #~ if self.name == 'irrPaddy': startingCropKC = 0.2
+        #~ if self.name == 'irrNonPaddy': startingCropKC = 0.75
+        #~ 
+        #~ if self.numberOfLayers == 2:
+            #~ maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
+            #~ ADJUST = maximum_deep_percolation
+            #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     #~ pcr.min(1.0,pcr.max(0.0, self.percLow + \
+                                              #~ self.interflow)/ADJUST),0.)
+            #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
+            #~ self.percLow   = ADJUST*self.percLow
+            #~ self.interflow = ADJUST*self.interflow                      
+        #~ if self.numberOfLayers == 3:
+            #~ maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
+            #~ ADJUST = maximum_deep_percolation
+            #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     #~ pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
+                                              #~ self.interflow)/ADJUST),0.)
+            #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
+            #~ self.percLow030150 = ADJUST*self.percLow030150
+            #~ self.interflow     = ADJUST*self.interflow                      
         
         if self.numberOfLayers == 2:
 
