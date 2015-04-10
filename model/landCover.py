@@ -947,9 +947,9 @@ class LandCover(object):
             #~ evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
                                    #~ self.potTranspiration -\
                                    #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            transpirationDeficit = pcr.max(0.0, 
-                                   self.potTranspiration -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ transpirationDeficit = pcr.max(0.0, 
+                                   #~ self.potTranspiration -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #~ deficit = transpirationDeficit
             #
