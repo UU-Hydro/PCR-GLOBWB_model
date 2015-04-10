@@ -29,7 +29,7 @@ class LandCover(object):
         # irrigation efficiency map
         self.irrigationEfficiency = irrigationEfficiency
         
-        # interception defin6.8ition
+        # interception definition
         # - The default option is to include not only canopy areas, 
         # - but also non canopy areas as part of interception capacity 
         self.extendedInterception = True 
@@ -937,7 +937,7 @@ class LandCover(object):
                                   #~ adjDeplFactor*self.totAvlWater, \
                     #~ pcr.max(0.0,  adjDeplFactor*self.totAvlWater-self.readAvlWater),0.),0.)
             #
-            # irrigation factor (for adjusting demand, as a function of grwoing rooting depth)
+            # irrigation factor (for adjusting demand, as a function of a growing rooting depth)
             # - as the proxy of rooting depth, we use crop coefficient 
             irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
                                     pcr.min(1.0, self.cropKC / 1.0), 0.0)
@@ -953,12 +953,12 @@ class LandCover(object):
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #~ deficit = transpirationDeficit
             #
-            deficit_treshold = pcr.min(0.005, 0.05 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.001 * self.totalPotET)
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            irrigation_interval = 7.
+            irrigation_interval = 3.
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
@@ -1129,7 +1129,7 @@ class LandCover(object):
             # - irrigation groundwater demand should be low 
             #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
             groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.5, groundwater_fraction, 0.0)
+            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.60, groundwater_fraction, 0.0)
             groundwater_water_demand_estimate += groundwater_fraction * remainingIrrigationLivestock
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
