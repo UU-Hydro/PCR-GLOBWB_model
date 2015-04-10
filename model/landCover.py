@@ -940,22 +940,22 @@ class LandCover(object):
             # irrigation factor (for adjusting demand, as a function of grwoing rooting depth)
             # - as the proxy of rooting depth, we use crop coefficient 
             irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
-                                                 self.cropKC / 1.0, 0.0)
+                                    pcr.min(1.0, self.cropKC / 1.0), 0.0)
             self.irrGrossDemand = irrigation_factor * self.irrGrossDemand
             #~ #
             #~ # irrigation demand based on deficit in ET
             #~ evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
                                    #~ self.potTranspiration -\
                                    #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            transpirationDeficit = pcr.max(0.0, 
-                                   self.potTranspiration -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ transpirationDeficit = pcr.max(0.0, 
+                                   #~ self.potTranspiration -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            deficit = transpirationDeficit
+            #~ deficit = transpirationDeficit
             #
-            deficit_treshold = 0.005
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
+            #~ deficit_treshold = 0.005
+            #~ if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
+            #~ if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential transpiration for the next coming days
             irrigation_interval = 3.
