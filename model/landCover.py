@@ -944,16 +944,16 @@ class LandCover(object):
             self.irrGrossDemand = irrigation_factor * self.irrGrossDemand
             #
             # irrigation demand based on deficit in ET
-            evaporationDeficit   = pcr.max(0.0, self.potBareSoilEvap  +\
-                                   self.potTranspiration -\
+            deficit_factor = 1.0/pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
             transpirationDeficit = pcr.max(0.0, 
-                                   self.potTranspiration -\
+                                   self.potTranspiration*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.0001 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.0000 * self.totalPotET)
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
@@ -976,7 +976,7 @@ class LandCover(object):
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.020  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -995,8 +995,8 @@ class LandCover(object):
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # ignore small irrigation demand (less than 10 mm)
-        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *100.)/100.
+        # ignore small irrigation demand (less than 100 mm)
+        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
 
         # totalGrossDemand (m): irrigation and non irrigation
         self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
