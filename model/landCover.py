@@ -953,12 +953,12 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.0000 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.001 * self.totalPotET)
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            irrigation_interval = 10.
+            irrigation_interval = 5.
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
@@ -976,7 +976,7 @@ class LandCover(object):
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.020  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
