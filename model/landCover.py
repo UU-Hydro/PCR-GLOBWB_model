@@ -943,7 +943,7 @@ class LandCover(object):
                                     pcr.min(1.0, self.cropKC / 1.0), 0.0)
             self.irrGrossDemand = irrigation_factor * self.irrGrossDemand
             #
-            # irrigation demand based on deficit in ET
+            # deficit in transpiration or evaporation
             deficit_factor = 1.00
             evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
@@ -953,9 +953,13 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.001 * self.totalPotET)
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > deficit_treshold, self.irrGrossDemand, 0.0)
+            deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
+            #
+            need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
+                              pcr.ifthenelse(self.readAvlWater < 0.01 * self.totAvlWater, pcr.boolean(1), pcr.boolean(0)))
+            #
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > need_irrigation, self.irrGrossDemand, 0.0)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
             irrigation_interval = 10.
