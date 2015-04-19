@@ -1145,21 +1145,29 @@ class LandCover(object):
 
         # using the map from Siebert to constrain groundwater source fraction
         if isinstance(swAbstractionFraction, dict):
-            # calculate the remaining demand
-            remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
+            # total irrigation demand
+            totalIrrigationDemand = self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']
+            irrigationDemandFract = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
                                                           pcr.min(1.0,\
-                                                         (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand'])/\
-                                                          self.totalPotentialMaximumGrossDemand), 0.0) * self.potGroundwaterAbstract
+                                                          totalIrrigationDemand/\
+                                                          self.totalPotentialMaximumGrossDemand), 0.0)            
+            # calculate the remaining demand
+            remainingIrrigationLivestock = irrigationDemandFract * self.potGroundwaterAbstract
             remainingIndustrialDomestic  = pcr.max(0.000, self.potGroundwaterAbstract - \
                                                           remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of groundwater water demand:
             # - demand for industrial and domestic sctors
             groundwater_water_demand_estimate  = remainingIndustrialDomestic 
+            # - irrigation demand that is already satisfied by surface water
+            irrigationSurfaceWaterDemand = irrigationDemandFract * self.allocSurfaceWaterAbstract
             # - irrigation groundwater demand
-            groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
+            irrigationGroundwaterDemand  = pcr.ifthenelse(swAbstractionFraction['irrigation'] > 0.0,\
+                                                 (((1.0 - swAbstractionFraction['irrigation'])/\
+                                                          swAbstractionFraction['irrigation'])*irrigationSurfaceWaterDemand),\
+                                                          remainingIrrigationLivestock)
             groundwater_water_demand_estimate += pcr.min(remainingIrrigationLivestock, 
-                                                 groundwater_fraction * (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']))
+                                                         irrigationGroundwaterDemand)
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
@@ -1222,10 +1230,7 @@ class LandCover(object):
             # using the map from Siebert to constrain groundwater source fraction
             if isinstance(swAbstractionFraction, dict):
                 # calculate the remaining demand
-                remainingIrrigationLivestock = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
-                                                              pcr.min(1.0,\
-                                                             (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand'])/\
-                                                              self.totalPotentialMaximumGrossDemand), 0.0) * self.potFossilGroundwaterAbstract
+                remainingIrrigationLivestock = irrigationDemandFract * self.potFossilGroundwaterAbstract
                 remainingIndustrialDomestic  = pcr.max(0.000, self.potFossilGroundwaterAbstract - \
                                                               remainingIrrigationLivestock)                                                     
                 #
@@ -1235,13 +1240,14 @@ class LandCover(object):
                 # - irrigation groundwater demand should be low 
                 #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
                 groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-                groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.6, groundwater_fraction, 0.0)
-                groundwater_water_demand_estimate += pcr.max(0.0,
-                                                     groundwater_fraction * (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']) -\
-                                                     remainingIrrigationLivestock)
+                gw_fraction_treshold =  0.6
+                groundwater_water_demand_estimate += pcr.ifthenelse(groundwater_fraction > gw_fraction_treshold,
+                                                     pcr.min(remainingIrrigationLivestock
+                                                     pcr.max(0.0,
+                                                     irrigationGroundwaterDemand - irrigationDemandFract * self.allocNonFossilGroundwater)), 0.0)
                 #
-                # water demand that must be satisfied by groundwater abstraction (not limited to available water)
-                self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
+                # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water)
+                self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract,\
                                           pcr.max(0.0, groundwater_water_demand_estimate))
 
             if groundwater.limitFossilGroundwaterAbstraction == False:
