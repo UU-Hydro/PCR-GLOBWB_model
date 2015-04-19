@@ -1240,7 +1240,7 @@ class LandCover(object):
                 # - irrigation groundwater demand should be low 
                 #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
                 groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-                gw_fraction_treshold =  0.6
+                gw_fraction_treshold =  0.5
                 groundwater_water_demand_estimate += pcr.ifthenelse(groundwater_fraction > gw_fraction_treshold,
                                                      pcr.min(remainingIrrigationLivestock
                                                      pcr.max(0.0,
