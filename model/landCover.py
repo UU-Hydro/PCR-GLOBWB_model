@@ -956,7 +956,7 @@ class LandCover(object):
             deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
-                              pcr.ifthenelse(self.readAvlWater < 0.01 * self.totAvlWater, pcr.boolean(1), pcr.boolean(0)))
+                              pcr.ifthenelse(self.readAvlWater == 0.000, pcr.boolean(1), pcr.boolean(0)))
             #
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
