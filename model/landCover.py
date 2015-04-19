@@ -956,7 +956,7 @@ class LandCover(object):
             deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
-                              pcr.ifthenelse(self.readAvlWater == 0.000, pcr.boolean(1), pcr.boolean(0)))
+                              pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
             #
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
@@ -1133,7 +1133,7 @@ class LandCover(object):
             # - irrigation groundwater demand should be low 
             #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
             groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.60, groundwater_fraction, 0.0)
+            groundwater_fraction = pcr.ifthenelse(groundwater_fraction > 0.70, groundwater_fraction, 0.0)
             groundwater_water_demand_estimate += groundwater_fraction * remainingIrrigationLivestock
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
