@@ -1427,10 +1427,10 @@ class Routing(object):
     def estimate_discharge_for_environmental_flow(self, channelStorage):
 
         # statistical assumptions:
-        #~ # - using z_score from the percentile 90
-        #~ z_score = 1.2816 
-        # - using z_score from the percentile 97.5
-        z_score = 1.96
+        # - using z_score from the percentile 90
+        z_score = 1.2816 
+        #~ # - using z_score from the percentile 97.5
+        #~ z_score = 1.96
         
         # long term variance and standard deviation of discharge values
         varDischarge = self.m2tDischarge / \
