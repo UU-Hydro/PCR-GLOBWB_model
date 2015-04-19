@@ -958,8 +958,8 @@ class LandCover(object):
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.readAvlWater < 0.01 * self.totAvlWater, pcr.boolean(1), pcr.boolean(0)))
             #
-            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(deficit > need_irrigation, self.irrGrossDemand, 0.0)
-            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(deficit > need_irrigation, self.irrGrossDemand, 0.0)
+            if self.numberOfLayers == 2: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
+            if self.numberOfLayers == 3: self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
             irrigation_interval = 10.
