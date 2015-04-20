@@ -1062,28 +1062,27 @@ class LandCover(object):
             surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
             #
-            surface_water_demand = surface_water_demand_estimate
-            #
-            # maximize surface water demand with average allocation from groundwater source
-            surface_water_demand = pcr.max(surface_water_demand, \
-                                   pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+            # TODO: constrain swAbstractionFraction['estimate'] particularly for areas with limited surface water supply
         else:
-            #
-            if self.surfaceWaterPiority:
-                # If surface water abstraction as the first priority
-                surface_water_demand = self.totalGrossDemandAfterDesalination
-            else:
-                # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
-                swAbstractionFractionUsed = swAbstractionFraction     
-                # - as a function of non fossil groundwater allocation
-                swAbstractionFractionUsed = pcr.max(swAbstractionFractionUsed,\
-                                                    1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
-                swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed, pcr.max(0.0, swAbstractionFractionUsed))
-                surface_water_demand = pcr.max(0.0, self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed)
-                # - as a function of allocation of total groundwater (fossil and non fossil)
-                surface_water_demand = pcr.min(surface_water_demand, \
-                                       pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation)))
-        #  
+            # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
+            swAbstractionFractionUsed = swAbstractionFraction     
+            # - as a function of non fossil groundwater allocation
+            swAbstractionFractionUsed = pcr.max(swAbstractionFractionUsed,\
+                                                1.0 - vos.getValDivZero(pcr.min(groundwater.avgNonFossilAllocation, \
+                                                                                groundwater.avgNonFossilAllocationShort), self.totalGrossDemandAfterDesalination))
+            swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed)
+            swAbstractionFractionUsed = pcr.max(0.0, swAbstractionFractionUsed)
+            surface_water_demand_estimate = self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed
+        
+        # maximimizing surface water demand - as a function of allocation of total groundwater (fossil and non fossil)
+        surface_water_demand = pcr.max(surface_water_demand_estimate, \
+                               pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        #
+        # if surface water abstraction as the first priority
+        if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
+        #
+        #
+        #
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
         #  
             logger.debug("Allocation of surface water abstraction.")
@@ -1118,31 +1117,7 @@ class LandCover(object):
         # water demand that must be satisfied by groundwater abstraction (not limited to available water)
         self.potGroundwaterAbstract = pcr.max(0.0, self.totalGrossDemandAfterDesalination - self.allocSurfaceWaterAbstract)   # unit: m
 
-        # constraining groundwater abstraction with regional pumping capacity
-        if groundwater.limitRegionalAnnualGroundwaterAbstraction:
-
-            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
-
-            # estimate of total groundwater abstraction (m3) from the last 365 days:
-            annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
-                                           pcr.min(365., routing.timestepsToAvgDischarge)
-            # at regional scale
-            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
-                                                                 
-            # reduction factor to reduce groundwater abstraction
-            reductionFactorForPotGroundwaterAbstract = pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
-                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
-                                                                      regionalAnnualGroundwaterAbstraction) /
-                                                                      regionalAnnualGroundwaterAbstraction , 1.0)
-            # minimum reduction factor:
-            minReductionFactor = 0.00
-            self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
-                                           pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
-            
-        else:
-
-            logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-
+        
         # using the map from Siebert to constrain groundwater source fraction
         if isinstance(swAbstractionFraction, dict):
             # total irrigation demand
@@ -1172,6 +1147,31 @@ class LandCover(object):
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
                                           pcr.max(0.0, groundwater_water_demand_estimate))
+
+        # constraining groundwater abstraction with regional pumping capacity
+        if groundwater.limitRegionalAnnualGroundwaterAbstraction:
+
+            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
+
+            # estimate of total groundwater abstraction (m3) from the last 365 days:
+            annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
+                                           pcr.min(365., routing.timestepsToAvgDischarge)
+            # at regional scale
+            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
+                                                                 
+            # reduction factor to reduce groundwater abstraction
+            reductionFactorForPotGroundwaterAbstract = pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
+                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                                      regionalAnnualGroundwaterAbstraction) /
+                                                                      regionalAnnualGroundwaterAbstraction , 1.0)
+            # minimum reduction factor:
+            minReductionFactor = 0.00
+            self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
+                                           pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
+            
+        else:
+
+            logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
 
         # Abstraction and Allocation of NON FOSSIL GROUNDWATER
         # #############################################################################################################################
