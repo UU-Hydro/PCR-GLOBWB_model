@@ -1427,10 +1427,10 @@ class Routing(object):
     def estimate_discharge_for_environmental_flow(self, channelStorage):
 
         # statistical assumptions:
-        # - using z_score from the percentile 90
-        z_score = 1.2816 
-        #~ # - using z_score from the percentile 95
-        #~ z_score = 1.645
+        #~ # - using z_score from the percentile 90
+        #~ z_score = 1.2816 
+        # - using z_score from the percentile 95
+        z_score = 1.645
         
         # long term variance and standard deviation of discharge values
         varDischarge = self.m2tDischarge / \
@@ -1470,7 +1470,7 @@ class Routing(object):
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # maximum (precentage) of water can be abstracted from the channel - to avoid flip-flop
-        maximum_percentage = 0.95 
+        maximum_percentage = 0.25 
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                         maximum_percentage*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\

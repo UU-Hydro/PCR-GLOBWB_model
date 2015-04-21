@@ -1154,7 +1154,7 @@ class LandCover(object):
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 45.
+            tolerating_days = 75.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
             # at regional scale
@@ -1824,11 +1824,12 @@ class LandCover(object):
         # deep percolation will be minimized during crop growths: 
         # 
         # - starting cropKC when crops start to grow:
-        if self.name == 'irrPaddy': startingCropKC = 100000. # put it very high if we want to ignore this rule
+        if self.name == 'irrPaddy': startingCropKC = 0.2                # put it very high if we want to ignore this rule
         if self.name == 'irrNonPaddy': startingCropKC = 0.75
         
         if self.numberOfLayers == 2:
             maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
+            maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
             ADJUST = maximum_deep_percolation
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.percLow + \
@@ -1838,6 +1839,7 @@ class LandCover(object):
             self.interflow = ADJUST*self.interflow                      
         if self.numberOfLayers == 3:
             maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
+            maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
             ADJUST = maximum_deep_percolation
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
                      pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
