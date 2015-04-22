@@ -953,7 +953,7 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.001 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -976,7 +976,7 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.200  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
