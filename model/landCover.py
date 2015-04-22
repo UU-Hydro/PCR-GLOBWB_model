@@ -999,7 +999,7 @@ class LandCover(object):
         # the following irrigation demand is not limited to available water
         self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
-        # ignore small irrigation demand (less than 100 mm)
+        # ignore small irrigation demand (less than 1 mm)
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
 
         # totalGrossDemand (m): irrigation and non irrigation
@@ -1137,10 +1137,11 @@ class LandCover(object):
             # - irrigation demand that is already satisfied by surface water
             irrigationSurfaceWaterDemand = irrigationDemandFract * self.allocSurfaceWaterAbstract
             # - irrigation groundwater demand
-            irrigationGroundwaterDemand  = pcr.ifthenelse(swAbstractionFraction['irrigation'] > 0.0,\
-                                                 (((1.0 - swAbstractionFraction['irrigation'])/\
-                                                          swAbstractionFraction['irrigation'])*irrigationSurfaceWaterDemand),\
-                                                          remainingIrrigationLivestock)
+            #~ irrigationGroundwaterDemand  = pcr.ifthenelse(swAbstractionFraction['irrigation'] > 0.0,\
+                                                 #~ (((1.0 - swAbstractionFraction['irrigation'])/\
+                                                          #~ swAbstractionFraction['irrigation'])*irrigationSurfaceWaterDemand),\
+                                                          #~ remainingIrrigationLivestock)
+            irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand)
             groundwater_water_demand_estimate += pcr.min(remainingIrrigationLivestock, 
                                                          irrigationGroundwaterDemand)
             #
