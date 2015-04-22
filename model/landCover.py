@@ -1141,7 +1141,7 @@ class LandCover(object):
                                                  #~ (((1.0 - swAbstractionFraction['irrigation'])/\
                                                           #~ swAbstractionFraction['irrigation'])*irrigationSurfaceWaterDemand),\
                                                           #~ remainingIrrigationLivestock)
-            irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand)
+            irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand
             groundwater_water_demand_estimate += pcr.min(remainingIrrigationLivestock, 
                                                          irrigationGroundwaterDemand)
             #
