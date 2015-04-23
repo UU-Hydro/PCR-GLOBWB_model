@@ -1470,7 +1470,7 @@ class Routing(object):
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # maximum (precentage) of water can be abstracted from the channel - to avoid flip-flop
-        maximum_percentage = 0.25 
+        maximum_percentage = 0.9 
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                         maximum_percentage*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\
