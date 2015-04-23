@@ -976,7 +976,7 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.100  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
@@ -1196,7 +1196,7 @@ class LandCover(object):
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 45.
+            tolerating_days = 0.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
             # at regional scale
@@ -1242,7 +1242,7 @@ class LandCover(object):
                 # - irrigation groundwater demand should be low 
                 #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
                 groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-                gw_fraction_treshold =  0.60
+                gw_fraction_treshold =  0.65
                 groundwater_water_demand_estimate += pcr.ifthenelse(groundwater_fraction > gw_fraction_treshold,
                                                      pcr.min(remainingIrrigationLivestock,
                                                      pcr.max(0.0,
