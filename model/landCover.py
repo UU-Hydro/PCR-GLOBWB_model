@@ -1061,7 +1061,7 @@ class LandCover(object):
             # calculate the estimate of surface water demand:
             swAbstractionFraction_irrigation_treshold = 0.65
             swAbstractionFraction_irrigation = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold, \
-                                                              1.0, swAbstractionFraction_irrigation)
+                                                              1.0, swAbstractionFraction['irrigation'])
             surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
                                             swAbstractionFraction_irrigation * remainingIrrigationLivestock
             #
