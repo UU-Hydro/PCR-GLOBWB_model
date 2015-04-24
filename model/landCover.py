@@ -1059,8 +1059,11 @@ class LandCover(object):
                                                    remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of surface water demand:
+            swAbstractionFraction_irrigation_treshold = 0.65
+            swAbstractionFraction_irrigation = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold, \
+                                                              1.0, swAbstractionFraction_irrigation)
             surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
-                                            swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
+                                            swAbstractionFraction_irrigation * remainingIrrigationLivestock
             #
             # TODO: constrain swAbstractionFraction['estimate'] particularly for areas/cities with limited surface water supply
         else:
@@ -1142,6 +1145,10 @@ class LandCover(object):
                                                           #~ swAbstractionFraction['irrigation'])*irrigationSurfaceWaterDemand),\
                                                           #~ remainingIrrigationLivestock)
             irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand
+            gwAbstractionFraction_irrigation_treshold = 0.65
+            gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
+            irrigationGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
+                                                         remainingIrrigationLivestock, irrigationGroundwaterDemand)
             groundwater_water_demand_estimate += pcr.min(remainingIrrigationLivestock, 
                                                          irrigationGroundwaterDemand)
             #
