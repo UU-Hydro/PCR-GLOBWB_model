@@ -1829,32 +1829,64 @@ class LandCover(object):
         # for irrigation areas: interflow will be minimized                                                                                                                                        
         if self.name.startswith('irr'): self.interflow = 0.                                                                                                                                        
 
-        # deep percolation will be minimized during crop growths: 
+        #~ # deep percolation will be minimized during crop growths: 
+        #~ # 
+        #~ # - starting cropKC when crops start to grow:
+        #~ if self.name == 'irrPaddy': startingCropKC = 0.2                # put it very high if we want to ignore this rule
+        #~ if self.name == 'irrNonPaddy': startingCropKC = 0.75
+        #~ 
+        #~ if self.numberOfLayers == 2:
+            #~ maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
+            #~ maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
+            #~ ADJUST = maximum_deep_percolation
+            #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     #~ pcr.min(1.0,pcr.max(0.0, self.percLow + \
+                                              #~ self.interflow)/ADJUST),0.)
+            #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
+            #~ self.percLow   = ADJUST*self.percLow
+            #~ self.interflow = ADJUST*self.interflow                      
+        #~ if self.numberOfLayers == 3:
+            #~ maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
+            #~ maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
+            #~ ADJUST = maximum_deep_percolation
+            #~ ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     #~ pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
+                                              #~ self.interflow)/ADJUST),0.)
+            #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
+            #~ self.percLow030150 = ADJUST*self.percLow030150
+            #~ self.interflow     = ADJUST*self.interflow                      
+        
+        # deep percolation will be enhanced during irrigation application  
         # 
+        maxADJUST = 2.0
+        #
         # - starting cropKC when crops start to grow:
         if self.name == 'irrPaddy': startingCropKC = 0.2                # put it very high if we want to ignore this rule
         if self.name == 'irrNonPaddy': startingCropKC = 0.75
-        
+        #
         if self.numberOfLayers == 2:
             maximum_deep_percolation = pcr.max(0., self.effSatLow - parameters.effSatAtFieldCapLow)*parameters.storCapLow
             maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
-            ADJUST = maximum_deep_percolation
+            maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.percLow + self.interflow)
+            ADJUST = self.percLow + self.interflow
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                     pcr.min(1.0,pcr.max(0.0, self.percLow + \
-                                              self.interflow)/ADJUST),0.)
+                     pcr.min(maxADJUST,pcr.max(0.0, maximum_deep_percolation)/ADJUST),0.)
             ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
             self.percLow   = ADJUST*self.percLow
             self.interflow = ADJUST*self.interflow                      
         if self.numberOfLayers == 3:
             maximum_deep_percolation = pcr.max(0., self.effSatLow030150 - parameters.effSatAtFieldCapLow030150)*parameters.storCapLow030150
             maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.potential_irrigation_loss)
-            ADJUST = maximum_deep_percolation
+            maximum_deep_percolation = pcr.max(maximum_deep_percolation, self.percLow030150 + self.interflow)
+            ADJUST = self.percLow030150 + self.interflow
             ADJUST = pcr.ifthenelse(ADJUST>0.0, \
-                     pcr.min(1.0,pcr.max(0.0, self.percLow030150 + \
-                                              self.interflow)/ADJUST),0.)
+                     pcr.min(maxADJUST,pcr.max(0.0, maximum_deep_percolation)/ADJUST),0.)
             ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.0)
             self.percLow030150 = ADJUST*self.percLow030150
             self.interflow     = ADJUST*self.interflow                      
+
+        
+        # scaling all fluxes based on available water
         
         if self.numberOfLayers == 2:
 
