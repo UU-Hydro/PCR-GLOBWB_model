@@ -1197,7 +1197,7 @@ class LandCover(object):
             # - fraction of irrigaition grounddwater demand, not including livestoc 
             satisfiedIrrDemandFromNonFossilGroundwater = \
                                        vos.getValDivZero(irrigationGroundwaterDemand, groundwater_water_demand_estimate) *\
-                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand) * self.allocSurfaceWaterAbstract
+                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand) * self.allocNonFossilGroundwater
         else:    
             satisfiedIrrDemandFromNonFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
                                                                            self.totalPotentialGrossDemand) * self.allocNonFossilGroundwater
