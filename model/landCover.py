@@ -1062,7 +1062,7 @@ class LandCover(object):
             swAbstractionFraction_irrigation_treshold = 0.65
             swAbstractionFraction_irrigation = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold, \
                                                               1.0, swAbstractionFraction['irrigation'])
-            surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
+            surface_water_demand_estimate = swAbstractionFraction['estimate']* remainingIndustrialDomestic +\
                                             swAbstractionFraction_irrigation * remainingIrrigationLivestock
             #
             # TODO: constrain swAbstractionFraction['estimate'] particularly for areas/cities with limited surface water supply
