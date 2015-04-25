@@ -1318,7 +1318,8 @@ class LandCover(object):
             # using the map from Siebert to constrain surface water fraction
             # - fraction of irrigaition grounddwater demand, not including livestoc 
             satisfiedIrrDemandFromFossilGroundwater = \
-                                       vos.getValDivZero(fossil_irrigation_groundwater_water_demand_estimate, fossil_groundwater_water_demand_estimate) *\
+                                       vos.getValDivZero(fossil_irrigation_groundwater_water_demand_estimate, 
+                                                         fossil_groundwater_water_demand_estimate) *\
                                        vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand) * self.fossilGroundwaterAlloc
         else:    
             satisfiedIrrDemandFromFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
@@ -1342,8 +1343,10 @@ class LandCover(object):
                                                      satisfiedIrrigationDemand/\
                                                      self.irrGrossDemand , 0.0))
         #
-        self.irrGrossDemand    = satisfiedIrrigationDemand # not including livestock 
-        self.nonIrrGrossDemand = satisfiedNonIrrDemand     # including livestock
+        self.irrGrossDemand    = pcr.min(self.irrGrossDemand,\
+                                 satisfiedIrrigationDemand)                              # not including livestock 
+        self.nonIrrGrossDemand = pcr.max(0.0, \
+                                 self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
         #
         # reducing potential_irrigation_loss due to reduced irrigation demand
         self.potential_irrigation_loss *= irr_demand_reduction_factor
