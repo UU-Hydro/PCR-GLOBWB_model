@@ -1143,7 +1143,7 @@ class LandCover(object):
             irrigationSurfaceWaterDemand = irrigationDemandFract * self.allocSurfaceWaterAbstract
             # - irrigation groundwater demand based on 
             irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand
-            gwAbstractionFraction_irrigation_treshold = 0.65
+            gwAbstractionFraction_irrigation_treshold = 0.75
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
             irrigationGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
                                                          remainingIrrigationLivestock, irrigationGroundwaterDemand)
@@ -1258,12 +1258,10 @@ class LandCover(object):
                 # calculate the estimate of groundwater water demand:
                 # - demand for industrial and domestic sctors
                 fossil_groundwater_water_demand_estimate  = remainingIndustrialDomestic 
-                # - irrigation groundwater demand should be low 
-                #   in areas with extensive irrigation network (i.e. high swAbstractionFraction['irrigation']) 
-                groundwater_fraction = (1.0 - swAbstractionFraction['irrigation'])
-                gw_fraction_treshold =  0.65
+                # - fosil irrigation groundwater demand should be low 
+                #   in areas with sufficient irrigation network 
                 fossil_irrigation_groundwater_water_demand_estimate = \
-                       pcr.ifthenelse(groundwater_fraction > gw_fraction_treshold,
+                       pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,
                        pcr.min(remainingIrrigationLivestock,
                        pcr.max(0.0,
                        irrigationGroundwaterDemand - irrigationDemandFract * self.allocNonFossilGroundwater)), 0.0)
