@@ -1060,7 +1060,9 @@ class LandCover(object):
                                                           remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of surface water demand:
-            surface_water_demand_estimate = swAbstractionFraction['estimate']   * remainingIndustrialDomestic +\
+            surface_water_demand_estimate = pcr.min(\
+                                            swAbstractionFraction['max_for_non_irrigation'],\
+                                            swAbstractionFraction['estimate'])  * remainingIndustrialDomestic +\
                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
             #
             # TODO: constrain swAbstractionFraction['estimate'] particularly for areas/cities with limited surface water infrastructure
@@ -1223,10 +1225,11 @@ class LandCover(object):
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
             # reduction factor to reduce groundwater abstraction
-            reductionFactorForPotGroundwaterAbstract = pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
+            reductionFactorForPotGroundwaterAbstract = pcr.cover(
+                                                       pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
                                                        pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                       regionalAnnualGroundwaterAbstraction) /
-                                                                      regionalAnnualGroundwaterAbstraction , 1.0)
+                                                                      regionalAnnualGroundwaterAbstraction , 1.0), 0.0)
             # minimum reduction factor:
             minReductionFactor = 0.00
             self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\

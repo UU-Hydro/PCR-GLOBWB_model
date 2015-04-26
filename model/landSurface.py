@@ -185,29 +185,42 @@ class LandSurface(object):
         # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
         self.waterDemandOptions(iniItems)
         
-        # pre-defined fractions for groundwater and surface water source partitioning:
-        if 'swAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
-           'swAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
+        # pre-defined fractions for groundwater and surface water source partitioning for irrigation demand:
+        if 'irrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
+           'irrigationSurfaceWaterAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
             #
-            logger.info('Using/incorporating the predefined fractions of surface water source.')
+            logger.info('Using/incorporating the predefined fractions of surface water source for irrigation demand .')
             #
             self.swAbstractionFractionData = pcr.cover(\
-                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
+                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'],\
                                                                  self.cloneMap,self.tmpDir,self.inputDir), 0.0)
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionData >= 0.0, \
                                                         self.swAbstractionFractionData )
             self.swAbstractionFractionDataQuality = \
                                              pcr.cover(\
-                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['swAbstractionFractionData'],\
+                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'],\
                                                                  self.cloneMap,self.tmpDir,self.inputDir), 0.0)
             # ignore value with the quality above 5 
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
                                                         self.swAbstractionFractionData)
         else:                                                                                                                          
-            logger.info('Not using/incorporating the predefined fractions of surface water source.')
+            logger.info('Not using/incorporating the predefined fractions of surface water source for irrigation demand .')
             self.swAbstractionFractionData = None
 
-        
+        # pre-defined fractions for groundwater and surface water source partitioning for non irrigation demand:
+        if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys():
+            #
+            logger.info('Using/incorporating the predefined fractions of surface water source for non irrigation demand .')
+            #
+            self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = \
+                                             pcr.min(1.0,\
+                                             pcr.cover(\
+                                             vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                 self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+        else:                                                                                                                          
+            logger.info('Using/incorporating the predefined fractions of surface water source for non irrigation demand .')
+            self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
+
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {} # initialize land cover objects
         for coverType in self.coverTypes:
@@ -869,6 +882,8 @@ class LandSurface(object):
             swAbstractionFractionDict['irrigation']           = self.partitioningGroundSurfaceAbstractionForIrrigation(swAbstractionFraction,\
                                                                                                                   self.swAbstractionFractionData,\
                                                                                                                   self.swAbstractionFractionDataQuality)
+            swAbstractionFractionDict['max_for_non_irrigation'] = self.maximumNonIrrigationSurfaceWaterAbstractionFractionData
+            
             swAbstractionFractionDict['livestockWaterDemand'] = self.livestockGrossDemand   # unit: m/day
             swAbstractionFraction = swAbstractionFractionDict
         
