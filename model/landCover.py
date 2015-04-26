@@ -1141,8 +1141,9 @@ class LandCover(object):
             groundwater_water_demand_estimate  = remainingIndustrialDomestic 
             # - irrigation demand that is already satisfied by surface water
             irrigationSurfaceWaterDemand = irrigationDemandFract * self.allocSurfaceWaterAbstract
-            # - irrigation groundwater demand based on 
-            irrigationGroundwaterDemand = (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand
+            # - irrigation groundwater demand 
+            irrigationGroundwaterDemand = pcr.max(0.0, \
+                                                 (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationDemand)
             gwAbstractionFraction_irrigation_treshold = 0.75
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
             irrigationGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
@@ -1195,9 +1196,9 @@ class LandCover(object):
         if isinstance(swAbstractionFraction, dict):
             # using the map from Siebert to constrain surface water fraction
             # - fraction of irrigaition grounddwater demand, not including livestoc 
-            satisfiedIrrDemandFromNonFossilGroundwater = \
+            satisfiedIrrDemandFromNonFossilGroundwater = pcr.max(0.0,
                                        vos.getValDivZero(irrigationGroundwaterDemand, groundwater_water_demand_estimate) *\
-                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand) * self.allocNonFossilGroundwater
+                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand) * self.allocNonFossilGroundwater)
         else:    
             satisfiedIrrDemandFromNonFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
                                                                            self.totalPotentialGrossDemand) * self.allocNonFossilGroundwater
@@ -1215,7 +1216,7 @@ class LandCover(object):
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 45.
+            tolerating_days = 15.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
             # at regional scale
@@ -1337,9 +1338,7 @@ class LandCover(object):
         #
         # - reduction factor for irrigation demand
         irr_demand_reduction_factor = pcr.min(1.0,\
-                                      pcr.ifthenelse(self.irrGrossDemand > 0.0,  
-                                                     satisfiedIrrigationDemand/\
-                                                     self.irrGrossDemand , 0.0))
+                                      vos.getValDivZero(satisfiedIrrigationDemand, self.irrGrossDemand))
         #
         self.irrGrossDemand    = pcr.min(self.irrGrossDemand,\
                                  satisfiedIrrigationDemand)                              # not including livestock 
@@ -1908,22 +1907,29 @@ class LandCover(object):
         if self.name == 'irrNonPaddy':
             startingCropKC = 0.75
             minimum_deep_percolation = pcr.min(self.infiltration, self.potential_irrigation_loss)
+            maxADJUST = 2.0
             #
             if self.numberOfLayers == 2:
-                deep_percolation = pcr.max(minimum_deep_percolation, self.percLow + self.interflow)
+                deep_percolation = pcr.max(minimum_deep_percolation, \
+                                           self.percLow + self.interflow)
                 ADJUST = self.percLow + self.interflow
-                ADJUST = pcr.ifthenelse(ADJUST > 0., deep_percolation/ADJUST, 0.)
+                ADJUST = pcr.ifthenelse(ADJUST > 0., \
+                         pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
                 ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
                 self.percLow   = ADJUST*self.percLow
                 self.interflow = ADJUST*self.interflow                      
             if self.numberOfLayers == 3:
-                deep_percolation = pcr.max(minimum_deep_percolation, self.percLow030150 + self.interflow)
+                deep_percolation = pcr.max(minimum_deep_percolation, \
+                                           self.percLow030150 + self.interflow)
                 ADJUST = self.percLow030150 + self.interflow
-                ADJUST = pcr.ifthenelse(ADJUST > 0., deep_percolation/ADJUST, 0.)
+                ADJUST = pcr.ifthenelse(ADJUST > 0., \
+                         pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
                 ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
                 self.percLow030150 = ADJUST*self.percLow030150
                 self.interflow     = ADJUST*self.interflow                      
 
+        
+        
         # scaling all fluxes based on available water
         
         if self.numberOfLayers == 2:
