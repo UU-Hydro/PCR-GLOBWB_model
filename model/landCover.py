@@ -1288,7 +1288,7 @@ class LandCover(object):
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
                 correctedRemainingTotalDemand = reductionFactorForPotGroundwaterAbstract *\
                                                 remainingTotalDemand
-                # - reduce the remaining irrigation and livestock demand to minimize unrealistic areas of fossil groundwater abstraction
+                # - reduce the remaining irrigation and livestock demand (to minimize unrealistic areas of fossil groundwater abstraction)
                 #   particularly in areas sufficient gwAbstractionFraction_irrigation  
                 satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
                                                satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], 
@@ -1296,9 +1296,9 @@ class LandCover(object):
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,\
                                                                        remainingIrrigationLivestock, \
                                                                        pcr.max(0.0, pcr.rounddown(
-                                                                                    gwAbstractionFraction_irrigation, 1) * satisfiedIrrigationLivestock - \
+                                                                                    gwAbstractionFraction_irrigation*10.)/10. * satisfiedIrrigationLivestock - \
                                                                                     satisfiedIrrigationLivestockFromNonFossilGroundwater))
-                # - also ignore irrigation and livestock demand to minimize unrealistic areas of fossil groundwater abstraction
+                # - also ignore irrigation and livestock demand (to minimize unrealistic areas of fossil groundwater abstraction)
                 #   particularly in areas with sufficient surface water irrigation network (i.e. low gwAbstractionFraction_irrigation)  
                 fossilAbstractionFraction_irrigation_treshold = 0.60    # TODO: define this in the ini/configuration file
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > fossilAbstractionFraction_irrigation_treshold,\
