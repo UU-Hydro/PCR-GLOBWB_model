@@ -1289,8 +1289,7 @@ class LandCover(object):
                 correctedRemainingTotalDemand = reductionFactorForPotGroundwaterAbstract *\
                                                 remainingTotalDemand
                 # - reduce the remaining irrigation and livestock demand to minimize unrealistic areas of fossil groundwater abstraction
-                #   particularly in areas with sufficient irrigation network and 
-                #   in areas with sufficient gwAbstractionFraction_irrigation  
+                #   particularly in areas sufficient gwAbstractionFraction_irrigation  
                 satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
                                                satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], 
                                                                                          self.nonIrrGrossDemand)
@@ -1299,6 +1298,8 @@ class LandCover(object):
                                                                        pcr.max(0.0, pcr.rounddown(
                                                                                     gwAbstractionFraction_irrigation, 1) * satisfiedIrrigationLivestock - \
                                                                                     satisfiedIrrigationLivestockFromNonFossilGroundwater))
+                # - also ignore irrigation and livestock demand to minimize unrealistic areas of fossil groundwater abstraction
+                #   particularly in areas with sufficient surface water irrigation network (i.e. low gwAbstractionFraction_irrigation)  
                 fossilAbstractionFraction_irrigation_treshold = 0.60    # TODO: define this in the ini/configuration file
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > fossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
