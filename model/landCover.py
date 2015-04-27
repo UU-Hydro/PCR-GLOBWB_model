@@ -1291,7 +1291,7 @@ class LandCover(object):
                 correctedRemainingIrrigationLivestock  = reductionFactorForPotGroundwaterAbstract *\
                                                          pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,
                                                                        remainingIrrigationLivestock, 0.0)
-                correctedRemainingIndustrialDomestic   = pcr.min(remainingIrrigationLivestock
+                correctedRemainingIndustrialDomestic   = pcr.min(remainingIndustrialDomestic, \
                                                          pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIrrigationLivestock))
                 correctedRemainingIrrigationLivestock += pcr.max(0.0,\
                                                                  correctedRemainingTotalDemand - correctedRemainingIrrigationLivestock - \
