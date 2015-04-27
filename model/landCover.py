@@ -1126,7 +1126,7 @@ class LandCover(object):
                vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand) * \
                vos.getValDivZero(swAbstractionFraction['irrigation'] * remainingIrrigationLivestock, surface_water_demand_estimate)
         else:    
-            satisfiedIrrDemandFromSurfaceWater = self.allocSurfaceWaterAbstract
+            satisfiedIrrDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
                vos.getValDivZero(self.irrGrossDemand, self.totalPotentialGrossDemand)
         satisfiedIrrigationDemand += satisfiedIrrDemandFromSurfaceWater
         #
