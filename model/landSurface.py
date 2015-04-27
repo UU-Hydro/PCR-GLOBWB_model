@@ -189,7 +189,7 @@ class LandSurface(object):
         if 'irrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
            'irrigationSurfaceWaterAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
             #
-            logger.info('Using/incorporating the predefined fractions of surface water source for irrigation and livestock demand .')
+            logger.info('Using/incorporating the predefined fraction of surface water source for irrigation and livestock demand .')
             #
             self.swAbstractionFractionData = pcr.cover(\
                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'],\
@@ -204,13 +204,13 @@ class LandSurface(object):
             self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
                                                         self.swAbstractionFractionData)
         else:                                                                                                                          
-            logger.info('Not using/incorporating the predefined fractions of surface water source for irrigation and livestock demand .')
+            logger.info('Not using/incorporating the predefined fraction of surface water source for irrigation and livestock demand .')
             self.swAbstractionFractionData = None
 
         # pre-defined fractions for groundwater and surface water source partitioning for non irrigation demand:
         if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys():
             #
-            logger.info('Using/incorporating the predefined fractions of surface water source for domestic and industrial demand.')
+            logger.info('Using/incorporating the predefined fraction of surface water source for domestic and industrial demand.')
             #
             self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = \
                                              pcr.min(1.0,\
@@ -218,7 +218,7 @@ class LandSurface(object):
                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
                                                                  self.cloneMap,self.tmpDir,self.inputDir), 1.0))
         else:                                                                                                                          
-            logger.info('Using/incorporating the predefined fractions of surface water source for domestic and industrial demand.')
+            logger.info('Using/incorporating the predefined fraction of surface water source for domestic and industrial demand.')
             self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
 
         # instantiate self.landCoverObj[coverType]
