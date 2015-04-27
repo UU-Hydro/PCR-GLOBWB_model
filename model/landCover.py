@@ -1292,13 +1292,12 @@ class LandCover(object):
                 #   particularly in areas with sufficient irrigation network and 
                 #   in areas with sufficient gwAbstractionFraction_irrigation  
                 satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
-                                               satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], self.nonIrrGrossDemand)
+                                               satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], 
+                                                                                         self.nonIrrGrossDemand)
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,\
                                                                        remainingIrrigationLivestock, \
-                                                        pcr.max(0.0,\
-                                                                gwAbstractionFraction_irrigation * satisfiedIrrigationLivestock - \
-                                                                satisfiedIrrigationLivestockFromNonFossilGroundwater, \
-                                                                         satisfiedIrrigationLivestock) < gwAbstractionFraction_irrigation, pcr.boolean(1.0), \
+                                                                       pcr.max(0.0, gwAbstractionFraction_irrigation * satisfiedIrrigationLivestock - \
+                                                                                    satisfiedIrrigationLivestockFromNonFossilGroundwater))
                 # - also limited to self.potFossilGroundwaterAbstract                                                                                                                           pcr.boolean(0.0)) 
                 correctedRemainingIrrigationLivestock = pcr.min(reductionFactorForPotGroundwaterAbstract * remainingIrrigationLivestock, \
                                                                 correctedRemainingIrrigationLivestock)
