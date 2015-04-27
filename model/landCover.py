@@ -1210,10 +1210,11 @@ class LandCover(object):
         #
         # - for irrigation water demand, but not including livestock 
         if isinstance(swAbstractionFraction, dict):
-            # using the map from Siebert to constrain surface water fraction
-            satisfiedIrrDemandFromNonFossilGroundwater = pcr.max(0.0,
-                                       vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_water_demand_estimate) *\
-                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand) * self.allocNonFossilGroundwater)
+            # using the map from Siebert
+            satisfiedIrrigationLivestockFromNonFossilGroundwater = self.allocNonFossilGroundwater * \
+                                       vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_water_demand_estimate) 
+            satisfiedIrrDemandFromNonFossilGroundwater = satisfiedIrrigationLivestockFromNonFossilGroundwater * \
+                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand)
         else:    
             satisfiedIrrDemandFromNonFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
                                                                            self.totalPotentialGrossDemand) * self.allocNonFossilGroundwater
@@ -1285,15 +1286,25 @@ class LandCover(object):
                                        remainingIndustrialDomestic                                                                                   
 
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
-                # - ignore the remaining irrigation and livestock demand in areas with sufficient irrigation network 
                 correctedRemainingTotalDemand = reductionFactorForPotGroundwaterAbstract *\
                                                 remainingTotalDemand
-                correctedRemainingIrrigationLivestock  = reductionFactorForPotGroundwaterAbstract *\
-                                                         pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,
-                                                                       remainingIrrigationLivestock, 0.0)
-                correctedRemainingIndustrialDomestic   = pcr.min(remainingIndustrialDomestic, \
-                                                         pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIrrigationLivestock))
-                correctedRemainingIrrigationLivestock  = pcr.min(remainingIrrigationLivestock,\
+                # - reduce the remaining irrigation and livestock demand to minimize unrealistic areas of fossil groundwater abstraction
+                #   particularly in areas with sufficient irrigation network and 
+                #   in areas with sufficient gwAbstractionFraction_irrigation  
+                satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
+                                               satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], self.nonIrrGrossDemand)
+                correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,\
+                                                                       remainingIrrigationLivestock, \
+                                                        pcr.max(0.0,\
+                                                                gwAbstractionFraction_irrigation * satisfiedIrrigationLivestock - \
+                                                                satisfiedIrrigationLivestockFromNonFossilGroundwater, \
+                                                                         satisfiedIrrigationLivestock) < gwAbstractionFraction_irrigation, pcr.boolean(1.0), \
+                # - also limited to self.potFossilGroundwaterAbstract                                                                                                                           pcr.boolean(0.0)) 
+                correctedRemainingIrrigationLivestock = pcr.min(reductionFactorForPotGroundwaterAbstract * remainingIrrigationLivestock, \
+                                                                correctedRemainingIrrigationLivestock)
+                correctedRemainingIndustrialDomestic  = pcr.min(remainingIndustrialDomestic, \
+                                                        pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIrrigationLivestock))
+                correctedRemainingIrrigationLivestock = pcr.min(remainingIrrigationLivestock,\
                                                                  correctedRemainingIrrigationLivestock)
                 correctedRemainingTotalDemand = correctedRemainingIndustrialDomestic +\
                                                 correctedRemainingIrrigationLivestock                                                                                                                                               
