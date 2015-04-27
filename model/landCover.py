@@ -1283,6 +1283,8 @@ class LandCover(object):
                 # calculate the remaining demand - limited to self.potFossilGroundwaterAbstract
                 remainingIrrigationLivestock = reductionFactorForPotGroundwaterAbstract * \
                                                (remainingIrrigation + remainingLivestock)
+                remainingIrrigation         *= reductionFactorForPotGroundwaterAbstract
+                remainingLivestock          *= reductionFactorForPotGroundwaterAbstract
                 remainingIndustrialDomestic *= reductionFactorForPotGroundwaterAbstract
                 #
                 # calculate the estimate of groundwater water demand:
@@ -1347,7 +1349,7 @@ class LandCover(object):
             # using the map from Siebert to constrain surface water fraction
             satisfiedIrrDemandFromFossilGroundwater = self.fossilGroundwaterAlloc *\
                vos.getValDivZero(fossil_irrigation_groundwater_water_demand_estimate, fossil_groundwater_water_demand_estimate) *\
-               vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand)
+               vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
         else:    
             satisfiedIrrDemandFromFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
                                                                         self.totalPotentialGrossDemand) * self.fossilGroundwaterAlloc
