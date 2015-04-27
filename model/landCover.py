@@ -1122,7 +1122,7 @@ class LandCover(object):
         # - for irrigation water demand, but not including livestock 
         if isinstance(swAbstractionFraction, dict):
             # using the map from Siebert to constrain surface water fraction
-            satisfiedIrrDemandFromSurfaceWater = self.allocSurfaceWaterAbstract
+            satisfiedIrrDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
                vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand) * \
                vos.getValDivZero(swAbstractionFraction['irrigation'] * remainingIrrigationLivestock, surface_water_demand_estimate)
         else:    
