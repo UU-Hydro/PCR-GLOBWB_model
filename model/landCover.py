@@ -1349,8 +1349,8 @@ class LandCover(object):
                vos.getValDivZero(fossil_irrigation_groundwater_water_demand_estimate, fossil_groundwater_water_demand_estimate) *\
                vos.getValDivZero(self.irrGrossDemand, totalIrrigationDemand)
         else:    
-            satisfiedIrrDemandFromNonFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
-                                                                           self.totalPotentialGrossDemand) * self.allocNonFossilGroundwater
+            satisfiedIrrDemandFromFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
+                                                                        self.totalPotentialGrossDemand) * self.fossilGroundwaterAlloc
         satisfiedIrrigationDemand += satisfiedIrrDemandFromFossilGroundwater
         #
         # - for non irrigation water demand: livestock, domestic and idustry 
