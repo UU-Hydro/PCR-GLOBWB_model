@@ -30,11 +30,19 @@ class PCR2netCDF():
         #       Consult with Stefanie regarding CF convention. 
         
         # netCDF format and attributes:
-        self.format = 'NETCDF3_CLASSIC'
         self.attributeDictionary = {}
         self.attributeDictionary['institution'] = iniItems.globalOptions['institution']
         self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
         self.attributeDictionary['description'] = iniItems.globalOptions['description']
+        
+        # netcdf format and zlib setup 
+        self.format = 'NETCDF3_CLASSIC'
+        self.zlib = False
+        if "formatNetCDF" in iniItems.reportingOptions.keys():
+            self.format = str(iniItems.reportingOptions['formatNetCDF'])
+        if "zlib" in iniItems.reportingOptions.keys():
+            if iniItems.reportingOptions['zlib'] == "True": self.zlib = True 
+            
 
     def createNetCDF(self, ncFileName, varName, varUnits, \
                                       longName = None):
@@ -70,7 +78,7 @@ class PCR2netCDF():
         longVarName  = varName
         if longName != None: longVarName = longName
         
-        var= rootgrp.createVariable(shortVarName,'f4',('time','lat','lon',) ,fill_value=vos.MV,zlib=False)
+        var= rootgrp.createVariable(shortVarName,'f4',('time','lat','lon',) ,fill_value=vos.MV,zlib=self.zlib)
         var.standard_name = varName
         var.long_name = longVarName
         var.units = varUnits
@@ -101,7 +109,7 @@ class PCR2netCDF():
         longVarName  = varName
         if longName != None: longVarName = longName
 
-        var= rootgrp.createVariable(shortVarName,'f4',('time','lat','lon',) ,fill_value=vos.MV,zlib=False)
+        var= rootgrp.createVariable(shortVarName,'f4',('time','lat','lon',) ,fill_value=vos.MV,zlib=self.zlib)
         var.standard_name = varName
         var.long_name = longVarName
         var.units = varUnits
