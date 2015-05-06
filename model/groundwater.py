@@ -39,6 +39,9 @@ class Groundwater(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
 
+        self.useMODFLOW = False
+        if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
+
         # option to activate water balance check
         self.debugWaterBalance = True
         if iniItems.routingOptions['debugWaterBalance'] == "False":
@@ -99,6 +102,8 @@ class Groundwater(object):
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
+        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
+        if self.useMODFLOW: self.limitAbstraction = True
 
         # option for limitting regional groundwater abstractions
         if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
@@ -152,6 +157,9 @@ class Groundwater(object):
                                   pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap))
 
+        # if using MODFLOW, the concept of fossil groundwater abstraction is abandoned 
+        if self.useMODFLOW: self.limitFossilGroundwaterAbstraction = False
+        
         # zones at which groundwater allocations are determined
         self.usingAllocSegments = False
         if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "None":
@@ -272,6 +280,29 @@ class Groundwater(object):
 
     def getICs(self,iniItems,iniConditions = None):
 
+        self.initialize_states(iniItems,iniConditions)
+        if self.useMODFLOW: self.initialize_with_MODFLOW(iniItems,iniConditions) 
+
+    def initialize_with_MODFLOW(self,iniItems,iniConditions):
+
+        # obtain relative groundwater head (unit: m) and 
+        self.relativeGroundwaterHead = \
+                        pcr.ifthen(self.landmask,\
+                        vos.readPCRmapClone(iniItems.couplingToModflowOptions['relativeGroundwaterHeadFromModflow'],
+                                            self.cloneMap,self.tmpDir,self.inputDir))
+        self.baseflow = pcr.ifthen(self.landmask,\
+                        vos.readPCRmapClone(iniItems.couplingToModflowOptions['baseflowFromModflow'],                                                   
+                                            self.cloneMap,self.tmpDir,self.inputDir))
+        
+        # use storGroundwater from the MODFLOW calculation/simulation:
+        self.storGroundwater = pcr.ifthen(self.landmask,\
+                               vos.readPCRmapClone(iniItems.couplingToModflowOptions['storGroundwaterFromModflow'],  
+                                                   self.cloneMap,self.tmpDir,self.inputDir))
+        
+        # additional states from MODFLOW can be added here !!!
+
+    def initialize_states(self,iniItems,iniConditions):
+ 
         # initial condition for storGroundwater (unit: m)
         if iniConditions == None: # when the model just start 
             self.storGroundwater         = vos.readPCRmapClone(\
@@ -372,6 +403,48 @@ class Groundwater(object):
 
     def update(self,landSurface,routing,currTimeStep):
 
+        if self.useMODFLOW: 
+            self.update_with_MODFLOW(landSurface,routing,currTimeStep)
+        else:    
+            self.update_without_MODFLOW(landSurface,routing,currTimeStep)
+        
+        self.calculate_statistics(routing)    
+
+        # old-style reporting                             
+        self.old_style_groundwater_reporting(currTimeStep)              # TODO: remove this one
+
+    def update_with_MODFLOW(self,landSurface,routing,currTimeStep):
+
+        logger.info("Updating groundwater based on the MODFLOW output.")
+
+        # relativeGroundwaterHead, storGroundwater and baseflow fields are assumed to be constant  
+        self.storGroundwater = self.storGroundwater
+        self.baseflow = self.baseflow 
+
+        # river bed exchange has been accomodated in baseflow (via MODFLOW, river and drain packages)
+        self.surfaceWaterInf = pcr.scalar(0.0) 
+        
+        # non fossil groundwater abstraction
+        self.nonFossilGroundwaterAbs = landSurface.nonFossilGroundwaterAbs
+
+        # fossil groundwater abstraction (must be zero):
+        self.fossilGroundwaterAbstr = landSurface.fossilGroundwaterAbstr
+
+        # groundwater allocation (Note: This is done in the landSurface module)
+        self.allocNonFossilGroundwater = landSurface.allocNonFossilGroundwater
+        self.fossilGroundwaterAlloc    = landSurface.fossilGroundwaterAlloc
+
+        # groundwater allocation (Note: This is done in the landSurface module)
+        self.allocNonFossilGroundwater = landSurface.allocNonFossilGroundwater
+        self.fossilGroundwaterAlloc    = landSurface.fossilGroundwaterAlloc
+        
+        # Note: The following variable (unmetDemand) is a bad name and used in the past. 
+        #       Its definition is actually as follows: (the amount of demand that is satisfied/allocated from fossil groundwater) 
+        self.unmetDemand = self.fossilGroundwaterAlloc
+
+
+    def update_without_MODFLOW(self,landSurface,routing,currTimeStep):
+
         logger.info("Updating groundwater")
         
         if self.debugWaterBalance:
@@ -417,6 +490,40 @@ class Groundwater(object):
         #       Its definition is actually as follows: (the amount of demand that is satisfied/allocated from fossil groundwater) 
         self.unmetDemand = self.fossilGroundwaterAlloc
 
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([self.surfaceWaterInf,\
+                                   landSurface.gwRecharge],\
+                                  [self.baseflow,\
+                                   self.nonFossilGroundwaterAbs],\
+                                  [  preStorGroundwater],\
+                                  [self.storGroundwater],\
+                                       'storGroundwater',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([pcr.scalar(0.0)],\
+                                  [self.fossilGroundwaterAbstr],\
+                                  [  preStorGroundwaterFossil],\
+                                  [self.storGroundwaterFossil],\
+                                       'storGroundwaterFossil',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-3)
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([landSurface.desalinationAllocation,\
+                                   self.unmetDemand, \
+                                   self.allocNonFossilGroundwater, \
+                                   landSurface.allocSurfaceWaterAbstract],\
+                                  [landSurface.totalPotentialGrossDemand],\
+                                  [pcr.scalar(0.)],\
+                                  [pcr.scalar(0.)],\
+                                  'demand allocation (desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-3)
+
+    def calculate_statistics(self, routing):
+
         # calculate the average total groundwater abstraction (m/day) from the last 365 days:
         totalAbstraction    = self.fossilGroundwaterAbstr + self.nonFossilGroundwaterAbs
         deltaAbstraction    = totalAbstraction - self.avgAbstraction  
@@ -453,41 +560,6 @@ class Groundwater(object):
                                         deltaAllocationShort/\
                                         pcr.min(7., pcr.max(1.0, routing.timestepsToAvgDischarge))
         self.avgAllocationShort    = pcr.max(0.0, self.avgAllocationShort)
-
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.surfaceWaterInf,\
-                                   landSurface.gwRecharge],\
-                                  [self.baseflow,\
-                                   self.nonFossilGroundwaterAbs],\
-                                  [  preStorGroundwater],\
-                                  [self.storGroundwater],\
-                                       'storGroundwater',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
-
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([pcr.scalar(0.0)],\
-                                  [self.fossilGroundwaterAbstr],\
-                                  [  preStorGroundwaterFossil],\
-                                  [self.storGroundwaterFossil],\
-                                       'storGroundwaterFossil',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-3)
-
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([landSurface.desalinationAllocation,\
-                                   self.unmetDemand, \
-                                   self.allocNonFossilGroundwater, \
-                                   landSurface.allocSurfaceWaterAbstract],\
-                                  [landSurface.totalPotentialGrossDemand],\
-                                  [pcr.scalar(0.)],\
-                                  [pcr.scalar(0.)],\
-                                  'demand allocation (desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-3)
-
-        # old-style reporting                             
-        self.old_style_groundwater_reporting(currTimeStep)              # TODO: remove this one
 
     def old_style_groundwater_reporting(self,currTimeStep):
 

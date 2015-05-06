@@ -315,12 +315,12 @@ class Reporting(object):
         # fraction of surface water bodies.
         self.dynamicFracWat = self._model.routing.dynamicFracWat
         
-        # reporting water balance from the land surface part (excluding surface water bodies)
-        self.land_surface_water_balance = self._model.waterBalance
-
     def additional_post_processing(self):
         # In this method/function, users can add their own post-processing.
         
+        # reporting water balance from the land surface part (excluding surface water bodies)
+        if "land_surface_water_balance" in self.variables_for_report: self.land_surface_water_balance = self._model.waterBalance
+
         # accumulated baseflow (m3/s) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
             self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()

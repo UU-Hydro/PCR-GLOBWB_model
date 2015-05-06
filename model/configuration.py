@@ -50,7 +50,7 @@ class Configuration(object):
         self.repair_ini_key_names()
         
 
-    def initialize_logging(self):
+    def initialize_logging(self, log_file_location = "Default"):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
@@ -87,7 +87,8 @@ class Configuration(object):
         console_handler.setLevel(console_level)
         logging.getLogger().addHandler(console_handler)
 
-        # log file name
+        # log file name (and location)
+        if log_file_location != "Default":  self.logFileDir = log_file_location
         log_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.log'
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
@@ -284,11 +285,19 @@ class Configuration(object):
             self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
         
         # adjustment for option 'dynamicFloodPlain'
-        if 'dynamicFloodPlain' in self.routingOptions.keys():
+        if 'dynamicFloodPlain' not in self.routingOptions.keys():
             msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
             msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
-            self.routingOptions['dynamicFloodPlain'] == "False"
+            logger.warning(msg)
+            self.routingOptions['dynamicFloodPlain'] = "False"
         
+        # adjustment for option 'useMODFLOW'
+        if 'useMODFLOW' not in self.groundwaterOptions.keys():
+            msg  = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'We assume "False" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['useMODFLOW'] = "False"
+
         # adjustment for initial conditions in the routingOptions
         #
         if 'm2tChannelDischargeLongIni' in self.routingOptions.keys():

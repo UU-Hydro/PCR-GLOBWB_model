@@ -786,8 +786,16 @@ class LandSurface(object):
     def calculateCapRiseFrac(self,groundwater,routing,currTimeStep):
         # calculate cell fraction influenced by capillary rise:
 
+        # relative groundwater head (m) above the minimum elevation within a grid cell
+        if groundwater.useMODFLOW == True:
+            dzGroundwater = groundwater.relativeGroundwaterHead         
+        else:
+            dzGroundwater = groundwater.storGroundwater/groundwater.specificYield
+
+        # add some tolerance/influence level (unit: m)
+        dzGroundwater += self.parameters.maxGWCapRise;
+        
         # approximate cell fraction under influence of capillary rise
-        dzGroundwater = groundwater.storGroundwater/groundwater.specificYield + self.parameters.maxGWCapRise;
         FRACWAT = pcr.scalar(0.0);
         if currTimeStep.timeStepPCR > 1: 
             FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 

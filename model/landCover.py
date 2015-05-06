@@ -26,6 +26,10 @@ class LandCover(object):
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
+        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
+        if "useMODFLOW" in iniItems.groundwaterOptions.keys():
+            if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
+        
         # irrigation efficiency map
         self.irrigationEfficiency = irrigationEfficiency
         
@@ -1367,7 +1371,8 @@ class LandCover(object):
         # water demand that have been satisfied (unit: m/day)
         #
         # - for irrigation water demand, but not including livestock 
-        if isinstance(swAbstractionFraction, dict):
+        if isinstance(swAbstractionFraction, dict) and \
+           self.limitAbstraction == False:                                               # If limitAbstraction = True, there will be no fossil groundwater abstraction. 
             # using the map from Siebert to constrain surface water fraction
             satisfiedIrrDemandFromFossilGroundwater = self.fossilGroundwaterAlloc *\
                vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedRemainingTotalDemand) *\

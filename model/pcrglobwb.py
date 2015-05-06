@@ -175,7 +175,6 @@ class PCRGlobWB(object):
         self.dischargeAtPitAcc        += self.routing.outgoing_volume_at_pits       # unit: m3
         
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
-            self.dumpState(self._configuration.endStateDir)
             
             logger.info("")
             msg = 'The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).'
@@ -356,7 +355,7 @@ class PCRGlobWB(object):
         self.meteo.read_forcings(self._modelTime)
     
     def update(self, report_water_balance=False):
-        logger.info("updating model to time %s", self._modelTime)
+        logger.info("updating model for time %s", self._modelTime)
         
         if (report_water_balance):
             landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
@@ -366,6 +365,11 @@ class PCRGlobWB(object):
         self.landSurface.update(self.meteo,self.groundwater,self.routing,self._modelTime)      
         self.groundwater.update(self.landSurface,self.routing,self._modelTime)
         self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
+
+        # save/dump states at the end of the year or at the end of model simulation
+        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
+            logger.info("save/dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+            self.dumpState(self._configuration.endStateDir)
 
         if (report_water_balance):
             landWaterStoresAtEnd    = self.totalLandWaterStores()          # not including surface water bodies

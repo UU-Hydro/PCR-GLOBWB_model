@@ -1108,3 +1108,15 @@ def findFirstYearInNCTime(ncTimeVariable):
                                 ncTimeVariable.calendar) 
     
     return first_datetime.year
+
+def cmd_line(command_line,using_subprocess = True):
+
+    msg = "Call: "+str(command_line)
+    logger.debug(msg)
+    
+    co = command_line
+    if using_subprocess:
+        cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    else:
+        os.system(co)
+
