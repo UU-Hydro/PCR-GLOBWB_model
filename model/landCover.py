@@ -1932,7 +1932,7 @@ class LandCover(object):
                 self.interflow     = ADJUST*self.interflow                      
 
         # scale all fluxes based on available water
-        self.scaleAllFluxes(parameters, groundwater):
+        self.scaleAllFluxes(parameters, groundwater)
 
     def scaleAllFluxesOptimizeEvaporation(self, parameters, groundwater):
 
