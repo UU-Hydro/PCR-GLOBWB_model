@@ -253,8 +253,8 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            min_percolation_loss = 0.006                        # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            max_percolation_loss = self.design_percolation_loss # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
