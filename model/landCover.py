@@ -967,7 +967,7 @@ class LandCover(object):
             max_irrigation_interval = 5.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.ifthenelse(self.irrGrossDemand > 0.0, \
-                                  pcr.roundup(self.totalPotET / self.irrGrossDemand), 0.0))
+                                  pcr.roundup(self.totalPotET / self.irrGrossDemand), 1.0))
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
@@ -1916,7 +1916,7 @@ class LandCover(object):
         # deep percolation should consider losses during application in non paddy areas                                                                                                                                        
         if self.name == 'irrNonPaddy':
             startingCropKC = 0.00
-            maxADJUST = 10000.
+            maxADJUST = 100.
             if self.numberOfLayers == 2:
                 minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow)
                 deep_percolation = pcr.max(minimum_deep_percolation, \
