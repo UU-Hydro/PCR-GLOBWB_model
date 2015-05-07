@@ -253,8 +253,10 @@ class LandCover(object):
             # However, it can be much smaller especially in well-puddled paddy fields
             # - Minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
             #
-            min_percolation_loss = 0.006                        # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = self.design_percolation_loss # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            #~ min_percolation_loss = 0.006                        # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            #~ max_percolation_loss = self.design_percolation_loss # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -956,7 +958,8 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            deficit_treshold = 0.25 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1079,7 +1082,7 @@ class LandCover(object):
                                             swAbstractionFraction['estimate'])  * remainingIndustrialDomestic
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
-            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.60     # TODO: define this one in the ini/configuration file 
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
@@ -1316,7 +1319,7 @@ class LandCover(object):
                                                                                     satisfiedIrrigationLivestockFromNonFossilGroundwater))
                 # - also ignore irrigation and livestock demand (to minimize unrealistic areas of fossil groundwater abstraction)
                 #   particularly in areas with sufficient surface water irrigation network (i.e. low gwAbstractionFraction_irrigation)  
-                fossilAbstractionFraction_irrigation_treshold = 0.75    # TODO: define this in the ini/configuration file
+                fossilAbstractionFraction_irrigation_treshold = 0.60    # TODO: define this in the ini/configuration file
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > fossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 # - irrigation and livestock limited to self.potFossilGroundwaterAbstract                                                                                                                           pcr.boolean(0.0)) 
