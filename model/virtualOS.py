@@ -4,6 +4,7 @@
 # EHS (20 March 2013): This is the list of general functions.
 #                      The list is continuation from Rens's and Dominik's.
 
+import shutil
 import subprocess
 import datetime
 import random
@@ -479,8 +480,9 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
             if isLddMap == True: PCRmap = pcr.ldd(PCRmap)
             if isNomMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
             if isNomMap == True: PCRmap = pcr.nominal(PCRmap)
-            co = 'rm '+str(tmpDir)+'*.*'
-            cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+            if os.path.isdir(tmpDir):
+                shutil.rmtree(tmpDir)
+            os.makedirs(tmpDir)
     else:
         PCRmap = pcr.scalar(float(v))
     if cover != None:
@@ -529,13 +531,13 @@ def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False):
     # 
     # remove temporary files:
     co = 'rm '+str(tmpDir)+'*.*'
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     # converting files to tif:
     co = 'gdal_translate -ot Float64 '+str(input)+' '+str(tmpDir)+'tmp_inp.tif'
     if isLddMap == True: co = 'gdal_translate -ot Int32 '+str(input)+' '+str(tmpDir)+'tmp_inp.tif'
     if isNominalMap == True: co = 'gdal_translate -ot Int32 '+str(input)+' '+str(tmpDir)+'tmp_inp.tif'
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     # get the attributes of PCRaster map:
     cloneAtt = getMapAttributesALL(cloneOut)
@@ -551,21 +553,21 @@ def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False):
          ' -srcnodata -3.4028234663852886e+38 -dstnodata mv '+ \
            str(tmpDir)+'tmp_inp.tif '+ \
            str(tmpDir)+'tmp_out.tif'
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     co = 'gdal_translate -of PCRaster '+ \
               str(tmpDir)+'tmp_out.tif '+str(output)
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     co = 'mapattr -c '+str(cloneOut)+' '+str(output)
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     #~ co = 'aguila '+str(output)
     #~ print(co)
-    #~ cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    #~ cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     co = 'rm '+str(tmpDir)+'tmp*.*'
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     co = None; cOut = None; err = None
     del co; del cOut; del err
     stdout = None; del stdout
@@ -659,8 +661,8 @@ def isLastDayOfMonth(date):
         return False
 
 def getMapAttributesALL(cloneMap,arcDegree=True):
-    co = ['mapattr -p %s ' %(cloneMap)]
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
+
     if err !=None or cOut == []:
         print "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
         sys.exit()
@@ -677,8 +679,7 @@ def getMapAttributesALL(cloneMap,arcDegree=True):
     return mapAttr 
 
 def getMapAttributes(cloneMap,attribute,arcDegree=True):
-    co = ['mapattr -p %s ' %(cloneMap)]
-    cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
+    cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     #print cOut
     if err !=None or cOut == []:
         print "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
