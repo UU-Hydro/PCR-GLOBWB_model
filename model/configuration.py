@@ -89,7 +89,7 @@ class Configuration(object):
 
         # log file name (and location)
         if log_file_location != "Default":  self.logFileDir = log_file_location
-        log_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.log'
+        log_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + str(self._timestamp.isoformat()).replace(":",".") + '.log'
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
@@ -102,7 +102,7 @@ class Configuration(object):
         logging.getLogger().addHandler(file_handler)
         
         # file name for debug log 
-        dbg_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.dbg'
+        dbg_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.dbg'
 
         #create handler, add to root logger
         debug_handler = logging.FileHandler(dbg_filename)
@@ -119,7 +119,7 @@ class Configuration(object):
         # copy ini File to logDir:
         
         shutil.copy(self.iniFileName, self.logFileDir + \
-                                     os.path.basename(self.iniFileName) + '_' + self._timestamp.isoformat() + '.ini')
+                                     os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.ini')
 
     def parse_configuration_file(self, modelFileName):
 
