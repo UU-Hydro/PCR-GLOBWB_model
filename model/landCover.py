@@ -1073,10 +1073,17 @@ class LandCover(object):
                                                           remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of surface water demand:
+            # - for industrial and domestic
             surface_water_demand_estimate = pcr.min(\
                                             swAbstractionFraction['max_for_non_irrigation'],\
-                                            swAbstractionFraction['estimate'])  * remainingIndustrialDomestic +\
-                                            swAbstractionFraction['irrigation'] * remainingIrrigationLivestock
+                                            swAbstractionFraction['estimate'])  * remainingIndustrialDomestic
+            # - for irrigation and livestock 
+            #   surface water source as priority if groundwater fraction is relatively low  
+            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
+            surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
+                                                            remainingIrrigationLivestock, \
+                                                            swAbstractionFraction['irrigation'] * remainingIrrigationLivestock)
         else:
             # - as a function of the ratio between discharge and local baseflow (see the landSurface module)
             swAbstractionFractionUsed = swAbstractionFraction     
@@ -1166,8 +1173,6 @@ class LandCover(object):
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                    pcr.max(0.0, \
                                                    (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationLivestockDemand))
-            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
-            gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
             # - demand for irrigation and livestock sectors (constrained by Siebert's map)
             irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
                                                                   remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
@@ -1185,7 +1190,7 @@ class LandCover(object):
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 15.
+            tolerating_days = 0.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
             # at regional scale
