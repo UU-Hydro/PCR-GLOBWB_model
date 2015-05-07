@@ -966,8 +966,8 @@ class LandCover(object):
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
             max_irrigation_interval = 5.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
-                                  pcr.ifthenelse(self.irrGrossDemand > 0.0, \
-                                  pcr.roundup(self.totalPotET / self.irrGrossDemand), 1.0))
+                                  pcr.ifthenelse(self.totalPotET > 0.0, \
+                                  pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
