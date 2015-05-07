@@ -1908,7 +1908,7 @@ class LandCover(object):
         
         # deep percolation should consider losses during application in non paddy areas                                                                                                                                        
         if self.name == 'irrNonPaddy':
-            startingCropKC = 0.75
+            startingCropKC = 0.00
             maxADJUST = 1000.
             if self.numberOfLayers == 2:
                 minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow)
