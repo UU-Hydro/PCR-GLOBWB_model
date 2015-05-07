@@ -956,7 +956,7 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.010 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1316,7 +1316,7 @@ class LandCover(object):
                                                                                     satisfiedIrrigationLivestockFromNonFossilGroundwater))
                 # - also ignore irrigation and livestock demand (to minimize unrealistic areas of fossil groundwater abstraction)
                 #   particularly in areas with sufficient surface water irrigation network (i.e. low gwAbstractionFraction_irrigation)  
-                fossilAbstractionFraction_irrigation_treshold = 0.60    # TODO: define this in the ini/configuration file
+                fossilAbstractionFraction_irrigation_treshold = 0.75    # TODO: define this in the ini/configuration file
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > fossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 # - irrigation and livestock limited to self.potFossilGroundwaterAbstract                                                                                                                           pcr.boolean(0.0)) 
