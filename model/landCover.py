@@ -967,7 +967,7 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            max_irrigation_interval = 5.0
+            max_irrigation_interval = 15.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
@@ -984,7 +984,7 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.100  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
@@ -1082,7 +1082,7 @@ class LandCover(object):
                                             swAbstractionFraction['estimate'])  * remainingIndustrialDomestic
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
-            gwAbstractionFraction_irrigation_treshold = 0.60     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.55     # TODO: define this one in the ini/configuration file 
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
@@ -1319,7 +1319,7 @@ class LandCover(object):
                                                                                     satisfiedIrrigationLivestockFromNonFossilGroundwater))
                 # - also ignore irrigation and livestock demand (to minimize unrealistic areas of fossil groundwater abstraction)
                 #   particularly in areas with sufficient surface water irrigation network (i.e. low gwAbstractionFraction_irrigation)  
-                fossilAbstractionFraction_irrigation_treshold = 0.60    # TODO: define this in the ini/configuration file
+                fossilAbstractionFraction_irrigation_treshold = 0.80    # TODO: define this in the ini/configuration file
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > fossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 # - irrigation and livestock limited to self.potFossilGroundwaterAbstract                                                                                                                           pcr.boolean(0.0)) 
