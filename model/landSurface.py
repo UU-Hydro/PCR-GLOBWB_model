@@ -142,7 +142,9 @@ class LandSurface(object):
                           'satExcess',
                           'snowMelt',
                           'totalPotentialMaximumGrossDemand',
-                          'totalPotentialMaximumIrrGrossDemand']
+                          'totalPotentialMaximumIrrGrossDemand',
+                          'totalPotentialMaximumIrrGrossDemandPaddy',
+                          'totalPotentialMaximumIrrGrossDemandNonPaddy']
         #
         # specific variables for 2 and 3 layer soil models:
         #
