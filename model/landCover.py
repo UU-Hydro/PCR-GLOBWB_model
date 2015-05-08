@@ -993,7 +993,7 @@ class LandCover(object):
 
         # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
         self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \ 
+                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
                                              self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
