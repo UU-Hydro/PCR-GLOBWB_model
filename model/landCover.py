@@ -970,8 +970,7 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            deficit_treshold = 0.25 * self.totalPotET
+            deficit_treshold = pcr.min(0.005, 0.25 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -979,10 +978,12 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
+            min_irrigation_interval =  5.0
             max_irrigation_interval = 15.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
+                                  pcr.max(min_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
-                                  pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
+                                  pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0)))
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
@@ -1030,8 +1031,9 @@ class LandCover(object):
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
 
         # totalGrossDemand (m): irrigation and non irrigation
-        self.totalPotentialMaximumGrossDemand = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
-        self.totalPotentialGrossDemand        = self.totalPotentialMaximumGrossDemand         # this value will be reduced by available/accesible water
+        self.totalPotentialMaximumGrossDemand    = self.irrGrossDemand + self.nonIrrGrossDemand  # this value will not be reduced
+        self.totalPotentialMaximumIrrGrossDemand = self.irrGrossDemand
+        self.totalPotentialGrossDemand           = self.totalPotentialMaximumGrossDemand         # this value will be reduced by available/accesible water
         #
 
         # Abstraction and Allocation of DESALINATED WATER
