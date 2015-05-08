@@ -1959,13 +1959,12 @@ class LandCover(object):
                 #~ self.interflow     = ADJUST*self.interflow                      
 
         # idea on 8 May 2015
-        # deep percolation is minimized (in order to avoid too often irrigation application)                                                                                                                                        
+        # - there will be losses based on irrigation efficiency and the current readAvlWater and implemented irrGrossDemand
+        percolation_loss = pcr.max(self.potential_irrigation_loss, \
+                                  (self.readAvlWater + self.irrGrossDemand) * (1.0 - self.irrigationEfficiency))
         if self.name.startswith('irr'):
-            if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, \
-                                                        self.potential_irrigation_loss + pcr.max(0.0, self.readAvlWater - self.totAvlWater))
-
-            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(percLow030150, \
-                                                              self.potential_irrigation_loss + pcr.max(0.0, self.readAvlWater - self.totAvlWater))
+            if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, percolation_loss)
+            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(percLow030150, percolation_loss)
         
         # scale all fluxes based on available water
         self.scaleAllFluxes(parameters, groundwater)
