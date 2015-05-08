@@ -560,6 +560,18 @@ class LandCover(object):
         # limit cropKC
         self.cropKC = pcr.max(cropKC, minCropCoefficientForIrrigation)
         
+        # get the previous day value of cropKC
+        if currTimeStep.doy > 1:
+            self.prevCropKC = pcr.cover(
+                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+                                    currTimeStep.doy - 1, useDoy = 'Yes',\
+                                    cloneMapFileName = self.cloneMap), 0.0) 
+        else:
+            self.prevCropKC = pcr.cover(
+                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+                                    366, useDoy = 'Yes',\
+                                    cloneMapFileName = self.cloneMap), 0.0)  
+        
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
@@ -959,7 +971,7 @@ class LandCover(object):
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            deficit_treshold = 0.25 * self.totalPotET
+            deficit_treshold = 0.10 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -978,6 +990,9 @@ class LandCover(object):
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
+
+        # idea on 8 May - no demand while crop coefficient declines
+        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1964,7 +1979,7 @@ class LandCover(object):
                                   (self.readAvlWater + self.irrGrossDemand) * (1.0 - self.irrigationEfficiency))
         if self.name.startswith('irr'):
             if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, percolation_loss)
-            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(percLow030150, percolation_loss)
+            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(self.percLow030150, percolation_loss)
         
         # scale all fluxes based on available water
         self.scaleAllFluxes(parameters, groundwater)
