@@ -1334,7 +1334,7 @@ class LandCover(object):
                 # - irrigation and livestock demand                                                                                                                           pcr.boolean(0.0)) 
                 correctedRemainingIrrigationLivestock = pcr.min(correctedRemainingIrrigationLivestock, \
                                                         pcr.max(0.0,\
-                                                        correctedRemainingTotalDemand - correctedRemainingIndustrialDomestic)
+                                                        correctedRemainingTotalDemand - correctedRemainingIndustrialDomestic))
                 # - the remaining total demand  
                 correctedRemainingTotalDemand = correctedRemainingIndustrialDomestic +\
                                                 correctedRemainingIrrigationLivestock                                                                                                                                               
