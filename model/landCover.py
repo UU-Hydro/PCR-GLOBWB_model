@@ -967,7 +967,7 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            max_irrigation_interval = 5.0
+            max_irrigation_interval = 7.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
@@ -985,12 +985,12 @@ class LandCover(object):
 
         # idea on 12 Mar 2015: set maximum daily irrigation
         maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.075                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': maximum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         #~ # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1085,7 +1085,7 @@ class LandCover(object):
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
-            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.55     # TODO: define this one in the ini/configuration file 
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
                                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock)
@@ -1326,13 +1326,19 @@ class LandCover(object):
                                                                        remainingIrrigationLivestock,correctedRemainingIrrigationLivestock)
  
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
-                # - total demand 
                 correctedRemainingTotalDemand = pcr.min(self.potFossilGroundwaterAbstract, \
                                                         remainingTotalDemand)
-                # - industrial and domestic demand (this is the priority for fossil groundwater abstraction)
-                correctedRemainingIndustrialDomestic  = pcr.min(remainingIndustrialDomestic, \
-                                                                correctedRemainingTotalDemand)
-                # - irrigation and livestock demand                                                                                                                           pcr.boolean(0.0)) 
+                # - industrial and domestic demand
+                correctedRemainingIndustrialDomestic = pcr.min(remainingIndustrialDomestic, \
+                                                               correctedRemainingTotalDemand)
+                # - the industrial and domestic demand is the priority in areas dominated by groundwater source
+                gwAbstractionFraction_industrial_domestic = 1.0 - swAbstractionFraction_industrial_domestic 
+                gwAbstractionFraction_industrial_domestic_treshold = gwAbstractionFraction_irrigation_treshold
+                correctedRemainingIndustrialDomestic = pcr.ifthenelse(
+                                                       gwAbstractionFraction_industrial_domestic > gwAbstractionFraction_industrial_domestic_treshold, \
+                                                       correctedRemainingIndustrialDomestic, gwAbstractionFraction_industrial_domestic *\
+                                                                                             correctedRemainingIndustrialDomestic) 
+                # - irrigation and livestock demand                      
                 correctedRemainingIrrigationLivestock = pcr.min(correctedRemainingIrrigationLivestock, \
                                                         pcr.max(0.0,\
                                                         correctedRemainingTotalDemand - correctedRemainingIndustrialDomestic))
