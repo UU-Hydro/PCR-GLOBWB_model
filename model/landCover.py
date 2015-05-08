@@ -967,7 +967,7 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            max_irrigation_interval = 7.0
+            max_irrigation_interval = 15.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
@@ -988,7 +988,7 @@ class LandCover(object):
         if self.name == 'irrPaddy': maximum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
-        #~ # minimum demand for start irrigating
+        # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
@@ -1085,7 +1085,7 @@ class LandCover(object):
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
-            gwAbstractionFraction_irrigation_treshold = 0.55     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
                                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock)
@@ -1933,31 +1933,40 @@ class LandCover(object):
         # for irrigation areas: interflow will be minimized                                                                                                                                        
         if self.name.startswith('irr'): self.interflow = 0.
         
-        # deep percolation should consider losses during application in non paddy areas                                                                                                                                        
-        if self.name == 'irrNonPaddy':
-            startingCropKC = 0.00
-            maxADJUST = 100.
-            if self.numberOfLayers == 2:
-                minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow)
-                deep_percolation = pcr.max(minimum_deep_percolation, \
-                                           self.percLow + self.interflow)
-                ADJUST = self.percLow + self.interflow
-                ADJUST = pcr.ifthenelse(ADJUST > 0., \
-                         pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
-                ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
-                self.percLow   = ADJUST*self.percLow
-                self.interflow = ADJUST*self.interflow                      
-            if self.numberOfLayers == 3:
-                minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow030150)
-                deep_percolation = pcr.max(minimum_deep_percolation, \
-                                           self.percLow030150 + self.interflow)
-                ADJUST = self.percLow030150 + self.interflow
-                ADJUST = pcr.ifthenelse(ADJUST > 0., \
-                         pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
-                ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
-                self.percLow030150 = ADJUST*self.percLow030150
-                self.interflow     = ADJUST*self.interflow                      
+        #~ # deep percolation should consider losses during application in non paddy areas                                                                                                                                        
+        #~ if self.name == 'irrNonPaddy':
+            #~ startingCropKC = 0.00
+            #~ maxADJUST = 100.
+            #~ if self.numberOfLayers == 2:
+                #~ minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow)
+                #~ deep_percolation = pcr.max(minimum_deep_percolation, \
+                                           #~ self.percLow + self.interflow)
+                #~ ADJUST = self.percLow + self.interflow
+                #~ ADJUST = pcr.ifthenelse(ADJUST > 0., \
+                         #~ pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
+                #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
+                #~ self.percLow   = ADJUST*self.percLow
+                #~ self.interflow = ADJUST*self.interflow                      
+            #~ if self.numberOfLayers == 3:
+                #~ minimum_deep_percolation = pcr.min(self.potential_irrigation_loss, self.storLow030150)
+                #~ deep_percolation = pcr.max(minimum_deep_percolation, \
+                                           #~ self.percLow030150 + self.interflow)
+                #~ ADJUST = self.percLow030150 + self.interflow
+                #~ ADJUST = pcr.ifthenelse(ADJUST > 0., \
+                         #~ pcr.min(maxADJUST,pcr.max(0.0, deep_percolation)/ADJUST),0.)
+                #~ ADJUST = pcr.ifthenelse(self.cropKC > startingCropKC, ADJUST, 1.)
+                #~ self.percLow030150 = ADJUST*self.percLow030150
+                #~ self.interflow     = ADJUST*self.interflow                      
 
+        # idea on 8 May 2015
+        # deep percolation is minimized (in order to avoid too often irrigation application)                                                                                                                                        
+        if self.name.startswith('irr'):
+            if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, \
+                                                        self.potential_irrigation_loss + pcr.max(0.0, self.readAvlWater - self.totAvlWater))
+
+            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(percLow030150, \
+                                                              self.potential_irrigation_loss + pcr.max(0.0, self.readAvlWater - self.totAvlWater))
+        
         # scale all fluxes based on available water
         self.scaleAllFluxes(parameters, groundwater)
 
