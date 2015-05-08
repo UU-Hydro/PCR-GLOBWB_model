@@ -967,7 +967,7 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            max_irrigation_interval = 15.0
+            max_irrigation_interval = 5.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0))
@@ -985,12 +985,12 @@ class LandCover(object):
 
         # idea on 12 Mar 2015: set maximum daily irrigation
         maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': maximum_demand = 0.075                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         #~ # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
