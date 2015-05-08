@@ -255,8 +255,8 @@ class LandCover(object):
             #
             #~ min_percolation_loss = 0.006                        # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
             #~ max_percolation_loss = self.design_percolation_loss # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
-            min_percolation_loss = 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            min_percolation_loss = 0.000 # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
+            max_percolation_loss = 0.006 # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -1986,6 +1986,7 @@ class LandCover(object):
         # - there will be losses based on irrigation efficiency and the current readAvlWater and implemented irrGrossDemand
         percolation_loss = pcr.max(self.potential_irrigation_loss, \
                                   (self.readAvlWater + self.irrGrossDemand) * (1.0 - self.irrigationEfficiency))
+        percolation_loss = pcr.min(percolation_loss, self.infiltration)
         if self.name.startswith('irr'):
             if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, percolation_loss)
             if self.numberOfLayers == 3: self.percLow030150 = pcr.min(self.percLow030150, percolation_loss)
