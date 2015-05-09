@@ -945,20 +945,20 @@ class LandCover(object):
                                                                            #~ #               readAvlWater (available water in the root zone)
             #~ # then, adjusting demand, as a function of a growing rooting depth
             #~ # - as the proxy of rooting depth, we use crop coefficient 
-            #~ irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
-                                    #~ pcr.min(1.0, self.cropKC / 1.0), 0.0)
-            #~ self.irrGrossDemand = irrigation_factor * self.irrGrossDemand
+            #~ self.irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
+                                         #~ pcr.min(1.0, self.cropKC / 1.0), 0.0)
+            #~ self.irrGrossDemand = self.irrigation_factor * self.irrGrossDemand
             #
             # alternative 2: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity, 
             #                                   but with the correction of totAvlWater based on the rooting depth)
             # - as the proxy of rooting depth, we use crop coefficient 
-            irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
-                                    pcr.min(1.0, self.cropKC / 1.0), 0.0)
+            self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
+                                       pcr.min(1.0, self.cropKC / 1.0), 0.0)
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
-                                 adjDeplFactor*irrigation_factor*self.totAvlWater, \
-                 pcr.max(0.0, self.totAvlWater*irrigation_factor-self.readAvlWater),0.),0.)
+                                 adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
+                 pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
             #~ #
             # deficit in transpiration or evaporation
             deficit_factor = 1.00
@@ -993,13 +993,13 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        #~ # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
-                                             #~ self.irrGrossDemand)
+        # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
+        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
+                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
+                                             self.irrGrossDemand)
 
-        # idea on 8 May - no demand while crop coefficient decline
-        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
+        #~ # idea on 8 May - no demand while crop coefficient decline
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1011,10 +1011,21 @@ class LandCover(object):
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.020  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.040                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
+
+        # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
+        self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0,\
+                                             self.irrGrossDemand, 0.0)
+       
+        # rotational irrigation per zones 
+        if self.name.startswith('irr') and self.usingAllocSegments:
+            area_order = pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments)
+            area_maxim = pcr.areamaximum(area_order, allocSegments)
+            self.irrGrossDemand *= pcr.ifthenelse(area_maxim > 0.0, \
+                                                  area_order/area_maxim, 0.0)
 
         # potential loss (m) of irrigation (defined for paddy fields)
         self.potential_irrigation_loss = pcr.scalar(0.0)
