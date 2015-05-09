@@ -972,7 +972,7 @@ class LandCover(object):
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             deficit_treshold = pcr.min(0.005, 10 * self.totalPotET)
-            deficit_treshold = 0.50 * self.totalPotET
+            deficit_treshold = 0.75 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1021,13 +1021,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0,\
                                              self.irrGrossDemand, 0.0)
        
-        # rotational irrigation per zones 
-        if self.name.startswith('irr') and self.usingAllocSegments:
-            area_order = (pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments))**(2.0)
-            area_maxim = (pcr.areamaximum(area_order, allocSegments))
+        #~ # rotational irrigation per zones 
+        #~ if self.name.startswith('irr') and self.usingAllocSegments:
+            #~ area_order = (pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments))**(2.0)
+            #~ area_maxim = (pcr.areamaximum(area_order, allocSegments))
             #~ self.irrGrossDemand *= pcr.ifthenelse(area_maxim > 0.0, \
                                                   #~ area_order/area_maxim, 0.0)
-            self.irrGrossDemand = pcr.ifthenelse(area_order == area_maxim, self.irrGrossDemand, 0.0)
+            #~ self.irrGrossDemand = pcr.ifthenelse(area_order == area_maxim, self.irrGrossDemand, 0.0)
 
         # potential loss (m) of irrigation (defined for paddy fields)
         self.potential_irrigation_loss = pcr.scalar(0.0)
@@ -1636,10 +1636,12 @@ class LandCover(object):
 
         # idea on 9 may: limited infiltration while cropKC increases or cropKC > 0.75 
         if self.name == 'irrPaddy':
+            infiltration_loss = pcr.max(self.potential_irrigation_loss, 
+                                ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
             self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               pcr.min(self.potential_irrigation_loss, self.infiltration), \
+                                               pcr.min(infiltration_loss, self.infiltration), \
                                 pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
-                                               pcr.min(self.potential_irrigation_loss, self.infiltration)))
+                                               pcr.min(infiltration_loss, self.infiltration)))
 
         # update top water layer after infiltration
         self.topWaterLayer = pcr.max(0.0,\
@@ -1648,9 +1650,9 @@ class LandCover(object):
         # release excess topWaterLayer above minTopWaterLayer as additional direct runoff
         self.directRunoff += pcr.max(0.0,\
                              self.topWaterLayer - self.minTopWaterLayer)
-        # and consider it as irrigation loss
-        self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
-                                                                                       self.topWaterLayer - self.minTopWaterLayer))
+        #~ # and consider it as irrigation loss
+        #~ self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
+                                                                                       #~ self.topWaterLayer - self.minTopWaterLayer))
 
         # update topWaterLayer after additional direct runoff
         self.topWaterLayer = pcr.min( self.topWaterLayer , \
