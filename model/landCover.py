@@ -2045,16 +2045,16 @@ class LandCover(object):
         if self.numberOfLayers == 2:
             deep_percolation_loss = pcr.min(self.infiltration, self.percLow)
             deep_percolation_loss = pcr.min(deep_percolation_loss, \
-                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed)
+                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed))
             self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
-                           pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss)
+                           pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss))
         #
         if self.numberOfLayers == 3:
             deep_percolation_loss = pcr.min(self.infiltration, self.percLow030150)
             deep_percolation_loss = pcr.min(deep_percolation_loss, \
-                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed)
+                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed))
             self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
-                                 pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss)
+                                 pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
 
         # scale all fluxes based on available water
         #~ # - alternative 1:
