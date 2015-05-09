@@ -1629,19 +1629,19 @@ class LandCover(object):
         if self.numberOfLayers == 3:
             self.infiltration = pcr.min(self.topWaterLayer,parameters.kSatUpp000005)       # P0_L = min(P0_L,KS1*Duration*timeslice());
 
-        #~ # infiltration during paddy development (cropKC > 0.75)
-        #~ if self.name == 'irrPaddy':
-            #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               #~ pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
-
-        # idea on 9 may: limited infiltration while cropKC increases or cropKC > 0.75 
+        # infiltration during paddy development (cropKC > 0.75)
         if self.name == 'irrPaddy':
-            infiltration_loss = pcr.max(self.potential_irrigation_loss, 
-                                ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
             self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               pcr.min(infiltration_loss, self.infiltration), \
-                                pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
-                                               pcr.min(infiltration_loss, self.infiltration)))
+                                               pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
+
+        #~ # idea on 9 may: limited infiltration while cropKC increases or cropKC > 0.75 
+        #~ if self.name == 'irrPaddy':
+            #~ infiltration_loss = pcr.min(self.potential_irrigation_loss, 
+                                #~ ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
+            #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
+                                               #~ pcr.min(infiltration_loss, self.infiltration), \
+                                #~ pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
+                                               #~ pcr.min(infiltration_loss, self.infiltration)))
 
         # update top water layer after infiltration
         self.topWaterLayer = pcr.max(0.0,\
@@ -1650,9 +1650,9 @@ class LandCover(object):
         # release excess topWaterLayer above minTopWaterLayer as additional direct runoff
         self.directRunoff += pcr.max(0.0,\
                              self.topWaterLayer - self.minTopWaterLayer)
-        #~ # and consider it as irrigation loss
-        #~ self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
-                                                                                       #~ self.topWaterLayer - self.minTopWaterLayer))
+        # and consider it as irrigation loss
+        self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
+                                                                                       self.topWaterLayer - self.minTopWaterLayer))
 
         # update topWaterLayer after additional direct runoff
         self.topWaterLayer = pcr.min( self.topWaterLayer , \
@@ -2059,10 +2059,10 @@ class LandCover(object):
                                  pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
 
         # scale all fluxes based on available water
-        # - alternative 1:
-        self.scaleAllFluxes(parameters, groundwater)
-        #~ # - alternative 2:
-        #~ self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
+        #~ # - alternative 1:
+        #~ self.scaleAllFluxes(parameters, groundwater)
+        # - alternative 2:
+        self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
 
     def scaleAllFluxesOptimizeEvaporationTranspiration(self, parameters, groundwater):
 
