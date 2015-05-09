@@ -998,13 +998,13 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
-        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
-                                             self.irrGrossDemand)
+        #~ # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
+                              #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
+                                             #~ self.irrGrossDemand)
 
-        #~ # idea on 8 May - no demand while crop coefficient decline
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
+        # idea on 8 May - no demand while crop coefficient decline
+        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1234,33 +1234,33 @@ class LandCover(object):
         else:                                  
             pass # TODO: Shall we do something we don't use Siebert's map
 
-        # constraining groundwater abstraction with regional pumping capacity
-        if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
-
-            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
-
-            # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 0.
-            annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
-                                           pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
-            # at regional scale
-            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
-                                                                 
-            # reduction factor to reduce groundwater abstraction
-            reductionFactorForPotGroundwaterAbstract = pcr.cover(
-                                                       pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
-                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
-                                                                      regionalAnnualGroundwaterAbstraction) /
-                                                                      regionalAnnualGroundwaterAbstraction , 1.0), 0.0)
-            # minimum reduction factor:
-            minReductionFactor = 0.00
-            self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
-                                           pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
-            
-        else:
-
-            logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-            reductionFactorForPotGroundwaterAbstract = pcr.scalar(1.0)
+        #~ # constraining groundwater abstraction with regional pumping capacity
+        #~ if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
+#~ 
+            #~ logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
+#~ 
+            #~ # estimate of total groundwater abstraction (m3) from the last 365 days:
+            #~ tolerating_days = 0.
+            #~ annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
+                                           #~ pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
+            #~ # at regional scale
+            #~ regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
+                                                                 #~ 
+            #~ # reduction factor to reduce groundwater abstraction
+            #~ reductionFactorForPotGroundwaterAbstract = pcr.cover(
+                                                       #~ pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
+                                                       #~ pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                                      #~ regionalAnnualGroundwaterAbstraction) /
+                                                                      #~ regionalAnnualGroundwaterAbstraction , 1.0), 0.0)
+            #~ # minimum reduction factor:
+            #~ minReductionFactor = 0.00
+            #~ self.potGroundwaterAbstract *= pcr.max(minReductionFactor,\
+                                           #~ pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
+            #~ 
+        #~ else:
+#~ 
+            #~ logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
+            #~ reductionFactorForPotGroundwaterAbstract = pcr.scalar(1.0)
 
         # Abstraction and Allocation of NON FOSSIL GROUNDWATER
         # #############################################################################################################################
@@ -1321,6 +1321,34 @@ class LandCover(object):
 
         # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water)
         self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - self.allocNonFossilGroundwater)   # unit: m
+
+        # constraining groundwater abstraction with regional pumping capacity
+        if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
+
+            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
+
+            # estimate of total groundwater abstraction (m3) from the last 365 days:
+            tolerating_days = 0.
+            annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
+                                           pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
+            # at regional scale
+            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
+                                                                 
+            # reduction factor to reduce groundwater abstraction
+            reductionFactorForPotGroundwaterAbstract = pcr.cover(
+                                                       pcr.ifthenelse(regionalAnnualGroundwaterAbstraction > 0.0,
+                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                                      regionalAnnualGroundwaterAbstraction) /
+                                                                      regionalAnnualGroundwaterAbstraction , 1.0), 0.0)
+            # minimum reduction factor:
+            minReductionFactor = 0.00
+            self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\
+                                                 pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
+            
+        else:
+
+            logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
+            reductionFactorForPotGroundwaterAbstract = pcr.scalar(1.0)
 
         if self.limitAbstraction:
             
