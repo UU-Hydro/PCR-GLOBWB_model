@@ -960,25 +960,26 @@ class LandCover(object):
                                  adjDeplFactor*irrigation_factor*self.totAvlWater, \
                  pcr.max(0.0, self.totAvlWater*irrigation_factor-self.readAvlWater),0.),0.)
             #
-            # deficit in transpiration or evaporation
-            deficit_factor = 1.00
-            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            transpirationDeficit = pcr.max(0.0, 
-                                   self.potTranspiration*deficit_factor -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            deficit = transpirationDeficit
-            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            #
-            deficit_treshold = pcr.min(0.005, 0.25 * self.totalPotET)
-            #
-            need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
-                              pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
-            #
-            self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
+            #~ # deficit in transpiration or evaporation
+            #~ deficit_factor = 1.00
+            #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            #~ transpirationDeficit = pcr.max(0.0, 
+                                   #~ self.potTranspiration*deficit_factor -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ deficit = transpirationDeficit
+            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            #~ #
+            #~ deficit_treshold = pcr.min(0.005, 0.25 * self.totalPotET)
+            #~ deficit_treshold = 0.25 * self.totalPotET
+            #~ #
+            #~ need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
+                              #~ pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
+            #~ #
+            #~ self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            min_irrigation_interval =  5.0
+            min_irrigation_interval = 10.0
             max_irrigation_interval = 15.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.max(min_irrigation_interval, \
@@ -992,10 +993,13 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
-        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
-                                             self.irrGrossDemand)
+        #~ # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
+                              #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
+                                             #~ self.irrGrossDemand)
+
+        # idea on 8 May - no demand while crop coefficient decline
+        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
