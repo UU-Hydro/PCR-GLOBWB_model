@@ -971,8 +971,8 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 10 * self.totalPotET)
-            deficit_treshold = 0.75 * self.totalPotET
+            deficit_treshold = pcr.min(0.005, 0.20 * self.totalPotET)
+            #~ deficit_treshold = 0.10 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1013,7 +1013,7 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.045                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -2046,23 +2046,23 @@ class LandCover(object):
         #
         if self.numberOfLayers == 2:
             deep_percolation_loss = self.percLow
-            deep_percolation_loss = pcr.min(deep_percolation_loss, \
+            deep_percolation_loss = pcr.max(deep_percolation_loss, \
                                     pcr.min(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
             self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
                            pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss))
         #
         if self.numberOfLayers == 3:
             deep_percolation_loss = self.percLow030150
-            deep_percolation_loss = pcr.min(deep_percolation_loss, \
+            deep_percolation_loss = pcr.max(deep_percolation_loss, \
                                     pcr.min(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
             self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
                                  pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
 
         # scale all fluxes based on available water
-        #~ # - alternative 1:
-        #~ self.scaleAllFluxes(parameters, groundwater)
-        # - alternative 2:
-        self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
+        # - alternative 1:
+        self.scaleAllFluxes(parameters, groundwater)
+        #~ # - alternative 2:
+        #~ self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
 
     def scaleAllFluxesOptimizeEvaporationTranspiration(self, parameters, groundwater):
 
