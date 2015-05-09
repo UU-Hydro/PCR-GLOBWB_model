@@ -471,6 +471,8 @@ class LandCover(object):
                              desalinationWaterUse,\
                              groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
 
+        # TODO: calculate water shortages 
+        
         if self.report == True:
             # writing Output to netcdf files
             # - daily output:
@@ -1022,8 +1024,8 @@ class LandCover(object):
        
         # rotational irrigation per zones 
         if self.name.startswith('irr') and self.usingAllocSegments:
-            area_order = pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments)
-            area_maxim = pcr.areamaximum(area_order, allocSegments)
+            area_order = (pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments))**(2.0)
+            area_maxim = (pcr.areamaximum(area_order, allocSegments))
             self.irrGrossDemand *= pcr.ifthenelse(area_maxim > 0.0, \
                                                   area_order/area_maxim, 0.0)
 
