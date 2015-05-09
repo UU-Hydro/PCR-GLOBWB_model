@@ -1013,7 +1013,7 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.045                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1629,19 +1629,19 @@ class LandCover(object):
         if self.numberOfLayers == 3:
             self.infiltration = pcr.min(self.topWaterLayer,parameters.kSatUpp000005)       # P0_L = min(P0_L,KS1*Duration*timeslice());
 
-        # infiltration during paddy development (cropKC > 0.75)
-        if self.name == 'irrPaddy':
-            self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
-
-        #~ # idea on 9 may: limited infiltration while cropKC increases or cropKC > 0.75 
+        #~ # infiltration during paddy development (cropKC > 0.75)
         #~ if self.name == 'irrPaddy':
-            #~ infiltration_loss = pcr.min(self.potential_irrigation_loss, 
-                                #~ ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
             #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               #~ pcr.min(infiltration_loss, self.infiltration), \
-                                #~ pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
-                                               #~ pcr.min(infiltration_loss, self.infiltration)))
+                                               #~ pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
+
+        # idea on 9 may: infiltration should consider application losses, particularly while cropKC increases or cropKC > 0.75 
+        if self.name == 'irrPaddy':
+            infiltration_loss = pcr.max(self.design_percolation_loss, 
+                                ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
+            self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
+                                               pcr.min(infiltration_loss, self.infiltration), \
+                                pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
+                                               pcr.min(infiltration_loss, self.infiltration)))
 
         # update top water layer after infiltration
         self.topWaterLayer = pcr.max(0.0,\
@@ -1650,9 +1650,9 @@ class LandCover(object):
         # release excess topWaterLayer above minTopWaterLayer as additional direct runoff
         self.directRunoff += pcr.max(0.0,\
                              self.topWaterLayer - self.minTopWaterLayer)
-        # and consider it as irrigation loss
-        self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
-                                                                                       self.topWaterLayer - self.minTopWaterLayer))
+        #~ # and consider it as irrigation loss
+        #~ self.potential_irrigation_loss = pcr.max(0.0, self.potential_irrigation_loss - pcr.max(0.0,\
+                                                                                       #~ self.topWaterLayer - self.minTopWaterLayer))
 
         # update topWaterLayer after additional direct runoff
         self.topWaterLayer = pcr.min( self.topWaterLayer , \
@@ -2038,25 +2038,21 @@ class LandCover(object):
                 #~ self.interflow     = ADJUST*self.interflow                      
 
         # idea on 9 May 2015
-        # during the growing time of paddy irrigation areas, deep percolation cannot be higher than infiltration losses 
-        #
-        # - starting crop coefficient indicate the growing season
-        if self.name == "irrPaddy": startingKC = 0.75
-        if self.name == "irrNonPaddy": startingKC = 0.20
-        #
-        if self.numberOfLayers == 2:
-            deep_percolation_loss = self.percLow
-            deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                    pcr.min(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
-            self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
-                           pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss))
-        #
-        if self.numberOfLayers == 3:
-            deep_percolation_loss = self.percLow030150
-            deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                    pcr.min(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
-            self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
-                                 pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
+        # deep percolation should consider losses during application in non paddy areas 
+        if self.name == "irrNonPaddy":
+            startingKC = 0.20   # starting crop coefficient indicate the growing season
+            if self.numberOfLayers == 2:
+                deep_percolation_loss = self.percLow
+                deep_percolation_loss = pcr.max(deep_percolation_loss, \
+                                        pcr.min(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
+                               pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss))
+            if self.numberOfLayers == 3:
+                deep_percolation_loss = self.percLow030150
+                deep_percolation_loss = pcr.max(deep_percolation_loss, \
+                                        pcr.min(self.readAvlWater, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
+                                     pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
 
         # scale all fluxes based on available water
         #~ # - alternative 1:

@@ -578,12 +578,16 @@ def getFullPath(inputPath,absolutePath,completeFileName = True):
     # 19 Mar 2013 created by Edwin H. Sutanudjaja
     # Function: to get the full absolute path of a folder or a file
           
+    # replace all \ with /
+    inputPath = str(inputPath).replace("\\", "/")
+    absolutePath = str(absolutePath).replace("\\", "/")
+    
     # list of suffixes (extensions) that can be used:
     suffix = ('/','_','.nc4','.map','.nc','.dat','.txt','.asc','.ldd',\
               '.001','.002','.003','.004','.005','.006',\
               '.007','.008','.009','.010','.011','.012')
     
-    if inputPath.startswith('/'):
+    if inputPath.startswith('/') or str(inputPath)[1] == ":":
         fullPath = str(inputPath)
     else:
         if absolutePath.endswith('/'): 
