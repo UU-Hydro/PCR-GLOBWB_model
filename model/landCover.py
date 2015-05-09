@@ -1026,8 +1026,9 @@ class LandCover(object):
         if self.name.startswith('irr') and self.usingAllocSegments:
             area_order = (pcr.areaorder(self.irrGrossDemand * self.fracVegCover, allocSegments))**(2.0)
             area_maxim = (pcr.areamaximum(area_order, allocSegments))
-            self.irrGrossDemand *= pcr.ifthenelse(area_maxim > 0.0, \
-                                                  area_order/area_maxim, 0.0)
+            #~ self.irrGrossDemand *= pcr.ifthenelse(area_maxim > 0.0, \
+                                                  #~ area_order/area_maxim, 0.0)
+            self.irrGrossDemand = pcr.ifthenelse(area_order == area_maxim, self.irrGrossDemand, 0.0)
 
         # potential loss (m) of irrigation (defined for paddy fields)
         self.potential_irrigation_loss = pcr.scalar(0.0)
