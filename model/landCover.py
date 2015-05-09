@@ -256,7 +256,7 @@ class LandCover(object):
             #~ min_percolation_loss = 0.006                        # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
             #~ max_percolation_loss = self.design_percolation_loss # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             min_percolation_loss = 0.000 # 0.006 # 0.006 # 0.004 # unit: m/day  # TODO: Make this one as an option in the configuration/ini file.
-            max_percolation_loss = 0.006 # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
+            max_percolation_loss = 0.004 # 0.008 # 0.008         # unit: m/day  # TODO: Make this one as an option in the configuration/ini file. 
             self.design_percolation_loss = pcr.max(min_percolation_loss, \
                                            pcr.min(max_percolation_loss, self.design_percolation_loss))
             #
@@ -959,24 +959,24 @@ class LandCover(object):
                  pcr.ifthenelse( self.readAvlWater < \
                                  adjDeplFactor*irrigation_factor*self.totAvlWater, \
                  pcr.max(0.0, self.totAvlWater*irrigation_factor-self.readAvlWater),0.),0.)
+            #~ #
+            # deficit in transpiration or evaporation
+            deficit_factor = 1.00
+            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            transpirationDeficit = pcr.max(0.0, 
+                                   self.potTranspiration*deficit_factor -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            deficit = transpirationDeficit
+            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            #~ # deficit in transpiration or evaporation
-            #~ deficit_factor = 1.00
-            #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
-                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            #~ transpirationDeficit = pcr.max(0.0, 
-                                   #~ self.potTranspiration*deficit_factor -\
-                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            #~ deficit = transpirationDeficit
-            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            #~ #
             #~ deficit_treshold = pcr.min(0.005, 0.25 * self.totalPotET)
-            #~ deficit_treshold = 0.25 * self.totalPotET
-            #~ #
-            #~ need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
-                              #~ pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
-            #~ #
-            #~ self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
+            deficit_treshold = 0.50 * self.totalPotET
+            #
+            need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
+                              pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
+            #
+            self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
             min_irrigation_interval = 10.0
@@ -1994,18 +1994,168 @@ class LandCover(object):
                 #~ self.interflow     = ADJUST*self.interflow                      
 
         # idea on 8 May 2015
-        # - there will be losses based on irrigation efficiency and the current readAvlWater and implemented irrGrossDemand
+        # - there will be losses based on irrigation efficiency and the current readAvlWater
         percolation_loss = pcr.max(self.potential_irrigation_loss, \
-                                  (self.readAvlWater + self.irrGrossDemand) * pcr.min(0.3, (1.0 - self.irrigationEfficiencyUsed)))
+                                  (self.readAvlWater) * pcr.min(0.3, (1.0 - self.irrigationEfficiencyUsed)))
         percolation_loss = pcr.min(percolation_loss, self.infiltration)
         if self.name.startswith('irr'):
             if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, percolation_loss)
             if self.numberOfLayers == 3: self.percLow030150 = pcr.min(self.percLow030150, percolation_loss)
         
         # scale all fluxes based on available water
-        self.scaleAllFluxes(parameters, groundwater)
+        #~ # - alternative 1:
+        #~ self.scaleAllFluxes(parameters, groundwater)
+        # - alternative 2:
+        self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
 
-    def scaleAllFluxesOptimizeEvaporation(self, parameters, groundwater):
+    def scaleAllFluxesOptimizeEvaporationTranspiration(self, parameters, groundwater):
+
+        # We re-scale all fluxes (based on available water).
+        # - in irrigated areas, evaporation fluxes are priority
+        # - percolation and interfflow losses depend on the remaining water
+        ########################################################################################################################################
+
+        # remaining total energy for evaporation fluxes:
+        remainingPotET = self.potBareSoilEvap + self.potTranspiration
+        
+        # scaling all fluxes based on available water
+        
+        if self.numberOfLayers == 2:
+
+            # scale fluxes (for Upp)
+            # - potential transpiration will be used to boost the transpiration process
+            ADJUST = self.actBareSoilEvap + self.potTranspiration
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp + \
+                                              self.infiltration) / ADJUST),0.)
+            self.actBareSoilEvap = ADJUST*self.actBareSoilEvap
+            self.actTranspiUpp   = ADJUST*self.potTranspiration                
+            #
+            # - allowing more transpiration
+            remainingPotET = pcr.max(0.0, remainingPotET -\
+                                         (self.actBareSoilEvap + self.actTranspiUpp))
+            extraTranspiration   = pcr.min(remainingPotET,\
+                                   pcr.max(0.0, self.storUpp + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp))
+            self.actTranspiUpp  += extraTranspiration
+            remainingPotET = pcr.max(0.0, remainingPotET - extraTranspiration)                                   
+            #
+            # - percolation fluxes depend on the remaining water
+            self.percUpp         = pcr.min(self.percUpp,\
+                                   pcr.max(0.0, self.storUpp + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp))
+            
+            # scale fluxes (for Low)
+            # - remaining potential evaporation will be used to boost the transpiration process
+            ADJUST = remainingPotET
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow + \
+                                              self.percUpp)/ADJUST),0.)
+            self.actTranspiLow = ADJUST*remainingPotET
+            # - percolation and interflow fluxes depend on the remaining water
+            ADJUST = self.percLow + self.interflow
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow + \
+                                              self.percUpp - self.actTranspiLow)/ADJUST),0.)
+            self.percLow       = ADJUST*self.percLow
+            self.interflow     = ADJUST*self.interflow                      
+
+            # capillary rise to storLow is limited to available storGroundwater 
+            # - also limited with reducedCapRise 
+            self.capRiseLow = pcr.max(0.,\
+                              pcr.min(\
+                              pcr.max(0.,\
+                              groundwater.storGroundwater-self.reducedCapRise),self.capRiseLow))
+
+            # capillary rise to storUpp is limited to available storLow
+            estimateStorLowBeforeCapRise = pcr.max(0,self.storLow + self.percUpp - \
+                                              (self.actTranspiLow + self.percLow + self.interflow ))
+            self.capRiseUpp = pcr.min(\
+                              estimateStorLowBeforeCapRise,self.capRiseUpp)     # original Rens's line: 
+                                                                                #  CR1_L[TYPE] = min(max(0,S2_L[TYPE]+P1_L[TYPE]-(T_a2[TYPE]+P2_L[TYPE]+Q2_L[TYPE])),CR1_L[TYPE])
+
+        if self.numberOfLayers == 3:
+
+            # scale fluxes (for Upp000005)
+            # - potential transpiration will be used to boost the transpiration process
+            ADJUST = self.actBareSoilEvap + self.potTranspiration
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp000005 + \
+                                              self.infiltration) / ADJUST),0.)
+            self.actBareSoilEvap     = ADJUST*self.actBareSoilEvap
+            self.actTranspiUpp000005 = ADJUST*self.potTranspiration
+            #
+            # - allowing more transpiration
+            remainingPotET = pcr.max(0.0, remainingPotET -\
+                                         (self.actBareSoilEvap + self.actTranspiUpp000005))
+            extraTranspiration   = pcr.min(remainingPotET,\
+                                   pcr.max(0.0, self.storUpp000005 + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp000005))
+            self.actTranspiUpp000005 += extraTranspiration
+            remainingPotET = pcr.max(0.0, remainingPotET - extraTranspiration)                                   
+            #
+            # - percolation fluxes depend on the remaining water
+            self.percUpp000005   = pcr.min(self.percUpp000005,\
+                                   pcr.max(0.0, self.storUpp000005 + self.infiltration - \
+                                                self.actBareSoilEvap - \
+                                                self.actTranspiUpp000005))
+
+            # scale fluxes (for Upp005030)
+            # - remaining potential evaporation will be used to boost the transpiration process
+            ADJUST = remainingPotET
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storUpp005030 + \
+                                              self.percUpp000005)/ADJUST),0.)
+            self.actTranspiUpp005030 = ADJUST*remainingPotET
+            # - percolation fluxes depend on the remaining water
+            self.percUpp005030       = pcr.min(self.percUpp005030,\
+                                       pcr.max(0.0, self.storUpp005030 + self.percUpp000005 - \
+                                                    self.actTranspiUpp005030))
+
+            # scale fluxes (for Low030150)
+            # - remaining potential evaporation will be used to boost the transpiration process
+            remainingPotET = pcr.max(0.0, remainingPotET - self.actTranspiUpp005030)
+            ADJUST = remainingPotET
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow030150 + \
+                                              self.percUpp005030)/ADJUST),0.)
+            self.actTranspiLow030150 = ADJUST*remainingPotET
+            # - percolation and interflow fluxes depend on the remaining water
+            ADJUST = self.percLow030150 + self.interflow
+            ADJUST = pcr.ifthenelse(ADJUST>0.0, \
+                     pcr.min(1.0,pcr.max(0.0, self.storLow030150 + \
+                                              self.percUpp005030 - self.actTranspiLow030150)/ADJUST),0.)
+            self.percLow030150       = ADJUST*self.percLow030150
+            self.interflow           = ADJUST*self.interflow   
+
+            # capillary rise to storLow is limited to available storGroundwater 
+            # - also limited with reducedCapRise 
+            #
+            self.capRiseLow030150 = pcr.max(0.,\
+                                    pcr.min(\
+                                    pcr.max(0.,\
+                                    groundwater.storGroundwater-\
+                                    self.reducedCapRise),\
+                                    self.capRiseLow030150))
+
+            # capillary rise to storUpp005030 is limited to available storLow030150
+            #
+            estimateStorLow030150BeforeCapRise = pcr.max(0,self.storLow030150 + self.percUpp005030 - \
+                                                    (self.actTranspiLow030150 + self.percLow030150 + self.interflow ))
+            self.capRiseUpp005030 = pcr.min(\
+                                    estimateStorLow030150BeforeCapRise,self.capRiseUpp005030)
+
+            # capillary rise to storUpp000005 is limited to available storUpp005030
+            #
+            estimateStorUpp005030BeforeCapRise = pcr.max(0,self.storUpp005030 + self.percUpp000005 - \
+                                                    (self.actTranspiUpp005030 + self.percUpp005030))
+            self.capRiseUpp000005 = pcr.min(\
+                                    estimateStorUpp005030BeforeCapRise,self.capRiseUpp000005)
+
+    def scaleAllFluxesOptimizeEvaporationVersion27April2014(self, parameters, groundwater):
 
         # We re-scale all fluxes (based on available water).
         # - in irrigated areas, evaporation fluxes are priority
