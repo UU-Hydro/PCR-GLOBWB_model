@@ -971,7 +971,7 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            #~ deficit_treshold = pcr.min(0.005, 0.25 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 10 * self.totalPotET)
             deficit_treshold = 0.50 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
@@ -986,11 +986,7 @@ class LandCover(object):
                                   pcr.max(min_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0)))
-            #~ self.irrGrossDemand = pcr.min(pcr.max(0.0,\
-                                          #~ self.totalPotET * irrigation_interval - self.readAvlWater),\
-                                          #~ self.irrGrossDemand)
-            #
-            self.irrGrossDemand = pcr.max(pcr.max(0.0,\
+            self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
             #
@@ -1003,8 +999,8 @@ class LandCover(object):
                               #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
                                              #~ self.irrGrossDemand)
 
-        # idea on 8 May - no demand while crop coefficient decline
-        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
+        #~ # idea on 8 May - no demand while crop coefficient decline
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1016,7 +1012,7 @@ class LandCover(object):
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.020  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         if self.name == 'irrPaddy': minimum_demand = 0.045                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
@@ -1325,10 +1321,10 @@ class LandCover(object):
         # constraining groundwater abstraction with regional pumping capacity
         if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
 
-            logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
+            logger.debug('Fossil groundwater abstraction is limited by regional annual pumping capacity.')
 
             # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 0.
+            tolerating_days = 15.
             annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
                                            pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
             # at regional scale
@@ -1638,7 +1634,7 @@ class LandCover(object):
             #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
                                                #~ pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
 
-        # idea on 9 may: limited infiltration while cropKC increases or cropKC 
+        # idea on 9 may: limited infiltration while cropKC increases or cropKC > 0.75 
         if self.name == 'irrPaddy':
             self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
                                                pcr.min(self.potential_irrigation_loss, self.infiltration), \
@@ -2008,6 +2004,7 @@ class LandCover(object):
             self.capRiseUpp000005 = pcr.min(\
                                     estimateStorUpp005030BeforeCapRise,self.capRiseUpp000005)
 
+
     def scaleAllFluxesForIrrigatedAreas(self, parameters, groundwater):
 
         # for irrigation areas: interflow will be minimized                                                                                                                                        
@@ -2038,15 +2035,27 @@ class LandCover(object):
                 #~ self.percLow030150 = ADJUST*self.percLow030150
                 #~ self.interflow     = ADJUST*self.interflow                      
 
-        # idea on 8 May 2015
-        # - there will be losses based on irrigation efficiency and the current readAvlWater
-        percolation_loss = pcr.max(self.potential_irrigation_loss, \
-                           pcr.min(self.readAvlWater) * (1.0 - self.irrigationEfficiencyUsed))
-        percolation_loss = pcr.min(percolation_loss, self.infiltration)
-        if self.name.startswith('irr'):
-            if self.numberOfLayers == 2: self.percLow = pcr.min(self.percLow, percolation_loss)
-            if self.numberOfLayers == 3: self.percLow030150 = pcr.min(self.percLow030150, percolation_loss)
-        
+        # idea on 9 May 2015
+        # during the growing time of paddy irrigation areas, deep percolation cannot be higher than infiltration losses 
+        #
+        # - starting crop coefficient indicate the growing season
+        if self.name == "irrPaddy": startingKC = 0.75
+        if self.name == "irrNonPaddy": startingKC = 0.20
+        #
+        if self.numberOfLayers == 2:
+            deep_percolation_loss = pcr.min(self.infiltration, self.percLow)
+            deep_percolation_loss = pcr.min(deep_percolation_loss, \
+                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed)
+            self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
+                           pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow, deep_percolation_loss)
+        #
+        if self.numberOfLayers == 3:
+            deep_percolation_loss = pcr.min(self.infiltration, self.percLow030150)
+            deep_percolation_loss = pcr.min(deep_percolation_loss, \
+                                    pcr.min(self.readAvlWater, self.storLow) * (1.0 - self.irrigationEfficiencyUsed)
+            self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
+                                 pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss)
+
         # scale all fluxes based on available water
         #~ # - alternative 1:
         #~ self.scaleAllFluxes(parameters, groundwater)
