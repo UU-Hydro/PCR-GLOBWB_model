@@ -1406,7 +1406,6 @@ class LandCover(object):
                                                         #~ pcr.ifthenelse(fraction_of_non_fossil_gw_allocation < (1.0 - swAbstractionFraction['irrigation']), \
                                                                        #~ correctedRemainingIrrigationLivestock, 0.0))
                 # - also ignore areas dominated by swAbstractionFraction['irrigation'] particularly in areas with enough renewable groundwater abstraction
-                fraction_of_non_fossil_gw_allocation = pcr.roundup(\
                 gwFossilAbstractionFraction_irrigation_treshold = gwAbstractionFraction_irrigation_treshold   
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwFossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
