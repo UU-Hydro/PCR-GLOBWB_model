@@ -1395,7 +1395,8 @@ class LandCover(object):
                 
                 # reduce the remaining irrigation and livestock demand 
                 # - in order to minimize unrealistic areas of fossil groundwater abstraction
-                correctedRemainingIrrigationLivestock *= gwAbstractionFraction_irrigation
+                correctedRemainingIrrigationLivestock = gwAbstractionFraction_irrigation *\
+                                                        remainingIrrigationLivestock 
                 # - also ignore areas dominated by swAbstractionFraction['irrigation'] particularly in areas with enough renewable groundwater abstraction
                 fraction_of_non_fossil_gw_allocation = pcr.roundup(\
                                                        vos.getValDivZero(satisfiedNonIrrDemandFromNonFossilGroundwater, satisfiedNonIrrDemand) * 10.)/10.
