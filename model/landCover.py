@@ -971,8 +971,7 @@ class LandCover(object):
             deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
-            deficit_treshold = pcr.min(0.005, 0.20 * self.totalPotET)
-            #~ deficit_treshold = 0.10 * self.totalPotET
+            deficit_treshold = pcr.min(0.005, 0.005 * self.totalPotET)
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -980,7 +979,7 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
             # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            min_irrigation_interval =  5.0
+            min_irrigation_interval =  7.0
             max_irrigation_interval = 15.0
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.max(min_irrigation_interval, \
@@ -994,13 +993,13 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
-        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
-                                             self.irrGrossDemand)
+        #~ # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
+        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
+                              #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
+                                             #~ self.irrGrossDemand)
 
-        #~ # idea on 8 May - no demand while crop coefficient decline
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
+        # idea on 8 May - no demand while crop coefficient decline
+        self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
@@ -1013,7 +1012,7 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.045                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1313,7 +1312,7 @@ class LandCover(object):
         # - for non irrigation water demand: livestock, domestic and idustry 
         satisfiedNonIrrDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater -\
                                                                      satisfiedIrrDemandFromNonFossilGroundwater)
-        satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromNonFossilGroundwater
+        satisfiedNonIrrDemand += satisfiedNonIrrDemandFromNonFossilGroundwater
 
         # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water)
         self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - self.allocNonFossilGroundwater)   # unit: m
@@ -1375,25 +1374,36 @@ class LandCover(object):
                 remainingTotalDemand = remainingIrrigationLivestock +\
                                        remainingIndustrialDomestic                                                                                   
 
+                #~ # reduce the remaining irrigation and livestock demand 
+                #~ # in order to maintain the proportion of gwAbstractionFraction_irrigation and swAbstractionFraction['irrigation']
+                #~ # - satisfied irrigation and livestock demand from all sources
+                #~ satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
+                                               #~ satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], 
+                                                                                         #~ self.nonIrrGrossDemand)
+                #~ # - satisfied irrigation and livestock demand from desalination and surface water
+                #~ satisfiedIrrigationLivestockFromDesalinationAndSurfaceWater = pcr.max(0.0, \
+                                               #~ satisfiedIrrigationLivestock - satisfiedIrrigationLivestockFromNonFossilGroundwater)
+                #~ # - the corrected and remaining irrigation and livestock demand (constrained by swAbstractionFraction['irrigation'])
+                #~ correctedRemainingIrrigationLivestock = \
+                 #~ pcr.min(remainingIrrigationLivestock, \
+                 #~ pcr.ifthenelse(swAbstractionFraction['irrigation'] > 0.0, \
+                 #~ pcr.max(0.0, satisfiedIrrigationLivestockFromDesalinationAndSurfaceWater/swAbstractionFraction['irrigation'] - \
+                              #~ satisfiedIrrigationLivestockFromNonFossilGroundwater), 0.0))  
+                #~ # - yet, the constraint is not implemented in areas dominated by gwAbstractionFraction_irrigation
+                #~ correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,\
+                                                                       #~ remainingIrrigationLivestock, correctedRemainingIrrigationLivestock)
+                
                 # reduce the remaining irrigation and livestock demand 
-                # in order to maintain the proportion of gwAbstractionFraction_irrigation and swAbstractionFraction['irrigation']
-                # - satisfied irrigation and livestock demand from all sources
-                satisfiedIrrigationLivestock = satisfiedIrrigationDemand +\
-                                               satisfiedNonIrrDemand * vos.getValDivZero(swAbstractionFraction['livestockWaterDemand'], 
-                                                                                         self.nonIrrGrossDemand)
-                # - satisfied irrigation and livestock demand from desalination and surface water
-                satisfiedIrrigationLivestockFromDesalinationAndSurfaceWater = pcr.max(0.0, \
-                                               satisfiedIrrigationLivestock - satisfiedIrrigationLivestockFromNonFossilGroundwater)
-                # - the corrected and remaining irrigation and livestock demand (constrained by swAbstractionFraction['irrigation'])
-                correctedRemainingIrrigationLivestock = \
-                 pcr.min(remainingIrrigationLivestock, \
-                 pcr.ifthenelse(swAbstractionFraction['irrigation'] > 0.0, \
-                 pcr.max(0.0, satisfiedIrrigationLivestockFromDesalinationAndSurfaceWater/swAbstractionFraction['irrigation'] - \
-                              satisfiedIrrigationLivestockFromNonFossilGroundwater), 0.0))  
-                # - yet, the constraint is not implemented in areas dominated by gwAbstractionFraction_irrigation
-                correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold,\
-                                                                       remainingIrrigationLivestock, correctedRemainingIrrigationLivestock)
- 
+                # - in order to minimize unrealistic areas of fossil groundwater abstraction
+                correctedRemainingIrrigationLivestock *= gwAbstractionFraction_irrigation
+                # - also ignore areas dominated by swAbstractionFraction['irrigation'] particularly in areas with enough renewable groundwater abstraction
+                gwFossilAbstractionFraction_irrigation_treshold = gwAbstractionFraction_irrigation_treshold   
+                fraction_of_non_fossil_gw_allocation = vos.getValDivZero(satisfiedNonIrrDemandFromNonFossilGroundwater, satisfiedNonIrrDemand)
+                correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwFossilAbstractionFraction_irrigation_treshold,\
+                                                                       correctedRemainingIrrigationLivestock, 
+                                                        pcr.ifthenelse(fraction_of_non_fossil_gw_allocation < (1.0 - swAbstractionFraction['irrigation']), \
+                                                                       correctedRemainingIrrigationLivestock, 0.0))
+                
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
                 correctedRemainingTotalDemand = pcr.min(self.potFossilGroundwaterAbstract, \
                                                         remainingTotalDemand)
