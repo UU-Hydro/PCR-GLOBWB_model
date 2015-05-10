@@ -1371,8 +1371,7 @@ class LandCover(object):
                                                remainingNonIrrigation - remainingLivestock)
                 remainingIrrigationLivestock = remainingIrrigation + \
                                                remainingLivestock
-                remainingTotalDemand = remainingIrrigationLivestock +\
-                                       remainingIndustrialDomestic                                                                                   
+                remainingTotalDemand = remainingIrrigationLivestock + remainingIndustrialDomestic                                                                                   
 
                 #~ # reduce the remaining irrigation and livestock demand 
                 #~ # in order to maintain the proportion of gwAbstractionFraction_irrigation and swAbstractionFraction['irrigation']
