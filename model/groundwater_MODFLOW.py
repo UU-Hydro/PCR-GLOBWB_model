@@ -23,6 +23,18 @@ class Groundwater(object):
 
     def estimate_bottom_elevation_of_linear_reservoir_storage(self):
 
+        # influence zone
+        
+        # bottom_elevation > flood_plain elevation - influence zone
+        
+        # TODO: smooth bottom_elevation
+        
+        # upstream areas in the mountainous regions and above perrenial stream starting points should also be drained (otherwise water will accumulate) 
+        # - use thickness information to identify mountainous regions
+        
+        # bottom_elevation > minimum elevation that is estimated from PCR-GLOBWB simulation)
+        # ideas
+
 
     def __init__(self, iniItems,landmask,spinUp):
         object.__init__(self)
@@ -33,9 +45,9 @@ class Groundwater(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
-        # 
-
-        
+        # configuration from the ini file
+        self.iniItems = iniItems
+                
         # groundwater linear recession coefficient (day-1) ; the linear reservoir concept is still being used to represent fast response flow  
         #                                                                                 particularly from karstic aquifer in mountainous regions                    
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
