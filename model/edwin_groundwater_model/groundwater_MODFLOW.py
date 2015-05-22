@@ -13,55 +13,66 @@ logger = logging.getLogger(__name__)
 import virtualOS as vos
 from ncConverter import *
 
-class Groundwater(object):
+class GroundwaterModflow(object):
     
     def getState(self):
         result = {}
-        result['storGroundwater']                        = self.storGroundwater                # unit: m
-        result['storGroundwaterFossil']                  = self.storGroundwaterFossil          # unit: m
-        result['avgTotalGroundwaterAbstraction']         = self.avgAbstraction                 # unit: m
-        result['avgTotalGroundwaterAllocationLong']      = self.avgAllocation                  # unit: m
-        result['avgTotalGroundwaterAllocationShort']     = self.avgAllocationShort             # unit: m
-        result['avgNonFossilGroundwaterAllocationLong']  = self.avgNonFossilAllocation         # unit: m
-        result['avgNonFossilGroundwaterAllocationShort'] = self.avgNonFossilAllocationShort    # unit: m
+        result['groundwaterHead'] = self.groundwaterHead       # unit: m
         return result
 
-    def getPseudoState(self):
-        result = {}
+
+    def estimate_bottom_elevation_of_bank_storage(self):
+
+        # influence zone depth (m)
+        influence_zone_depth = 5.0
         
-        return result
+        # bottom_elevation > flood_plain elevation - influence zone
+        self.bottom_elevation_of_bank_storage = self.dem_floodplain - 5.0
+        
+        # - smooth bottom_elevation
+        # - upstream areas in the mountainous regions and above perrenial stream starting points may also be drained (otherwise water will accumulate) 
+        # - bottom_elevation > minimum elevation that is estimated from the maximum of S3 from the PCR-GLOBWB simulation
 
-    def __init__(self, iniItems,landmask,spinUp):
+    def __init__(self, iniItems, landmask):
         object.__init__(self)
         
+        # cloneMap, temporary directory, absolute path for input directory, landmask
         self.cloneMap = iniItems.cloneMap
-        self.tmpDir = iniItems.tmpDir
+        self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
+        
+        # configuration from the ini file
+        self.iniItems = iniItems
+                
+        # topography properties: read several variables from the netcdf file
+        for var in ['dem_minimum','dem_maximum','dem_average','dem_standard_deviation',\
+                    'slopeLength','orographyBeta','tanslope',\
+                    'dzRel0000','dzRel0001','dzRel0005',\
+                    'dzRel0010','dzRel0020','dzRel0030','dzRel0040','dzRel0050',\
+                    'dzRel0060','dzRel0070','dzRel0080','dzRel0090','dzRel0100']:
+            vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['topographyNC'], \
+                                                                var, self.cloneMap)
+            vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+            vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
 
-        self.useMODFLOW = False
-        if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
-
-        # option to activate water balance check
-        self.debugWaterBalance = True
-        if iniItems.routingOptions['debugWaterBalance'] == "False":
-            self.debugWaterBalance = False
-
-        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
-            # assign the recession coefficient parameter(s)
-            self.recessionCoeff = vos.readPCRmapClone(\
-               iniItems.groundwaterOptions['recessionCoeff'],
-               self.cloneMap,self.tmpDir,self.inputDir)
-        else:       
-            groundwaterPropertiesNC = vos.getFullPath(\
-                                      iniItems.groundwaterOptions[\
-                                         'groundwaterPropertiesNC'],
-                                          self.inputDir)
-            self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
+        # channel properties: read several variables from the netcdf file
+        for var in ['lddMap','cellAreaMap','gradient','bankfull_width',
+                    'bankfull_depth','dem_floodplain','dem_riverbed']:
+            vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
+                                                                var, self.cloneMap)
+            vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+            vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
+        
+        # correcting lddMap
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        
+        # groundwater linear recession coefficient (day-1) ; the linear reservoir concept is still being used to represent fast response flow  
+        #                                                                                                                  particularly from karstic aquifer in mountainous regions                    
+         self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
                                   groundwaterPropertiesNC,'recessionCoeff',\
                                   cloneMapFileName = self.cloneMap)
-
-        # groundwater recession coefficient (day-1)
+        #
         self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
         self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
         #
@@ -71,16 +82,10 @@ class Groundwater(object):
             minRecessionCoeff = 1.0e-4                                       # This is the minimum value used in Van Beek et al. (2011). 
         self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
         
-        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
-            # assign aquifer specific yield
-            self.specificYield  = vos.readPCRmapClone(\
-               iniItems.groundwaterOptions['specificYield'],
-               self.cloneMap,self.tmpDir,self.inputDir)
-        else:       
-            self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(\
-                                 groundwaterPropertiesNC,'specificYield',\
+        # aquifer specific yield (
+        self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(groundwaterPropertiesNC,'specificYield',\
                                  cloneMapFileName = self.cloneMap)
-
+        # 
         self.specificYield  = pcr.cover(self.specificYield,0.0)       
         self.specificYield  = pcr.max(0.010,self.specificYield)         # TODO: TO BE CHECKED: The resample process of specificYield     
         self.specificYield  = pcr.min(1.000,self.specificYield)       
@@ -94,102 +99,33 @@ class Groundwater(object):
             self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(\
                                groundwaterPropertiesNC,'kSatAquifer',\
                                cloneMapFileName = self.cloneMap)
-
+        # 
         self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)       
 
-        # limitAbstraction options
-        self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
-        
-        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
-        if self.useMODFLOW: self.limitAbstraction = True
-
-        # option for limitting regional groundwater abstractions
-        if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
-
-            logger.info('Limit for annual regional groundwater abstraction is used.')
-            self.limitRegionalAnnualGroundwaterAbstraction = True
-            self.pumpingCapacityNC = vos.getFullPath(\
-                                     iniItems.groundwaterOptions['pumpingCapacityNC'],self.inputDir,False)
-        else:
-            logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-            self.limitRegionalAnnualGroundwaterAbstraction = False
-        
-        # option for limitting fossil groundwater abstractions: 
-        self.limitFossilGroundwaterAbstraction = False
+        # estimate of thickness (unit: m) of accesible groundwater 
+        totalGroundwaterThickness = vos.readPCRmapClone(\
+                                    iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+        # extrapolation 
+        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                    pcr.windowaverage(totalGroundwaterThickness, 1.0))
+        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                    pcr.windowaverage(totalGroundwaterThickness, 1.5))
+        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                    pcr.windowaverage(totalGroundwaterThickness, 2.5))
+        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                    pcr.windowaverage(totalGroundwaterThickness, 5.0))
         #
-        # estimate of fossil groundwater capacity:
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": 
-
-            logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
-            self.limitFossilGroundwaterAbstraction = True
-
-            # estimate of thickness (unit: m) of accesible groundwater: shallow and deep 
-            totalGroundwaterThickness = vos.readPCRmapClone(\
-                                        iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
-                                        self.cloneMap,self.tmpDir,self.inputDir)
-            # extrapolation 
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 1.0))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 1.5))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 2.5))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 5.0))
-            #
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
-            #
-            # set minimum thickness
-            minimumThickness = pcr.scalar(float(\
-                               iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
-            totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
-            #            
-            # estimate of capacity (unit: m) of renewable groundwater (shallow)
-            storGroundwaterCap =  pcr.cover(
-                                  vos.readPCRmapClone(\
-                                  iniItems.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'],
-                                  self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-            #
-            # fossil groundwater capacity (unit: m)
-            self.fossilWaterCap = pcr.ifthen(self.landmask,\
-                                  pcr.max(0.0,\
-                                  totalGroundwaterThickness*self.specificYield - storGroundwaterCap))
+        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
+        #
+        # set minimum thickness
+        minimumThickness = pcr.scalar(float(\
+                           iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
+        totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
 
         # if using MODFLOW, the concept of fossil groundwater abstraction is abandoned 
         if self.useMODFLOW: self.limitFossilGroundwaterAbstraction = False
-        
-        # zones at which groundwater allocations are determined
-        self.usingAllocSegments = False
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "None":
-            self.usingAllocSegments = True
-            groundwaterAllocationSegments = iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']
-        #
-        if "allocationSegmentsForGroundwater" in iniItems.groundwaterOptions.keys():
-            if iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] != "None":
-                self.usingAllocSegments = True
-                groundwaterAllocationSegments = iniItems.groundwaterOptions['allocationSegmentsForGroundwater']
-            else:
-                self.usingAllocSegments = False
-        else:
-            self.usingAllocSegments = False
-        
-        # incorporating groundwater distribution network:
-        if self.usingAllocSegments:
-
-            self.allocSegments = vos.readPCRmapClone(\
-             groundwaterAllocationSegments,
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-
-            cellArea = vos.readPCRmapClone(\
-              iniItems.routingOptions['cellAreaMap'],
-              self.cloneMap,self.tmpDir,self.inputDir)
-            cellArea = pcr.ifthen(self.landmask, cellArea)              # TODO: integrate this one with the one coming from the routing module
-
-            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
-            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
         # get initial conditions
         self.getICs(iniItems,spinUp)
