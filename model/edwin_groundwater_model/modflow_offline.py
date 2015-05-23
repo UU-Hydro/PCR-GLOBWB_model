@@ -87,11 +87,10 @@ class ModflowOfflineCoupling(object):
     def get_initial_heads(self):
         logger.info("Get initial head values (based on a steady-state simulation or a pre-defined pcraster map.")
         
-        self.modflow.update(self.landSurface,self.routing,self._modelTime)
+        self.modflow.get_initial_heads()
 
-        # save/dump states at the end of the year or at the end of model simulation
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
-            logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
-            self.dumpState(outputDirectory = self._configuration.endStateDir,\
-                           timeStamp = self._configuration.globalOptions['startTime']+".ini.")
+        # save/dump states used as the initial conditions 
+        logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
+        self.dumpState(outputDirectory = self._configuration.endStateDir,\
+                       timeStamp = self._configuration.globalOptions['startTime']+".ini.")
 
