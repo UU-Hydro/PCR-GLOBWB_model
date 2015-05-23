@@ -354,7 +354,7 @@ class GroundwaterModflow(object):
         lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, surface_water_elevation)
         lake_reservoir_water_elevation = pcr.areamaximum(lake_reservoir_water_elevation, self.WaterBodies.waterBodyIds)
         lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, \
-                                                pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds)
+                                                pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
         # 
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
