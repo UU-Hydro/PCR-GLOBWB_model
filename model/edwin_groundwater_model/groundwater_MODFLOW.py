@@ -172,7 +172,7 @@ class GroundwaterModflow(object):
         else:    
 
             # calculate/simulate a steady state condition and obtain its calculated head values
-            self.simulate_steady_state()
+            self.steady_state_simulation()
             self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
     def estimate_bottom_of_bank_storage(self, dem_flood_plain):
