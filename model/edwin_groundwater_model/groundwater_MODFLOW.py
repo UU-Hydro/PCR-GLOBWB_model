@@ -345,13 +345,13 @@ class GroundwaterModflow(object):
                                   river_water_height
         # - calculating water level (unit: m) above the flood plain   # TODO: Improve this concept (using Rens's latest innundation scheme) 
         #----------------------------------------------------------
-        water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_flood_plain)  # unit: m, water level above the floodplain (not distributed)
+        water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)  # unit: m, water level above the floodplain (not distributed)
         water_above_fpl *= self.bankfull_depth * self.bankfull_width / self.cellAreaMap  # unit: m, water level above the floodplain (distributed within the cell)
         # TODO: Improve this concept using Rens's latest scheme
         #
         # - corrected surface water elevation
-        surface_water_elevation = pcr.ifthenelse(surface_water_elevation > self.dem_flood_plain, \
-                                                                           self.dem_flood_plain + water_above_fpl, \
+        surface_water_elevation = pcr.ifthenelse(surface_water_elevation > self.dem_floodplain, \
+                                                                           self.dem_floodplain + water_above_fpl, \
                                                                            surface_water_elevation)
         # - surface water elevation for lakes and reservoirs:
         lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, surface_water_elevation)
