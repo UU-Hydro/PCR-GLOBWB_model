@@ -367,7 +367,7 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
         # - make sure that HRIV >= RBOT (no infiltration if HRIV = RBOT and h < RBOT)  
-        self.surface_water_elevation = pcr.max(self.surface_water_elevation, self.surface_water_bed_elevation)
+        self.surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         #
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
