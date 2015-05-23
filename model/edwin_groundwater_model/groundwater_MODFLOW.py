@@ -101,13 +101,13 @@ class GroundwaterModflow(object):
         # extrapolation 
         totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
                                     pcr.windowaverage(totalGroundwaterThickness, 1.0))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 1.5))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 2.5))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 5.0))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
+        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
+                                    #~ pcr.windowaverage(totalGroundwaterThickness, 1.5))
+        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
+                                    #~ pcr.windowaverage(totalGroundwaterThickness, 2.5))
+        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
+                                    #~ pcr.windowaverage(totalGroundwaterThickness, 5.0))
+        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
         #
         # set minimum thickness
         minimumThickness = pcr.scalar(float(\
