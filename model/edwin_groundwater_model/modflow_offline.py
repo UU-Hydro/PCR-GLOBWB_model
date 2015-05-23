@@ -45,7 +45,7 @@ class ModflowOfflineCoupling(object):
     def configuration(self):
         return self._configuration
          
-    def createSubmodels(self, initialState):
+    def createSubmodels(self):
 
         # initializing sub modules
         self.modflow = groundwater_MODFLOW.GroundwaterModflow(self.configuration,\
