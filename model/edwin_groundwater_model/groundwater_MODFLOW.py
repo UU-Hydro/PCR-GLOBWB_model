@@ -96,7 +96,7 @@ class GroundwaterModflow(object):
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)       
 
         # estimate of thickness (unit: m) of accesible groundwater 
-        totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
+        totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
                                     'thickness', self.cloneMap)
         # extrapolation 
         totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
