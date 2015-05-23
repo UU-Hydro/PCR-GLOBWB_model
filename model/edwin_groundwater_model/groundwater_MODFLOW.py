@@ -127,8 +127,8 @@ class GroundwaterModflow(object):
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
         # grid specification - one layer model
-        top    = 
-        bottom = top - 
+        top    = self.dem_average
+        bottom = top - self.totalGroundwaterThickness
         self.pcr_modflow.createBottomLayer(bottom, top) 
 		
 		# specification for the boundary condition (IBOUND, BAS package)
