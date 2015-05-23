@@ -136,8 +136,8 @@ class GroundwaterModflow(object):
         # specification for the boundary condition (IBOUND, BAS package)
         # - active cells only in landmask
         # - constant head for outside the landmask
-        ibound = pcr.ifthen(self.landmask, 1)
-        ibound = pcr.cover(ibound, -1)
+        ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
+        ibound = pcr.cover(ibound, pcr.nominal(-1))
         self.pcr_modflow.setBoundary(ibound, 1)
         
         # specification for conductivities (BCF package)
