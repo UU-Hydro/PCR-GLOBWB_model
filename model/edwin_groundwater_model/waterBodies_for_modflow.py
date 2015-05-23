@@ -33,7 +33,7 @@ class WaterBodies(object):
         
         # netcdf file name for water bodies:
         self.useNetCDF = True
-        self.ncFileInp = vos.getFullPath(iniItems.routingOptions['waterBodyInputNC'], self.inputDir)
+        self.ncFileInp = vos.getFullPath(iniItems.modflowParameterOptions['waterBodyInputNC'], self.inputDir)
 
         # minimum width (m) used in the weir formula  # TODO: define minWeirWidth based on the GLWD, GRanD database and/or bankfull discharge formula 
         self.minWeirWidth = 10.
