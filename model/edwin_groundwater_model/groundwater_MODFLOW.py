@@ -158,8 +158,8 @@ class GroundwaterModflow(object):
         MXITER = 500
         ITERI  = 250      
         NPCOND = 1        # Modified Incomplete Choleksy
-        HCLOSE = 0.005    # unit: m
-        RCLOSE = 10       # unit: m3
+        HCLOSE = 0.001    # unit: m
+        RCLOSE = 0.001    # unit: m3
         RELAX  = 0.98
         NBPOL  = 2        # but we don ot use it (since NPCOND = 1) 
         DAMP   = 1        # no damping (DAMP introduced in MODFLOW 2000)
