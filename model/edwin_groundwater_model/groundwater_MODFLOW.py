@@ -409,27 +409,6 @@ class GroundwaterModflow(object):
         # set initial groundwater head 
         self.pcr_modflow.setInitialHead(self.groundwaterHead, 1)
         
-        # specify the recharge package
-        # - recharge/capillary rise (unit: ) from PCR-GLOBWB 
-        net_recharge  = 
-        
-        # - groundwater abstraction and its return flow 
-        net_recharge +=
-        
-        # - converting value 
-        net_RCH = pcr.cover(net_recharge/(3000*3000), 0.0)
-
-
-
-
-
-
-
-
-        net_RCH = pcr.ifthen(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
-        
-        # specify the river package
-
         # execute MODFLOW 
 		self.pcr_modflow.run()
 
