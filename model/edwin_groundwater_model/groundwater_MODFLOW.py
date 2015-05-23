@@ -178,7 +178,7 @@ class GroundwaterModflow(object):
             self.steady_state_simulation()
             self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
-    def estimate_bottom_of_bank_storage(self, dem_flood_plain):
+    def estimate_bottom_of_bank_storage(self, dem_floodplain):
 
         # influence zone depth (m)
         influence_zone_depth = 5.0
