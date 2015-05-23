@@ -60,7 +60,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # correcting lddMap
-        self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) gt 0.0, self.lddMap)
+        self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) > 0.0, self.lddMap)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         
         # channelLength = approximation of channel length (unit: m)  # This is approximated by cell diagonal. 
