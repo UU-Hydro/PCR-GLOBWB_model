@@ -44,7 +44,6 @@ class GroundwaterModflow(object):
             vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['topographyNC'], \
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-            vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
 
         # channel properties: read several variables from the netcdf file
         for var in ['lddMap','cellAreaMap','gradient','bankfull_width',
@@ -52,7 +51,6 @@ class GroundwaterModflow(object):
             vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-            vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
         
         # cell fraction if channel water reaching the flood plan
         self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
@@ -62,6 +60,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # correcting lddMap
+        self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) gt 0.0, self.lddMap)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         
         # channelLength = approximation of channel length (unit: m)  # This is approximated by cell diagonal. 
