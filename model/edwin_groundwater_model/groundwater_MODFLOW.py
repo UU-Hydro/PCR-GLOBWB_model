@@ -164,7 +164,7 @@ class GroundwaterModflow(object):
 
     def get_initial_heads(self):
 		
-        if self.iniItems.modflowParameterOptions['groundwaterHeadIni'] != "None": 
+        if self.iniItems.modflowTransientInputOptions['groundwaterHeadIni'] != "None": 
         
             # using a pre-defined groundwater head described in the ini/configuration file
             self.groundwaterHead = vos.readPCRmapClone(self.modflowTransientInputOptions['groundwaterHeadIni'],\
