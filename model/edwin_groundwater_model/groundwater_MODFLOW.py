@@ -115,9 +115,8 @@ class GroundwaterModflow(object):
         minimumThickness = pcr.scalar(float(\
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
-
-        # BAS package
-        
+        #
+        self.totalGroundwaterThickness = totalGroundwaterThickness
 
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
