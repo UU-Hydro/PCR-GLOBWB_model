@@ -290,7 +290,6 @@ class GroundwaterModflow(object):
         
         # specify the recharge package
         # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-        print self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap']
         net_recharge  = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
