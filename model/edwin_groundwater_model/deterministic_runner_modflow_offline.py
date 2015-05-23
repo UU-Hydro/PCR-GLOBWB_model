@@ -10,7 +10,6 @@ from pcraster.framework import DynamicFramework
 from configuration import Configuration
 from currTimeStep import ModelTime
 from reporting import Reporting
-from spinUp import SpinUp
 
 from modflow_offline import ModflowOfflineCoupling
 
