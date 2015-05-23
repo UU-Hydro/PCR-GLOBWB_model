@@ -70,7 +70,7 @@ class ModflowOfflineCoupling(object):
 
     def getState(self):
         result = {}
-        result['groundwater'] = self.groundwater.getState()
+        result['groundwater'] = self.modflow.getState()
         
         return result
         
