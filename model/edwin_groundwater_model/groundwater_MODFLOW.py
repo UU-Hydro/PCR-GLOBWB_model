@@ -290,13 +290,13 @@ class GroundwaterModflow(object):
         
         # specify the recharge package
         # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-        net_recharge  = vos.readPCRmapClone(self.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
+        net_recharge  = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge -= vos.readPCRmapClone(self.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
+        net_recharge -= vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge += vos.readPCRmapClone(self.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
+        net_recharge += vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
