@@ -136,19 +136,19 @@ class GroundwaterModflow(object):
         # - constant head for outside the landmask
         ibound = pcr.cover(pcr.ifthen(self.landmask, 1), -1)
         self.pcr_modflow.setBoundary(ibound, 1)
-
-		# specification for conductivities (BCF package)
-		horizontal_conductivity = self.kSatAquifer        # unit: m/day
-		vertical_conductivity   = horizontal_conductivity # dummy values, as one layer model is used
-		self.pcr_modflow.setConductivity(horizontal_conductivity, \
-		                                 vertical_conductivity, 1)              
-		
+        
+        # specification for conductivities (BCF package)
+        horizontal_conductivity = self.kSatAquifer        # unit: m/day
+        vertical_conductivity   = horizontal_conductivity # dummy values, as one layer model is used
+        self.pcr_modflow.setConductivity(horizontal_conductivity, \
+                                         vertical_conductivity, 1)              
+        
         # specify the drain package 
         # - the drain package is used to simulate the drainage of bank storage 
         drain_elevation  = self.estimate_bottom_of_bank_storage(self.dem_floodplain)          # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
         self.pcr_modflow.setConductivity.setDrain(drain_elevation, drain_condutance)
-
+        
         # TODO: defining/incorporating anisotrophy values
         
         # using PCG solver and define its parameters:
