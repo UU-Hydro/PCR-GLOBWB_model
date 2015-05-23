@@ -300,7 +300,7 @@ class GroundwaterModflow(object):
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
-        net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone.cellSize()*pcr.clone.cellSize()), 0.0)
+        net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
         self.pcr_modflow.setRecharge(net_RCH, 1)
                                              
