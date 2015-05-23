@@ -62,7 +62,7 @@ def main():
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                       configuration.globalOptions['endTime'])
     logger.info('Model run starts.')
-    deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state)
+    deterministic_runner = DeterministicRunner(configuration, currTimeStep)
     
     dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
