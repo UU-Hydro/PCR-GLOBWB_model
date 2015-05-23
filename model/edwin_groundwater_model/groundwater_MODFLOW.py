@@ -347,8 +347,8 @@ class GroundwaterModflow(object):
         # TODO: Improve this concept using Rens's latest scheme
         #
         # - corrected surface water elevation
-        surface_water_elevation = pcr.ifthenelse(surface_water_elevation > self.dem_flood_plain, 
-                                                                           self.dem_flood_plain + water_above_fpl  
+        surface_water_elevation = pcr.ifthenelse(surface_water_elevation > self.dem_flood_plain, \
+                                                                           self.dem_flood_plain + water_above_fpl, \
                                                                            surface_water_elevation)
         # - surface water elevation for lakes and reservoirs:
         lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, surface_water_elevation)
