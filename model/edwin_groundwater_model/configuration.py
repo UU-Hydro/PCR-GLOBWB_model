@@ -170,7 +170,19 @@ class Configuration(object):
                      'groundwaterAbstractionReturnFlowInputNC'
                      ]:
             if self.modflowTransientInputOptions[item] != "None":\
-               self.modflowTransientInputOptions[item]  = vos.getFullPath(self.modflowSteadyStateInputOptions[item], self.globalOptions['inputDir'])
+               self.modflowTransientInputOptions[item]  = vos.getFullPath(self.modflowTransientInputOptions[item], self.globalOptions['inputDir'])
+
+        # full paths for the folders/files mentioned in the modflowParameterOptions
+        for item in [
+                     'groundwaterPropertiesNC',
+                     'estimateOfTotalGroundwaterThickness',
+                     'topographyNC',
+                     'channelNC',
+                     'waterBodyInputNC'                        
+                     ]:
+            if self.modflowParameterOptions[item] != "None":\
+               self.modflowParameterOptions[item]  = vos.getFullPath(self.modflowParameterOptions[item], self.globalOptions['inputDir'])
+               
 
     def create_output_directories(self):
         # making the root/parent of OUTPUT directory:
