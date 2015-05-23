@@ -77,7 +77,7 @@ class GroundwaterModflow(object):
         self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
         self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
         #
-        if 'minRecessionCoeff' in iniItems.groundwaterOptions.keys():
+        if 'minRecessionCoeff' in iniItems.modflowParameterOptions.keys():
             minRecessionCoeff = float(iniItems.modflowParameterOptions['minRecessionCoeff'])
         else:
             minRecessionCoeff = 1.0e-4                                       # This is the minimum value used in Van Beek et al. (2011). 
