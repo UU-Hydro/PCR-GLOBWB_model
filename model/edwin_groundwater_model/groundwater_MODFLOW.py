@@ -137,14 +137,14 @@ class GroundwaterModflow(object):
         # - active cells only in landmask
         # - constant head for outside the landmask
         ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
-        ibound = pcr.cover(ibound, pcr.nominal(-1))
+        ibound = pcr.cover(ibound, pcr.nominal(-1)pcrast)
         self.pcr_modflow.setBoundary(ibound, 1)
         
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer        # unit: m/day
         vertical_conductivity   = horizontal_conductivity # dummy values, as one layer model is used
-        self.pcr_modflow.setConductivity(horizontal_conductivity, \
-                                         vertical_conductivity, 1)              
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
+                                             vertical_conductivity, 1)              
         
         # specify the drain package 
         # - the drain package is used to simulate the drainage of bank storage 
