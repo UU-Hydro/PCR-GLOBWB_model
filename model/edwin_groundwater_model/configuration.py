@@ -56,10 +56,6 @@ class Configuration(object):
         # copy ini file
         self.backup_configuration()
 
-        # repair key names of initial conditions
-        self.repair_ini_key_names()
-        
-
     def initialize_logging(self, log_file_location = "Default"):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
