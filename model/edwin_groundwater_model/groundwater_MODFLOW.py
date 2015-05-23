@@ -122,7 +122,7 @@ class GroundwaterModflow(object):
         self.initiate_old_style_groundwater_reporting(iniItems)
 
     def initiate_modflow(self):
-		
+
         # initialise 
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
@@ -130,12 +130,12 @@ class GroundwaterModflow(object):
         top    = self.dem_average
         bottom = top - self.totalGroundwaterThickness
         self.pcr_modflow.createBottomLayer(bottom, top) 
-		
-		# specification for the boundary condition (IBOUND, BAS package)
-		# - active cells only in landmask
-		# - constant head for outside the landmask
-		ibound = pcr.cover(pcr.ifthen(self.landmask, 1), -1)
-		self.pcr_modflow.setBoundary(ibound, 1)
+        
+        # specification for the boundary condition (IBOUND, BAS package)
+        # - active cells only in landmask
+        # - constant head for outside the landmask
+        ibound = pcr.cover(pcr.ifthen(self.landmask, 1), -1)
+        self.pcr_modflow.setBoundary(ibound, 1)
 
 		# specification for conductivities (BCF package)
 		horizontal_conductivity = self.kSatAquifer        # unit: m/day
@@ -149,18 +149,18 @@ class GroundwaterModflow(object):
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
         self.pcr_modflow.setConductivity.setDrain(drain_elevation, drain_condutance)
 
-		# TODO: defining/incorporating anisotrophy values
-		
-		# using PCG solver and define its parameters:
-		MXITER = 500
-		ITERI  = 250      
-		NPCOND = 1        # Modified Incomplete Choleksy
-		HCLOSE = 0.005    # unit: m
-		RCLOSE = 10       # unit: m3
-		RELAX  = 0.98
-		NBPOL  = 2        # but we don ot use it (since NPCOND = 1) 
-		DAMP   = 1        # no damping (DAMP introduced in MODFLOW 2000)
-		self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+        # TODO: defining/incorporating anisotrophy values
+        
+        # using PCG solver and define its parameters:
+        MXITER = 500
+        ITERI  = 250      
+        NPCOND = 1        # Modified Incomplete Choleksy
+        HCLOSE = 0.005    # unit: m
+        RCLOSE = 10       # unit: m3
+        RELAX  = 0.98
+        NBPOL  = 2        # but we don ot use it (since NPCOND = 1) 
+        DAMP   = 1        # no damping (DAMP introduced in MODFLOW 2000)
+        self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
 
     def get_initial_heads(self):
 		
