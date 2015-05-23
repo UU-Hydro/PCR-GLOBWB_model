@@ -410,8 +410,7 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setInitialHead(self.groundwaterHead, 1)
         
         # execute MODFLOW 
-		self.pcr_modflow.run()
-
+        self.pcr_modflow.run()
 
     def old_style_groundwater_reporting(self,currTimeStep):
 
