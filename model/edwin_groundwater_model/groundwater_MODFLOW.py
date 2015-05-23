@@ -150,7 +150,7 @@ class GroundwaterModflow(object):
         # - the drain package is used to simulate the drainage of bank storage 
         drain_elevation  = self.estimate_bottom_of_bank_storage(self.dem_floodplain)          # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
-        self.pcr_modflow.setConductivity.setDrain(drain_elevation, drain_condutance)
+        self.pcr_modflow.setDrain(drain_elevation, drain_condutance)
         
         # TODO: defining/incorporating anisotrophy values
         
