@@ -157,6 +157,7 @@ class Configuration(object):
                      ]:
             if self.modflowSteadyStateInputOptions[item] != "None":\
                self.modflowSteadyStateInputOptions[item]  = vos.getFullPath(self.modflowSteadyStateInputOptions[item], self.globalOptions['inputDir'])
+            print self.modflowSteadyStateInputOptions[item]   
 
         # full paths for the folders/files mentioned in the modflowTransientInputOptions
         for item in [
