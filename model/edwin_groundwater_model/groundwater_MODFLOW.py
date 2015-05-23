@@ -92,7 +92,7 @@ class GroundwaterModflow(object):
 
         # aquifer saturated conductivity (m/day)
         self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
-                                                             'specificYield', self.cloneMap)
+                                                             'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)       
 
