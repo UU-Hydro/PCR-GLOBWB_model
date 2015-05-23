@@ -118,6 +118,9 @@ class GroundwaterModflow(object):
         #
         self.totalGroundwaterThickness = totalGroundwaterThickness
 
+        # initiate pcraster modflow object
+        self.initiate_modflow()
+        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
