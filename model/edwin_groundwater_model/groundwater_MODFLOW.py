@@ -368,15 +368,15 @@ class GroundwaterModflow(object):
         #
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
-
+        
         # execute MODFLOW 
-		self.pcr_modflow.run()
-		
-		# obtain the calculated value
-		self.groundwaterHead = self.pcr_modflow.getHeads(1)
-		
-		# for debuging 
-		pcr.report(self.groundwaterHead, "gw_head1.map")
+        self.pcr_modflow.run()
+        
+        # obtain the calculated value
+        self.groundwaterHead = self.pcr_modflow.getHeads(1)
+        
+        # for debuging 
+        pcr.report(self.groundwaterHead, "gw_head1.map")
 		 
 
     def return_innundation_fraction(self,relative_water_height):
