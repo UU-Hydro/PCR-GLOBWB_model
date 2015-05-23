@@ -341,7 +341,7 @@ class GroundwaterModflow(object):
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - convert discharge value to surface water elevation (m)
         river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
-        surface_water_elevation = self.dem_rived_bed + \
+        surface_water_elevation = self.dem_riverbed + \
                                   river_water_height
         # - calculating water level (unit: m) above the flood plain   # TODO: Improve this concept (using Rens's latest innundation scheme) 
         #----------------------------------------------------------
