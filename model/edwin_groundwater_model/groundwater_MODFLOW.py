@@ -96,9 +96,8 @@ class GroundwaterModflow(object):
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)       
 
         # estimate of thickness (unit: m) of accesible groundwater 
-        totalGroundwaterThickness = vos.readPCRmapClone(\
-                                    self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThickness'],\
-                                    self.cloneMap,self.tmpDir,self.inputDir)
+        totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
+                                    'thickness', self.cloneMap)
         # extrapolation 
         totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
                                     pcr.windowaverage(totalGroundwaterThickness, 1.0))
@@ -125,6 +124,8 @@ class GroundwaterModflow(object):
 
     def initiate_modflow(self):
 
+        logger.info("Initializing pcraster modflow.")
+        
         # initialise 
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
@@ -285,6 +286,8 @@ class GroundwaterModflow(object):
 
     def steady_state_simulation(self):
 		
+        logger.info("Preparing MODFLOW input for steady state simulation.")
+
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(self.dem_average, 1)
         
