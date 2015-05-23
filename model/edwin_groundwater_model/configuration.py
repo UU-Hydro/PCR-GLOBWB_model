@@ -161,7 +161,7 @@ class Configuration(object):
         # full paths for the folders/files mentioned in the modflowParameterOptions
         for item in [
                      'groundwaterPropertiesNC',
-                     'estimateOfTotalGroundwaterThickness',
+                     'estimateOfTotalGroundwaterThicknessNC',
                      'topographyNC',
                      'channelNC',
                      'waterBodyInputNC'                        
