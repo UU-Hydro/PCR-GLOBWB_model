@@ -337,7 +337,7 @@ class GroundwaterModflow(object):
         self.bed_conductance = bed_conductance
         # 
         # - discharge value (m3/s)
-        discharge = vos.readPCRmapClone(self.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
+        discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - convert discharge value to surface water elevation (m)
         river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
