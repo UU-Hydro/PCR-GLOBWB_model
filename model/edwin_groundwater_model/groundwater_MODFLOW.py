@@ -274,9 +274,11 @@ class GroundwaterModflow(object):
 
     def update(self,landSurface,routing,currTimeStep):
 
-        # do the modflod update only at  
-        if currTimeStep
-        self.pcr_modflow.setInitialHead(self.dem_average, 1)
+        pass
+        
+        #~ # do the modflod update only at  
+        #~ if currTimeStep
+        #~ self.pcr_modflow.setInitialHead(self.dem_average, 1)
 
     def steady_state_simulation(self):
 		
