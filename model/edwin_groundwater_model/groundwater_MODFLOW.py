@@ -329,7 +329,7 @@ class GroundwaterModflow(object):
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
         bed_conductance = (1.0/bed_resistance) * bed_surface_area
-        bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20., 0.0, \
+        bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                          bed_conductance) 
         self.bed_conductance = bed_conductance
         # 
