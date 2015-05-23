@@ -49,7 +49,8 @@ def main():
     
     # debug option
     debug_mode = False
-    if len(sys.argv) > 2: if sys.argv[2] == "debug": debug_mode = True
+    if len(sys.argv) > 2:
+        if sys.argv[2] == "debug": debug_mode = True
     
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
