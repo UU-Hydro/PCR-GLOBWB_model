@@ -149,7 +149,7 @@ class GroundwaterModflow(object):
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; 10 m2/day (used by Deltares)
-        minimimumTransmissivity = 100.
+        minimimumTransmissivity = 20.
         horizontal_conductivity = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
         vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
@@ -293,7 +293,7 @@ class GroundwaterModflow(object):
         MXITER = 100                # maximum number of outer iterations
         ITERI  = 30                 # number of inner iterations
         NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        HCLOSE = 0.001              # HCLOSE (unit: m) # 1.0 is working
+        HCLOSE = 1.000              # HCLOSE (unit: m) # 1.0 is working
         RCLOSE = 10.* 40.*40.       # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 25 m modflow model  
         RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
         NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
