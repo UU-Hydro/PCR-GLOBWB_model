@@ -52,6 +52,9 @@ class GroundwaterModflow(object):
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
+        # minimum bankfull_width 
+        self.bankfull_width = pcr.max(2.0, self.bankfull_width)
+        
         # cell fraction if channel water reaching the flood plan
         self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
