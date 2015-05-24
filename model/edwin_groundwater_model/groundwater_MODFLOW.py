@@ -204,9 +204,9 @@ class GroundwaterModflow(object):
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        #~ # reducing noise
-        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+        # reducing noise
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # bottom_elevation < dem_average
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
