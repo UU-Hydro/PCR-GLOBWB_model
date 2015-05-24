@@ -315,17 +315,6 @@ class GroundwaterModflow(object):
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(self.dem_average, 1)
         
-        # set PCG solver:
-        MXITER = 100                # maximum number of outer iterations
-        ITERI  = 30                 # number of inner iterations
-        NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        HCLOSE = 0.005              # HCLOSE (unit: m) # 0.05 is working
-        RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
-        RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
-        NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
-        self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
-        
         # set parameter values for the DIS package 
         ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
         LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
@@ -335,6 +324,17 @@ class GroundwaterModflow(object):
         SSTR   = 1     # 0 - transient, 1 - steady state
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)  
 
+        # set PCG solver:
+        MXITER = 100                # maximum number of outer iterations
+        ITERI  = 30                 # number of inner iterations
+        NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+        HCLOSE = 0.01               # HCLOSE (unit: m) # 0.05 is working
+        RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares people uses 100 m3 for their 25 m resolution modflow model  
+        RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
+        NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+        DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
+        self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+        
         # read input files (for the steady state condition, we use pcraster maps):
         # - discharge value (m3/s)
         discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
@@ -357,8 +357,12 @@ class GroundwaterModflow(object):
         logger.info("Executing MODFLOW for a steady state simulation.")
         self.pcr_modflow.run()
         
+        # TODO: Add the mechanism to check whether a run has converged or not.
+        
     def set_river_package(self, discharge):
 
+        logger.info("Set the river package based on the given discharge.")
+        
         # specify the river package
         #
         # - waterBody class to define the extent of lakes and reservoirs
@@ -430,6 +434,8 @@ class GroundwaterModflow(object):
         
     def set_recharge_package(self, gwRecharge, gwAbstraction, gwAbstractionReturnFlow):
 
+        logger.info("Set the river package based on the given recharge, abstraction and abstraction return flow fields.")
+
         # specify the recharge package
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
@@ -442,6 +448,8 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
     def set_drain_package(self):
+
+        logger.info("Set the drain package (for the release of over bank storage).")
 
         # specify the drain package 
         # - the drain package is used to simulate the drainage of bank storage 
