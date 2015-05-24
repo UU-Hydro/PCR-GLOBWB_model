@@ -371,7 +371,7 @@ class GroundwaterModflow(object):
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
             # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
+            gwAbstractionReturnFlow = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
                                                "return_flow_from_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
