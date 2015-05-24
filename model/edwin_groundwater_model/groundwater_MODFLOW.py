@@ -103,7 +103,7 @@ class GroundwaterModflow(object):
         self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
         
-        self.kSatAquifer = pcr.scalar(20.0)       
+        self.kSatAquifer = pcr.spatial(pcr.scalar(20.0))       
 
         # estimate of thickness (unit: m) of accesible groundwater 
         totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
