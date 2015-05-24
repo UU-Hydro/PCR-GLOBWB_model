@@ -148,7 +148,7 @@ class GroundwaterModflow(object):
         
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
-        # set the minimum value for transmissivity; 10 m2/day (used by Deltares)
+        # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
         minimimumTransmissivity = 20.
         horizontal_conductivity = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
@@ -329,11 +329,11 @@ class GroundwaterModflow(object):
         #
         # - surface water river bed/bottom elevation
         #
-        #~ # - for lakes and resevoirs, make the bottom elevation very deep --- Shall we do this? 
-        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 #~ self.dem_riverbed - 500.0)
-        #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
-        #~ #
+        # - for lakes and resevoirs, make the bottom elevation very deep --- Shall we do this? 
+        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                 self.dem_riverbed - 500.0)
+        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+        #
         surface_water_bed_elevation = self.dem_riverbed
         #
         # rounding values for surface_water_bed_elevation
@@ -413,6 +413,7 @@ class GroundwaterModflow(object):
         # for debuging 
         pcr.report(self.groundwaterHead , "gw_head.map")
         pcr.report(self.groundwaterDepth, "gw_depth.map")
+        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
 
     def return_innundation_fraction(self,relative_water_height):
 
