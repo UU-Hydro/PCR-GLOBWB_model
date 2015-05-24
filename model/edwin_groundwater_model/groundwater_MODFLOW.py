@@ -428,7 +428,6 @@ class GroundwaterModflow(object):
         pcr.report(self.groundwaterDepth, "gw_depth.map")
         pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
 
-
         
     def set_river_package(self, discharge):
 
