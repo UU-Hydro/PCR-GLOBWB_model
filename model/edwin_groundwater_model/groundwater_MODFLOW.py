@@ -417,6 +417,7 @@ class GroundwaterModflow(object):
         # TODO: Add the mechanism to check whether a run has converged or not.
 
         # obtaining the results from modflow simulation
+        self.groundwaterHead = None
         self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
         # calculate groundwater depth only in the landmask region
