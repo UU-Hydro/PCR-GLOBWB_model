@@ -440,6 +440,14 @@ class GroundwaterModflow(object):
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
+    def set_drain_package(self):
+
+        # specify the drain package 
+        # - the drain package is used to simulate the drainage of bank storage 
+        drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
+        drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
+        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+
     def return_innundation_fraction(self,relative_water_height):
 
         # - fractions of flooded area (in percentage) based on the relative_water_height (above the minimum dem)
