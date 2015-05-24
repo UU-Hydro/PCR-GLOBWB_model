@@ -183,7 +183,7 @@ class GroundwaterModflow(object):
         influence_zone_depth = 5.0
         
         # bottom_elevation > flood_plain elevation - influence zone
-        bottom_of_bank_storage = self.dem_floodplain - 5.0
+        bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
         
         #~ # bottom_elevation > river bed
         #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
