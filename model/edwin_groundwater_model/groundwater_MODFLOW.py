@@ -306,7 +306,7 @@ class GroundwaterModflow(object):
         self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001)
 
     def modflow_simulation(self,\
-                           simulation_type,\ 
+                           simulation_type,\
                            initial_head,\
                            currTimeStep = None,\
                            HCLOSE = 0.02,\
