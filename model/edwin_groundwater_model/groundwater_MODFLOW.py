@@ -158,7 +158,7 @@ class GroundwaterModflow(object):
         
         # specify the drain package 
         # - the drain package is used to simulate the drainage of bank storage 
-        drain_elevation  = self.estimate_bottom_of_bank_storage(self.dem_floodplain)          # unit: m
+        drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
         
@@ -177,13 +177,16 @@ class GroundwaterModflow(object):
             self.steady_state_simulation()
             self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
-    def estimate_bottom_of_bank_storage(self, dem_floodplain):
+    def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
         influence_zone_depth = 5.0
         
         # bottom_elevation > flood_plain elevation - influence zone
-        bottom_of_bank_storage = dem_floodplain - 5.0
+        bottom_of_bank_storage = self.dem_floodplain - 5.0
+        
+        # bottom_elevation > river bed
+        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
         # TODO: We may want to improve this concept - by incorporating the following 
         # - smooth bottom_elevation
@@ -294,7 +297,7 @@ class GroundwaterModflow(object):
         ITERI  = 30                 # number of inner iterations
         NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
         HCLOSE = 1.000              # HCLOSE (unit: m) # 1.0 is working
-        RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 25 m modflow model  
+        RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
         RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
         NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
         DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
