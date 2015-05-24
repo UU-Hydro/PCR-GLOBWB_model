@@ -169,7 +169,7 @@ class GroundwaterModflow(object):
         self.pcg_MXITER = 100                # maximum number of outer iterations
         self.pcg_ITERI  = 30                 # number of inner iterations
         self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        self.pcg_HCLOSE = 0.1                # HCLOSE (unit: m)
+        self.pcg_HCLOSE = 0.5                # HCLOSE (unit: m)
         self.pcg_RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 25 m modflow model  
         self.pcg_RELAX  = 0.98               # relaxation parameter used with NPCOND = 1
         self.pcg_NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
