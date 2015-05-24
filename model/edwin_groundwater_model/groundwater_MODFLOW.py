@@ -103,8 +103,6 @@ class GroundwaterModflow(object):
         self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
         
-        self.kSatAquifer = pcr.spatial(pcr.scalar(20.0))       
-
         # estimate of thickness (unit: m) of accesible groundwater 
         totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
                                     'thickness', self.cloneMap)
@@ -152,8 +150,10 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setBoundary(ibound, 1)
         
         # specification for conductivities (BCF package)
-        horizontal_conductivity = self.kSatAquifer                       # unit: m/day
-        vertical_conductivity   = self.kSatAquifer                       # dummy values, as one layer model is used
+        horizontal_conductivity = self.kSatAquifer # unit: m/day
+        # set the minimum value for transmissivity; 10 m2/day (used by Deltares)
+        horizontal_conductivity = pcr.max(10.0, horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
+        vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
         
@@ -169,7 +169,7 @@ class GroundwaterModflow(object):
         self.pcg_MXITER = 100                # maximum number of outer iterations
         self.pcg_ITERI  = 30                 # number of inner iterations
         self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        self.pcg_HCLOSE = 1.                 # HCLOSE (unit: m)
+        self.pcg_HCLOSE = 0.001.             # HCLOSE (unit: m)
         self.pcg_RCLOSE = 100.* 400.*400.    # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
         self.pcg_RELAX  = 0.98               # relaxation parameter used with NPCOND = 1
         self.pcg_NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
