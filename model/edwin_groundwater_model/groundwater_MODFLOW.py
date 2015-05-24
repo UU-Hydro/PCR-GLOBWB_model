@@ -166,8 +166,8 @@ class GroundwaterModflow(object):
         # TODO: defining/incorporating anisotrophy values
         
         # default parameter values for the PCG solver:
-        self.pcg_MXITER = 1000               # maximum number of outer iterations
-        self.pcg_ITERI  = 250                # number of inner iterations
+        self.pcg_MXITER = 100                # maximum number of outer iterations
+        self.pcg_ITERI  = 30                 # number of inner iterations
         self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
         self.pcg_HCLOSE = 1.                 # HCLOSE (unit: m)
         self.pcg_RCLOSE = 100.* 400.*400.    # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
