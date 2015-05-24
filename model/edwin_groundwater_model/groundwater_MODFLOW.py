@@ -52,6 +52,10 @@ class GroundwaterModflow(object):
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
+        # option for lakes and reservoir
+        self.onlyNaturalWaterBodies = False
+        if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
+        
         # cell fraction if channel water reaching the flood plan
         self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
@@ -309,7 +313,10 @@ class GroundwaterModflow(object):
         # specify the river package
         #
         # - waterBody class to define the extent of lakes and reservoirs
-        self.WaterBodies = waterBodies.WaterBodies(self.iniItems,self.landmask)
+        self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                   self.landmask,\
+                                                   self.onlyNaturalWaterBodies)
+        #
         # - get parameter files by using the starting date given in the configuration file
         self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
                                            cellArea = self.cellAreaMap, \
