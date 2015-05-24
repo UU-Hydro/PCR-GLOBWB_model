@@ -90,19 +90,19 @@ class GroundwaterModflow(object):
             minRecessionCoeff = 1.0e-4                                       # This is the minimum value used in Van Beek et al. (2011). 
         self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
         
-        # aquifer specific yield (dimensionless)
-        self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
-                                                               'specificYield', self.cloneMap)
-        self.specificYield  = pcr.cover(self.specificYield,0.0)       
-        self.specificYield  = pcr.max(0.010,self.specificYield)         # TODO: TO BE CHECKED: The resample process of specificYield     
-        self.specificYield  = pcr.min(1.000,self.specificYield)       
-
         # aquifer saturated conductivity (m/day)
         self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
                                                              'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
         
+        # aquifer specific yield (dimensionless)
+        self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
+                                                               'specificYield', self.cloneMap)
+        self.specificYield = pcr.cover(self.specificYield,pcr.mapmaximum(self.specificYield))       
+        self.specificYield = pcr.max(0.010,self.specificYield)         # TODO: TO BE CHECKED: The resample process of specificYield     
+        self.specificYield = pcr.min(1.000,self.specificYield)       
+
         # estimate of thickness (unit: m) of accesible groundwater 
         totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
                                     'thickness', self.cloneMap)
@@ -157,6 +157,13 @@ class GroundwaterModflow(object):
         vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
+        
+        # specification for storage coefficient
+        # - correction due to the usage of lat/lon coordinates
+        primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary = pcr.max(1e-20, primary)
+        secondary = primary                                           # dummy values as we used layer type 00
+        self.pcr_modflow.setStorage(primary, secondary, 1)
         
         # set drain package
         self.set_drain_package()
@@ -371,7 +378,7 @@ class GroundwaterModflow(object):
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
             # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstractionReturnFlow = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
+            gwAbstractionReturnFlow = vos.netcdf2PCRobjCloneagu(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
                                                "return_flow_from_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
