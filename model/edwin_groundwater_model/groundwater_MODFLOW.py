@@ -146,8 +146,8 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setBoundary(ibound, 1)
         
         # specification for conductivities (BCF package)
-        horizontal_conductivity = self.kSatAquifer        # unit: m/day
-        vertical_conductivity   = horizontal_conductivity # dummy values, as one layer model is used
+        horizontal_conductivity = self.kSatAquifer                       # unit: m/day
+        vertical_conductivity   = 100000000.                             # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
         
@@ -160,25 +160,27 @@ class GroundwaterModflow(object):
         # TODO: defining/incorporating anisotrophy values
         
         # default parameter values for the PCG solver:
-        self.pcg_MXITER = 1000           # maximum number of outer iterations
-        self.pcg_ITERI  = 250            # number of inner iterations
-        self.pcg_NPCOND = 1              # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        self.pcg_HCLOSE = 0.010          # HCLOSE (unit: m)
-        self.pcg_RCLOSE = 1000.* 10.*10. # RCLOSE (unit: m3) ; Sutanudjaja et al. (2011, 2014) used 100 m3 for 30 arc-second (1 km) model 
-        self.pcg_RELAX  = 0.98           # relaxation parameter used with NPCOND = 1
-        self.pcg_NBPOL  = 2              # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        self.pcg_DAMP   = 1              # no damping (DAMP introduced in MODFLOW 2000)
+        self.pcg_MXITER = 1000               # maximum number of outer iterations
+        self.pcg_ITERI  = 250                # number of inner iterations
+        self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+        self.pcg_HCLOSE = 0.001              # HCLOSE (unit: m)
+        self.pcg_RCLOSE = 10.* 10000.*10000. # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 250 m model 
+        self.pcg_RELAX  = 0.98               # relaxation parameter used with NPCOND = 1
+        self.pcg_NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+        self.pcg_DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
         #
+        # set PCG solver:
+        self.pcr_modflow.setPCG(self.pcg_MXITER, self.pcg_ITERI, self.pcg_NPCOND, self.pcg_HCLOSE, self.pcg_RCLOSE, self.pcg_RELAX, self.pcg_NBPOL, self.pcg_DAMP)
 
-        #~ # default parameter values for the DIS solver:
-        #~ self.dis_MXITER = 1000           # maximum number of outer iterations
-        #~ self.dis_ITERI  = 250            # number of inner iterations
-        #~ self.dis_NPCOND = 1              # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        #~ self.dis_HCLOSE = 0.010          # HCLOSE (unit: m)
-        #~ self.dis_RCLOSE = 100.* 10.*10.  # RCLOSE (unit: m3) ; Sutanudjaja et al. (2011, 2014) used 100 m3 for 30 arc-second (1 km) model 
-        #~ self.dis_RELAX  = 0.98           # relaxation parameter used with NPCOND = 1
-        #~ self.dis_NBPOL  = 2              # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        #~ self.dis_DAMP   = 1              # no damping (DAMP introduced in MODFLOW 2000)
+        # default parameter values for the DIS solver:
+        self.dis_ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
+        self.dis_LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
+        self.dis_PERLEN = 1.0   # duration of a stress period
+        self.dis_NSTP   = 1     # number of time steps in a stress period
+        self.dis_TSMULT = 1.0   # multiplier for the length of the successive iterations
+        self.dis_SSTR   = None  # This will be defined later. 0 - transient, 1 - steady state. If the simulation is set to transient, primary and secondary storage coeffiecents must be set in the BCF package.
+        #
+        # The DIS parameter will be introduced later. 
 
 
     def get_initial_heads(self):
@@ -306,10 +308,9 @@ class GroundwaterModflow(object):
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(self.dem_average, 1)
         
-        # set parameter values for the PCG solver and DIS package 
-        self.pcr_modflow.setPCG(self.pcg_MXITER, self.pcg_ITERI, self.pcg_NPCOND, self.pcg_HCLOSE, self.pcg_RCLOSE, self.pcg_RELAX, self.pcg_NBPOL, self.pcg_DAMP)
-        self.pcr_modflow.setDISParameter(4,2,1,1,1,1);
-        
+        # set parameter values for the DIS package 
+        self.pcr_modflow.setDISParameter(self.dis_ITMUNI, self.dis_LENUNI, self.dis_PERLEN, self.dis_NSTP, self.dis_TSMULT, 0)  
+
         # specify the river package
         #
         # - waterBody class to define the extent of lakes and reservoirs
