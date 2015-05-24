@@ -189,13 +189,13 @@ class GroundwaterModflow(object):
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
-        influence_zone_depth = 5.00
+        influence_zone_depth = 0.50
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
-        # bottom_elevation > river bed
-        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        #~ # bottom_elevation > river bed
+        #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
         # bottom_elevation > its downstream value
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
@@ -204,9 +204,9 @@ class GroundwaterModflow(object):
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # reducing noise
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+        #~ # reducing noise
+        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # bottom_elevation < dem_average
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
@@ -387,9 +387,6 @@ class GroundwaterModflow(object):
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
-            # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
-                                                self.cloneMap, self.tmpDir, self.inputDir)
 
         # read input files (for the transient, input files are given in netcdf files):
         if simulation_type == "transient":
@@ -402,13 +399,10 @@ class GroundwaterModflow(object):
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
-            # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstractionReturnFlow = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
-                                               "return_flow_from_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
         self.set_river_package(discharge)
-        self.set_recharge_package(gwRecharge, gwAbstraction, gwAbstractionReturnFlow)
+        self.set_recharge_package(gwRecharge, gwAbstraction)
         
         # execute MODFLOW 
         logger.info("Executing MODFLOW for a steady state simulation.")
@@ -442,7 +436,7 @@ class GroundwaterModflow(object):
                                                  self.dem_riverbed - 500.0)
         surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
         #
-        #~ surface_water_bed_elevation = self.dem_riverbed
+        #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
         #
         # rounding values for surface_water_bed_elevation
         self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
@@ -461,6 +455,7 @@ class GroundwaterModflow(object):
         river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
         surface_water_elevation = self.dem_riverbed + \
                                   river_water_height
+        #
         # - calculating water level (unit: m) above the flood plain   # TODO: Improve this concept (using Rens's latest innundation scheme) 
         #----------------------------------------------------------
         water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)  # unit: m, water level above the floodplain (not distributed)
@@ -484,7 +479,7 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.cover(surface_water_elevation, self.surface_water_bed_elevation)
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
-        # - make sure that HRIV >= RBOT (no infiltration if HRIV = RBOT and h < RBOT)  
+        # - make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
         self.surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         #
         # - pass the values to the RIV package 
@@ -492,7 +487,9 @@ class GroundwaterModflow(object):
         
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
-    def set_recharge_package(self, gwRecharge, gwAbstraction, gwAbstractionReturnFlow):
+    def set_recharge_package(self, \
+                             gwRecharge, gwAbstraction, 
+                             gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well. 
 
         logger.info("Set the river package based on the given recharge, abstraction and abstraction return flow fields.")
 
@@ -500,14 +497,13 @@ class GroundwaterModflow(object):
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
         # + return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow/self.cellAreaMap
+        net_recharge = gwRecharge - gwAbstraction + \
+                       gwAbstractionReturnFlow
 
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
-        
-        #~ net_RCH = pcr.spatial(pcr.scalar(0.0))
         
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
