@@ -166,15 +166,15 @@ class GroundwaterModflow(object):
         self.pcg_DAMP   = 1              # no damping (DAMP introduced in MODFLOW 2000)
         #
 
-        # default parameter values for the DIS solver:
-        self.dis_MXITER = 1000           # maximum number of outer iterations
-        self.dis_ITERI  = 250            # number of inner iterations
-        self.dis_NPCOND = 1              # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        self.dis_HCLOSE = 0.010          # HCLOSE (unit: m)
-        self.dis_RCLOSE = 100.* 10.*10.  # RCLOSE (unit: m3) ; Sutanudjaja et al. (2011, 2014) used 100 m3 for 30 arc-second (1 km) model 
-        self.dis_RELAX  = 0.98           # relaxation parameter used with NPCOND = 1
-        self.dis_NBPOL  = 2              # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        self.dis_DAMP   = 1              # no damping (DAMP introduced in MODFLOW 2000)
+        #~ # default parameter values for the DIS solver:
+        #~ self.dis_MXITER = 1000           # maximum number of outer iterations
+        #~ self.dis_ITERI  = 250            # number of inner iterations
+        #~ self.dis_NPCOND = 1              # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+        #~ self.dis_HCLOSE = 0.010          # HCLOSE (unit: m)
+        #~ self.dis_RCLOSE = 100.* 10.*10.  # RCLOSE (unit: m3) ; Sutanudjaja et al. (2011, 2014) used 100 m3 for 30 arc-second (1 km) model 
+        #~ self.dis_RELAX  = 0.98           # relaxation parameter used with NPCOND = 1
+        #~ self.dis_NBPOL  = 2              # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+        #~ self.dis_DAMP   = 1              # no damping (DAMP introduced in MODFLOW 2000)
 
 
     def get_initial_heads(self):
