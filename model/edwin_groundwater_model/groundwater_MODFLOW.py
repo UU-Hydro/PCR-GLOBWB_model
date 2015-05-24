@@ -120,7 +120,7 @@ class GroundwaterModflow(object):
         #
         # set maximum thickness: 500 m.
         maximumThickness = 500
-        self.totalGroundwaterThickness = pcr.min(maximumThickness., totalGroundwaterThickness)
+        self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
         self.bed_resistance = 1.0
