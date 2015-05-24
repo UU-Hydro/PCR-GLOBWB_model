@@ -400,11 +400,13 @@ class GroundwaterModflow(object):
         logger.info("Executing MODFLOW for a steady state simulation.")
         self.pcr_modflow.run()
         
-        # obtain the calculated value
-        self.groundwaterHead = self.pcr_modflow.getHeads(1)
+        # obtain the calculated values
+        self.groundwaterHead  = self.pcr_modflow.getHeads(1)
+        self.groundwaterDepth = self.dem_average - self.groundwaterHead
         
         # for debuging 
-        pcr.report(self.groundwaterHead, "gw_head1.map")
+        pcr.report(self.groundwaterHead , "gw_head.map")
+        pcr.report(self.groundwaterDepth, "gw_depth.map")
 
     def return_innundation_fraction(self,relative_water_height):
 
