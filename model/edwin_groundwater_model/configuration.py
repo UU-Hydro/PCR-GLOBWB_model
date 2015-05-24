@@ -153,7 +153,6 @@ class Configuration(object):
                      'dischargeInputNC',                        
                      'groundwaterRechargeInputNC',              
                      'groundwaterAbstractionInputNC',           
-                     'groundwaterAbstractionReturnFlowInputNC'
                      ]:
             if self.modflowTransientInputOptions[item] != "None":\
                self.modflowTransientInputOptions[item]  = vos.getFullPath(self.modflowTransientInputOptions[item], self.globalOptions['inputDir'])
