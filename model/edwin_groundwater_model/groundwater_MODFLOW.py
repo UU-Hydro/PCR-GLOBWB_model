@@ -203,8 +203,8 @@ class GroundwaterModflow(object):
         #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
                                  #~ pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
 
-        # bottom_elevation >= 0.0 (must be higher than sea level)
-        bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
+        #~ # bottom_elevation >= 0.0 (must be higher than sea level)
+        #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
         #~ 
         #~ # reducing noise
         #~ bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
