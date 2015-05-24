@@ -188,8 +188,8 @@ class GroundwaterModflow(object):
         #~ # bottom_elevation > river bed
         #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
-        #~ # bottom_elevation >= 0.0 (must be higher than sea level)
-        #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
+        # bottom_elevation >= 0.0 (must be higher than sea level)
+        bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
         
         # reducing noise
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
