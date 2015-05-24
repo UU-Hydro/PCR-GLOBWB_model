@@ -201,7 +201,7 @@ class GroundwaterModflow(object):
         #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
         
         # reducing noise
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
                                  pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # TODO: Check again this concept. 
