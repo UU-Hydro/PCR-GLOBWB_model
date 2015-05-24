@@ -490,6 +490,9 @@ class GroundwaterModflow(object):
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
+        
+        net_RCH = pcr.spatial(pcr.scalar(0.0))
+        
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
     def set_drain_package(self):
