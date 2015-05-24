@@ -118,7 +118,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        self.totalGroundwaterThickness = totalGroundwaterThickness
+        # set maximum thickness: 500 m.
+        self.totalGroundwaterThickness = pcr.min(500., totalGroundwaterThickness)
 
         # initiate pcraster modflow object
         self.initiate_modflow()
@@ -306,7 +307,7 @@ class GroundwaterModflow(object):
         NSTP   = 1     # number of time steps in a stress period
         TSMULT = 1.0   # multiplier for the length of the successive iterations
         SSTR   = 1     # This will be defined later. 0 - transient, 1 - steady state. If the simulation is set to transient, primary and secondary storage coeffiecents must be set in the BCF package.
-        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, SMULT, SSTR)  
+        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)  
 
         # specify the river package
         #
