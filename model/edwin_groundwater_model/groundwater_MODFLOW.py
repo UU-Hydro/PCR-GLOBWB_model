@@ -119,8 +119,12 @@ class GroundwaterModflow(object):
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
         # set maximum thickness: 500 m.
-        self.totalGroundwaterThickness = pcr.min(500., totalGroundwaterThickness)
+        maximumThickness = 500
+        self.totalGroundwaterThickness = pcr.min(maximumThickness., totalGroundwaterThickness)
 
+        # river bed resistance (unit: day)
+        self.bed_resistance = 1.0
+        
         # initiate pcraster modflow object
         self.initiate_modflow()
         
@@ -156,11 +160,8 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
         
-        # specify the drain package 
-        # - the drain package is used to simulate the drainage of bank storage 
-        drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
-        drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
-        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+        # set drain package
+        self.set_drain_package()
         
         # TODO: defining/incorporating anisotrophy values
 
@@ -197,8 +198,10 @@ class GroundwaterModflow(object):
         
         # reducing noise
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 0.25))
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
+        # TODO: Check again this concept. 
+        
         # TODO: We may want to improve this concept - by incorporating the following 
         # - smooth bottom_elevation
         # - upstream areas in the mountainous regions and above perrenial stream starting points may also be drained (otherwise water will accumulate) 
@@ -323,6 +326,40 @@ class GroundwaterModflow(object):
         SSTR   = 1     # 0 - transient, 1 - steady state
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)  
 
+        # read input files (for the steady state condition, we use pcraster maps):
+        # - discharge value (m3/s)
+        discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
+                                            self.cloneMap, self.tmpDir, self.inputDir)
+        # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
+        gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
+                                            self.cloneMap, self.tmpDir, self.inputDir)
+        # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+        gwAbstraction -= vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
+                                            self.cloneMap, self.tmpDir, self.inputDir)
+        # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+        gwAbstractionReturnFlow += vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
+                                            self.cloneMap, self.tmpDir, self.inputDir)
+        
+        # set recharge and river packages
+        self.set_river_package(discharge)
+        self.set_recharge_package(gwRecharge, gwAbstraction, gwAbstractionReturnFlow)
+        
+        # execute MODFLOW 
+        logger.info("Executing MODFLOW for a steady state simulation.")
+        self.pcr_modflow.run()
+        
+        # obtain the calculated values
+        self.groundwaterHead  = self.pcr_modflow.getHeads(1)
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
+        
+        # for debuging 
+        pcr.report(self.groundwaterHead , "gw_head.map")
+        pcr.report(self.groundwaterDepth, "gw_depth.map")
+        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
+
+
+    def set_river_package(self, discharge):
+
         # specify the river package
         #
         # - waterBody class to define the extent of lakes and reservoirs
@@ -347,20 +384,16 @@ class GroundwaterModflow(object):
         # rounding values for surface_water_bed_elevation
         self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
         #
-        # - river bed condutance 
-        bed_resistance = 1.0   # unit: day
+        # - river bed condutance (unit: m2/day)
         bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                  self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
-        bed_conductance = (1.0/bed_resistance) * bed_surface_area
+        bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
         bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                          bed_conductance) 
         self.bed_conductance = bed_conductance
         # 
-        # - discharge value (m3/s)
-        discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
         # - convert discharge value to surface water elevation (m)
         river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
         surface_water_elevation = self.dem_riverbed + \
@@ -394,34 +427,18 @@ class GroundwaterModflow(object):
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
         
+    def set_recharge_package(self, gwRecharge, gwAbstraction, gwAbstractionReturnFlow):
+
         # specify the recharge package
-        # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-        net_recharge  = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
+        # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge -= vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
-        # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge += vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
+        # + return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+        net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
         self.pcr_modflow.setRecharge(net_RCH, 1)
-
-        # execute MODFLOW 
-        logger.info("Executing MODFLOW for a steady state simulation.")
-        self.pcr_modflow.run()
-        
-        # obtain the calculated values
-        self.groundwaterHead  = self.pcr_modflow.getHeads(1)
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-        
-        # for debuging 
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
 
     def return_innundation_fraction(self,relative_water_height):
 
