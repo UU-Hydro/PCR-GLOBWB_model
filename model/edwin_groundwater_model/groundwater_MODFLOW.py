@@ -176,16 +176,6 @@ class GroundwaterModflow(object):
 
             # calculate/simulate a steady state condition and obtain its calculated head values
             self.modflow_simulation("steady-state", self.dem_average, None)
-            self.groundwaterHead = self.pcr_modflow.getHeads(1)  
-
-        # calculate groundwater depth only in the landmask region
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-        
-        # for debuging only
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
-
 
     def estimate_bottom_of_bank_storage(self):
 
@@ -302,8 +292,10 @@ class GroundwaterModflow(object):
 
     def update(self,currTimeStep):
 
-        # calculate/simulate a steady state condition and obtain its calculated head values
-        self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001)
+        # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001)
+        
+        
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -391,6 +383,19 @@ class GroundwaterModflow(object):
         self.pcr_modflow.run()
         
         # TODO: Add the mechanism to check whether a run has converged or not.
+
+        # obtaining the results from modflow simulation
+        self.groundwaterHead = self.pcr_modflow.getHeads(1)  
+
+        # calculate groundwater depth only in the landmask region
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
+        
+        # for debuging only
+        pcr.report(self.groundwaterHead , "gw_head.map")
+        pcr.report(self.groundwaterDepth, "gw_depth.map")
+        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
+
+
         
     def set_river_package(self, discharge):
 
