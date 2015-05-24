@@ -489,7 +489,9 @@ class GroundwaterModflow(object):
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
         # + return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow
+        #~ net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow
+        net_recharge = gwRecharge - gwAbstraction
+
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
