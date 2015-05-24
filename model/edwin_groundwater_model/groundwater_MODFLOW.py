@@ -178,6 +178,15 @@ class GroundwaterModflow(object):
             self.steady_state_simulation()
             self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
+        # calculate groundwater depth only in the landmask region
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
+        
+        # for debuging only
+        pcr.report(self.groundwaterHead , "gw_head.map")
+        pcr.report(self.groundwaterDepth, "gw_depth.map")
+        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
+
+
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
@@ -310,7 +319,7 @@ class GroundwaterModflow(object):
         MXITER = 100                # maximum number of outer iterations
         ITERI  = 30                 # number of inner iterations
         NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        HCLOSE = 0.05               # HCLOSE (unit: m) # 0.1 is working
+        HCLOSE = 0.005              # HCLOSE (unit: m) # 0.05 is working
         RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
         RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
         NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
@@ -348,16 +357,6 @@ class GroundwaterModflow(object):
         logger.info("Executing MODFLOW for a steady state simulation.")
         self.pcr_modflow.run()
         
-        # obtain the calculated values
-        self.groundwaterHead  = self.pcr_modflow.getHeads(1)
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-        
-        # for debuging 
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
-
-
     def set_river_package(self, discharge):
 
         # specify the river package
