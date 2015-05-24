@@ -301,7 +301,7 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 1.)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 1., 4)
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -309,13 +309,14 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            HCLOSE = 0.02,\
                            RCLOSE = 10.* 400.*400.,\
+                           NSTP   = 1, \
                            MXITER = 300,\
                            ITERI = 100,\
                            NPCOND = 1,\
                            RELAX = 1.00,\
                            NBPOL = 2,\
                            DAMP = 1,\
-                           ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, NSTP   = 1, TSMULT = 1.0):
+                           ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, TSMULT = 1.0):
         # initiate pcraster modflow object
         self.initiate_modflow()
 
@@ -491,7 +492,7 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
         
-        net_RCH = pcr.spatial(pcr.scalar(0.0))
+        #~ net_RCH = pcr.spatial(pcr.scalar(0.0))
         
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
