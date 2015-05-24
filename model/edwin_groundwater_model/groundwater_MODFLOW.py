@@ -194,9 +194,6 @@ class GroundwaterModflow(object):
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
-        # bottom_elevation < dem_average
-        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
-        
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
@@ -204,12 +201,15 @@ class GroundwaterModflow(object):
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
                                  pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
 
-        #~ # bottom_elevation >= 0.0 (must be higher than sea level)
-        #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
+        # bottom_elevation >= 0.0 (must be higher than sea level)
+        bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        #~ # reducing noise
-        #~ bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
-                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+        # reducing noise
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+
+        # bottom_elevation < dem_average
+        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
 
         # TODO: Check again this concept. 
         
