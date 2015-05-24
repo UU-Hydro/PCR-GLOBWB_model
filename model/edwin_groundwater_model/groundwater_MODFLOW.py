@@ -52,10 +52,6 @@ class GroundwaterModflow(object):
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
-        # option for lakes and reservoir
-        self.onlyNaturalWaterBodies = False
-        if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
-        
         # cell fraction if channel water reaching the flood plan
         self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
@@ -63,6 +59,10 @@ class GroundwaterModflow(object):
         self.manningsN = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['manningsN'],\
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
+        # minimum channel gradient
+        minGradient   = 0.000005
+        self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
+
         # correcting lddMap
         self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) > 0.0, self.lddMap)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
@@ -73,6 +73,10 @@ class GroundwaterModflow(object):
         self.channelLength  = ((self.cellAreaMap/verticalSizeInMeter)**(2)+\
                                                 (verticalSizeInMeter)**(2))**(0.5)
         
+        # option for lakes and reservoir
+        self.onlyNaturalWaterBodies = False
+        if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
+
         # groundwater linear recession coefficient (day-1) ; the linear reservoir concept is still being used to represent fast response flow  
         #                                                                                                                  particularly from karstic aquifer in mountainous regions                    
         self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
@@ -163,9 +167,8 @@ class GroundwaterModflow(object):
         self.pcg_MXITER = 1000               # maximum number of outer iterations
         self.pcg_ITERI  = 250                # number of inner iterations
         self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        self.pcg_HCLOSE = 0.005              # HCLOSE (unit: m)
-        self.pcg_RCLOSE = 1000.* 1000.*1000. # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 25 m model (working) 
-
+        self.pcg_HCLOSE = 0.01               # HCLOSE (unit: m)
+        self.pcg_RCLOSE = 100.* 400.*400.    # RCLOSE (unit: m3) ; Deltares uses 100 m3 for their 25 m modflow model  
         self.pcg_RELAX  = 0.98               # relaxation parameter used with NPCOND = 1
         self.pcg_NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
         self.pcg_DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
