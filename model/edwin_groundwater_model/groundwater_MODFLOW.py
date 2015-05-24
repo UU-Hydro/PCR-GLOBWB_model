@@ -164,7 +164,9 @@ class GroundwaterModflow(object):
         self.pcg_ITERI  = 250                # number of inner iterations
         self.pcg_NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
         self.pcg_HCLOSE = 0.001              # HCLOSE (unit: m)
-        self.pcg_RCLOSE = 10.* 10000.*10000. # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 250 m model 
+        self.pcg_RCLOSE = 10.* 10000.*10000. # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 250 m model (working) 
+        #~ self.pcg_RCLOSE = 10.* 1000.*1000. # RCLOSE (unit: m3) ; Deltares uses 10 m3 for their 250 m model 
+
         self.pcg_RELAX  = 0.98               # relaxation parameter used with NPCOND = 1
         self.pcg_NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
         self.pcg_DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
@@ -309,7 +311,7 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setInitialHead(self.dem_average, 1)
         
         # set parameter values for the DIS package 
-        self.pcr_modflow.setDISParameter(self.dis_ITMUNI, self.dis_LENUNI, self.dis_PERLEN, self.dis_NSTP, self.dis_TSMULT, 0)  
+        self.pcr_modflow.setDISParameter(self.dis_ITMUNI, self.dis_LENUNI, self.dis_PERLEN, self.dis_NSTP, self.dis_TSMULT, 1)  
 
         # specify the river package
         #
