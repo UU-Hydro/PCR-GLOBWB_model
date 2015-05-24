@@ -147,7 +147,7 @@ class GroundwaterModflow(object):
         
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer                       # unit: m/day
-        vertical_conductivity   = pcr.spatial(100000000.)                # dummy values, as one layer model is used
+        vertical_conductivity   = self.kSatAquifer                       # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
         
