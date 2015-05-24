@@ -111,10 +111,6 @@ class GroundwaterModflow(object):
                                     pcr.windowaverage(totalGroundwaterThickness, 1.0))
         totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
                                     pcr.windowaverage(totalGroundwaterThickness, 1.5))
-        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    #~ pcr.windowaverage(totalGroundwaterThickness, 2.5))
-        #~ totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    #~ pcr.windowaverage(totalGroundwaterThickness, 5.0))
         totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
         #
         # set minimum thickness
@@ -152,7 +148,9 @@ class GroundwaterModflow(object):
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; 10 m2/day (used by Deltares)
-        horizontal_conductivity = pcr.max(10.0, horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
+        minimimumTransmissivity = 100.
+        horizontal_conductivity = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
         vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
@@ -164,17 +162,6 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
         
         # TODO: defining/incorporating anisotrophy values
-        
-        # default parameter values for the DIS solver:
-        self.dis_ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
-        self.dis_LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
-        self.dis_PERLEN = 1.0   # duration of a stress period
-        self.dis_NSTP   = 1     # number of time steps in a stress period
-        self.dis_TSMULT = 1.0   # multiplier for the length of the successive iterations
-        self.dis_SSTR   = None  # This will be defined later. 0 - transient, 1 - steady state. If the simulation is set to transient, primary and secondary storage coeffiecents must be set in the BCF package.
-        #
-        # The DIS parameter will be introduced later. 
-
 
     def get_initial_heads(self):
 		
@@ -313,7 +300,13 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
         
         # set parameter values for the DIS package 
-        self.pcr_modflow.setDISParameter(self.dis_ITMUNI, self.dis_LENUNI, self.dis_PERLEN, self.dis_NSTP, self.dis_TSMULT, 1)  
+        ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
+        LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
+        PERLEN = 1.0   # duration of a stress period
+        NSTP   = 1     # number of time steps in a stress period
+        TSMULT = 1.0   # multiplier for the length of the successive iterations
+        SSTR   = 1     # This will be defined later. 0 - transient, 1 - steady state. If the simulation is set to transient, primary and secondary storage coeffiecents must be set in the BCF package.
+        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, SMULT, SSTR)  
 
         # specify the river package
         #
