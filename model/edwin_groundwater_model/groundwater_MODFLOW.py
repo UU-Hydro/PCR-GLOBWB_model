@@ -405,7 +405,7 @@ class GroundwaterModflow(object):
         self.set_recharge_package(gwRecharge, gwAbstraction)
         
         # execute MODFLOW 
-        logger.info("Executing MODFLOW for a steady state simulation.")
+        logger.info("Executing MODFLOW.")
         self.pcr_modflow.run()
         
         # TODO: Add the mechanism to check whether a run has converged or not.
@@ -540,15 +540,6 @@ class GroundwaterModflow(object):
         CRFRAC_RIV = pcr.cover(pcr.max(0.0,pcr.min(1.0,pcr.max(CRFRAC_RIV,(self.bankfull_depth*self.bankfull_width/self.cellAreaMap)))),scalar(0))		;
 
         # TODO: Improve this concept using Rens's latest scheme
-
-
-    def transient_simulation(self):
-
-        # set initial groundwater head 
-        self.pcr_modflow.setInitialHead(self.groundwaterHead, 1)
-        
-        # execute MODFLOW 
-        self.pcr_modflow.run()
 
     def old_style_groundwater_reporting(self,currTimeStep):
 
