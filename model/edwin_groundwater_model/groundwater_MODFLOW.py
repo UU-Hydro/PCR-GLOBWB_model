@@ -334,10 +334,10 @@ class GroundwaterModflow(object):
         gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        gwAbstraction -= vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
+        gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        gwAbstractionReturnFlow += vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
+        gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
                                             self.cloneMap, self.tmpDir, self.inputDir)
         
         # set recharge and river packages
@@ -426,6 +426,8 @@ class GroundwaterModflow(object):
         #
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
+        
+        # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
     def set_recharge_package(self, gwRecharge, gwAbstraction, gwAbstractionReturnFlow):
 
