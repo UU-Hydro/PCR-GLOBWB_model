@@ -320,10 +320,10 @@ class GroundwaterModflow(object):
                            ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, NSTP   = 1, TSMULT = 1.0\
                            ):
 		
-        if simulation_type = "transient":
+        if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
             SSTR = 0
-        if simulation_type = "steady-state":
+        if simulation_type == "steady-state":
             logger.info("Preparing MODFLOW input for a steady-state simulation.")
             SSTR = 1
 
@@ -353,7 +353,7 @@ class GroundwaterModflow(object):
         # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
         
         # read input files (for the steady-state condition, we use pcraster maps):
-        if simulation_type = "steady-state":
+        if simulation_type == "steady-state":
             # - discharge (m3/s) from PCR-GLOBWB
             discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
@@ -368,7 +368,7 @@ class GroundwaterModflow(object):
                                                 self.cloneMap, self.tmpDir, self.inputDir)
 
         # read input files (for the transient, input files are given in netcdf files):
-        if simulation_type = "steady-state":
+        if simulation_type == "transient":
             # - discharge (m3/s) from PCR-GLOBWB
             discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],
                                                "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
