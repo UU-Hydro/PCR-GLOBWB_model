@@ -79,8 +79,8 @@ class ModflowOfflineCoupling(object):
         
         self.modflow.update(self._modelTime)
 
-        # save/dump states at the end of the year or at the end of model simulation
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
+        # save/dump states at the end of the month or at the end of model simulation
+        if self._modelTime.isLastDayOfMonth() or self._modelTime.isLastTimeStep():
             logger.info("Save or dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 

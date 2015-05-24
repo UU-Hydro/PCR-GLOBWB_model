@@ -125,9 +125,6 @@ class GroundwaterModflow(object):
         # river bed resistance (unit: day)
         self.bed_resistance = 1.0
         
-        # initiate pcraster modflow object
-        self.initiate_modflow()
-        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
@@ -136,6 +133,7 @@ class GroundwaterModflow(object):
         logger.info("Initializing pcraster modflow.")
         
         # initialise 
+        self.pcr_modflow = None
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
         # grid specification - one layer model
@@ -311,7 +309,9 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, NSTP   = 1, TSMULT = 1.0\
                            ):
-		
+        # initiate pcraster modflow object
+        self.initiate_modflow()
+
         if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
             SSTR = 0
