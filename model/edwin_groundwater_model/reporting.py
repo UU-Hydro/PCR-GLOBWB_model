@@ -237,7 +237,8 @@ class Reporting(object):
         self.groundwaterHead = pcr.ifthen(self.landmask, self.model.modflow.groundwaterHead)
         
     def additional_post_processing(self):
-        
+
+        pass
 
     def report(self):
 
