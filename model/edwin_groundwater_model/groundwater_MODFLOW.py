@@ -405,7 +405,7 @@ class GroundwaterModflow(object):
         
         # obtain the calculated values
         self.groundwaterHead  = self.pcr_modflow.getHeads(1)
-        self.groundwaterDepth = self.dem_average - self.groundwaterHead
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
         
         # for debuging 
         pcr.report(self.groundwaterHead , "gw_head.map")
