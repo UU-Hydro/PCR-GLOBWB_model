@@ -421,7 +421,8 @@ class Reporting(object):
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
         # return flow due to groundwater abstraction (unit: m/day)
-        self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange
+        self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
+        # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea.
 
     def report(self):
 

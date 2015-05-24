@@ -55,7 +55,7 @@ class GroundwaterModflow(object):
         # minimum bankfull_width 
         self.bankfull_width = pcr.max(2.0, self.bankfull_width)
         
-        # cell fraction if channel water reaching the flood plan
+        # cell fraction if channel water reaching the flood plan # 
         self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
         # coefficient of Manning
@@ -199,16 +199,16 @@ class GroundwaterModflow(object):
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
-        # bottom_elevation > its downstream value
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
-                                 pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
+        #~ # bottom_elevation > its downstream value
+        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
+                                 #~ pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
 
         #~ # bottom_elevation >= 0.0 (must be higher than sea level)
         #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # reducing noise
-        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+        #~ # reducing noise
+        #~ bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
+                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # TODO: Check again this concept. 
         
@@ -304,7 +304,7 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 1.)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 10., 4)
 
     def modflow_simulation(self,\
                            simulation_type,\

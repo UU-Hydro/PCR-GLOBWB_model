@@ -26,6 +26,16 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# groundwaterDepth                      
+pcrglobwb_variable_name = 'groundwaterDepth'
+netcdf_short_name[pcrglobwb_variable_name] = 'groundwater_depth'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
 
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None
