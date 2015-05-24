@@ -122,8 +122,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 250 m.
-        maximumThickness = 250
+        # set maximum thickness: 500 m.
+        maximumThickness = 500.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
@@ -210,6 +210,7 @@ class GroundwaterModflow(object):
 
         # bottom_elevation < dem_average
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
+        bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
         # TODO: Check again this concept. 
         
@@ -449,7 +450,7 @@ class GroundwaterModflow(object):
         bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
         bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                          bed_conductance) 
-        self.bed_conductance = bed_conductance
+        self.bed_conductance = pcr.cover(bed_conductance, 0.0)
         # 
         # - convert discharge value to surface water elevation (m)
         river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
@@ -503,7 +504,7 @@ class GroundwaterModflow(object):
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        net_RCH = pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH)
+        net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
