@@ -196,19 +196,19 @@ class GroundwaterModflow(object):
         # bottom_elevation < dem_average
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         
-        #~ # bottom_elevation > river bed
-        #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
-        #~ 
-        #~ # bottom_elevation > its downstream value
-        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
-                                 #~ pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
+        # bottom_elevation > river bed
+        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        
+        # bottom_elevation > its downstream value
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
+                                 pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
 
         #~ # bottom_elevation >= 0.0 (must be higher than sea level)
         #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
-        #~ 
-        #~ # reducing noise
-        #~ bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
-                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+         
+        # reducing noise
+        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # TODO: Check again this concept. 
         
@@ -304,7 +304,7 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 1., 1000)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001, 1.)
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -489,8 +489,7 @@ class GroundwaterModflow(object):
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
         # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
         # + return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        #~ net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow
-        net_recharge = gwRecharge - gwAbstraction
+        net_recharge = gwRecharge - gwAbstraction + gwAbstractionReturnFlow/self.cellAreaMap
 
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
