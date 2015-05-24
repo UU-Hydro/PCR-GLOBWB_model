@@ -52,11 +52,12 @@ class GroundwaterModflow(object):
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
-        # minimum bankfull_width 
-        self.bankfull_width = pcr.max(2.0, self.bankfull_width)
+        # minimum channel width
+        minimum_channel_width = 1.0
+        self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
-        # cell fraction if channel water reaching the flood plan # 
-        self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
+        #~ # cell fraction if channel water reaching the flood plan # NOT USED 
+        #~ self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
         # coefficient of Manning
         self.manningsN = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['manningsN'],\
@@ -121,8 +122,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 100 m.
-        maximumThickness = 100
+        # set maximum thickness: 250 m.
+        maximumThickness = 250
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
@@ -199,9 +200,9 @@ class GroundwaterModflow(object):
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
-        #~ # bottom_elevation > its downstream value
-        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
-                                 #~ pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
+        # bottom_elevation > its downstream value
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
+                                 pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
 
         #~ # bottom_elevation >= 0.0 (must be higher than sea level)
         #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
@@ -330,6 +331,26 @@ class GroundwaterModflow(object):
             logger.info("Preparing MODFLOW input for a steady-state simulation.")
             SSTR = 1
 
+        # waterBody class to define the extent of lakes and reservoirs
+        #
+        if simulation_type == "steady-state":
+            self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                       self.landmask,\
+                                                       self.onlyNaturalWaterBodies)
+            self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
+                                               cellArea = self.cellAreaMap, \
+                                               ldd = self.lddMap)        
+        #
+        if simulation_type == "transient":
+            if currTimeStep.timeStepPCR == 1:
+               self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                          self.landmask,\
+                                                          self.onlyNaturalWaterBodies)
+            if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
+               self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
+                                                  cellArea = self.cellAreaMap, \
+                                                  ldd = self.lddMap)        
+
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(initial_head, 1)
         
@@ -413,16 +434,6 @@ class GroundwaterModflow(object):
         logger.info("Set the river package based on the given discharge.")
         
         # specify the river package
-        #
-        # - waterBody class to define the extent of lakes and reservoirs
-        self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
-                                                   self.landmask,\
-                                                   self.onlyNaturalWaterBodies)
-        #
-        # - get parameter files by using the starting date given in the configuration file
-        self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
-                                           cellArea = self.cellAreaMap, \
-                                           ldd = self.lddMap)        
         #
         # - surface water river bed/bottom elevation
         #
