@@ -92,5 +92,5 @@ class ModflowOfflineCoupling(object):
         # save/dump states used as the initial conditions 
         logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
         self.dumpState(outputDirectory = self._configuration.endStateDir,\
-                       timeStamp = self._configuration.globalOptions['startTime']+".ini.")
+                             timeStamp = self._configuration.globalOptions['startTime']+".ini")
 

@@ -158,12 +158,12 @@ class GroundwaterModflow(object):
         # using PCG solver and define its parameters:
         MXITER = 500
         ITERI  = 250      
-        NPCOND = 1        # Modified Incomplete Choleksy
-        HCLOSE = 0.005    # unit: m
-        RCLOSE = 10       # unit: m3
+        NPCOND = 1             # Modified Incomplete Choleksy
+        HCLOSE = 0.001         # unit: m
+        RCLOSE = 10 * 10 *10.  # unit: m3
         RELAX  = 0.98
-        NBPOL  = 2        # but we don ot use it (since NPCOND = 1) 
-        DAMP   = 1        # no damping (DAMP introduced in MODFLOW 2000)
+        NBPOL  = 2             # but we don ot use it (since NPCOND = 1) 
+        DAMP   = 1             # no damping (DAMP introduced in MODFLOW 2000)
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
 
     def get_initial_heads(self):
