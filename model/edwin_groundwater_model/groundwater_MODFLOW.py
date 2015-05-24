@@ -175,7 +175,7 @@ class GroundwaterModflow(object):
         else:    
 
             # calculate/simulate a steady state condition and obtain its calculated head values
-            self.steady_state_simulation()
+            self.modflow_simulation("steady-state", self.dem_average, None)
             self.groundwaterHead = self.pcr_modflow.getHeads(1)  
 
         # calculate groundwater depth only in the landmask region
@@ -300,55 +300,88 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def update(self,landSurface,routing,currTimeStep):
+    def update(self,currTimeStep):
 
-        pass
-        
-        #~ # do the modflod update only at  
-        #~ if currTimeStep
-        #~ self.pcr_modflow.setInitialHead(self.dem_average, 1)
+        # calculate/simulate a steady state condition and obtain its calculated head values
+        self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,0.001)
 
-    def steady_state_simulation(self):
+    def modflow_simulation(self,\
+                           simulation_type,\ 
+                           initial_head,\
+                           currTimeStep = None,\
+                           HCLOSE = 0.02,\
+                           RCLOSE = 10.* 400.*400.,\
+                           MXITER = 300,\
+                           ITERI = 100,\
+                           NPCOND = 1,\
+                           RELAX = 1.00,\
+                           NBPOL = 2,\
+                           DAMP = 1,\
+                           ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, NSTP   = 1, TSMULT = 1.0\
+                           ):
 		
-        logger.info("Preparing MODFLOW input for steady state simulation.")
+        if simulation_type = "transient":
+            logger.info("Preparing MODFLOW input for a transient simulation.")
+            SSTR = 0
+        if simulation_type = "steady-state":
+            logger.info("Preparing MODFLOW input for a steady-state simulation.")
+            SSTR = 1
 
         # using dem_average as the initial groundwater head value 
-        self.pcr_modflow.setInitialHead(self.dem_average, 1)
+        self.pcr_modflow.setInitialHead(initial_head, 1)
         
-        # set parameter values for the DIS package 
-        ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
-        LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
-        PERLEN = 1.0   # duration of a stress period
-        NSTP   = 1     # number of time steps in a stress period
-        TSMULT = 1.0   # multiplier for the length of the successive iterations
-        SSTR   = 1     # 0 - transient, 1 - steady state
-        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)  
-
-        # set PCG solver:
-        MXITER = 100                # maximum number of outer iterations
-        ITERI  = 30                 # number of inner iterations
-        NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        HCLOSE = 0.01               # HCLOSE (unit: m) # 0.05 is working
-        RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares people uses 100 m3 for their 25 m resolution modflow model  
-        RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
-        NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
+        # set parameter values for the DIS package and PCG solver
+        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+        #
+        # Some notes about the values  
+        #
+        # ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
+        # LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
+        # PERLEN = 1.0   # duration of a stress period
+        # NSTP   = 1     # number of time steps in a stress period
+        # TSMULT = 1.0   # multiplier for the length of the successive iterations
+        # SSTR   = 1     # 0 - transient, 1 - steady state
+        #
+        # MXITER = 100                # maximum number of outer iterations
+        # ITERI  = 30                 # number of inner iterations
+        # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+        # HCLOSE = 0.01               # HCLOSE (unit: m) # 0.05 is working
+        # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares people uses 100 m3 for their 25 m resolution modflow model  
+        # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
+        # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+        # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
         
-        # read input files (for the steady state condition, we use pcraster maps):
-        # - discharge value (m3/s)
-        discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
-        # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-        gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
-        # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
-        # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-        gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
-                                            self.cloneMap, self.tmpDir, self.inputDir)
-        
+        # read input files (for the steady-state condition, we use pcraster maps):
+        if simulation_type = "steady-state":
+            # - discharge (m3/s) from PCR-GLOBWB
+            discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
+                                                self.cloneMap, self.tmpDir, self.inputDir)
+            # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
+            gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
+                                                self.cloneMap, self.tmpDir, self.inputDir)
+            # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+            gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
+                                                self.cloneMap, self.tmpDir, self.inputDir)
+            # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+            gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionReturnFlowInputMap'],\
+                                                self.cloneMap, self.tmpDir, self.inputDir)
+
+        # read input files (for the transient, input files are given in netcdf files):
+        if simulation_type = "steady-state":
+            # - discharge (m3/s) from PCR-GLOBWB
+            discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],
+                                               "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
+            # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
+            gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
+                                               "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
+            # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+            gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
+                                               "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+            # - return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+            gwAbstractionReturnFlow = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['groundwaterAbstractionReturnFlowInputNC'],\
+                                               "return_flow_from_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+
         # set recharge and river packages
         self.set_river_package(discharge)
         self.set_recharge_package(gwRecharge, gwAbstraction, gwAbstractionReturnFlow)
