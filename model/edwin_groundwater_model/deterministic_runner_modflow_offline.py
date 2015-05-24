@@ -39,8 +39,8 @@ class DeterministicRunner(DynamicModel):
         # update model (It will pick up current model time from the modelTime object)
         self.model.update()
 
-        #~ # do any needed reporting for this time step        
-        #~ self.reporting.report()
+        # do any needed reporting for this time step        
+        self.reporting.report()
 
 def main():
     
