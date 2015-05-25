@@ -155,7 +155,7 @@ class GroundwaterModflow(object):
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
-        minimimumTransmissivity = 20.
+        minimimumTransmissivity = 10.
         horizontal_conductivity = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
         vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
@@ -313,7 +313,7 @@ class GroundwaterModflow(object):
                            initial_head,\
                            currTimeStep = None,\
                            NSTP   = 1, \
-                           HCLOSE = 0.005,\
+                           HCLOSE = 0.010,\
                            RCLOSE = 10.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
