@@ -64,7 +64,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # minimum channel gradient
-        minGradient   = 0.000005
+        minGradient   = 0.00005
         self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
