@@ -313,7 +313,7 @@ class GroundwaterModflow(object):
                            initial_head,\
                            currTimeStep = None,\
                            NSTP   = 1, \
-                           HCLOSE = 0.5,\
+                           HCLOSE = 0.05,\
                            RCLOSE = 100.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
@@ -435,7 +435,7 @@ class GroundwaterModflow(object):
         # - surface water river bed/bottom elevation
         #
         # - for lakes and resevoirs, make the bottom elevation deep --- Shall we do this? 
-        additional_depth = 10.
+        additional_depth = 100.
         surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                  self.dem_riverbed - additional_depth)
         surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
