@@ -434,13 +434,13 @@ class GroundwaterModflow(object):
         #
         # - surface water river bed/bottom elevation
         #
-        # - for lakes and resevoirs, make the bottom elevation deep --- Shall we do this? 
-        additional_depth = 500.
-        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 self.dem_riverbed - additional_depth)
-        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+        #~ # - for lakes and resevoirs, make the bottom elevation deep --- Shall we do this? 
+        #~ additional_depth = 500.
+        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                 #~ self.dem_riverbed - additional_depth)
+        #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
         #
-        #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
+        surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
         #
         # rounding values for surface_water_bed_elevation
         self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
@@ -455,8 +455,12 @@ class GroundwaterModflow(object):
                                          bed_conductance) 
         self.bed_conductance = pcr.cover(bed_conductance, 0.0)
         # 
+        # - 'channel width' for lakes and reservoirs 
+        channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
+        channel_width = pcr.cover(channel_width, self.bankfull_width)
+        #
         # - convert discharge value to surface water elevation (m)
-        river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
+        river_water_height = (channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
         surface_water_elevation = self.dem_riverbed + \
                                   river_water_height
         #
@@ -474,7 +478,12 @@ class GroundwaterModflow(object):
         lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, surface_water_elevation)
         lake_reservoir_water_elevation = pcr.areamaximum(lake_reservoir_water_elevation, self.WaterBodies.waterBodyIds)
         lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, \
-                                                pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
+                                         pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
+        # - maximum and minimum values for lake_reservoir_water_elevation
+        lake_reservoir_water_elevation = pcr.min(self.dem_floodplain, lake_reservoir_water_elevation)
+        lake_reservoir_water_elevation = pcr.max(surface_water_bed_elevation, lake_reservoir_water_elevation)
+        # - smoothing
+        lake_reservoir_water_elevation = pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds)
         # 
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
