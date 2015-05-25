@@ -315,8 +315,8 @@ class GroundwaterModflow(object):
                            NSTP   = 1, \
                            HCLOSE = 0.5,\
                            RCLOSE = 10.* 400.*400.,\
-                           MXITER = 300,\
-                           ITERI = 100,\
+                           MXITER = 100,\
+                           ITERI = 30,\
                            NPCOND = 1,\
                            RELAX = 1.00,\
                            NBPOL = 2,\
@@ -483,7 +483,7 @@ class GroundwaterModflow(object):
         lake_reservoir_water_elevation = pcr.min(self.dem_floodplain, lake_reservoir_water_elevation)
         lake_reservoir_water_elevation = pcr.max(surface_water_bed_elevation, lake_reservoir_water_elevation)
         # - smoothing
-        lake_reservoir_water_elevation = pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds)
+        lake_reservoir_water_elevation = pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
         # 
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
