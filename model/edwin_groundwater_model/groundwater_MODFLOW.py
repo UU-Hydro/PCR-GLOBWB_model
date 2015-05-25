@@ -122,8 +122,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 500 m.
-        maximumThickness = 500.
+        # set maximum thickness: 50 m.
+        maximumThickness = 50.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
