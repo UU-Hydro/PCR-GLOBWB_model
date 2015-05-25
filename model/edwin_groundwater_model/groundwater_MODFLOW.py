@@ -313,7 +313,7 @@ class GroundwaterModflow(object):
                            initial_head,\
                            currTimeStep = None,\
                            NSTP   = 1, \
-                           HCLOSE = 0.010,\
+                           HCLOSE = 0.05,\
                            RCLOSE = 10.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
@@ -505,7 +505,7 @@ class GroundwaterModflow(object):
                              gwRecharge, gwAbstraction, 
                              gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well. 
 
-        logger.info("Set the river package based on the given recharge, abstraction and abstraction return flow fields.")
+        logger.info("Set the recharge package based on the given recharge, abstraction and abstraction return flow fields.")
 
         # specify the recharge package
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
