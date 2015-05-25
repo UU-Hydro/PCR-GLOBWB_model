@@ -435,12 +435,12 @@ class GroundwaterModflow(object):
         # - surface water river bed/bottom elevation
         #
         # - for lakes and resevoirs, make the bottom elevation deep --- Shall we do this? 
-        additional_depth = 500.
-        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 self.dem_riverbed - additional_depth)
-        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+        #~ additional_depth = 500.
+        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                 #~ self.dem_riverbed - additional_depth)
+        #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
         #
-        #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
+        surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
         #
         # rounding values for surface_water_bed_elevation
         self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
@@ -450,6 +450,7 @@ class GroundwaterModflow(object):
                                                  self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
+        bed_surface_area = self.bankfull_width * self.channelLength
         bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
         bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                          bed_conductance) 
