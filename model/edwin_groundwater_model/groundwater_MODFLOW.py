@@ -313,7 +313,7 @@ class GroundwaterModflow(object):
                            initial_head,\
                            currTimeStep = None,\
                            NSTP   = 1, \
-                           HCLOSE = 0.05,\
+                           HCLOSE = 0.1,\
                            RCLOSE = 100.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
