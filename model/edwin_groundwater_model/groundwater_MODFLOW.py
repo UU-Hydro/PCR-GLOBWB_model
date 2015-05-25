@@ -385,9 +385,11 @@ class GroundwaterModflow(object):
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
-            # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
-                                                self.cloneMap, self.tmpDir, self.inputDir)
+            #
+            # - for a steady state condition that will be used as the initial condition 
+            #   ignore any withdrawal from groundwater
+            gwRecharge = pcr.max(0.0, gwRecharge) 
+            gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
         # read input files (for the transient, input files are given in netcdf files):
         if simulation_type == "transient":
