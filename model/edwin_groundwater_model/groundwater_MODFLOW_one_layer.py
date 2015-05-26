@@ -122,8 +122,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 250 m.
-        maximumThickness = 250.
+        # set maximum thickness: 500 m.
+        maximumThickness = 500.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
@@ -140,21 +140,10 @@ class GroundwaterModflow(object):
         self.pcr_modflow = None
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
-        # grid specification - two layer model
-        top_layer_1          = self.dem_average
-        # - thickness of layer 1 is at least 10% of totalGroundwaterThickness            # TODO: Change this using Inge's thickness of confining layer.
-        bottom_layer_1       = self.dem_average - 0.10 * self.totalGroundwaterThickness)
-        # - thickness of layer 1 should be until 5 m below the river bed
-        bottom_layer_1       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_1)
-        # - make sure that the minimum thickness of layer 1 is at least 5.0 m
-        thickness_of_layer_1 = pcr.max(5.0, top_layer_1 - bottom_layer_1)
-        bottom_layer_1       = top_layer_1 - thickness_of_layer_1
-        # - thickness of layer 2 is at least 5.0 m
-        thickness_of_layer_2 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_1)
-        bottom_layer_2       = bottom_layer_1 - thickness_of_layer_2
-        self.pcr_modflow.createBottomLayer(bottom_layer_2, top_layer1)
-        self.pcr_modflow.createBottomLayer(bottom_layer_2, top_layer1)
-         
+        # grid specification - one layer model
+        top    = self.dem_average
+        bottom = top - self.totalGroundwaterThickness
+        self.pcr_modflow.createBottomLayer(bottom, top) 
         
         # specification for the boundary condition (IBOUND, BAS package)
         # - active cells only in landmask
