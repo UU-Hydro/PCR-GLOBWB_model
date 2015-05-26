@@ -429,7 +429,7 @@ class GroundwaterModflow(object):
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
-        self.set_river_package(discharge)
+        #~ self.set_river_package(discharge)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
         
