@@ -146,19 +146,19 @@ class GroundwaterModflow(object):
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
         # grid specification - two layer model
-        top_layer_1          = self.dem_average
+        top_layer_2          = self.dem_average
         # - thickness of layer 1 is at least 10% of totalGroundwaterThickness            # TODO: Change this using Inge's thickness of confining layer.
-        bottom_layer_1       = self.dem_average - 0.10 * self.totalGroundwaterThickness
+        bottom_layer_2       = self.dem_average - 0.10 * self.totalGroundwaterThickness
         # - thickness of layer 1 should be until 5 m below the river bed
-        bottom_layer_1       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_1)
-        # - make sure that the minimum thickness of layer 1 is at least 5.0 m
-        thickness_of_layer_1 = pcr.max(5.0, top_layer_1 - bottom_layer_1)
-        bottom_layer_1       = top_layer_1 - thickness_of_layer_1
-        # - thickness of layer 2 is at least 5.0 m
-        thickness_of_layer_2 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_1)
-        bottom_layer_2       = bottom_layer_1 - thickness_of_layer_2
-        self.pcr_modflow.createBottomLayer(bottom_layer_2, bottom_layer_1)
-        self.pcr_modflow.addLayer(top_layer_1)
+        bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_1)
+        # - make sure that the minimum thickness of layer 2 is at least 5.0 m
+        thickness_of_layer_2 = pcr.max(5.0, top_layer_2 - bottom_layer_2)
+        bottom_layer_2       = top_layer_2 - thickness_of_layer_2
+        # - thickness of layer 1 is at least 5.0 m
+        thickness_of_layer_1 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_2)
+        bottom_layer_1       = bottom_layer_2 - thickness_of_layer_1
+        self.pcr_modflow.createBottomLayer(bottom_layer_1, bottom_layer_2)
+        self.pcr_modflow.addLayer(top_layer_2)
         
         # specification for the boundary condition (IBOUND, BAS package)
         # - active cells only in landmask
@@ -172,19 +172,19 @@ class GroundwaterModflow(object):
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
         minimimumTransmissivity = 10.
-        # - layer 1 (upper layer)
-        horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
-                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
-        vertical_conductivity_layer_1   = pcr.min(self.kSatAquifer,1000.00001) * self.cellAreaMap/\
-                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             vertical_conductivity_layer_1, 2)              
-        # - layer 2 (lower layer)
+        # - layer 2 (upper layer)
         horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * thickness_of_layer_2) / thickness_of_layer_2
-        vertical_conductivity_layer_2   = horizontal_conductivity_layer_2    # dummy values 
+        vertical_conductivity_layer_2   = pcr.min(self.kSatAquifer,1000.00001) * self.cellAreaMap/\
+                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
-                                             vertical_conductivity_layer_2, 1)              
+                                             vertical_conductivity_layer_2, 2)              
+        # - layer 1 (lower layer)
+        horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
+        vertical_conductivity_layer_1   = horizontal_conductivity_layer_1    # dummy values 
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                             vertical_conductivity_layer_1, 1)              
         
         # specification for storage coefficient
         # - correction due to the usage of lat/lon coordinates
@@ -439,19 +439,13 @@ class GroundwaterModflow(object):
         # TODO: Add the mechanism to check whether a run has converged or not.
 
         # obtaining the results from modflow simulation
-        self.groundwaterHead = None
-        self.groundwaterHead = self.pcr_modflow.getHeads(2)
         self.groundwaterHeadLayer2 = None
-        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(1)  
+        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)
+        self.groundwaterHeadLayer1 = None
+        self.groundwaterHeadLayer1 = self.pcr_modflow.getHeads(2)  
 
         # calculate groundwater depth only in the landmask region
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-        
-        # for debuging only
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
-
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead2)
         
     def set_river_package(self, discharge):
 
@@ -549,7 +543,7 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         # put the abstraction in the first layer
-        self.pcr_modflow.setRecharge(net_RCH, 1)
+        self.pcr_modflow.setRecharge(net_RCH, 2)
 
     def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
 
