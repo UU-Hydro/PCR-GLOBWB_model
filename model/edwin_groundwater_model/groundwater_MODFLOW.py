@@ -522,9 +522,8 @@ class GroundwaterModflow(object):
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, \
                                   self.surface_water_bed_elevation, self.bed_conductance, 2)
-
-        #~ self.pcr_modflow.setRiver(self.surface_water_elevation, \
-                                  #~ self.surface_water_bed_elevation, self.bed_conductance, 1)
+        self.pcr_modflow.setRiver(self.surface_water_elevation, \
+                                  self.surface_water_bed_elevation, self.bed_conductance, 1)
 
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
@@ -571,6 +570,7 @@ class GroundwaterModflow(object):
         drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
 
+        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 2)
 
     def return_innundation_fraction(self,relative_water_height):
