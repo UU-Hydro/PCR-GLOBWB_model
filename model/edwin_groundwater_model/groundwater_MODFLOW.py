@@ -556,7 +556,7 @@ class GroundwaterModflow(object):
         logger.info("Set the well package.")
 
         # abstraction volume
-        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
+        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0) * 10.
 
         # put the abstraction in the lower layer
         self.pcr_modflow.setWell(abstraction, 1)
