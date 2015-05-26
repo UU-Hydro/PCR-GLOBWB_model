@@ -182,7 +182,7 @@ class GroundwaterModflow(object):
         # - layer 1 (lower layer)
         horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
-        vertical_conductivity_layer_1   = horizontal_conductivity_layer_1    # dummy values 
+        vertical_conductivity_layer_1   = vertical_conductivity_layer_2    # dummy values 
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
         
