@@ -19,7 +19,7 @@ class GroundwaterModflow(object):
     
     def getState(self):
         result = {}
-        result['groundwaterHead'] = self.groundwaterHead       # unit: m
+        result['groundwaterHeadLayer1'] = self.groundwaterHeadLayer1       # unit: m
         result['groundwaterHeadLayer2'] = self.groundwaterHeadLayer2
         return result
 
