@@ -20,6 +20,7 @@ class GroundwaterModflow(object):
     def getState(self):
         result = {}
         result['groundwaterHead'] = self.groundwaterHead       # unit: m
+        result['groundwaterHeadLayer2'] = self.groundwaterHeadLayer2
         return result
 
 
@@ -205,7 +206,7 @@ class GroundwaterModflow(object):
         else:    
 
             # calculate/simulate a steady state condition and obtain its calculated head values
-            self.modflow_simulation("steady-state", self.dem_average, None)
+            self.modflow_simulation("steady-state", self.dem_average, self.dem_average, None)
 
     def estimate_bottom_of_bank_storage(self):
 
@@ -327,11 +328,11 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,4,0.001, 10.)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,self.groundwaterHeadLayer2,currTimeStep,4,0.001, 10.)
 
     def modflow_simulation(self,\
                            simulation_type,\
-                           initial_head,\
+                           initial_head_layer_1, initial_head_layer_2,\
                            currTimeStep = None,\
                            NSTP   = 1, \
                            HCLOSE = 0.05,\
@@ -374,7 +375,8 @@ class GroundwaterModflow(object):
                                                   ldd = self.lddMap)        
 
         # using dem_average as the initial groundwater head value 
-        self.pcr_modflow.setInitialHead(initial_head, 1)
+        self.pcr_modflow.setInitialHead(initial_head_layer_1, 1)
+        self.pcr_modflow.setInitialHead(initial_head_layer_2, 2)
         
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
@@ -438,6 +440,7 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         self.groundwaterHead = None
         self.groundwaterHead = self.pcr_modflow.getHeads(1)
+        self.groundwaterHeadLayer2 = None
         self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)  
 
         # calculate groundwater depth only in the landmask region
