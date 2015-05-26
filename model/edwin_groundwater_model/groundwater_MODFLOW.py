@@ -553,7 +553,7 @@ class GroundwaterModflow(object):
         abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
 
         # put the abstraction in the lower layer
-        self.pcr_modflow.setWell(abstraction, 1)
+        self.pcr_modflow.setWell(abstraction, 2)
 
 
     def set_drain_package(self):
