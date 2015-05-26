@@ -101,7 +101,7 @@ class GroundwaterModflow(object):
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
         
-        self.kSatAquifer *= 0.01 
+        self.kSatAquifer *= 0.001 
         
         # aquifer specific yield (dimensionless)
         self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
@@ -556,7 +556,7 @@ class GroundwaterModflow(object):
         logger.info("Set the well package.")
 
         # abstraction volume
-        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0) * 10.
+        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
 
         # put the abstraction in the lower layer
         self.pcr_modflow.setWell(abstraction, 1)
