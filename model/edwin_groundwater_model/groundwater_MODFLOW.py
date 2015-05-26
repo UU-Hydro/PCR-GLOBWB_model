@@ -215,7 +215,7 @@ class GroundwaterModflow(object):
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
-        influence_zone_depth = 0.50
+        influence_zone_depth = 5.0
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
