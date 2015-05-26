@@ -543,7 +543,8 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         # put the recharge to the top grid later
-        self.pcr_modflow.setRecharge(net_RCH, 1)
+        #~ self.pcr_modflow.setRecharge(net_RCH, 1)
+        self.pcr_modflow.setIndicatedRecharge(net_RCH, 1)
 
     def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
 
@@ -553,7 +554,7 @@ class GroundwaterModflow(object):
         abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
 
         # put the abstraction in the lower layer
-        self.pcr_modflow.setWell(abstraction, 2)
+        self.pcr_modflow.setWell(abstraction, 1)
 
 
     def set_drain_package(self):
