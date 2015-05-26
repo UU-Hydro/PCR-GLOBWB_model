@@ -445,7 +445,7 @@ class GroundwaterModflow(object):
         self.groundwaterHeadLayer1 = self.pcr_modflow.getHeads(2)  
 
         # calculate groundwater depth only in the landmask region
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead2)
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHeadLayer2)
         
     def set_river_package(self, discharge):
 
@@ -542,7 +542,7 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
-        # put the abstraction in the first layer
+        # put the recharge to the top grid later
         self.pcr_modflow.setRecharge(net_RCH, 1)
 
     def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
@@ -552,7 +552,7 @@ class GroundwaterModflow(object):
         # abstraction volume
         abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
 
-        # put the abstraction in the second layer
+        # put the abstraction in the lower layer
         self.pcr_modflow.setWell(abstraction, 1)
 
 
