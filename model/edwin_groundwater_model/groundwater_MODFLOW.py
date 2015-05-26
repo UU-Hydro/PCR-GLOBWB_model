@@ -153,7 +153,7 @@ class GroundwaterModflow(object):
         thickness_of_layer_2 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_1)
         bottom_layer_2       = bottom_layer_1 - thickness_of_layer_2
         self.pcr_modflow.createBottomLayer(bottom_layer_2, bottom_layer_1)
-        self.pcr_modflow.addLayer(top_layer1)
+        self.pcr_modflow.addLayer(top_layer_1)
          
         
         # specification for the boundary condition (IBOUND, BAS package)
