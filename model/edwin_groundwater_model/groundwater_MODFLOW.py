@@ -525,7 +525,7 @@ class GroundwaterModflow(object):
         self.surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         #
         # - pass the values to the RIV package 
-        #~ self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
+        self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
         
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
