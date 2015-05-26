@@ -442,7 +442,7 @@ class GroundwaterModflow(object):
         self.groundwaterHeadLayer2 = None
         self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)
         self.groundwaterHeadLayer1 = None
-        self.groundwaterHeadLayer1 = self.pcr_modflow.getHeads(2)  
+        self.groundwaterHeadLayer1 = self.pcr_modflow.getHeads(1)  
 
         # calculate groundwater depth only in the landmask region
         self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHeadLayer2)
