@@ -173,14 +173,14 @@ class GroundwaterModflow(object):
                                           horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
         vertical_conductivity_layer_1   = self.kSatAquifer * self.cellAreaMap/\
                                           (pcr.clone().cellSize()*pcr.clone().cellSize())
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
-                                             vertical_conductivity, 1)              
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                             vertical_conductivity_layer_1, 1)              
         # - layer 2 (lower layer)
         horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
-                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
+                                          horizontal_conductivity * thickness_of_layer_2) / thickness_of_layer_2
         vertical_conductivity_layer_2   = horizontal_conductivity_layer_2    # dummy values 
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
-                                             vertical_conductivity, 2)              
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
+                                             vertical_conductivity_layer_2, 2)              
         
         # specification for storage coefficient
         # - correction due to the usage of lat/lon coordinates
