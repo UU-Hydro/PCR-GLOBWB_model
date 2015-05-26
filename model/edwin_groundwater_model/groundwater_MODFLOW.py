@@ -159,7 +159,6 @@ class GroundwaterModflow(object):
         bottom_layer_2       = bottom_layer_1 - thickness_of_layer_2
         self.pcr_modflow.createBottomLayer(bottom_layer_2, bottom_layer_1)
         self.pcr_modflow.addLayer(top_layer_1)
-         
         
         # specification for the boundary condition (IBOUND, BAS package)
         # - active cells only in landmask
@@ -179,13 +178,13 @@ class GroundwaterModflow(object):
         vertical_conductivity_layer_1   = pcr.min(self.kSatAquifer,1000.00001) * self.cellAreaMap/\
                                           (pcr.clone().cellSize()*pcr.clone().cellSize())
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             vertical_conductivity_layer_1, 1)              
+                                             vertical_conductivity_layer_1, 2)              
         # - layer 2 (lower layer)
         horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * thickness_of_layer_2) / thickness_of_layer_2
         vertical_conductivity_layer_2   = horizontal_conductivity_layer_2    # dummy values 
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
-                                             vertical_conductivity_layer_2, 2)              
+                                             vertical_conductivity_layer_2, 1)              
         
         # specification for storage coefficient
         # - correction due to the usage of lat/lon coordinates
@@ -441,9 +440,9 @@ class GroundwaterModflow(object):
 
         # obtaining the results from modflow simulation
         self.groundwaterHead = None
-        self.groundwaterHead = self.pcr_modflow.getHeads(1)
+        self.groundwaterHead = self.pcr_modflow.getHeads(2)
         self.groundwaterHeadLayer2 = None
-        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)  
+        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(1)  
 
         # calculate groundwater depth only in the landmask region
         self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
@@ -526,7 +525,7 @@ class GroundwaterModflow(object):
         #
         # - pass the values to the RIV package 
         self.pcr_modflow.setRiver(self.surface_water_elevation, \
-                                  self.surface_water_bed_elevation, self.bed_conductance, 1)
+                                  self.surface_water_bed_elevation, self.bed_conductance, 2)
 
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
@@ -572,7 +571,6 @@ class GroundwaterModflow(object):
         drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
 
-        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 2)
 
     def return_innundation_fraction(self,relative_water_height):
