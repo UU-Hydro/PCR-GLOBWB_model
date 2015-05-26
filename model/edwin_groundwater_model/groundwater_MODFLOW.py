@@ -150,7 +150,7 @@ class GroundwaterModflow(object):
         # - thickness of layer 1 is at least 10% of totalGroundwaterThickness            # TODO: Change this using Inge's thickness of confining layer.
         bottom_layer_2       = self.dem_average - 0.10 * self.totalGroundwaterThickness
         # - thickness of layer 1 should be until 5 m below the river bed
-        bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_1)
+        bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)
         # - make sure that the minimum thickness of layer 2 is at least 5.0 m
         thickness_of_layer_2 = pcr.max(5.0, top_layer_2 - bottom_layer_2)
         bottom_layer_2       = top_layer_2 - thickness_of_layer_2
