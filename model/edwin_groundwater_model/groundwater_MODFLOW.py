@@ -54,7 +54,7 @@ class GroundwaterModflow(object):
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
         # minimum channel width
-        minimum_channel_width = 1.0
+        minimum_channel_width = 0.1
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
         #~ # cell fraction if channel water reaching the flood plan # NOT USED 
