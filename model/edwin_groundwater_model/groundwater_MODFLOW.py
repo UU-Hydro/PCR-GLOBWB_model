@@ -176,7 +176,7 @@ class GroundwaterModflow(object):
         # - layer 1 (upper layer)
         horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
-        vertical_conductivity_layer_1   = pcr.min(self.kSatAquifer, 0.00001) * self.cellAreaMap/\
+        vertical_conductivity_layer_1   = pcr.min(self.kSatAquifer,1000.00001) * self.cellAreaMap/\
                                           (pcr.clone().cellSize()*pcr.clone().cellSize())
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
