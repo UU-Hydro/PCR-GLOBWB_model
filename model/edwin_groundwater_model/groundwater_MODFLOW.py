@@ -143,7 +143,7 @@ class GroundwaterModflow(object):
         # grid specification - two layer model
         top_layer_1          = self.dem_average
         # - thickness of layer 1 is at least 10% of totalGroundwaterThickness            # TODO: Change this using Inge's thickness of confining layer.
-        bottom_layer_1       = self.dem_average - 0.10 * self.totalGroundwaterThickness)
+        bottom_layer_1       = self.dem_average - 0.10 * self.totalGroundwaterThickness
         # - thickness of layer 1 should be until 5 m below the river bed
         bottom_layer_1       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_1)
         # - make sure that the minimum thickness of layer 1 is at least 5.0 m
