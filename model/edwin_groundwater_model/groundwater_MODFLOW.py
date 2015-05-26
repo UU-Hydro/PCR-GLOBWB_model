@@ -544,7 +544,7 @@ class GroundwaterModflow(object):
         
         # put the recharge to the top grid later
         #~ self.pcr_modflow.setRecharge(net_RCH, 1)
-        self.pcr_modflow.setIndicatedRecharge(net_RCH, 1)
+        self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(1)))
 
     def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
 
