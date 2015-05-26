@@ -175,7 +175,7 @@ class GroundwaterModflow(object):
         # - layer 2 (upper layer)
         horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * thickness_of_layer_2) / thickness_of_layer_2
-        vertical_conductivity_layer_2   = pcr.min(self.kSatAquifer,1000.00001) * self.cellAreaMap/\
+        vertical_conductivity_layer_2   = pcr.min(self.kSatAquifer, 0.005) * self.cellAreaMap/\
                                           (pcr.clone().cellSize()*pcr.clone().cellSize())
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
@@ -546,8 +546,8 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         # put the recharge to the top grid later
-        #~ self.pcr_modflow.setRecharge(net_RCH, 1)
-        self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(2)))
+        self.pcr_modflow.setRecharge(net_RCH, 1)
+        #~ self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(2)))
 
     def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
 
@@ -569,7 +569,7 @@ class GroundwaterModflow(object):
         drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
 
-        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 2)
 
     def return_innundation_fraction(self,relative_water_height):
 
