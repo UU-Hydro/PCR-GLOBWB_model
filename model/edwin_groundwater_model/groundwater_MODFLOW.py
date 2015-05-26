@@ -130,6 +130,10 @@ class GroundwaterModflow(object):
         # river bed resistance (unit: day)
         self.bed_resistance = 1.0
         
+        # option to ignore capillary rise
+        self.ignoreCapRise = True
+        if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "False": self.ignoreCapRise = False
+        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
@@ -408,10 +412,7 @@ class GroundwaterModflow(object):
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
-            #
-            # - for a steady state condition that will be used as the initial condition 
-            #   ignore any withdrawal from groundwater
-            gwRecharge = pcr.max(0.0, gwRecharge) 
+            if self.ignoreCapRise = True: gwRecharge = pcr.max(0.0, gwRecharge) 
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
         # read input files (for the transient, input files are given in netcdf files):
@@ -422,6 +423,7 @@ class GroundwaterModflow(object):
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
                                                "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
+            if self.ignoreCapRise = True: gwRecharge = pcr.max(0.0, gwRecharge) 
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
