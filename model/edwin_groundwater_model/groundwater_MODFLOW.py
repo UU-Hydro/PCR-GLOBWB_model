@@ -152,8 +152,8 @@ class GroundwaterModflow(object):
         # - thickness of layer 2 is at least 5.0 m
         thickness_of_layer_2 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_1)
         bottom_layer_2       = bottom_layer_1 - thickness_of_layer_2
-        self.pcr_modflow.createBottomLayer(bottom_layer_2, top_layer1)
-        self.pcr_modflow.createBottomLayer(bottom_layer_2, top_layer1)
+        self.pcr_modflow.createBottomLayer(bottom_layer_2, bottom_layer_1)
+        self.pcr_modflow.addLayer(top_layer1)
          
         
         # specification for the boundary condition (IBOUND, BAS package)
@@ -161,17 +161,26 @@ class GroundwaterModflow(object):
         # - constant head for outside the landmask
         ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
         ibound = pcr.cover(ibound, pcr.nominal(-1))
-        self.pcr_modflow.setBoundary(ibound, 1)
+        self.pcr_modflow.setBoundary(ibound, 1)         # upper layer
+        self.pcr_modflow.setBoundary(ibound, 2)         # lower layer
         
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
         minimimumTransmissivity = 10.
-        horizontal_conductivity = pcr.max(minimimumTransmissivity, \
-                                          horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
-        vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
+        # - layer 1 (upper layer)
+        horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
+        vertical_conductivity_layer_1   = self.kSatAquifer * self.cellAreaMap/\
+                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
+        # - layer 2 (lower layer)
+        horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
+        vertical_conductivity_layer_2   = horizontal_conductivity_layer_2    # dummy values 
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
+                                             vertical_conductivity, 2)              
         
         # specification for storage coefficient
         # - correction due to the usage of lat/lon coordinates
@@ -179,6 +188,7 @@ class GroundwaterModflow(object):
         primary = pcr.max(1e-20, primary)
         secondary = primary                                           # dummy values as we used layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
+        self.pcr_modflow.setStorage(primary, secondary, 2)
         
         # set drain package
         self.set_drain_package()
@@ -416,7 +426,8 @@ class GroundwaterModflow(object):
 
         # set recharge and river packages
         self.set_river_package(discharge)
-        self.set_recharge_package(gwRecharge, gwAbstraction)
+        self.set_recharge_package(gwRecharge)
+        self.set_well_package(gwAbstraction)
         
         # execute MODFLOW 
         logger.info("Executing MODFLOW.")
@@ -426,7 +437,8 @@ class GroundwaterModflow(object):
 
         # obtaining the results from modflow simulation
         self.groundwaterHead = None
-        self.groundwaterHead = self.pcr_modflow.getHeads(1)  
+        self.groundwaterHead = self.pcr_modflow.getHeads(1)
+        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)  
 
         # calculate groundwater depth only in the landmask region
         self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
@@ -439,7 +451,7 @@ class GroundwaterModflow(object):
         
     def set_river_package(self, discharge):
 
-        logger.info("Set the river package based on the given discharge.")
+        logger.info("Set the river package.")
         
         # specify the river package
         #
@@ -513,10 +525,11 @@ class GroundwaterModflow(object):
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
     def set_recharge_package(self, \
-                             gwRecharge, gwAbstraction, 
-                             gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well. 
+                             gwRecharge, gwAbstraction = 0.0, 
+                             gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well.
+								                                        #       We also moved the abstraction to the WELL package 
 
-        logger.info("Set the recharge package based on the given recharge, abstraction and abstraction return flow fields.")
+        logger.info("Set the recharge package.")
 
         # specify the recharge package
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
@@ -530,7 +543,19 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
+        # put the abstraction in the first layer
         self.pcr_modflow.setRecharge(net_RCH, 1)
+
+    def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
+
+        logger.info("Set the well package.")
+
+        # abstraction volume
+        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0)
+
+        # put the abstraction in the second layer
+        self.pcr_modflow.setWell(net_RCH, 2)
+
 
     def set_drain_package(self):
 
