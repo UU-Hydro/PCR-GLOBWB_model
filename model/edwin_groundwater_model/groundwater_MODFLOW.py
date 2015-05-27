@@ -541,7 +541,7 @@ class GroundwaterModflow(object):
                                          pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
         # - maximum and minimum values for lake_reservoir_water_elevation
         lake_reservoir_water_elevation = pcr.min(self.dem_floodplain, lake_reservoir_water_elevation)
-        lake_reservoir_water_elevation = pcr.max(surface_water_bed_elevation, lake_reservoir_water_elevation)
+        lake_reservoir_water_elevation = pcr.max(self.surface_water_bed_elevation, lake_reservoir_water_elevation)
         # - smoothing
         lake_reservoir_water_elevation = pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds)
         # 
