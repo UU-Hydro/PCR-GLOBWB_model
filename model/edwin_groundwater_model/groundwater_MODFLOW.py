@@ -331,10 +331,13 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, TSMULT = 1.0):
         
-        # initiate pcraster modflow object
-        if self.modflow_has_been_called == False:
-            self.initiate_modflow()
-            self.modflow_has_been_called = True
+        # initiate pcraster modflow object        
+        self.initiate_modflow()
+
+        #~ # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
+        #~ if self.modflow_has_been_called == False:
+            #~ self.initiate_modflow()
+            #~ self.modflow_has_been_called = True
 
         if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
@@ -365,8 +368,6 @@ class GroundwaterModflow(object):
 
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(initial_head, 1)
-        
-        print ("here")
         
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
