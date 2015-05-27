@@ -134,8 +134,8 @@ class GroundwaterModflow(object):
         # surface water bed resistance (unit: day)
         bed_resistance = bed_thickness / self.kSatAquifer
         minimum_bed_resitance = 1.0       # TODO: Define this as part of the configuration file
-        self.bed_resistance = pcr.max(minimum_bed_resitance,\
-                                              bed_resitance,)
+        self.bed_resistance = pcr.max(minimum_bed_resistance,\
+                                              bed_resistance,)
         
         # option to ignore capillary rise
         self.ignoreCapRise = True
