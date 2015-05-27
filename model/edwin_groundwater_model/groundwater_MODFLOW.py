@@ -434,7 +434,7 @@ class GroundwaterModflow(object):
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge, river, well and drain packages
-        self.set_river_package(discharge)
+        self.set_river_package(discharge, currTimeStep)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
         self.set_drain_package()
@@ -458,15 +458,20 @@ class GroundwaterModflow(object):
         pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
 
         
-    def set_river_package(self, discharge):
+    def set_river_package(self, discharge, currTimeStep):
 
         logger.info("Set the river package.")
         
-        # specify the river package
-        
         # - surface water river bed/bottom elevation and conductance 
-        #   (only at the beginning of the year or beginning of the model simulation)
-        if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
+        need_to_define_surface_water_bed = False
+        if currTimeStep == None:
+            # this is for a steady state simulation (no currTimeStep define)
+            need_to_define_surface_water_bed = True
+        else:    
+            # only at the beginning of the year or beginning of the model simulation)
+            if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1: need_to_define_surface_water_bed = True
+
+        if need_to_define_surface_water_bed = True::
 
             logger.info("Estimating the surface water bed elevation and surface water bed conductance.")
         
