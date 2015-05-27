@@ -194,6 +194,14 @@ class GroundwaterModflow(object):
 
             # calculate/simulate a steady state condition and obtain its calculated head values
             self.modflow_simulation("steady-state", self.dem_average, None)
+            
+            # extrapolating the calculated heads for areas/cells outside the landmask
+            self.groundwaterHead = pcr.ifthen(self.landmask, self.groundwaterHead)
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.25))
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.50))
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.75))
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, self.dem_average)
+            
 
     def estimate_bottom_of_bank_storage(self):
 
