@@ -53,7 +53,7 @@ class GroundwaterModflow(object):
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
         # minimum channel width
-        minimum_channel_width = 0.5
+        minimum_channel_width = 1.0
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
         #~ # cell fraction if channel water reaching the flood plan # NOT USED 
@@ -98,8 +98,7 @@ class GroundwaterModflow(object):
         self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
                                                              'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
-        self.kSatAquifer = pcr.max(0.001,self.kSatAquifer)
-        # TODO: Define the minimum value as part of the configuratiion file
+        self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
         
         # aquifer specific yield (dimensionless)
         self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
@@ -123,16 +122,12 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 100 m.   # TODO: Define this one as part of the ini file
-        maximumThickness = 100.
+        # set maximum thickness: 500 m.
+        maximumThickness = 500.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
         self.bed_resistance = 1.0
-        
-        # option to ignore capillary rise
-        self.ignoreCapRise = True
-        if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "False": self.ignoreCapRise = False
         
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
@@ -173,7 +168,6 @@ class GroundwaterModflow(object):
         primary = pcr.max(1e-20, primary)
         secondary = primary                                           # dummy values as we used layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
-        self.pcr_modflow.setStorage(primary, secondary, 2)
         
         # set drain package
         self.set_drain_package()
@@ -195,13 +189,13 @@ class GroundwaterModflow(object):
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
-        influence_zone_depth = 5.00
+        influence_zone_depth = 0.50
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
-        # bottom_elevation > river bed
-        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        #~ # bottom_elevation > river bed
+        #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
         # bottom_elevation > its downstream value
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
@@ -231,13 +225,13 @@ class GroundwaterModflow(object):
 
         self.report = True
         try:
-            self.outDailyTotNC = iniItems.oldReportingOptions['outDailyTotNC'].split(",")
-            self.outMonthTotNC = iniItems.oldReportingOptions['outMonthTotNC'].split(",")
-            self.outMonthAvgNC = iniItems.oldReportingOptions['outMonthAvgNC'].split(",")
-            self.outMonthEndNC = iniItems.oldReportingOptions['outMonthEndNC'].split(",")
-            self.outAnnuaTotNC = iniItems.oldReportingOptions['outAnnuaTotNC'].split(",")
-            self.outAnnuaAvgNC = iniItems.oldReportingOptions['outAnnuaAvgNC'].split(",")
-            self.outAnnuaEndNC = iniItems.oldReportingOptions['outAnnuaEndNC'].split(",")
+            self.outDailyTotNC = iniItems.groundwaterOptions['outDailyTotNC'].split(",")
+            self.outMonthTotNC = iniItems.groundwaterOptions['outMonthTotNC'].split(",")
+            self.outMonthAvgNC = iniItems.groundwaterOptions['outMonthAvgNC'].split(",")
+            self.outMonthEndNC = iniItems.groundwaterOptions['outMonthEndNC'].split(",")
+            self.outAnnuaTotNC = iniItems.groundwaterOptions['outAnnuaTotNC'].split(",")
+            self.outAnnuaAvgNC = iniItems.groundwaterOptions['outAnnuaAvgNC'].split(",")
+            self.outAnnuaEndNC = iniItems.groundwaterOptions['outAnnuaEndNC'].split(",")
         except:
             self.report = False
         if self.report == True:
@@ -391,7 +385,10 @@ class GroundwaterModflow(object):
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
-            if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
+            #
+            # - for a steady state condition that will be used as the initial condition 
+            #   ignore any withdrawal from groundwater
+            gwRecharge = pcr.max(0.0, gwRecharge) 
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
         # read input files (for the transient, input files are given in netcdf files):
@@ -402,15 +399,13 @@ class GroundwaterModflow(object):
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
                                                "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
-            if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
         self.set_river_package(discharge)
-        self.set_recharge_package(gwRecharge)
-        self.set_well_package(gwAbstraction)
+        self.set_recharge_package(gwRecharge, gwAbstraction)
         
         # execute MODFLOW 
         logger.info("Executing MODFLOW.")
@@ -433,7 +428,7 @@ class GroundwaterModflow(object):
         
     def set_river_package(self, discharge):
 
-        logger.info("Set the river package.")
+        logger.info("Set the river package based on the given discharge.")
         
         # specify the river package
         #
@@ -507,11 +502,10 @@ class GroundwaterModflow(object):
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
     def set_recharge_package(self, \
-                             gwRecharge, gwAbstraction = 0.0, 
-                             gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well.
-								                                        #       We also moved the abstraction to the WELL package 
+                             gwRecharge, gwAbstraction, 
+                             gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well. 
 
-        logger.info("Set the recharge package.")
+        logger.info("Set the recharge package based on the given recharge, abstraction and abstraction return flow fields.")
 
         # specify the recharge package
         # + recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
@@ -525,20 +519,7 @@ class GroundwaterModflow(object):
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
-        # put the recharge to the top grid later
         self.pcr_modflow.setRecharge(net_RCH, 1)
-        #~ self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(2)))
-
-    def set_well_package(self, gwAbstraction):
-        
-        logger.info("Set the well package.")
-
-        # abstraction volume
-        abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
-
-        # put the abstraction in the lower layer
-        self.pcr_modflow.setWell(abstraction, 1)
-
 
     def set_drain_package(self):
 

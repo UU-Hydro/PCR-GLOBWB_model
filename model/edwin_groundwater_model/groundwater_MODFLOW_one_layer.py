@@ -98,7 +98,7 @@ class GroundwaterModflow(object):
         self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
                                                              'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
-        self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
+        self.kSatAquifer = pcr.max(0.001,self.kSatAquifer)
         
         # aquifer specific yield (dimensionless)
         self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\

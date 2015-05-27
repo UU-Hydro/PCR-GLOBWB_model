@@ -19,7 +19,8 @@ class GroundwaterModflow(object):
     
     def getState(self):
         result = {}
-        result['groundwaterHead'] = self.groundwaterHead       # unit: m
+        result['groundwaterHeadLayer1'] = self.groundwaterHeadLayer1       # unit: m
+        result['groundwaterHeadLayer2'] = self.groundwaterHeadLayer2
         return result
 
 
@@ -53,7 +54,7 @@ class GroundwaterModflow(object):
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
         # minimum channel width
-        minimum_channel_width = 0.5
+        minimum_channel_width = 0.1
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
         #~ # cell fraction if channel water reaching the flood plan # NOT USED 
@@ -98,8 +99,9 @@ class GroundwaterModflow(object):
         self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
                                                              'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
-        self.kSatAquifer = pcr.max(0.001,self.kSatAquifer)
-        # TODO: Define the minimum value as part of the configuratiion file
+        self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
+        
+        self.kSatAquifer *= 0.001 
         
         # aquifer specific yield (dimensionless)
         self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
@@ -123,8 +125,8 @@ class GroundwaterModflow(object):
                            self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness']))
         totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
         #
-        # set maximum thickness: 100 m.   # TODO: Define this one as part of the ini file
-        maximumThickness = 100.
+        # set maximum thickness: 250 m.
+        maximumThickness = 250.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
@@ -145,27 +147,46 @@ class GroundwaterModflow(object):
         self.pcr_modflow = None
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
-        # grid specification - one layer model
-        top    = self.dem_average
-        bottom = top - self.totalGroundwaterThickness
-        self.pcr_modflow.createBottomLayer(bottom, top) 
+        # grid specification - two layer model
+        top_layer_2          = self.dem_average
+        # - thickness of layer 1 is at least 10% of totalGroundwaterThickness            # TODO: Change this using Inge's thickness of confining layer.
+        bottom_layer_2       = self.dem_average - 0.10 * self.totalGroundwaterThickness
+        # - thickness of layer 1 should be until 5 m below the river bed
+        bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)
+        # - make sure that the minimum thickness of layer 2 is at least 5.0 m
+        thickness_of_layer_2 = pcr.max(5.0, top_layer_2 - bottom_layer_2)
+        bottom_layer_2       = top_layer_2 - thickness_of_layer_2
+        # - thickness of layer 1 is at least 5.0 m
+        thickness_of_layer_1 = pcr.max(5.0, self.totalGroundwaterThickness - thickness_of_layer_2)
+        bottom_layer_1       = bottom_layer_2 - thickness_of_layer_1
+        self.pcr_modflow.createBottomLayer(bottom_layer_1, bottom_layer_2)
+        self.pcr_modflow.addLayer(top_layer_2)
         
         # specification for the boundary condition (IBOUND, BAS package)
         # - active cells only in landmask
         # - constant head for outside the landmask
         ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
         ibound = pcr.cover(ibound, pcr.nominal(-1))
-        self.pcr_modflow.setBoundary(ibound, 1)
+        self.pcr_modflow.setBoundary(ibound, 1)         # upper layer
+        self.pcr_modflow.setBoundary(ibound, 2)         # lower layer
         
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
         # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
         minimimumTransmissivity = 10.
-        horizontal_conductivity = pcr.max(minimimumTransmissivity, \
-                                          horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
-        vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
-                                             vertical_conductivity, 1)              
+        # - layer 2 (upper layer)
+        horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * thickness_of_layer_2) / thickness_of_layer_2
+        vertical_conductivity_layer_2   = pcr.min(self.kSatAquifer, 0.00000000000000005) * self.cellAreaMap/\
+                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
+                                             vertical_conductivity_layer_2, 2)              
+        # - layer 1 (lower layer)
+        horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
+                                          horizontal_conductivity * thickness_of_layer_1) / thickness_of_layer_1
+        vertical_conductivity_layer_1   = vertical_conductivity_layer_2    # dummy values 
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                             vertical_conductivity_layer_1, 1)              
         
         # specification for storage coefficient
         # - correction due to the usage of lat/lon coordinates
@@ -190,18 +211,18 @@ class GroundwaterModflow(object):
         else:    
 
             # calculate/simulate a steady state condition and obtain its calculated head values
-            self.modflow_simulation("steady-state", self.dem_average, None)
+            self.modflow_simulation("steady-state", self.dem_average, self.dem_average, None)
 
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
-        influence_zone_depth = 5.00
+        influence_zone_depth = 0.5
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
-        # bottom_elevation > river bed
-        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        #~ # bottom_elevation > river bed
+        #~ bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
         # bottom_elevation > its downstream value
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
@@ -231,13 +252,13 @@ class GroundwaterModflow(object):
 
         self.report = True
         try:
-            self.outDailyTotNC = iniItems.oldReportingOptions['outDailyTotNC'].split(",")
-            self.outMonthTotNC = iniItems.oldReportingOptions['outMonthTotNC'].split(",")
-            self.outMonthAvgNC = iniItems.oldReportingOptions['outMonthAvgNC'].split(",")
-            self.outMonthEndNC = iniItems.oldReportingOptions['outMonthEndNC'].split(",")
-            self.outAnnuaTotNC = iniItems.oldReportingOptions['outAnnuaTotNC'].split(",")
-            self.outAnnuaAvgNC = iniItems.oldReportingOptions['outAnnuaAvgNC'].split(",")
-            self.outAnnuaEndNC = iniItems.oldReportingOptions['outAnnuaEndNC'].split(",")
+            self.outDailyTotNC = iniItems.groundwaterOptions['outDailyTotNC'].split(",")
+            self.outMonthTotNC = iniItems.groundwaterOptions['outMonthTotNC'].split(",")
+            self.outMonthAvgNC = iniItems.groundwaterOptions['outMonthAvgNC'].split(",")
+            self.outMonthEndNC = iniItems.groundwaterOptions['outMonthEndNC'].split(",")
+            self.outAnnuaTotNC = iniItems.groundwaterOptions['outAnnuaTotNC'].split(",")
+            self.outAnnuaAvgNC = iniItems.groundwaterOptions['outAnnuaAvgNC'].split(",")
+            self.outAnnuaEndNC = iniItems.groundwaterOptions['outAnnuaEndNC'].split(",")
         except:
             self.report = False
         if self.report == True:
@@ -312,14 +333,14 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,4,0.001, 10.)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHeadLayer1,self.groundwaterHeadLayer2,currTimeStep,4,0.001, 10.)
 
     def modflow_simulation(self,\
                            simulation_type,\
-                           initial_head,\
+                           initial_head_layer_1, initial_head_layer_2,\
                            currTimeStep = None,\
                            NSTP   = 1, \
-                           HCLOSE = 0.05,\
+                           HCLOSE = 0.5,\
                            RCLOSE = 100.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
@@ -359,7 +380,8 @@ class GroundwaterModflow(object):
                                                   ldd = self.lddMap)        
 
         # using dem_average as the initial groundwater head value 
-        self.pcr_modflow.setInitialHead(initial_head, 1)
+        self.pcr_modflow.setInitialHead(initial_head_layer_1, 1)
+        self.pcr_modflow.setInitialHead(initial_head_layer_2, 2)
         
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
@@ -419,17 +441,13 @@ class GroundwaterModflow(object):
         # TODO: Add the mechanism to check whether a run has converged or not.
 
         # obtaining the results from modflow simulation
-        self.groundwaterHead = None
-        self.groundwaterHead = self.pcr_modflow.getHeads(1)  
+        self.groundwaterHeadLayer2 = None
+        self.groundwaterHeadLayer2 = self.pcr_modflow.getHeads(2)
+        self.groundwaterHeadLayer1 = None
+        self.groundwaterHeadLayer1 = self.pcr_modflow.getHeads(1)  
 
         # calculate groundwater depth only in the landmask region
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-        
-        # for debuging only
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
-
+        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHeadLayer2)
         
     def set_river_package(self, discharge):
 
@@ -502,8 +520,11 @@ class GroundwaterModflow(object):
         self.surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         #
         # - pass the values to the RIV package 
-        self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, 1)
-        
+        self.pcr_modflow.setRiver(self.surface_water_elevation, \
+                                  self.surface_water_bed_elevation, self.bed_conductance, 2)
+        #~ self.pcr_modflow.setRiver(self.surface_water_elevation, \
+                                  #~ self.surface_water_bed_elevation, self.bed_conductance, 1)
+
         # TODO: Improve this concept, particularly while calculating surface water elevation in lakes and reservoirs
         
     def set_recharge_package(self, \
@@ -529,8 +550,8 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setRecharge(net_RCH, 1)
         #~ self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(2)))
 
-    def set_well_package(self, gwAbstraction):
-        
+    def set_well_package(self, gwAbstraction):            # Note: We ignored the latter as MODFLOW should capture this part as well.
+
         logger.info("Set the well package.")
 
         # abstraction volume
@@ -548,7 +569,9 @@ class GroundwaterModflow(object):
         # - the drain package is used to simulate the drainage of bank storage 
         drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
-        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 2)
 
     def return_innundation_fraction(self,relative_water_height):
 
