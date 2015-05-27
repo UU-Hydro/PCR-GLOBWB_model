@@ -315,12 +315,13 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,4,0.001, 10.)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,4,0.001, 10.)
 
     def modflow_simulation(self,\
                            simulation_type,\
                            initial_head,\
                            currTimeStep = None,\
+                           PERLEN = 1.0, 
                            NSTP   = 1, \
                            HCLOSE = 0.001,\
                            RCLOSE = 100.* 400.*400.,\
@@ -330,7 +331,7 @@ class GroundwaterModflow(object):
                            RELAX = 1.00,\
                            NBPOL = 2,\
                            DAMP = 1,\
-                           ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, TSMULT = 1.0):
+                           ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
         # initiate pcraster modflow object        
         self.initiate_modflow()
@@ -410,11 +411,11 @@ class GroundwaterModflow(object):
                                                "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
-                                               "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap) * 30.
+                                               "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
             if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
-                                               "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap) * 30.
+                                               "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
         # set recharge and river packages
         self.set_river_package(discharge)
