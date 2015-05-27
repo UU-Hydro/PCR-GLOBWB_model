@@ -471,7 +471,7 @@ class GroundwaterModflow(object):
             # only at the beginning of the year or beginning of the model simulation)
             if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1: need_to_define_surface_water_bed = True
 
-        if need_to_define_surface_water_bed = True::
+        if need_to_define_surface_water_bed:
 
             logger.info("Estimating the surface water bed elevation and surface water bed conductance.")
         
