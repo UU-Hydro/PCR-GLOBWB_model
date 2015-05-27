@@ -509,13 +509,13 @@ class GroundwaterModflow(object):
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
             # - 'channel width' for lakes and reservoirs 
             channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
-            channel_width = pcr.cover(channel_width, self.bankfull_width)
+            self.channel_width = pcr.cover(channel_width, self.bankfull_width)
         
 
         logger.info("Estimating surface water elevation.")
         
         # - convert discharge value to surface water elevation (m)
-        river_water_height = (channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
+        river_water_height = (self.channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
         surface_water_elevation = self.dem_riverbed + \
                                   river_water_height
         #
