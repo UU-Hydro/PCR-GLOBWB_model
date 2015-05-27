@@ -208,7 +208,10 @@ class GroundwaterModflow(object):
             self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 3.*pcr.clone().cellSize()))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 5.*pcr.clone().cellSize()))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, self.dem_average)
-            # TODO: Define the window sizes as part of the configuration file.  
+            # TODO: Define the window sizes as part of the configuration file.
+        
+        # after having the initial head, set the following variable to True to indicate the first month of the model simulation
+        self.firstMonthOfSimulation = True      
 
     def estimate_bottom_of_bank_storage(self):
 
@@ -468,8 +471,10 @@ class GroundwaterModflow(object):
             # this is for a steady state simulation (no currTimeStep define)
             need_to_define_surface_water_bed = True
         else:    
-            # only at the beginning of the year or beginning of the model simulation)
-            if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1: need_to_define_surface_water_bed = True
+            # only at the first month of the model simulation or the first month of the year
+            if self.firstMonthOfSimulation or currTimeStep.month == 1:
+                need_to_define_surface_water_bed = True
+                self.firstMonthOfSimulation = False          # This part becomes False as we don't need it anymore. 
 
         if need_to_define_surface_water_bed:
 
