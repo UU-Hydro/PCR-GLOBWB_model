@@ -332,7 +332,7 @@ class GroundwaterModflow(object):
                            PERLEN = 1.0, 
                            NSTP   = 1, \
                            HCLOSE = 0.05,\
-                           RCLOSE = 100.* 400.*400.,\
+                           RCLOSE = 10.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
                            NPCOND = 1,\
