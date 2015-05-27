@@ -53,10 +53,10 @@ class GroundwaterModflow(object):
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
         # minimum channel width
-        minimum_channel_width = 0.5
+        minimum_channel_width = 0.5                                               # TODO: Define this one in the configuration file
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
-        #~ # cell fraction if channel water reaching the flood plan # NOT USED 
+        #~ # cell fraction if channel water reaching the flood plan               # NOT USED YET 
         #~ self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
         # coefficient of Manning
@@ -64,7 +64,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # minimum channel gradient
-        minGradient   = 0.00005
+        minGradient   = 0.00005                                                   # TODO: Define this one in the configuration file
         self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
@@ -72,7 +72,7 @@ class GroundwaterModflow(object):
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         
         # channelLength = approximation of channel length (unit: m)  # This is approximated by cell diagonal. 
-        cellSizeInArcMin    =  np.round(pcr.clone().cellSize()*60.)
+        cellSizeInArcMin    =  np.round(pcr.clone().cellSize()*60.)               # FIXME: This one will not work if you use the resolution: 0.5, 1.5, 2.5 arc-min
         verticalSizeInMeter =  cellSizeInArcMin*1852.                            
         self.channelLength  = ((self.cellAreaMap/verticalSizeInMeter)**(2)+\
                                                 (verticalSizeInMeter)**(2))**(0.5)
@@ -99,7 +99,7 @@ class GroundwaterModflow(object):
                                                              'kSatAquifer', self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
         self.kSatAquifer = pcr.max(0.001,self.kSatAquifer)
-        # TODO: Define the minimum value as part of the configuratiion file
+        # TODO: Define the minimum value as part of the configuration file
         
         # aquifer specific yield (dimensionless)
         self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
@@ -107,6 +107,7 @@ class GroundwaterModflow(object):
         self.specificYield = pcr.cover(self.specificYield,pcr.mapmaximum(self.specificYield))       
         self.specificYield = pcr.max(0.010,self.specificYield)         # TODO: TO BE CHECKED: The resample process of specificYield     
         self.specificYield = pcr.min(1.000,self.specificYield)       
+        # TODO: Define the minimum value as part of the configuration file
 
         # estimate of thickness (unit: m) of accesible groundwater 
         totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
@@ -126,9 +127,11 @@ class GroundwaterModflow(object):
         # set maximum thickness: 100 m.   # TODO: Define this one as part of the ini file
         maximumThickness = 100.
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
+        # TODO: Define the maximum value as part of the configuration file
 
         # river bed resistance (unit: day)
-        self.bed_resistance = 10.
+        self.bed_resistance = 1.0
+        # TODO: Define this as part of the configuration file
         
         # option to ignore capillary rise
         self.ignoreCapRise = True
