@@ -328,7 +328,7 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
-                           HCLOSE = 0.001,\
+                           HCLOSE = 0.005,\
                            RCLOSE = 100.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
