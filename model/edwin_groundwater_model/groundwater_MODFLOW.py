@@ -366,6 +366,8 @@ class GroundwaterModflow(object):
         # using dem_average as the initial groundwater head value 
         self.pcr_modflow.setInitialHead(initial_head, 1)
         
+        print ("here")
+        
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
