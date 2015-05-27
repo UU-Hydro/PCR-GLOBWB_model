@@ -410,11 +410,11 @@ class GroundwaterModflow(object):
                                                "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
             # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
             gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
-                                               "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
+                                               "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap) * 30.
             if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
             # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
-                                               "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+                                               "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap) * 30.
 
         # set recharge and river packages
         self.set_river_package(discharge)
