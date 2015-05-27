@@ -165,7 +165,6 @@ class GroundwaterModflow(object):
         # - constant head for outside the landmask
         ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
         ibound = pcr.cover(ibound, pcr.nominal(-1))
-        #~ ibound = pcr.cover(ibound, pcr.nominal(0))
         self.pcr_modflow.setBoundary(ibound, 1)
         
         # specification for conductivities (BCF package)
@@ -174,7 +173,7 @@ class GroundwaterModflow(object):
         minimimumTransmissivity = 10.
         horizontal_conductivity = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.totalGroundwaterThickness) / self.totalGroundwaterThickness
-        vertical_conductivity   = horizontal_conductivity                # dummy values, as one layer model is used
+        vertical_conductivity   = horizontal_conductivity               # dummy values, as one layer model is used
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
         
@@ -182,7 +181,7 @@ class GroundwaterModflow(object):
         # - correction due to the usage of lat/lon coordinates
         primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary = pcr.max(1e-20, primary)
-        secondary = primary                                           # dummy values as we used layer type 00
+        secondary = primary                                            # dummy values as we used the layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
         
         # TODO: defining/incorporating anisotrophy values
@@ -199,13 +198,17 @@ class GroundwaterModflow(object):
             # calculate/simulate a steady state condition and obtain its calculated head values
             self.modflow_simulation("steady-state", self.dem_average, None)
             
-            # extrapolating the calculated heads for areas/cells outside the landmask
+            # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) # TODO: Using Deltares trick to remove isolated cells. 
+            # 
+            # - the calculate groundwater head within the landmask region
             self.groundwaterHead = pcr.ifthen(self.landmask, self.groundwaterHead)
-            #~ self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.25))
-            #~ self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.50))
-            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.75))
+            # - keep the ocean values (dem <= 0.0) - this is in order to maintain the 'behaviors' of sub marine groundwater discharge
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.ifthen(self.dem_average <= 0.0, self.dem_average))
+            # - extrapolation # 
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 3.*pcr.clone().cellSize()))
+            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 5.*pcr.clone().cellSize()))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, self.dem_average)
-            
+            # TODO: Define the window size as part of the configuration file.  
 
     def estimate_bottom_of_bank_storage(self):
 
@@ -218,16 +221,17 @@ class GroundwaterModflow(object):
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
-        # bottom_elevation > its downstream value
+        # reducing noise by comparing to its downstream value
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
-                                 pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))
+                                        (bottom_of_bank_storage +
+                                         pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))/2.)
 
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # reducing noise
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+        #~ # reducing noise - Shall we do this?
+        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # bottom_elevation < dem_average
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
