@@ -197,8 +197,8 @@ class GroundwaterModflow(object):
             
             # extrapolating the calculated heads for areas/cells outside the landmask
             self.groundwaterHead = pcr.ifthen(self.landmask, self.groundwaterHead)
-            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.25))
-            self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.50))
+            #~ self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.25))
+            #~ self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.50))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 0.75))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, self.dem_average)
             
