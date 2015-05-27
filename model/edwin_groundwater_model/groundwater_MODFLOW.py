@@ -476,7 +476,7 @@ class GroundwaterModflow(object):
                                                  self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
-        bed_surface_area = self.bankfull_width * self.channelLength
+        #~ bed_surface_area = self.bankfull_width * self.channelLength
         bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
         bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                          bed_conductance) 
