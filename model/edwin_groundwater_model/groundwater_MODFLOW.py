@@ -335,7 +335,7 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
-                           HCLOSE = 0.05,\
+                           HCLOSE = 0.1,\
                            RCLOSE = 10.* 400.*400.,\
                            MXITER = 300,\
                            ITERI = 100,\
@@ -486,7 +486,6 @@ class GroundwaterModflow(object):
                                       pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
-        #~ bed_surface_area = pcr.max(2.0, self.bankfull_width) * self.channelLength
         #~ bed_surface_area = self.bankfull_width * self.channelLength
         bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
         bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
