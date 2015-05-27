@@ -133,7 +133,7 @@ class GroundwaterModflow(object):
         bed_thickness  = 0.1              # TODO: Define this as part of the configuration file
         # surface water bed resistance (unit: day)
         bed_resistance = bed_thickness / self.kSatAquifer
-        minimum_bed_resitance = 1.0       # TODO: Define this as part of the configuration file
+        minimum_bed_resistance = 1.0      # TODO: Define this as part of the configuration file
         self.bed_resistance = pcr.max(minimum_bed_resistance,\
                                               bed_resistance,)
         
@@ -479,10 +479,10 @@ class GroundwaterModflow(object):
         self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
         #
         # - river bed condutance (unit: m2/day)
-        #~ bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 #~ self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
         bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                      pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))
+                                                 self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
+        #~ bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                      #~ pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))
         bed_surface_area = pcr.cover(bed_surface_area, \
                                      self.bankfull_width * self.channelLength)
         #~ bed_surface_area = pcr.max(2.0, self.bankfull_width) * self.channelLength
