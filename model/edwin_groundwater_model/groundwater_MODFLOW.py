@@ -173,7 +173,6 @@ class GroundwaterModflow(object):
         primary = pcr.max(1e-20, primary)
         secondary = primary                                           # dummy values as we used layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
-        self.pcr_modflow.setStorage(primary, secondary, 2)
         
         # set drain package
         self.set_drain_package()
