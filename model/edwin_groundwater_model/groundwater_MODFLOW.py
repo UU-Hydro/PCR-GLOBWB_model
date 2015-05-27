@@ -208,7 +208,7 @@ class GroundwaterModflow(object):
             self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 3.*pcr.clone().cellSize()))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, pcr.windowaverage(self.groundwaterHead, 5.*pcr.clone().cellSize()))
             self.groundwaterHead = pcr.cover(self.groundwaterHead, self.dem_average)
-            # TODO: Define the window size as part of the configuration file.  
+            # TODO: Define the window sizes as part of the configuration file.  
 
     def estimate_bottom_of_bank_storage(self):
 
@@ -463,43 +463,52 @@ class GroundwaterModflow(object):
         logger.info("Set the river package.")
         
         # specify the river package
-        #
-        # - surface water river bed/bottom elevation
-        #
-        #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? 
-        #~ additional_depth = 500.
-        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 #~ self.dem_riverbed - additional_depth)
-        #
-        # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
-        surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
-        surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
-        surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
-        #
-        surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
-        #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
-        #
-        # rounding values for surface_water_bed_elevation
-        self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
-        #
-        # - river bed condutance (unit: m2/day)
-        bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
-        bed_surface_area = pcr.min(bed_surface_area,\
-                           pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                      pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
-        bed_surface_area = pcr.cover(bed_surface_area, \
-                                     self.bankfull_width * self.channelLength)
-        #~ bed_surface_area = self.bankfull_width * self.channelLength
-        bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
-        bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
-                                         bed_conductance) 
-        self.bed_conductance = pcr.cover(bed_conductance, 0.0)
-        # 
-        # - 'channel width' for lakes and reservoirs 
-        channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
-        channel_width = pcr.cover(channel_width, self.bankfull_width)
-        #
+        
+        # - surface water river bed/bottom elevation and conductance 
+        #   (only at the beginning of the year or beginning of the model simulation)
+        if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
+
+            logger.info("Estimating the surface water bed elevation and surface water bed conductance.")
+        
+            #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? 
+            #~ additional_depth = 500.
+            #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     #~ self.dem_riverbed - additional_depth)
+            #
+            # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
+            surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+            surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+            #
+            surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+            #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
+            #
+            # rounding values for surface_water_bed_elevation
+            self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
+            #
+            # - river bed condutance (unit: m2/day)
+            bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
+            bed_surface_area = pcr.min(bed_surface_area,\
+                               pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                          pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
+            bed_surface_area = pcr.cover(bed_surface_area, \
+                                         self.bankfull_width * self.channelLength)
+            #~ bed_surface_area = self.bankfull_width * self.channelLength
+            bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
+            bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
+                                             bed_conductance) 
+            self.bed_conductance = pcr.cover(bed_conductance, 0.0)
+             
+
+            logger.info("Estimating outlet widths of lakes and/or reservoirs.")
+            # - 'channel width' for lakes and reservoirs 
+            channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
+            channel_width = pcr.cover(channel_width, self.bankfull_width)
+        
+
+        logger.info("Estimating surface water elevation.")
+        
         # - convert discharge value to surface water elevation (m)
         river_water_height = (channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
         surface_water_elevation = self.dem_riverbed + \
@@ -529,7 +538,7 @@ class GroundwaterModflow(object):
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
         #
-        # - pass values to the river package
+        # - covering the missing values and rounding
         surface_water_elevation = pcr.cover(surface_water_elevation, self.surface_water_bed_elevation)
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
@@ -568,10 +577,8 @@ class GroundwaterModflow(object):
         
         logger.info("Set the well package.")
 
-        # abstraction volume
+        # abstraction volume (negative value, unit: m3/day)
         abstraction = pcr.cover(gwAbstraction * self.cellAreaMap, 0.0) * pcr.scalar(-1.0)
-
-        # put the abstraction in the lower layer
         self.pcr_modflow.setWell(abstraction, 1)
 
 
@@ -588,6 +595,8 @@ class GroundwaterModflow(object):
         # - drainage conductance is a linear reservoir 
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+        
+        # TODO: We can define this package in a much more efficient way. 
 
     def return_innundation_fraction(self,relative_water_height):
 
