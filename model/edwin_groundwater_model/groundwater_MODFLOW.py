@@ -449,12 +449,17 @@ class GroundwaterModflow(object):
         #
         # - surface water river bed/bottom elevation
         #
-        #~ # - for lakes and resevoirs, make the bottom elevation deep --- Shall we do this? 
-        additional_depth = 500.
-        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                 self.dem_riverbed - additional_depth)
-        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+        #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? 
+        #~ additional_depth = 500.
+        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                 #~ self.dem_riverbed - additional_depth)
         #
+        # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
+        surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+        surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+        surface_water_bed_elevation -= pcr.areaamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+        #
+        surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
         #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
         #
         # rounding values for surface_water_bed_elevation
