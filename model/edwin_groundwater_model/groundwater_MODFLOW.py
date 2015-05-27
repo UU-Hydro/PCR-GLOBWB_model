@@ -557,7 +557,7 @@ class GroundwaterModflow(object):
         # - the drain package is used to simulate the drainage of bank storage 
         drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
-        self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
 
     def return_innundation_fraction(self,relative_water_height):
 
