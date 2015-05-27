@@ -178,9 +178,6 @@ class GroundwaterModflow(object):
         secondary = primary                                           # dummy values as we used layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
         
-        # set drain package
-        self.set_drain_package()
-        
         # TODO: defining/incorporating anisotrophy values
 
     def get_initial_heads(self):
@@ -425,10 +422,11 @@ class GroundwaterModflow(object):
             gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
-        # set recharge and river packages
+        # set recharge, river, well and drain packages
         self.set_river_package(discharge)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
+        self.set_drain_package()
         
         # execute MODFLOW 
         logger.info("Executing MODFLOW.")
@@ -567,9 +565,13 @@ class GroundwaterModflow(object):
 
         logger.info("Set the drain package (for the release of over bank storage).")
 
-        # specify the drain package 
-        # - the drain package is used to simulate the drainage of bank storage 
-        drain_elevation  = self.estimate_bottom_of_bank_storage()                             # unit: m
+        # specify the drain package the drain package is used to simulate the drainage of bank storage 
+
+        # - for lakes the drain elevation is above the surface water elevation
+        drain_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.surface_water_elevation + 1000.) 
+        # - estimate bottom of bank stoarage for flood plain areas
+        drain_elevation = pcr.cover(drain_elevation, self.estimate_bottom_of_bank_storage())  # unit: m
+        # - drainage conductance is a linear reservoir 
         drain_condutance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
         self.pcr_modflow.setDrain(drain_elevation, drain_condutance, 1)
 
