@@ -134,6 +134,9 @@ class GroundwaterModflow(object):
         self.ignoreCapRise = True
         if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "False": self.ignoreCapRise = False
         
+        # a variable to indicate if the modflow has been called or not
+        self.modflow_has_been_called = False
+        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
@@ -194,7 +197,7 @@ class GroundwaterModflow(object):
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)
-        influence_zone_depth = 5.00
+        influence_zone_depth = 0.50
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
@@ -327,8 +330,11 @@ class GroundwaterModflow(object):
                            NBPOL = 2,\
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, PERLEN = 1.0, TSMULT = 1.0):
+        
         # initiate pcraster modflow object
-        self.initiate_modflow()
+        if self.modflow_has_been_called == False:
+            self.initiate_modflow()
+            self.modflow_has_been_called = True
 
         if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
