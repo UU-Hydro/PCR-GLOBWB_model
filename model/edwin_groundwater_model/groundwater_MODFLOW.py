@@ -128,7 +128,7 @@ class GroundwaterModflow(object):
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
         # river bed resistance (unit: day)
-        self.bed_resistance = 10.
+        self.bed_resistance = 1000000000000000000000000.
         
         # option to ignore capillary rise
         self.ignoreCapRise = True
