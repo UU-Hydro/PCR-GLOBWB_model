@@ -509,7 +509,7 @@ class GroundwaterModflow(object):
     def check_modflow_convergence(self, file_name = "pcrmf.lst"):
         
         # open and read the lst file
-        file_name = self.tmp_modflow_dir+file_name
+        file_name = self.tmp_modflow_dir+"/"+file_name
         f = open(file_name) ; all_lines = f.read() ; f.close()
         
         # split the content of the file into several lines
@@ -519,6 +519,7 @@ class GroundwaterModflow(object):
         # scan the last 20 lines and check if the model 
         modflow_converged = True
         for i in range(0,20): 
+            print all_lines[-i]
             if 'failed to converge' in all_lines[-i]: modflow_converged = False
         
         return modflow_converged    
