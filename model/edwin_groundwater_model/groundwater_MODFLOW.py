@@ -212,11 +212,13 @@ class GroundwaterModflow(object):
                                                        self.cloneMap, self.tmpDir, self.inputDir)
         else:    
 
-            # calculate/simulate a steady state condition and obtain its calculated head values
-            self.modflow_simulation("steady-state", self.dem_average, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
-                                                                               self.criteria_RCLOSE[self.iteration_RCLOSE])
+            # calculate/simulate a steady state condition (until the modflow converge)
+            self.modflow_converged = False
+            while self.modflow_converged == False:
+                self.modflow_simulation("steady-state", self.dem_average, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                   self.criteria_RCLOSE[self.iteration_RCLOSE])
             
-            # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) # TODO: Using Deltares trick to remove isolated cells. 
+            # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) # TODO: Using Deltares's trick to remove isolated cells. 
             # 
             # - the calculate groundwater head within the landmask region
             self.groundwaterHead = pcr.ifthen(self.landmask, self.groundwaterHead)
@@ -352,8 +354,11 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,self.criteria_HCLOSE[self.iteration_HCLOSE],\
-                                                                                                                                                    self.criteria_RCLOSE[self.iteration_RCLOSE])
+        if currTimeStep.isLastDayOfMonth():
+            # calculate modflow until it converge
+            self.modflow_converged = False
+            while self.modflow_converged == False: self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                                                                                           self.criteria_RCLOSE[self.iteration_RCLOSE])
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -371,9 +376,9 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
-        # initiate pcraster modflow object        
-        self.initiate_modflow()
-
+        #~ # initiate pcraster modflow object        
+        #~ self.initiate_modflow()
+~ 
         # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
         if self.modflow_has_been_called == False:
             self.initiate_modflow()
@@ -469,7 +474,7 @@ class GroundwaterModflow(object):
         self.modflow_converged = self.check_modflow_convergence()
         if self.modflow_converged == False:
 
-            msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HLCOSE)+" and RCLOSE = "+str(RCLOSE)
+            msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
             logger.info(msg)
             
             # iteration index for the RCLOSE
