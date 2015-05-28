@@ -152,8 +152,6 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution model is 10 m3  # check this value with Jarno
-        self.criteria_RCLOSE = [10., 10.*sel]
-        
 
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
