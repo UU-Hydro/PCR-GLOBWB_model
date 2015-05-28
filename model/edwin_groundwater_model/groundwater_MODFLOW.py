@@ -73,10 +73,11 @@ class GroundwaterModflow(object):
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         
         # channelLength = approximation of channel length (unit: m)  # This is approximated by cell diagonal. 
-        cellSizeInArcMin    =  np.round(pcr.clone().cellSize()*60.)               # FIXME: This one will not work if you use the resolution: 0.5, 1.5, 2.5 arc-min
-        verticalSizeInMeter =  cellSizeInArcMin*1852.                            
-        self.channelLength  = ((self.cellAreaMap/verticalSizeInMeter)**(2)+\
-                                                (verticalSizeInMeter)**(2))**(0.5)
+        cellSizeInArcMin      = np.round(pcr.clone().cellSize()*60.)               # FIXME: This one will not work if you use the resolution: 0.5, 1.5, 2.5 arc-min
+        verticalSizeInMeter   = cellSizeInArcMin*1852.                            
+        horizontalSizeInMeter = self.cellAreaMap/verticalSizeInMeter
+        self.channelLength    = ((horizontalSizeInMeter)**(2)+\
+                                 (verticalSizeInMeter)**(2))**(0.5)
         
         # option for lakes and reservoir
         self.onlyNaturalWaterBodies = False
@@ -146,13 +147,20 @@ class GroundwaterModflow(object):
         self.modflow_has_been_called = False
         
         # list of the convergence criteria for HCLOSE (unit: m)
-        # - Deltares default's value is 0.001 m                           # check this value with Jarno
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1]                   # after this will be 0.2, 0.3, 0.4 ...
+        # - Deltares default's value is 0.001 m                         # check this value with Jarno
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution model is 10 m3  # check this value with Jarno
+        cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
+        self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
+        # initiate the index for HCLOSE and RCLOSE
+        self.iteration_HCLOSE = 0
+        self.iteration_RCLOSE = 0
+        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
@@ -205,7 +213,8 @@ class GroundwaterModflow(object):
         else:    
 
             # calculate/simulate a steady state condition and obtain its calculated head values
-            self.modflow_simulation("steady-state", self.dem_average, None)
+            self.modflow_simulation("steady-state", self.dem_average, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                               self.criteria_RCLOSE[self.iteration_RCLOSE])
             
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) # TODO: Using Deltares trick to remove isolated cells. 
             # 
@@ -343,7 +352,8 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,0.01)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                                                                                    self.criteria_RCLOSE[self.iteration_RCLOSE])
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -364,10 +374,10 @@ class GroundwaterModflow(object):
         # initiate pcraster modflow object        
         self.initiate_modflow()
 
-        #~ # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
-        #~ if self.modflow_has_been_called == False:
-            #~ self.initiate_modflow()
-            #~ self.modflow_has_been_called = True
+        # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
+        if self.modflow_has_been_called == False:
+            self.initiate_modflow()
+            self.modflow_has_been_called = True
 
         if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
@@ -415,8 +425,8 @@ class GroundwaterModflow(object):
         # MXITER = 100                # maximum number of outer iterations
         # ITERI  = 30                 # number of inner iterations
         # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        # HCLOSE = 0.01               # HCLOSE (unit: m) # 0.05 is working
-        # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3) ; Deltares people uses 100 m3 for their 25 m resolution modflow model  
+        # HCLOSE = 0.01               # HCLOSE (unit: m) 
+        # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
         # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
         # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
         # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
@@ -455,21 +465,64 @@ class GroundwaterModflow(object):
         logger.info("Executing MODFLOW.")
         self.pcr_modflow.run()
         
-        # TODO: Add the mechanism to check whether a run has converged or not.
+        logger.info("Check if the model whether a run has converged or not")
+        self.modflow_converged = self.check_modflow_convergence()
+        if self.modflow_converged == False:
 
-        # obtaining the results from modflow simulation
-        self.groundwaterHead = None
-        self.groundwaterHead = self.pcr_modflow.getHeads(1)  
+            msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HLCOSE)+" and RCLOSE = "+str(RCLOSE)
+            logger.info(msg)
+            
+            # iteration index for the RCLOSE
+            self.iteration_RCLOSE += 1 
+            # reset if the index has reached the length of available criteria
+            if self.iteration_RCLOSE > len(self.criteria_RCLOSE): self.iteration_RCLOSE = 0     
 
-        # calculate groundwater depth only in the landmask region
-        self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
+            # iteration index for the HCLOSE
+            if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1 
+            
+            # we have to reset modflow as we want to change the PCG setup
+            self.modflow_has_been_called = False
+
+        else:
+
+            msg = "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HLCOSE)+" and RCLOSE = "+str(RCLOSE)
+            logger.info(msg)
+
+            # reset the iteration because modflow has converged
+            self.iteration_HCLOSE = 0
+            self.iteration_RCLOSE = 0
+            
+            self.modflow_has_been_called = True
+            
+            # obtaining the results from modflow simulation
+            self.groundwaterHead = None
+            self.groundwaterHead = self.pcr_modflow.getHeads(1)  
+            
+            # calculate groundwater depth only in the landmask region
+            self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
+            
+            #~ # for debuging only
+            #~ pcr.report(self.groundwaterHead , "gw_head.map")
+            #~ pcr.report(self.groundwaterDepth, "gw_depth.map")
+            #~ pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
+
+    def check_modflow_convergence(self, file_name = "pcrmf.lst"):
         
-        # for debuging only
-        pcr.report(self.groundwaterHead , "gw_head.map")
-        pcr.report(self.groundwaterDepth, "gw_depth.map")
-        pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
-
+        # open and read the lst file
+        file_name = self.tmp_modflow_dir+file_name
+        f = open(fileName) ; all_lines = f.read() ; f.close()
         
+        # split the content of the file into several lines
+        all_lines = allLines.replace("\r","") 
+        all_lines = allLines.split("\n")
+        
+        # scan the last 20 lines and check if the model 
+        modflow_converged = True
+        for i in range(0,20): 
+            if 'FAILED TO CONVERGE' in all_lines[-i]: modflow_converged = False
+        
+        return modflow_converged    
+
     def set_river_package(self, discharge, currTimeStep):
 
         logger.info("Set the river package.")
