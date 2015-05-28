@@ -480,7 +480,7 @@ class GroundwaterModflow(object):
             # iteration index for the RCLOSE
             self.iteration_RCLOSE += 1 
             # reset if the index has reached the length of available criteria
-            if self.iteration_RCLOSE > len(self.criteria_RCLOSE): self.iteration_RCLOSE = 0     
+            if self.iteration_RCLOSE > (len(self.criteria_RCLOSE)-1): self.iteration_RCLOSE = 0     
 
             # iteration index for the HCLOSE
             if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1 
