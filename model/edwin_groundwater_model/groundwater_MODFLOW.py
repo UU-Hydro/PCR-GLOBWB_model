@@ -134,7 +134,7 @@ class GroundwaterModflow(object):
         # surface water bed thickness  (unit: m)
         bed_thickness  = 0.1              # TODO: Define this as part of the configuration file
         # surface water bed resistance (unit: day)
-        bed_resistance = bed_thickness / (self.kSatAquifer * 0.1) 
+        bed_resistance = bed_thickness / (self.kSatAquifer) 
         minimum_bed_resistance = 1.0      # TODO: Define this as part of the configuration file
         self.bed_resistance = pcr.max(minimum_bed_resistance,\
                                               bed_resistance,)
@@ -154,7 +154,7 @@ class GroundwaterModflow(object):
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution model is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate the index for HCLOSE and RCLOSE
