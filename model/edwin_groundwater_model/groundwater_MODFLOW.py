@@ -380,7 +380,7 @@ class GroundwaterModflow(object):
         #~ self.initiate_modflow()
 
         # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
-        if self.modflow_has_been_called == False:
+        if self.modflow_has_been_called == False or self.modflow_converged == False:
             self.initiate_modflow()
             self.modflow_has_been_called = True
 
