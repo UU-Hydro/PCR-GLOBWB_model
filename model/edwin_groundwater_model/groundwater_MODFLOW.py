@@ -148,7 +148,7 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -241,10 +241,14 @@ class GroundwaterModflow(object):
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
+        # reducing noise (so we will not introduce unrealistic sinks)      # TODO: Define the window size as part of the configuration/ini file
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
         
-        # reducing noise by comparing to its downstream value
+        # reducing noise by comparing to its downstream value (so we will not introduce unrealistic sinks)
         bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
                                         (bottom_of_bank_storage +
                                          pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))/2.)
@@ -252,10 +256,6 @@ class GroundwaterModflow(object):
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # reducing noise - so we will not introduce a sink
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
-
         # bottom_elevation < dem_average (this is to drain overland flow)
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
@@ -355,7 +355,7 @@ class GroundwaterModflow(object):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
-            # calculate modflow until it converge
+            # calculate modflow until it converges
             self.modflow_converged = False
             while self.modflow_converged == False: self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,self.criteria_HCLOSE[self.iteration_HCLOSE],\
                                                                                                                                                            self.criteria_RCLOSE[self.iteration_RCLOSE])
@@ -376,7 +376,7 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
-        #~ # initiate pcraster modflow object        
+        #~ # initiate pcraster modflow object # NOT NEEDED anymore (see below)       
         #~ self.initiate_modflow()
 
         # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
