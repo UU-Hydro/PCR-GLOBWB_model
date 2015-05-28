@@ -368,8 +368,8 @@ class GroundwaterModflow(object):
                            NSTP   = 1, \
                            HCLOSE = 1.0,\
                            RCLOSE = 10.* 400.*400.,\
-                           MXITER = 300,\
-                           ITERI = 100,\
+                           MXITER = 150,\
+                           ITERI = 50,\
                            NPCOND = 1,\
                            RELAX = 1.00,\
                            NBPOL = 2,\
