@@ -212,11 +212,14 @@ class GroundwaterModflow(object):
                                                        self.cloneMap, self.tmpDir, self.inputDir)
         else:    
 
+            # using the digital elevation model as the initial head
+            self.groundwaterHead = self.dem_average
+
             # calculate/simulate a steady state condition (until the modflow converge)
             self.modflow_converged = False
             while self.modflow_converged == False:
-                self.modflow_simulation("steady-state", self.dem_average, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
-                                                                                   self.criteria_RCLOSE[self.iteration_RCLOSE])
+                self.modflow_simulation("steady-state", self.groundwaterHead, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                       self.criteria_RCLOSE[self.iteration_RCLOSE])
             
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) # TODO: Using Deltares's trick to remove isolated cells. 
             # 
@@ -427,8 +430,8 @@ class GroundwaterModflow(object):
         # TSMULT = 1.0   # multiplier for the length of the successive iterations
         # SSTR   = 1     # 0 - transient, 1 - steady state
         #
-        # MXITER = 100                # maximum number of outer iterations
-        # ITERI  = 30                 # number of inner iterations
+        # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
+        # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
         # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
         # HCLOSE = 0.01               # HCLOSE (unit: m) 
         # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
@@ -487,7 +490,11 @@ class GroundwaterModflow(object):
             
             # we have to reset modflow as we want to change the PCG setup
             self.modflow_has_been_called = False
-
+            
+            # for the steady state simulation, we will save the head as the initial estimate for the next iteration
+            if simulation_type == "steady-state": self.groundwaterHead = self.pcr_modflow.getHeads(1)
+            # NOTE: We cannot implement this principle for transient simulation 
+            
         else:
 
             msg = "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
