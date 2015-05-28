@@ -378,7 +378,7 @@ class GroundwaterModflow(object):
         
         #~ # initiate pcraster modflow object        
         #~ self.initiate_modflow()
-~ 
+
         # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
         if self.modflow_has_been_called == False:
             self.initiate_modflow()
