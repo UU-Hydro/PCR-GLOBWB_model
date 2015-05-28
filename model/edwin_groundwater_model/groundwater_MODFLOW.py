@@ -513,8 +513,8 @@ class GroundwaterModflow(object):
         f = open(file_name) ; all_lines = f.read() ; f.close()
         
         # split the content of the file into several lines
-        all_lines = allLines.replace("\r","") 
-        all_lines = allLines.split("\n")
+        all_lines = all_lines.replace("\r","") 
+        all_lines = all_lines.split("\n")
         
         # scan the last 20 lines and check if the model 
         modflow_converged = True
