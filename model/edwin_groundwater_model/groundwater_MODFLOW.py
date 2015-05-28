@@ -26,11 +26,12 @@ class GroundwaterModflow(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
         
-        # cloneMap, temporary directory, absolute path for input directory, landmask
-        self.cloneMap = iniItems.cloneMap
-        self.tmpDir   = iniItems.tmpDir
-        self.inputDir = iniItems.globalOptions['inputDir']
-        self.landmask = landmask
+        # cloneMap, temporary directory for the resample process, temporary directory for the modflow process, absolute path for input directory, landmask
+        self.cloneMap        = iniItems.cloneMap
+        self.tmpDir          = iniItems.tmpDir
+        self.tmp_modflow_dir = iniItems.tmp_modflow_dir
+        self.inputDir        = iniItems.globalOptions['inputDir']
+        self.landmask        = landmask
         
         # configuration from the ini file
         self.iniItems = iniItems
@@ -144,6 +145,16 @@ class GroundwaterModflow(object):
         # a variable to indicate if the modflow has been called or not
         self.modflow_has_been_called = False
         
+        # list of the convergence criteria for HCLOSE (unit: m)
+        # - Deltares default's value is 0.001 m                           # check this value with Jarno
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1]                   # after this will be 0.2, 0.3, 0.4 ...
+        self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
+        
+        # list of the convergence criteria for RCLOSE (unit: m3)
+        # - Deltares default's value for their 25 and 250 m resolution model is 10 m3  # check this value with Jarno
+        self.criteria_RCLOSE = [10., 10.*sel]
+        
+
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
@@ -215,15 +226,11 @@ class GroundwaterModflow(object):
 
     def estimate_bottom_of_bank_storage(self):
 
-        # influence zone depth (m)
+        # influence zone depth (m)  # TODO: Define this one as part of 
         influence_zone_depth = 5.0
         
         # bottom_elevation > flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
-
-        # reducing noise - so we will not introduce a sink
-        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
-                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
 
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
@@ -236,7 +243,11 @@ class GroundwaterModflow(object):
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # bottom_elevation < dem_average
+        # reducing noise - so we will not introduce a sink
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+
+        # bottom_elevation < dem_average (this is to drain overland flow)
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
@@ -334,7 +345,7 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,0.005)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,0.01)
 
     def modflow_simulation(self,\
                            simulation_type,\
