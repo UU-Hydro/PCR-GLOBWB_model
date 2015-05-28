@@ -132,7 +132,8 @@ class GroundwaterModflow(object):
         # surface water bed thickness  (unit: m)
         bed_thickness  = 0.1              # TODO: Define this as part of the configuration file
         # surface water bed resistance (unit: day)
-        bed_resistance = bed_thickness / self.kSatAquifer
+        correction_factor = 0.1          # TODO: Define this as part of the configuration file
+        bed_resistance = bed_thickness / (self.kSatAquifer * 0.1) 
         minimum_bed_resistance = 1.0      # TODO: Define this as part of the configuration file
         self.bed_resistance = pcr.max(minimum_bed_resistance,\
                                               bed_resistance,)
