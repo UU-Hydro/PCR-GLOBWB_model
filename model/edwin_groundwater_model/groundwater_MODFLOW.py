@@ -498,18 +498,6 @@ class GroundwaterModflow(object):
             self.iteration_RCLOSE = 0
             
             self.modflow_has_been_called = True
-            
-            # obtaining the results from modflow simulation
-            self.groundwaterHead = None
-            self.groundwaterHead = self.pcr_modflow.getHeads(1)  
-            
-            # calculate groundwater depth only in the landmask region
-            self.groundwaterDepth = pcr.ifthen(self.landmask, self.dem_average - self.groundwaterHead)
-            
-            #~ # for debuging only
-            #~ pcr.report(self.groundwaterHead , "gw_head.map")
-            #~ pcr.report(self.groundwaterDepth, "gw_depth.map")
-            #~ pcr.report(self.surface_water_elevation, "surface_water_elevation.map")
 
     def check_modflow_convergence(self, file_name = "pcrmf.lst"):
         
