@@ -334,7 +334,7 @@ class GroundwaterModflow(object):
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,4,0.001, 10.* 400.*400)
+        if currTimeStep.isLastDayOfMonth(): self.modflow_simulation("transient",self.groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep,currTimeStep.day,0.001, 10.)
 
     def modflow_simulation(self,\
                            simulation_type,\
