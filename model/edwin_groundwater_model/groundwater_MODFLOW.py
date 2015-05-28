@@ -516,11 +516,10 @@ class GroundwaterModflow(object):
         all_lines = all_lines.replace("\r","") 
         all_lines = all_lines.split("\n")
         
-        # scan the last 20 lines and check if the model 
+        # scan the last 200 lines and check if the model 
         modflow_converged = True
-        for i in range(0,20): 
-            print all_lines[-i]
-            if 'failed to converge' in all_lines[-i]: modflow_converged = False
+        for i in range(0,200): 
+            if 'FAILED TO CONVERGE' in all_lines[-i]: modflow_converged = False
         
         return modflow_converged    
 
