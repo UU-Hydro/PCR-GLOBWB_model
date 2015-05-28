@@ -510,7 +510,7 @@ class GroundwaterModflow(object):
         
         # open and read the lst file
         file_name = self.tmp_modflow_dir+file_name
-        f = open(fileName) ; all_lines = f.read() ; f.close()
+        f = open(file_name) ; all_lines = f.read() ; f.close()
         
         # split the content of the file into several lines
         all_lines = allLines.replace("\r","") 
