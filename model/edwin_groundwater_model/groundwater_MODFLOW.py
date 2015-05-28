@@ -485,7 +485,7 @@ class GroundwaterModflow(object):
 
         else:
 
-            msg = "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HLCOSE)+" and RCLOSE = "+str(RCLOSE)
+            msg = "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
             logger.info(msg)
 
             # reset the iteration because modflow has converged
