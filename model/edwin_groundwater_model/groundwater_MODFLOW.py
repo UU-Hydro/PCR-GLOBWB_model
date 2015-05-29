@@ -421,6 +421,9 @@ class GroundwaterModflow(object):
         
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
+        
+        print "here"
+        
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
         #
         # Some notes about the values  
