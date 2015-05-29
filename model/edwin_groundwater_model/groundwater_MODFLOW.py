@@ -161,6 +161,8 @@ class GroundwaterModflow(object):
         self.iteration_HCLOSE = 0
         self.iteration_RCLOSE = 0
         
+        self.initiate_modflow()
+        
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
 
