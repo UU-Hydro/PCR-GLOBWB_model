@@ -148,20 +148,18 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
-        self.criteria_HCLOSE = [0.0000000001, 0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
-        # - Deltares default's value for their 25 and 250 m resolution model is 10 m3  # check this value with Jarno
+        # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        self.criteria_RCLOSE = [0.0001, 10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate the index for HCLOSE and RCLOSE
         self.iteration_HCLOSE = 0
         self.iteration_RCLOSE = 0
-        
-        self.initiate_modflow()
         
         # initiate old style reporting                                  # TODO: remove this!
         self.initiate_old_style_groundwater_reporting(iniItems)
@@ -381,12 +379,9 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
-        #~ # initiate pcraster modflow object # NOT NEEDED anymore (see below)       
-        #~ self.initiate_modflow()
-
-        # initiate pcraster modflow object if modflow is not called yet: # NOT WORKING, because we reset the PCG parameter
+        # initiate pcraster modflow object if modflow is not called yet:
         if self.modflow_has_been_called == False or self.modflow_converged == False:
-            #~ self.initiate_modflow()
+            self.initiate_modflow()
             self.modflow_has_been_called = True
 
         if simulation_type == "transient":
@@ -423,8 +418,6 @@ class GroundwaterModflow(object):
         
         # set parameter values for the DIS package and PCG solver
         self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
-        
-        
         self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
         #
         # Some notes about the values  
@@ -497,7 +490,7 @@ class GroundwaterModflow(object):
             # we have to reset modflow as we want to change the PCG setup
             self.modflow_has_been_called = False
             
-            # for the steady state simulation, we will save the head as the initial estimate for the next iteration
+            # for the steady state simulation, we still save the calculated head as the initial estimate for the next iteration
             if simulation_type == "steady-state": self.groundwaterHead = self.pcr_modflow.getHeads(1)
             # NOTE: We cannot implement this principle for transient simulation 
             
