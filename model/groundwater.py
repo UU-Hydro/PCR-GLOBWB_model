@@ -192,9 +192,11 @@ class Groundwater(object):
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
         # defining the extent of productive aquifer
-        minTransmissivity = 50 # unit: m2/day 
-        self.productive_aquifer = pcr.ifthenelse(self.kSatAquifer * totalGroundwaterThickness > minTransmissivity, \
-                                                 pcr.boolean(1.0), pcr.boolean(0.0))
+        self.productive_aquifer = pcr.boolean(1.0)        
+        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": 
+            minTransmissivity = 10 # unit: m2/day 
+            self.productive_aquifer = pcr.ifthenelse(self.kSatAquifer * totalGroundwaterThickness > minTransmissivity, \
+                                                     pcr.boolean(1.0), pcr.boolean(0.0))
         
         # get initial conditions
         self.getICs(iniItems,spinUp)
