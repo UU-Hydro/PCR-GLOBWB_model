@@ -2032,7 +2032,7 @@ class LandCover(object):
                 deep_percolation_loss = self.percLow
                 deep_percolation_loss = pcr.min(deep_percolation_loss, \
                                         pcr.max(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
-                self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow, deep_percolation_loss)
+                self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow)
             if self.numberOfLayers == 3:
                 deep_percolation_loss = self.percLow030150
                 deep_percolation_loss = pcr.max(deep_percolation_loss, \
