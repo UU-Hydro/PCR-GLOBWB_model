@@ -1007,13 +1007,13 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.025  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.030  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
         minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
