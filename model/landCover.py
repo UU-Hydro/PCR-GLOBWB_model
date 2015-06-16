@@ -1259,8 +1259,9 @@ class LandCover(object):
         #
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
-        # ignore groundwater storage in non-productive aquifer
-        readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
+        #
+        # for run with MODFLOW, ignore groundwater storage in non-productive aquifer
+        if groundwater.useMODFLOW: readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
         #
         if groundwater.usingAllocSegments:
 
