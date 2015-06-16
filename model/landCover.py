@@ -1204,7 +1204,7 @@ class LandCover(object):
             # calculate the estimate of groundwater water demand:
             # - demand for industrial and domestic sctors
             groundwater_water_demand_estimate  = remainingIndustrialDomestic 
-            # - demand for irrigation and livestock sectors (maximum)
+            # - demand for irrigation and livestock sectors
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                    pcr.max(0.0, \
                                                    (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationLivestockDemand))
@@ -1259,6 +1259,8 @@ class LandCover(object):
         #
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
+        # ignore groundwater storage in non-productive aquifer
+        readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
         #
         if groundwater.usingAllocSegments:
 
@@ -1415,6 +1417,8 @@ class LandCover(object):
 
                 logger.debug('Fossil groundwater abstractions are allowed, but with limit.')
                 
+                readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
+
                 if groundwater.usingAllocSegments:
                 
                     logger.debug('Allocation of fossil groundwater abstraction.')
@@ -1423,7 +1427,7 @@ class LandCover(object):
                     volActGroundwaterAbstract, volAllocGroundwaterAbstract = \
                      vos.waterAbstractionAndAllocation(
                      water_demand_volume = self.potFossilGroundwaterAbstract*routing.cellArea,\
-                     available_water_volume = pcr.max(0.00, groundwater.storGroundwaterFossil*routing.cellArea),\
+                     available_water_volume = pcr.max(0.00, readAvlFossilGroundwater*routing.cellArea),\
                      allocation_zones = groundwater.allocSegments,\
                      zone_area = groundwater.segmentArea,\
                      high_volume_treshold = 1000000.,\
@@ -1438,7 +1442,7 @@ class LandCover(object):
                     
                     logger.debug('Fossil groundwater abstraction is only for satisfying local demand.')
                 
-                    self.fossilGroundwaterAbstr = pcr.min(pcr.max(0.0, groundwater.storGroundwaterFossil), self.potFossilGroundwaterAbstract)
+                    self.fossilGroundwaterAbstr = pcr.min(pcr.max(0.0, readAvlFossilGroundwater), self.potFossilGroundwaterAbstract)
                     self.fossilGroundwaterAlloc = self.fossilGroundwaterAbstr 
         
 
@@ -2037,17 +2041,18 @@ class LandCover(object):
 
         # idea on 16 June 2015
         # deep percolation should consider losses during application in non paddy areas 
-        if self.name == "irrNonPaddy":
+        #~ if self.name == "irrNonPaddy":
+        if self.name.startswith('irr'):
             startingKC = 0.20   # starting crop coefficient indicate the growing season
             if self.numberOfLayers == 2:
                 deep_percolation_loss = self.percLow
                 deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                        pcr.max(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                                        pcr.max(0.0, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
                 self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow)
             if self.numberOfLayers == 3:
                 deep_percolation_loss = self.percLow030150
                 deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                        pcr.max(self.readAvlWater, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                                        pcr.max(0.0, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
                 self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow030150)
 
         # scale all fluxes based on available water

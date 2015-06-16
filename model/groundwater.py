@@ -191,6 +191,11 @@ class Groundwater(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
+        # defining the extent of productive aquifer
+        minTransmissivity = 50 # unit: m2/day 
+        self.productive_aquifer = pcr.ifthenelse(self.kSatAquifer * totalGroundwaterThickness > minTransmissivity, \
+                                                 pcr.boolean(1.0), pcr.boolean(0.0))
+        
         # get initial conditions
         self.getICs(iniItems,spinUp)
 
