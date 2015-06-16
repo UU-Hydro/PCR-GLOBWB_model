@@ -1124,9 +1124,10 @@ class LandCover(object):
             swAbstractionFractionUsed = pcr.min(1.0, swAbstractionFractionUsed)
             swAbstractionFractionUsed = pcr.max(0.0, swAbstractionFractionUsed)
             surface_water_demand_estimate = self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed
-            # - as a function of allocation of total groundwater (fossil and non fossil)
-            surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
-                                            pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        
+        # maximize surface water demand as a function of allocation of total groundwater (fossil and non fossil)
+        surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
+                                        pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         #
         # total demand that should be allocated from the surface water
         surface_water_demand = pcr.min(self.totalGrossDemandAfterDesalination,\
@@ -1607,14 +1608,20 @@ class LandCover(object):
             #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
                                                #~ pcr.min(self.potential_irrigation_loss, self.infiltration), self.infiltration)
 
-        # idea on 9 may: infiltration should consider application losses, particularly while cropKC increases or cropKC > 0.75 
+        #~ # idea on 9 may: infiltration should consider application losses, particularly while cropKC increases or cropKC > 0.75 
+        #~ if self.name == 'irrPaddy':
+            #~ infiltration_loss = pcr.max(self.design_percolation_loss, 
+                                #~ ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
+            #~ self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
+                                               #~ pcr.min(infiltration_loss, self.infiltration), \
+                                #~ pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
+                                               #~ pcr.min(infiltration_loss, self.infiltration)))
+
+        # idea on 9 may: infiltration should consider application losses 
         if self.name == 'irrPaddy':
             infiltration_loss = pcr.max(self.design_percolation_loss, 
                                 ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
-            self.infiltration = pcr.ifthenelse(self.cropKC > 0.75, \
-                                               pcr.min(infiltration_loss, self.infiltration), \
-                                pcr.ifthenelse(self.cropKC < self.prevCropKC, self.infiltration, \
-                                               pcr.min(infiltration_loss, self.infiltration)))
+            self.infiltration = pcr.min(infiltration_loss, self.infiltration)
 
         # update top water layer after infiltration
         self.topWaterLayer = pcr.max(0.0,\
@@ -2030,7 +2037,7 @@ class LandCover(object):
             startingKC = 0.20   # starting crop coefficient indicate the growing season
             if self.numberOfLayers == 2:
                 deep_percolation_loss = self.percLow
-                deep_percolation_loss = pcr.min(deep_percolation_loss, \
+                deep_percolation_loss = pcr.max(deep_percolation_loss, \
                                         pcr.max(self.readAvlWater, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
                 self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow)
             if self.numberOfLayers == 3:
