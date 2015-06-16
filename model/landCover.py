@@ -1022,9 +1022,7 @@ class LandCover(object):
        
         # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
         self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-        self.potential_irrigation_loss = pcr.max(self.potential_irrigation_loss,\
-                                                 self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed) - self.irrGrossDemand)
-        # demand, including its inefficiency - SHALL WE INCLUDE THIS ?
+        # demand, including its inefficiency
         self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
         
         # the following irrigation demand is not limited to available water
@@ -1474,9 +1472,9 @@ class LandCover(object):
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
 
-        # reducing potential_irrigation_loss due to reduced irrigation demand
-        self.potential_irrigation_loss *= irr_demand_reduction_factor
-        if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.max(self.design_percolation_loss, self.potential_irrigation_loss)
+        #~ # reducing potential_irrigation_loss due to reduced irrigation demand - may not be needed
+        #~ self.potential_irrigation_loss *= irr_demand_reduction_factor
+        #~ if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.max(self.design_percolation_loss, self.potential_irrigation_loss)
 
     def calculateDirectRunoff(self, parameters):
 
