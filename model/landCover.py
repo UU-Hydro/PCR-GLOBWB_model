@@ -1007,7 +1007,7 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.050  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.025  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         if self.name == 'irrPaddy': maximum_demand = 0.050                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
@@ -1126,9 +1126,12 @@ class LandCover(object):
             swAbstractionFractionUsed = pcr.max(0.0, swAbstractionFractionUsed)
             surface_water_demand_estimate = self.totalGrossDemandAfterDesalination * swAbstractionFractionUsed
         
-        # maximize surface water demand as a function of allocation of total groundwater (fossil and non fossil)
+        # maximize surface water demand as a function of groundwater allocation
+        #~ surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
+                                        #~ pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
-                                        pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+                                        pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)))
+
         #
         # total demand that should be allocated from the surface water
         surface_water_demand = pcr.min(self.totalGrossDemandAfterDesalination,\
