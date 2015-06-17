@@ -1337,11 +1337,11 @@ class LandCover(object):
             self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\
                                                  pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
-            # reduce fossil groundwater abstraction if non fossil groundwater allocation is already relatively high ??
-            #~ self.potFossilGroundwaterAbstract *= vos.getValDivZero(
-            #~ 
-            #~ pcr.ifthenelse(groundwater.avgNonFossilAllocationShort < pcr.max(groundwater.avgAllocation, groundwater.avgAllocationShort),\
-                                                                #~ self.potFossilGroundwaterAbstract, 0.0)
+            #~ # reduce fossil groundwater abstraction if non fossil groundwater allocation (short term) is already relatively high? - Shall we do this?
+            #~ # - the objective is to delay/minimize such fossil goundwater abstraction that it can be minimized
+            #~ shortTermFossilAllocation = pcr.max(0.0, groundwater.avgAllocationShort - groundwater.avgNonFossilAllocationShort)
+            #~ self.potFossilGroundwaterAbstract *= pcr.min(1.0, \
+                                                 #~ vos.getValDivZero(shortTermFossilAllocation, groundwater.avgAllocationShort))
         
         else:
  
@@ -1380,12 +1380,11 @@ class LandCover(object):
                 # - in order to minimize unrealistic areas of fossil groundwater abstraction
                 correctedRemainingIrrigationLivestock = gwAbstractionFraction_irrigation *\
                                                         remainingIrrigationLivestock 
-                # - ignore groundwater irrigation demand with enough groundwater fraction
-                current_groundwater_irrigation_fraction = vos.getValDivZero(satisfiedIrrDemandFromNonFossilGroundwater, \
-                                                                            self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand'])
-                correctedRemainingIrrigationLivestock = pcr.ifthenelse(current_groundwater_irrigation_fraction < gwAbstractionFraction_irrigation, \
-                                                                       correctedRemainingIrrigationLivestock, 0.0)
-                # - also ignore areas dominated by swAbstractionFraction['irrigation']
+                # - ignore/reduce groundwater irrigation demand with enough groundwater fraction
+                correctedRemainingIrrigationLivestock = pcr.max(0.0,\
+                                                               (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']) * gwAbstractionFraction_irrigation - \
+                                                                satisfiedIrrDemandFromNonFossilGroundwater)
+                # - also ignore areas dominated by swAbstractionFraction['irrigation'] 
                 gwFossilAbstractionFraction_irrigation_treshold = gwAbstractionFraction_irrigation_treshold   
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwFossilAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
