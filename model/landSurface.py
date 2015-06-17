@@ -141,6 +141,8 @@ class LandSurface(object):
                           'landSurfaceRunoff',
                           'satExcess',
                           'snowMelt',
+                          'totalGroundwaterAbstraction',
+                          'totalGroundwaterAllocation',
                           'totalPotentialMaximumGrossDemand',
                           'totalPotentialMaximumIrrGrossDemand',
                           'totalPotentialMaximumIrrGrossDemandPaddy',

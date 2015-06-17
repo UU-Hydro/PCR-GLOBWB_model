@@ -1112,7 +1112,8 @@ class LandCover(object):
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
-            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            #~ gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.00
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
                                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock)
@@ -1339,10 +1340,10 @@ class LandCover(object):
             
             #~ # reduce fossil groundwater abstraction if non fossil groundwater allocation (short term) is already relatively high? - Shall we do this?
             #~ # - the objective is to delay/minimize such fossil goundwater abstraction that it can be minimized
-            #~ shortTermFossilAllocation = pcr.max(0.0, groundwater.avgAllocationShort - groundwater.avgNonFossilAllocationShort)
-            #~ self.potFossilGroundwaterAbstract *= pcr.min(1.0, \
-                                                 #~ vos.getValDivZero(shortTermFossilAllocation, groundwater.avgAllocationShort))
-        
+            #~ self.potFossilGroundwaterAbstract *= (1.0 - pcr.min(1.0, \
+                                                  #~ vos.getValDivZero(groundwater.avgNonFossilAllocationShort, \
+                                                            #~ pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation))))
+
         else:
  
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
@@ -1479,9 +1480,9 @@ class LandCover(object):
                                          self.allocSurfaceWaterAbstract +\
                                          self.desalinationAllocation
 
-        # - reduction factor for irrigation demand
-        irr_demand_reduction_factor = pcr.min(1.0,\
-                                      vos.getValDivZero(satisfiedIrrigationDemand, self.irrGrossDemand))
+        # total groundwater abstraction and allocation (unit: m/day) 
+        self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
+        self.totalGroundwaterAbstraction = self.fossilGroundwaterAbstr + self.nonFossilGroundwaterAbs
 
         # irrigation and non irrigation water demand limited to available/allocated water
         self.irrGrossDemand    = pcr.min(self.irrGrossDemand,\
@@ -1489,7 +1490,10 @@ class LandCover(object):
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
 
-        #~ # reducing potential_irrigation_loss due to reduced irrigation demand - may not be needed
+        #~ # reducing potential_irrigation_loss due to reduced irrigation demand - NOT needed anymore
+        # - reduction factor for irrigation demand
+        #~ irr_demand_reduction_factor = pcr.min(1.0,\
+                                      #~ vos.getValDivZero(satisfiedIrrigationDemand, self.irrGrossDemand))
         #~ self.potential_irrigation_loss *= irr_demand_reduction_factor
         #~ if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.max(self.design_percolation_loss, self.potential_irrigation_loss)
 
