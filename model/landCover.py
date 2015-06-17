@@ -1130,12 +1130,12 @@ class LandCover(object):
             surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
                                             pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         
-        # maximize surface water demand in order to minimize (fossil) groundwater abstraction
-        minimizeGroundwaterAbstraction = False
-        if minimizeGroundwaterAbstraction:\
-           surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
-                                           pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)))
-
+            # maximize surface water demand in order to minimize (fossil) groundwater abstraction
+            minimizeGroundwaterAbstraction = False
+            if minimizeGroundwaterAbstraction:\
+               surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
+                                               pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)))
+            
         # total demand that should be allocated from the surface water
         surface_water_demand = pcr.min(self.totalGrossDemandAfterDesalination,\
                                        surface_water_demand_estimate)
@@ -1386,7 +1386,7 @@ class LandCover(object):
                                                                (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']) * gwAbstractionFraction_irrigation - \
                                                                 satisfiedIrrDemandFromNonFossilGroundwater)
                 # - also ignore fossil groundwater abstraction in areas dominated by swAbstractionFraction['irrigation']
-                swAbstractionFraction_irrigation_treshold = 0.75 # TODO: define this in the configuration file 
+                swAbstractionFraction_irrigation_treshold = 0.50 # TODO: define this in the configuration file 
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] < swAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 
