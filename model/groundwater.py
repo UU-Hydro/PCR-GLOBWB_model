@@ -85,6 +85,7 @@ class Groundwater(object):
         self.specificYield  = pcr.max(0.010,self.specificYield)         # TODO: TO BE CHECKED: The resample process of specificYield     
         self.specificYield  = pcr.min(1.000,self.specificYield)       
 
+        # Note that the following 'kSatAquifer' value is used to paremeterize river bed conductivities (kSatAquifer is a bad name # TODO: FIXME)
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == str(None):
             # assign aquifer saturated conductivity
             self.kSatAquifer = vos.readPCRmapClone(\
@@ -191,12 +192,8 @@ class Groundwater(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
-        # defining the extent of productive aquifer
+        # TODO: defining the extent of productive aquifer
         self.productive_aquifer = pcr.boolean(1.0)        
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": 
-            minTransmissivity = 50 # unit: m2/day 
-            self.productive_aquifer = pcr.ifthenelse(self.kSatAquifer * totalGroundwaterThickness > minTransmissivity, \
-                                                     pcr.boolean(1.0), pcr.boolean(0.0))
         
         # get initial conditions
         self.getICs(iniItems,spinUp)
