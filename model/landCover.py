@@ -1211,10 +1211,10 @@ class LandCover(object):
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                    pcr.max(0.0, \
                                                    (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationLivestockDemand))
-            #~ # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
-            #~ #                                      by non fossil groundwater (so that we can limit the groundwater depletion) - Shall we do this?
-            #~ irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
-                                                                  #~ remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
+            # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
+            #                                      by non fossil groundwater (so that we can limit the groundwater depletion) - Shall we do this?
+            irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
+                                                                  remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
             groundwater_water_demand_estimate += irrigationLivestockGroundwaterDemand
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
@@ -1381,8 +1381,8 @@ class LandCover(object):
                                                         pcr.max(satisfiedIrrDemandFromNonFossilGroundwater,groundwater.avgNonFossilAllocationShort,\
                                                                                                            groundwater.avgNonFossilAllocation))
                 # - also ignore fossil groundwater abstraction in areas dominated by swAbstractionFraction['irrigation']
-                swAbstractionFraction_irrigation_treshold = 0.25 # TODO: define this in the configuration file 
-                correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold,\
+                swAbstractionFraction_irrigation_treshold = 0.75 # TODO: define this in the configuration file 
+                correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] < swAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
