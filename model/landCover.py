@@ -1337,20 +1337,12 @@ class LandCover(object):
             self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\
                                                  pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
-            # reduce fossil groundwater abstraction if non fossil groundwater allocation is already relatively high
-            self.potFossilGroundwaterAbstract *= vos.getValDivZero(
-            
-            pcr.ifthenelse(groundwater.avgNonFossilAllocationShort < pcr.max(groundwater.avgAllocation, groundwater.avgAllocationShort),\
-                                                                self.potFossilGroundwaterAbstract, 0.0)
+            # reduce fossil groundwater abstraction if non fossil groundwater allocation is already relatively high ??
+            #~ self.potFossilGroundwaterAbstract *= vos.getValDivZero(
+            #~ 
+            #~ pcr.ifthenelse(groundwater.avgNonFossilAllocationShort < pcr.max(groundwater.avgAllocation, groundwater.avgAllocationShort),\
+                                                                #~ self.potFossilGroundwaterAbstract, 0.0)
         
-        # maximize surface water demand in order to minimize groundwater use
-        minimizeGroundwaterAbstraction = True:
-        if minimizeGroundwaterAbstraction:\
-           surface_water_demand_estimate = pcr.max(surface_water_demand_estimate, \
-                                           pcr.max(0.0, self.totalGrossDemandAfterDesalination - pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)))
-
-
-            
         else:
  
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
