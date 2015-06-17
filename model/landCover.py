@@ -1381,7 +1381,7 @@ class LandCover(object):
                                                         pcr.max(satisfiedIrrDemandFromNonFossilGroundwater,groundwater.avgNonFossilAllocationShort,groundwater.avgNonFossilAllocation))
                 # - also ignore fossil groundwater abstraction in areas dominated by swAbstractionFraction['irrigation']
                 swAbstractionFraction_irrigation_treshold = 0.50 # TODO: define this in the configuration file 
-                correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] < swAbstractionFraction_irrigation_treshold,\
+                correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold,\
                                                                        correctedRemainingIrrigationLivestock, 0.0)
                 
                 # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
