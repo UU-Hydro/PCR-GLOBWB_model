@@ -1338,12 +1338,6 @@ class LandCover(object):
             self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\
                                                  pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
-            #~ # reduce fossil groundwater abstraction if the short term average of non fossil groundwater allocation is relatively high - Shall we do this?
-            #~ # - the objective is to delay/minimize such fossil goundwater abstraction that it can be minimized
-            #~ self.potFossilGroundwaterAbstract *= (1.0 - pcr.min(1.0, \
-                                                  #~ vos.getValDivZero(groundwater.avgNonFossilAllocationShort, \
-                                                            #~ pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation))))
-
         else:
  
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
@@ -1384,7 +1378,7 @@ class LandCover(object):
                 # - ignore/reduce groundwater irrigation demand with enough groundwater fraction
                 correctedRemainingIrrigationLivestock = pcr.max(0.0,\
                                                                (self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']) * gwAbstractionFraction_irrigation - \
-                                                                satisfiedIrrDemandFromNonFossilGroundwater)
+                                                        pcr.max(satisfiedIrrDemandFromNonFossilGroundwater,groundwater.avgNonFossilAllocationShort,groundwater.avgNonFossilAllocation))
                 # - also ignore fossil groundwater abstraction in areas dominated by swAbstractionFraction['irrigation']
                 swAbstractionFraction_irrigation_treshold = 0.50 # TODO: define this in the configuration file 
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] < swAbstractionFraction_irrigation_treshold,\
