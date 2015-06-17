@@ -1211,10 +1211,10 @@ class LandCover(object):
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                    pcr.max(0.0, \
                                                    (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationLivestockDemand))
-            # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
-            #                                      by non fossil groundwater (so that we can limit the groundwater depletion)
-            irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
-                                                                  remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
+            #~ # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
+            #~ #                                      by non fossil groundwater (so that we can limit the groundwater depletion) - Shall we do this?
+            #~ irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
+                                                                  #~ remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
             groundwater_water_demand_estimate += irrigationLivestockGroundwaterDemand
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
