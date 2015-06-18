@@ -1338,7 +1338,7 @@ class LandCover(object):
             nonFossilGroundwaterSupply = (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay() 
             # - from the average non fossil groundwater allocation
             nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
-                                                 pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
+                                                 pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
             self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potFossilGroundwaterAbstract - nonFossilGroundwaterSupply)
 
         else:
