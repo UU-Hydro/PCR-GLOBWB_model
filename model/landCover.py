@@ -986,7 +986,7 @@ class LandCover(object):
             irrigation_interval = pcr.min(max_irrigation_interval, \
                                   pcr.max(min_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
-                                  pcr.roundup((self.irrGrossDemand + self.readAvlWater)/ self.totalPotET), 1.0)))
+                                  pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - self.readAvlWater),\
                                           self.irrGrossDemand)
@@ -995,25 +995,23 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp000005)
 
-        #~ # idea on 8 May - no demand while crop coefficient declines, unless readAvlWater become empty
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, \
-                              #~ pcr.ifthenelse(self.readAvlWater > 0.0, 0.0, self.irrGrossDemand), \
-                                             #~ self.irrGrossDemand)
-
-        #~ # idea on 8 May - no demand while crop coefficient decline
-        #~ self.irrGrossDemand = pcr.ifthenelse(self.cropKC < self.prevCropKC, 0.0, self.irrGrossDemand)
+        # irrigation efficiency                                                    # TODO: Improve the concept of irrigation efficiency
+        self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+        # demand, including its inefficiency
+        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
+        
+        # the following irrigation demand is not limited to available water
+        self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
-        # note: This demand does not include irrigation efficiency.  
 
-        # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.025  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.015  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
         if self.name == 'irrPaddy': maximum_demand = 0.025                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
@@ -1021,14 +1019,6 @@ class LandCover(object):
         # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
         self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0,\
                                              self.irrGrossDemand, 0.0)
-       
-        # potential loss (m) of irrigation due to inefficient irrigation                      # TODO: Improve the concept of irrigation efficiency
-        self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-        # demand, including its inefficiency
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
-        
-        # the following irrigation demand is not limited to available water
-        self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
@@ -1252,6 +1242,8 @@ class LandCover(object):
         #
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
+        # - maximum non fossil groundwater abstraction = 0.250 m
+        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, 0.250)
         #
         # for run with MODFLOW, ignore groundwater storage in non-productive aquifer 
         if groundwater.useMODFLOW: readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
@@ -1366,7 +1358,7 @@ class LandCover(object):
                                                         remainingTotalDemand)
 
                 # the remaining industrial and domestic demand limited to potFossilGroundwaterAbstract
-                # - we will always try to fulfil these demand
+                # - we will always try to fulfil the remaining industrial and demand
                 correctedRemainingIndustrialDomestic = pcr.min(remainingIndustrialDomestic, \
                                                                correctedRemainingTotalDemand)
 
@@ -1427,9 +1419,11 @@ class LandCover(object):
                 
                 # accesible fossil groundwater (unit: m/day)
                 readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
+                # - maximum fossil groundwater abstraction = 0.250 m
+                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, 0.250)
 
                 # safety factor (to avoid 'unrealistic' zero fossil groundwater)
-                readAvlFossilGroundwater *= 0.75 
+                readAvlFossilGroundwater *= 0.50 
                 
                 if groundwater.usingAllocSegments:
                 
@@ -2084,10 +2078,10 @@ class LandCover(object):
                 self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow030150)
 
         # scale all fluxes based on available water
-        #~ # - alternative 1:
-        #~ self.scaleAllFluxes(parameters, groundwater)
-        # - alternative 2:
-        self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
+        # - alternative 1:
+        self.scaleAllFluxes(parameters, groundwater)
+        #~ # - alternative 2:
+        #~ self.scaleAllFluxesOptimizeEvaporationTranspiration(parameters, groundwater)
 
     def scaleAllFluxesOptimizeEvaporationTranspiration(self, parameters, groundwater):
 
