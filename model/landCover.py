@@ -927,11 +927,6 @@ class LandCover(object):
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
-            # reducing the demand after harvesting
-            # - harvest indication: cropKC declines
-            self.irrGrossDemand = \
-                  pcr.ifthenelse(self.cropKC > self.prevCropKC, self.irrGrossDemand, 0.0)
-                                                                           
         if self.name == 'irrNonPaddy':
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -1013,12 +1008,12 @@ class LandCover(object):
         # note: This demand does not include irrigation efficiency.  
 
         # idea on 12 Mar 2015: set maximum daily irrigation
-        maximum_demand = 0.030  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.030                         # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.025  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = 0.025                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.010  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
         if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
@@ -1239,7 +1234,6 @@ class LandCover(object):
             # reduced potential groundwater demand 
             self.potGroundwaterAbstract = pcr.max(pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract, \
                                                   pcr.min(pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation), self.potGroundwaterAbstract))
-            # - Note that to avoid sudden halts of groundwater supply, (non fossil) groundwater supply can still sustain (but limited by its average values).                                      
 
         else:
 
@@ -1339,9 +1333,13 @@ class LandCover(object):
             # fossil groundwater demand reduced by pumping capacity
             self.potFossilGroundwaterAbstract *= pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
             
-            # minimizing the groundater demand using the average supply of non fossil groundwater (as it can be also supplied in the following days)
-            self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potFossilGroundwaterAbstract -\
-                                                pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))
+            # minimizing the fossil groundater demand using the availability/supply of non fossil groundwater (as the demand can also be supplied in the following days)
+            # - from the average recharge (baseflow), unit: m/day 
+            nonFossilGroundwaterSupply = (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay() 
+            # - from the average non fossil groundwater allocation
+            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
+                                                 pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
+            self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potFossilGroundwaterAbstract - nonFossilGroundwaterSupply)
 
         else:
  
