@@ -1112,7 +1112,7 @@ class LandCover(object):
             # - for irrigation and livestock 
             #   surface water source as priority if groundwater fraction is relatively low  
             gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
-            gwAbstractionFraction_irrigation_treshold = 0.75     # TODO: define this one in the ini/configuration file 
+            gwAbstractionFraction_irrigation_treshold = 0.50     # TODO: define this one in the ini/configuration file 
             surface_water_demand_estimate += pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                             remainingIrrigationLivestock, \
                                                             swAbstractionFraction['irrigation'] * remainingIrrigationLivestock)
@@ -1205,10 +1205,10 @@ class LandCover(object):
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                    pcr.max(0.0, \
                                                    (1.0 - swAbstractionFraction['irrigation'])*totalIrrigationLivestockDemand))
-            # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
-            #                                      by non fossil groundwater (so that we can limit the groundwater depletion) - Shall we do this?
-            irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
-                                                                  remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
+            #~ # - if groundwater source is dominant, try to fulfil all remaining demands (for irrigation and livestock)  
+            #~ #                                      by non fossil groundwater (so that we can limit the groundwater depletion) - Shall we do this?
+            #~ irrigationLivestockGroundwaterDemand = pcr.ifthenelse(gwAbstractionFraction_irrigation > gwAbstractionFraction_irrigation_treshold, \
+                                                                  #~ remainingIrrigationLivestock, irrigationLivestockGroundwaterDemand)
             groundwater_water_demand_estimate += irrigationLivestockGroundwaterDemand
             #
             # water demand that must be satisfied by groundwater abstraction (not limited to available water)
