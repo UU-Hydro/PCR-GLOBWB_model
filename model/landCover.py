@@ -1426,8 +1426,12 @@ class LandCover(object):
 
                 logger.debug('Fossil groundwater abstractions are allowed, but with limit.')
                 
+                # accesible fossil groundwater (unit: m/day)
                 readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
 
+                # safety factor (to avoid 'unrealistic' zero fossil groundwater)
+                readAvlFossilGroundwater *= 0.75 
+                
                 if groundwater.usingAllocSegments:
                 
                     logger.debug('Allocation of fossil groundwater abstraction.')
