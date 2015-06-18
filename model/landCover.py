@@ -1237,8 +1237,8 @@ class LandCover(object):
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
             # reduced potential groundwater demand 
             self.potGroundwaterAbstract = pcr.max(pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract, \
-                                                  pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation, self.potGroundwaterAbstract))
-            # - Note that to avoid sudden halts of groundwater supply, non fossil groundwater supply may still sustain (but in its lower average rate)                                      
+                                                  pcr.min(pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation), self.potGroundwaterAbstract))
+            # - Note that to avoid sudden halts of groundwater supply, (non fossil) groundwater supply can still sustain (but limited by its average values).                                      
 
         else:
 
@@ -1292,9 +1292,9 @@ class LandCover(object):
         if isinstance(swAbstractionFraction, dict):
             # using the map from Siebert
             satisfiedIrrigationLivestockFromNonFossilGroundwater = self.allocNonFossilGroundwater * \
-                                       vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_water_demand_estimate) 
+                                                 vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_water_demand_estimate) 
             satisfiedIrrDemandFromNonFossilGroundwater = satisfiedIrrigationLivestockFromNonFossilGroundwater * \
-                                       vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand)
+                                                 vos.getValDivZero(self.irrGrossDemand, totalIrrigationLivestockDemand)
         else:    
             satisfiedIrrDemandFromNonFossilGroundwater = vos.getValDivZero(self.irrGrossDemand, 
                                                                            self.totalPotentialGrossDemand) * self.allocNonFossilGroundwater
@@ -1305,9 +1305,16 @@ class LandCover(object):
                                                                      satisfiedIrrDemandFromNonFossilGroundwater)
         satisfiedNonIrrDemand += satisfiedNonIrrDemandFromNonFossilGroundwater
 
-        # water demand that must be satisfied by fossil groundwater abstraction (not limited to available water)
-        self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - self.allocNonFossilGroundwater)   # unit: m
-
+        # water demand that must be satisfied by fossil groundwater abstraction (unit: m, not limited to available water)
+        self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - self.allocNonFossilGroundwater)
+        
+        # fossil groundwater demand reduced by the average supply of non fossil groundwater 
+        #  - in order to minimizing fossil groundwater abstraction (optimizing non fossil groundwater use)
+        minimizingFossilGroundwaterAbstraction = True
+        if minimizingFossilGroundwaterAbstraction:
+            assumedNonFossilGroundwaterSuply  = pcr.max(self.allocNonFossilGroundwater, groundwater.avgNonFossilAllocationShort)
+            self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potGroundwaterAbstract - assumedNonFossilGroundwaterSuply)
+        
         # constraining fossil groundwater abstraction with regional pumping capacity
         if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
  
@@ -1322,16 +1329,14 @@ class LandCover(object):
             # at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
-            # reduction factor to reduce fossil groundwater abstraction
+            # reduction factor to reduce fossil groundwater abstraction/demand
             reductionFactorForPotGroundwaterAbstract = pcr.cover(\
                                                        pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
                                                        pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
-            # minimum reduction factor:
-            minReductionFactor = 0.00
-            self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor,\
-                                                 pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
+            # fossil groundwater demand reduced by pumping capacity
+            self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor, pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
             
         else:
  
