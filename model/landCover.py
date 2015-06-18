@@ -1231,9 +1231,16 @@ class LandCover(object):
                                                        pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
-            # reduced potential groundwater demand 
+            
+            # reduced potential groundwater demand, but still considering the average supply of non-fossil groundwater
+            # - from the average recharge (baseflow), unit: m/day 
+            nonFossilGroundwaterSupply = (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay() 
+            # - from the average non fossil groundwater allocation
+            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
+                                                 pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
+            # reduced potential groundwater demand (unit: m/day)
             self.potGroundwaterAbstract = pcr.max(pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract, \
-                                                  pcr.min(pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation), self.potGroundwaterAbstract))
+                                                  pcr.min(nonFossilGroundwaterSupply, self.potGroundwaterAbstract))
 
         else:
 
@@ -1334,11 +1341,6 @@ class LandCover(object):
             self.potFossilGroundwaterAbstract *= pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
             
             # minimizing the fossil groundater demand using the availability/supply of non fossil groundwater (as the demand can also be supplied in the following days)
-            # - from the average recharge (baseflow), unit: m/day 
-            nonFossilGroundwaterSupply = (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay() 
-            # - from the average non fossil groundwater allocation
-            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
-                                                 pcr.min(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
             self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potFossilGroundwaterAbstract - nonFossilGroundwaterSupply)
 
         else:
@@ -1492,6 +1494,9 @@ class LandCover(object):
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
 
+        #~ # livestock gross water demand 
+        #~ self.livestockGrossDemand = vos.
+        
         #~ # reducing potential_irrigation_loss due to reduced irrigation demand - NOT needed anymore
         # - reduction factor for irrigation demand
         #~ irr_demand_reduction_factor = pcr.min(1.0,\
