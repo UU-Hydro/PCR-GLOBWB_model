@@ -1385,7 +1385,7 @@ class LandCover(object):
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold, 0.0,\
                                                                        correctedRemainingIrrigationLivestock)
                 
-                # calculate the remaining demand limited to self.potFossilGroundwaterAbstract
+                # calculate the remaining demand limited to potFossilGroundwaterAbstract
                 correctedRemainingTotalDemand = pcr.min(self.potFossilGroundwaterAbstract, \
                                                         remainingTotalDemand)
                 # - industrial and domestic demand
@@ -1399,7 +1399,7 @@ class LandCover(object):
                 correctedRemainingTotalDemand = correctedRemainingIndustrialDomestic +\
                                                 correctedRemainingIrrigationLivestock                                                                                                                                               
 
-                # calculate the fossil groundwater water demand:
+                # calculate the fossil groundwater water demand
                 fossil_groundwater_water_demand_estimate = correctedRemainingTotalDemand
 
                 # water demand that must be satisfied by fossil groundwater abstraction           
