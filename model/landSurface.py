@@ -1005,7 +1005,7 @@ class LandSurface(object):
                 self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
                                                                          self.regionalAnnualGroundwaterAbstractionLimit)
-                # minimum value (unit: m3/year at regional scale)
+                # minimum value (unit: m3/year at the regional scale)
                 #~ minimum_value = 0.001 * 1000. * 1000. * 1000.
                 minimum_value = 1000.
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value,\

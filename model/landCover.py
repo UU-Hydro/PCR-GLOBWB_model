@@ -1494,9 +1494,6 @@ class LandCover(object):
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
 
-        #~ # livestock gross water demand 
-        #~ self.livestockGrossDemand = vos.
-        
         #~ # reducing potential_irrigation_loss due to reduced irrigation demand - NOT needed anymore
         # - reduction factor for irrigation demand
         #~ irr_demand_reduction_factor = pcr.min(1.0,\
@@ -1508,8 +1505,8 @@ class LandCover(object):
 
         # topWaterLater is partitioned into directRunoff (and infiltration)
         self.directRunoff = self.improvedArnoScheme(\
-                            iniWaterStorage = self.soilWaterStorage,\
-                            inputNetLqWaterToSoil =  self.topWaterLayer, 
+                            iniWaterStorage = self.soilWaterStorage, \
+                            inputNetLqWaterToSoil =  self.topWaterLayer, \
                             parameters = parameters, \
                             directRunoffReductionMethod = self.improvedArnoSchemeMethod)
         self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
@@ -1573,6 +1570,19 @@ class LandCover(object):
                                                                                                                          # In this case, this reduction is estimated 
                                                                                                                          # based on (for two layer case) percLow = pcr.min(KUnSatLow,\ 
                                                                                                                          #                                         pcr.sqrt(parameters.KUnSatFC2*KUnSatLow))
+        
+        if directRunoffReductionMethod == "Modified":
+            if self.numberOfLayers == 2: directRunoffReduction = pcr.min(self.kUnsatLow,\
+                                                                 pcr.sqrt(parameters.kUnsatAtFieldCapLow*\
+                                                                                self.kUnsatLow))
+            if self.numberOfLayers == 3: directRunoffReduction = pcr.min(self.kUnsatLow030150,\
+                                                                 pcr.sqrt(parameters.kUnsatAtFieldCapLow030150*\
+                                                                                self.kUnsatLow030150))                   
+            # the reduction of directRunoff (preferential flow groundwater) 
+            # is only introduced if the soilWaterStorage near its saturation
+            # - this is in order to maintain the saturation
+            saturation_treshold = 0.999
+            directRunoffReduction = pcr.ifthenelse(vos.getValDivZero(soilWaterStorage,parameters.rootZoneWaterStorageCap) > saturation_treshold, directRunoffReduction, 0.0)
         
         # directRunoff
         condition = (self.arnoBeta+pcr.scalar(1.))*self.rootZoneWaterStorageRange* self.WFRACB
