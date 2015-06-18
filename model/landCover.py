@@ -1336,7 +1336,7 @@ class LandCover(object):
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
             # fossil groundwater demand reduced by pumping capacity
-            self.potFossilGroundwaterAbstract *= pcr.max(minReductionFactor, pcr.min(1.00, reductionFactorForPotGroundwaterAbstract))
+            self.potFossilGroundwaterAbstract *= pcr.min(1.00, reductionFactorForPotGroundwaterAbstract)
             
         else:
  
