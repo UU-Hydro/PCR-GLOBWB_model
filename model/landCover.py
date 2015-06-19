@@ -1189,7 +1189,7 @@ class LandCover(object):
                                                           remainingIrrigationLivestock)                                                     
             #
             # calculate the estimate of groundwater water demand:
-            # - demand for industrial and domestic sctors
+            # - demand for industrial and domestic sectors
             groundwater_water_demand_estimate  = remainingIndustrialDomestic 
             # - demand for irrigation and livestock sectors
             irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
@@ -1372,9 +1372,10 @@ class LandCover(object):
                 
                 # TODO: Do the water balance check: correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic <= self.potFossilGroundwaterAbstract                                          
 
-                # minimizing the fossil irrigation groundater demand using the availability/supply of non fossil groundwater 
+                # minimizing the fossil irrigation groundater demand using the availability/supply of non fossil groundwater allocation
                 # - as the demand can also be supplied in the following days (this is intended to optimize the non fossil groundwater supply)
-                nonFossilGroundwaterSupplyForIrrigation = nonFossilGroundwaterSupply * vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedRemainingTotalDemand)
+                nonFossilGroundwaterSupplyForIrrigation = groundwater.avgNonFossilAllocationShort * \
+                                                          vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedRemainingTotalDemand)
                 correctedRemainingIrrigationLivestock = pcr.max(0.0, self.potFossilGroundwaterAbstract - nonFossilGroundwaterSupplyForIrrigation)
 
                 # reduce the remaining irrigation and livestock demand 
