@@ -1493,7 +1493,7 @@ class LandCover(object):
         self.irrGrossDemandPaddy    = 0.0
         self.irrGrossDemandNonPaddy = 0.0
         if self.name == 'irrPaddy': self.irrGrossDemandPaddy = self.irrGrossDemand
-        if self.name == 'irrNonPaddy': self.irrGrossDemandNonPaddy = sself.irrGrossDemand
+        if self.name == 'irrNonPaddy': self.irrGrossDemandNonPaddy = self.irrGrossDemand
                                  
 
     def calculateDirectRunoff(self, parameters):
