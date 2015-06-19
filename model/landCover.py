@@ -1006,7 +1006,7 @@ class LandCover(object):
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
-        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
         if self.name == 'irrPaddy': maximum_demand = 0.025                                    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
@@ -1243,7 +1243,7 @@ class LandCover(object):
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
         # - maximum groundwater abstraction (unit: m/day)
-        maximumDailyGroundwaterAbstraction = 0.100                                                   # TODO: define this in the configuration file
+        maximumDailyGroundwaterAbstraction = 0.150                                                   # TODO: define this in the configuration file
         readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, maximumDailyGroundwaterAbstraction)
         #
         # for run with MODFLOW, ignore groundwater storage in non-productive aquifer 
