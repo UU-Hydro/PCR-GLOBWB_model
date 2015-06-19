@@ -591,9 +591,9 @@ class Reporting(object):
 
         
         # closing all files (at the end of calculation) 
-        if self._modelTime.isLastTimeStep: self_close_all_files()
+        if self._modelTime.isLastTimeStep: self.close_all_files()
 
-    def self_close_all_files(self):
+    def close_all_files(self):
 		
         # get the list of the netcdf files in the output directory
         list_of_netcdf_files = glob.glob(self.outNCDir+"/*"+"nc*")  
