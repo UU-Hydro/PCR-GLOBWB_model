@@ -1422,9 +1422,9 @@ class LandCover(object):
                 readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
                 # - safety factor (to avoid 'unrealistic' zero fossil groundwater)
                 readAvlFossilGroundwater *= 0.50
-                # - considering maximum fossil groundwater abstraction
+                # - considering maximum daily groundwater abstraction
                 readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
-                                           pcr.max(0.0, maximumDalilyGroundwaterAbstraction - self.nonFossilGroundwaterAbs)
+                                           pcr.max(0.0, maximumDalilyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 
                 if groundwater.usingAllocSegments:
                 
