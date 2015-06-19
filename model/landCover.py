@@ -1425,7 +1425,7 @@ class LandCover(object):
                 # - considering maximum daily groundwater abstraction
                 readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
                                            pcr.max(0.0, maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
-                readAvlFossilGroundwater = pcr.cover(readAvlFossilGroundwater, 0.0)
+                readAvlFossilGroundwater = pcr.cover(readAvlFossilGroundwater, 0.0)                                           
                 
                 if groundwater.usingAllocSegments:
                 
