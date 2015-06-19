@@ -590,8 +590,8 @@ class Reporting(object):
                        vos.MV),timeStamp)
 
         
-        # closing all files (at the end of calculation) 
-        if self._modelTime.isLastTimeStep: self.close_all_files()
+        #~ # closing all files (at the end of calculation) 
+        #~ if self._modelTime.isLastTimeStep: self.close_all_files()
 
     def close_all_files(self):
 		
