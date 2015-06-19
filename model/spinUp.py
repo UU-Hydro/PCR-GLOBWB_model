@@ -168,7 +168,7 @@ class SpinUp(object):
         logger.info('Delta TotlStorage = %.2f percent' \
                     %(convTotlSto))
         
-        self.spinUpOutputDir != None:
+        if self.spinUpOutputDir != None:
             logger.info('Move all netcdf files from the spin-up run to another directory.')
             vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir+"/")
         
