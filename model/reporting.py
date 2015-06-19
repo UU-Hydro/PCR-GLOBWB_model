@@ -597,5 +597,5 @@ class Reporting(object):
 		
         # get the list of the netcdf files in the output directory
         list_of_netcdf_files = glob.glob(self.outNCDir+"/*"+"nc*")  
-		for nc_file in list_of_netcdf_files: self.netcdfObj.close(nc_file)
+        for nc_file in list_of_netcdf_files: self.netcdfObj.close(nc_file)
         
