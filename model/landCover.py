@@ -1243,8 +1243,8 @@ class LandCover(object):
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
         # - maximum groundwater abstraction (unit: m/day)
-        maximumDalilyGroundwaterAbstraction = 0.150                                                   # TODO: define this in the configuration file
-        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, maximumDalilyGroundwaterAbstraction)
+        maximumDailyGroundwaterAbstraction = 0.150                                                   # TODO: define this in the configuration file
+        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, maximumDailyGroundwaterAbstraction)
         #
         # for run with MODFLOW, ignore groundwater storage in non-productive aquifer 
         if groundwater.useMODFLOW: readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
@@ -1424,7 +1424,7 @@ class LandCover(object):
                 readAvlFossilGroundwater *= 0.50
                 # - considering maximum daily groundwater abstraction
                 readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
-                                           pcr.max(0.0, maximumDalilyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
+                                           pcr.max(0.0, maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 
                 if groundwater.usingAllocSegments:
                 
