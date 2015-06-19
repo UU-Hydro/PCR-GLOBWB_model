@@ -373,4 +373,11 @@ class Configuration(object):
             msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
             logger.warning(msg)
             self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
+        
+        if 'limitFossilGroundWaterAbstraction' not in self.groundwaterOptions.keys():
+            msg  = 'The option "limitFossilGroundWaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "False" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['limitFossilGroundWaterAbstraction'] = "False"
+        
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
