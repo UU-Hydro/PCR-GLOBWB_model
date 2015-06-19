@@ -426,6 +426,7 @@ class Reporting(object):
 
     def report(self):
 
+        # recap all variables
         self.post_processing()
 
         # time stamp for reporting
@@ -433,6 +434,8 @@ class Reporting(object):
                                       self._modelTime.month,\
                                       self._modelTime.day,\
                                       0)
+
+        logger.info("reporting for time %s", self._modelTime.currTime)
 
         # writing daily output to netcdf files
         if self.outDailyTotNC[0] != "None":
@@ -586,4 +589,13 @@ class Reporting(object):
                       pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
 
-        logger.info("reporting for time %s", self._modelTime.currTime)
+        
+        # closing all files (at the end of calculation) 
+        if self._modelTime.isLastTimeStep: self_close_all_files()
+
+    def self_close_all_files(self):
+		
+        # get the list of the netcdf files in the output directory
+        list_of_netcdf_files = glob.glob(self.outNCDir+"/*"+"nc*")  
+		for nc_file in list_of_netcdf_files: self.netcdfObj.close(nc_file)
+        

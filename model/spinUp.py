@@ -21,6 +21,16 @@ class SpinUp(object):
         # How many soil layers (excluding groundwater):
         self.numberOfLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
 
+        # option to save the netcdf files of the latest cycle of spin up runs: 
+        self.spinUpOutputDir = None
+        if 'spinUpOutputDir' iniItems.globalOptions.keys():
+            self.outNCDir = str(iniItems.outNCDir)
+            if iniItems.globalOptions['spinUpOutputDir'] != "None" or\
+               iniItems.globalOptions['spinUpOutputDir'] != "False":
+                self.spinUpOutputDir = vos.getFullPath(iniItems.globalOptions['spinUpOutputDir'], self.outNCDir)
+            if iniItems.globalOptions['spinUpOutputDir'] == "True":
+                self.spinUpOutputDir = self.outNCDir + "/spin-up/"
+        
         self.setupConvergence(iniItems) 
 
     def setupConvergence(self,iniItems):
@@ -116,7 +126,7 @@ class SpinUp(object):
                      cellAreaMap)             # unit: m3
 
 
-    def checkConvergence(self,beginState, endState, spinUpRun, cellAreaMap):
+    def checkConvergence(self, beginState, endState, spinUpRun, cellAreaMap):
         
         #calculate convergence of soil storage
         
@@ -156,6 +166,10 @@ class SpinUp(object):
          
         logger.info('Delta TotlStorage = %.2f percent' \
                     %(convTotlSto))
+        
+        self.spinUpOutputDir != None:
+            logger.info('Move all netcdf files from the spin-up run to another directory.')
+            vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir)
         
         return convSoilSto <= self.minConvForSoilSto and  convGwatSto <= self.minConvForGwatSto\
            and convChanSto <= self.minConvForChanSto and convTotlSto <= self.minConvForTotlSto 
