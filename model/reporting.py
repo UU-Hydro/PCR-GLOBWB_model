@@ -588,14 +588,4 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
-
-        
-        #~ # closing all files (at the end of calculation) 
-        #~ if self._modelTime.isLastTimeStep: self.close_all_files()
-
-    def close_all_files(self):
-		
-        # get the list of the netcdf files in the output directory
-        list_of_netcdf_files = glob.glob(self.outNCDir+"/*"+"nc*")  
-        for nc_file in list_of_netcdf_files: self.netcdfObj.close(nc_file)
-        
+       
