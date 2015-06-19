@@ -193,7 +193,7 @@ class Groundwater(object):
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         
         # TODO: defining the extent of productive aquifer
-        self.productive_aquifer = pcr.boolean(1.0)        
+        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
         
         # get initial conditions
         self.getICs(iniItems,spinUp)
