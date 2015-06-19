@@ -1087,8 +1087,7 @@ class LandCover(object):
             # total irrigation and livestock demand
             totalIrrigationLivestockDemand = self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']
             irrigationLivestockDemandFract = pcr.min(1.0,\
-                                             vos.getValDivZero(totalIrrigationLivestockDemand/\
-                                                          self.totalPotentialMaximumGrossDemand))            
+                                             vos.getValDivZero(totalIrrigationLivestockDemand, self.totalPotentialMaximumGrossDemand))            
             # calculate the remaining demand
             remainingIrrigationLivestock = irrigationLivestockDemandFract * self.totalGrossDemandAfterDesalination
             remainingIndustrialDomestic  = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
