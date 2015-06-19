@@ -977,6 +977,7 @@ class LandCover(object):
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
+            need_irrigation = pcr.cover(need_irrigation, pcr.boolean(0.0))
             #
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
             #
@@ -1085,10 +1086,9 @@ class LandCover(object):
             #
             # total irrigation and livestock demand
             totalIrrigationLivestockDemand = self.irrGrossDemand + swAbstractionFraction['livestockWaterDemand']
-            irrigationLivestockDemandFract = pcr.ifthenelse(self.totalPotentialMaximumGrossDemand > 0.,\
-                                                          pcr.min(1.0,\
-                                                          totalIrrigationLivestockDemand/\
-                                                          self.totalPotentialMaximumGrossDemand), 0.0)            
+            irrigationLivestockDemandFract = pcr.min(1.0,\
+                                             vos.getValDivZero(totalIrrigationLivestockDemand/\
+                                                          self.totalPotentialMaximumGrossDemand))            
             # calculate the remaining demand
             remainingIrrigationLivestock = irrigationLivestockDemandFract * self.totalGrossDemandAfterDesalination
             remainingIndustrialDomestic  = pcr.max(0.000, self.totalGrossDemandAfterDesalination - \
