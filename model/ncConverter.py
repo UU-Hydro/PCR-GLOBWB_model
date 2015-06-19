@@ -26,8 +26,8 @@ class PCR2netCDF():
         cloneMap = pcr.boolean(1.0)
         
         # latitudes and longitudes
-        self.latitudes  = np.unique(pcr2numpy(pcr.ycoordinate(cloneMap), vos.MV))[::-1]
-        self.longitudes = np.unique(pcr2numpy(pcr.xcoordinate(cloneMap), vos.MV))
+        self.latitudes  = np.unique(pcr.pcr2numpy(pcr.ycoordinate(cloneMap), vos.MV))[::-1]
+        self.longitudes = np.unique(pcr.pcr2numpy(pcr.xcoordinate(cloneMap), vos.MV))
         
         # TODO: Let users decide what their preference regarding latitude order. 
         #       Consult with Stefanie regarding CF convention. 
