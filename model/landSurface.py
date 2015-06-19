@@ -146,7 +146,9 @@ class LandSurface(object):
                           'totalPotentialMaximumGrossDemand',
                           'totalPotentialMaximumIrrGrossDemand',
                           'totalPotentialMaximumIrrGrossDemandPaddy',
-                          'totalPotentialMaximumIrrGrossDemandNonPaddy']
+                          'totalPotentialMaximumIrrGrossDemandNonPaddy',
+                          'irrGrossDemandPaddy',
+                          'irrGrossDemandNonPaddy']
         #
         # specific variables for 2 and 3 layer soil models:
         #

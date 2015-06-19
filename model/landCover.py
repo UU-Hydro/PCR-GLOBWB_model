@@ -1028,7 +1028,7 @@ class LandCover(object):
         self.totalPotentialMaximumIrrGrossDemand = self.irrGrossDemand
         self.totalPotentialGrossDemand           = self.totalPotentialMaximumGrossDemand         # this value will be reduced by available/accesible water
 
-        # totalGrossDemand (m) per cover types
+        # totalGrossDemand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
         self.totalPotentialMaximumIrrGrossDemandNonPaddy = 0.0
         if self.name == 'irrPaddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.totalPotentialMaximumIrrGrossDemand
@@ -1487,6 +1487,13 @@ class LandCover(object):
                                  satisfiedIrrigationDemand)                              # not including livestock 
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
+        
+        # irrigation gross demand (m) per cover types (limited by available water)
+        self.irrGrossDemandPaddy    = 0.0
+        self.irrGrossDemandNonPaddy = 0.0
+        if self.name == 'irrPaddy': self.irrGrossDemandPaddy = self.irrGrossDemand
+        if self.name == 'irrNonPaddy': self.irrGrossDemandNonPaddy = sself.irrGrossDemand
+                                 
 
     def calculateDirectRunoff(self, parameters):
 
