@@ -13,9 +13,7 @@ import numpy as np
 import pcraster as pcr
 import virtualOS as vos
 
-# the following dictionary is needed to avoid open and closing files
-filecache = dict()
-
+# TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
 
 class PCR2netCDF():
     
@@ -96,30 +94,18 @@ class PCR2netCDF():
         rootgrp.sync()
         rootgrp.close()
 
-    def changeAtrribute(self, ncFileName, attributeDictionary, closeFile = False):
+    def changeAtrribute(self, ncFileName, attributeDictionary):
 
-        if ncFileName in filecache.keys():
-            #~ print "Cached: ", ncFileName
-            rootgrp = filecache[ncFileName]
-        else:
-            #~ print "New: ", ncFileName
-            rootgrp = nc.Dataset(ncFileName,'a')
-            filecache[ncFileName] = rootgrp
+        rootgrp = nc.Dataset(ncFileName,'a')
 
         for k, v in attributeDictionary.items(): setattr(rootgrp,k,v)
 
         rootgrp.sync()
-        if closeFile == True: rootgrp.close()
+        rootgrp.close()
 
-    def addNewVariable(self, ncFileName, varName, varUnits, longName = None, closeFile = False):
+    def addNewVariable(self, ncFileName, varName, varUnits, longName = None):
 
-        if ncFileName in filecache.keys():
-            #~ print "Cached: ", ncFileName
-            rootgrp = filecache[ncFileName]
-        else:
-            #~ print "New: ", ncFileName
-            rootgrp = nc.Dataset(ncFileName,'a')
-            filecache[ncFileName] = rootgrp
+        rootgrp = nc.Dataset(ncFileName,'a')
 
         shortVarName = varName
         longVarName  = varName
@@ -131,17 +117,11 @@ class PCR2netCDF():
         var.units = varUnits
 
         rootgrp.sync()
-        if closeFile == True: rootgrp.close()
+        rootgrp.close()
 
-    def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt = None, closeFile = False):
+    def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt = None):
 
-        if ncFileName in filecache.keys():
-            #~ print "Cached: ", ncFileName
-            rootgrp = filecache[ncFileName]
-        else:
-            #~ print "New: ", ncFileName
-            rootgrp = nc.Dataset(ncFileName,'a')
-            filecache[ncFileName] = rootgrp
+        rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
         if posCnt == None: posCnt = len(date_time)
@@ -150,17 +130,11 @@ class PCR2netCDF():
         rootgrp.variables[shortVarName][posCnt,:,:] = varField
 
         rootgrp.sync()
-        if closeFile == True: rootgrp.close()
+        rootgrp.close()
 
-    def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None, closeFile = False):
+    def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
 
-        if ncFileName in filecache.keys():
-            #~ print "Cached: ", ncFileName
-            rootgrp = filecache[ncFileName]
-        else:
-            #~ print "New: ", ncFileName
-            rootgrp = nc.Dataset(ncFileName,'a')
-            filecache[ncFileName] = rootgrp
+        rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
         if posCnt == None: posCnt = len(date_time)
@@ -170,20 +144,11 @@ class PCR2netCDF():
             rootgrp.variables[shortVarName][posCnt,:,:] = varFieldList[shortVarName]
 
         rootgrp.sync()
-        if closeFile == True: rootgrp.close()
+        rootgrp.close()
 
     def close(self, ncFileName):
 
-        if ncFileName in filecache.keys():
-            #~ print "Cached: ", ncFileName
-            rootgrp = filecache[ncFileName]
-        else:
-            #~ print "New: ", ncFileName
-            rootgrp = nc.Dataset(ncFileName,'a')
-            filecache[ncFileName] = rootgrp
+        rootgrp = nc.Dataset(ncFileName,'w')
 
         # closing the file 
         rootgrp.close()
-
-        # remove ncFilename from filecache
-        if ncFileName in filecache.keys(): filecache.pop(ncFileName, None)
