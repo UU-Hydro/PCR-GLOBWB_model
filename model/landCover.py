@@ -1006,13 +1006,13 @@ class LandCover(object):
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
-        maximum_demand = 0.015  # unit: m/day                                      # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.025                         # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = 0.025                                    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005  # unit: m/day                                      # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.010                         # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = 0.010                                    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1242,8 +1242,9 @@ class LandCover(object):
         #
         # available storGroundwater (non fossil groundwater) that can be accessed (unit: m)
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
-        # - maximum non fossil groundwater abstraction = 0.100 m
-        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, 0.250)
+        # - maximum groundwater abstraction (unit: m/day)
+        maximumDalilyGroundwaterAbstraction = 0.150                                                   # TODO: define this in the configuration file
+        readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, maximumDalilyGroundwaterAbstraction)
         #
         # for run with MODFLOW, ignore groundwater storage in non-productive aquifer 
         if groundwater.useMODFLOW: readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
@@ -1387,7 +1388,7 @@ class LandCover(object):
                 correctedRemainingIrrigationLivestock = pcr.min(gwAbstractionFraction_irrigation * remainingIrrigationLivestock,\
                                                                 correctedRemainingIrrigationLivestock) 
                 # - also ignore fossil groundwater abstraction in areas dominated by swAbstractionFraction['irrigation']
-                swAbstractionFraction_irrigation_treshold = 0.50 # TODO: define this in the configuration file 
+                swAbstractionFraction_irrigation_treshold = 0.75 # TODO: define this in the configuration file 
                 correctedRemainingIrrigationLivestock = pcr.ifthenelse(swAbstractionFraction['irrigation'] > swAbstractionFraction_irrigation_treshold, 0.0,\
                                                                        correctedRemainingIrrigationLivestock)
 
@@ -1419,11 +1420,11 @@ class LandCover(object):
                 
                 # accesible fossil groundwater (unit: m/day)
                 readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
-                # - maximum fossil groundwater abstraction = 0.100 m
-                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, 0.100)
-
-                # safety factor (to avoid 'unrealistic' zero fossil groundwater)
-                readAvlFossilGroundwater *= 0.50 
+                # - safety factor (to avoid 'unrealistic' zero fossil groundwater)
+                readAvlFossilGroundwater *= 0.50
+                # - considering maximum fossil groundwater abstraction
+                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
+                                           pcr.max(0.0, maximumDalilyGroundwaterAbstraction - self.nonFossilGroundwaterAbs)
                 
                 if groundwater.usingAllocSegments:
                 
@@ -1486,13 +1487,6 @@ class LandCover(object):
                                  satisfiedIrrigationDemand)                              # not including livestock 
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                  self.totalPotentialGrossDemand - self.irrGrossDemand)   # livestock, domestic and industry
-
-        #~ # reducing potential_irrigation_loss due to reduced irrigation demand - NOT needed anymore
-        # - reduction factor for irrigation demand
-        #~ irr_demand_reduction_factor = pcr.min(1.0,\
-                                      #~ vos.getValDivZero(satisfiedIrrigationDemand, self.irrGrossDemand))
-        #~ self.potential_irrigation_loss *= irr_demand_reduction_factor
-        #~ if self.name == 'irrPaddy': self.potential_irrigation_loss = pcr.max(self.design_percolation_loss, self.potential_irrigation_loss)
 
     def calculateDirectRunoff(self, parameters):
 
