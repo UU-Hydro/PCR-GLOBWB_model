@@ -23,7 +23,7 @@ class SpinUp(object):
 
         # option to save the netcdf files of the latest cycle of spin up runs: 
         self.spinUpOutputDir = None
-        if 'spinUpOutputDir' iniItems.globalOptions.keys():
+        if 'spinUpOutputDir' in iniItems.globalOptions.keys():
             self.outNCDir = str(iniItems.outNCDir)
             if iniItems.globalOptions['spinUpOutputDir'] != "None" or\
                iniItems.globalOptions['spinUpOutputDir'] != "False":
