@@ -30,6 +30,7 @@ class SpinUp(object):
                 self.spinUpOutputDir = vos.getFullPath(iniItems.globalOptions['spinUpOutputDir'], self.outNCDir)
             if iniItems.globalOptions['spinUpOutputDir'] == "True":
                 self.spinUpOutputDir = self.outNCDir + "/spin-up/"
+            vos.cmd_line('mkdir '+self.spinUpOutputDir)    
         
         self.setupConvergence(iniItems) 
 
@@ -169,7 +170,7 @@ class SpinUp(object):
         
         self.spinUpOutputDir != None:
             logger.info('Move all netcdf files from the spin-up run to another directory.')
-            vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir)
+            vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir+"/")
         
         return convSoilSto <= self.minConvForSoilSto and  convGwatSto <= self.minConvForGwatSto\
            and convChanSto <= self.minConvForChanSto and convTotlSto <= self.minConvForTotlSto 
