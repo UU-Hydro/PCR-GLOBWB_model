@@ -1096,7 +1096,7 @@ class LandCover(object):
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
         # - surface water source as priority if groundwater irrigation fraction is relatively low  
-        gwAbstractionFraction_irrigation = 1.0 - swAbstractionFraction['irrigation']
+        gwAbstractionFraction_irrigation = 1.0 - swAbstractionFractionDict['irrigation']
         gwAbstractionFraction_irrigation_treshold = 0.50
         surface_water_irrigation_demand_estimate = pcr.ifthenelse(gwAbstractionFraction_irrigation < gwAbstractionFraction_irrigation_treshold, \
                                                                   remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
@@ -1362,7 +1362,7 @@ class LandCover(object):
             correctedRemainingIrrigationLivestock = \
              pcr.min(correctedRemainingIrrigationLivestock,\
              pcr.max(0.0, totalIrrigationLivestockDemand) * gwAbstractionFraction_irrigation - satisfiedIrrDemandFromNonFossilGroundwater)
-            # - ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFraction['irrigation']
+            # - ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
                                swAbstractionFractionDict['irrigation'] > swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
                                correctedRemainingIrrigationLivestock)
