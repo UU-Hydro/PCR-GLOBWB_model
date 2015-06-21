@@ -220,6 +220,8 @@ class Groundwater(object):
         else:
             self.usingAllocSegments = False
         
+        print iniItems.groundwaterOptions['allocationSegmentsForGroundwater']
+        
         # incorporating groundwater distribution network:
         if self.usingAllocSegments:
 
