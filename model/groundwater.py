@@ -165,22 +165,15 @@ class Groundwater(object):
             logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
             self.limitFossilGroundwaterAbstraction = True
 
-            logger.infor('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
-            # TODO: Make the following aquifer thickness information can ba used to define the 
+            logger.info('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
+            # TODO: Make the following aquifer thickness information can be used to define the extent of productive aquifer. 
             
-            # assign total aquifer thickness 
-            if not isinstance(totalGroundwaterThickness,types.NoneType) and\
-                             'totalGroundwaterThickness' in iniItems.groundwaterOptions.keys(): 
-                totalGroundwaterThickness = vos.readPCRmapClone(\
-                                            iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
-                                            self.cloneMap,self.tmpDir,self.inputDir)
+            totalGroundwaterThickness = vos.readPCRmapClone(\
+                                   iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
+                                      self.cloneMap,self.tmpDir,self.inputDir)
             
-            if not isinstance(totalGroundwaterThickness,types.NoneType) and\
-                             'totalGroundwaterThickness' not in iniItems.groundwaterOptions.keys(): 
-            
-            if totalGroundwaterThickness != None and 'recessionCoeff' not in iniItems.groundwaterOptions.keys(): 
-            
-            # extrapolation of totalGroundwaterThickness # TODO: Make a general extrapolation option as a function in the virtualOS.py 
+            # extrapolation of totalGroundwaterThickness 
+            # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 0.75))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
