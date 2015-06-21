@@ -858,8 +858,8 @@ class Routing(object):
         # - References: de Graaf et al. (2014); Wada et al. (2012); Wada et al. (2010)
         # - TODO: This concept should be IMPROVED. 
         #
-        riverbedConductivity  = groundwater.kSatAquifer                 # unit: m/day
-        riverbedConductivity  = pcr.min(0.1, riverbedConductivity)      # maximum conductivity is 0.1 m/day (as recommended by Marc Bierkens: resistance = 1 day)
+        riverbedConductivity  = groundwater.riverBedConductivity        # unit: m/day
+        riverbedConductivity  = pcr.min(0.1, riverbedConductivity)      # maximum conductivity is 0.1 m/day (as recommended by Marc Bierkens: resistance = 1 day for 0.1 m river bed thickness)
         total_groundwater_abstraction = pcr.max(0.0, groundwater.nonFossilGroundwaterAbs + groundwater.fossilGroundwaterAbstr)   # unit: m
         self.riverbedExchange = pcr.max(0.0,\
                                 pcr.min(pcr.max(0.0,self.channelStorage),\

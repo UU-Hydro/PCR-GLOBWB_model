@@ -31,10 +31,9 @@ class SoilAndTopoParameters(object):
         if iniItems.landSurfaceOptions['topographyNC'] == str(None):
             for var in topoParams:
                 input = iniItems.landSurfaceOptions[str(var)]
-                vars(self)[var] = pcr.scalar(0.0)
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                                 self.tmpDir,self.inputDir)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                if var != "slopeLength": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         else:
             topoPropertiesNC = vos.getFullPath(\
                                iniItems.landSurfaceOptions[\
@@ -44,9 +43,12 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                     topoPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                if var != "slopeLength": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-        #~ self.tanslope = pcr.max(self.tanslope, 0.00001)
+        #~ self.tanslope = pcr.max(self.tanslope, 0.00001)              # In principle, tanslope can be zero. Zero tanslope will provide zero TCL (no interflow)
+
+        # covering slopeLength with its maximum value 
+        self.slopeLength = pcr.cover(self.slopeLength, pcr.mapmaximum(self.slopeLength))
         
         # maps of relative elevation above flood plains 
         dzRel = ['dzRel0001','dzRel0005',

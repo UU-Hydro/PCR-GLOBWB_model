@@ -46,14 +46,14 @@ class SpinUp(object):
         # TODO: including the convergence of ResvSto (reservoir storage)
         # self.minConvForResvSto = float(iniItems.globalOptions['minConvForResvSto'])
         
-        self.iniLandSurface = {}
-        # landCover types included in the simulation: 
-        self.coverTypes = ["forest","grassland"]
-        #
-        if iniItems.landSurfaceOptions['includeIrrigation'] == "True":\
-           self.coverTypes += ["irrPaddy","irrNonPaddy"] 
-        for coverType in self.coverTypes:
-            self.iniLandSurface[coverType] = None
+        # TODO: Check! I think that we can rempve the following linaes. 
+        #~ self.iniLandSurface = {}
+        #~ # landCover types included in the simulation: 
+        #~ self.coverTypes = ["forest","grassland"]
+        #~ if iniItems.landSurfaceOptions['includeIrrigation'] == "True":\
+           #~ self.coverTypes += ["irrPaddy","irrNonPaddy"] 
+        #~ for coverType in self.coverTypes:
+            #~ self.iniLandSurface[coverType] = None
         
         self.endStateDir = iniItems.endStateDir     
 

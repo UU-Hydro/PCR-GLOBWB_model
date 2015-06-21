@@ -23,12 +23,15 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
+# file cache to minimize/reduce opening/closing files.  
+filecache = dict()
+
 # Global variables:
 MV = 1e20
 smallNumber = 1E-39
 
-# file cache to minimize/reduce opening/closing files.  
-filecache = dict()
+# tuple of netcdf file suffixes (extensions) that can be used:
+netcdf_suffixes = ('.nc4','.nc')
 
 def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
                                   cloneMapFileName  = None,\
@@ -582,7 +585,7 @@ def getFullPath(inputPath,absolutePath,completeFileName = True):
     inputPath = str(inputPath).replace("\\", "/")
     absolutePath = str(absolutePath).replace("\\", "/")
     
-    # list of suffixes (extensions) that can be used:
+    # tuple of suffixes (extensions) that can be used:
     suffix = ('/','_','.nc4','.map','.nc','.dat','.txt','.asc','.ldd',\
               '.001','.002','.003','.004','.005','.006',\
               '.007','.008','.009','.010','.011','.012')

@@ -221,7 +221,8 @@ class Configuration(object):
     def repair_ini_key_names(self):
         """
         Change key names for initial condition fields. 
-        This is needed because Edwin was very stupid as once he changed some key names of initial conditions!  
+        This is introduced because Edwin was very stupid as once he changed some key names of initial conditions!  
+        However, it is also useful particularly for a run without 
         """
 
         # temporal resolution of the model
@@ -229,7 +230,6 @@ class Configuration(object):
         self.timeStepUnit = "day"
         if 'timeStep' in self.globalOptions.keys() and \
            'timeStepUnit'in self.globalOptions.keys():
-
             if float(self.globalOptions['timeStep']) != 1.0 or \
                      self.globalOptions['timeStepUnit'] != "day":
                 logger.error('The model runs only on daily time step. Please check your ini/configuration file')
@@ -261,6 +261,9 @@ class Configuration(object):
 
         # adjustment for desalinationWater
         if 'desalinationWater' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "desalinationWater" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Desalination water use is NOT included in the calculation.'
+            logger.warning(msg)
             self.landSurfaceOptions['desalinationWater'] = "None"
 
         # adjustment for routingOptions
@@ -379,5 +382,17 @@ class Configuration(object):
             msg += 'This run assumes "False" for this option.'
             logger.warning(msg)
             self.groundwaterOptions['limitFossilGroundWaterAbstraction'] = "False"
+        
+        if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "0.0" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "0.0"
+        
+        if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "0.0" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "0.0"
         
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
