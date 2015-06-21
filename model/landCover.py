@@ -1185,7 +1185,7 @@ class LandCover(object):
                vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
         satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
         # - for non irrigation water demand: livestock, domestic and industry 
-        satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrDemandFromSurfaceWater)
+        satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
         satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
         # - for livestock                                                                      
         satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
