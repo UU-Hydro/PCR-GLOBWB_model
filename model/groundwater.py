@@ -160,7 +160,7 @@ class Groundwater(object):
         # - We do not need to define if self.limitFossilGroundwaterAbstraction == True : 
         #
         # estimate of fossil groundwater capacity (based on the aquifer thickness and specific yield)
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction = False: 
+        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False: 
 
             logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
             self.limitFossilGroundwaterAbstraction = True
