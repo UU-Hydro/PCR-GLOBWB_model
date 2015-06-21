@@ -1022,8 +1022,8 @@ class LandCover(object):
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
         self.totalPotentialMaximumIrrGrossDemandNonPaddy = 0.0
-        if self.name == 'irrPaddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.totalPotentialMaximumIrrGrossDemand
-        if self.name == 'irrNonPaddy': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.totalPotentialMaximumIrrGrossDemand
+        if self.name == 'irrPaddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
+        if self.name == 'irrNonPaddy': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 
         
         # non irrigation water demand, including the livestock (not limited by available water)
