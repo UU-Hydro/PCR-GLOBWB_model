@@ -1115,7 +1115,7 @@ class LandCover(object):
         surface_water_demand_estimate = pcr.min(self.totalGrossDemandAfterDesalination, surface_water_demand_estimate)
         remainingIrrigationLivestock  = pcr.min(surface_water_demand_estimate, remainingIrrigationLivestock)
         remainingIndustrialDomestic   = pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock)
-        surface_water_demand_estimate = remainingIrrigationLivestock + remainingIndustrialDomestic  
+        surface_water_demand          = remainingIrrigationLivestock + remainingIndustrialDomestic  
         #
         # if surface water abstraction as the first priority
         if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
