@@ -1359,8 +1359,9 @@ class LandCover(object):
             correctedRemainingIrrigationLivestock = pcr.min(gwAbstractionFraction_irrigation * remainingIrrigationLivestock,\
                                                             correctedRemainingIrrigationLivestock) 
             # - ignore/reduce groundwater irrigation demand with enough supply of non fossil groundwater
-            correctedRemainingIrrigationLivestock = pcr.min(correctedRemainingIrrigationLivestock,\
-                                                    pcr.max(0.0, totalIrrigationLivestockDemand) * gwAbstractionFraction_irrigation - satisfiedIrrDemandFromNonFossilGroundwater))
+            correctedRemainingIrrigationLivestock = \
+             pcr.min(correctedRemainingIrrigationLivestock,\
+             pcr.max(0.0, totalIrrigationLivestockDemand) * gwAbstractionFraction_irrigation - satisfiedIrrDemandFromNonFossilGroundwater)
             # - ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFraction['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
                                swAbstractionFractionDict['irrigation'] > swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
