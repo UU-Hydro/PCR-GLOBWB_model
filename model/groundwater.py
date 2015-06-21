@@ -205,14 +205,12 @@ class Groundwater(object):
         # zones at which groundwater allocations are determined
         self.usingAllocSegments = False
         # - by default, it is consistent with the one defined in the landSurfaceOptions
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "None" or\
-           iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "False":
+        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] in ("None", "False"):
             self.usingAllocSegments = True
             groundwaterAllocationSegments = iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']
         # - yet, we can also define a specific one for groundwater
         if "allocationSegmentsForGroundwater" in iniItems.groundwaterOptions.keys():
-            if iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] != "None" or\
-               iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] != "False":
+            if iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] in ("None", "False"):
                 self.usingAllocSegments = True
                 groundwaterAllocationSegments = iniItems.groundwaterOptions['allocationSegmentsForGroundwater']
             else:
