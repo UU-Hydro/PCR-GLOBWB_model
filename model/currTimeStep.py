@@ -99,7 +99,7 @@ class ModelTime(object):
         self._currTime = self._startTime + datetime.timedelta(days=1 * (timeStepPCR - 1))
         self._fulldate = str(self.currTime.strftime('%Y-%m-%d'))
         #~ print(self._fulldate)
-        if self._spinUpStatus == True : 
+        if self.spinUpStatus == True : 
             logger.info("Spin-Up "+str(self._noSpinUp)+" of "+str(self._maxSpinUps))
 
         # The following contains hours, minutes, seconds, etc. 

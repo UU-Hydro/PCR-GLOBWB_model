@@ -204,10 +204,8 @@ class LandSurface(object):
         self.swAbstractionFractionDataQuality = None
         if 'irrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
            'irrigationSurfaceWaterAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
-            if iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] != "None" or\
-               iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] != "False" or\
-               iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] != "None" or\
-               iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] != "False":
+            if iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] not in ["None", "False"] or\
+               iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] not in ["None", "False"]:
                 
                 logger.info('Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand.')
                 self.swAbstractionFractionData = pcr.cover(\
@@ -489,8 +487,7 @@ class LandSurface(object):
         
         # desalination water supply option
         self.includeDesalination = False
-        if iniItems.landSurfaceOptions['desalinationWater'] != "None" or\
-           iniItems.landSurfaceOptions['desalinationWater'] != "None":
+        if iniItems.landSurfaceOptions['desalinationWater'] not in ["None", "False"]:
             logger.info("Monthly desalination water is included.")
             self.includeDesalination = True
             self.desalinationWaterFile = iniItems.landSurfaceOptions['desalinationWater']

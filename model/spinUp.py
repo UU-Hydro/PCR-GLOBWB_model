@@ -25,8 +25,7 @@ class SpinUp(object):
         self.spinUpOutputDir = None
         if 'spinUpOutputDir' in iniItems.globalOptions.keys():
             self.outNCDir = str(iniItems.outNCDir)
-            if iniItems.globalOptions['spinUpOutputDir'] != "None" or\
-               iniItems.globalOptions['spinUpOutputDir'] != "False":
+            if iniItems.globalOptions['spinUpOutputDir'] not in ["None", "False"]:
                 self.spinUpOutputDir = vos.getFullPath(iniItems.globalOptions['spinUpOutputDir'], self.outNCDir)
             if iniItems.globalOptions['spinUpOutputDir'] == "True":
                 self.spinUpOutputDir = self.outNCDir + "/spin-up/"

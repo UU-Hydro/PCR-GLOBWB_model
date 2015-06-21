@@ -1163,7 +1163,6 @@ class LandCover(object):
             self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
         #  
         else: 
-        #  
             logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
             self.actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
                                                      surface_water_demand)                            # unit: m
