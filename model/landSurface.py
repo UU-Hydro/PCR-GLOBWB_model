@@ -464,7 +464,7 @@ class LandSurface(object):
         
         # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
         self.irrigationEfficiency = vos.readPCRmapClone(\
-                                    iItems.landSurfaceOptions['irrigationEfficiency'],
+                                    iniItems.landSurfaceOptions['irrigationEfficiency'],
                                     self.cloneMap,self.tmpDir,self.inputDir)
         # extrapolate efficiency map:                                                # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
         window_size = 1.25 * pcr.clone().cellSize()
