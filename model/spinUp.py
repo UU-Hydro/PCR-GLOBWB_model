@@ -170,6 +170,7 @@ class SpinUp(object):
         
         if self.spinUpOutputDir != None:
             logger.info('Move all netcdf files resulted from the spin-up run to the spin-up directory: '+self.spinUpOutputDir)
+            vos.cmd_line('rm -r '+self.spinUpOutputDir+"/*")
             vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir+"/")
         
         return convSoilSto <= self.minConvForSoilSto and  convGwatSto <= self.minConvForGwatSto\
