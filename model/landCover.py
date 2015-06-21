@@ -1227,18 +1227,18 @@ class LandCover(object):
         # estimating groundwater water demand:
         # - demand for industrial and domestic sectors 
         #   (all remaining demand for these sectors should be satisfied)
-        groundwater_water_demand_estimate = remainingIndustrialDomestic
+        groundwater_demand_estimate = remainingIndustrialDomestic
         # - demand for irrigation and livestock sectors
         #   (only part of them will be satisfied, as they may be too high due to the uncertainty in the irrigation scheme)
         irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                pcr.max(0.0, \
                                                (1.0 - swAbstractionFractionDict['irrigation'])*totalIrrigationLivestockDemand))
-        groundwater_water_demand_estimate += irrigationLivestockGroundwaterDemand
+        groundwater_demand_estimate += irrigationLivestockGroundwaterDemand
 
 
         #####################################################################################################
         # water demand that must be satisfied by groundwater abstraction (not limited to available water)
-        self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, groundwater_water_demand_estimate)
+        self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, groundwater_demand_estimate)
         #####################################################################################################
 
 
