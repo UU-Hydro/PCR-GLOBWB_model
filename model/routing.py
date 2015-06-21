@@ -916,8 +916,7 @@ class Routing(object):
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
 
         # return flow from (m) non irrigation water demand
-        self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowFraction*\
-                                landSurface.nonIrrGrossDemand          # m
+        self.nonIrrReturnFlow = landSurface.nonIrrReturnFlow
         nonIrrReturnFlowVol   = self.nonIrrReturnFlow*self.cellArea
         self.channelStorage  += nonIrrReturnFlowVol
         self.local_input_to_surface_water += nonIrrReturnFlowVol

@@ -147,8 +147,13 @@ class LandSurface(object):
                           'totalPotentialMaximumIrrGrossDemand',
                           'totalPotentialMaximumIrrGrossDemandPaddy',
                           'totalPotentialMaximumIrrGrossDemandNonPaddy',
+                          'totalPotentialMaximumNonIrrGrossDemand',
                           'irrGrossDemandPaddy',
-                          'irrGrossDemandNonPaddy']
+                          'irrGrossDemandNonPaddy',
+                          'domesticWaterWithdrawal',
+                          'industryWaterWithdrawal',
+                          'livestockWaterWithdrawal',
+                          'nonIrrReturnFlow']
         #
         # specific variables for 2 and 3 layer soil models:
         #
