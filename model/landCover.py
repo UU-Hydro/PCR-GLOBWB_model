@@ -1107,7 +1107,7 @@ class LandCover(object):
                                                        pcr.max(0.0, remainingIrrigationLivestock - pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         #
         # maximize/optimize surface water use in areas with the overestimation of groundwater supply 
-        surface_water_demand_estimate += pcr.max(0.0, pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation) -\ 
+        surface_water_demand_estimate += pcr.max(0.0, pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation) -\
                       gwAbstractionFraction_irrigation * totalIrrigationLivestockDemand +\
                (1.0 - swAbstractionFraction_industrial_domestic) * (self.totalPotentialMaximumGrossDemand - totalIrrigationLivestockDemand))
         #
