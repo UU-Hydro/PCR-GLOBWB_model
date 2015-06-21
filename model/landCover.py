@@ -1588,9 +1588,9 @@ class LandCover(object):
         self.livestockWaterWithdrawal = satisfiedLivestockDemand
         
         # return flow (unit: m/day) from non irrigation withdrawal (from domestic, industry and livestock)
-        self.nonIrrReturnFlow = nonIrrigationWaterDemandDict['return_flow_fraction']['domestic'] * self.domesticWaterWithdrawal +\
-                                nonIrrigationWaterDemandDict['return_flow_fraction']['industry'] * self.industryWaterWithdrawal +\
-                                nonIrrigationWaterDemandDict['return_flow_fraction']['livestock']* self.livestockWaterWithdrawal
+        self.nonIrrReturnFlow = nonIrrGrossDemandDict['return_flow_fraction']['domestic'] * self.domesticWaterWithdrawal +\
+                                nonIrrGrossDemandDict['return_flow_fraction']['industry'] * self.industryWaterWithdrawal +\
+                                nonIrrGrossDemandDict['return_flow_fraction']['livestock']* self.livestockWaterWithdrawal
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.irrGrossDemand,\
