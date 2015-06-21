@@ -1528,7 +1528,11 @@ class LandCover(object):
                 satisfiedIrrigationLivestockDemandFromFossilGroundwater = pcr.max(0.0, self.fossilGroundwaterAlloc - \
                                                                                        satisfiedIndustrialDomesticDemandFromFossilGroundwater)
                 # - for irrigation
-                satisfiedIrrigationDemand += satisfiedIrrigationDemandFromFossilGroundwater
+                satisfiedIrrigationDemand += satisfiedIrrigationDemandFromFossilGroundwater * vos.getValDivZero(remainingIrrigation, \
+                                                                                                                remainingIrrigationLivestock)
+                # - for livestock
+                satisfiedLivestockDemand  += satisfiedIrrigationDemandFromFossilGroundwater * vos.getValDivZero(remainingLivestock, \
+                                                                                                                remainingIrrigationLivestock)
             
             else:
             
