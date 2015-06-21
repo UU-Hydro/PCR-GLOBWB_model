@@ -234,10 +234,12 @@ class LandSurface(object):
                                                                                                    self.cloneMap,self.tmpDir,self.inputDir), 1.0))
 
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
-        self.treshold_to_maximize_irrigation_surface_water      = vos.readPCRmapClone
-                                                                  iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],self.cloneMap,self.tmpDir,self.inputDir)
-        self.treshold_to_minimize_fossil_groundwater_irrigation = iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],self.cloneMap,self.tmpDir,self.inputDir)
-        
+        self.treshold_to_maximize_irrigation_surface_water = \
+         vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],\
+                                 self.cloneMap,self.tmpDir,self.inputDir)
+        self.treshold_to_minimize_fossil_groundwater_irrigation = \
+         vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
+                                 self.cloneMap,self.tmpDir,self.inputDir)
         
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
