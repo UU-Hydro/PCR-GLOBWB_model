@@ -1438,7 +1438,7 @@ class LandCover(object):
             nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea, \
                                                  groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
             # - irrigation supply from the non fossil groundwater
-            nonFossilIrrigationGroundwaterSupply  = nonFossilGroundwaterSupply * vos.getValDivZero(remainingIrrigationLivestock, remainingTotalDemand))
+            nonFossilIrrigationGroundwaterSupply  = nonFossilGroundwaterSupply * vos.getValDivZero(remainingIrrigationLivestock, remainingTotalDemand)
             # - the corrected/reduced irrigation and livestock demand
             correctedRemainingIrrigationLivestock = pcr.max(0.0, correctedRemainingIrrigationLivestock - nonFossilIrrigationGroundwaterSupply)
 
