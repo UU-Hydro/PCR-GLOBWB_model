@@ -1003,8 +1003,8 @@ class LandCover(object):
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
-        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.025                                    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = 0.020                                    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # minimum demand for start irrigating
@@ -1013,11 +1013,11 @@ class LandCover(object):
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
-        self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
-
         # ignore small irrigation demand (less than 1 mm)
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+
+        # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
+        self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
 
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
@@ -1025,6 +1025,10 @@ class LandCover(object):
         if self.name == 'irrPaddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
         if self.name == 'irrNonPaddy': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 
+        # non irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ?
+        nonIrrGrossDemandDict['potential_demand']['domestic']  = pcr.ifthenelse(self.fracVegCover > 0.0, nonIrrGrossDemandDict['potential_demand']['domestic'] , 0.0) 
+        nonIrrGrossDemandDict['potential_demand']['industry']  = pcr.ifthenelse(self.fracVegCover > 0.0, nonIrrGrossDemandDict['potential_demand']['industry'] , 0.0)
+        nonIrrGrossDemandDict['potential_demand']['livestock'] = pcr.ifthenelse(self.fracVegCover > 0.0, nonIrrGrossDemandDict['potential_demand']['livestock'], 0.0)
         
         # non irrigation water demand, including the livestock (not limited by available water)
         self.nonIrrGrossDemand = nonIrrGrossDemandDict['potential_demand']['domestic'] +\
@@ -1253,22 +1257,25 @@ class LandCover(object):
             # total groundwater abstraction (m3) from the last 365 days at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
+            # correcting regionalAnnualGroundwaterAbstractionLimit with fracVegCover 
+            regionalAnnualGroundwaterAbstractionLimit = vos.getValDivZero(regionalAnnualGroundwaterAbstractionLimit, self.fracVegCover)
+            
             # reduction factor to reduce groundwater abstraction/demand
             reductionFactorForPotGroundwaterAbstract = pcr.cover(\
                                                        pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
                                                        pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
+            self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
             
-            # reduced potential groundwater demand, but still considering the average supply of non-fossil groundwater
-            # - from the average baseflow (recharge), unit: m/day 
-            nonFossilGroundwaterSupply = pcr.max(0.0, (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay()) 
-            # - from the average non fossil groundwater allocation
-            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
-                                         pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
-            # reduced potential groundwater demand (unit: m/day)
-            self.potGroundwaterAbstract = pcr.max(pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract, \
-                                                  pcr.min(nonFossilGroundwaterSupply, self.potGroundwaterAbstract))
+            #~ # reduced potential groundwater demand, but still considering the average supply of non-fossil groundwater
+            #~ # - from the average baseflow (recharge), unit: m/day 
+            #~ nonFossilGroundwaterSupply = pcr.max(0.0, (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay()) 
+            #~ # - from the average non fossil groundwater allocation
+            #~ nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
+                                         #~ pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
+            #~ # reduced potential groundwater demand (unit: m/day)
+            #~ self.potGroundwaterAbstract = pcr.min(nonFossilGroundwaterSupply, self.potGroundwaterAbstract)
 
         else:
 
@@ -1381,6 +1388,7 @@ class LandCover(object):
                                                  pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                 regionalAnnualGroundwaterAbstraction) /
                                                                 regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
+
         else:
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
 
@@ -1413,7 +1421,7 @@ class LandCover(object):
             correctedRemainingTotalDemand = pcr.min(self.potFossilGroundwaterAbstract, remainingTotalDemand)
 
             # the remaining industrial and domestic demand (unit: m/day, excluding livestock) limited to self.potFossilGroundwaterAbstract
-            # - this is the priority, we will always try to fulfil the remaining industrial and demand
+            # - no correction, we will always try to fulfil the remaining industrial and demand
             correctedRemainingIndustrialDomestic = pcr.min(remainingIndustrialDomestic, correctedRemainingTotalDemand)
 
             # the remaining irrigation and livestock water demand limited to self.potFossilGroundwaterAbstract
