@@ -1257,8 +1257,8 @@ class LandCover(object):
             # total groundwater abstraction (m3) from the last 365 days at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
-            # correcting regionalAnnualGroundwaterAbstractionLimit with fracVegCover - Shall we do this?
-            regionalAnnualGroundwaterAbstractionLimit = vos.getValDivZero(regionalAnnualGroundwaterAbstractionLimit, self.fracVegCover)
+            #~ # correcting regionalAnnualGroundwaterAbstractionLimit with fracVegCover - Shall we do this?
+            #~ regionalAnnualGroundwaterAbstractionLimit = vos.getValDivZero(regionalAnnualGroundwaterAbstractionLimit, self.fracVegCover)
             
             # reduction factor to reduce groundwater abstraction/demand
             reductionFactorForPotGroundwaterAbstract = pcr.cover(\
@@ -1521,7 +1521,7 @@ class LandCover(object):
             ################################################################################################################################
             
             # from fossil groundwater, we should prioritize domestic and industrial water demand
-            prioritizeFossilGroundwaterForDomesticIndutrial = False                           # TODO: Define this in the configuration file.
+            prioritizeFossilGroundwaterForDomesticIndutrial = True                           # TODO: Define this in the configuration file.
             
             if prioritizeFossilGroundwaterForDomesticIndutrial:
                 
