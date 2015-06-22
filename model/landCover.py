@@ -1424,23 +1424,24 @@ class LandCover(object):
             
             # TODO: Do the water balance check: correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic <= self.potFossilGroundwaterAbstract                                          
 
-            # reduce the remaining irrigation and livestock demand (in order to minimize unrealistic areas of fossil groundwater abstraction) 
-            # - constrain the groundwater demand with groundwater source fraction 
+            # constrain the irrigation groundwater demand with groundwater source fraction 
             correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
                                                              correctedRemainingIrrigationLivestock) 
 
-            # reduce the remaining irrigation and livestock demand with enough supply of non fossil groundwater
-            # (including the incoming (average) non fossil groundwater allocation for the next days)
-            # - supply from the non fossil groundwater allocation
-            nonFossilGroundwaterSupply = pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
-            # - irrigation supply from non fossil groundwater allocation
-            nonFossilIrrigationGroundwaterSupply = pcr.max(satisfiedIrrigationDemandFromNonFossilGroundwater,\
-                                                   nonFossilGroundwaterSupply * vos.getValDivZero(remainingIrrigationLivestock, remainingTotalDemand))
-            # - the corrected/reduced irrigation and livestock demand
+            # reduce the remaining irrigation and livestock demands with enough supply of non fossil groundwater
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
-             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - nonFossilIrrigationGroundwaterSupply))
+             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
             
+            # reduce the fossil irrigation and livestock demands with enough supply of non fossil groundwater (in order to minimize unrealistic areas of fossil groundwater abstraction)
+            # - supply from the average recharge (baseflow) and non fossil groundwater allocation 
+            nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea), \
+                                                 groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
+            # - irrigation supply from the non fossil groundwater
+            nonFossilIrrigationGroundwaterSupply  = nonFossilGroundwaterSupply * vos.getValDivZero(remainingIrrigationLivestock, remainingTotalDemand))
+            # - the corrected/reduced irrigation and livestock demand
+            correctedRemainingIrrigationLivestock = pcr.max(0.0, correctedRemainingIrrigationLivestock - nonFossilIrrigationGroundwaterSupply)
+
             # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
                                swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
