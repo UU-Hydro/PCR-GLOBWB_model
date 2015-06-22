@@ -1267,19 +1267,9 @@ class LandCover(object):
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
             # reduced potential groundwater abstraction (after pumping capacity)
-            potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
+            self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
             
-            # optimizing regionalAnnualGroundwaterAbstractionLimit by considering the average supply of non-fossil groundwater (incoming supply)
-            # - from the average baseflow (recharge), unit: m/day 
-            nonFossilGroundwaterSupply = pcr.max(0.0, (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay()) 
-            # - from the average non fossil groundwater allocation
-            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
-                                         pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
-            # reduced potential groundwater demand (unit: m/day)
-            self.potGroundwaterAbstract = pcr.min(nonFossilGroundwaterSupply + potGroundwaterAbstract, self.potGroundwaterAbstract)
-
         else:
-
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
         
 
@@ -1390,15 +1380,6 @@ class LandCover(object):
                                                                 regionalAnnualGroundwaterAbstraction) /
                                                                 regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
 
-            # reducing potential fossil groundwater demand, by considering the average supply of non-fossil groundwater
-            # - from the average baseflow (recharge), unit: m/day 
-            nonFossilGroundwaterSupply = pcr.max(0.0, (routing.avgBaseflow / routing.cellArea) * vos.secondsPerDay()) 
-            # - from the average non fossil groundwater allocation
-            nonFossilGroundwaterSupply = pcr.max(nonFossilGroundwaterSupply, \
-                                         pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation))  
-            # reduced potential groundwater demand (unit: m/day)
-            self.potFossilGroundwaterAbstract = pcr.max(0.0, self.potFossilGroundwaterAbstract - nonFossilGroundwaterSupply)
-
         else:
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
 
@@ -1447,11 +1428,20 @@ class LandCover(object):
             # - constrain the groundwater demand with groundwater source fraction 
             correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
                                                              correctedRemainingIrrigationLivestock) 
-            # - ignore/reduce groundwater irrigation demand with enough supply of non fossil groundwater
-            correctedRemainingIrrigationLivestock = \
+
+            # reduce the remaining irrigation and livestock demand with enough supply of non fossil groundwater
+            # (including the incoming (average) non fossil groundwater allocation for the next days)
+            # - supply from the non fossil groundwater allocation
+            nonFossilGroundwaterSupply = pcr.max(groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
+            # - irrigation supply from non fossil groundwater allocation
+            nonFossilIrrigationGroundwaterSupply = pcr.max(satisfiedIrrigationDemandFromNonFossilGroundwater,\
+                                                   nonFossilGroundwaterSupply * vos.getValDivZero(remainingIrrigationLivestock, remainingTotalDemand))
+            # - the corrected/reduced irrigation and livestock demand
+            correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
-             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater)
-            # - ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
+             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - nonFossilIrrigationGroundwaterSupply))
+            
+            # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
                                swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
                                correctedRemainingIrrigationLivestock)
