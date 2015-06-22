@@ -1373,10 +1373,12 @@ class LandCover(object):
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
             # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day)
+            # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
+            safety_factor_for_fossil_abstraction = 0.50
             self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
                                                  pcr.cover(\
                                                  pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
-                                                 pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                 pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit * safety_factor_for_fossil_abstraction-\
                                                                 regionalAnnualGroundwaterAbstraction) /
                                                                 regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
 
