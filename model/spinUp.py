@@ -29,6 +29,7 @@ class SpinUp(object):
                 self.spinUpOutputDir = vos.getFullPath(iniItems.globalOptions['spinUpOutputDir'], self.outNCDir)
             if iniItems.globalOptions['spinUpOutputDir'] == "True":
                 self.spinUpOutputDir = self.outNCDir + "/spin-up/"
+            vos.cmd_line('rm -r '+self.spinUpOutputDir+"/*")    
             vos.cmd_line('mkdir '+self.spinUpOutputDir)    
         
         self.setupConvergence(iniItems) 
