@@ -1374,7 +1374,7 @@ class LandCover(object):
                                                                  
             # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day)
             # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
-            safety_factor_for_fossil_abstraction = 0.75
+            safety_factor_for_fossil_abstraction = 1.00
             self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
                                                  pcr.cover(\
                                                  pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
