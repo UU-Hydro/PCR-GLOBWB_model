@@ -1003,15 +1003,15 @@ class LandCover(object):
         # reduce irrGrossDemand by netLqWaterToSoil
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
-        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.020                                    # TODO: set the minimum demand in the ini/configuration file.
-        self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
-
         # minimum demand for start irrigating
-        minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = 0.010                                    # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.010  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
+
+        maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = 0.0275                                   # TODO: set the minimum demand in the ini/configuration file.
+        self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
         self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
@@ -1257,7 +1257,7 @@ class LandCover(object):
             # total groundwater abstraction (m3) from the last 365 days at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
                                                                  
-            # correcting regionalAnnualGroundwaterAbstractionLimit with fracVegCover 
+            # correcting regionalAnnualGroundwaterAbstractionLimit with fracVegCover - Shall we do this?
             regionalAnnualGroundwaterAbstractionLimit = vos.getValDivZero(regionalAnnualGroundwaterAbstractionLimit, self.fracVegCover)
             
             # reduction factor to reduce groundwater abstraction/demand
