@@ -1454,11 +1454,6 @@ class LandCover(object):
             
             # TODO: Do the water balance check: correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic <= self.potFossilGroundwaterAbstract                                          
 
-            # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
-            correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
-                               swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
-                               correctedRemainingIrrigationLivestock)
-
             # constrain the irrigation groundwater demand with groundwater source fraction 
             correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
                                                              correctedRemainingIrrigationLivestock) 
@@ -1466,6 +1461,11 @@ class LandCover(object):
              pcr.min(correctedRemainingIrrigationLivestock,\
              pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
             
+            # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
+            correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
+                               swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'], 0.0,\
+                               correctedRemainingIrrigationLivestock)
+
             # reduce the fossil irrigation and livestock demands with enough supply of non fossil groundwater (in order to minimize unrealistic areas of fossil groundwater abstraction)
             # - supply from the average recharge (baseflow) and non fossil groundwater allocation 
             nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea, \
