@@ -1274,6 +1274,10 @@ class LandCover(object):
                                                                               regionalAnnualGroundwaterAbstraction)
             # considering safety factor (residence time in day-1)                                                                  
             remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.20
+
+            # the remaining pumping capacity (unit: m3) limited by self.potGroundwaterAbstract (at the regional scale)
+            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
+                                                                         pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
             
             # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
             remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
@@ -1281,7 +1285,7 @@ class LandCover(object):
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                             remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
             
             #~ # considering the (average) supply of non fossil groundwater
             #~ potGroundwaterAbstract = self.potGroundwaterAbstract
