@@ -1284,15 +1284,9 @@ class LandCover(object):
                 vos.getValDivZero(self.potGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
-            potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                 remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
-            
-            # consider the next/incoming supply of non fossil groundwater 
-            nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea, \
-                                                 groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                                       potGroundwaterAbstract + nonFossilGroundwaterSupply)
-
+                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            
         else:
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
         
