@@ -1290,7 +1290,6 @@ class LandCover(object):
             # consider the next/incoming supply of non fossil groundwater 
             nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea, \
                                                  groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)  
-            tolerating_days = 0.
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
                                                        potGroundwaterAbstract + nonFossilGroundwaterSupply)
 
@@ -1482,9 +1481,6 @@ class LandCover(object):
             # - the corrected/reduced irrigation and livestock demand
             correctedRemainingIrrigationLivestock = pcr.max(0.0, correctedRemainingIrrigationLivestock - nonFossilIrrigationGroundwaterSupply)
 
-            # ignore small irrigation and livestock demand (less than 1 mm)
-            correctedRemainingIrrigationLivestock = pcr.rounddown(correctedRemainingIrrigationLivestock * 1000.)/1000.
-            
             # the corrected remaining total demand (unit: m/day) 
             correctedRemainingTotalDemand = correctedRemainingIndustrialDomestic + correctedRemainingIrrigationLivestock                                                                                                                                               
 
