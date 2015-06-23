@@ -1499,7 +1499,7 @@ class LandCover(object):
                 logger.debug(msg)
                 
                 # fossil groundwater abstraction (unit: m/day) 
-                self.fossilGroundwaterAbstr = pcr.max(0.0, self.potFossilGroundwaterAbstract - self.allocNonFossilGroundwater)
+                self.fossilGroundwaterAbstr = self.potFossilGroundwaterAbstract
                 self.fossilGroundwaterAbstr = \
                  pcr.min(\
                  pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs), self.fossilGroundwaterAbstr)
