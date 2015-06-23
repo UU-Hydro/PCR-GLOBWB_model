@@ -1273,7 +1273,7 @@ class LandCover(object):
             remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
                                                                               regionalAnnualGroundwaterAbstraction)
             # considering safety factor (residence time in day-1)                                                                  
-            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.20
+            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.10
 
             # the remaining pumping capacity (unit: m3) limited by self.potGroundwaterAbstract (at the regional scale)
             remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
@@ -1455,8 +1455,6 @@ class LandCover(object):
             # constrain the irrigation groundwater demand with groundwater source fraction 
             correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
                                                              correctedRemainingIrrigationLivestock) 
-
-            # reduce the remaining irrigation and livestock demands with enough supply of non fossil groundwater
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
              pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
@@ -1507,8 +1505,8 @@ class LandCover(object):
                 
                 # accesible fossil groundwater (unit: m/day)
                 readAvlFossilGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, groundwater.storGroundwaterFossil, 0.0)
-                # - safety factor (to avoid 'unrealistic' zero fossil groundwater)
-                readAvlFossilGroundwater *= 0.50
+                # - residence time (day-1) or safety factor  (to avoid 'unrealistic' zero fossil groundwater)
+                readAvlFossilGroundwater *= 0.10
                 # - considering maximum daily groundwater abstraction
                 readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
                                            pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
