@@ -923,6 +923,11 @@ class LandCover(object):
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
+            # after harvesting, we assume that no irrigation demand is needed
+            # - indication of harvesting: self.cropKC < self.prevCropKC 
+            self.irrGrossDemand = \
+                  pcr.ifthenelse(self.cropKC < self.prevCropKC, 0., self.cropKC) 
+        
         if self.name == 'irrNonPaddy':
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -959,17 +964,18 @@ class LandCover(object):
                  pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
             # deficit in transpiration or evaporation
             deficit_factor = 1.00
-            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
             transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             deficit = transpirationDeficit
-            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            deficit_treshold = 0.20 * self.totalPotET
+            #~ deficit_treshold = 0.20 * self.totalPotET
+            deficit_treshold = 0.20 * self.potTranspiration
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -985,7 +991,7 @@ class LandCover(object):
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
-                                          self.totalPotET * irrigation_interval - self.readAvlWater),\
+                                          self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
                                           self.irrGrossDemand)
             #
             # assume that smart farmers do not irrigate higher than infiltration capacities
@@ -1005,12 +1011,12 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.025                                    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1773,12 +1779,16 @@ class LandCover(object):
 
         #~ if self.name.startswith('irr'): # open water evaporation from all irrigated areas
         if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
-            self.openWaterEvap =  \
+            self.openWaterEvap = \
              pcr.min(\
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
                # PS: self.potBareSoilEvap +self.potTranspiration = LIMIT
                #     - DW, RvB, and YW use self.totalPotETP as the LIMIT. EHS does not agree (24 April 2013).
-        #
+            
+            # idea on 23 June: assume that farmers are smart, they irrigate paddy fields such that openWaterEvap cannot be higher than irrigation/efficiency losses
+            self.openWaterEvap = pcr.min(self.openWaterEvap, \
+                                 pcr.min(self.topWaterLayer, self.minTopWaterLayer) * ((1./self.irrigationEfficiencyUsed) - 1.))
+        
         # update potBareSoilEvap & potTranspiration (after openWaterEvap)
         self.potBareSoilEvap  =       pcr.cover( self.potBareSoilEvap -\
                                (self.potBareSoilEvap/remainingPotETP)*
