@@ -1005,12 +1005,12 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
         maximum_demand = 0.010  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = 0.020                                    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': maximum_demand = 0.015                                    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1284,14 +1284,8 @@ class LandCover(object):
                 vos.getValDivZero(self.potGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
-            potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                 remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
-            
-            # considering the (average) supply of non fossil groundwater
-            nonFossilGroundwaterSupply  = pcr.max(routing.avgBaseflow / routing.cellArea, \
-                                                  groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)
-            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
-                                                  nonFossilGroundwaterSupply + potGroundwaterAbstract)                                       
+            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
+                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
             
         else:
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
