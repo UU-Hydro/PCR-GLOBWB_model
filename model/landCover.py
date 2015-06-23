@@ -1277,7 +1277,7 @@ class LandCover(object):
             
             # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
             remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
-                vos.getValDivZero(self.potGroundwaterAbstract * roouting.cellArea, pcr.areatotal(self.potGroundwaterAbstract * roouting.cellArea, groundwater_pumping_region_ids))
+                vos.getValDivZero(self.potGroundwaterAbstract * roouting.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
