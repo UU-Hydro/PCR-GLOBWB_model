@@ -1267,7 +1267,7 @@ class LandCover(object):
                                                                       #~ regionalAnnualGroundwaterAbstraction) /
                                                                       #~ regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
             #~ # reduced potential groundwater abstraction (after pumping capacity)
-            self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
+            #~ self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
             
             # the remaining pumping capacity (unit: m3) at the regional scale
             remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
