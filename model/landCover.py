@@ -1284,15 +1284,14 @@ class LandCover(object):
                 vos.getValDivZero(self.potGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
-            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
+                                 remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
             
-            #~ # considering the (average) supply of non fossil groundwater
-            #~ potGroundwaterAbstract = self.potGroundwaterAbstract
-            #~ nonFossilGroundwaterSupply = pcr.max(routing.avgBaseflow / routing.cellArea, \
-                                                 #~ groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)
-            #~ self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
-                                                  #~ nonFossilGroundwaterSupply + potGroundwaterAbstract)                                       
+            # considering the (average) supply of non fossil groundwater
+            nonFossilGroundwaterSupply  = pcr.max(routing.avgBaseflow / routing.cellArea, \
+                                                  groundwater.avgNonFossilAllocationShort, groundwater.avgNonFossilAllocation)
+            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract,\
+                                                  nonFossilGroundwaterSupply + potGroundwaterAbstract)                                       
             
         else:
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
@@ -1384,8 +1383,9 @@ class LandCover(object):
             self.fossilGroundwaterAlloc = pcr.scalar(0.0)
 
 
-        #~ # Abstraction and Allocation of FOSSIL GROUNDWATER
-        #~ # #####################################################################################################################################
+        # Abstraction and Allocation of FOSSIL GROUNDWATER
+        # #####################################################################################################################################
+
         #~ # constraining fossil groundwater abstraction with regional pumping capacity
         #~ if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
 #~ 
