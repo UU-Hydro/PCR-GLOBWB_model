@@ -1394,6 +1394,8 @@ class LandCover(object):
             # the remaining pumping capacity (unit: m3) at the regional scale
             remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
                                                                               regionalAnnualGroundwaterAbstraction)
+            # considering safety factor (residence time in day-1)                                                                  
+            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.10
 
             # the remaining pumping capacity (unit: m3) limited by self.potFossilGroundwaterAbstract (at the regional scale)
             remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
