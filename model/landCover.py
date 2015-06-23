@@ -1545,7 +1545,7 @@ class LandCover(object):
             ################################################################################################################################
             
             # from fossil groundwater, we should prioritize domestic and industrial water demand
-            prioritizeFossilGroundwaterForDomesticIndutrial = True                           # TODO: Define this in the configuration file.
+            prioritizeFossilGroundwaterForDomesticIndutrial = False                           # TODO: Define this in the configuration file.
             
             if prioritizeFossilGroundwaterForDomesticIndutrial:
                 
