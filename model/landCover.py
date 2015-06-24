@@ -1257,43 +1257,44 @@ class LandCover(object):
 
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
 
-            # estimate of total groundwater abstraction (m3) from the last 365 days:
-            tolerating_days = 0.
-            annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
-                                           pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
-            # total groundwater abstraction (m3) from the last 365 days at the regional scale
-            regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
-                                                                 
-            # reduction factor to reduce groundwater abstraction/demand
-            reductionFactorForPotGroundwaterAbstract = pcr.cover(\
-                                                       pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
-                                                       pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
-                                                                      regionalAnnualGroundwaterAbstraction) /
-                                                                      regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
-            # reduced potential groundwater abstraction (after pumping capacity)
-            self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
+            #~ # estimate of total groundwater abstraction (m3) from the last 365 days:
+            #~ tolerating_days = 0.
+            #~ annualGroundwaterAbstraction = groundwater.avgAbstraction * routing.cellArea *\
+                                           #~ pcr.min(pcr.max(0.0, 365.0 - tolerating_days), routing.timestepsToAvgDischarge)
+            #~ # total groundwater abstraction (m3) from the last 365 days at the regional scale
+            #~ regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
+                                                                 #~ 
+            #~ # reduction factor to reduce groundwater abstraction/demand
+            #~ reductionFactorForPotGroundwaterAbstract = pcr.cover(\
+                                                       #~ pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
+                                                       #~ pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
+                                                                      #~ regionalAnnualGroundwaterAbstraction) /
+                                                                      #~ regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
+            #~ # reduced potential groundwater abstraction (after pumping capacity)
+            #~ self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
+            
             
 
 
-            #~ ################## NEW METHOD (but still under development) #################################################################################################################
-            #~ # the remaining pumping capacity (unit: m3) at the regional scale
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
-                                                                              #~ regionalAnnualGroundwaterAbstraction)
-            #~ # considering safety factor (residence time in day-1)                                                                  
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.75
-            #~ 
-            #~ # the remaining pumping capacity (unit: m3) limited by self.potGroundwaterAbstract (at the regional scale)
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
-                                                                         #~ pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-            #~ 
-            #~ # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
-            #~ remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
-                #~ vos.getValDivZero(self.potGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-                #~ 
-            #~ # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
-            #~ self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                      #~ remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
-            #~ ################## end of NEW METHOD (but still under development) ##########################################################################################################
+            ################## NEW METHOD (but still under development) #################################################################################################################
+            # the remaining pumping capacity (unit: m3) at the regional scale
+            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
+                                                                              regionalAnnualGroundwaterAbstraction)
+            # considering safety factor (residence time in day-1)                                                                  
+            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.25
+            
+            # the remaining pumping capacity (unit: m3) limited by self.potGroundwaterAbstract (at the regional scale)
+            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
+                                                                         pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+            
+            # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
+            remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
+                vos.getValDivZero(self.potGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+                
+            # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) 
+            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
+                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            ################## end of NEW METHOD (but still under development) ##########################################################################################################
 
 
             
@@ -1401,35 +1402,35 @@ class LandCover(object):
             # at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
             
-            # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day)
-            # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
-            safety_factor_for_fossil_abstraction = 1.00
-            self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
-                                                 pcr.cover(\
-                                                 pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
-                                                 pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit * safety_factor_for_fossil_abstraction-\
-                                                                regionalAnnualGroundwaterAbstraction) /
-                                                                regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
+            #~ # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day)
+            #~ # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
+            #~ safety_factor_for_fossil_abstraction = 1.00
+            #~ self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
+                                                 #~ pcr.cover(\
+                                                 #~ pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
+                                                 #~ pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit * safety_factor_for_fossil_abstraction-\
+                                                                #~ regionalAnnualGroundwaterAbstraction) /
+                                                                #~ regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
 
-            #~ ################## NEW METHOD (but still under development) #################################################################################################################
+            ################## NEW METHOD (but still under development) #################################################################################################################
             # the remaining pumping capacity (unit: m3) at the regional scale
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
-                                                                              #~ regionalAnnualGroundwaterAbstraction)
-            #~ # considering safety factor (residence time in day-1)                                                                  
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.50
-            #~ 
-            #~ # the remaining pumping capacity (unit: m3) limited by self.potFossilGroundwaterAbstract (at the regional scale)
-            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
-                                                                    #~ pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-            #~ 
-            #~ # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
-            #~ remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
-                #~ vos.getValDivZero(self.potFossilGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-                #~ 
-            #~ # reduced (after pumping capacity) potential fossil groundwater abstraction/demand (unit: m) 
-            #~ self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract, \
-                                                  #~ remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
-            #~ ################## end of NEW METHOD (but still under development) #################################################################################################################
+            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
+                                                                              regionalAnnualGroundwaterAbstraction)
+            # considering safety factor (residence time in day-1)                                                                  
+            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.25
+            
+            # the remaining pumping capacity (unit: m3) limited by self.potFossilGroundwaterAbstract (at the regional scale)
+            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
+                                                                    pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+            
+            # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
+            remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
+                vos.getValDivZero(self.potFossilGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+                
+            # reduced (after pumping capacity) potential fossil groundwater abstraction/demand (unit: m) 
+            self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract, \
+                                                  remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            ################## end of NEW METHOD (but still under development) #################################################################################################################
 
 
         else:
