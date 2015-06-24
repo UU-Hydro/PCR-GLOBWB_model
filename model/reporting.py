@@ -425,7 +425,7 @@ class Reporting(object):
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
 
         # transpiration from irrigation areas (in percentage)
-        if self._model.landSurface.includeIrrigation:\
+        if self._model.landSurface.includeIrrigation:
             self.irrigationTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal *\
                                            self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                            self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal
