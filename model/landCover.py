@@ -975,7 +975,7 @@ class LandCover(object):
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
             #~ deficit_treshold = 0.20 * self.totalPotET
-            deficit_treshold = 0.25 * self.potTranspiration
+            deficit_treshold = 0.40 * self.potTranspiration
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1010,13 +1010,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.0125)   # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1140,7 +1140,7 @@ class LandCover(object):
                                                        pcr.max(0.0, remainingIrrigationLivestock - \
                                                        pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
         # - maximize/optimize surface water use in areas with the overestimation of groundwater supply 
-        surface_water_demand_estimate += pcr.max(0.0, pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation) -\
+        surface_water_demand_estimate += pcr.max(0.0, pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation) -\
                (1.0 - swAbstractionFractionDict['irrigation']) * totalIrrigationLivestockDemand -\
                (1.0 - swAbstractionFraction_industrial_domestic) * (self.totalPotentialMaximumGrossDemand - totalIrrigationLivestockDemand))
         #
@@ -1148,7 +1148,8 @@ class LandCover(object):
         # (corrected/limited by swAbstractionFractionDict and limited by the remaining demand)
         surface_water_demand_estimate         = pcr.min(self.totalGrossDemandAfterDesalination, surface_water_demand_estimate)
         correctedRemainingIrrigationLivestock = pcr.min(surface_water_demand_estimate, remainingIrrigationLivestock)
-        correctedRemainingIndustrialDomestic  = pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock)
+        correctedRemainingIndustrialDomestic  = pcr.min(remainingIndustrialDomestic,\
+                                                pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock))
         correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
         surface_water_demand = correctedSurfaceWaterDemandEstimate
         #
@@ -1649,6 +1650,8 @@ class LandCover(object):
         self.nonIrrReturnFlow = nonIrrGrossDemandDict['return_flow_fraction']['domestic'] * self.domesticWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['industry'] * self.industryWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['livestock']* self.livestockWaterWithdrawal
+        # - ignore very small return flow (less than 0.1 mm)
+        self.nonIrrReturnFlow = pcr.rounddown(self.nonIrrReturnFlow * 10000.)/10000.
         self.nonIrrReturnFlow = pcr.min(self.nonIrrReturnFlow, self.nonIrrGrossDemand)                        
 
         if self.debugWaterBalance:

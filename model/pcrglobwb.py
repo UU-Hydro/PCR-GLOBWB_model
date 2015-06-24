@@ -168,7 +168,6 @@ class PCRGlobWB(object):
         # consumptive water use for non irrigation demand (m)
         self.nonIrrigationWaterUseAcc += self.routing.nonIrrWaterConsumption 
         
-        self.nonIrrReturnFlowAcc      += self.routing.nonIrrReturnFlow
         self.waterBodyEvaporationAcc  += self.routing.waterBodyEvaporation
 
         self.surfaceWaterInputAcc     += self.routing.local_input_to_surface_water  # unit: m3
@@ -206,7 +205,7 @@ class PCRGlobWB(object):
 
             # consumptive water use for irrigation (unit: m)
             self.irrigationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actTranspiTotalAcc
+                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\
@@ -231,7 +230,7 @@ class PCRGlobWB(object):
                        deltaChannelStorageOneYear*1000/totalCellArea)
             logger.info(msg)
             
-            variableList = ['nonIrrReturnFlow','waterBodyEvaporation']
+            variableList = ['waterBodyEvaporation']
             for var in variableList:
                 volume = vos.getMapVolume(\
                             self.__getattribute__(var + 'Acc'),\

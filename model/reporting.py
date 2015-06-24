@@ -415,7 +415,7 @@ class Reporting(object):
         
         # consumptive water use and return flow from non irrigation water demand (unit: m/day)  
         self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
-        self.nonIrrReturnFlow       = self._model.routing.nonIrrReturnFlow
+        self.nonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlow
         
         # total potential water demand - not considering water availability
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand

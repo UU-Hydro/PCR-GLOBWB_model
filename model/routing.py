@@ -916,22 +916,22 @@ class Routing(object):
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
 
         # return flow from (m) non irrigation water demand
-        self.nonIrrReturnFlow = landSurface.nonIrrReturnFlow
-        nonIrrReturnFlowVol   = self.nonIrrReturnFlow*self.cellArea
+        # - calculated in the landSurface.py module 
+        nonIrrReturnFlowVol   = landSurface.nonIrrReturnFlow*self.cellArea
         self.channelStorage  += nonIrrReturnFlowVol
         self.local_input_to_surface_water += nonIrrReturnFlowVol
 
         # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
         self.nonIrrWaterConsumption = pcr.max(0.0,\
                                       landSurface.nonIrrGrossDemand - \
-                                      self.nonIrrReturnFlow)
+                                      landSurface.nonIrrReturnFlow)
         
         # calculate evaporation from water bodies - this will return self.waterBodyEvaporation (unit: m)
         self.calculate_evaporation(landSurface,groundwater,currTimeStep,meteo)
         
         if self.debugWaterBalance:\
            vos.waterBalanceCheck([self.runoff,\
-                                  self.nonIrrReturnFlow],\
+                                  landSurface.nonIrrReturnFlow],\
                                  [landSurface.actSurfaceWaterAbstract,self.waterBodyEvaporation],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
@@ -1184,9 +1184,7 @@ class Routing(object):
 
         
         # return flow from (m) non irrigation water demand
-        self.nonIrrReturnFlow = pcr.min(1.0,\
-                                landSurface.nonIrrReturnFlowFraction)*\
-                                landSurface.nonIrrGrossDemand           # m
+        # - calculated in the landSurface.py module: landSurface.nonIrrReturnFlow
 
         # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
         self.nonIrrWaterConsumption = pcr.max(0.0,\
@@ -1228,9 +1226,9 @@ class Routing(object):
                              channelStorageForRouting)
                 
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
-            channelStorageForRouting          += (self.runoff + self.nonIrrReturnFlow) * \
+            channelStorageForRouting          += (self.runoff + landSurface.nonIrrReturnFlow) * \
                                                   self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
-            acc_local_input_to_surface_water  += (self.runoff + self.nonIrrReturnFlow) * \
+            acc_local_input_to_surface_water  += (self.runoff + landSurface.nonIrrReturnFlow) * \
                                                   self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
 
             # potential evaporation within the sub-time step ; unit: m, values are over the entire cell area 
@@ -1251,7 +1249,7 @@ class Routing(object):
             
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay()],\
+                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay()],\
                                       [water_body_evaporation_volume/self.cellArea],\
                                       [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
@@ -1324,7 +1322,7 @@ class Routing(object):
             
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       self.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
+                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
                                        waterBodyOutflow/self.cellArea,\
                                        storage_change_in_volume/self.cellArea],\
                                       [water_body_evaporation_volume/self.cellArea],\
