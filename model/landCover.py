@@ -2290,6 +2290,8 @@ class LandCover(object):
             
             # maximum irrigation loss (unit: m)
             potential_irrigation_loss_from_soil = total_transpiration * ((1./self.irrigationEfficiencyUsed) - 1.)
+            # - some has evaporated through openWaterEvap (from paddy fields)
+            potential_irrigation_loss_from_soil = pcr.max(0.0, potential_irrigation_loss_from_soil - self.openWaterEvap)
             
             # bare soil evaporation, limited by potential_irrigation_loss_from_soil
             self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, potential_irrigation_loss_from_soil)
