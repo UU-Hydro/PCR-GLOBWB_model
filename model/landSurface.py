@@ -805,9 +805,9 @@ class LandSurface(object):
         nonIrrigationWaterDemandDict['potential_demand']['industry']  = self.industryGrossDemand
         nonIrrigationWaterDemandDict['potential_demand']['livestock'] = self.livestockGrossDemand
         nonIrrigationWaterDemandDict['return_flow_fraction'] = {}
-        nonIrrigationWaterDemandDict['return_flow_fraction']['domestic']  = pcr.cover(pcr.min(1.0, pcr.roundup(nonIrrigationWaterDemandDict['return_flow_fraction']['domestic'] *1000.)/1000.), 1.0)
-        nonIrrigationWaterDemandDict['return_flow_fraction']['industry']  = pcr.cover(pcr.min(1.0, pcr.roundup(nonIrrigationWaterDemandDict['return_flow_fraction']['industry'] *1000.)/1000.), 1.0)
-        nonIrrigationWaterDemandDict['return_flow_fraction']['livestock'] = pcr.cover(pcr.min(1.0, pcr.roundup(nonIrrigationWaterDemandDict['return_flow_fraction']['livestock']*1000.)/1000.), 1.0)
+        nonIrrigationWaterDemandDict['return_flow_fraction']['domestic']  = pcr.cover(pcr.min(1.0, pcr.roundup(self.domesticReturnFlowFraction *1000.)/1000.), 1.0)
+        nonIrrigationWaterDemandDict['return_flow_fraction']['industry']  = pcr.cover(pcr.min(1.0, pcr.roundup(self.industryReturnFlowFraction *1000.)/1000.), 1.0)
+        nonIrrigationWaterDemandDict['return_flow_fraction']['livestock'] = pcr.cover(pcr.min(1.0, pcr.roundup(self.livestockReturnFlowFraction*1000.)/1000.), 1.0)
         
         return nonIrrigationWaterDemandDict
 
