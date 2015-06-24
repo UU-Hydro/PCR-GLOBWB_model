@@ -974,8 +974,7 @@ class LandCover(object):
             #
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            #~ deficit_treshold = 0.20 * self.totalPotET
-            deficit_treshold = 0.30 * self.potTranspiration
+            deficit_treshold = 0.20 * self.totalPotET
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1015,8 +1014,8 @@ class LandCover(object):
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
