@@ -206,7 +206,7 @@ class PCRGlobWB(object):
 
             # consumptive water use for irrigation (unit: m)
             self.irrigationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
+                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actTranspiTotalAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\

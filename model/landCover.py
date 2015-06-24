@@ -975,7 +975,7 @@ class LandCover(object):
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
             #~ deficit_treshold = 0.20 * self.totalPotET
-            deficit_treshold = 0.20 * self.potTranspiration
+            deficit_treshold = 0.25 * self.potTranspiration
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1011,12 +1011,12 @@ class LandCover(object):
 
         # minimum demand for start irrigating
         minimum_demand = 0.005  # unit: m/day                                                 # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.0125)   # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
         maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.015)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1400,33 +1400,35 @@ class LandCover(object):
             # at the regional scale
             regionalAnnualGroundwaterAbstraction = pcr.areatotal(pcr.cover(annualGroundwaterAbstraction, 0.0), groundwater_pumping_region_ids)
             
-            #~ # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day) - OLD METHOD
-            #~ # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
-            #~ safety_factor_for_fossil_abstraction = 1.00
-            #~ self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
-                                                 #~ pcr.cover(\
-                                                 #~ pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
-                                                 #~ pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit * safety_factor_for_fossil_abstraction-\
-                                                                #~ regionalAnnualGroundwaterAbstraction) /
-                                                                #~ regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
+            # fossil groundwater demand/asbtraction reduced by pumping capacity (unit: m/day)
+            # - safety factor to avoid the remaining limit abstracted at once (due to overestimation of groundwater demand)
+            safety_factor_for_fossil_abstraction = 1.00
+            self.potFossilGroundwaterAbstract *= pcr.min(1.00,\
+                                                 pcr.cover(\
+                                                 pcr.ifthenelse(regionalAnnualGroundwaterAbstractionLimit > 0.0,
+                                                 pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit * safety_factor_for_fossil_abstraction-\
+                                                                regionalAnnualGroundwaterAbstraction) /
+                                                                regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0))
 
+            #~ ################## NEW METHOD (but still under development) #################################################################################################################
             # the remaining pumping capacity (unit: m3) at the regional scale
-            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
-                                                                              regionalAnnualGroundwaterAbstraction)
-            # considering safety factor (residence time in day-1)                                                                  
-            remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.50
-
-            # the remaining pumping capacity (unit: m3) limited by self.potFossilGroundwaterAbstract (at the regional scale)
-            remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
-                                                                    pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-            
-            # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
-            remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
-                vos.getValDivZero(self.potFossilGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
-                
-            # reduced (after pumping capacity) potential fossil groundwater abstraction/demand (unit: m) 
-            self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract, \
-                                                  remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.max(0.0, regionalAnnualGroundwaterAbstractionLimit - \
+                                                                              #~ regionalAnnualGroundwaterAbstraction)
+            #~ # considering safety factor (residence time in day-1)                                                                  
+            #~ remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.50
+            #~ 
+            #~ # the remaining pumping capacity (unit: m3) limited by self.potFossilGroundwaterAbstract (at the regional scale)
+            #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
+                                                                    #~ pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+            #~ 
+            #~ # the remaining pumping capacity (unit: m3) at the pixel scale - downscaled using self.potGroundwaterAbstract
+            #~ remainingPixelAnnualGroundwaterAbstractionLimit = remainingRegionalAnnualGroundwaterAbstractionLimit * \
+                #~ vos.getValDivZero(self.potFossilGroundwaterAbstract * routing.cellArea, pcr.areatotal(self.potFossilGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
+                #~ 
+            #~ # reduced (after pumping capacity) potential fossil groundwater abstraction/demand (unit: m) 
+            #~ self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract, \
+                                                  #~ remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
+            #~ ################## end of NEW METHOD (but still under development) #################################################################################################################
 
 
         else:
@@ -2260,21 +2262,45 @@ class LandCover(object):
                 #~ self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, \
                                      #~ pcr.ifthenelse(self.cropKC < self.prevCropKC, self.percLow030150, deep_percolation_loss))
 
-        # idea on 16 June 2015
-        # deep percolation should consider losses during application in non paddy areas 
-        #~ if self.name == "irrNonPaddy":
+        #~ # idea on 16 June 2015
+        #~ # deep percolation should consider irrigation application losses 
+        #~ if self.name.startswith('irr'):
+            #~ startingKC = 0.20   # starting crop coefficient indicate the growing season
+            #~ if self.numberOfLayers == 2:
+                #~ deep_percolation_loss = self.percLow
+                #~ deep_percolation_loss = pcr.max(deep_percolation_loss, \
+                                        #~ pcr.max(0.0, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                #~ self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow)
+            #~ if self.numberOfLayers == 3:
+                #~ deep_percolation_loss = self.percLow030150
+                #~ deep_percolation_loss = pcr.max(deep_percolation_loss, \
+                                        #~ pcr.max(0.0, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                #~ self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow030150)
+
+
+        # idea on 24 June 2015
+        # the total bare soil evaporation and deep percolation losses should be limited by irrigation efficiency and total transpiration 
         if self.name.startswith('irr'):
-            startingKC = 0.20   # starting crop coefficient indicate the growing season
-            if self.numberOfLayers == 2:
-                deep_percolation_loss = self.percLow
-                deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                        pcr.max(0.0, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
-                self.percLow = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow)
-            if self.numberOfLayers == 3:
-                deep_percolation_loss = self.percLow030150
-                deep_percolation_loss = pcr.max(deep_percolation_loss, \
-                                        pcr.max(0.0, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
-                self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, deep_percolation_loss, self.percLow030150)
+            
+            # estimate of total transpiration
+            if self.numberOfLayers == 2: total_transpiration = self.actTranspiUpp + self.actTranspiLow
+            if self.numberOfLayers == 3: total_transpiration = self.actTranspiUpp000005 +\
+                                                               self.actTranspiUpp005030 +
+                                                               self.actTranspiLow030150
+            
+            # maximum irrigation loss (unit: m)
+            potential_irrigation_loss_from_soil = total_transpiration * ((1./self.irrigationEfficiencyUsed) - 1.)
+            
+            # bare soil evaporation, limited by potential_irrigation_loss_from_soil
+            self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, potential_irrigation_loss_from_soil)
+            
+            # minimum deep percolation loss
+            deep_percolation_loss = pcr.max(0.0, potential_irrigation_loss_from_soil - self.actBareSoilEvap)
+            
+            # deep percolation losses  
+            if self.numberOfLayers == 2: self.percLow = pcr.max(self.percLow, deep_percolation_loss)
+            if self.numberOfLayers == 3: self.percLow030150 = pcr.max(self.percLow030150, deep_percolation_loss)
+
 
         # scale all fluxes based on available water
         # - alternative 1:
