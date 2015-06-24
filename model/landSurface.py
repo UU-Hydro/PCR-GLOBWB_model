@@ -794,9 +794,9 @@ class LandSurface(object):
         self.livestockNettoDemand = pcr.ifthen(self.landmask, self.livestockNettoDemand)
         
         # RETURN FLOW fractions for domestic, industrial and livestock water demands (unit: fraction/percentage)
-        self.domesticReturnFlowFraction  = pcr.max(0.0, 1.0 - vos.getValDivZero(self.domesticNettoDemand, self.domesticGrossDemand))
-        self.industryReturnFlowFraction  = pcr.max(0.0, 1.0 - vos.getValDivZero(self.industryNettoDemand, self.industryGrossDemand))
-        self.livestockReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.livestockNettoDemand, self.livestockGrossDemand))
+        self.domesticReturnFlowFraction  = pcr.min(1.0, pcr.max(0.0, 1.0 - vos.getValDivZero(self.domesticNettoDemand, self.domesticGrossDemand)))
+        self.industryReturnFlowFraction  = pcr.min(1.0, pcr.max(0.0, 1.0 - vos.getValDivZero(self.industryNettoDemand, self.industryGrossDemand)))
+        self.livestockReturnFlowFraction = pcr.min(1.0, pcr.max(0.0, 1.0 - vos.getValDivZero(self.livestockNettoDemand, self.livestockGrossDemand)))
         
         # make a dictionary summarizing potential demand (potential withdrawal) and its return flow fraction
         nonIrrigationWaterDemandDict = {}
