@@ -1464,8 +1464,20 @@ class LandCover(object):
 
             correctedRemainingTotalDemand = pcr.min(self.potFossilGroundwaterAbstract, remainingTotalDemand)
 
-            # the remaining industrial and domestic demand (unit: m/day, excluding livestock) limited to self.potFossilGroundwaterAbstract
-            # - no correction, we will always try to fulfil the remaining industrial and demand
+            # the remaining industrial and domestic demand and livestock (unit: m/day) limited to self.potFossilGroundwaterAbstract
+            # - no correction, we will always try to fulfil these demands
+            correctedRemainingIndustrialDomesticLivestock = pcr.min(remainingIndustrialDomestic + remainingLivestock, correctedRemainingTotalDemand)
+            
+            # the remaining irrigation demand limited to self.potFossilGroundwaterAbstract
+            correctedRemainingIrrigation = pcr.min(remainingIrrigation, \
+                                                    pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIndustrialDomesticLivestock))
+            # - ignore small irrigation demand (less than 1 mm)
+            correctedRemainingIrrigation = pcr.rounddown(correctedRemainingIrrigation*1000.)/1000.
+            
+            # the (corrected) remaining total demand (limited to self.potFossilGroundwaterAbstract)
+            correctedRemainingTotalDemand = correctedRemainingIndustrialDomesticLivestock + correctedRemainingIrrigation
+            
+            # the (corrected) remaining industrial and domestic demand (excluding livestock)
             correctedRemainingIndustrialDomestic = pcr.min(remainingIndustrialDomestic, correctedRemainingTotalDemand)
 
             # the remaining irrigation and livestock water demand limited to self.potFossilGroundwaterAbstract
@@ -1473,7 +1485,7 @@ class LandCover(object):
                                                     pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIndustrialDomestic))
                                                   
             # the (corrected) remaining total demand (unit: m/day) limited to self.potFossilGroundwaterAbstract
-            correctedRemainingTotalDemand = correctedRemainingIrrigationLivestock + correctedRemainingTotalDemand
+            correctedRemainingTotalDemand = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
             
             # TODO: Do the water balance check: correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic <= self.potFossilGroundwaterAbstract                                          
 
@@ -1570,7 +1582,7 @@ class LandCover(object):
             ################################################################################################################################
             
             # from fossil groundwater, we should prioritize domestic and industrial water demand
-            prioritizeFossilGroundwaterForDomesticIndutrial = False                           # TODO: Define this in the configuration file.
+            prioritizeFossilGroundwaterForDomesticIndutrial = True                            # TODO: Define this in the configuration file.
             
             if prioritizeFossilGroundwaterForDomesticIndutrial:
                 
