@@ -2285,7 +2285,7 @@ class LandCover(object):
             # estimate of total transpiration
             if self.numberOfLayers == 2: total_transpiration = self.actTranspiUpp + self.actTranspiLow
             if self.numberOfLayers == 3: total_transpiration = self.actTranspiUpp000005 +\
-                                                               self.actTranspiUpp005030 +
+                                                               self.actTranspiUpp005030 +\
                                                                self.actTranspiLow030150
             
             # maximum irrigation loss (unit: m)
