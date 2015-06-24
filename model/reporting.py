@@ -430,7 +430,7 @@ class Reporting(object):
                                            self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
             self.irrigationPotTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].potTranspiration * self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                               self._model.landSurface.landCoverObj['irrNonPaddy'].potTranspiration * self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
-            self.fractionIrrigationTranspiration = vos.getValDivZero(self.irrigationTranspiration, self.irrigationPotTranspiration)
+            self.fractionIrrigationTranspiration = pcr.min(1.0, vos.getValDivZero(self.irrigationTranspiration, self.irrigationPotTranspiration))
 
     def report(self):
 
