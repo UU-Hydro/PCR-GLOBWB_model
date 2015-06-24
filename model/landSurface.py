@@ -153,7 +153,8 @@ class LandSurface(object):
                           'domesticWaterWithdrawal',
                           'industryWaterWithdrawal',
                           'livestockWaterWithdrawal',
-                          'nonIrrReturnFlow']
+                          'nonIrrReturnFlow',
+                          'irrigationTranspirationDeficit']
         #
         # specific variables for 2 and 3 layer soil models:
         #

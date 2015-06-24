@@ -2980,6 +2980,10 @@ class LandCover(object):
         # update all soil states (including get final/corrected fluxes) 
         self.updateSoilStates(parameters)
 
+        # reporting irrigation transpiration deficit
+        self.irrigationTranspirationDeficit = 0.0
+        if self.name.startswith('irr'): self.irrigationTranspirationDeficit = pcr.max(0.0, self.potTranspiration - self.actTranspiTotal)
+        
         if self.debugWaterBalance:
             #
             vos.waterBalanceCheck([netLqWaterToSoil    ,\
