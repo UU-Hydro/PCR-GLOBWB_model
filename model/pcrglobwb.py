@@ -207,7 +207,7 @@ class PCRGlobWB(object):
             self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
                                                            self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
             self.irrigationTranspirationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actTranspiTotal
+                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actTranspiTotalAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\
