@@ -915,7 +915,7 @@ class LandCover(object):
                                    desalinationWaterUse,\
                                    groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit):
 
-        # irrigation water demand for paddy and non-paddy (m)
+        # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
         if self.name == 'irrPaddy':
             self.irrGrossDemand = \
@@ -975,7 +975,7 @@ class LandCover(object):
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
             #~ deficit_treshold = 0.20 * self.totalPotET
-            deficit_treshold = 0.40 * self.potTranspiration
+            deficit_treshold = 0.30 * self.potTranspiration
             #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1010,13 +1010,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.010   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.010)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.030  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.030)    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1281,7 +1281,7 @@ class LandCover(object):
                                                                               #~ regionalAnnualGroundwaterAbstraction)
             #~ # considering safety factor (residence time in day-1)                                                                  
             #~ remainingRegionalAnnualGroundwaterAbstractionLimit *= 0.75
-#~ 
+            #~ 
             #~ # the remaining pumping capacity (unit: m3) limited by self.potGroundwaterAbstract (at the regional scale)
             #~ remainingRegionalAnnualGroundwaterAbstractionLimit = pcr.min(remainingRegionalAnnualGroundwaterAbstractionLimit,\
                                                                          #~ pcr.areatotal(self.potGroundwaterAbstract * routing.cellArea, groundwater_pumping_region_ids))
@@ -2291,21 +2291,26 @@ class LandCover(object):
                                                                self.actTranspiUpp005030 +\
                                                                self.actTranspiLow030150
             
-            # maximum irrigation loss (unit: m)
+            # potential/maximum irrigation loss (unit: m)
             potential_irrigation_loss_from_soil = total_transpiration * ((1./self.irrigationEfficiencyUsed) - 1.)
             # - some has evaporated through openWaterEvap (from paddy fields)
             potential_irrigation_loss_from_soil = pcr.max(0.0, potential_irrigation_loss_from_soil - self.openWaterEvap)
             
-            # bare soil evaporation, limited by potential_irrigation_loss_from_soil
-            self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, potential_irrigation_loss_from_soil)
+            #~ # ALTERNATIVE 1: potential/maximum deep percolation (unit: m) - limited by potential_irrigation_loss_from_soil
+            #~ if self.numberOfLayers == 2:
+                #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow)
+                #~ self.percLow = deep_percolation_loss
+            #~ if self.numberOfLayers == 3:
+                #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow030150)            
+                #~ self.percLow030150 = deep_percolation_loss
             
-            # minimum deep percolation loss
-            deep_percolation_loss = pcr.max(0.0, potential_irrigation_loss_from_soil - self.actBareSoilEvap)
-            
-            # deep percolation losses  
-            if self.numberOfLayers == 2: self.percLow = pcr.max(self.percLow, deep_percolation_loss)
-            if self.numberOfLayers == 3: self.percLow030150 = pcr.max(self.percLow030150, deep_percolation_loss)
+            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes)
+            if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
+            if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
 
+            # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
+            self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, \
+                                   pcr.max(0.0, potential_irrigation_loss_from_soil - deep_percolation_loss))
 
         # scale all fluxes based on available water
         # - alternative 1:

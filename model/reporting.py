@@ -400,11 +400,11 @@ class Reporting(object):
 
         # An example to report variables from certain land cover types 
         # - evaporation from irrigation areas (m/day) - values are average over the entire cell area
-        if self._model.landSurface.includeIrrigation:\
-           self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
-                                              self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
-                                              self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
-                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+        if self._model.landSurface.includeIrrigation:
+            self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
+                                               self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                               self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
+                                               self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
         
         # Total groundwater abstraction (m) (assuming otherWaterSourceAbstraction as fossil groundwater abstraction
         self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbstraction +\
@@ -422,7 +422,19 @@ class Reporting(object):
         
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
-        # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea.
+        # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
+
+        # transpiration from irrigation areas (in percentage)
+        if self._model.landSurface.includeIrrigation:\
+            self.irrigationTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal *\
+                                           self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                           self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal
+                                           self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.irrigationPotTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].potTranspiration *\                                    
+                                              self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].potTranspiration
+                                              self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.fractionIrrigationTranspiration = vos.getValDivZero(self.irrigationTranspiration, self.irrigationPotTranspiration)
 
     def report(self):
 
