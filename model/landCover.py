@@ -976,7 +976,8 @@ class LandCover(object):
             #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             # treshold to initiate irrigation
-            deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
+            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
             #~ deficit_treshold = 0.20 * self.totalPotET
             #~ #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
