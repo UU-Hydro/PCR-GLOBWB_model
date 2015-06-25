@@ -1482,8 +1482,8 @@ class LandCover(object):
             # the remaining irrigation demand limited to self.potFossilGroundwaterAbstract
             correctedRemainingIrrigation = pcr.min(remainingIrrigation, \
                                                     pcr.max(0.0, correctedRemainingTotalDemand - correctedRemainingIndustrialDomesticLivestock))
-            #~ # - ignore small irrigation demand (less than 1 mm)
-            #~ correctedRemainingIrrigation = pcr.rounddown(correctedRemainingIrrigation*1000.)/1000.
+            # - ignore small irrigation demand (less than 1 mm)
+            correctedRemainingIrrigation = pcr.rounddown(correctedRemainingIrrigation*1000.)/1000.
             
             # the (corrected) remaining total demand (limited to self.potFossilGroundwaterAbstract)
             correctedRemainingTotalDemand = correctedRemainingIndustrialDomesticLivestock + correctedRemainingIrrigation
@@ -1842,7 +1842,7 @@ class LandCover(object):
         # - CHECK; WHY DO WE USE COVER ABOVE? Edwin replaced them using the following lines:
         self.potBareSoilEvap  = pcr.max(0.0, self.potBareSoilEvap -\
                                 vos.getValDivZero(self.potBareSoilEvap, remainingPotETP)*self.openWaterEvap )      
-        self.potTranspiration = pcr.max(0.0, self.potBareSoilEvap -\
+        self.potTranspiration = pcr.max(0.0, self.potTranspiration -\
                                 vos.getValDivZero(self.potTranspiration, remainingPotETP)*self.openWaterEvap)
 
         # update top water layer after openWaterEvap
