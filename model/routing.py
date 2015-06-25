@@ -1473,9 +1473,10 @@ class Routing(object):
         readAvlChannelStorage = pcr.max(0.0,\
                                         readAvlChannelStorage)
                                                 
-        # ignore small volume values - less than 1 m3
-        readAvlChannelStorage = pcr.rounddown(readAvlChannelStorage*1.)/1.
+        # ignore small volume values - less than 0.1 m3
+        readAvlChannelStorage = pcr.rounddown(readAvlChannelStorage*10.)/10.
         readAvlChannelStorage = pcr.ifthen(self.landmask, readAvlChannelStorage)
+        
         return readAvlChannelStorage      # unit: m3
 
     def initiate_old_style_routing_reporting(self,iniItems):
