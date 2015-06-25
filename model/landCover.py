@@ -986,16 +986,18 @@ class LandCover(object):
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
 
 
-            #~ # idea on 9 april: demand is limited by potential evaporation for the next coming days
-            #~ min_irrigation_interval =  7.0
-            #~ max_irrigation_interval = 15.0
-            #~ irrigation_interval = pcr.min(max_irrigation_interval, \
-                                  #~ pcr.max(min_irrigation_interval, \
-                                  #~ pcr.ifthenelse(self.totalPotET > 0.0, \
-                                  #~ pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
-            #~ self.irrGrossDemand = pcr.min(pcr.max(0.0,\
-                                          #~ self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
-                                          #~ self.irrGrossDemand)
+            # demand is limited by potential evaporation for the next coming days
+            # - objective: to avoid too high and unrealistic demand 
+            max_irrigation_interval = 15.0
+            min_irrigation_interval =  7.0
+            irrigation_interval = pcr.min(max_irrigation_interval, \
+                                  pcr.max(min_irrigation_interval, \
+                                  pcr.ifthenelse(self.totalPotET > 0.0, \
+                                  pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
+            # - irrigation demand - limited by potential evaporation for the next coming days
+            self.irrGrossDemand = pcr.min(pcr.max(0.0,\
+                                          self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
+                                          self.irrGrossDemand)
 
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
