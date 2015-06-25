@@ -977,8 +977,8 @@ class LandCover(object):
             #
             # treshold to initiate irrigation
             #~ deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
-            deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            #~ deficit_treshold = 0.20 * self.totalPotET
+            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            deficit_treshold = 0.20 * self.totalPotET
             #~ #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
@@ -1015,8 +1015,8 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.010)    # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.010   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1307,8 +1307,8 @@ class LandCover(object):
 
 
 
-            # Shall we will always try to fulfil the remaining industrial and domestic demand?
-            self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
+            #~ # Shall we will always try to fulfil the remaining industrial and domestic demand?
+            #~ self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
             
         else:
@@ -1471,8 +1471,8 @@ class LandCover(object):
             #~ ################## end of NEW METHOD (but still under development) #################################################################################################################
 
 
-            # Shall we will always try to fulfil the remaining industrial and domestic demand?
-            self.potFossilGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potFossilGroundwaterAbstract)
+            #~ # Shall we will always try to fulfil the remaining industrial and domestic demand?
+            #~ self.potFossilGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potFossilGroundwaterAbstract)
 
         else:
 
@@ -1607,7 +1607,7 @@ class LandCover(object):
             ################################################################################################################################
             
             # from fossil groundwater, we should prioritize domestic and industrial water demand
-            prioritizeFossilGroundwaterForDomesticIndutrial = True                            # TODO: Define this in the configuration file.
+            prioritizeFossilGroundwaterForDomesticIndutrial = False                            # TODO: Define this in the configuration file.
             
             if prioritizeFossilGroundwaterForDomesticIndutrial:
                 
