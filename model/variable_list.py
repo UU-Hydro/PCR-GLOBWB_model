@@ -840,18 +840,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# fractionIrrigationTranspiration
-pcrglobwb_variable_name = 'fractionIrrigationTranspiration'
-netcdf_short_name[pcrglobwb_variable_name] = 'transpiration_from_irrigation_fraction'
-netcdf_unit[pcrglobwb_variable_name]       = '1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-netcdf_long_name[pcrglobwb_variable_name]  = 'ratio_between_actual_and_potential_values_of_total_transpiration_in_irrigation_areas'
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = None
-latex_symbol[pcrglobwb_variable_name]      = None
-
-
 #~ # netRechargeForModflowInput - TODO: CAN THIS VALUE BECOME NEGATIVE IN MODFLOW ??
 #~ pcrglobwb_variable_name = 'netRechargeForModflowInput'
 #~ netcdf_short_name[pcrglobwb_variable_name] = 'net_recharge_minus_abstraction'
