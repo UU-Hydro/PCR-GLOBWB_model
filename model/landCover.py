@@ -1281,8 +1281,8 @@ class LandCover(object):
             self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
             
 
-            # we will always try to fulfil the industrial and domestic demand
-            self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
+            #~ # Shall we will always try to fulfil the industrial and domestic demand?
+            #~ self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
 
             #~ ################## NEW METHOD (but still under development) #################################################################################################################
@@ -1307,7 +1307,7 @@ class LandCover(object):
 
 
 
-            # we will always try to fulfil the remaining industrial and domestic demand
+            # Shall we will always try to fulfil the remaining industrial and domestic demand?
             self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
             
@@ -1471,7 +1471,7 @@ class LandCover(object):
             #~ ################## end of NEW METHOD (but still under development) #################################################################################################################
 
 
-            # we will always try to fulfil the remaining industrial and domestic demand
+            # Shall we will always try to fulfil the remaining industrial and domestic demand?
             self.potFossilGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potFossilGroundwaterAbstract)
 
         else:
@@ -2325,6 +2325,33 @@ class LandCover(object):
 
         # idea on 24 June 2015
         # the total bare soil evaporation and deep percolation losses should be limited by irrigation efficiency and total transpiration 
+        #~ if self.name.startswith('irr'):
+            #~ 
+            #~ # starting crop coefficient indicate the growing season
+            #~ startingKC = 0.20   
+#~ 
+            #~ # estimate of total transpiration (unit: m)
+            #~ if self.numberOfLayers == 2: total_transpiration = self.actTranspiUpp + self.actTranspiLow
+            #~ if self.numberOfLayers == 3: total_transpiration = self.actTranspiUpp000005 +\
+                                                               #~ self.actTranspiUpp005030 +\
+                                                               #~ self.actTranspiLow030150
+            #~ 
+            #~ # potential/maximum irrigation loss (unit: m)
+            #~ potential_irrigation_loss_from_soil = total_transpiration * ((1./self.irrigationEfficiencyUsed) - 1.)
+            #~ # - some has evaporated through openWaterEvap (from paddy fields)
+            #~ potential_irrigation_loss_from_soil = pcr.max(0.0, potential_irrigation_loss_from_soil - self.openWaterEvap)
+            #~ 
+            #~ # deep percolation loss as it is estimated (no reduction/changes)
+            #~ if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
+            #~ if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
+#~ 
+            #~ # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
+            #~ self.actBareSoilEvap = pcr.ifthenelse(self.cropKC > startingKC, \
+                                   #~ pcr.min(self.actBareSoilEvap, \
+                                   #~ pcr.max(0.0, potential_irrigation_loss_from_soil - deep_percolation_loss)), self.actBareSoilEvap)
+
+        # idea on 25 June 2015
+        # the minimum deep percolation losses is determined by irrigation efficiency and total transpiration 
         if self.name.startswith('irr'):
             
             # starting crop coefficient indicate the growing season
@@ -2341,15 +2368,22 @@ class LandCover(object):
             # - some has evaporated through openWaterEvap (from paddy fields)
             potential_irrigation_loss_from_soil = pcr.max(0.0, potential_irrigation_loss_from_soil - self.openWaterEvap)
             
-            # deep percolation loss as it is estimated (no reduction/changes)
-            if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
-            if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
-
-            # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
+            # bare soil evaporation (unit: m), limited by the potential_irrigation_loss_from_soil 
             self.actBareSoilEvap = pcr.ifthenelse(self.cropKC > startingKC, \
-                                   pcr.min(self.actBareSoilEvap, \
-                                   pcr.max(0.0, potential_irrigation_loss_from_soil - deep_percolation_loss)), self.actBareSoilEvap)
+                                   pcr.min(self.actBareSoilEvap, potential_irrigation_loss_from_soil), self.actBareSoilEvap)
 
+            # minimum deep percolation loss is the (remaining) potential_irrigation_loss_from_soil
+            deep_percolation_loss = pcr.max(potential_irrigation_loss_from_soil - self.actBareSoilEvap)
+            if self.numberOfLayers == 2:
+                deep_percolation_loss = pcr.min(deep_percolation_loss, \
+                                        pcr.max(0.0, self.storLow) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                self.percLow = pcr.ifthenelse(self.cropKC > startingKC, pcr.max(deep_percolation_loss, self.percLow), self.percLow)
+            if self.numberOfLayers == 3:
+                deep_percolation_loss = pcr.min(deep_percolation_loss, \
+                                        pcr.max(0.0, self.storLow030150) * ((1./self.irrigationEfficiencyUsed) - 1.))
+                self.percLow030150 = pcr.ifthenelse(self.cropKC > startingKC, pcr.max(deep_percolation_loss, self.percLow030150), self.percLow030150)
+
+        
         # scale all fluxes based on available water
         # - alternative 1:
         self.scaleAllFluxes(parameters, groundwater)
