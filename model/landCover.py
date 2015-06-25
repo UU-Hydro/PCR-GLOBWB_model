@@ -967,13 +967,13 @@ class LandCover(object):
 
             # irrigation demand is implemented only if there is deficit in transpiration or evaporation
             deficit_factor = 1.00
-            #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
-                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
+                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
             transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            deficit = transpirationDeficit
-            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
+            #~ deficit = transpirationDeficit
+            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             # treshold to initiate irrigation
             deficit_treshold = pcr.min(0.005, 0.01 * self.totalPotET)
@@ -1015,8 +1015,8 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.001   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.010)    # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
@@ -1280,7 +1280,9 @@ class LandCover(object):
             # reduced potential groundwater abstraction (after pumping capacity)
             self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
             
-            
+
+            # we will always try to fulfil the industrial and domestic demand
+            self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
 
             #~ ################## NEW METHOD (but still under development) #################################################################################################################
@@ -1303,6 +1305,10 @@ class LandCover(object):
                                       #~ remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea)
             #~ ################## end of NEW METHOD (but still under development) ##########################################################################################################
 
+
+
+            # we will always try to fulfil the remaining industrial and domestic demand
+            self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
             
         else:
@@ -1400,6 +1406,28 @@ class LandCover(object):
         # Abstraction and Allocation of FOSSIL GROUNDWATER
         # #####################################################################################################################################
 
+        if self.limitAbstraction == False:                              # TODO: For runs without any water use, we can exclude this. 
+            
+            logger.debug('Fossil groundwater abstractions are allowed.')
+            
+            # the remaining water demand (m/day) for all sectors - NOT limited to self.potFossilGroundwaterAbstract
+            #####################################################################################################################
+            # - for domestic 
+            remainingDomestic   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['domestic']  - satisfiedDomesticDemand)
+            # - for industry 
+            remainingIndustry   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['industry']  - satisfiedIndustryDemand)
+            # - for livestock 
+            remainingLivestock  = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['livestock'] - satisfiedLivestockDemand)
+            # - for irrigation (excluding livestock)
+            remainingIrrigation = pcr.max(0.0, self.irrGrossDemand - satisfiedIrrigationDemand) 
+            # - total for livestock and irrigation
+            remainingIrrigationLivestock = remainingIrrigation + remainingLivestock
+            # - total for industrial and domestic (excluding livestock)
+            remainingIndustrialDomestic  = remainingIndustry + remainingDomestic
+            # - remaining total demand
+            remainingTotalDemand = remainingIrrigationLivestock + remainingIndustrialDomestic                                                     
+
+
         # constraining fossil groundwater abstraction with regional pumping capacity
         if groundwater.limitRegionalAnnualGroundwaterAbstraction and self.limitAbstraction == False:
 
@@ -1443,30 +1471,16 @@ class LandCover(object):
             #~ ################## end of NEW METHOD (but still under development) #################################################################################################################
 
 
+            # we will always try to fulfil the remaining industrial and domestic demand
+            self.potFossilGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potFossilGroundwaterAbstract)
+
         else:
+
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
 
 
+
         if self.limitAbstraction == False:                              # TODO: For runs without any water use, we can exclude this. 
-            
-            logger.debug('Fossil groundwater abstractions are allowed.')
-            
-            # the remaining water demand (m/day) for all sectors - NOT limited to self.potFossilGroundwaterAbstract
-            #####################################################################################################################
-            # - for domestic 
-            remainingDomestic   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['domestic']  - satisfiedDomesticDemand)
-            # - for industry 
-            remainingIndustry   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['industry']  - satisfiedIndustryDemand)
-            # - for livestock 
-            remainingLivestock  = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['livestock'] - satisfiedLivestockDemand)
-            # - for irrigation (excluding livestock)
-            remainingIrrigation = pcr.max(0.0, self.irrGrossDemand - satisfiedIrrigationDemand) 
-            # - total for livestock and irrigation
-            remainingIrrigationLivestock = remainingIrrigation + remainingLivestock
-            # - total for industrial and domestic (excluding livestock)
-            remainingIndustrialDomestic  = remainingIndustry + remainingDomestic
-            # - remaining total demand
-            remainingTotalDemand = remainingIrrigationLivestock + remainingIndustrialDomestic                                                     
 
 
             ###############################################################################################################################
@@ -2313,7 +2327,10 @@ class LandCover(object):
         # the total bare soil evaporation and deep percolation losses should be limited by irrigation efficiency and total transpiration 
         if self.name.startswith('irr'):
             
-            # estimate of total transpiration
+            # starting crop coefficient indicate the growing season
+            startingKC = 0.20   
+
+            # estimate of total transpiration (unit: m)
             if self.numberOfLayers == 2: total_transpiration = self.actTranspiUpp + self.actTranspiLow
             if self.numberOfLayers == 3: total_transpiration = self.actTranspiUpp000005 +\
                                                                self.actTranspiUpp005030 +\
@@ -2324,21 +2341,14 @@ class LandCover(object):
             # - some has evaporated through openWaterEvap (from paddy fields)
             potential_irrigation_loss_from_soil = pcr.max(0.0, potential_irrigation_loss_from_soil - self.openWaterEvap)
             
-            #~ # ALTERNATIVE 1: potential/maximum deep percolation (unit: m) - limited by potential_irrigation_loss_from_soil
-            #~ if self.numberOfLayers == 2:
-                #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow)
-                #~ self.percLow = deep_percolation_loss
-            #~ if self.numberOfLayers == 3:
-                #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow030150)            
-                #~ self.percLow030150 = deep_percolation_loss
-            
-            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes)
+            # deep percolation loss as it is estimated (no reduction/changes)
             if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
             if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
 
             # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
-            self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, \
-                                   pcr.max(0.0, potential_irrigation_loss_from_soil - deep_percolation_loss))
+            self.actBareSoilEvap = pcr.ifthenelse(self.cropKC > startingKC, \
+                                   pcr.min(self.actBareSoilEvap, \
+                                   pcr.max(0.0, potential_irrigation_loss_from_soil - deep_percolation_loss)), self.actBareSoilEvap)
 
         # scale all fluxes based on available water
         # - alternative 1:

@@ -1438,7 +1438,7 @@ class Routing(object):
         
         # calculate minimum discharge for environmental flow (m3/s)
         minDischargeForEnvironmentalFlow = pcr.max(0.0, self.avgDischarge - z_score * stdDischarge)
-        factor = 0.25 # to avoid flip flop
+        factor = 0.10 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
         minDischargeForEnvironmentalFlow = pcr.max(0.0, minDischargeForEnvironmentalFlow)
         
@@ -1467,7 +1467,7 @@ class Routing(object):
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # maximum (precentage) of water can be abstracted from the channel - to avoid flip-flop
-        maximum_percentage = 0.75
+        maximum_percentage = 0.90
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                         maximum_percentage*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\
