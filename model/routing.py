@@ -1459,12 +1459,12 @@ class Routing(object):
                                  vos.getValDivZero(pcr.max(0.0, pcr.min(self.avgDischargeShort, self.avgDischarge)), \
                                                                    minDischargeForEnvironmentalFlow, vos.smallNumber))
         
-        #~ # maintaining environmental flow if average discharge > minDischargeForEnvironmentalFlow            # TODO: Check why do we need this?
-        #~ readAvlChannelStorage = pcr.ifthenelse(self.avgDischargeShort < minDischargeForEnvironmentalFlow,
-                                               #~ readAvlChannelStorage,
-                                               #~ pcr.max(readAvlChannelStorage, \
-                                               #~ pcr.max(0.0,\
-                                               #~ self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
+        # maintaining environmental flow if average discharge > minDischargeForEnvironmentalFlow            # TODO: Check why do we need this?
+        readAvlChannelStorage = pcr.ifthenelse(self.avgDischargeShort < minDischargeForEnvironmentalFlow,
+                                               readAvlChannelStorage,
+                                               pcr.max(readAvlChannelStorage, \
+                                               pcr.max(0.0,\
+                                               self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # maximum (precentage) of water can be abstracted from the channel - to avoid flip-flop
         maximum_percentage = 0.75

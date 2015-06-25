@@ -1015,13 +1015,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.001   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.010)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.050  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.050)    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.020  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -2332,17 +2332,9 @@ class LandCover(object):
                 #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow030150)            
                 #~ self.percLow030150 = deep_percolation_loss
             
-            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes) - I PREFER THIS ONE (as this is consistent with the other land cover types).
+            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes)
             if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
             if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
-
-            #~ # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
-            #~ if self.numberOfLayers == 2:
-                #~ deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
-                #~ self.percLow = deep_percolation_loss
-            #~ if self.numberOfLayers == 3:
-                #~ deep_percolation_loss = pcr.min(self.percLow030150, potential_irrigation_loss_from_soil)
-                #~ self.percLow030150 = deep_percolation_loss
 
             # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
             self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, \
