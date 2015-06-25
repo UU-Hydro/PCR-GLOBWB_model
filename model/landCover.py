@@ -2336,7 +2336,7 @@ class LandCover(object):
             if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
             if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
 
-            #~ # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil - CHECK: WHY DOES THIS ONE PROVICE UNREALISTIC SMALL DEMAND?
+            #~ # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
             #~ if self.numberOfLayers == 2:
                 #~ deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
                 #~ self.percLow = deep_percolation_loss
