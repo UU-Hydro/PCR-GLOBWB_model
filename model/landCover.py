@@ -940,13 +940,13 @@ class LandCover(object):
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             #
-            # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity)
-            self.irrGrossDemand = \
-                 pcr.ifthenelse( self.cropKC > 0.20, \
-                 pcr.ifthenelse( self.readAvlWater < \
-                                  adjDeplFactor*self.totAvlWater, \
-                pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #               readAvlWater (available water in the root zone)
+            #~ # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity)
+            #~ self.irrGrossDemand = \
+                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
+                 #~ pcr.ifthenelse( self.readAvlWater < \
+                                  #~ adjDeplFactor*self.totAvlWater, \
+                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
+                                                                           #~ #               readAvlWater (available water in the root zone)
             #~ # then, adjusting demand, as a function of a growing rooting depth
             #~ # - as the proxy of rooting depth, we use crop coefficient 
             #~ self.irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
@@ -955,16 +955,16 @@ class LandCover(object):
             
             # alternative 2: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity, 
             #                                   but with the correction of totAvlWater based on the rooting depth)
-            #~ # - as the proxy of rooting depth, we use crop coefficient 
-            #~ self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
-                                       #~ pcr.min(1.0, self.cropKC / 1.0), 0.0)
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                 #~ adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
-                 #~ pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
-#~ 
-#~ 
+            # - as the proxy of rooting depth, we use crop coefficient 
+            # - this results more reasonable demand
+            self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
+                                       pcr.min(1.0, self.cropKC / 1.0), 0.0)
+            self.irrGrossDemand = \
+                 pcr.ifthenelse( self.cropKC > 0.20, \
+                 pcr.ifthenelse( self.readAvlWater < \
+                                 adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
+                 pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
+
             #~ # deficit in transpiration or evaporation
             #~ deficit_factor = 1.00
             #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
@@ -2332,17 +2332,17 @@ class LandCover(object):
                 #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow030150)            
                 #~ self.percLow030150 = deep_percolation_loss
             
-            #~ # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes) - I PREFER THIS ONE (as this is consistent with the other land cover types).
-            #~ if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
-            #~ if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
+            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes) - I PREFER THIS ONE (as this is consistent with the other land cover types).
+            if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
+            if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
 
-            # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
-            if self.numberOfLayers == 2:
-                deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
-                self.percLow = deep_percolation_loss
-            if self.numberOfLayers == 3:
-                deep_percolation_loss = pcr.min(self.percLow030150, potential_irrigation_loss_from_soil)
-                self.percLow030150 = deep_percolation_loss
+            #~ # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
+            #~ if self.numberOfLayers == 2:
+                #~ deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
+                #~ self.percLow = deep_percolation_loss
+            #~ if self.numberOfLayers == 3:
+                #~ deep_percolation_loss = pcr.min(self.percLow030150, potential_irrigation_loss_from_soil)
+                #~ self.percLow030150 = deep_percolation_loss
 
             # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
             self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, \
