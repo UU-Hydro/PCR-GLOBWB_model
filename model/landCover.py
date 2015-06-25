@@ -940,13 +940,13 @@ class LandCover(object):
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
                                                                            # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
             #
-            #~ # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity)
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                  #~ adjDeplFactor*self.totAvlWater, \
-                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #~ #               readAvlWater (available water in the root zone)
+            # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity)
+            self.irrGrossDemand = \
+                 pcr.ifthenelse( self.cropKC > 0.20, \
+                 pcr.ifthenelse( self.readAvlWater < \
+                                  adjDeplFactor*self.totAvlWater, \
+                pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
+                                                                           #               readAvlWater (available water in the root zone)
             #~ # then, adjusting demand, as a function of a growing rooting depth
             #~ # - as the proxy of rooting depth, we use crop coefficient 
             #~ self.irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
@@ -955,49 +955,49 @@ class LandCover(object):
             
             # alternative 2: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity, 
             #                                   but with the correction of totAvlWater based on the rooting depth)
-            # - as the proxy of rooting depth, we use crop coefficient 
-            self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
-                                       pcr.min(1.0, self.cropKC / 1.0), 0.0)
-            self.irrGrossDemand = \
-                 pcr.ifthenelse( self.cropKC > 0.20, \
-                 pcr.ifthenelse( self.readAvlWater < \
-                                 adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
-                 pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
-
-
-            # deficit in transpiration or evaporation
-            deficit_factor = 1.00
-            evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
-            transpirationDeficit = pcr.max(0.0, 
-                                   self.potTranspiration*deficit_factor -\
-                                   self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
+            #~ # - as the proxy of rooting depth, we use crop coefficient 
+            #~ self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
+                                       #~ pcr.min(1.0, self.cropKC / 1.0), 0.0)
+            #~ self.irrGrossDemand = \
+                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
+                 #~ pcr.ifthenelse( self.readAvlWater < \
+                                 #~ adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
+                 #~ pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
+#~ 
+#~ 
+            #~ # deficit in transpiration or evaporation
+            #~ deficit_factor = 1.00
+            #~ evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True))
+            #~ transpirationDeficit = pcr.max(0.0, 
+                                   #~ self.potTranspiration*deficit_factor -\
+                                   #~ self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             #~ deficit = transpirationDeficit
-            deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            #
-            # treshold to initiate irrigation
-            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            deficit_treshold = 0.20 * self.totalPotET
+            #~ deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #~ #
-            need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
-                              pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
-            need_irrigation = pcr.cover(need_irrigation, pcr.boolean(0.0))
+            #~ # treshold to initiate irrigation
+            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            #~ deficit_treshold = 0.20 * self.totalPotET
             #
-            self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
-
-
-            # demand is limited by potential evaporation for the next coming days
-            # - objective: to avoid too high and unrealistic demand 
-            max_irrigation_interval = 15.0
-            min_irrigation_interval =  7.0
-            irrigation_interval = pcr.min(max_irrigation_interval, \
-                                  pcr.max(min_irrigation_interval, \
-                                  pcr.ifthenelse(self.totalPotET > 0.0, \
-                                  pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
-            # - irrigation demand - limited by potential evaporation for the next coming days
-            self.irrGrossDemand = pcr.min(pcr.max(0.0,\
-                                          self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
-                                          self.irrGrossDemand)
+            #~ need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
+                              #~ pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
+            #~ need_irrigation = pcr.cover(need_irrigation, pcr.boolean(0.0))
+            #~ #
+            #~ self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
+#~ 
+#~ 
+            #~ # demand is limited by potential evaporation for the next coming days
+            #~ # - objective: to avoid too high and unrealistic demand 
+            #~ max_irrigation_interval = 15.0
+            #~ min_irrigation_interval =  7.0
+            #~ irrigation_interval = pcr.min(max_irrigation_interval, \
+                                  #~ pcr.max(min_irrigation_interval, \
+                                  #~ pcr.ifthenelse(self.totalPotET > 0.0, \
+                                  #~ pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
+            #~ # - irrigation demand - limited by potential evaporation for the next coming days
+            #~ self.irrGrossDemand = pcr.min(pcr.max(0.0,\
+                                          #~ self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
+                                          #~ self.irrGrossDemand)
 
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, parameters.kSatUpp)
@@ -2332,17 +2332,17 @@ class LandCover(object):
                 #~ deep_percolation_loss = pcr.min(potential_irrigation_loss_from_soil, self.percLow030150)            
                 #~ self.percLow030150 = deep_percolation_loss
             
-            # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes) - I PREFER THIS ONE (as this is consistent with the other land cover types).
-            if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
-            if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
+            #~ # ALTERNATIVE 2: deep percolation loss as it is estimated (no reduction/changes) - I PREFER THIS ONE (as this is consistent with the other land cover types).
+            #~ if self.numberOfLayers == 2: deep_percolation_loss = self.percLow
+            #~ if self.numberOfLayers == 3: deep_percolation_loss = self.percLow030150
 
-            #~ # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
-            #~ if self.numberOfLayers == 2:
-                #~ deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
-                #~ self.percLow = deep_percolation_loss
-            #~ if self.numberOfLayers == 3:
-                #~ deep_percolation_loss = pcr.min(self.percLow030150, potential_irrigation_loss_from_soil)
-                #~ self.percLow030150 = deep_percolation_loss
+            # ALTERNATIVE 3: deep percolation loss is limited by potential_irrigation_loss_from_soil
+            if self.numberOfLayers == 2:
+                deep_percolation_loss = pcr.min(self.percLow, potential_irrigation_loss_from_soil)
+                self.percLow = deep_percolation_loss
+            if self.numberOfLayers == 3:
+                deep_percolation_loss = pcr.min(self.percLow030150, potential_irrigation_loss_from_soil)
+                self.percLow030150 = deep_percolation_loss
 
             # bare soil evaporation (unit: m), limited by the (remaining) potential_irrigation_loss_from_soil and the estimate of deep percolation 
             self.actBareSoilEvap = pcr.min(self.actBareSoilEvap, \
