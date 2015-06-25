@@ -952,7 +952,7 @@ class LandCover(object):
             #~ self.irrigation_factor   = pcr.ifthenelse(self.cropKC > 0.0,\
                                          #~ pcr.min(1.0, self.cropKC / 1.0), 0.0)
             #~ self.irrGrossDemand = self.irrigation_factor * self.irrGrossDemand
-            #
+            
             # alternative 2: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity, 
             #                                   but with the correction of totAvlWater based on the rooting depth)
             # - as the proxy of rooting depth, we use crop coefficient 
@@ -972,12 +972,12 @@ class LandCover(object):
             transpirationDeficit = pcr.max(0.0, 
                                    self.potTranspiration*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(parameters, returnTotalEstimation = True, returnTotalTranspirationOnly = True))
-            deficit = transpirationDeficit
+            #~ deficit = transpirationDeficit
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
             #
             # treshold to initiate irrigation
-            deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
-            #~ deficit_treshold = 0.20 * self.totalPotET
+            #~ deficit_treshold = pcr.min(0.005, 0.10 * self.totalPotET)
+            deficit_treshold = 0.20 * self.totalPotET
             #~ #
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
