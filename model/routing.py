@@ -1438,7 +1438,7 @@ class Routing(object):
         
         # calculate minimum discharge for environmental flow (m3/s)
         minDischargeForEnvironmentalFlow = pcr.max(0.0, self.avgDischarge - z_score * stdDischarge)
-        factor = 0.20 # to avoid flip flop
+        factor = 0.25 # to avoid flip flop
         minDischargeForEnvironmentalFlow = pcr.max(factor*self.avgDischarge, minDischargeForEnvironmentalFlow)   # unit: m3/s
         minDischargeForEnvironmentalFlow = pcr.max(0.0, minDischargeForEnvironmentalFlow)
         
@@ -1459,15 +1459,15 @@ class Routing(object):
                                  vos.getValDivZero(pcr.max(0.0, pcr.min(self.avgDischargeShort, self.avgDischarge)), \
                                                                    minDischargeForEnvironmentalFlow, vos.smallNumber))
         
-        # maintaining environmental flow if average discharge > minDischargeForEnvironmentalFlow
-        readAvlChannelStorage = pcr.ifthenelse(self.avgDischargeShort < minDischargeForEnvironmentalFlow,
-                                               readAvlChannelStorage,
-                                               pcr.max(readAvlChannelStorage, \
-                                               pcr.max(0.0,\
-                                               self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
+        #~ # maintaining environmental flow if average discharge > minDischargeForEnvironmentalFlow            # TODO: Check why do we need this?
+        #~ readAvlChannelStorage = pcr.ifthenelse(self.avgDischargeShort < minDischargeForEnvironmentalFlow,
+                                               #~ readAvlChannelStorage,
+                                               #~ pcr.max(readAvlChannelStorage, \
+                                               #~ pcr.max(0.0,\
+                                               #~ self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
 
         # maximum (precentage) of water can be abstracted from the channel - to avoid flip-flop
-        maximum_percentage = 0.80 
+        maximum_percentage = 0.75
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                         maximum_percentage*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\
