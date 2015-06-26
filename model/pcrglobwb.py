@@ -201,13 +201,11 @@ class PCRGlobWB(object):
                             'runoff',
                             'unmetDemand']
             variableList += self.landSurface.fluxVars
-            variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','irrigationTranspirationWaterUse','nonIrrigationWaterUse']                
+            variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']                
 
             # consumptive water use for irrigation (unit: m)
             self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
                                                            self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
-            self.irrigationTranspirationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actTranspiTotalAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\
