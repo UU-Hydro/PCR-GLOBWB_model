@@ -404,16 +404,16 @@ class Configuration(object):
         # maximum daily rate of groundwater abstraction (unit: m/day)
         if 'maximumDailyGroundwaterAbstraction' not in self.landSurfaceOptions.keys():
             msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.050" for this option.'
+            msg += 'This run assumes "0.050 m/day" for this option.'
             logger.warning(msg)
             self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
         
         # maximum daily rate of fossil groundwater abstraction (unit: m/day)
         if 'maximumDailyFossilGroundwaterAbstraction' not in self.landSurfaceOptions.keys():
             msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.030" for this option.'
+            msg += 'This run assumes "0.020 m/day" for this option.'
             logger.warning(msg)
-            self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.030"
+            self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
 
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
 

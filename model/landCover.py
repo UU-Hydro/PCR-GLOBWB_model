@@ -1015,13 +1015,13 @@ class LandCover(object):
         self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
 
         # minimum demand for start irrigating
-        minimum_demand = 0.010   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
         if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
                                              self.irrGrossDemand , 0.0)
 
-        maximum_demand = 0.030  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.030)    # TODO: set the minimum demand in the ini/configuration file.
+        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1277,11 +1277,12 @@ class LandCover(object):
                                                        pcr.max(0.000, regionalAnnualGroundwaterAbstractionLimit -\
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
-            # reduced potential groundwater abstraction (after pumping capacity)
+
+            #~ # reduced potential groundwater abstraction (after pumping capacity)
+            #~ self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
+
+            # alternative: reduced potential groundwater abstraction (after pumping capacity) and considering the average recharge (baseflow)
             potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
-
-
-            # considering the average recharge (baseflow)
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, 
                                                        potGroundwaterAbstract + routing.avgBaseflow / routing.cellArea)
 
