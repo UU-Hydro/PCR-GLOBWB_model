@@ -1572,7 +1572,7 @@ class LandCover(object):
                 # - residence time (day-1) or safety factor  (to avoid 'unrealistic' zero fossil groundwater)
                 readAvlFossilGroundwater *= 0.10
                 # - considering maximum daily groundwater abstraction
-                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction
+                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction, \
                                            pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 
