@@ -1021,7 +1021,7 @@ class LandCover(object):
                                              self.irrGrossDemand , 0.0)
 
         maximum_demand = 0.015  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.020)    # TODO: set the minimum demand in the ini/configuration file.
+        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.0275)   # TODO: set the minimum demand in the ini/configuration file.
         self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
 
         # ignore small irrigation demand (less than 1 mm)
@@ -1278,11 +1278,13 @@ class LandCover(object):
                                                                       regionalAnnualGroundwaterAbstraction) /
                                                                       regionalAnnualGroundwaterAbstractionLimit , 0.0), 0.0)
             # reduced potential groundwater abstraction (after pumping capacity)
-            self.potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
-            
+            potGroundwaterAbstract = pcr.min(1.00, reductionFactorForPotGroundwaterAbstract) * self.potGroundwaterAbstract
 
-            #~ # Shall we will always try to fulfil the industrial and domestic demand?
-            #~ self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
+
+            # considering the average recharge (baseflow)
+            self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, 
+                                                       potGroundwaterAbstract + routing.avgBaseflow / routing.cellArea)
+
 
 
             #~ ################## NEW METHOD (but still under development) #################################################################################################################
@@ -1307,7 +1309,7 @@ class LandCover(object):
 
 
 
-            #~ # Shall we will always try to fulfil the remaining industrial and domestic demand?
+            #~ # Shall we will always try to fulfil the industrial and domestic demand?
             #~ self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
             
@@ -1570,7 +1572,7 @@ class LandCover(object):
                 # - residence time (day-1) or safety factor  (to avoid 'unrealistic' zero fossil groundwater)
                 readAvlFossilGroundwater *= 0.10
                 # - considering maximum daily groundwater abstraction
-                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, \
+                readAvlFossilGroundwater = pcr.min(readAvlFossilGroundwater, groundwater.maximumDailyFossilGroundwaterAbstraction
                                            pcr.max(0.0, groundwater.maximumDailyGroundwaterAbstraction - self.nonFossilGroundwaterAbs))
                 readAvlFossilGroundwater = pcr.max(pcr.cover(readAvlFossilGroundwater, 0.0), 0.0)                                           
                 

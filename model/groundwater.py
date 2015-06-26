@@ -238,6 +238,10 @@ class Groundwater(object):
         self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
                                                                       self.cloneMap,self.tmpDir,self.inputDir)
         
+        # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
+        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyDossilGroundwaterAbstraction'],
+                                                                      self.cloneMap,self.tmpDir,self.inputDir)
+
         # extent of the productive aquifer (a boolean map)
         # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise) 
         self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
