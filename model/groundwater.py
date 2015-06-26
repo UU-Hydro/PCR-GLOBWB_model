@@ -239,7 +239,7 @@ class Groundwater(object):
                                                                       self.cloneMap,self.tmpDir,self.inputDir)
         
         # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyDossilGroundwaterAbstraction'],
+        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'],
                                                                       self.cloneMap,self.tmpDir,self.inputDir)
 
         # extent of the productive aquifer (a boolean map)
