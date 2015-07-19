@@ -161,14 +161,12 @@ class LandSurface(object):
         # specific variables for 2 and 3 layer soil models:
         #
         if self.numberOfSoilLayers == 2:
-            self.mainStates += ['storUpp','storLow',\
-                                'satDegUpp','satDegLow']
+            self.mainStates += ['storUpp','storLow']
             self.stateVars  += self.mainStates
             self.fluxVars   += ['actTranspiUpp','actTranspiLow','netPercUpp']
         #                                                      
         if self.numberOfSoilLayers == 3:
-            self.mainStates += ['storUpp000005',  'storUpp005030',  'storLow030150',\
-                              'satDegUpp000005','satDegUpp005030','satDegLow030150']
+            self.mainStates += ['storUpp000005',  'storUpp005030',  'storLow030150']
             self.stateVars  += self.mainStates
             self.fluxVars   += ['actTranspiUpp000005','actTranspiUpp005030','actTranspiLow030150',
                                    'netPercUpp000005',   'netPercUpp005030',
@@ -176,6 +174,8 @@ class LandSurface(object):
         
         # list of all variables that will be calculated/reported in landSurface.py
         self.aggrVars = self.stateVars + self.fluxVars
+        if self.numberOfSoilLayers == 2: self.aggrVars += ['satDegUpp','satDegLow']
+        if self.numberOfSoilLayers == 3: self.aggrVars += ['satDegUpp000005','satDegUpp005030','satDegLow030150']
 
         self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
         # TDOD: Perform water balance checks for aggregates values (from values of each land cover type).   
