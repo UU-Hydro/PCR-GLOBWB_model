@@ -173,10 +173,6 @@ class LandSurface(object):
         # list of all variables that will be calculated/reported in landSurface.py
         self.aggrVars = self.stateVars + self.fluxVars
 
-        # assign the topography and soil parameters
-        self.parameters = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
-        self.parameters.read(iniItems)
-
         self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
         # TDOD: Perform water balance checks for aggregates values (from values of each land cover type).   
         
@@ -245,12 +241,28 @@ class LandSurface(object):
          vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
                                  self.cloneMap,self.tmpDir,self.inputDir)
         
+        # assign the topography and soil parameters
+        self.soil_topo_parameters = {}
+        # - default values used for all land cover types 
+        self.soil_topo_parameters['default'] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
+        self.soil_topo_parameters['default'].read(iniItems)
+        # - specific soil and topography parameter (per land cover type) 
+        for coverType in self.coverTypes:
+            name_of_section_given_in_ini_file = str(coverType)+'Options'
+            dictionary_of_land_cover_settings = iniItems.__getattribute__(name_of_section_given_in_ini_file)
+            if 'usingSpecificSoilTopo' not in dictionary_of_land_cover_settings.keys(): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
+            if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":            
+                self.soil_topo_parameters[coverType] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
+                self.soil_topo_parameters[coverType].read(iniItems, dictionary_of_land_cover_settings)
+            else:
+                self.soil_topo_parameters[coverType] = self.soil_topo_parameters['default']            
+
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
         for coverType in self.coverTypes: 
             self.landCoverObj[coverType] = lc.LandCover(iniItems,\
                                                         str(coverType)+'Options',\
-                                                        self.parameters,self.landmask,\
+                                                        self.soil_topo_parameters[coverType],self.landmask,\
                                                         self.irrigationEfficiency,\
                                                         self.usingAllocSegments)
         
@@ -397,8 +409,7 @@ class LandSurface(object):
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         
         # get initial land cover fractions that will be used 
-        for coverType in self.coverTypes:\
-            self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+        for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
 
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
@@ -822,7 +833,7 @@ class LandSurface(object):
             dzGroundwater = groundwater.storGroundwater/groundwater.specificYield
 
         # add some tolerance/influence level (unit: m)
-        dzGroundwater += self.parameters.maxGWCapRise;
+        dzGroundwater += self.soil_topo_parameters['default'].maxGWCapRise;
         
         # approximate cell fraction under influence of capillary rise
         FRACWAT = pcr.scalar(0.0);
@@ -841,18 +852,18 @@ class LandSurface(object):
                                 self.cloneMap,self.tmpDir,self.inputDir)
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
-        CRFRAC = pcr.min(                                           1.0,1.0 -(self.parameters.dzRel0100-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0100-self.parameters.dzRel0090       ));
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0090,0.9 -(self.parameters.dzRel0090-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0090-self.parameters.dzRel0080),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0080,0.8 -(self.parameters.dzRel0080-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0080-self.parameters.dzRel0070),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0070,0.7 -(self.parameters.dzRel0070-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0070-self.parameters.dzRel0060),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0060,0.6 -(self.parameters.dzRel0060-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0060-self.parameters.dzRel0050),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0050,0.5 -(self.parameters.dzRel0050-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0050-self.parameters.dzRel0040),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0040,0.4 -(self.parameters.dzRel0040-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0040-self.parameters.dzRel0030),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0030,0.3 -(self.parameters.dzRel0030-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0030-self.parameters.dzRel0020),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0020,0.2 -(self.parameters.dzRel0020-dzGroundwater)*0.1 /pcr.max(1e-3,self.parameters.dzRel0020-self.parameters.dzRel0010),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0010,0.1 -(self.parameters.dzRel0010-dzGroundwater)*0.05/pcr.max(1e-3,self.parameters.dzRel0010-self.parameters.dzRel0005),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0005,0.05-(self.parameters.dzRel0005-dzGroundwater)*0.04/pcr.max(1e-3,self.parameters.dzRel0005-self.parameters.dzRel0001),CRFRAC);
-        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0001,0.01-(self.parameters.dzRel0001-dzGroundwater)*0.01/pcr.max(1e-3,self.parameters.dzRel0001),CRFRAC);
+        CRFRAC = pcr.min(                                           1.0,1.0 -(self.soil_topo_parameters['default'].dzRel0100-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0100-self.soil_topo_parameters['default']dzRel0090       ));
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0090,0.9 -(self.soil_topo_parameters['default'].dzRel0090-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0090-self.soil_topo_parameters['default']dzRel0080),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0080,0.8 -(self.soil_topo_parameters['default'].dzRel0080-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0080-self.soil_topo_parameters['default']dzRel0070),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0070,0.7 -(self.soil_topo_parameters['default'].dzRel0070-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0070-self.soil_topo_parameters['default']dzRel0060),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0060,0.6 -(self.soil_topo_parameters['default'].dzRel0060-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0060-self.soil_topo_parameters['default']dzRel0050),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0050,0.5 -(self.soil_topo_parameters['default'].dzRel0050-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0050-self.soil_topo_parameters['default']dzRel0040),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0040,0.4 -(self.soil_topo_parameters['default'].dzRel0040-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0040-self.soil_topo_parameters['default']dzRel0030),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0030,0.3 -(self.soil_topo_parameters['default'].dzRel0030-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0030-self.soil_topo_parameters['default']dzRel0020),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0020,0.2 -(self.soil_topo_parameters['default'].dzRel0020-dzGroundwater)*0.1 /pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0020-self.soil_topo_parameters['default']dzRel0010),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0010,0.1 -(self.soil_topo_parameters['default'].dzRel0010-dzGroundwater)*0.05/pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0010-self.soil_topo_parameters['default']dzRel0005),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0005,0.05-(self.soil_topo_parameters['default'].dzRel0005-dzGroundwater)*0.04/pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0005-self.soil_topo_parameters['default']dzRel0001),CRFRAC);
+        CRFRAC = pcr.ifthenelse(dzGroundwater<self.parameters.dzRel0001,0.01-(self.soil_topo_parameters['default'].dzRel0001-dzGroundwater)*0.01/pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0001)self.soil_topo_parameters['default'],CRFRAC);
 
         CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1-FRACWAT),0.0);
         #
@@ -1026,6 +1037,7 @@ class LandSurface(object):
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value,\
                                                                   self.regionalAnnualGroundwaterAbstractionLimit)                                                         
         else:
+            
             logger.debug('Total groundwater abstraction is NOT limited by regional annual pumping capacity.')
             self.groundwater_pumping_region_ids = None
             self.regionalAnnualGroundwaterAbstractionLimit = None
@@ -1133,7 +1145,7 @@ class LandSurface(object):
             
             logger.info("Updating land cover: "+str(coverType))
             self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,\
-                                                  self.parameters,self.capRiseFrac,\
+                                                  self.capRiseFrac,\
                                                   self.nonIrrigationWaterDemandDict,\
                                                   self.swAbstractionFractionDict,\
                                                   currTimeStep,\
@@ -1163,43 +1175,6 @@ class LandSurface(object):
                         self.topWaterLayer +\
                         self.storUpp000005 + self.storUpp005030 +\
                         self.storLow030150
-
-        # saturation degrees (needed only for reporting):
-        #
-        if self.numberOfSoilLayers == 2:
-            self.satDegUpp = vos.getValDivZero(\
-                  self.storUpp, self.parameters.storCapUpp,\
-                  vos.smallNumber,0.)
-            self.satDegUpp = pcr.ifthen(self.landmask, self.satDegUpp)
-            self.satDegLow = vos.getValDivZero(\
-                  self.storLow, self.parameters.storCapLow,\
-                  vos.smallNumber,0.)
-            self.satDegLow = pcr.ifthen(self.landmask, self.satDegLow)
-
-            self.satDegUppTotal = self.satDegUpp
-            self.satDegLowTotal = self.satDegLow
-
-        if self.numberOfSoilLayers == 3:
-            self.satDegUpp000005 = vos.getValDivZero(\
-                  self.storUpp000005, self.parameters.storCapUpp000005,\
-                  vos.smallNumber,0.)
-            self.satDegUpp000005 = pcr.ifthen(self.landmask, self.satDegUpp000005)
-            self.satDegUpp005030 = vos.getValDivZero(\
-                  self.storUpp005030, self.parameters.storCapUpp005030,\
-                  vos.smallNumber,0.)
-            self.satDegUpp005030 = pcr.ifthen(self.landmask, self.satDegUpp005030)
-            self.satDegLow030150 = vos.getValDivZero(\
-                  self.storLow030150, self.parameters.storCapLow030150,\
-                  vos.smallNumber,0.)
-            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
-
-            self.satDegUppTotal  = vos.getValDivZero(\
-                  self.storUpp000005 + self.storUpp005030,\
-                  self.parameters.storCapUpp000005 + \
-                  self.parameters.storCapUpp005030,\
-                  vos.smallNumber,0.)
-            self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
-            self.satDegLowTotal = self.satDegLow030150
 
         # old-style reporting (this is useful for debugging)                            
         self.old_style_land_surface_reporting(currTimeStep)

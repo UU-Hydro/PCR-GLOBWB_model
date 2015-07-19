@@ -8,9 +8,10 @@ import virtualOS as vos
 
 class SoilAndTopoParameters(object):
 
-    def __init__(self,iniItems,landmask):
+    def __init__(self, iniItems, landmask):
         object.__init__(self)
 
+        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
@@ -19,16 +20,19 @@ class SoilAndTopoParameters(object):
         # How many soil layers (excluding groundwater):
         self.numberOfLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
 
-    def read(self,iniItems):
+    def read(self, iniItems, optionDict = None):
 		
-        self.readTopo(iniItems)
-        self.readSoil(iniItems)
+        self.readTopo(iniItems, optionDict = None)
+        self.readSoil(iniItems, optionDict = None
 
-    def readTopo(self,iniItems):
+    def readTopo(self, iniItems, optionDict):
+
+        # a dictionary/section of options that will be used
+        if optionDict != None: optionDict = iniItems.landSurfaceOptions
 
         # maps of elevation attributes: 
         topoParams = ['tanslope','slopeLength','orographyBeta']
-        if iniItems.landSurfaceOptions['topographyNC'] == str(None):
+        if optionDict['topographyNC'] == str(None):
             for var in topoParams:
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
@@ -36,8 +40,7 @@ class SoilAndTopoParameters(object):
                 if var != "slopeLength": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         else:
             topoPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'topographyNC'],
+                               optionDict['topographyNC'],
                                                 self.inputDir)
             for var in topoParams:
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
@@ -54,10 +57,10 @@ class SoilAndTopoParameters(object):
         dzRel = ['dzRel0001','dzRel0005',
                  'dzRel0010','dzRel0020','dzRel0030','dzRel0040','dzRel0050',
                  'dzRel0060','dzRel0070','dzRel0080','dzRel0090','dzRel0100']
-        if iniItems.landSurfaceOptions['topographyNC'] == str(None):
+        if optionDict['topographyNC'] == str(None):
             for i in range(0, len(dzRel)):
                 var = dzRel[i]
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                                 self.tmpDir,self.inputDir)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
@@ -71,8 +74,11 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 if i > 0: vars(self)[var] = pcr.max(vars(self)[var], vars(self)[dzRel[i-1]])
 
-    def readSoilMapOfFAO(self,iniItems):
+    def readSoilMapOfFAO(self, iniItems, optionDict = None):
 
+        # a dictionary/section of options that will be used
+        if optionDict != None: optionDict = iniItems.landSurfaceOptions
+        
         # soil variable names given either in the ini or netCDF file:
         soilParameters = ['airEntryValue1','airEntryValue2',       
                           'poreSizeBeta1','poreSizeBeta2',        
@@ -80,9 +86,9 @@ class SoilAndTopoParameters(object):
                           'satVolWC1','satVolWC2',
                           'KSat1','KSat2',                
                           'percolationImp']
-        if iniItems.landSurfaceOptions['soilPropertiesNC'] == str(None):
+        if optionDict['soilPropertiesNC'] == str(None):
             for var in soilParameters:
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 vars(self)[var] = \
                                vos.readPCRmapClone(input,self.cloneMap,\
                                              self.tmpDir,self.inputDir)
@@ -90,8 +96,7 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         else:
             soilPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'soilPropertiesNC'],
+                               optionDict['soilPropertiesNC'],
                                                 self.inputDir)
             for var in soilParameters:
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
@@ -138,9 +143,9 @@ class SoilAndTopoParameters(object):
         # as given either in the ini or netCDF file:
         soilStorages = ['firstStorDepth',      'secondStorDepth',      
                         'soilWaterStorageCap1','soilWaterStorageCap2'] 
-        if iniItems.landSurfaceOptions['soilPropertiesNC'] == str(None):
+        if optionDict['soilPropertiesNC'] == str(None):
             for var in soilStorages:
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 temp = str(var)+'Inp'
                 vars(self)[temp] = vos.readPCRmapClone(input,\
                                             self.cloneMap,
@@ -148,8 +153,7 @@ class SoilAndTopoParameters(object):
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
         else:
             soilPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'soilPropertiesNC'],
+                               optionDict['soilPropertiesNC'],
                                                 self.inputDir)
             for var in soilStorages:
                 temp = str(var)+'Inp'
@@ -188,7 +192,10 @@ class SoilAndTopoParameters(object):
                                            self.storCapUpp005030 + \
                                            self.storCapLow030150
 
-    def readSoil(self,iniItems):
+    def readSoil(self, iniItems, optionDict = None):
+
+        # a dictionary/section of options that will be used
+        if optionDict != None: optionDict = iniItems.landSurfaceOptions
 
         # default values of soil parameters that are constant/uniform for the entire domain:
         self.clappAddCoeff   = pcr.scalar(3.0)        # dimensionless
