@@ -49,6 +49,8 @@ class Configuration(object):
         # repair key names of initial conditions
         self.repair_ini_key_names()
         
+        # options/settings used during debugging to PCR-GLOBWB version 1.0
+        self.set_debug_to_version_one()
 
     def initialize_logging(self, log_file_location = "Default"):
         """
@@ -415,5 +417,23 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
 
-        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa). 
+        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
+        
 
+    def set_debug_to_version_one(self):
+         
+        self.debug_to_version_one = False
+        if 'debug_to_version_one' in self.globalOptions.keys():
+            if self.globalOptions['debug_to_version_one'] == "True": self.debug_to_version_one = True
+            
+        if self.debug_to_version_one:
+
+            msg  = "\n"
+            msg += "============================================================================\n"
+            msg += "A special Run for debugging to PCR-GLOBWB version 1\n"
+            msg += "============================================================================\n"
+            msg += "\n"
+            logger.info(msg)
+            
+            # TODO: Set a specific set of configuration options for a debugging run  
+            

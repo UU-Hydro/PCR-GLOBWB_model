@@ -125,20 +125,24 @@ boundingBox= [(3.5000000,  46.0000000), (  12.0000000,  52.5000000)]
 #~ boundingBox= [(-124.0000000,  41.0000000),(-109.0000000,  53.0000000)]
 cellLength= 0.5
 
-hydroworldPath= '/data/hydroworld/PCRGLOBWB20/input30min'
-#~ initialPath= '/scratch/edwin/debug30min/global_2.0_initial_conditions/states'
-initialPath= ' /scratch/edwin/debug30min_after18Feb2014/python/global_2.0_initial_conditions/states'
+hydroworldPath = '/data/hydroworld/PCRGLOBWB20/input30min'
+
+#~ initialPath = '/scratch/edwin/debug30min/global_2.0_initial_conditions/states'
+#~ initialPath = ' /scratch/edwin/debug30min_after18Feb2014/python/global_2.0_initial_conditions/states'
+initialPath = '/scratch/edwin/hyper_hydro_output/Rhine/RhineMeuse30min/states/'
+
 #~ sourcePath= '/scratch/edwin/debug30min'
-sourcePath= '/scratch/edwin/debug30min_after18Feb2014/python' # for forcing
-targetPath= '/scratch/edwin/debug30min_after18Feb2014/oldcalc'
-startDate= datetime.datetime(2000,1,1)
-endDate= datetime.datetime(2000,12,31)
+sourcePath = '/scratch/edwin/debug30min_after18Feb2014/python' # for forcing
+targetPath = '/scratch/edwin/debug30min_after18Feb2014/oldcalc'
+
+startDate = datetime.datetime(2000,1,1)
+endDate   = datetime.datetime(2000,12,31)
 
 #-land cover keys
 landCoverKeys= {'forest': 'tall', 'grassland': 'short'}
 
 #-dynamic datasets 
-dynamicVariables= {}
+dynamicVariables = {}
 dynamicDataSets= {}
 dynamic= True
 #-add temperature, rainfall and reference potential evapotranspiration

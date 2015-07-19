@@ -28,37 +28,44 @@
 # - FRACWAT = 0.0
 # - KC_WATSTACK = 0.0
 # - WMAX = SC1 + SC2 (instead of reading from file)
+# - Change the location of maps with the system argument $1
 
 binding
 
 #Maps & TSS - input
 #-General
- Duration= scalar(1);							#timestep in days
- LANDMASK= maps\catclone.map;					#clone map representing landmask of earth surface
- CELLAREA= maps\cellarea30.map;					#surface (m2) of cell covered by total land surface
 
-#FRACWAT= maps\glwd130m_fracw.map;				#fraction of cell area covered by fresh water
- FRACWAT=scalar(0);
+ Duration= scalar(1);							# timestep in days
+ LANDMASK = $1\maps\catclone.map;				# clone map representing landmask of earth surface
+ CELLAREA = $1\maps\cellarea30.map;				# surface (m2) of cell covered by total land surface
+
+#FRACWAT  = maps\glwd130m_fracw.map;			# fraction of cell area covered by fresh water
+ FRACWAT  = scalar(0);                          # set to zero for debugging purpose
  
 #-Physiography
- LSLOPE= maps\globalbcat.map;			#slope length (m)
- TANSLOPE= maps\globalgradslope.map;	#gradient of slope (m/m)
- B_ORO=	maps\globalboro.map;			#shape coefficient related to orography
- LDD= maps\lddsound_30min.map;			#local drainage direction map
- STATIONS= maps\grdc_stations.map;		#ID of gauging stations
- MONITORSTATIONS= maps\hol_climatelocs.map;			#locations to monitor soil behaviour, one per climate zone  #**
- DZREL0001= maps\hydro1k_dzrel0001.map;			#maps of relative elevation above floodplain, in percent
- DZREL0005= maps\hydro1k_dzrel0005.map;
- DZREL0010= maps\hydro1k_dzrel0010.map;
- DZREL0020= maps\hydro1k_dzrel0020.map;
- DZREL0030= maps\hydro1k_dzrel0030.map;
- DZREL0040= maps\hydro1k_dzrel0040.map;
- DZREL0050= maps\hydro1k_dzrel0050.map;
- DZREL0060= maps\hydro1k_dzrel0060.map;
- DZREL0070= maps\hydro1k_dzrel0070.map;
- DZREL0080= maps\hydro1k_dzrel0080.map;
- DZREL0090= maps\hydro1k_dzrel0090.map;
- DZREL0100= maps\hydro1k_dzrel0100.map;
+ LSLOPE   = $1\maps\globalbcat.map;			    # slope length (m)
+ TANSLOPE = $1\maps\globalgradslope.map;	    # gradient of slope (m/m)
+ B_ORO    =	$1\maps\globalboro.map;			    # shape coefficient related to orography
+ LDD      = $1\maps\lddsound_30min.map;			# local drainage direction map
+
+ DZREL0001 = $1\maps\hydro1k_dzrel0001.map;		# maps of relative elevation above floodplain, in percent
+ DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
+ DZREL0010 = $1\maps\hydro1k_dzrel0010.map;
+ DZREL0020 = $1\maps\hydro1k_dzrel0020.map;
+ DZREL0030 = $1\maps\hydro1k_dzrel0030.map;
+ DZREL0040 = $1\maps\hydro1k_dzrel0040.map;
+ DZREL0050 = $1\maps\hydro1k_dzrel0050.map;
+ DZREL0060 = $1\maps\hydro1k_dzrel0060.map;
+ DZREL0070 = $1\maps\hydro1k_dzrel0070.map;
+ DZREL0080 = $1\maps\hydro1k_dzrel0080.map;
+ DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
+ DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
+
+ SAMPAI DI SINI
+
+#-Climatic input - values in m and ?C per day; CRU data and ERA-40 reanalysis
+ STATIONS = maps\grdc_stations.map;		        # ID of gauging stations
+
 
 #-Climatic input - values in m and ?C per day; CRU data and ERA-40 reanalysis
  PRPSTACK= meteo\ra;																			#map stack of daily precipitation rates (m/day)
