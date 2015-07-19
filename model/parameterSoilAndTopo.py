@@ -23,7 +23,7 @@ class SoilAndTopoParameters(object):
     def read(self, iniItems, optionDict = None):
 		
         self.readTopo(iniItems, optionDict = None)
-        self.readSoil(iniItems, optionDict = None
+        self.readSoil(iniItems, optionDict = None)
 
     def readTopo(self, iniItems, optionDict):
 
