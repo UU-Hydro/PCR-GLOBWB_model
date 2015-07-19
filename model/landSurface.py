@@ -251,8 +251,6 @@ class LandSurface(object):
             name_of_section_given_in_ini_file = str(coverType)+'Options'
             dictionary_of_land_cover_settings = iniItems.__getattribute__(name_of_section_given_in_ini_file)
             
-            print dictionary_of_land_cover_settings
-            
             if 'usingSpecificSoilTopo' not in dictionary_of_land_cover_settings.keys(): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
             if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":            
                 self.soil_topo_parameters[coverType] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
