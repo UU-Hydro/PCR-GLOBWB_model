@@ -27,9 +27,13 @@ class SoilAndTopoParameters(object):
 
     def readTopo(self, iniItems, optionDict):
 
+        print optionDict
+
         # a dictionary/section of options that will be used
         if optionDict != None: optionDict = iniItems.landSurfaceOptions
 
+        print optionDict
+        
         # maps of elevation attributes: 
         topoParams = ['tanslope','slopeLength','orographyBeta']
         if optionDict['topographyNC'] == str(None):
