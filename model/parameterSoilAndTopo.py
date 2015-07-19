@@ -27,15 +27,9 @@ class SoilAndTopoParameters(object):
 
     def readTopo(self, iniItems, optionDict):
 
-        print optionDict
-
-        print iniItems.landSurfaceOptions
-        
         # a dictionary/section of options that will be used
-        if optionDict != None: optionDict = iniItems.landSurfaceOptions
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
 
-        print optionDict
-        
         # maps of elevation attributes: 
         topoParams = ['tanslope','slopeLength','orographyBeta']
         if optionDict['topographyNC'] == str(None):
@@ -83,7 +77,7 @@ class SoilAndTopoParameters(object):
     def readSoilMapOfFAO(self, iniItems, optionDict = None):
 
         # a dictionary/section of options that will be used
-        if optionDict != None: optionDict = iniItems.landSurfaceOptions
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
         
         # soil variable names given either in the ini or netCDF file:
         soilParameters = ['airEntryValue1','airEntryValue2',       
@@ -201,7 +195,7 @@ class SoilAndTopoParameters(object):
     def readSoil(self, iniItems, optionDict = None):
 
         # a dictionary/section of options that will be used
-        if optionDict != None: optionDict = iniItems.landSurfaceOptions
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
 
         # default values of soil parameters that are constant/uniform for the entire domain:
         self.clappAddCoeff   = pcr.scalar(3.0)        # dimensionless
