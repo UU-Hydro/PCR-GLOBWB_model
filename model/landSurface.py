@@ -111,7 +111,9 @@ class LandSurface(object):
         #
         # state variables (unit: m)
         self.stateVars = ['storUppTotal',
-                          'storLowTotal']
+                          'storLowTotal',
+                          'satDegUppTotal',
+                          'satDegLowTotal']
         #
         # flux variables (unit: m/day)
         self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
@@ -159,13 +161,15 @@ class LandSurface(object):
         # specific variables for 2 and 3 layer soil models:
         #
         if self.numberOfSoilLayers == 2:
-            self.mainStates += ['storUpp','storLow']
+            self.mainStates += ['storUpp','storLow',\
+                                'satDegUpp','satDegLow']
             self.stateVars  += self.mainStates
             self.fluxVars   += ['actTranspiUpp','actTranspiLow','netPercUpp']
         #                                                      
         if self.numberOfSoilLayers == 3:
-            self.mainStates += ['storUpp000005','storUpp005030','storLow030150']
-            self.stateVars  += self.mainStates
+            self.mainStates += ['storUpp000005',  'storUpp005030',  'storLow030150',\
+                              'satDegUpp000005','satDegUpp005030','satDegLow030150']
+]            self.stateVars  += self.mainStates
             self.fluxVars   += ['actTranspiUpp000005','actTranspiUpp005030','actTranspiLow030150',
                                    'netPercUpp000005',   'netPercUpp005030',
                                                        'interflowUpp005030']

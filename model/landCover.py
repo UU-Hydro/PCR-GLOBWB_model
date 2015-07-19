@@ -473,7 +473,41 @@ class LandCover(object):
                              desalinationWaterUse,\
                              groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
 
-        # TODO: calculate water shortages 
+        # saturation degrees (needed only for reporting):
+        if self.numberOfSoilLayers == 2:
+            self.satDegUpp = vos.getValDivZero(\
+                  self.storUpp, self.parameters.storCapUpp,\
+                  vos.smallNumber,0.)
+            self.satDegUpp = pcr.ifthen(self.landmask, self.satDegUpp)
+            self.satDegLow = vos.getValDivZero(\
+                  self.storLow, self.parameters.storCapLow,\
+                  vos.smallNumber,0.)
+            self.satDegLow = pcr.ifthen(self.landmask, self.satDegLow)
+
+            self.satDegUppTotal = self.satDegUpp
+            self.satDegLowTotal = self.satDegLow
+
+        if self.numberOfSoilLayers == 3:
+            self.satDegUpp000005 = vos.getValDivZero(\
+                  self.storUpp000005, self.parameters.storCapUpp000005,\
+                  vos.smallNumber,0.)
+            self.satDegUpp000005 = pcr.ifthen(self.landmask, self.satDegUpp000005)
+            self.satDegUpp005030 = vos.getValDivZero(\
+                  self.storUpp005030, self.parameters.storCapUpp005030,\
+                  vos.smallNumber,0.)
+            self.satDegUpp005030 = pcr.ifthen(self.landmask, self.satDegUpp005030)
+            self.satDegLow030150 = vos.getValDivZero(\
+                  self.storLow030150, self.parameters.storCapLow030150,\
+                  vos.smallNumber,0.)
+            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
+
+            self.satDegUppTotal  = vos.getValDivZero(\
+                  self.storUpp000005 + self.storUpp005030,\
+                  self.parameters.storCapUpp000005 + \
+                  self.parameters.storCapUpp005030,\
+                  vos.smallNumber,0.)
+            self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
+            self.satDegLowTotal = self.satDegLow030150
         
         if self.report == True:
             # writing Output to netcdf files
