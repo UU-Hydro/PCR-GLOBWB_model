@@ -29,6 +29,8 @@ class SoilAndTopoParameters(object):
 
         print optionDict
 
+        print iniItems.landSurfaceOptions
+        
         # a dictionary/section of options that will be used
         if optionDict != None: optionDict = iniItems.landSurfaceOptions
 
