@@ -395,11 +395,11 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "0.0"
         
-        if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
+        if 'treshold_to_minimize_fossil_groundwater_irrigation' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'This run assumes "0.0" for this option.'
             logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "0.0"
+            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "0.0"
         
         # maximum daily rate of groundwater abstraction (unit: m/day)
         if 'maximumDailyGroundwaterAbstraction' not in self.landSurfaceOptions.keys():
