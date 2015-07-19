@@ -169,7 +169,7 @@ class LandSurface(object):
         if self.numberOfSoilLayers == 3:
             self.mainStates += ['storUpp000005',  'storUpp005030',  'storLow030150',\
                               'satDegUpp000005','satDegUpp005030','satDegLow030150']
-]            self.stateVars  += self.mainStates
+]           self.stateVars  += self.mainStates
             self.fluxVars   += ['actTranspiUpp000005','actTranspiUpp005030','actTranspiLow030150',
                                    'netPercUpp000005',   'netPercUpp005030',
                                                        'interflowUpp005030']
