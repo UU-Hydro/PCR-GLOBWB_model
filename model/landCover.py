@@ -22,6 +22,9 @@ class LandCover(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
+        # number of soil layers:
+        self.numberOfSoilLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
+
         # soil and topo parameters
         self.parameters = soil_and_topo_parameters
         
