@@ -257,10 +257,21 @@ class LandSurface(object):
             
             if 'usingSpecificSoilTopo' not in dictionary_of_land_cover_settings.keys(): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
             if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":            
+                
+                msg  = "Using a specific set of soil and topo parameters "
+                msg += "as defined in the "+name_of_section_given_in_ini_file+" of the ini/configuration file". 
+                
                 self.soil_topo_parameters[coverType] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
                 self.soil_topo_parameters[coverType].read(iniItems, dictionary_of_land_cover_settings)
             else:
+
+                msg  = "Using the default set of soil and topo parameters "
+                msg += "as defined in the landSurfaceOptions of the ini/configuration file". 
+
                 self.soil_topo_parameters[coverType] = self.soil_topo_parameters['default']            
+
+            logger.info(msg)
+ 
 
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
