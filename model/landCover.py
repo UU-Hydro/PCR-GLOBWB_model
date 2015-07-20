@@ -459,7 +459,7 @@ class LandCover(object):
                          (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
                           self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
                           self.parameters.storCapLow030150*self.adjRootFrLow030150 ), 0.5 * (0.5*(self.parameters.poreSizeBetaUpp000005 + \
-                                                                                                  self.parameters.poreSizeBetaUpp005030) self.parameters.poreSizeBetaLow030150))
+                                                                                                  self.parameters.poreSizeBetaUpp005030) + self.parameters.poreSizeBetaLow030150))
 
         # I don't think that we need the following items.
         self.effSatAt50 = pcr.cover(self.effSatAt50, 0.5)
