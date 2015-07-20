@@ -410,6 +410,13 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['includeIrrigation'] = "False"
 
+        # adjustment for the option 'historicalIrrigationArea'
+        if 'includeIrrigation' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "None" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['historicalIrrigationArea'] = "None"
+
         # adjustment for the option 'includeDomesticWaterDemand'
         if 'includeDomesticWaterDemand' not in self.landSurfaceOptions.keys():
             msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
