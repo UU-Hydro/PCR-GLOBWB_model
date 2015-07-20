@@ -96,8 +96,8 @@ binding
 
  VEGFRAC[COVERTYPE] = index(COVERTABLE);	                   # subdivision in cover type
 
- CF_SHORTSTACK   = maps\cover_fraction/cv_s;	               # fractional vegetation cover (-) per vegetation type
- CF_TALLSTACK    = maps\cover_fraction/cv_t;			
+ CF_SHORTSTACK   = maps\cover_fraction\cv_s;	               # fractional vegetation cover (-) per vegetation type
+ CF_TALLSTACK    = maps\cover_fraction\cv_t;			
 
  SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s;    # interception storage (m) per vegetation type
  SMAX_TALLSTACK  = maps\interception_capacity_input\smax_t;
