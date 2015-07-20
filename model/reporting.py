@@ -32,6 +32,7 @@ class Reporting(object):
         self.initiate_reporting()
 
         # option for debugging to PCR-GLOBWB version 1.0
+        self.debug_to_version_one = False
         if self.configuration.debug_to_version_one: self.debug_to_version_one = True
 
     def initiate_reporting(self):
@@ -238,29 +239,28 @@ class Reporting(object):
         self.basic_post_processing() 
         self.additional_post_processing()
         
-        if self._modelTime.timeStepPCR == 1: self.report_maps_for_debugging()
-
-    def report_maps_for_debugging(self):
-
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
-        print self.configuration.mapsDir
+        if self.debug_to_version_one:
+            if self._modelTime.timeStepPCR == 1: self.report_static_maps_for_debugging()
+            self.report_forcing_for_debugging()
         
+        
+        
+    def report_forcing_for_debugging(self):
+
+        # prepare forcing directory
+        if self._modelTime.timeStepPCR == 1: 
+            self.directory_for_forcing_maps = vos.getFullPath("meteo/", self.configuration.mapsDir)
+            if os.path.exists(self.directory_for_forcing_maps): shutil.rmtree(self.directory_for_forcing_maps)
+            os.makedirs(self.directory_for_forcing_maps)
+        
+        # writing precipitation time series maps
+        file_name = self.directory_for_forcing_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/ra", self.modelTime.timeStepPCR)
+        pcr.report(self._model.meteo.precipitation, file_name) 
+
+
+    def report_static_maps_for_debugging(self):
+
         # LANDMASK = $1\maps\catclone.map;				                   # clone map representing landmask of earth surface
         # CELLAREA = $1\maps\cellarea30.map;				               # surface (m2) of cell covered by total land surface
 
