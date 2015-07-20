@@ -151,61 +151,82 @@ binding
 
 #Maps & TSS - output
 #-note cover type is not needed to report local fluxes!
- SC= results\snowcov;				#snow cover (m)
- SC_L= results\sc;					#idem, local value
- SCF= results\snowliq;				#liquid water stored in snow cover (m)
- SCF_L= results\scf;				#idem, local value
- SCTSS= results\snowtot.tss;		#total snow storage in equivalent water height (m)
- INTS= results\intstor;				#interception storage (m)
- INTS_L= results\ints;				#idem, local value
- INTSTSS= results\ints.tss;			#as above, timeseries
- EACT= results\eact;				#actual evapotranspiration (m)
- EACTTSS= results\eact.tss;			#as above, timeseries
- ETPOT= results\etpot;				#total potential evapotranspiration (m)
- EFRAC= results\efrac;				#fraction of actual over potential evapotranspiration (-)
- ESPOT= results\espot;				#potential soil evaporation (m)
- ESACT= results\esact;				#actual soil evaporation (m)
- EWAT= results\ewat;				#potential evaporation over open water
- T1POT= results\t1pot;				#potential transpiration drawn from first soil layer (m)
- T1ACT= results\t1act;				#idem, actual
- T2POT= results\t2pot;				#potential transpiration drawn from second soil layer (m)
- T2ACT= results\t2act;				#idem, actual
- SATFRAC= results\satf;				#fraction saturated area (-)
- WACT= results\wact;				#actual water storage within root zone (m)
- CRFRAC= results\crfrac;			#fraction of soil surface influenced by capillary rise
- P1= results\p1x;					#percolation from first layer
- P2= results\p2x;                  #percolation from second layer
- CR1= results\cr1x;					#capillary rise from first layer
- CR2= results\cr2x;                  #capilary rise from second layer
-  Q1= results\q1x;					#direct runoff (m)
- Q1TSS= results\q1.tss;				#idem, timeseries
- Q1S= results\q1s;					#direct runoff attributable to snow melt (m)
- Q1STSS= results\q1snow.tss;		#idem, timeseries
- Q2=  results\q2x;					#runoff from second store (flow) (m)
- Q2_L= results\q2;					#idem, local value
- Q2TSS= results\q2.tss;				#idem, timeseries
- Q3= results\q3x;					#runoff from lower store (base flow) (m)
- Q3TSS= results\q3.tss;				#idem, timeseries
- QLOC= results\qloc;				#specific runoff (m)
- S1= results\stor1x;				#storage in upper store (m)
- S1_L= results\s1;					#idem, local value
- S1TSS= results\stor1.tss;			#as above, timeseries
- S2= results\stor2x;				#storage in second store (m)
- S2_L= results\s2;					#idem, local value
- S2TSS= results\stor2.tss;			#as above, timeseries
- R3= results\r3x;					#recharge to third store
- R3AVG= results\r3_avg.map;			#average recharge to the third, groundwater store (m)
- S3= results\stor3x;				#storage in lower store (m)
- S3TSS= results\stor3.tss;			#as above, timeseries
- QW= results\qw;					#change in storage of freshwater surface
- #channel discharge has been retained as check but is not used
- QAVG= results\qaverage.map;		#channel discharge - annual average (m/s)
- QCHANNEL= results\qc;				#channel discharge - daily value
- QCHANNELTSS= results\qchannel.tss;	#timeseries of total discharge (m/s)
- #water balance components and budget check included here
- #-monthly water balance fluxes  in m waterslice per unit surface area of pertinent type (water, land) per month
- PRECMON= results\precmon;	#total precipitation over unit area
- ETPMON= results\etpmon;	#total potential evapotranspiration over unit land area (crop specific evapotranspiration)
+
+ SC    = oldcalc_results\snowcov;			# snow cover (m)
+ SC_L  = oldcalc_results\sc;				# idem, local value
+ SCF   = oldcalc_results\snowliq;			# liquid water stored in snow cover (m)
+ SCF_L = oldcalc_results\scf;				# idem, local value
+ SCTSS = oldcalc_results\snowtot.tss;		# total snow storage in equivalent water height (m)
+
+ INTS    = oldcalc_results\intstor;			# interception storage (m)
+ INTS_L  = oldcalc_results\ints;			# idem, local value
+ INTSTSS = oldcalc_results\ints.tss;		# as above, timeseries
+
+ EACT    = oldcalc_results\eact;				# actual evapotranspiration (m)
+ EACTTSS = oldcalc_results\eact.tss;			# as above, timeseries
+ ETPOT   = oldcalc_results\etpot;				# total potential evapotranspiration (m)
+ EFRAC   = oldcalc_results\efrac;				# fraction of actual over potential evapotranspiration (-)
+ ESPOT   = oldcalc_results\espot;				# potential soil evaporation (m)
+ ESACT   = oldcalc_results\esact;				# actual soil evaporation (m)
+ EWAT    = oldcalc_results\ewat;				# potential evaporation over open water
+ T1POT   = oldcalc_results\t1pot;				# potential transpiration drawn from first soil layer (m)
+ T1ACT   = oldcalc_results\t1act;				# idem, actual
+ T2POT   = oldcalc_results\t2pot;				# potential transpiration drawn from second soil layer (m)
+ T2ACT   = oldcalc_results\t2act;				# idem, actual
+ SATFRAC = oldcalc_results\satf;				# fraction saturated area (-)
+ WACT    = oldcalc_results\wact;				# actual water storage within root zone (m)
+
+ CRFRAC  = oldcalc_results\crfrac;			    # fraction of soil surface influenced by capillary rise
+
+ P1     = oldcalc_results\p1x;					# percolation from first layer
+ P2     = oldcalc_results\p2x;                  # percolation from second layer
+ CR1    = oldcalc_results\cr1x;					# capillary rise from first layer
+ CR2    = oldcalc_results\cr2x;                 # capilary rise from second layer
+
+ Q1     = oldcalc_results\q1x;					# direct runoff (m)
+ Q1TSS  = oldcalc_results\q1.tss;				# idem, timeseries
+ Q1S    = oldcalc_results\q1s;					# direct runoff attributable to snow melt (m)
+ Q1STSS = oldcalc_results\q1snow.tss;		    # idem, timeseries
+
+ Q2     = oldcalc_results\q2x;					# runoff from second store (flow) (m)
+ Q2_L   = oldcalc_results\q2;					# idem, local value
+
+ Q2TSS  = oldcalc_results\q2.tss;				# idem, timeseries
+
+ Q3     = oldcalc_results\q3x;					# runoff from lower store (base flow) (m)
+ Q3TSS  = oldcalc_results\q3.tss;				# idem, timeseries
+
+ QLOC   = oldcalc_results\qloc;				    # specific runoff (m)
+
+ S1     = oldcalc_results\stor1x;				# storage in upper store (m)
+ S1_L   = oldcalc_results\s1;					# idem, local value
+ S1TSS  = oldcalc_results\stor1.tss;			# as above, timeseries
+
+ S2     = oldcalc_results\stor2x;				# storage in second store (m)
+ S2_L   = oldcalc_results\s2;					# idem, local value
+ S2TSS  = oldcalc_results\stor2.tss;			# as above, timeseries
+
+ R3     = oldcalc_results\r3x;					# recharge to third store
+ R3AVG  = oldcalc_results\r3_avg.map;			# average recharge to the third, groundwater store (m)
+
+ S3     = oldcalc_results\stor3x;		        # storage in lower store (m)
+ S3TSS  = oldcalc_results\stor3.tss;	        # as above, timeseries
+
+ QW     = oldcalc_results\qw;					# change in storage of freshwater surface
+
+ # channel discharge has been retained as check but is not used
+ QAVG        = oldcalc_results\qaverage.map;	# channel discharge - annual average (m/s)
+ QCHANNEL    = oldcalc_results\qc;				# channel discharge - daily value
+ QCHANNELTSS = oldcalc_results\qchannel.tss;	# timeseries of total discharge (m/s)
+
+
+
+ # water balance components and budget check included here
+
+ # - monthly water balance fluxes  in m waterslice per unit surface area of pertinent type (water, land) per month
+ PRECMON = results\precmon;	#total precipitation over unit area
+ ETPMON  = results\etpmon;	#total potential evapotranspiration over unit land area (crop specific evapotranspiration)
+
  QWMON= results\qwmon;		#change in storage of freshwater surface over water surface
  Q1MON= results\q1mon;			#runoff over land surface from first, top store
  Q2MON= results\q2mon;			#runoff over land surface from second store
@@ -232,11 +253,10 @@ areamap
 
 timer
  1 $12 1;
- rep1= endtime;					                # times to report TSS and initial maps
- rep2= endtime;
-#rep3= endtime;
-#rep2= $13+$13..endtime;				        # times to report soil states and fluxes
- rep3= $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	# times to report monthly updates of water balance components
+ rep1 = endtime;					                # times to report TSS and initial maps
+#rep3 = endtime;
+ rep2 = $13+$13..endtime;				        # times to report soil states and fluxes
+ rep3 = $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	# times to report monthly updates of water balance components
 
 initial
 
