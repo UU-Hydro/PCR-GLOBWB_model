@@ -147,7 +147,7 @@ binding
  S1_INI[COVERTYPE]   = index(COVERTABLE);                               # initial storage in upper store (m)
  S2_INI[COVERTYPE]   = index(COVERTABLE);                               # initial storage in second store (m)
  Q2_INI[COVERTYPE]   = index(COVERTABLE);                               # initial drainage from second store (m)
- S3_INI              = initial\storGroundwater_initial.map;             # initial storage in lower store (m)
+ S3_INI              = maps\initial\storGroundwater_initial.map;        # initial storage in lower store (m)
 
 #Maps & TSS - output
 #-note cover type is not needed to report local fluxes!
