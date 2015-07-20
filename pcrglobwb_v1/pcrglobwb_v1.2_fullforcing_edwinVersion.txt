@@ -37,109 +37,109 @@ binding
 #-General
 
  Duration= scalar(1);							# timestep in days
- LANDMASK = $1\maps\catclone.map;				# clone map representing landmask of earth surface
- CELLAREA = $1\maps\cellarea30.map;				# surface (m2) of cell covered by total land surface
+ LANDMASK = maps\catclone.map;					# clone map representing landmask of earth surface
+ CELLAREA = maps\cellarea30.map;				# surface (m2) of cell covered by total land surface
 
 #FRACWAT  = maps\glwd130m_fracw.map;			# fraction of cell area covered by fresh water
  FRACWAT  = scalar(0);                          # set to zero for debugging purpose
  
 #-Physiography
- LSLOPE   = $1\maps\globalbcat.map;			    # slope length (m)
- TANSLOPE = $1\maps\globalgradslope.map;	    # gradient of slope (m/m)
- B_ORO    =	$1\maps\globalboro.map;			    # shape coefficient related to orography
- LDD      = $1\maps\lddsound_30min.map;			# local drainage direction map
+ LSLOPE   = maps\globalbcat.map;			    # slope length (m)
+ TANSLOPE = maps\globalgradslope.map;	    	# gradient of slope (m/m)
+ B_ORO    =	maps\globalboro.map;			    # shape coefficient related to orography
+ LDD      = maps\lddsound_30min.map;			# local drainage direction map
 
- DZREL0001 = $1\maps\hydro1k_dzrel0001.map;		# maps of relative elevation above floodplain, in percent
- DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
- DZREL0010 = $1\maps\hydro1k_dzrel0010.map;
- DZREL0020 = $1\maps\hydro1k_dzrel0020.map;
- DZREL0030 = $1\maps\hydro1k_dzrel0030.map;
- DZREL0040 = $1\maps\hydro1k_dzrel0040.map;
- DZREL0050 = $1\maps\hydro1k_dzrel0050.map;
- DZREL0060 = $1\maps\hydro1k_dzrel0060.map;
- DZREL0070 = $1\maps\hydro1k_dzrel0070.map;
- DZREL0080 = $1\maps\hydro1k_dzrel0080.map;
- DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
- DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
+ DZREL0001 = maps\hydro1k_dzrel0001.map;		# maps of relative elevation above floodplain, in percent
+ DZREL0005 = maps\hydro1k_dzrel0005.map;
+ DZREL0010 = maps\hydro1k_dzrel0010.map;
+ DZREL0020 = maps\hydro1k_dzrel0020.map;
+ DZREL0030 = maps\hydro1k_dzrel0030.map;
+ DZREL0040 = maps\hydro1k_dzrel0040.map;
+ DZREL0050 = maps\hydro1k_dzrel0050.map;
+ DZREL0060 = maps\hydro1k_dzrel0060.map;
+ DZREL0070 = maps\hydro1k_dzrel0070.map;
+ DZREL0080 = maps\hydro1k_dzrel0080.map;
+ DZREL0090 = maps\hydro1k_dzrel0090.map;
+ DZREL0100 = maps\hydro1k_dzrel0100.map;
 
-#STATIONS        = maps\grdc_stations.map;		        # ID of gauging stations
-#MONITORSTATIONS = maps\hol_climatelocs.map;			# locations to monitor soil behaviour, one per climate zone  #**
+#STATIONS        = maps\grdc_stations.map;		    # ID of gauging stations
+#MONITORSTATIONS = maps\hol_climatelocs.map;		# locations to monitor soil behaviour, one per climate zone  #**
 
 #-Climatic input - values in m and ?C per day; CRU data and ERA-40 reanalysis
- PRPSTACK  = $1\maps\meteo\ra;							# map stack of daily precipitation rates (m/day)
- EVAPSTACK = $1\maps\meteo\epot;						# map stack of daily potential evapotranspiration rates (m/day)
- TASTACK   = $1\maps\meteo\ta;							# map stack of average daily temperature (degC)
+ PRPSTACK  = maps\meteo\ra;							# map stack of daily precipitation rates (m/day)
+ EVAPSTACK = maps\meteo\epot;						# map stack of daily potential evapotranspiration rates (m/day)
+ TASTACK   = maps\meteo\ta;							# map stack of average daily temperature (degC)
 
 #-Water consumption: abstractions in m3 per day from the open water and groundwater store
  POTABSTR_S0 = scalar(0);				# from open water surface (m3/d)
  POTABSTR_S3 = scalar(0);				# from groundwater store (m3/d)
 
 #-Open water evaporation: crop factors (-)
-#KC_WATSTACK = maps\kc_wat;			# composite crop factor for channels and wetlands or lakes
- KC_WATSTACK = scalar(0.0);
- 
-#-Minimum bare soil crop factor (-)
- KCMIN = scalar(0.2);				# used to separate soil evaporation from transpiration
-
-#-Snow routine parameters: constants
- TT    = scalar(0.0);				# threshold temperature for freezing/thawing (?C)
- CFMAX = scalar(0.0025);			# degree-day factor (m??C-1?d-1) was: 0.0055
- SFCF  = scalar(1.00);				# snowfall correction factor (-)
- CWH   =scalar(0.10);				# water holding capacity snow cover (-)
- CFR   = scalar(0.05);				# refreezing coefficient (-)
+#KC_WATSTACK = maps\kc_wat;			    # composite crop factor for channels and wetlands or lakes
+ KC_WATSTACK = scalar(0.0);             
+                                        
+#-Minimum bare soil crop factor (-)     
+ KCMIN = scalar(0.2);				    # used to separate soil evaporation from transpiration
+                                        
+#-Snow routine parameters: constants    
+ TT    = scalar(0.0);				    # threshold temperature for freezing/thawing (?C)
+ CFMAX = scalar(0.0025);			    # degree-day factor (m??C-1?d-1) was: 0.0055
+ SFCF  = scalar(1.00);				    # snowfall correction factor (-)
+ CWH   = scalar(0.10);				    # water holding capacity snow cover (-)
+ CFR   = scalar(0.05);				    # refreezing coefficient (-)
 
 #-Vegetation parameters per cover type, interception and fractions read in per type (short, tall)
 
  COVERTYPE = [
    SHORT = sv,
-   TALL  = tv];							                 # array of cover type: 1) short, 2) tall
- COVERTABLE = maps\param_permafrost_edwinVerison.tbl;	 # table with parameterization per cover type
+   TALL  = tv];							                       # array of cover type: 1) short, 2) tall
+ COVERTABLE = maps\param_permafrost_edwinVerison.tbl;	       # table with parameterization per cover type
 
- VEGFRAC[COVERTYPE] = index(COVERTABLE);	 # subdivision in cover type
+ VEGFRAC[COVERTYPE] = index(COVERTABLE);	                   # subdivision in cover type
 
- CF_SHORTSTACK = maps\cover_fraction/cv_s;	 # fractional vegetation cover (-) per vegetation type
- CF_TALLSTACK  = maps\cover_fraction/cv_t;			
+ CF_SHORTSTACK   = maps\cover_fraction/cv_s;	               # fractional vegetation cover (-) per vegetation type
+ CF_TALLSTACK    = maps\cover_fraction/cv_t;			
 
- SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s     # interception storage (m) per vegetation type
+ SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s;    # interception storage (m) per vegetation type
  SMAX_TALLSTACK  = maps\interception_capacity_input\smax_t;
 
- KC_SHORTSTACK = maps\crop_coefficient\kc_s; # crop factor (-) per vegetation type
+ KC_SHORTSTACK = maps\crop_coefficient\kc_s;                   # crop factor (-) per vegetation type
  KC_TALLSTACK  = maps\crop_coefficient\kc_t;
 
 #-Soil parameters per cover type and layer (i)
- THETASAT1[COVERTYPE] = index(COVERTABLE);	#saturated volumetric moisture content (m3.m-3)
- THETASAT2[COVERTYPE]= index(COVERTABLE);	#first and second layer
- THETARES1[COVERTYPE]= index(COVERTABLE);	#residual volumetric moisture content (m3.m-3)
- THETARES2[COVERTYPE]= index(COVERTABLE);	#first and second layer
- KS1[COVERTYPE]= index(COVERTABLE);			#saturated hydraulic conductivity (m.day-1)
- KS2[COVERTYPE]= index(COVERTABLE);			#first and second layer
- PSI_A1[COVERTYPE]= index(COVERTABLE);		#air entry value (m) according to SWRC of Clapp & Hornberger (1978)
- PSI_A2[COVERTYPE]= index(COVERTABLE);		#first and second layer
- BCH1[COVERTYPE]= index(COVERTABLE);		#Pore size distribution parameter according to Clapp and Hornberger (1978)
- BCH2[COVERTYPE]= index(COVERTABLE);		#first and second layer
- Z1[COVERTYPE]= index(COVERTABLE);			#depth of first store
- Z2[COVERTYPE]= index(COVERTABLE);			#depth of second store
- SC1[COVERTYPE]= index(COVERTABLE);			# total storage per layer and for the entire soil profile
- SC2[COVERTYPE]= index(COVERTABLE);
+ THETASAT1[COVERTYPE] = index(COVERTABLE);          # saturated volumetric moisture content (m3.m-3)
+ THETASAT2[COVERTYPE] = index(COVERTABLE);          # first and second layer
+ THETARES1[COVERTYPE] = index(COVERTABLE);          # residual volumetric moisture content (m3.m-3)
+ THETARES2[COVERTYPE] = index(COVERTABLE);          # first and second layer
+ KS1[COVERTYPE]       = index(COVERTABLE);          # saturated hydraulic conductivity (m.day-1)
+ KS2[COVERTYPE]       = index(COVERTABLE);          # first and second layer
+ PSI_A1[COVERTYPE]    = index(COVERTABLE);          # air entry value (m) according to SWRC of Clapp & Hornberger (1978)
+ PSI_A2[COVERTYPE]    = index(COVERTABLE);          # first and second layer
+ BCH1[COVERTYPE]      = index(COVERTABLE);          # Pore size distribution parameter according to Clapp and Hornberger (1978)
+ BCH2[COVERTYPE]      = index(COVERTABLE);          # first and second layer
+ Z1[COVERTYPE]        = index(COVERTABLE);          # depth of first store
+ Z2[COVERTYPE]        = index(COVERTABLE);          # depth of second store
+                                                    
+ SC1[COVERTYPE]       = index(COVERTABLE);          # total storage per layer and for the entire soil profile
+ SC2[COVERTYPE]       = index(COVERTABLE);          
+#WMAX[COVERTYPE]      = index(COVERTABLE);
 
-#WMAX[COVERTYPE]= index(COVERTABLE);
+ MINFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of min soil depth over average soil depth
+ MAXFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of max soil depth over average soil depth
+ RFRAC1[COVERTYPE]    = index(COVERTABLE);		    # root fraction per soil layer
+ RFRAC2[COVERTYPE]    = index(COVERTABLE);		    # first and second layer
+ P2_IMP[COVERTYPE]    = index(COVERTABLE);		    # fractional area where percolation to groundwater store is impeded
 
- MINFRAC[COVERTYPE]= index(COVERTABLE);		#ratio of min soil depth over average soil depth
- MAXFRAC[COVERTYPE]= index(COVERTABLE);		#ratio of max soil depth over average soil depth
- RFRAC1[COVERTYPE]= index(COVERTABLE);		#root fraction per soil layer
- RFRAC2[COVERTYPE]= index(COVERTABLE);		#first and second layer
- P2_IMP[COVERTYPE]= index(COVERTABLE);		#fractional area where percolation to groundwater store is impeded
+#-overall
+ PSI_FC  = scalar(1.00);					# matric suction at field capacity (m)
+ PSI_50  = scalar(3.33);					# matric suction at which transpiration is halved (m)
+ BCH_ADD = scalar(3);					    # addition for kr-relationship of Clapp & Hornberger (1978; default 3)
 
 #SAMPAI DI SINI
 
-#-overall
- PSI_FC= scalar(1.00);					#matric suction at field capacity (m)
- PSI_50= scalar(3.33);					#matric suction at which transpiration is halved (m)
- BCH_ADD= scalar(3);					#addition for kr-relationship of Clapp & Hornberger (1978; default 3)
-
- KQ3= maps\globalalpha.map;				#recession coefficient for store 3 (day-1): drainage
- DZS3INFLUENCED= scalar(5.0);				#additional zone influenced by groundwater
- SPECYIELD3= maps\specificyield.map;			#specific yield for aquifer
+ KQ3            = maps\globalalpha.map;		# recession coefficient for store 3 (day-1): drainage
+ SPECYIELD3     = maps\specificyield.map;	# specific yield for aquifer
+ DZS3INFLUENCED = scalar(5.0);				# additional zone influenced by groundwater
 
 #Initial storages for local variables, cell averages reported by default
  SC_INI[COVERTYPE]= index(COVERTABLE);		#initial snow cover (m)
