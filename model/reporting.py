@@ -266,7 +266,7 @@ class Reporting(object):
         # writing referencePotET time series maps
         file_name = self.directory_for_forcing_maps +\
                     pcr.framework.frameworkBase.generateNameT("/epot", self._modelTime.timeStepPCR)
-        pcr.report(self._model.referencePotET, file_name) 
+        pcr.report(self._model.meteo.referencePotET, file_name) 
 
 
     def report_static_maps_for_debugging(self):
