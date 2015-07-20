@@ -245,8 +245,6 @@ class Reporting(object):
             self.report_forcing_for_debugging()
             self.report_vegetation_phenology_for_debugging()
         
-        
-        
     def report_forcing_for_debugging(self):
 
         # prepare forcing directory

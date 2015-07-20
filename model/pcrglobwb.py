@@ -62,7 +62,7 @@ class PCRGlobWB(object):
             os.makedirs(self.directory_for_initial_maps)
             
             # dump the initial state
-            self.dumpState(self.directory_for_initial_maps)
+            self.dumpState(self.directory_for_initial_maps, "initial")
 
          
     @property
@@ -80,9 +80,11 @@ class PCRGlobWB(object):
         # short name for every land cover type (needed for file name)
         self.shortNames = ['f','g','p','n']
         
-    def dumpState(self, outputDirectory):
+    def dumpState(self, outputDirectory, specific_date_string = None):
         #write all state to disk to facilitate restarting
 
+        if specific_date_string == None: specific_date_string = str(self._modelTime.fulldate)
+        
         state = self.getState()
         
         landSurfaceState = state['landSurface']
@@ -92,7 +94,7 @@ class PCRGlobWB(object):
                 vos.writePCRmapToDir(\
                 map,\
                  str(variable)+"_"+coverType+"_"+
-                 str(self._modelTime.fulldate)+".map",\
+                 specific_date_string+".map",\
                  outputDirectory)
                 
         groundWaterState = state['groundwater']
@@ -100,7 +102,7 @@ class PCRGlobWB(object):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
-             str(self._modelTime.fulldate)+".map",\
+             specific_date_string+".map",\
              outputDirectory)
 
         routingState = state['routing']
@@ -108,7 +110,7 @@ class PCRGlobWB(object):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
-             str(self._modelTime.fulldate)+".map",\
+             specific_date_string+".map",\
              outputDirectory)
         
     def resume(self):
