@@ -411,7 +411,7 @@ class Configuration(object):
             self.landSurfaceOptions['includeIrrigation'] = "False"
 
         # adjustment for the option 'historicalIrrigationArea'
-        if 'includeIrrigation' not in self.landSurfaceOptions.keys():
+        if 'historicalIrrigationArea' not in self.landSurfaceOptions.keys():
             msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'This run assumes "None" for this option.'
             logger.warning(msg)
