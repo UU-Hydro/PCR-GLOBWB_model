@@ -136,8 +136,7 @@ class LandCover(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
-        landCovParamsAdd = ['arnoBeta',
-                            'minTopWaterLayer',
+        landCovParamsAdd = ['minTopWaterLayer',
                             'minCropKC',
                             'minInterceptCap']
         for var in landCovParamsAdd:
@@ -147,6 +146,7 @@ class LandCover(object):
             if input != "None":\
                vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
         # additional parameter(s) for irrigation Areas:
+
         if self.iniItemsLC['name'].startswith('irr'):
             input = self.iniItemsLC['cropDeplFactor']
             vars(self)['cropDeplFactor'] = \
@@ -154,12 +154,18 @@ class LandCover(object):
                                             self.tmpDir,self.inputDir)
 
         # Improved Arno's scheme parameters:
-        if self.iniItemsLC['arnoBeta'] == "None":\
-           self.arnoBeta = pcr.max(0.001,\
+        if 'arnoBeta' not in self.iniItemsLC.keys(): self.iniItemsLC['arnoBeta'] = "None" 
+        if self.iniItemsLC['arnoBeta'] == "None":
+            self.arnoBeta = pcr.max(0.001,\
                 (self.maxSoilDepthFrac-1.)/(1.-self.minSoilDepthFrac)+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
+        else:
+            self.arnoBeta = pcr.cover( 
+                            vos.readPCRmapClone(self.iniItemsLC['arnoBeta'],self.cloneMap,
+                                            self.tmpDir,self.inputDir), 0.0)
         self.arnoBeta = pcr.max(0.001,self.arnoBeta)
         self.arnoBeta = pcr.cover(self.arnoBeta, 0.001)
+        self.arnoBeta = pcr.ifthen(self.landmask, self.arnoBeta)
 
         self.rootZoneWaterStorageMin   = self.minSoilDepthFrac * \
                                self.parameters.rootZoneWaterStorageCap
