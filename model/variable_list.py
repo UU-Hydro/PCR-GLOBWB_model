@@ -14,6 +14,7 @@ netcdf_long_name  = {}
 description       = {}
 comment           = {}
 latex_symbol      = {}
+pcr_short_name = {}     
 
 # actualET
 pcrglobwb_variable_name = 'actualET'
@@ -36,6 +37,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcraster_short_name[pcrglobwb_variable_name] = "p"
 
 # temperature
 pcrglobwb_variable_name = 'temperature'
@@ -47,6 +49,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'mean_air_temperature'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcraster_short_name[pcrglobwb_variable_name] = "ta"
 
 # referencePotET
 pcrglobwb_variable_name = 'referencePotET'
@@ -58,6 +61,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcraster_short_name[pcrglobwb_variable_name] = "e0p"
 
 # totalLandSurfacePotET
 pcrglobwb_variable_name = 'totalLandSurfacePotET'

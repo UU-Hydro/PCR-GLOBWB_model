@@ -186,7 +186,12 @@ class Routing(object):
         # initiate/create WaterBody class
         self.WaterBodies = waterBodies.WaterBodies(iniItems,self.landmask)
 
-        self.fileCropKC = vos.getFullPath(\
+        # crop evaporation coefficient for surface water bodies
+        self.no_zero_crop_water_coefficient = True
+        if iniItems.routingOptions['cropCoefficientWaterNC'] == "None":
+            self.no_zero_crop_water_coefficient = False
+        else:
+            self.fileCropKC = vos.getFullPath(\
                      iniItems.routingOptions['cropCoefficientWaterNC'],\
                      self.inputDir)
 
@@ -796,12 +801,14 @@ class Routing(object):
 
     def calculate_potential_evaporation(self,landSurface,currTimeStep,meteo,definedDynamicFracWat = None):
 
+        if self.no_zero_crop_water_coefficient == False: self.waterKC = 0.0
+        
         # potential evaporation from water bodies
         # current principle: 
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
         #
-        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1):
+        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1) and self.no_zero_crop_water_coefficient:
             waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
                                currTimeStep.fulldate, useDoy = 'month',\
                                        cloneMapFileName = self.cloneMap)

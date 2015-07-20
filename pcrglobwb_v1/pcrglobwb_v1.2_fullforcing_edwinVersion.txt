@@ -29,6 +29,7 @@
 # - KC_WATSTACK = 0.0
 # - WMAX = SC1 + SC2 (instead of reading from file)
 # - Change the location of maps with the system argument $1
+# - Inactivating all time series reporting at STATIONS and MONITORSTATIONS
 
 binding
 
@@ -61,34 +62,31 @@ binding
  DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
  DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
 
- SAMPAI DI SINI
+#STATIONS        = maps\grdc_stations.map;		        # ID of gauging stations
+#MONITORSTATIONS = maps\hol_climatelocs.map;			# locations to monitor soil behaviour, one per climate zone  #**
 
 #-Climatic input - values in m and ?C per day; CRU data and ERA-40 reanalysis
- STATIONS = maps\grdc_stations.map;		        # ID of gauging stations
-
-
-#-Climatic input - values in m and ?C per day; CRU data and ERA-40 reanalysis
- PRPSTACK= meteo\ra;																			#map stack of daily precipitation rates (m/day)
- EVAPSTACK= meteo\epot;																			#map stack of daily potential evapotranspiration rates (m/day)
- TASTACK= meteo\ta;																				#map stack of average daily temperature (degC)
+ PRPSTACK  = $1\maps\meteo\ra;							# map stack of daily precipitation rates (m/day)
+ EVAPSTACK = $1\maps\meteo\epot;						# map stack of daily potential evapotranspiration rates (m/day)
+ TASTACK   = $1\maps\meteo\ta;							# map stack of average daily temperature (degC)
 
 #-Water consumption: abstractions in m3 per day from the open water and groundwater store
- POTABSTR_S0= scalar(0);				#from open water surface (m3/d)
- POTABSTR_S3= scalar(0);				#from groundwater store (m3/d)
+ POTABSTR_S0 = scalar(0);				# from open water surface (m3/d)
+ POTABSTR_S3 = scalar(0);				# from groundwater store (m3/d)
 
 #-Open water evaporation: crop factors (-)
-#KC_WATSTACK= maps\kc_wat;			#composite crop factor for channels and wetlands or lakes
- KC_WATSTACK= scalar(0.0);
+#KC_WATSTACK = maps\kc_wat;			# composite crop factor for channels and wetlands or lakes
+ KC_WATSTACK = scalar(0.0);
  
 #-Minimum bare soil crop factor (-)
- KCMIN= scalar(0.2);				#used to separate soil evaporation from transpiration
+ KCMIN= scalar(0.2);				# used to separate soil evaporation from transpiration
 
 #-Snow routine parameters: constants
- TT=	scalar(0.0);				#threshold temperature for freezing/thawing (?C)
- CFMAX=	scalar(0.0025);				#degree-day factor (m??C-1?d-1) was: 0.0055
- SFCF=	scalar(1.00);				#snowfall correction factor (-)
- CWH=	scalar(0.10);				#water holding capacity snow cover (-)
- CFR=	scalar(0.05);				#refreezing coefficient (-)
+ TT=	scalar(0.0);				# threshold temperature for freezing/thawing (?C)
+ CFMAX=	scalar(0.0025);				# degree-day factor (m??C-1?d-1) was: 0.0055
+ SFCF=	scalar(1.00);				# snowfall correction factor (-)
+ CWH=	scalar(0.10);				# water holding capacity snow cover (-)
+ CFR=	scalar(0.05);				# refreezing coefficient (-)
 
 #-Vegetation parameters per cover type, interception and fractions read in per type (short, tall)
 
@@ -740,29 +738,29 @@ CRFRAC= if(FRACWAT<1,max(0,CRFRAC-FRACWAT)/(1-FRACWAT),0);
  INTOT= catchmenttotal(1E-9*CELLAREA*(SLOCINI+PTOT),LDD);
  OUTTOT= catchmenttotal(1E-9*CELLAREA*(POTABSTR_S0+ABSTR_S3+ETOT+QTOT+SLOC),LDD);
  report (rep1) MBR= 1-if(INTOT>0,(INTOT-OUTTOT)/INTOT,0);
- report (rep1) MBRTSS= timeoutput(STATIONS,MBR);
- report (rep1) MBRMONTSS= timeoutput(MONITORSTATIONS,MBR);
+#report (rep1) MBRTSS= timeoutput(STATIONS,MBR);
+#report (rep1) MBRMONTSS= timeoutput(MONITORSTATIONS,MBR);
 
 #-report of on total volumes as timeseries per catchment
- report (rep1) PTOTTSS= timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*(SLOCINI+PTOT),LDD));
- report (rep1) ETOTTSS= timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*ETOT,LDD));
- report (rep1) QTOTTSS= timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*QTOT,LDD));
- report (rep1) STOTTSS= timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*SLOC,LDD));
+#report (rep1) PTOTTSS = timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*(SLOCINI+PTOT),LDD));
+#report (rep1) ETOTTSS = timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*ETOT,LDD));
+#report (rep1) QTOTTSS = timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*QTOT,LDD));
+#report (rep1) STOTTSS = timeoutput(STATIONS,catchmenttotal(1E-9*CELLAREA*SLOC,LDD));
 
 #------------
 #Reporting timeseries
 #--------------------
- report (rep1) SCTSS= timeoutput(MONITORSTATIONS,SC+SCF);
- report (rep1) INTSTSS= timeoutput(MONITORSTATIONS,INTS); 
- report (rep1) EACTTSS= timeoutput(MONITORSTATIONS,EACT); 
- report (rep1) S1TSS= timeoutput(MONITORSTATIONS,S1); 
- report (rep1) S2TSS= timeoutput(MONITORSTATIONS,S2); 
- report (rep1) S3TSS= timeoutput(MONITORSTATIONS,S3); 
- report (rep1) Q1TSS= timeoutput(MONITORSTATIONS,Q1); 
- report (rep1) Q1STSS= timeoutput(MONITORSTATIONS,Q1S); 
- report (rep1) Q2TSS= timeoutput(MONITORSTATIONS,Q2); 
- report (rep1) Q3TSS= timeoutput(MONITORSTATIONS,Q3); 
- report (rep1) QCHANNELTSS= timeoutput(STATIONS,QCHANNEL);
+#report (rep1) SCTSS       = timeoutput(MONITORSTATIONS,SC+SCF);
+#report (rep1) INTSTSS     = timeoutput(MONITORSTATIONS,INTS); 
+#report (rep1) EACTTSS     = timeoutput(MONITORSTATIONS,EACT); 
+#report (rep1) S1TSS       = timeoutput(MONITORSTATIONS,S1); 
+#report (rep1) S2TSS       = timeoutput(MONITORSTATIONS,S2); 
+#report (rep1) S3TSS       = timeoutput(MONITORSTATIONS,S3); 
+#report (rep1) Q1TSS       = timeoutput(MONITORSTATIONS,Q1); 
+#report (rep1) Q1STSS      = timeoutput(MONITORSTATIONS,Q1S); 
+#report (rep1) Q2TSS       = timeoutput(MONITORSTATIONS,Q2); 
+#report (rep1) Q3TSS       = timeoutput(MONITORSTATIONS,Q3); 
+#report (rep1) QCHANNELTSS = timeoutput(STATIONS,QCHANNEL);
  
 #--------------------
 #Temporary Reports
