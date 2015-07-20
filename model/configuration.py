@@ -247,20 +247,6 @@ class Configuration(object):
             logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
             self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
         
-        # adjustment for the option 'includeLivestockWaterDemand'
-        if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
-
-        # adjustment for the option 'livestockWaterDemandFile'
-        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in self.landSurfaceOptions.keys()):
-            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
-
         # adjustment for desalinationWater
         if 'desalinationWater' not in self.landSurfaceOptions.keys():
             msg  = 'The option "desalinationWater" is not defined in the "landSurfaceOptions" of the configuration file. '
@@ -423,6 +409,34 @@ class Configuration(object):
             msg += 'This run assumes "False" for this option.'
             logger.warning(msg)
             self.landSurfaceOptions['includeIrrigation'] = "False"
+
+        # adjustment for the option 'includeDomesticWaterDemand'
+        if 'includeDomesticWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Domestic water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeDomesticWaterDemand'] = "False"
+
+        # adjustment for the option 'domesticWaterDemandFile'
+        if (self.landSurfaceOptions['includeDomesticWaterDemand'] == "False") and ('domesticWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "domesticWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Domestic water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['domesticWaterDemandFile'] = "None"
+
+        # adjustment for the option 'includeLivestockWaterDemand'
+        if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
+
+        # adjustment for the option 'livestockWaterDemandFile'
+        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
 
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
         
