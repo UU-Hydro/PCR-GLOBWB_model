@@ -299,8 +299,7 @@ class Reporting(object):
         if self._modelTime.timeStepPCR == 1: 
             self.directory_for_interception_capacity_input_maps = vos.getFullPath("interception_capacity_input/", self.configuration.mapsDir)
             if os.path.exists(self.directory_for_interception_capacity_input_maps): shutil.rmtree(self.directory_for_interception_capacity_input_maps)
-
-        print self._model.landSurface.landCoverObj["grassland"].interceptCapInput
+            os.makedirs(self.directory_for_interception_capacity_input_maps)
         
         # writing SMAX_SHORTSTACK maps
         file_name = self.directory_for_interception_capacity_input_maps +\
@@ -320,6 +319,7 @@ class Reporting(object):
         if self._modelTime.timeStepPCR == 1: 
             self.directory_for_crop_coefficient_maps = vos.getFullPath("crop_coefficient/", self.configuration.mapsDir)
             if os.path.exists(self.directory_for_crop_coefficient_maps): shutil.rmtree(self.directory_for_crop_coefficient_maps)
+            os.makedirs(self.directory_for_crop_coefficient_maps)
 
         # writing KC_SHORTSTACK
         file_name = self.directory_for_crop_coefficient_maps +\
