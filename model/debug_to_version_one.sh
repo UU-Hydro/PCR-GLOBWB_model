@@ -7,4 +7,4 @@ cd /scratch/edwin/test_RhineMeuse30min_EFAS_test
 mkdir results
 
 # execute the script
-oldcalc -f pcrglobwb_v1.2_fullforcing_edwinVersion.txt 366
+oldcalc -f pcrglobwb_v1.2_fullforcing_edwinVersion.txt 31 60 91 121 152 182 213 244 274 305 335 366
