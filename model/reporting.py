@@ -258,6 +258,16 @@ class Reporting(object):
                     pcr.framework.frameworkBase.generateNameT("/ra", self._modelTime.timeStepPCR)
         pcr.report(self._model.meteo.precipitation, file_name) 
 
+        # writing temperature time series maps
+        file_name = self.directory_for_forcing_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/ta", self._modelTime.timeStepPCR)
+        pcr.report(self._model.meteo.temperature, file_name) 
+
+        # writing referencePotET time series maps
+        file_name = self.directory_for_forcing_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/epot", self._modelTime.timeStepPCR)
+        pcr.report(self._model.referencePotET, file_name) 
+
 
     def report_static_maps_for_debugging(self):
 
