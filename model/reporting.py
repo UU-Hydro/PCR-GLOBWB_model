@@ -284,12 +284,12 @@ class Reporting(object):
         # writing CF_SHORTSTACK maps
         file_name = self.directory_for_cover_fraction_maps +\
                     pcr.framework.frameworkBase.generateNameT("/cv_s", self._modelTime.timeStepPCR)
-        pcr.report(self._model.landSurface.landCoverObj[coverType].coverFraction, file_name) 
+        pcr.report(self._model.landSurface.landCoverObj["grassland"].coverFraction, file_name) 
 
         # writing CF_TALLSTACK maps
         file_name = self.directory_for_cover_fraction_maps +\
                     pcr.framework.frameworkBase.generateNameT("/cv_t", self._modelTime.timeStepPCR)
-        pcr.report(self._model.landSurface.landCoverObj[coverType].coverFraction, file_name) 
+        pcr.report(self._model.landSurface.landCoverObj["forest"].coverFraction, file_name) 
 
     def report_static_maps_for_debugging(self):
 
