@@ -242,6 +242,25 @@ class Reporting(object):
 
     def report_maps_for_debugging(self):
 
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        print self.configuration.mapsDir
+        
         # LANDMASK = $1\maps\catclone.map;				                   # clone map representing landmask of earth surface
         # CELLAREA = $1\maps\cellarea30.map;				               # surface (m2) of cell covered by total land surface
 
