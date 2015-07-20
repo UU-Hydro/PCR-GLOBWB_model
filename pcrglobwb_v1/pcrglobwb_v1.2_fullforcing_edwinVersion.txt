@@ -255,8 +255,8 @@ timer
  1 $12 1;
  rep1 = endtime;					                # times to report TSS and initial maps
 #rep3 = endtime;
- rep2 = $13+$13..endtime;				        # times to report soil states and fluxes
- rep3 = $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	# times to report monthly updates of water balance components
+ rep2 = $13+$13..endtime;				            # times to report soil states and fluxes
+ rep3 = $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	    # times to report monthly updates of water balance components
 
 initial
 
@@ -614,7 +614,10 @@ CRFRAC= if(FRACWAT<1,max(0,CRFRAC-FRACWAT)/(1-FRACWAT),0);
    T_a2[TYPE]= ADJUST*T_a2[TYPE];
    P2_L[TYPE]= ADJUST*P2_L[TYPE];
    report (rep1) Q2_L[TYPE]= ADJUST*Q2_L[TYPE];
-   CR2_L[TYPE]= min(VEGFRAC[TYPE]*S3,CR2_L[TYPE]);
+
+  #CR2_L[TYPE]= min(VEGFRAC[TYPE]*S3,CR2_L[TYPE]);
+   CR2_L[TYPE]= min(S3,CR2_L[TYPE]);
+
    CR1_L[TYPE]= min(max(0,S2_L[TYPE]+P1_L[TYPE]-(T_a2[TYPE]+P2_L[TYPE]+Q2_L[TYPE])),CR1_L[TYPE]);
    S2_L[TYPE]= max(0,S2_L[TYPE]+P1_L[TYPE]+CR2_L[TYPE]-
     (P2_L[TYPE]+Q2_L[TYPE]+CR1_L[TYPE]+T_a2[TYPE]));
