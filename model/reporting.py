@@ -381,7 +381,7 @@ class Reporting(object):
         # VEGFRAC[COVERTYPE] = index(COVERTABLE);	# subdivision in cover type
         version_one_cover_type = {}
         version_one_cover_type['grassland'] = "short"
-        version_one_cover_type['forest']    = "tal" 
+        version_one_cover_type['forest']    = "tall" 
 
 
         # VEGFRAC 	sv	maps\vegf_short.map
