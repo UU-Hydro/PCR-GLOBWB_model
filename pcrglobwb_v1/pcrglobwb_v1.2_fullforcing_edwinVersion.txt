@@ -24,7 +24,7 @@
 # Modification 28/06/2012: minor issue with precipitation partitioning following interception solved
 # Modification 17/12/2012: water balance calculation modified to return monthly totals
 
-# 18 Jul 2014: Edwin modified the following
+# 18 Jul 2014: Edwin modified the following (for the simplification of debugging purpose)
 # - FRACWAT = 0.0
 # - KC_WATSTACK = 0.0
 # - WMAX = SC1 + SC2 (instead of reading from file)
