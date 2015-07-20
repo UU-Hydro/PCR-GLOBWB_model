@@ -312,54 +312,6 @@ class LandSurface(object):
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
 
-        # option for debugging to PCR-GLOBWB version 1.0
-        if iniItems.debug_to_version_one: self.report_maps_for_debugging(folder_location = iniItems.mapsDir)
-
-    def report_maps_for_debugging(self, folder_location):
-
-        # LANDMASK = $1\maps\catclone.map;				                   # clone map representing landmask of earth surface
-        # CELLAREA = $1\maps\cellarea30.map;				               # surface (m2) of cell covered by total land surface
-
-        pcr.report(self.landmask  , folder_location+"/catclone.map") 
-        pcr.report(self.cellArea  , folder_location+"/cellarea30.map") 
-
-        # LSLOPE   = $1\maps\globalbcat.map;			                   # slope length (m)
-        # TANSLOPE = $1\maps\globalgradslope.map;	                       # gradient of slope (m/m)
-        # B_ORO    = $1\maps\globalboro.map;			                   # shape coefficient related to orography
-
-        pcr.report(self.soil_topo_parameters['default'].slopeLength  , folder_location+"/globalbcat.map") 
-        pcr.report(self.soil_topo_parameters['default'].tanslope     , folder_location+"/globalgradslope.map") 
-        pcr.report(self.soil_topo_parameters['default'].orographyBeta, folder_location+"/globalboro.map") 
-
-        # DZREL0001 = $1\maps\hydro1k_dzrel0001.map;                       # maps of relative elevation above floodplain, in percent
-        # DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
-        # DZREL0010 = $1\maps\hydro1k_dzrel0010.map;
-        # DZREL0020 = $1\maps\hydro1k_dzrel0020.map;
-        # DZREL0030 = $1\maps\hydro1k_dzrel0030.map;
-        # DZREL0040 = $1\maps\hydro1k_dzrel0040.map;
-        # DZREL0050 = $1\maps\hydro1k_dzrel0050.map;
-        # DZREL0060 = $1\maps\hydro1k_dzrel0060.map;
-        # DZREL0070 = $1\maps\hydro1k_dzrel0070.map;
-        # DZREL0080 = $1\maps\hydro1k_dzrel0080.map;
-        # DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
-        # DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
-
-        pcr.report(self.soil_topo_parameters['default'].dzRel0001, folder_location+"/hydro1k_dzrel0001.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0005, folder_location+"/hydro1k_dzrel0005.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0010, folder_location+"/hydro1k_dzrel0010.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0020, folder_location+"/hydro1k_dzrel0020.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0030, folder_location+"/hydro1k_dzrel0030.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0040, folder_location+"/hydro1k_dzrel0040.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0050, folder_location+"/hydro1k_dzrel0050.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0060, folder_location+"/hydro1k_dzrel0060.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0070, folder_location+"/hydro1k_dzrel0070.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0080, folder_location+"/hydro1k_dzrel0080.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0090, folder_location+"/hydro1k_dzrel0090.map")
-        pcr.report(self.soil_topo_parameters['default'].dzRel0100, folder_location+"/hydro1k_dzrel0100.map")
-        
-        SAMPAI DI SINI
-
-
     def initiate_old_style_land_surface_reporting(self,iniItems):
 
         self.report = True

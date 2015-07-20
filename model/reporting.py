@@ -21,26 +21,33 @@ class Reporting(object):
 
     def __init__(self, configuration, model, modelTime):
 
+        # model (e.g. PCR-GLOBWB) and modelTime object
         self._model = model
         self._modelTime = modelTime
 
+        # configuration/setting from the ini file
+        self.configuration = configuration
+        
         # initiate reporting tool/object and its configuration
-        self.initiate_reporting(configuration)
+        self.initiate_reporting()
 
-    def initiate_reporting(self, configuration):
+        # option for debugging to PCR-GLOBWB version 1.0
+        if self.configuration.debug_to_version_one: self.debug_to_version_one = True
+
+    def initiate_reporting(self):
         
         # output directory storing netcdf files:
-        self.outNCDir  = str(configuration.outNCDir)
+        self.outNCDir  = str(self.configuration.outNCDir)
 
         # object for reporting:
-        self.netcdfObj = PCR2netCDF(configuration)
+        self.netcdfObj = PCR2netCDF(self.configuration)
 
         # initiating netcdf files for reporting
         #
         # - daily output in netCDF files:
         self.outDailyTotNC = ["None"]
         try:
-            self.outDailyTotNC = list(set(configuration.reportingOptions['outDailyTotNC'].split(",")))
+            self.outDailyTotNC = list(set(self.configuration.reportingOptions['outDailyTotNC'].split(",")))
         except:
             pass
         #
@@ -64,7 +71,7 @@ class Reporting(object):
         # -- cummulative
         self.outMonthTotNC = ["None"]
         try:
-            self.outMonthTotNC = list(set(configuration.reportingOptions['outMonthTotNC'].split(",")))
+            self.outMonthTotNC = list(set(self.configuration.reportingOptions['outMonthTotNC'].split(",")))
         except:
             pass
         if self.outMonthTotNC[0] != "None":
@@ -89,7 +96,7 @@ class Reporting(object):
         # -- average
         self.outMonthAvgNC = ["None"]
         try:
-            self.outMonthAvgNC = list(set(configuration.reportingOptions['outMonthAvgNC'].split(",")))
+            self.outMonthAvgNC = list(set(self.configuration.reportingOptions['outMonthAvgNC'].split(",")))
         except:
             pass
         if self.outMonthAvgNC[0] != "None":
@@ -118,7 +125,7 @@ class Reporting(object):
         # -- last day of the month
         self.outMonthEndNC = ["None"]
         try:
-            self.outMonthEndNC = list(set(configuration.reportingOptions['outMonthEndNC'].split(",")))
+            self.outMonthEndNC = list(set(self.configuration.reportingOptions['outMonthEndNC'].split(",")))
         except:
             pass
         if self.outMonthEndNC[0] != "None":
@@ -142,7 +149,7 @@ class Reporting(object):
         # -- cummulative
         self.outAnnuaTotNC = ["None"]
         try:
-            self.outAnnuaTotNC = list(set(configuration.reportingOptions['outAnnuaTotNC'].split(",")))
+            self.outAnnuaTotNC = list(set(self.configuration.reportingOptions['outAnnuaTotNC'].split(",")))
         except:
             pass
         if self.outAnnuaTotNC[0] != "None":
@@ -168,7 +175,7 @@ class Reporting(object):
         # -- average
         self.outAnnuaAvgNC = ["None"]
         try:
-            self.outAnnuaAvgNC = list(set(configuration.reportingOptions['outAnnuaAvgNC'].split(",")))
+            self.outAnnuaAvgNC = list(set(self.configuration.reportingOptions['outAnnuaAvgNC'].split(",")))
         except:
             pass
         if self.outAnnuaAvgNC[0] != "None":
@@ -197,7 +204,7 @@ class Reporting(object):
         # -- last day of the year
         self.outAnnuaEndNC = ["None"]
         try:
-            self.outAnnuaEndNC = list(set(configuration.reportingOptions['outAnnuaEndNC'].split(",")))
+            self.outAnnuaEndNC = list(set(self.configuration.reportingOptions['outAnnuaEndNC'].split(",")))
         except:
             pass
         if self.outAnnuaEndNC[0] != "None":
@@ -229,7 +236,55 @@ class Reporting(object):
     def post_processing(self):
 
         self.basic_post_processing() 
-        self.additional_post_processing() 
+        self.additional_post_processing()
+        
+        if self._modelTime.timeStepPCR == 1
+
+    def report_maps_for_debugging(self):
+
+        # LANDMASK = $1\maps\catclone.map;				                   # clone map representing landmask of earth surface
+        # CELLAREA = $1\maps\cellarea30.map;				               # surface (m2) of cell covered by total land surface
+
+        pcr.report(self.landmask  , folder_location+"/catclone.map") 
+        pcr.report(self.cellArea  , folder_location+"/cellarea30.map") 
+
+        # LSLOPE   = $1\maps\globalbcat.map;			                   # slope length (m)
+        # TANSLOPE = $1\maps\globalgradslope.map;	                       # gradient of slope (m/m)
+        # B_ORO    = $1\maps\globalboro.map;			                   # shape coefficient related to orography
+
+        pcr.report(self.soil_topo_parameters['default'].slopeLength  , folder_location+"/globalbcat.map") 
+        pcr.report(self.soil_topo_parameters['default'].tanslope     , folder_location+"/globalgradslope.map") 
+        pcr.report(self.soil_topo_parameters['default'].orographyBeta, folder_location+"/globalboro.map") 
+
+        # DZREL0001 = $1\maps\hydro1k_dzrel0001.map;                       # maps of relative elevation above floodplain, in percent
+        # DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
+        # DZREL0010 = $1\maps\hydro1k_dzrel0010.map;
+        # DZREL0020 = $1\maps\hydro1k_dzrel0020.map;
+        # DZREL0030 = $1\maps\hydro1k_dzrel0030.map;
+        # DZREL0040 = $1\maps\hydro1k_dzrel0040.map;
+        # DZREL0050 = $1\maps\hydro1k_dzrel0050.map;
+        # DZREL0060 = $1\maps\hydro1k_dzrel0060.map;
+        # DZREL0070 = $1\maps\hydro1k_dzrel0070.map;
+        # DZREL0080 = $1\maps\hydro1k_dzrel0080.map;
+        # DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
+        # DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
+
+        pcr.report(self.soil_topo_parameters['default'].dzRel0001, folder_location+"/hydro1k_dzrel0001.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0005, folder_location+"/hydro1k_dzrel0005.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0010, folder_location+"/hydro1k_dzrel0010.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0020, folder_location+"/hydro1k_dzrel0020.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0030, folder_location+"/hydro1k_dzrel0030.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0040, folder_location+"/hydro1k_dzrel0040.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0050, folder_location+"/hydro1k_dzrel0050.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0060, folder_location+"/hydro1k_dzrel0060.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0070, folder_location+"/hydro1k_dzrel0070.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0080, folder_location+"/hydro1k_dzrel0080.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0090, folder_location+"/hydro1k_dzrel0090.map")
+        pcr.report(self.soil_topo_parameters['default'].dzRel0100, folder_location+"/hydro1k_dzrel0100.map")
+        
+        SAMPAI DI SINI
+
+
 
     def basic_post_processing(self):
 
