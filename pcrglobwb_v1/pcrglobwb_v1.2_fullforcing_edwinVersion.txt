@@ -92,7 +92,7 @@ binding
  COVERTYPE = [
    SHORT = sv,
    TALL  = tv];							                       # array of cover type: 1) short, 2) tall
- COVERTABLE = maps\param_permafrost_edwinVerison.tbl;	       # table with parameterization per cover type
+ COVERTABLE = maps\param_permafrost_edwinVersion.tbl;	       # table with parameterization per cover type
 
  VEGFRAC[COVERTYPE] = index(COVERTABLE);	                   # subdivision in cover type
 
