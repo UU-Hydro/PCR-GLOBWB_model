@@ -339,6 +339,7 @@ class Reporting(object):
         pcr.report(self._model.routing.landmask, self.configuration.mapsDir+"/catclone.map") 
         pcr.report(self._model.routing.cellArea, self.configuration.mapsDir+"/cellarea30.map") 
 
+
         # LSLOPE   = $1\maps\globalbcat.map;			                   # slope length (m)
         # TANSLOPE = $1\maps\globalgradslope.map;	                       # gradient of slope (m/m)
         # B_ORO    = $1\maps\globalboro.map;			                   # shape coefficient related to orography
@@ -346,6 +347,12 @@ class Reporting(object):
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].slopeLength  , self.configuration.mapsDir+"/globalbcat.map") 
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].tanslope     , self.configuration.mapsDir+"/globalgradslope.map") 
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].orographyBeta, self.configuration.mapsDir+"/globalboro.map") 
+
+
+        # LDD      = maps\lddsound_30min.map;			                   # local drainage direction map
+
+        pcr.report(self._model.routing.lddMap, self.configuration.mapsDir+"/lddsound_30min.map") 
+
 
         # DZREL0001 = $1\maps\hydro1k_dzrel0001.map;                       # maps of relative elevation above floodplain, in percent
         # DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
