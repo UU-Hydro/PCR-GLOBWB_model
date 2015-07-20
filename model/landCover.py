@@ -464,7 +464,7 @@ class LandCover(object):
         # I don't think that we need the following items.
         self.effSatAt50 = pcr.cover(self.effSatAt50, 0.5)
         if self.numberOfLayers == 2: self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.5*(self.parameters.poreSizeBetaUpp + self.parameters.poreSizeBetaLow))    
-        if self.numberOfLayers == 3: self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.5 * (0.5*(self.parameters.poreSizeBetaUpp000005 + \   
+        if self.numberOfLayers == 3: self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.5 * (0.5*(self.parameters.poreSizeBetaUpp000005 + \
                                                                                                                 self.parameters.poreSizeBetaUpp005030) self.parameters.poreSizeBetaLow030150))
         
         # crop only to the landmask region
