@@ -7,6 +7,7 @@ This "reporting.py" module is not the same as the one module initiated by Niels 
 '''
 
 import os
+import shutil
 
 import logging
 logger = logging.getLogger(__name__)
