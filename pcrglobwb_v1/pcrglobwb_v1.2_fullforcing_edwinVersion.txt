@@ -79,31 +79,35 @@ binding
  KC_WATSTACK = scalar(0.0);
  
 #-Minimum bare soil crop factor (-)
- KCMIN= scalar(0.2);				# used to separate soil evaporation from transpiration
+ KCMIN = scalar(0.2);				# used to separate soil evaporation from transpiration
 
 #-Snow routine parameters: constants
- TT=	scalar(0.0);				# threshold temperature for freezing/thawing (?C)
- CFMAX=	scalar(0.0025);				# degree-day factor (m??C-1?d-1) was: 0.0055
- SFCF=	scalar(1.00);				# snowfall correction factor (-)
- CWH=	scalar(0.10);				# water holding capacity snow cover (-)
- CFR=	scalar(0.05);				# refreezing coefficient (-)
+ TT    = scalar(0.0);				# threshold temperature for freezing/thawing (?C)
+ CFMAX = scalar(0.0025);			# degree-day factor (m??C-1?d-1) was: 0.0055
+ SFCF  = scalar(1.00);				# snowfall correction factor (-)
+ CWH   =scalar(0.10);				# water holding capacity snow cover (-)
+ CFR   = scalar(0.05);				# refreezing coefficient (-)
 
 #-Vegetation parameters per cover type, interception and fractions read in per type (short, tall)
 
- COVERTYPE= [
-   SHORT= sv,
-   TALL= tv];							#array of cover type: 1) short, 2) tall
- COVERTABLE= maps\param_permafrost.tbl;				#table with parameterization per cover type
- VEGFRAC[COVERTYPE]= index(COVERTABLE);	#subdivision in cover type
- CF_SHORTSTACK=	maps\cv_s;				#fractional vegetation cover (-), interception storage (m) and
- SMAX_SHORTSTACK= maps\smax_s;			#crop factor (-) per vegetation type
- KC_SHORTSTACK= maps\kc_s;
- CF_TALLSTACK=	maps\cv_t;			
- SMAX_TALLSTACK= maps\smax_t;
- KC_TALLSTACK= maps\kc_t;
- 
+ COVERTYPE = [
+   SHORT = sv,
+   TALL  = tv];							                 # array of cover type: 1) short, 2) tall
+ COVERTABLE = maps\param_permafrost_edwinVerison.tbl;	 # table with parameterization per cover type
+
+ VEGFRAC[COVERTYPE] = index(COVERTABLE);	 # subdivision in cover type
+
+ CF_SHORTSTACK = maps\cover_fraction/cv_s;	 # fractional vegetation cover (-) per vegetation type
+ CF_TALLSTACK  = maps\cover_fraction/cv_t;			
+
+ SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s     # interception storage (m) per vegetation type
+ SMAX_TALLSTACK  = maps\interception_capacity_input\smax_t;
+
+ KC_SHORTSTACK = maps\crop_coefficient\kc_s; # crop factor (-) per vegetation type
+ KC_TALLSTACK  = maps\crop_coefficient\kc_t;
+
 #-Soil parameters per cover type and layer (i)
- THETASAT1[COVERTYPE]= index(COVERTABLE);	#saturated volumetric moisture content (m3.m-3)
+ THETASAT1[COVERTYPE] = index(COVERTABLE);	#saturated volumetric moisture content (m3.m-3)
  THETASAT2[COVERTYPE]= index(COVERTABLE);	#first and second layer
  THETARES1[COVERTYPE]= index(COVERTABLE);	#residual volumetric moisture content (m3.m-3)
  THETARES2[COVERTYPE]= index(COVERTABLE);	#first and second layer
@@ -126,10 +130,13 @@ binding
  RFRAC2[COVERTYPE]= index(COVERTABLE);		#first and second layer
  P2_IMP[COVERTYPE]= index(COVERTABLE);		#fractional area where percolation to groundwater store is impeded
 
+#SAMPAI DI SINI
+
 #-overall
  PSI_FC= scalar(1.00);					#matric suction at field capacity (m)
  PSI_50= scalar(3.33);					#matric suction at which transpiration is halved (m)
  BCH_ADD= scalar(3);					#addition for kr-relationship of Clapp & Hornberger (1978; default 3)
+
  KQ3= maps\globalalpha.map;				#recession coefficient for store 3 (day-1): drainage
  DZS3INFLUENCED= scalar(5.0);				#additional zone influenced by groundwater
  SPECYIELD3= maps\specificyield.map;			#specific yield for aquifer
@@ -281,12 +288,14 @@ initial
    WSRANGE[TYPE]= WSMAX[TYPE]-WSMIN[TYPE];
    #shape coefficient for distribution of maximum storage capacity, maximum set to fraction of total
    BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01);
-   #weighed root fractions
+
+   # weighed root fractions
    RFW1[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0,
 		min(1.0,RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
    RFW2[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0.0,
 		min(1.0,RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
-   #average degree of saturation at which actual transpiration is halved
+
+   # average degree of saturation at which actual transpiration is halved
    THEFF_50[TYPE]= if(RFW1[TYPE]+RFW2[TYPE] > 0,  
      (SC1[TYPE]*RFW1[TYPE]*(PSI_50/PSI_A1[TYPE])**(-1/BCH1[TYPE])+
      SC2[TYPE]*RFW2[TYPE]*(PSI_50/PSI_A2[TYPE])**(-1/BCH2[TYPE]))/

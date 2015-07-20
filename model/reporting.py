@@ -272,7 +272,7 @@ class Reporting(object):
 
     def report_vegetation_phenology_for_debugging(self):
 
-        # CF_SHORTSTACK = maps\cover_fraction/cv_s;	# fractional vegetation cover (-)
+        # CF_SHORTSTACK = maps\cover_fraction/cv_s;	 # fractional vegetation cover (-) per vegetation type
         # CF_TALLSTACK  = maps\cover_fraction/cv_t;			
         
         # prepare directory
@@ -290,6 +290,45 @@ class Reporting(object):
         file_name = self.directory_for_cover_fraction_maps +\
                     pcr.framework.frameworkBase.generateNameT("/cv_t", self._modelTime.timeStepPCR)
         pcr.report(self._model.landSurface.landCoverObj["forest"].coverFraction, file_name) 
+
+
+        # SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s     # interception storage (m) per vegetation type
+        # SMAX_TALLSTACK  = maps\interception_capacity_input\smax_t
+
+        # prepare directory
+        if self._modelTime.timeStepPCR == 1: 
+            self.directory_for_interception_capacity_input_maps = vos.getFullPath("interception_capacity_input/", self.configuration.mapsDir)
+            if os.path.exists(self.directory_for_interception_capacity_input_maps): shutil.rmtree(self.directory_for_interception_capacity_input_maps)
+
+        # writing SMAX_SHORTSTACK maps
+        file_name = self.directory_for_interception_capacity_input_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/smax_s", self._modelTime.timeStepPCR)
+        pcr.report(self._model.landSurface.landCoverObj["grassland"].interceptCapInput, file_name) 
+        
+        # writing SMAX_TALLSTACK maps
+        file_name = self.directory_for_interception_capacity_input_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/smax_t", self._modelTime.timeStepPCR)
+        pcr.report(self._model.landSurface.landCoverObj["forest"].interceptCapInput, file_name) 
+
+
+        # KC_SHORTSTACK = maps\crop_coefficient\kc_s; # crop factor (-) per vegetation type
+        # KC_TALLSTACK  = maps\crop_coefficient\kc_t;
+
+        # prepare directory
+        if self._modelTime.timeStepPCR == 1: 
+            self.directory_for_crop_coefficient_maps = vos.getFullPath("crop_coefficient/", self.configuration.mapsDir)
+            if os.path.exists(self.directory_for_crop_coefficient_maps): shutil.rmtree(self.directory_for_crop_coefficient_maps)
+
+        # writing KC_SHORTSTACK
+        file_name = self.directory_for_crop_coefficient_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/kc_s", self._modelTime.timeStepPCR)
+        pcr.report(self._model.landSurface.landCoverObj["grassland"].self.inputCropKC, file_name) 
+        
+        # writing KC_TALLSTACK
+        file_name = self.directory_for_crop_coefficient_maps +\
+                    pcr.framework.frameworkBase.generateNameT("/kc_t", self._modelTime.timeStepPCR)
+        pcr.report(self._model.landSurface.landCoverObj["forest"].self.inputCropKC, file_name) 
+
 
     def report_static_maps_for_debugging(self):
 
@@ -361,38 +400,50 @@ class Reporting(object):
         # PSI_A2 		sv	maps\fao30_psis100.map                    # PSI_A2 		tv	maps\fao30_psis100.map
         # BCH1 			sv	maps\fao30_beta30.map                     # BCH1 		tv	maps\fao30_beta30.map
         # BCH2 			sv	maps\fao30_beta100.map                    # BCH2 		tv	maps\fao30_beta100.map
+
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].satVolMoistContUpp, self.configuration.mapsDir+"/fao30_ths30.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].satVolMoistContLow, self.configuration.mapsDir+"/fao30_ths100.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].resVolMoistContUpp, self.configuration.mapsDir+"/fao30_thr30.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].resVolMoistContLow, self.configuration.mapsDir+"/fao30_thr100.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].airEntryValueUpp  , self.configuration.mapsDir+"/fao30_psis30.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].airEntryValueLow  , self.configuration.mapsDir+"/fao30_psis100.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].poreSizeBetaUpp   , self.configuration.mapsDir+"/fao30_beta30.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].poreSizeBetaLow   , self.configuration.mapsDir+"/fao30_beta100.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].kSatUpp           , self.configuration.mapsDir+"/fao30_ks30.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].kSatLow           , self.configuration.mapsDir+"/fao30_ks100.map")
+
+
         # Z1			sv	maps\fao30_z1_permafrost.map              # Z1			tv	maps\fao30_z1_permafrost.map
         # Z2			sv	maps\fao30_z2_permafrost.map              # Z2			tv	maps\fao30_z2_permafrost.map
         # SC1			sv	maps\fao30_sc1_permafrost.map             # SC1			tv	maps\fao30_sc1_permafrost.map
         # SC2			sv	maps\fao30_sc2_permafrost.map             # SC2			tv	maps\fao30_sc2_permafrost.map
+
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].thickUpp               , self.configuration.mapsDir+"/fao30_z1_permafrost.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].thickLow               , self.configuration.mapsDir+"/fao30_z2_permafrost.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].storCapUpp             , self.configuration.mapsDir+"/fao30_sc1_permafrost.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].storCapLow             , self.configuration.mapsDir+"/fao30_sc2_permafrost.map")
+
         # WMAX			sv	maps\fao30_sc_permafrost.map              # WMAX		tv	maps\fao30_sc_permafrost.map
-        # MINFRAC		sv 	maps\minf_short_permafrost.map            # MINFRAC		tv 	maps\minf_tall_permafrost.map
+
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].rootZoneWaterStorageCap, self.configuration.mapsDir+"/fao30_sc_permafrost.map")
+
+
+        # P2_IMP		sv	maps\fao30_p2imp_permafrost.map           # P2_IMP		tv	maps\fao30_p2imp_permafrost.map
+
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].percolationImp             , self.configuration.mapsDir+"/fao30_p2imp_permafrost.map")
+
+
+        # MINFRAC		sv 	maps\minf_short.map                       # MINFRAC		tv 	maps\minf_tall.map
         # MAXFRAC		sv	maps\maxf_short.map                       # MAXFRAC		tv	maps\maxf_tall.map
         # RFRAC1		sv	maps\rfrac1_short.map                     # RFRAC1		tv	maps\rfrac1_tall.map
         # RFRAC2		sv  maps\rfrac2_short.map                     # RFRAC2		tv 	maps\rfrac2_tall.map
-        # P2_IMP		sv	maps\fao30_p2imp_permafrost.map           # P2_IMP		tv	maps\fao30_p2imp_permafrost.map
         
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0001, self.configuration.mapsDir+"/fao30_ths30.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0005, self.configuration.mapsDir+"/fao30_ths100.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0010, self.configuration.mapsDir+"/fao30_thr30.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0020, self.configuration.mapsDir+"/fao30_thr100.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0030, self.configuration.mapsDir+"/fao30_ks30.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0040, self.configuration.mapsDir+"/fao30_ks100.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0050, self.configuration.mapsDir+"/fao30_psis30.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0060, self.configuration.mapsDir+"/fao30_psis100.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0070, self.configuration.mapsDir+"/fao30_beta30.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0080, self.configuration.mapsDir+"/fao30_beta100.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0090, self.configuration.mapsDir+"/fao30_z1_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0100, self.configuration.mapsDir+"/fao30_z2_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0090, self.configuration.mapsDir+"/fao30_sc1_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0100, self.configuration.mapsDir+"/fao30_sc2_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0001, self.configuration.mapsDir+"/fao30_sc_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0005, self.configuration.mapsDir+"/minf_tall_permafrost.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0010, self.configuration.mapsDir+"/maxf_tall.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0020, self.configuration.mapsDir+"/rfrac1_tall.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0030, self.configuration.mapsDir+"/rfrac2_tall.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0040, self.configuration.mapsDir+"/fao30_p2imp_permafrost.map")
-        
+        for coverType in ['forest','grassland']:
+            pcr.report(self._model.landSurface.landCoverObj[coverType].minSoilDepthFrac, self.configuration.mapsDir+"/minf_"+version_one_cover_type[coverType]+".map") 
+            pcr.report(self._model.landSurface.landCoverObj[coverType].maxSoilDepthFrac, self.configuration.mapsDir+"/maxf_"+version_one_cover_type[coverType]+".map") 
+            pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction1   , self.configuration.mapsDir+"/rfrac1_"+version_one_cover_type[coverType]+".map") 
+            pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction2   , self.configuration.mapsDir+"/rfrac2_"+version_one_cover_type[coverType]+".map") 
+
         # SAMPAI DI SINI
 
 

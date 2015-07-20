@@ -175,7 +175,9 @@ class LandCover(object):
 
         self.numberOfLayers = self.parameters.numberOfLayers
         
-        self.scaleRootFractions()
+        #~ self.scaleRootFractions()
+        self.scaleRootFractionsOriginalVersion()
+        
         self.calculateTotAvlWaterCapacityInRootZone()
         self.calculateParametersAtHalfTranspiration()
 
@@ -289,7 +291,7 @@ class LandCover(object):
             self.adjRootFrLow = rootFracLow / (rootFracUpp + rootFracLow)       # RFW1[TYPE]= RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
             #                                                                   # RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
             # if not defined, put everything in the first layer:
-            self.adjRootFrUpp = pcr.cover(self.adjRootFrUpp,1.0) 
+            self.adjRootFrUpp = pcr.min(1.0, pcr.cover(self.adjRootFrUpp,1.0)) 
             self.adjRootFrLow = pcr.scalar(1.0) - self.adjRootFrUpp 
 
         if self.numberOfLayers == 3: 
@@ -302,9 +304,33 @@ class LandCover(object):
             self.adjRootFrLow030150 = rootFracLow030150 / (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150)
             #
             # if not defined, put everything in the first layer:
-            self.adjRootFrUpp000005 = pcr.cover(self.adjRootFrUpp000005,1.0) 
+            self.adjRootFrUpp000005 = pcr.min(1.0, pcr.cover(self.adjRootFrUpp000005, 1.0)) 
             self.adjRootFrUpp005030 = pcr.ifthenelse(self.adjRootFrUpp000005 < 1.0, self.adjRootFrUpp005030, 0.0) 
             self.adjRootFrLow030150 = pcr.scalar(1.0) - (self.adjRootFrUpp000005 + self.adjRootFrUpp005030) 
+
+    def scaleRootFractionsOriginalVersion(self):
+                                         
+        if self.numberOfLayers == 2: 
+            # root fractions
+            rootFracUpp = (0.30/0.30) * self.rootFraction1
+            rootFracLow = (1.20/1.20) * self.rootFraction2
+            self.adjRootFrUpp = pcr.ifthenelse(rootFracUpp + rootFracLow > 0.0, pcr.min(1.0, rootFracUpp/(rootFracUpp + rootFracLow)), 0.0)
+            self.adjRootFrLow = pcr.ifthenelse(rootFracUpp + rootFracLow > 0.0, pcr.min(1.0, rootFracLow/(rootFracUpp + rootFracLow)), 0.0)      
+                                                                                
+                                                                                # original Rens's line: # weighed root fractions
+                                                                                #                        RFW1[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0,
+                                                                                #                        	min(1.0,RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
+                                                                                #                        RFW2[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0.0,
+                                                                                #                        	min(1.0,RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
+
+        if self.numberOfLayers == 3: 
+            # root fractions
+            rootFracUpp000005 = 0.05/0.30 * self.rootFraction1
+            rootFracUpp005030 = 0.25/0.30 * self.rootFraction1
+            rootFracLow030150 = 1.20/1.20 * self.rootFraction2
+            self.adjRootFrUpp000005 = pcr.ifthenelse(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150 > 0.0, pcr.min(1.0, rootFracUpp000005/(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150)), 0.0)
+            self.adjRootFrUpp005030 = pcr.ifthenelse(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150 > 0.0, pcr.min(1.0, rootFracUpp005030/(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150)), 0.0)
+            self.adjRootFrLow030150 = pcr.ifthenelse(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150 > 0.0, pcr.min(1.0, rootFracLow030150/(rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150)), 0.0)
 
     def calculateParametersAtHalfTranspiration(self):
 
@@ -312,7 +338,46 @@ class LandCover(object):
 
         if self.numberOfLayers == 2: 
 
-            self.effSatAt50 = \
+            #~ self.effSatAt50 = \
+                             #~ (self.parameters.storCapUpp * \
+                                  #~ self.adjRootFrUpp * \
+                             #~ (self.parameters.matricSuction50/self.parameters.airEntryValueUpp)**\
+                                                     #~ (-1./self.parameters.poreSizeBetaUpp)  +\
+                              #~ self.parameters.storCapLow * \
+                                  #~ self.adjRootFrLow * \
+                             #~ (self.parameters.matricSuction50/self.parameters.airEntryValueLow)**\
+                                                     #~ (-1./self.parameters.poreSizeBetaLow)) /\
+                         #~ (self.parameters.storCapUpp*self.adjRootFrUpp +\
+                          #~ self.parameters.storCapLow*self.adjRootFrLow )     
+
+            #~ self.effPoreSizeBetaAt50 = (\
+                          #~ self.parameters.storCapUpp*self.adjRootFrUpp*\
+                                       #~ self.parameters.poreSizeBetaUpp +\
+                          #~ self.parameters.storCapLow*self.adjRootFrLow*\
+                                       #~ self.parameters.poreSizeBetaLow) / (\
+                         #~ (self.parameters.storCapUpp*self.adjRootFrUpp +\
+                          #~ self.parameters.storCapLow*self.adjRootFrLow ))    
+
+                                                                             # Rens's original line (version 1.1): THEFF_50[TYPE]= (SC1[TYPE]*RFW1[TYPE]*(PSI_50/PSI_A1[TYPE])**(-1/BCH1[TYPE]) +
+                                                                             #                                                      SC2[TYPE]*RFW2[TYPE]*(PSI_50/PSI_A2[TYPE])**(-1/BCH2[TYPE])) /
+                                                                             #                                                     (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]);
+                                                                             #
+                                                                             # Rens's modified line (version 1.2): THEFF_50[TYPE]= if(RFW1[TYPE]+RFW2[TYPE] > 0,   
+                                                                             #                                         (SC1[TYPE]*RFW1[TYPE]*(PSI_50/PSI_A1[TYPE])**(-1/BCH1[TYPE])+
+                                                                             #                                         SC2[TYPE]*RFW2[TYPE]*(PSI_50/PSI_A2[TYPE])**(-1/BCH2[TYPE]))/
+                                                                             #                                         (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]),0.5);
+            
+                                                                             # Rens's original liner (version 1.1): BCH_50 = (SC1[TYPE]*RFW1[TYPE]*BCH1[TYPE]+SC2[TYPE]*RFW2[TYPE]*BCH2[TYPE])/
+                                                                             #                                               (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]);
+                                                                             #
+                                                                             # Rens's original lines (version 1.1): BCH_50= if(RFW1[TYPE]+RFW2[TYPE] > 0,(SC1[TYPE]*RFW1[TYPE]*BCH1[TYPE]+SC2[TYPE]*RFW2[TYPE]*BCH2[TYPE])/
+                                                                             #                                                                           (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]),0.5*(BCH1[TYPE]+BCH2[TYPE]));
+
+
+            denominator = (self.parameters.storCapUpp*self.adjRootFrUpp +
+                           self.parameters.storCapLow*self.adjRootFrLow )
+
+            self.effSatAt50 = pcr.ifthenelse(denominator > 0.0,\
                              (self.parameters.storCapUpp * \
                                   self.adjRootFrUpp * \
                              (self.parameters.matricSuction50/self.parameters.airEntryValueUpp)**\
@@ -322,21 +387,53 @@ class LandCover(object):
                              (self.parameters.matricSuction50/self.parameters.airEntryValueLow)**\
                                                      (-1./self.parameters.poreSizeBetaLow)) /\
                          (self.parameters.storCapUpp*self.adjRootFrUpp +\
-                          self.parameters.storCapLow*self.adjRootFrLow )     # THEFF_50[TYPE]= (SC1[TYPE]*RFW1[TYPE]*(PSI_50/PSI_A1[TYPE])**(-1/BCH1[TYPE]) +
-                                                                             #                  SC2[TYPE]*RFW2[TYPE]*(PSI_50/PSI_A2[TYPE])**(-1/BCH2[TYPE])) /
-                                                                             #                 (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]);
-            self.effPoreSizeBetaAt50 = (\
-                          self.parameters.storCapUpp*self.adjRootFrUpp*\
+                          self.parameters.storCapLow*self.adjRootFrLow ), 0.5)     
+            
+            self.effPoreSizeBetaAt50 = pcr.ifthenelse(denominator > 0.0,\
+                         (self.parameters.storCapUpp*self.adjRootFrUpp*\
                                        self.parameters.poreSizeBetaUpp +\
                           self.parameters.storCapLow*self.adjRootFrLow*\
                                        self.parameters.poreSizeBetaLow) / (\
                          (self.parameters.storCapUpp*self.adjRootFrUpp +\
-                          self.parameters.storCapLow*self.adjRootFrLow ))    # BCH_50 = (SC1[TYPE]*RFW1[TYPE]*BCH1[TYPE]+SC2[TYPE]*RFW2[TYPE]*BCH2[TYPE])/
-                                                                             #          (SC1[TYPE]*RFW1[TYPE]+SC2[TYPE]*RFW2[TYPE]);
+                          self.parameters.storCapLow*self.adjRootFrLow )), 0.5*(self.parameters.poreSizeBetaUpp + self.parameters.poreSizeBetaLow))    
+                                                                             
+                                                                             
 
         if self.numberOfLayers == 3: 
         
-            self.effSatAt50 = (self.parameters.storCapUpp000005 * \
+            #~ self.effSatAt50 = (self.parameters.storCapUpp000005 * \
+                                   #~ self.adjRootFrUpp000005 * \
+                              #~ (self.parameters.matricSuction50/self.parameters.airEntryValueUpp000005)**\
+                                                      #~ (-1./self.parameters.poreSizeBetaUpp000005) +\
+                               #~ self.parameters.storCapUpp005030 * \
+                                   #~ self.adjRootFrUpp005030 * \
+                              #~ (self.parameters.matricSuction50/self.parameters.airEntryValueUpp000005)**\
+                                                      #~ (-1./self.parameters.poreSizeBetaUpp000005) +\
+                               #~ self.parameters.storCapLow030150 * \
+                                   #~ self.adjRootFrLow030150 * \
+                              #~ (self.parameters.matricSuction50/self.parameters.airEntryValueLow030150)**\
+                                                      #~ (-1./self.parameters.poreSizeBetaLow030150) /\
+                         #~ (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
+                          #~ self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
+                          #~ self.parameters.storCapLow030150*self.adjRootFrLow030150 ))
+
+            #~ self.effPoreSizeBetaAt50 = (\
+                          #~ self.parameters.storCapUpp000005*self.adjRootFrUpp000005*\
+                                             #~ self.parameters.poreSizeBetaUpp000005 +\
+                          #~ self.parameters.storCapUpp005030*self.adjRootFrUpp005030*\
+                                             #~ self.parameters.poreSizeBetaUpp005030 +\
+                          #~ self.parameters.storCapLow030150*self.adjRootFrLow030150*\
+                                             #~ self.parameters.poreSizeBetaLow030150) / \
+                         #~ (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
+                          #~ self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
+                          #~ self.parameters.storCapLow030150*self.adjRootFrLow030150 )
+
+            denominator = (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +
+                           self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +
+                           self.parameters.storCapLow030150*self.adjRootFrLow030150 )
+
+            self.effSatAt50 = pcr.ifthenelse(denominator > 0.0,\
+                              (self.parameters.storCapUpp000005 * \
                                    self.adjRootFrUpp000005 * \
                               (self.parameters.matricSuction50/self.parameters.airEntryValueUpp000005)**\
                                                       (-1./self.parameters.poreSizeBetaUpp000005) +\
@@ -350,10 +447,10 @@ class LandCover(object):
                                                       (-1./self.parameters.poreSizeBetaLow030150) /\
                          (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
                           self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
-                          self.parameters.storCapLow030150*self.adjRootFrLow030150 ))
+                          self.parameters.storCapLow030150*self.adjRootFrLow030150 )), 0.5)
 
-            self.effPoreSizeBetaAt50 = (\
-                          self.parameters.storCapUpp000005*self.adjRootFrUpp000005*\
+            self.effPoreSizeBetaAt50 = pcr.ifthenelse(denominator > 0.0,\
+                         (self.parameters.storCapUpp000005*self.adjRootFrUpp000005*\
                                              self.parameters.poreSizeBetaUpp000005 +\
                           self.parameters.storCapUpp005030*self.adjRootFrUpp005030*\
                                              self.parameters.poreSizeBetaUpp005030 +\
@@ -361,11 +458,18 @@ class LandCover(object):
                                              self.parameters.poreSizeBetaLow030150) / \
                          (self.parameters.storCapUpp000005*self.adjRootFrUpp000005 +\
                           self.parameters.storCapUpp005030*self.adjRootFrUpp005030 +\
-                          self.parameters.storCapLow030150*self.adjRootFrLow030150 )
+                          self.parameters.storCapLow030150*self.adjRootFrLow030150 ), 0.5 * (0.5*(self.parameters.poreSizeBetaUpp000005 + \
+                                                                                                  self.parameters.poreSizeBetaUpp005030) self.parameters.poreSizeBetaLow030150))
 
-        self.effSatAt50          = pcr.cover(self.effSatAt50, 0.0)
-        self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.0)    
-
+        # I don't think that we need the following items.
+        self.effSatAt50 = pcr.cover(self.effSatAt50, 0.5)
+        if self.numberOfLayers == 2: self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.5*(self.parameters.poreSizeBetaUpp + self.parameters.poreSizeBetaLow))    
+        if self.numberOfLayers == 3: self.effPoreSizeBetaAt50 = pcr.cover(self.effPoreSizeBetaAt50, 0.5 * (0.5*(self.parameters.poreSizeBetaUpp000005 + \   
+                                                                                                                self.parameters.poreSizeBetaUpp005030) self.parameters.poreSizeBetaLow030150))
+        
+        # crop only to the landmask region
+        self.effSatAt50 = pcr.ifthen(self.landmask, self.effSatAt50)
+        self.effPoreSizeBetaAt50 = pcr.ifthen(self.landmask, self.effPoreSizeBetaAt50)
 
     def calculateTotAvlWaterCapacityInRootZone(self):
 
@@ -602,6 +706,7 @@ class LandCover(object):
                  vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
                                     currTimeStep.doy, useDoy = 'Yes',\
                                     cloneMapFileName = self.cloneMap), 0.0)
+        self.inputCropKC = cropKC                                               # This line is needed for debugging. 
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
         # limit cropKC
@@ -650,13 +755,14 @@ class LandCover(object):
         # get interceptCap:
         interceptCap  = pcr.scalar(self.minInterceptCap)
         coverFraction = pcr.scalar(1.0)
-        if not self.iniItemsLC['name'].startswith("irr"):
+        if not self.iniItemsLC['name'].startswith("irr"):                # This line assumes that no interception capacity for paddy and non paddy types
             interceptCap = \
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
                                     'interceptCapInput',\
                                      currTimeStep.doy, useDoy = 'Yes',\
                                      cloneMapFileName = self.cloneMap), 0.0)
+            self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
             coverFraction = \
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.coverFractionNC,\
