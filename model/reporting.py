@@ -255,7 +255,7 @@ class Reporting(object):
         
         # writing precipitation time series maps
         file_name = self.directory_for_forcing_maps +\
-                    pcr.framework.frameworkBase.generateNameT("/ra", self.modelTime.timeStepPCR)
+                    pcr.framework.frameworkBase.generateNameT("/ra", self._modelTime.timeStepPCR)
         pcr.report(self._model.meteo.precipitation, file_name) 
 
 
