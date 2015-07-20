@@ -424,6 +424,20 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['domesticWaterDemandFile'] = "None"
 
+        # adjustment for the option 'includeIndustryWaterDemand'
+        if 'includeIndustryWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Industry water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeIndustryWaterDemand'] = "False"
+
+        # adjustment for the option 'industryWaterDemandFile'
+        if (self.landSurfaceOptions['includeIndustryWaterDemand'] == "False") and ('industryWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "industryWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Industry water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['industryWaterDemandFile'] = "None"
+
         # adjustment for the option 'includeLivestockWaterDemand'
         if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
             msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
