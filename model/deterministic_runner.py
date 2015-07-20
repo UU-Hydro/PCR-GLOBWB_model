@@ -101,6 +101,7 @@ def main():
     # for debugging to PCR-GLOBWB version one
     if configuration.debug_to_version_one:
     
+        pass
         #~ logger.info('Run)
 
         # copy oldcalc script to map directory
