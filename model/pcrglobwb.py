@@ -48,7 +48,22 @@ class PCRGlobWB(object):
         # number of upperSoilLayers:
         self.numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
 
+        # preparing sub-modules
         self.createSubmodels(initialState)
+        
+        # option for debugging to PCR-GLOBWB version 1.0
+        self.debug_to_version_one = False
+        if configuration.debug_to_version_one: self.debug_to_version_one = True
+        if self.debug_to_version_one:
+            
+            # preparing initial folder directory
+            self.directory_for_initial_maps = vos.getFullPath("initial/", self.configuration.mapsDir)
+            if os.path.exists(self.directory_for_initial_maps): shutil.rmtree(self.directory_for_initial_maps)
+            os.makedirs(self.directory_for_initial_maps)
+            
+            # dump the initial state
+            self.dumpState(self.directory_for_initial_maps)
+
          
     @property
     def configuration(self):
@@ -64,7 +79,6 @@ class PCRGlobWB(object):
  
         # short name for every land cover type (needed for file name)
         self.shortNames = ['f','g','p','n']
-        
         
     def dumpState(self, outputDirectory):
         #write all state to disk to facilitate restarting

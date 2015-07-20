@@ -135,11 +135,11 @@ binding
  PSI_50  = scalar(3.33);					# matric suction at which transpiration is halved (m)
  BCH_ADD = scalar(3);					    # addition for kr-relationship of Clapp & Hornberger (1978; default 3)
 
-#SAMPAI DI SINI
-
  KQ3            = maps\globalalpha.map;		# recession coefficient for store 3 (day-1): drainage
  SPECYIELD3     = maps\specificyield.map;	# specific yield for aquifer
  DZS3INFLUENCED = scalar(5.0);				# additional zone influenced by groundwater
+
+#SAMPAI DI SINI
 
 #Initial storages for local variables, cell averages reported by default
  SC_INI[COVERTYPE]= index(COVERTABLE);		#initial snow cover (m)

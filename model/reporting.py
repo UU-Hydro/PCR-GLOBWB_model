@@ -446,8 +446,12 @@ class Reporting(object):
             pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction1   , self.configuration.mapsDir+"/rfrac1_"+version_one_cover_type[coverType]+".map") 
             pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction2   , self.configuration.mapsDir+"/rfrac2_"+version_one_cover_type[coverType]+".map") 
 
-        # KQ3            = maps\globalalpha.map;		# recession coefficient for store 3 (day-1): drainage
+        
+        # KQ3            = maps\globalalpha.map;	# recession coefficient for store 3 (day-1): drainage
         # SPECYIELD3     = maps\specificyield.map;	# specific yield for aquifer
+
+        pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir+"/globalalpha.map")
+        pcr.report(self._model.groundwater.specificYield , self.configuration.mapsDir+"/specificyield.map")
 
         # SAMPAI DI SINI
 
