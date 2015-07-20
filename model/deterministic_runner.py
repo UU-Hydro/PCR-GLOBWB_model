@@ -98,6 +98,16 @@ def main():
     logger.info('Transient simulation run started.')
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state)
     
+    # for debugging to PCR-GLOBWB version one
+    if configuration.debug_to_version_one:
+    
+        #~ logger.info('Run)
+
+        # copy oldcalc script to map directory
+        # go to maps directory
+        # execute oldcalc
+        # converting output to netcdf files
+
     dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
     dynamic_framework.run()

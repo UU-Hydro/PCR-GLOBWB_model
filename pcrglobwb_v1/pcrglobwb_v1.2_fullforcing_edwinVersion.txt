@@ -28,7 +28,6 @@
 # - FRACWAT = 0.0
 # - KC_WATSTACK = 0.0
 # - WMAX = SC1 + SC2 (instead of reading from file)
-# - Change the location of maps with the system argument $1
 # - Inactivating all time series reporting at STATIONS and MONITORSTATIONS
 
 binding
@@ -232,10 +231,13 @@ areamap
  LANDMASK;
 
 timer
- 1 $12 1;
- rep1= endtime;					#times to report TSS and initial maps
- rep2= $13+$13..endtime;				#times to report soil states and fluxes
- rep3= $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	#times to report monthly updates of water balance components
+#1 $12 1;
+ 1 $1 1;
+ rep1= endtime;					                # times to report TSS and initial maps
+ rep2= endtime;
+ rep3= endtime;
+#rep2= $13+$13..endtime;				        # times to report soil states and fluxes
+#rep3= $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12;	# times to report monthly updates of water balance components
 
 initial
 
