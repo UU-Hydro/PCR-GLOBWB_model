@@ -14,7 +14,7 @@ Z2			sv	maps\fao30_z2_permafrost.map
 SC1			sv	maps\fao30_sc1_permafrost.map
 SC2			sv	maps\fao30_sc2_permafrost.map
 WMAX		sv	maps\fao30_sc_permafrost.map
-MINFRAC		sv 	maps\minf_short_permafrost.map
+MINFRAC		sv 	maps\minf_short.map
 MAXFRAC		sv	maps\maxf_short.map
 RFRAC1		sv	maps\rfrac1_short.map
 RFRAC2		sv  maps\rfrac2_short.map
@@ -42,7 +42,7 @@ Z2			tv	maps\fao30_z2_permafrost.map
 SC1			tv	maps\fao30_sc1_permafrost.map
 SC2			tv	maps\fao30_sc2_permafrost.map
 WMAX		tv	maps\fao30_sc_permafrost.map
-MINFRAC		tv 	maps\minf_tall_permafrost.map
+MINFRAC		tv 	maps\minf_tall.map
 MAXFRAC		tv	maps\maxf_tall.map
 RFRAC1		tv	maps\rfrac1_tall.map
 RFRAC2		tv 	maps\rfrac2_tall.map
