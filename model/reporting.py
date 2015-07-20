@@ -324,12 +324,12 @@ class Reporting(object):
         # writing KC_SHORTSTACK
         file_name = self.directory_for_crop_coefficient_maps +\
                     pcr.framework.frameworkBase.generateNameT("/kc_s", self._modelTime.timeStepPCR)
-        pcr.report(self._model.landSurface.landCoverObj["grassland"].self.inputCropKC, file_name) 
+        pcr.report(self._model.landSurface.landCoverObj["grassland"].inputCropKC, file_name) 
         
         # writing KC_TALLSTACK
         file_name = self.directory_for_crop_coefficient_maps +\
                     pcr.framework.frameworkBase.generateNameT("/kc_t", self._modelTime.timeStepPCR)
-        pcr.report(self._model.landSurface.landCoverObj["forest"].self.inputCropKC, file_name) 
+        pcr.report(self._model.landSurface.landCoverObj["forest"].inputCropKC, file_name) 
 
 
     def report_static_maps_for_debugging(self):
