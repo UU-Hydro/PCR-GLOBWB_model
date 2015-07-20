@@ -245,16 +245,16 @@ class Reporting(object):
         # LANDMASK = $1\maps\catclone.map;				                   # clone map representing landmask of earth surface
         # CELLAREA = $1\maps\cellarea30.map;				               # surface (m2) of cell covered by total land surface
 
-        pcr.report(self._model.routing.landmask, folder_location+"/catclone.map") 
-        pcr.report(self._model.routing.cellArea, folder_location+"/cellarea30.map") 
+        pcr.report(self._model.routing.landmask, self.configuration.mapsDir+"/catclone.map") 
+        pcr.report(self._model.routing.cellArea, self.configuration.mapsDir+"/cellarea30.map") 
 
         # LSLOPE   = $1\maps\globalbcat.map;			                   # slope length (m)
         # TANSLOPE = $1\maps\globalgradslope.map;	                       # gradient of slope (m/m)
         # B_ORO    = $1\maps\globalboro.map;			                   # shape coefficient related to orography
 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].slopeLength  , folder_location+"/globalbcat.map") 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].tanslope     , folder_location+"/globalgradslope.map") 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].orographyBeta, folder_location+"/globalboro.map") 
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].slopeLength  , self.configuration.mapsDir+"/globalbcat.map") 
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].tanslope     , self.configuration.mapsDir+"/globalgradslope.map") 
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].orographyBeta, self.configuration.mapsDir+"/globalboro.map") 
 
         # DZREL0001 = $1\maps\hydro1k_dzrel0001.map;                       # maps of relative elevation above floodplain, in percent
         # DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
@@ -269,18 +269,18 @@ class Reporting(object):
         # DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
         # DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0001, folder_location+"/hydro1k_dzrel0001.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0005, folder_location+"/hydro1k_dzrel0005.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0010, folder_location+"/hydro1k_dzrel0010.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0020, folder_location+"/hydro1k_dzrel0020.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0030, folder_location+"/hydro1k_dzrel0030.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0040, folder_location+"/hydro1k_dzrel0040.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0050, folder_location+"/hydro1k_dzrel0050.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0060, folder_location+"/hydro1k_dzrel0060.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0070, folder_location+"/hydro1k_dzrel0070.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0080, folder_location+"/hydro1k_dzrel0080.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0090, folder_location+"/hydro1k_dzrel0090.map")
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0100, folder_location+"/hydro1k_dzrel0100.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0001, self.configuration.mapsDir+"/hydro1k_dzrel0001.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0005, self.configuration.mapsDir+"/hydro1k_dzrel0005.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0010, self.configuration.mapsDir+"/hydro1k_dzrel0010.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0020, self.configuration.mapsDir+"/hydro1k_dzrel0020.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0030, self.configuration.mapsDir+"/hydro1k_dzrel0030.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0040, self.configuration.mapsDir+"/hydro1k_dzrel0040.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0050, self.configuration.mapsDir+"/hydro1k_dzrel0050.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0060, self.configuration.mapsDir+"/hydro1k_dzrel0060.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0070, self.configuration.mapsDir+"/hydro1k_dzrel0070.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0080, self.configuration.mapsDir+"/hydro1k_dzrel0080.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0090, self.configuration.mapsDir+"/hydro1k_dzrel0090.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0100, self.configuration.mapsDir+"/hydro1k_dzrel0100.map")
         
         # SAMPAI DI SINI
 
