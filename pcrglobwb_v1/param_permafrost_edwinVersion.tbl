@@ -19,12 +19,12 @@ MAXFRAC		sv	maps\maxf_short.map
 RFRAC1		sv	maps\rfrac1_short.map
 RFRAC2		sv  maps\rfrac2_short.map
 P2_IMP		sv	maps\fao30_p2imp_permafrost.map
-SC_INI		sv	initial\snowCoverSWE_grassland_initial.map
-SCF_INI		sv	initial\snowFreeWater_grassland_initial.map
-INTS_INI	sv	initial\interceptStor_grassland_initial.map
-S1_INI		sv	initial\storUpp_grassland_initial.map
-S2_INI		sv	initial\storLow_grassland_initial.map
-Q2_INI		sv	initial\interflow_grassland_initial.map
+SC_INI		sv	maps\initial\snowCoverSWE_grassland_initial.map
+SCF_INI		sv	maps\initial\snowFreeWater_grassland_initial.map
+INTS_INI	sv	maps\initial\interceptStor_grassland_initial.map
+S1_INI		sv	maps\initial\storUpp_grassland_initial.map
+S2_INI		sv	maps\initial\storLow_grassland_initial.map
+Q2_INI		sv	maps\initial\interflow_grassland_initial.map
 
 VEGFRAC 	tv	maps\vegf_tall.map
 THETASAT1 	tv	maps\fao30_ths30.map
@@ -47,9 +47,9 @@ MAXFRAC		tv	maps\maxf_tall.map
 RFRAC1		tv	maps\rfrac1_tall.map
 RFRAC2		tv 	maps\rfrac2_tall.map
 P2_IMP		tv	maps\fao30_p2imp_permafrost.map
-SC_INI		tv	initial\snowCoverSWE_forest_initial.map
-SCF_INI		tv	initial\snowFreeWater_forest_initial.map
-INTS_INI	tv	initial\interceptStor_forest_initial.map
-S1_INI		tv	initial\storUpp_forest_initial.map
-S2_INI		tv	initial\storLow_forest_initial.map
-Q2_INI		tv	initial\interflow_forest_initial.map
+SC_INI		tv	maps\initial\snowCoverSWE_forest_initial.map
+SCF_INI		tv	maps\initial\snowFreeWater_forest_initial.map
+INTS_INI	tv	maps\initial\interceptStor_forest_initial.map
+S1_INI		tv	maps\initial\storUpp_forest_initial.map
+S2_INI		tv	maps\initial\storLow_forest_initial.map
+Q2_INI		tv	maps\initial\interflow_forest_initial.map
