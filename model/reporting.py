@@ -347,7 +347,7 @@ class Reporting(object):
         # VEGFRAC 	sv	maps\vegf_short.map
         # VEGFRAC 	tv	maps\vegf_tall.map
 
-        for coverType in ['forests','grassland']:
+        for coverType in ['forest','grassland']:
             pcr.report(self._model.landSurface.landCoverObj[coverType].fracVegCover, self.configuration.mapsDir+"/vegf_"+version_one_cover_type[coverType]+".map") 
 
 
