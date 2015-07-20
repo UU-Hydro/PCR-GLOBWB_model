@@ -300,6 +300,8 @@ class Reporting(object):
             self.directory_for_interception_capacity_input_maps = vos.getFullPath("interception_capacity_input/", self.configuration.mapsDir)
             if os.path.exists(self.directory_for_interception_capacity_input_maps): shutil.rmtree(self.directory_for_interception_capacity_input_maps)
 
+        print self._model.landSurface.landCoverObj["grassland"].interceptCapInput
+        
         # writing SMAX_SHORTSTACK maps
         file_name = self.directory_for_interception_capacity_input_maps +\
                     pcr.framework.frameworkBase.generateNameT("/smax_s", self._modelTime.timeStepPCR)
