@@ -337,8 +337,6 @@ class Meteo(object):
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
         
-        self.referencePotET = pcr.scalar(0.0)
-
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)

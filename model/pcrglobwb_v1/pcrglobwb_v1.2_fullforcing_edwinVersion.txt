@@ -483,7 +483,7 @@ CRFRAC=min(1.0, CRFRAC);
   #EACT		(-):	direct evapotranspiration
    ET_p[TYPE]= KC[TYPE]*EVAP;	
    ES_p[TYPE]= KCMIN*EVAP;
-   T_p[TYPE]= KC[TYPE]*EVAP-ES_p[TYPE];
+   T_p[TYPE]= max(0.0, KC[TYPE]*EVAP-ES_p[TYPE]);
 
   #-Interception
   #INTCMAX	(m):	maximum interception storage capacity
