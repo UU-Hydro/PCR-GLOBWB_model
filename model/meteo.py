@@ -342,6 +342,8 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
  
+        self.referencePotET = pcr.scalar(0.0)
+        
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\

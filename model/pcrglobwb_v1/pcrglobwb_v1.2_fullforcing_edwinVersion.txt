@@ -310,7 +310,7 @@ initial
    						#centroid-lag for constant drainable pore space (day),
 						#rewritten to fractions given the duration of one timestep
    TCL[TYPE]= Duration*(2*KS2[TYPE]*TANSLOPE)/(LSLOPE*(1-THEFF2_FC[TYPE])*(THETASAT2[TYPE]-THETARES2[TYPE]));
-
+   TCL[TYPE]= max(0.0, TCL[TYPE])
 
 
    #-storage parameters related to Improved Arno Scheme
