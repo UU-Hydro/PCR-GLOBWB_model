@@ -51,7 +51,7 @@ class PCR2netCDF():
         
         # using a certain set of specificAttributeDictionary
         if specificAttributeDictionary != None:
-            for k, v in specificAttributeDictionary.items(): setattr(rootgrp,k,v)
+            for k, v in specificAttributeDictionary.items(): setattr(self,k,v)
 
 
     def createNetCDF(self, ncFileName, varName, varUnits, longName = None):
