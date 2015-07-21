@@ -44,7 +44,7 @@ class PCRGlobWBVersionOne(DynamicModel):
                                 'baseflow',
                                 'precipitation',
                                 'temperature',
-                                'referencePotETP']
+                                'referencePotET']
         
         # folder/location of oldcalc input maps
         self.maps_folder = self.configuration.mapsDir
