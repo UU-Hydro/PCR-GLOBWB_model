@@ -118,7 +118,10 @@ def main():
         pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(configuration, currTimeStep)
         dynamic_framework = DynamicFramework(pcrglobwb_one,currTimeStep.nrOfTimeSteps)
         dynamic_framework.setQuiet(True)
-        dynamic_framework.run() 
+        dynamic_framework.run()
+        
+        # comparing the output
+        pcrglobwb_one.compare_output() 
         
 if __name__ == '__main__':
     sys.exit(main())
