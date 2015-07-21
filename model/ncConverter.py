@@ -17,10 +17,10 @@ import virtualOS as vos
 
 class PCR2netCDF():
     
-    def __init__(self,iniItems):
+    def __init__(self,iniItems,specificAttributeDictionary=None):
         		
         # cloneMap
-        pcr.setclone(iniItems.cloneMap, specificAttributeDictionary = None)
+        pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
         
         # latitudes and longitudes
@@ -41,7 +41,7 @@ class PCR2netCDF():
         if "zlib" in iniItems.reportingOptions.keys():
             if iniItems.reportingOptions['zlib'] == "True": self.zlib = True 
             
-    def set_general_netcdf_attributes(self,iniItems,specificAttributeDictionary = None):
+    def set_general_netcdf_attributes(self,iniItems,specificAttributeDictionary=None):
 
         # netCDF attributes (based on :
         self.attributeDictionary = {}
