@@ -122,8 +122,8 @@ binding
  Z1[COVERTYPE]        = index(COVERTABLE);          # depth of first store
  Z2[COVERTYPE]        = index(COVERTABLE);          # depth of second store
                                                     
- SC1[COVERTYPE]       = index(COVERTABLE);          # total storage per layer and for the entire soil profile
- SC2[COVERTYPE]       = index(COVERTABLE);          
+#SC1[COVERTYPE]       = index(COVERTABLE);          # total storage per layer and for the entire soil profile
+#SC2[COVERTYPE]       = index(COVERTABLE);          
 #WMAX[COVERTYPE]      = index(COVERTABLE);
 
  MINFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of min soil depth over average soil depth
@@ -310,7 +310,14 @@ initial
    						#centroid-lag for constant drainable pore space (day),
 						#rewritten to fractions given the duration of one timestep
    TCL[TYPE]= Duration*(2*KS2[TYPE]*TANSLOPE)/(LSLOPE*(1-THEFF2_FC[TYPE])*(THETASAT2[TYPE]-THETARES2[TYPE]));
+
+
+
    #-storage parameters related to Improved Arno Scheme
+
+   SC1[TYPE] = Z1[TYPE] * (THETASAT1[TYPE] - THETARES1[TYPE])
+   SC2[TYPE] = Z2[TYPE] * (THETASAT2[TYPE] - THETARES2[TYPE])
+
    # storage in top soil limiting bare soil evapotranspiration
    WSMAX[TYPE]= SC1[TYPE];
    WMAX[TYPE]= SC1[TYPE] + SC2[TYPE];
@@ -323,6 +330,7 @@ initial
    #shape coefficient for distribution of maximum storage capacity, maximum set to fraction of total
    BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01);
 
+   
    # weighed root fractions
    RFW1[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0,
 		min(1.0,RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
