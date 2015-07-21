@@ -35,7 +35,7 @@ class PCRGlobWBVersionOne(DynamicModel):
         
         # output variables that will be compared (at daily resolution)
         self.debug_variables = ['runoff',
-                                'totalEvaporation',
+                                'actualET',
                                 'storUppTotal',
                                 'storLowTotal',
                                 'actBareSoilEvap',
