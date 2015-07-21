@@ -337,12 +337,12 @@ class Meteo(object):
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
         
+        self.referencePotET = pcr.scalar(0.0)
+
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
- 
-        self.referencePotET = pcr.scalar(0.0)
         
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
