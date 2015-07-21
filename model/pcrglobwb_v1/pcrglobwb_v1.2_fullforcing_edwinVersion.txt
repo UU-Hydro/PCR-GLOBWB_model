@@ -214,7 +214,13 @@ binding
 
  QW     = oldcalc_results\qw;					# change in storage of freshwater surface
 
-
+ 
+ # forcing variables (re-written) 
+ 
+ prp_input = oldcalc_results\pr;                # precipitation (m/day)  
+ ta_input  = oldcalc_results\ta;                # temperature (degree C)
+ e0p_input = oldcalc_results\e0p;               # reference potential evaporation (m/day) 
+ 
  # channel discharge has been retained as check but is not used
  QAVG        = oldcalc_results\qaverage.map;	# channel discharge - annual average (m/s)
  QCHANNEL    = oldcalc_results\qc;				# channel discharge - daily value
@@ -364,15 +370,27 @@ dynamic
 # PRP		(m):	liquid precipitation
 # SNOW		(m):	snow in water equivalent
 # PRPTOT	(m):	total precipitation
- PRPTOT= max(0.,timeinput(PRPSTACK))*Duration*timeslice();
+
+ PRPTOT = max(0.,timeinput(PRPSTACK))*Duration*timeslice();
+
+report (rep2) prp_input = PRPTOT;                 # precipitation (m/day)  
+
  TA= timeinput(TASTACK);
+
+report (rep2) ta_input  = TA;                     # temperature (degree C)
+
 #-partitioning rain and snow and converting evapotransiration
  SNOW= if(TA<TT,PRPTOT,0);
  PRP= PRPTOT-SNOW;
  SNOW= SFCF*SNOW;
  PRPTOT= PRP+SNOW;
+
 #-evaporation: scaled on the basis of temperature
+
  EVAP= max(0.,timeinputsparse(EVAPSTACK))*Duration*timeslice(); 
+
+report (rep2) e0p_input = EVAP;                   # reference potential evaporation (m/day) 
+
 #report (rep2) EWAT = timeinputsparse(KC_WATSTACK)*EVAP;
 #report (rep2) EWAT = KC_WATSTACK*EVAP;
                EWAT = KC_WATSTACK*EVAP;

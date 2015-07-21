@@ -142,6 +142,13 @@ class PCRGlobWBVersionOne(DynamicModel):
 
     def compare_output(self):
 
-        # logging average values to the log file
+        # make/prepare the debug directory
+        
+        #~ for var in self.debug_variables:
+#~ 
+            #~ filename_version_one = self.netcdf_folder+"/"+short_name+"_dailyTot_output_version_one.nc"
+            #~ 
+            #~ cmd = 'cdo diff '
+            #~ pcraster_map_file_name = self.results_folder + "/" +\
 
         pass
