@@ -86,7 +86,7 @@ class PCRGlobWBVersionOne(DynamicModel):
             long_name  = varDicts.netcdf_long_name[var]
             if long_name == None: long_name = short_name  
 
-            netcdf_file_name = self.netcdf_folder+"/"+short_name+"_dailyTot_output_version_one.nc"
+            netcdf_file_name = self.netcdf_folder+"/"+str(var)+"_dailyTot_output_version_one.nc"
 
             logger.info("Creating the netcdf file for daily reporting for the variable %s to the file %s (output from PCR-GLOBWB version 1).", str(var), str(netcdf_file_name))
 
@@ -133,7 +133,7 @@ class PCRGlobWBVersionOne(DynamicModel):
             pcr_map_values = pcr.readmap(str(pcraster_map_file_name))
             
             short_name = varDicts.netcdf_short_name[var]
-            netcdf_file_name = self.netcdf_folder+"/"+short_name+"_dailyTot_output_version_one.nc"
+            netcdf_file_name = self.netcdf_folder+"/"+str(var)+"_dailyTot_output_version_one.nc"
 
             logger.debug("Saving to the file %s ", netcdf_file_name)
             self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
@@ -159,10 +159,8 @@ class PCRGlobWBVersionOne(DynamicModel):
 
             short_name = varDicts.netcdf_short_name[var]
 
-            filename_version_two = self.configuration.outNCDir+"/"+short_name+"_dailyTot_output.nc"
-            filename_version_one = self.netcdf_folder         +"/"+short_name+"_dailyTot_output_version_one.nc"
-            
-
+            filename_version_two = self.configuration.outNCDir+"/"+str(var)+"_dailyTot_output.nc"
+            filename_version_one = self.netcdf_folder         +"/"+str(var)+"_dailyTot_output_version_one.nc"
 
             cmd = 'cdo sub '+filename_version_two+" "+filename_version_one+" "+var+"_diff.nc"
             vos.cmd_line(cmd)
