@@ -2013,7 +2013,7 @@ class LandCover(object):
         #
         self.satAreaFrac = pcr.ifthenelse(self.WFRACB > 0.,\
                                        1.-self.WFRACB**self.arnoBeta,\
-                                                  0.)                   # SATFRAC_L = if(WFRACB>0,1-WFRACB**BCF[TYPE],0);
+                                                  1.)                   # SATFRAC_L = if(WFRACB>0,1-WFRACB**BCF[TYPE],1);
         self.satAreaFrac = pcr.min(self.satAreaFrac, 1.0)
         self.satAreaFrac = pcr.max(self.satAreaFrac, 0.0)
         actualW = (self.arnoBeta+1)*self.parameters.rootZoneWaterStorageCap - \
