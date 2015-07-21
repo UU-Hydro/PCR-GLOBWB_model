@@ -137,7 +137,6 @@ class PCRGlobWBVersionOne(DynamicModel):
             netcdf_file_name = self.netcdf_folder+"/"+short_name+"_dailyTot_output_version_one.nc"
 
             logger.debug("Saving to the file %s ", netcdf_file_name)
-            self.netcdf_report.data2NetCDF(self.netcdf_folder,\
-                                           varDicts.netcdf_short_name[var],\
+            self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
                                            pcr.pcr2numpy(pcr_map_values,vos.MV),\
                                            timeStamp)
