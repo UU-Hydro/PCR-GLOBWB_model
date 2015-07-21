@@ -114,7 +114,6 @@ class PCRGlobWBVersionOne(DynamicModel):
     def dynamic(self):
         
         # make netcdf files, particularly for daily resolution values 
-        # logging average values to the log file
         
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
@@ -140,3 +139,9 @@ class PCRGlobWBVersionOne(DynamicModel):
             self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
                                            pcr.pcr2numpy(pcr_map_values,vos.MV),\
                                            timeStamp)
+
+    def compare_output(self):
+
+        # logging average values to the log file
+
+        pass
