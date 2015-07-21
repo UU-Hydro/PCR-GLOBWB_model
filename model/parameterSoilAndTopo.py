@@ -200,7 +200,8 @@ class SoilAndTopoParameters(object):
         # default values of soil parameters that are constant/uniform for the entire domain:
         self.clappAddCoeff   = pcr.scalar(3.0)        # dimensionless
         self.matricSuctionFC = pcr.scalar(1.0)        # unit: m
-        self.matricSuction50 = pcr.scalar(10./3.)     # unit: m
+        #~ self.matricSuction50 = pcr.scalar(10./3.)  # unit: m
+        self.matricSuction50 = pcr.scalar(3.33.)      # unit: m
         self.matricSuctionWP = pcr.scalar(156.0)      # unit: m
         self.maxGWCapRise    = pcr.scalar(5.0)        # unit: m
         #  
