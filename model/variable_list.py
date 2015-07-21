@@ -586,6 +586,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "direct_runoff + interflow + baseflow, but not including local runoff from water bodies."
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "qloc"
 
 # accuRunoff
 pcrglobwb_variable_name = 'accuRunoff'
