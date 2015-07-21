@@ -17,6 +17,8 @@ from pcrglobwb import PCRGlobWB
 import logging
 logger = logging.getLogger(__name__)
 
+import oldcalc_framework
+
 class DeterministicRunner(DynamicModel):
 
     def __init__(self, configuration, modelTime, initialState = None):
@@ -90,28 +92,39 @@ def main():
             has_converged = spin_up.checkConvergence(all_state_begin, all_state_end, spinUpRun, deterministic_runner.model.routing.cellArea)
             
             initial_state = deterministic_runner.model.getState()
-    #
+    
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                       configuration.globalOptions['endTime'])
-    
     logger.info('Transient simulation run started.')
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state)
-    
+    dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+    dynamic_framework.setQuiet(True)
+    dynamic_framework.run()
+
+
     # for debugging to PCR-GLOBWB version one
     if configuration.debug_to_version_one:
     
-        pass
-        #~ logger.info('Run)
+        logger.info('\n\n\n\n\n'+'Executing PCR-GLOBWB version 1.'+'\n\n\n\n\n')
 
+        # reset modelTime object
+        currTimeStep = None
+        currTimeStep = ModelTime() 
+        currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
+                                          configuration.globalOptions['endTime'])
+        
+        # execute PCR-GLOBWB version 1
+        pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(configuration, currTimeStep)
+        dynamic_framework = DynamicFramework(pcrglobwb_one,currTimeStep.nrOfTimeSteps)
+        dynamic_framework.setQuiet(True)
+        dynamic_framework.run() 
+        
         # copy oldcalc script to map directory
         # go to maps directory
         # execute oldcalc
         # converting output to netcdf files
 
-    dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
-    dynamic_framework.setQuiet(True)
-    dynamic_framework.run()
 
 if __name__ == '__main__':
     sys.exit(main())

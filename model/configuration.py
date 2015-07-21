@@ -217,6 +217,7 @@ class Configuration(object):
         os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
+        self.starting_directory = path_of_this_module
         os.chdir(self.mapsDir)
 
 
