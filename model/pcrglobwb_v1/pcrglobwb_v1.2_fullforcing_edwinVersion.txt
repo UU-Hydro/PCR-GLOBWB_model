@@ -29,6 +29,7 @@
 # - KC_WATSTACK = 0.0
 # - WMAX = SC1 + SC2 (instead of reading from file)
 # - CR2_L[TYPE] = min(S3,CR2_L[TYPE]) (instead of CR2_L[TYPE]= min(VEGFRAC[TYPE]*S3,CR2_L[TYPE] as we don't have to reduce it with VEGFRAC) 
+# - Fixing BCH_50 (now it uses BCH_50[TYPE] instead of BCH_50)
 
 binding
 
