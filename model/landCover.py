@@ -871,7 +871,7 @@ class LandCover(object):
         
         # throughfall 
         self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
-                      pcr.max(0.0,  coverFraction  * meteo.precipitation - self.interceptCap)              
+                      pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)              
                                                                          # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
         # update interception storage after throughfall 
         self.interceptStor = pcr.max(0.0, self.interceptStor + \
