@@ -142,20 +142,28 @@ class PCRGlobWBVersionOne(DynamicModel):
 
     def compare_output(self):
 
+        logger.info("Comparing the netcdf output files from versions one and two (using cdo).")
+        
         # make/prepare the debug directory and go to the debug directory
         debug_directory = self.configuration.globalOptions['outputDir']+"/debug/"
         # - preparing the directory
         if os.path.exists(debug_directory): shutil.rmtree(debug_directory)
+        os.makedirs(debug_directory)
         # - go to the debug directory
         os.chdir(debug_directory)
         
         for var in self.debug_variables:
+
+            msg = "Comparing the netcdf output files from the variable "+str(var)
+            logger.info(msg)
 
             short_name = varDicts.netcdf_short_name[var]
 
             filename_version_two = self.configuration.outNCDir+"/"+short_name+"_dailyTot_output.nc"
             filename_version_one = self.netcdf_folder         +"/"+short_name+"_dailyTot_output_version_one.nc"
             
+
+
             cmd = 'cdo sub '+filename_version_two+" "+filename_version_one+" "+var+"_diff.nc"
             vos.cmd_line(cmd)
 
