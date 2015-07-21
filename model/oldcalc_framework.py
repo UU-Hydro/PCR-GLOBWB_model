@@ -129,12 +129,12 @@ class PCRGlobWBVersionOne(DynamicModel):
             pcraster_map_file_name = self.results_folder + "/" +\
                                      pcr.framework.frameworkBase.generateNameT(varDicts.pcr_short_name[var],\
                                                                                self.modelTime.timeStepPCR)
-            logger.dbg("Reading the variable %s from the file %s ", var, pcraster_map_file_name)
+            logger.debug("Reading the variable %s from the file %s ", var, pcraster_map_file_name)
             pcr_map_values = pcr.readmap(str(pcraster_map_file_name))
             
             netcdf_file_name = self.netcdf_folder+"/"+short_name+"_dailyTot_output_version_one.nc"
 
-            logger.dbg("Saving to the file %s ", netcdf_file_name)
+            logger.debug("Saving to the file %s ", netcdf_file_name)
             self.netcdf_report.data2NetCDF(self.netcdf_folder,\
                                            varDicts.netcdf_short_name[var],\
                                            pcr.pcr2numpy(pcr_map_values,vos.MV),\
