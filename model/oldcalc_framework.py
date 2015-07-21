@@ -90,7 +90,7 @@ class PCRGlobWBVersionOne(DynamicModel):
 
             logger.info("Creating the netcdf file for daily reporting for the variable %s to the file %s (output from PCR-GLOBWB version 1).", str(var), str(netcdf_file_name))
 
-            self.netcdfObj.createNetCDF(netcdf_file_name,short_name,unit,long_name)
+            self.netcdf_report.createNetCDF(netcdf_file_name,short_name,unit,long_name)
         
     def initial(self): 
         
