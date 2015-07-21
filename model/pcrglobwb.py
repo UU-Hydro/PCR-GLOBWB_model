@@ -57,7 +57,7 @@ class PCRGlobWB(object):
         if self.debug_to_version_one:
             
             # preparing initial folder directory
-            self.directory_for_initial_maps = vos.getFullPath("initial/", self.configuration.mapsDir)
+            self.directory_for_initial_maps = vos.getFullPath("initials/", self.configuration.mapsDir)
             if os.path.exists(self.directory_for_initial_maps): shutil.rmtree(self.directory_for_initial_maps)
             os.makedirs(self.directory_for_initial_maps)
             
