@@ -839,6 +839,95 @@ class LandCover(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-5)
 
+    def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
+        
+        if self.debugWaterBalance:
+            prevStates = [self.interceptStor]
+       
+        # get interceptCap:
+        interceptCap  = pcr.scalar(self.minInterceptCap)
+        coverFraction = pcr.scalar(1.0)
+        if not self.iniItemsLC['name'].startswith("irr"):                # This line assumes that no interception capacity for paddy and non paddy types
+            interceptCap = \
+                     pcr.cover(
+                     vos.netcdf2PCRobjClone(self.interceptCapNC,\
+                                    'interceptCapInput',\
+                                     currTimeStep.doy, useDoy = 'Yes',\
+                                     cloneMapFileName = self.cloneMap), 0.0)
+            self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
+            coverFraction = \
+                     pcr.cover(
+                     vos.netcdf2PCRobjClone(self.coverFractionNC,\
+                                    'coverFractionInput',\
+                                     currTimeStep.doy, useDoy = 'Yes',\
+                                     cloneMapFileName = self.cloneMap), 0.0)
+            coverFraction = pcr.cover(coverFraction, 0.0)
+            interceptCap  = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
+        self.interceptCap = interceptCap
+        
+        # canopy/cover fraction over the entire cell area (unit: m2)
+        self.coverFraction = coverFraction
+        
+        # throughfall 
+        self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
+                      pcr.max(0.0,  coverFraction  * meteo.precipitation - self.interceptCap)              
+                                                                         # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
+        # update interception storage after throughfall 
+        self.interceptStor = pcr.max(0.0, self.interceptStor + \
+                                    meteo.precipitation - \
+                                    self.throughfall)                    # original Rens line: INTS_L[TYPE] = max(0,INTS_L[TYPE]+PRPTOT-PRP)
+         
+        # partitioning throughfall into snowfall and liquid Precipitation:
+        estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
+                                       meteo.precipitation, 0.0)         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
+                                                                         # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
+        #
+        self.snowfall = estimSnowfall * \
+              vos.getValDivZero(self.throughfall, meteo.precipitation, \
+              vos.smallNumber)                                           # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
+        #
+        self.liquidPrecip = pcr.max(0.0,\
+                                    self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
+
+        # potential interception flux (m/day)
+        self.potInterceptionFlux = self.potTranspiration                 # Rens only uses potTranspiration
+        
+        # evaporation from intercepted water (based on potInterceptionFlux)
+        self.interceptEvap = pcr.min(self.interceptStor, \
+                                     self.potInterceptionFlux * \
+             (vos.getValDivZero(self.interceptStor, self.interceptCap, \
+              vos.smallNumber, 0.) ** (2.00/3.00)))                      
+                                                                         # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
+        self.interceptEvap = pcr.min(self.interceptEvap, \
+                                     self.potInterceptionFlux)
+                                     
+        # update interception storage 
+        self.interceptStor = self.interceptStor - self.interceptEvap     # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
+        
+        
+        # update potTranspiration 
+        self.potTranspiration = pcr.max(0.0, self.potTranspiration - self.interceptEvap)  # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
+
+        # update actual evaporation (after interceptEvap) 
+        self.actualET  = 0. # interceptEvap is the first flux in ET 
+        self.actualET += self.interceptEvap
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([self.throughfall],\
+                                  [self.snowfall,self.liquidPrecip],\
+                                  [],\
+                                  [],\
+                                  'rain-snow-partitioning',\
+                                  True,\
+                                  currTimeStep.fulldate,threshold=1e-5)
+            vos.waterBalanceCheck([meteo.precipitation],
+                                  [self.throughfall,self.interceptEvap],
+                                  prevStates,\
+                                  [self.interceptStor],\
+                                  'interceptStor',\
+                                  True,\
+                                  currTimeStep.fulldate,threshold=1e-5)
+
     def snowMeltHBVSimple(self,meteo,currTimeStep):
 
         # output: self.snowCoverSWE, 
