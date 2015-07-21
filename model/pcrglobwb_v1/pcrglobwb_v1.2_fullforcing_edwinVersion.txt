@@ -315,8 +315,8 @@ initial
 
    #-storage parameters related to Improved Arno Scheme
 
-   SC1[TYPE] = Z1[TYPE] * (THETASAT1[TYPE] - THETARES1[TYPE])
-   SC2[TYPE] = Z2[TYPE] * (THETASAT2[TYPE] - THETARES2[TYPE])
+   SC1[TYPE] = Z1[TYPE] * (THETASAT1[TYPE] - THETARES1[TYPE]);
+   SC2[TYPE] = Z2[TYPE] * (THETASAT2[TYPE] - THETARES2[TYPE]);
 
    # storage in top soil limiting bare soil evapotranspiration
    WSMAX[TYPE]= SC1[TYPE];
