@@ -108,6 +108,7 @@ class PCRGlobWBVersionOne(DynamicModel):
         os.chdir(self.configuration.globalOptions['outputDir'])
         # - execute the script
         cmd = 'oldcalc -f '+str(os.path.basename(self.oldcalc_script_file))+" "+monthly_end_times
+        print cmd
         vos.cmd_line(cmd)
 
     def dynamic(self):
