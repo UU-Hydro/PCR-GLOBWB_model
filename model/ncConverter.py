@@ -20,7 +20,7 @@ class PCR2netCDF():
     def __init__(self,iniItems):
         		
         # cloneMap
-        pcr.setclone(iniItems.cloneMap)
+        pcr.setclone(iniItems.cloneMap, specificAttributeDictionary = None)
         cloneMap = pcr.boolean(1.0)
         
         # latitudes and longitudes
@@ -31,7 +31,7 @@ class PCR2netCDF():
         #       Consult with Stefanie regarding CF convention. 
         
         # set the general netcdf attributes (based on the information given in the ini/configuration file) 
-        self.set_general_netcdf_attributes(iniItems)
+        self.set_general_netcdf_attributes(iniItems, specificAttributeDictionary)
         
         # netcdf format and zlib setup 
         self.format = 'NETCDF3_CLASSIC'
