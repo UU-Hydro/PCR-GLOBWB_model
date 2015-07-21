@@ -2880,30 +2880,32 @@ class LandCover(object):
             #
             # If necessary, reduce percolation input:
             percUpp      = self.percUpp
-            #~ self.percUpp = percUpp - \
-                           #~ pcr.max(0.,self.storLow - \
-                                 #~ self.parameters.storCapLow)             # Rens's line: P1_L[TYPE] = P1_L[TYPE]-max(0,S2_L[TYPE]-SC2[TYPE]);
-                                                                            #~ # PS: In the original Rens's code, P1 can be negative. 
-            # alternative, proposed by Edwin: avoid negative percolation
-            self.percUpp = pcr.max(0., percUpp - \
+            self.percUpp = percUpp - \
                            pcr.max(0.,self.storLow - \
-                                 self.parameters.storCapLow))                    
-            self.storLow = self.storLow -  percUpp + \
-                                      self.percUpp     
-            # If necessary, reduce capRise input:
-            capRiseLow      = self.capRiseLow
-            self.capRiseLow = pcr.max(0.,capRiseLow - \
-                              pcr.max(0.,self.storLow - \
-                                       self.parameters.storCapLow))
-            self.storLow    = self.storLow - capRiseLow + \
-                                        self.capRiseLow      
-            # If necessary, increase interflow outflow:
-            addInterflow          = pcr.max(0.,\
-                        self.storLow - self.parameters.storCapLow)
-            self.interflow       += addInterflow
-            self.storLow         -= addInterflow      
-            #
-            self.storLow = pcr.min(self.storLow, self.parameters.storCapLow) 
+                                 self.parameters.storCapLow)                
+                                                                            # Rens's line: P1_L[TYPE] = P1_L[TYPE]-max(0,S2_L[TYPE]-SC2[TYPE]);
+                                                                            # PS: In the original Rens's code, P1 can be negative. 
+
+            #~ # alternative, proposed by Edwin: avoid negative percolation
+            #~ self.percUpp = pcr.max(0., percUpp - \
+                           #~ pcr.max(0.,self.storLow - \
+                                 #~ self.parameters.storCapLow))                    
+            #~ self.storLow = self.storLow -  percUpp + \
+                                      #~ self.percUpp     
+            #~ # If necessary, reduce capRise input:
+            #~ capRiseLow      = self.capRiseLow
+            #~ self.capRiseLow = pcr.max(0.,capRiseLow - \
+                              #~ pcr.max(0.,self.storLow - \
+                                       #~ self.parameters.storCapLow))
+            #~ self.storLow    = self.storLow - capRiseLow + \
+                                        #~ self.capRiseLow      
+            #~ # If necessary, increase interflow outflow:
+            #~ addInterflow          = pcr.max(0.,\
+                        #~ self.storLow - self.parameters.storCapLow)
+            #~ self.interflow       += addInterflow
+            #~ self.storLow         -= addInterflow      
+            #~ #
+            #~ self.storLow = pcr.min(self.storLow, self.parameters.storCapLow) 
         
             #
             # update storUpp after the following fluxes: 

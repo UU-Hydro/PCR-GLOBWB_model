@@ -142,7 +142,12 @@ class PCRGlobWBVersionOne(DynamicModel):
 
     def compare_output(self):
 
-        # make/prepare the debug directory
+        # make/prepare the debug directory and go to the debug directory
+        debug_directory = self.configuration.globalOptions['outputDir']+"/debug/"
+        # - preparing the directory
+        if os.path.exists(debug_directory): shutil.rmtree(debug_directory)
+        
+        
         
         #~ for var in self.debug_variables:
 #~ 
