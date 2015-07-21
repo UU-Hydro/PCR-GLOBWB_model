@@ -30,6 +30,8 @@
 # - WMAX = SC1 + SC2 (instead of reading from file)
 # - CR2_L[TYPE] = min(S3,CR2_L[TYPE]) (instead of CR2_L[TYPE]= min(VEGFRAC[TYPE]*S3,CR2_L[TYPE] as we don't have to reduce it with VEGFRAC) 
 # - Fixing BCH_50 (now it uses BCH_50[TYPE] instead of BCH_50)
+# - Constrain that 0.0 <= SATFRAC_L =<= 1.0
+
 
 binding
 
@@ -421,6 +423,10 @@ CRFRAC= if(DZS3<DZREL0010,0.1-(DZREL0010-DZS3)*0.05/max(1e-3,DZREL0010-DZREL0005
 CRFRAC= if(DZS3<DZREL0005,0.05-(DZREL0005-DZS3)*0.04/max(1e-3,DZREL0005-DZREL0001),CRFRAC);
 CRFRAC= if(DZS3<DZREL0001,0.01-(DZREL0001-DZS3)*0.01/max(1e-3,DZREL0001),CRFRAC);
 CRFRAC= if(FRACWAT<1,max(0,CRFRAC-FRACWAT)/(1-FRACWAT),0);
+
+CRFRAC=max(0.0, CRFRAC);
+CRFRAC=min(1.0, CRFRAC);
+
 
 #Water balance of first and second store,
 #split in two horizontal compartments for (1) short and (2) tall vegetation (COVERTYPE)
