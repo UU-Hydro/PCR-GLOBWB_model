@@ -255,17 +255,17 @@ class Reporting(object):
         
         # writing precipitation time series maps
         file_name = self.directory_for_forcing_maps +\
-                    pcr.framework.frameworkBase.generateNameT("/ra", self._modelTime.timeStepPCR)
+                    pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['precipitation'] , self._modelTime.timeStepPCR)
         pcr.report(self._model.meteo.precipitation, file_name) 
 
         # writing temperature time series maps
         file_name = self.directory_for_forcing_maps +\
-                    pcr.framework.frameworkBase.generateNameT("/ta", self._modelTime.timeStepPCR)
+                    pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['temperature']   , self._modelTime.timeStepPCR)
         pcr.report(self._model.meteo.temperature, file_name) 
 
         # writing referencePotET time series maps
         file_name = self.directory_for_forcing_maps +\
-                    pcr.framework.frameworkBase.generateNameT("/epot", self._modelTime.timeStepPCR)
+                    pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['referencePotET'], self._modelTime.timeStepPCR)
         pcr.report(self._model.meteo.referencePotET, file_name) 
 
 
