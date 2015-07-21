@@ -571,7 +571,8 @@ class LandCover(object):
         self.getPotET(meteo,currTimeStep,minCropCoefficient) 
         
         # calculate interception and update storage
-        self.interceptionUpdate(meteo,currTimeStep)    	 
+        #~ self.interceptionUpdate(meteo,currTimeStep)    	 
+        self.interceptionUpdateOriginalVersion(meteo,currTimeStep)
 
          # calculate snow melt (or refreezing)
         if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
