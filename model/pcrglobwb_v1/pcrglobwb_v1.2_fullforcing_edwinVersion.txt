@@ -534,7 +534,7 @@ CRFRAC=min(1.0, CRFRAC);
   #ES_a		(m):	actual bare soil evaporation,
   #			here used to subtract any evaporation from liquid phase of snow cover
    DSC[TYPE]= if(TA<=TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()));
-   report (rep1) SC_L[TYPE]= SC_L[TYPE]+DSC[TYPE]+SNOW;
+   report (rep1) SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW);
    SCF_L[TYPE]= SCF_L[TYPE]-DSC[TYPE]+PRP;
    Pn= max(0,SCF_L[TYPE]-CWH*SC_L[TYPE]);
    DSCR= if(Pn>0,max(-DSC[TYPE],0)/Pn,0);

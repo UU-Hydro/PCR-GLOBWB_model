@@ -2023,20 +2023,19 @@ class LandCover(object):
                                                   1.)                   # SATFRAC_L = if(WFRACB>0,1-WFRACB**BCF[TYPE],1);
         self.satAreaFrac = pcr.min(self.satAreaFrac, 1.0)
         self.satAreaFrac = pcr.max(self.satAreaFrac, 0.0)
-        actualW = (self.arnoBeta+1)*self.parameters.rootZoneWaterStorageCap - \
-                   self.arnoBeta   *self.rootZoneWaterStorageMin - \
-                  (self.arnoBeta+1)*self.rootZoneWaterStorageRange*self.WFRACB       
+        actualW = (self.arnoBeta+1.0)*self.parameters.rootZoneWaterStorageCap - \
+                   self.arnoBeta*self.rootZoneWaterStorageMin - \
+                  (self.arnoBeta+1.0)*self.rootZoneWaterStorageRange*self.WFRACB       
                                                                         # WACT_L = (BCF[TYPE]+1)*WMAX[TYPE]- BCF[TYPE]*WMIN[TYPE]- (BCF[TYPE]+1)*WRANGE[TYPE]*WFRACB;
 
         
         directRunoffReduction = pcr.scalar(0.0)                         # as in the "Original" work of van Beek et al. (2011)   
         if directRunoffReductionMethod == "Default":
             if self.numberOfLayers == 2: directRunoffReduction = pcr.min(self.kUnsatLow,\
-                                                                 pcr.sqrt(self.parameters.kUnsatAtFieldCapLow*\
-                                                                                self.kUnsatLow))
+                                                                 pcr.sqrt(self.kUnsatLow*self.parameters.kUnsatAtFieldCapLow))
             if self.numberOfLayers == 3: directRunoffReduction = pcr.min(self.kUnsatLow030150,\
-                                                                 pcr.sqrt(self.parameters.kUnsatAtFieldCapLow030150*\
-                                                                                self.kUnsatLow030150))           # Rens: # In order to maintain full saturation and     
+                                                                 pcr.sqrt(self.kUnsatLow030150*self.parameters.kUnsatAtFieldCapLow030150))
+                                                                                                                         # Rens: # In order to maintain full saturation and     
                                                                                                                          # continuous groundwater recharge/percolation, 
                                                                                                                          # the amount of directRunoff may be reduced.  
                                                                                                                          # In this case, this reduction is estimated 
@@ -2045,11 +2044,9 @@ class LandCover(object):
         
         if directRunoffReductionMethod == "Modified":
             if self.numberOfLayers == 2: directRunoffReduction = pcr.min(self.kUnsatLow,\
-                                                                 pcr.sqrt(self.parameters.kUnsatAtFieldCapLow*\
-                                                                                self.kUnsatLow))
+                                                                 pcr.sqrt(self.kUnsatLow*self.parameters.kUnsatAtFieldCapLow))
             if self.numberOfLayers == 3: directRunoffReduction = pcr.min(self.kUnsatLow030150,\
-                                                                 pcr.sqrt(self.parameters.kUnsatAtFieldCapLow030150*\
-                                                                                self.kUnsatLow030150))                   
+                                                                 pcr.sqrt(self.kUnsatLow030150*self.parameters.kUnsatAtFieldCapLow030150))
             # the reduction of directRunoff (preferential flow groundwater) 
             # is only introduced if the soilWaterStorage near its saturation
             # - this is in order to maintain the saturation
@@ -2276,9 +2273,9 @@ class LandCover(object):
                                                                             #   P1_L[TYPE] = if(THEFF1 > THEFF1_FC[TYPE],min(max(0,THEFF1-THEFF1_FC[TYPE])*SC1[TYPE],
                                                                             #                P1_L[TYPE]),P1_L[TYPE])+max(0,P0_L[TYPE]-(SC1[TYPE]-S1_L[TYPE]));
             # - percolation from storLow to storGroundwater
-            self.percLow = pcr.min(self.kUnsatLow,pcr.sqrt(\
-                             self.parameters.kUnsatAtFieldCapLow*\
-                                             self.kUnsatLow))               # original Rens's line:
+            self.percLow = pcr.min(self.kUnsatLow, pcr.sqrt(\
+                             self.kUnsatLow*self.parameters.kUnsatAtFieldCapLow))
+                                                                            # original Rens's line:
                                                                             #    P2_L[TYPE] = min(KTHEFF2,sqrt(KTHEFF2*KTHEFF2_FC[TYPE]))*Duration*timeslice()
             
             # - capillary rise to storUpp from storLow
