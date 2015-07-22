@@ -432,8 +432,6 @@ CRFRAC= if(DZS3<DZREL0005,0.05-(DZREL0005-DZS3)*0.04/max(1e-3,DZREL0005-DZREL000
 CRFRAC= if(DZS3<DZREL0001,0.01-(DZREL0001-DZS3)*0.01/max(1e-3,DZREL0001),CRFRAC);
 CRFRAC= if(FRACWAT<1,max(0,CRFRAC-FRACWAT)/(1-FRACWAT),0);
 
-CRFRAC = rounddown(CRFRAC * 100)/100;
-
 CRFRAC=max(0.0, CRFRAC);
 CRFRAC=min(1.0, CRFRAC);
 
@@ -684,6 +682,8 @@ CRFRAC=min(1.0, CRFRAC);
   #CR2_L[TYPE] = min(VEGFRAC[TYPE]*S3,CR2_L[TYPE]);
    CR2_L[TYPE] = min(S3,CR2_L[TYPE]);                                    # Edwin modified this line (as we don't have to reduce CR2_L with VEGFRAC)
 
+   CR2_L[TYPE] = 0.0;
+   
    CR1_L[TYPE] = min(max(0,S2_L[TYPE]+P1_L[TYPE]-(T_a2[TYPE]+P2_L[TYPE]+Q2_L[TYPE])),CR1_L[TYPE]);
    S2_L[TYPE]  = max(0,S2_L[TYPE]+P1_L[TYPE]+CR2_L[TYPE]-
     (P2_L[TYPE]+Q2_L[TYPE]+CR1_L[TYPE]+T_a2[TYPE]));

@@ -2292,7 +2292,8 @@ class LandCover(object):
                                             self.parameters.storCapLow)     # original Rens's line:
                                                                             #  CR2_L[TYPE] = 0.5*(SATFRAC_L+CRFRAC)*min((1-THEFF2)*sqrt(KS2[TYPE]*KTHEFF2)*Duration*timeslice(),
                                                                             #                max(0,THEFF2_FC[TYPE]-THEFF2)*SC2[TYPE]);
-
+            self.capRiseLow = 0.0;
+            
             # - no capillary rise from non productive aquifer
             self.capRiseLow = pcr.ifthenelse(groundwater.productive_aquifer,\
                                              self.capRiseLow, 0.0)

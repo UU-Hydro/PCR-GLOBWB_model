@@ -883,8 +883,6 @@ class LandSurface(object):
 
         CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1.0-FRACWAT),0.0);
         
-        CRFRAC = pcr.rounddown(CRFRAC * 100.)/100.
-        #
         capRiseFrac = pcr.max(0.0,pcr.min(1.0,CRFRAC))
         
         #~ capRiseFrac = 0.0
