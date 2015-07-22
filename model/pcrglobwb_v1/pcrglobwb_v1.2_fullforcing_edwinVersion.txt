@@ -394,8 +394,9 @@ report (rep2) ta_input  = TA;                     # temperature (degree C)
 
 #-partitioning rain and snow and converting evapotransiration
 
-#SNOW= if(TA<TT,PRPTOT,0);                        # not needed
-#PRP= PRPTOT-SNOW;
+ SNOW= if(TA<TT,PRPTOT,0);                        
+
+#PRP= PRPTOT-SNOW;                                # not needed
 #SNOW= SFCF*SNOW;
 #PRPTOT= PRP+SNOW;
 
@@ -497,8 +498,11 @@ CRFRAC=min(1.0, CRFRAC);
    INTCMAX[TYPE]= if(TYPECOUNT== 1,timeinputsparse(SMAX_SHORTSTACK),timeinputsparse(SMAX_TALLSTACK));
    ICC[TYPE]= CFRAC[TYPE]*INTCMAX[TYPE];
    PRP= (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0);
+
    INTS_L[TYPE]= max(0,INTS_L[TYPE]+PRPTOT-PRP);
-   SNOW= min(PRP,SNOW*if(PRPTOT>0,PRP/PRPTOT,0)); #**
+
+   SNOW= min(PRP,SNOW*min(1.0,if(PRPTOT>0,PRP/PRPTOT,0))); #**
+
    PRP= max(0,PRP-SNOW); #**
    EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)));
 
