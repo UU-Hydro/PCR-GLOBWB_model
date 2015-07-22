@@ -104,7 +104,7 @@ class LandCover(object):
         
         # avoid small values (in order to avoid rounding error)
         self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
-        self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
+        #~ self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
         
         # limit 0.0 <= fracVegCover <= 1.0
         self.fracVegCover = pcr.max(0.0,self.fracVegCover)
