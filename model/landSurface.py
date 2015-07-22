@@ -871,7 +871,7 @@ class LandSurface(object):
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
         # zero fracwat assumption used for debugging against version 1.0
-        if routing.zeroFracWatAllAndAlways: FRACWAT = pcr.scalar(0.0); 
+        FRACWAT = pcr.scalar(0.0)
 
 
         CRFRAC = pcr.min(                                                                  1.0,1.0 -(self.soil_topo_parameters['default'].dzRel0100-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0100-self.soil_topo_parameters['default'].dzRel0090)       );
