@@ -141,8 +141,6 @@ binding
  SPECYIELD3     = maps\specificyield.map;	# specific yield for aquifer
  DZS3INFLUENCED = scalar(5.0);				    # additional zone influenced by groundwater
 
-#SAMPAI DI SINI
-
 #Initial storages for local variables, cell averages reported by default
  SC_INI[COVERTYPE]   = index(COVERTABLE);                               # initial snow cover (m)
  SCF_INI[COVERTYPE]  = index(COVERTABLE);                               # initial liquid water stored in snow cover  (m)
@@ -294,7 +292,9 @@ initial
    #-total storages
    SC= SC+VEGFRAC[TYPE]*SC_L[TYPE];
    SCF= SCF+VEGFRAC[TYPE]*SCF_L[TYPE];
-   INTS= INTS+VEGFRAC[TYPE]*INTS_L[TYPE];
+
+report (rep2) INTS= INTS+VEGFRAC[TYPE]*INTS_L[TYPE];
+
    S1= S1+VEGFRAC[TYPE]*S1_L[TYPE];
    S2= S2+VEGFRAC[TYPE]*S2_L[TYPE];
 

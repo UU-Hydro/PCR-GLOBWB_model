@@ -107,6 +107,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "ints"
 
 # snowCoverSWE 
 pcrglobwb_variable_name = 'snowCoverSWE'
