@@ -894,11 +894,17 @@ class LandCover(object):
         self.potInterceptionFlux = self.potTranspiration                 # Rens only uses potTranspiration
         
         # evaporation from intercepted water (based on potInterceptionFlux)
+        #~ self.interceptEvap = pcr.min(self.interceptStor, \
+                                     #~ self.potInterceptionFlux * \
+             #~ (vos.getValDivZero(self.interceptStor, self.interceptCap, \
+              #~ vos.smallNumber, 0.) ** (2.00/3.00)))                      
+        
         self.interceptEvap = pcr.min(self.interceptStor, \
                                      self.potInterceptionFlux * \
-             (vos.getValDivZero(self.interceptStor, self.interceptCap, \
-              vos.smallNumber, 0.) ** (2.00/3.00)))                      
+             pcr.ifthenelse(self.interceptCap > 0.0, (self.interceptStor/self.interceptCap), 0.0) ** (2.0/3.0))                      
+        
                                                                          # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
+        
         self.interceptEvap = pcr.min(self.interceptEvap, \
                                      self.potInterceptionFlux)
                                      

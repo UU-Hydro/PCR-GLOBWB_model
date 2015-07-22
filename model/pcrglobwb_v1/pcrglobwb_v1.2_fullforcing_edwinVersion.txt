@@ -323,13 +323,19 @@ initial
    # storage in top soil limiting bare soil evapotranspiration
    WSMAX[TYPE]= SC1[TYPE];
    WMAX[TYPE]= SC1[TYPE] + SC2[TYPE];
-   #minimum storage capacity set to fraction of mean total
+   
+   # make sure that MINFRAC < MAXFRAC
+   MINFRAC[TYPE] = min(MINFRAC[TYPE], MAXFRAC[TYPE]);
+   
+   # minimum storage capacity set to fraction of mean total
    WMIN[TYPE]= MINFRAC[TYPE]*WMAX[TYPE];
    WSMIN[TYPE]= MINFRAC[TYPE]*WSMAX[TYPE];
-   #range in storage capacity
+   
+   # range in storage capacity
    WRANGE[TYPE]= WMAX[TYPE]-WMIN[TYPE];
    WSRANGE[TYPE]= WSMAX[TYPE]-WSMIN[TYPE];
-   #shape coefficient for distribution of maximum storage capacity, maximum set to fraction of total
+   
+   # shape coefficient for distribution of maximum storage capacity, maximum set to fraction of total
    BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01);
 
    
