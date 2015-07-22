@@ -379,6 +379,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'non_fossil_groundwater_storage'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "sGw"
 
 # storGroundwaterFossil                 
 pcrglobwb_variable_name = 'storGroundwaterFossil'
