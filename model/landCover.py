@@ -1974,7 +1974,7 @@ class LandCover(object):
                             iniWaterStorage = self.soilWaterStorage, \
                             inputNetLqWaterToSoil =  self.topWaterLayer, \
                             directRunoffReductionMethod = self.improvedArnoSchemeMethod)
-        #~ self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
+        self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
         
         # Yet, we minimize directRunoff in the irrigation areas:
         if self.name.startswith('irr'): self.directRunoff = 0.
