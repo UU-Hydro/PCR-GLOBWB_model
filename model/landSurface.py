@@ -881,11 +881,11 @@ class LandSurface(object):
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0005,0.05-(self.soil_topo_parameters['default'].dzRel0005-dzGroundwater)*0.04/pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0005-self.soil_topo_parameters['default'].dzRel0001),CRFRAC);
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0001,0.01-(self.soil_topo_parameters['default'].dzRel0001-dzGroundwater)*0.01/pcr.max(1e-3,self.soil_topo_parameters['default'].dzRel0001                                               ),CRFRAC);
 
-        CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1-FRACWAT),0.0);
+        CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1.0-FRACWAT),0.0);
         #
         capRiseFrac = pcr.max(0.0,pcr.min(1.0,CRFRAC))
         
-        capRiseFrac = 0.0
+        #~ capRiseFrac = 0.0
         
         return capRiseFrac
 
