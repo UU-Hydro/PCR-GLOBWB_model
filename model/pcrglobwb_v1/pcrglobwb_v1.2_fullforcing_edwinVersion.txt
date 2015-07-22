@@ -664,7 +664,7 @@ CRFRAC=min(1.0, CRFRAC);
    CR2_L[TYPE]= 0.5*(SATFRAC_L+CRFRAC)*min((1-THEFF2)*sqrt(KS2[TYPE]*KTHEFF2)*Duration*timeslice(),
      max(0,THEFF2_FC[TYPE]-THEFF2)*SC2[TYPE]);
    
-   CR2_L[TYPE] = 0.0;
+  #CR2_L[TYPE] = 0.0;
    
    RQ2=  P2_IMP[TYPE]*(P1_L[TYPE]+CR2_L[TYPE]-(P2_L[TYPE]+CR1_L[TYPE]));
    Q2_L[TYPE]= max(TCL[TYPE]*RQ2+(1-TCL[TYPE])*Q2_L[TYPE],0);   
