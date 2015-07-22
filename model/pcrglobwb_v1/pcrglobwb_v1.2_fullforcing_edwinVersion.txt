@@ -734,6 +734,7 @@ CRFRAC=min(1.0, CRFRAC);
 #Overall states upper stores
 #---------------------------
  report (rep2) INTS = INTS;
+ report (rep2) P0   = P0;
  SC=SC;
  SCF=SCF;
  SATFRAC= SATFRAC;
