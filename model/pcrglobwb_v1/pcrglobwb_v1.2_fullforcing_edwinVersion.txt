@@ -324,11 +324,8 @@ initial
    WSMAX[TYPE]= SC1[TYPE];
    WMAX[TYPE]= SC1[TYPE] + SC2[TYPE];
    
-   # make sure that MINFRAC < MAXFRAC
-   MINFRAC[TYPE] = min(MINFRAC[TYPE], MAXFRAC[TYPE]);
-   
    # minimum storage capacity set to fraction of mean total
-   WMIN[TYPE]= MINFRAC[TYPE]*WMAX[TYPE];
+   WMIN[TYPE] = min(MINFRAC[TYPE], MAXFRAC[TYPE])*WMAX[TYPE];
    WSMIN[TYPE]= MINFRAC[TYPE]*WSMAX[TYPE];
    
    # range in storage capacity
