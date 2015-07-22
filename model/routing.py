@@ -273,10 +273,6 @@ class Routing(object):
             
                 logger.info(msg)
 
-        # zero fracwat assumption (used for debugging to the version 1)
-        self.zeroFracWatAllAndAlways = False
-        if iniItems.debug_to_version_one: self.zeroFracWatAllAndAlways = True
-        
         # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 
         self.initiate_old_style_routing_reporting(iniItems)
 
