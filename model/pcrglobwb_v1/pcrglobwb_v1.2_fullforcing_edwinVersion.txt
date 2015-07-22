@@ -393,10 +393,11 @@ report (rep2) prp_input = PRPTOT;                 # precipitation (m/day)
 report (rep2) ta_input  = TA;                     # temperature (degree C)
 
 #-partitioning rain and snow and converting evapotransiration
- SNOW= if(TA<TT,PRPTOT,0);
- PRP= PRPTOT-SNOW;
- SNOW= SFCF*SNOW;
- PRPTOT= PRP+SNOW;
+
+#SNOW= if(TA<TT,PRPTOT,0);
+#PRP= PRPTOT-SNOW;
+#SNOW= SFCF*SNOW;
+#PRPTOT= PRP+SNOW;
 
 #-evaporation: scaled on the basis of temperature
 
