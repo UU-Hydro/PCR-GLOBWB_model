@@ -851,7 +851,9 @@ class LandSurface(object):
         # add some tolerance/influence level (unit: m)
         dzGroundwater += self.soil_topo_parameters['default'].maxGWCapRise;
         
+
         # approximate cell fraction under influence of capillary rise
+
         FRACWAT = pcr.scalar(0.0);
         if currTimeStep.timeStepPCR > 1: 
             FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 
@@ -868,6 +870,10 @@ class LandSurface(object):
                                 self.cloneMap,self.tmpDir,self.inputDir)
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
+        # zero fracwat assumption used for debugging against version 1.0
+        if configuration.zeroFracWatAllAndAlways: FRACWAT = pcr.scalar(0.0); 
+
+
         CRFRAC = pcr.min(                                                                  1.0,1.0 -(self.soil_topo_parameters['default'].dzRel0100-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0100-self.soil_topo_parameters['default'].dzRel0090)       );
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0090,0.9 -(self.soil_topo_parameters['default'].dzRel0090-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0090-self.soil_topo_parameters['default'].dzRel0080),CRFRAC);
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0080,0.8 -(self.soil_topo_parameters['default'].dzRel0080-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0080-self.soil_topo_parameters['default'].dzRel0070),CRFRAC);

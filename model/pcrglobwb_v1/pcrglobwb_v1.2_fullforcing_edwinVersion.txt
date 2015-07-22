@@ -636,10 +636,12 @@ CRFRAC=min(1.0, CRFRAC);
   #ES_a		(m):	actual bare soil evaporation
   #T_a(i)	(m):	actual transpiration per layer
   #FRACTA	(-):	fraction of actual over potential transpiration
+
    WF1= if((S1_L[TYPE]+S2_L[TYPE])>0,RFW1[TYPE]*S1_L[TYPE]/
     max(1e-9,RFW1[TYPE]*S1_L[TYPE]+RFW2[TYPE]*S2_L[TYPE]),RFW1[TYPE]);
    WF2= if((S1_L[TYPE]+S2_L[TYPE])>0,RFW2[TYPE]*S2_L[TYPE]/
     max(1e-9,RFW1[TYPE]*S1_L[TYPE]+RFW2[TYPE]*S2_L[TYPE]),RFW2[TYPE]);
+
    FRACTA[TYPE]= (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-(1+BCF[TYPE])/BCF[TYPE]*WFRACB))/
      (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-WFRACB));
    FRACTA[TYPE]= (1-SATFRAC_L)/(1+(max(0.01,FRACTA[TYPE])/THEFF_50[TYPE])**(-3*BCH_50[TYPE]));
@@ -652,6 +654,8 @@ CRFRAC=min(1.0, CRFRAC);
   #-actual bare soil evaporation
    ES_a[TYPE]= SATFRAC_L*min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+
      (1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice());
+   
+   ES_a[TYPE]=min(ES_a[TYPE], ES_p[TYPE]);  
 
   #-Percolation, subsurface storm flow and capillary rise
   #P(i)		(m):	percolation from layer(i) to layer(i+1)
