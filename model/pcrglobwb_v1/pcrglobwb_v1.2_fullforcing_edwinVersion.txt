@@ -293,7 +293,7 @@ initial
    SC= SC+VEGFRAC[TYPE]*SC_L[TYPE];
    SCF= SCF+VEGFRAC[TYPE]*SCF_L[TYPE];
 
-report (rep2) INTS= INTS+VEGFRAC[TYPE]*INTS_L[TYPE];
+   INTS= INTS+VEGFRAC[TYPE]*INTS_L[TYPE];
 
    S1= S1+VEGFRAC[TYPE]*S1_L[TYPE];
    S2= S2+VEGFRAC[TYPE]*S2_L[TYPE];
@@ -727,7 +727,7 @@ CRFRAC=min(1.0, CRFRAC);
 #---------------------------
 #Overall states upper stores
 #---------------------------
- INTS= INTS;
+ report (rep2) INTS = INTS;
  SC=SC;
  SCF=SCF;
  SATFRAC= SATFRAC;
@@ -752,7 +752,7 @@ CRFRAC=min(1.0, CRFRAC);
  report (rep2) Q1 = Q1;
  P2= P2;
  Q1S= Q1S;
- Q2= Q2;
+ report (rep2) Q2= Q2;
  CR1= CR1;
  CR2= CR2;
 
