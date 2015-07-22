@@ -310,8 +310,6 @@ class Meteo(object):
                                   cloneMapFileName=self.cloneMap,\
                                   LatitudeLongitude = True)
 
-        self.temperature += 100. 
-        
         # Downscaling precipitation and temperature
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
