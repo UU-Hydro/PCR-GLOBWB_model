@@ -884,6 +884,9 @@ class LandSurface(object):
         CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1-FRACWAT),0.0);
         #
         capRiseFrac = pcr.max(0.0,pcr.min(1.0,CRFRAC))
+        
+        CRFRAC = 0.0
+        
         return capRiseFrac
 
     def partitioningGroundSurfaceAbstraction(self,groundwater,routing):
