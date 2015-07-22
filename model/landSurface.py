@@ -885,7 +885,7 @@ class LandSurface(object):
         #
         capRiseFrac = pcr.max(0.0,pcr.min(1.0,CRFRAC))
         
-        CRFRAC = 0.0
+        capRiseFrac = 0.0
         
         return capRiseFrac
 
