@@ -179,6 +179,8 @@ binding
 
  CRFRAC  = oldcalc_results\crfrac;			    # fraction of soil surface influenced by capillary rise
 
+ P0     = oldcalc_results\infl;                 # infiltration
+
  P1     = oldcalc_results\p1x;					# percolation from first layer
  P2     = oldcalc_results\p2x;                  # percolation from second layer
  CR1    = oldcalc_results\cr1x;					# capillary rise from first layer
