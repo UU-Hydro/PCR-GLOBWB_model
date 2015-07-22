@@ -394,7 +394,7 @@ report (rep2) ta_input  = TA;                     # temperature (degree C)
 
 #-partitioning rain and snow and converting evapotransiration
 
-#SNOW= if(TA<TT,PRPTOT,0);
+#SNOW= if(TA<TT,PRPTOT,0);                        # not needed
 #PRP= PRPTOT-SNOW;
 #SNOW= SFCF*SNOW;
 #PRPTOT= PRP+SNOW;
