@@ -435,7 +435,7 @@ CRFRAC= if(FRACWAT<1,max(0,CRFRAC-FRACWAT)/(1-FRACWAT),0);
 CRFRAC=max(0.0, CRFRAC);
 CRFRAC=min(1.0, CRFRAC);
 
-CRFRAC=0.0
+CRFRAC=0.0;
 
 #Water balance of first and second store,
 #split in two horizontal compartments for (1) short and (2) tall vegetation (COVERTYPE)
