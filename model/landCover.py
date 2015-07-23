@@ -967,10 +967,6 @@ class LandCover(object):
         self.snowCoverSWE  = pcr.max(0.0, self.snowCoverSWE  + deltaSnowCover + self.snowfall)                              
                                                                         # SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW)
 
-        # assume that small part of snow cover will always melt
-        deltaSnowCover += pcr.rounddown(self.snowCoverSWE*1000.)/1000. - self.snowCoverSWE 
-        self.snowCoverSWE = pcr.rounddown(self.snowCoverSWE*1000.)/1000.
-                
         # for reporting snow melt in m/day
         self.snowMelt = pcr.ifthenelse(deltaSnowCover < 0.0, deltaSnowCover * pcr.scalar(-1.0), pcr.scalar(0.0))
 
