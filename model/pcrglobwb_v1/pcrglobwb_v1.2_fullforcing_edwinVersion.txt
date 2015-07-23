@@ -538,7 +538,7 @@ CRFRAC=min(1.0, CRFRAC);
    report (rep1) SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW);
    
   # assume very little snow will always melt
-   DSC[TYPE] = DSC[TYPE] + SC_L[TYPE] - rounddown(SC_L[TYPE]*1000)/1000;
+   DSC[TYPE] = DSC[TYPE] + rounddown(SC_L[TYPE]*1000)/1000 - SC_L[TYPE];
    SC_L[TYPE] = rounddown(SC_L[TYPE]*1000)/1000;
         
    SCF_L[TYPE]= SCF_L[TYPE]-DSC[TYPE]+PRP;
