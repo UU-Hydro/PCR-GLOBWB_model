@@ -980,7 +980,7 @@ class LandCover(object):
         
         # update snowFreeWater (after netPfromSnowFreeWater) 
         self.snowFreeWater    = pcr.max(0., self.snowFreeWater - \
-                                            self.netLqWaterToSoil)      # SCF_L[TYPE]= max(0,SCF_L[TYPE]-Pn)
+                                            self.netLqWaterToSoil)      # SCF_L[TYPE] = max(0,SCF_L[TYPE]-Pn)
 
         # evaporation from snowFreeWater (based on potBareSoilEvap)
         self.actSnowFreeWaterEvap = pcr.min(self.snowFreeWater, \
