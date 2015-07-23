@@ -342,7 +342,7 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
         
-        self.temperature    = 1000. 
+        self.temperature    = pcr.scalar(1000.) 
         
         
         if self.report == True:
