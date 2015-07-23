@@ -962,8 +962,6 @@ class LandCover(object):
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor)*1.0*1.0)                      # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],
                                                                         #                      -min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()))
-        deltaSnowCover = pcr.roundoff(deltaSnowCover * 1000.)/1000.
-        
         # for reporting snow melt in m/day
         self.snowMelt = pcr.ifthenelse(deltaSnowCover < 0.0, deltaSnowCover * pcr.scalar(-1.0), pcr.scalar(0.0))
         
