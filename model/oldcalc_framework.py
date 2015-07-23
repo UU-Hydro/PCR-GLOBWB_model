@@ -30,7 +30,7 @@ class PCRGlobWBVersionOne(DynamicModel):
         self.modelTime = modelTime
         
         # cloneMapFileName
-        self.cloneMapFileName = self.configuration.globalOptions['cloneMap']
+        self.cloneMapFileName = self.configuration.cloneMap
         pcr.setclone(self.cloneMapFileName)
         
         # output variables that will be compared (at daily resolution)
