@@ -880,7 +880,7 @@ class LandCover(object):
                                     self.throughfall)                    # original Rens line: INTS_L[TYPE] = max(0,INTS_L[TYPE]+PRPTOT-PRP)
          
         # partitioning throughfall into snowfall and liquid Precipitation:
-        estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
+        estimSnowfall = pcr.ifthenelse(meteo.temperature <= self.freezingT, \
                                        meteo.precipitation, 0.0)         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
                                                                          # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
         #
