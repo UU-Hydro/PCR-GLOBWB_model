@@ -43,16 +43,16 @@ class PCR2netCDF():
             
     def set_general_netcdf_attributes(self,iniItems,specificAttributeDictionary=None):
 
-        # netCDF attributes (based on :
+        # netCDF attributes (based on the configuration file or specificAttributeDictionary):
         self.attributeDictionary = {}
-        self.attributeDictionary['institution'] = iniItems.globalOptions['institution']
-        self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
-        self.attributeDictionary['description'] = iniItems.globalOptions['description']
-        
-        # using a certain set of specificAttributeDictionary
-        if specificAttributeDictionary != None:
-            for k, v in specificAttributeDictionary.items(): setattr(self,k,v)
-
+        if specificAttributeDictionary == None:
+            self.attributeDictionary['institution'] = iniItems.globalOptions['institution']
+            self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
+            self.attributeDictionary['description'] = iniItems.globalOptions['description']
+        else:
+            self.attributeDictionary['institution'] = specificAttributeDictionary['institution']
+            self.attributeDictionary['title'      ] = specificAttributeDictionary['title'      ]
+            self.attributeDictionary['description'] = specificAttributeDictionary['description']
 
     def createNetCDF(self, ncFileName, varName, varUnits, longName = None):
 
