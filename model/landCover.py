@@ -962,12 +962,17 @@ class LandCover(object):
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor)*1.0*1.0)                      # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],
                                                                         #                      -min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()))
-        # for reporting snow melt in m/day
-        self.snowMelt = pcr.ifthenelse(deltaSnowCover < 0.0, deltaSnowCover * pcr.scalar(-1.0), pcr.scalar(0.0))
         
         # update snowCoverSWE
         self.snowCoverSWE  = pcr.max(0.0, self.snowCoverSWE  + deltaSnowCover + self.snowfall)                              
                                                                         # SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW)
+
+        # assume that small part of snow cover will always melt
+        deltaSnowCover += self.snowCoverSWE - pcr.rounddown(self.snowCoverSWE*1000.)/1000.
+        self.snowCoverSWE = pcr.rounddown(self.snowCoverSWE*1000.)/1000.
+                
+        # for reporting snow melt in m/day
+        self.snowMelt = pcr.ifthenelse(deltaSnowCover < 0.0, deltaSnowCover * pcr.scalar(-1.0), pcr.scalar(0.0))
 
         # update snowFreeWater = liquid water stored above snowCoverSWE
         self.snowFreeWater = self.snowFreeWater - deltaSnowCover + \
