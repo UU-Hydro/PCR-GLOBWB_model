@@ -342,8 +342,8 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
         
+        # rounding temperature values to minimize numerical errors (note only to minimize)
         self.temperature    = pcr.roundoff(self.temperature*1.)/1. 
-        
         
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
