@@ -76,6 +76,7 @@ class LandCover(object):
             input = self.iniItemsLC[str(var)]
             vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
+            vars(self)[var] = pcr.scalar(vars(self)[var])                                
 
         # get landCovParams that are fixed for the entire simulation:
         landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
@@ -957,8 +958,7 @@ class LandCover(object):
         deltaSnowCover = \
             pcr.ifthenelse(meteo.temperature <= self.freezingT, \
             self.refreezingCoeff*self.snowFreeWater, \
-            pcr.scalar(-1.0)* \
-            pcr.min(self.snowCoverSWE, \
+           -pcr.min(self.snowCoverSWE, \
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor))                              # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice())) 
 
