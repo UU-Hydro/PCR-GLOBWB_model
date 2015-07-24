@@ -516,6 +516,8 @@ CRFRAC=min(1.0, CRFRAC);
    INTS_L[TYPE]= max(0,INTS_L[TYPE]+PRPTOT-PRP);
 
    SNOW= min(PRP,SNOW*min(1.0,if(PRPTOT>0,PRP/PRPTOT,0))); #**
+   
+   SNOW= rounddown(SNOW*1000)/1000;
 
    PRP= max(0,PRP-SNOW); #**
    EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)));
