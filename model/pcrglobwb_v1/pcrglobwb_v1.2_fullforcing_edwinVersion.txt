@@ -536,7 +536,7 @@ CRFRAC=min(1.0, CRFRAC);
    
    DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()));
 
-   SC_L[TYPE] = max(0.0, SC_L[TYPE] + DSC[TYPE] + SNOW);
+   SC_L[TYPE] = max(0.0, SC_L[TYPE] + SNOW + DSC[TYPE]);
 
   ## small part of snow will always melt (to minimize numerical errors)
   #DSC[TYPE] = DSC[TYPE] - (SC_L[TYPE] - rounddown(SC_L[TYPE]*1000)/1000);

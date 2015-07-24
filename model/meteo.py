@@ -348,6 +348,9 @@ class Meteo(object):
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
+        # ignore snow by setting temperature to 25 deg
+        self.temperature   = pcr.scalar(25.0);
+        
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
