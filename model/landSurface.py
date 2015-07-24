@@ -292,7 +292,7 @@ class LandSurface(object):
         if "noLandCoverFractionCorrection" in iniItems.landSurfaceOptions.keys():
             if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True": self.noLandCoverFractionCorrection = True
         # - rescaling land cover fractions
-        if self.noLandCoverFractionCorrection == False
+        if self.noLandCoverFractionCorrection == False:
             self.scaleNaturalLandCoverFractions()
             if self.includeIrrigation: self.scaleModifiedLandCoverFractions()
         
