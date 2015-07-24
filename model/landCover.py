@@ -965,7 +965,7 @@ class LandCover(object):
         deltaSnowCover = \
             pcr.ifthenelse(meteo.temperature > self.freezingT, -pcr.min(self.snowCoverSWE, \
                                                                 pcr.max(meteo.temperature - self.freezingT, 0.0) * \
-                                                                self.degreeDayFactor)*1.0*1.0), \
+                                                                self.degreeDayFactor)*1.0*1.0, \
                                                                 self.refreezingCoeff*self.snowFreeWater)
                     
                                                                         # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],
