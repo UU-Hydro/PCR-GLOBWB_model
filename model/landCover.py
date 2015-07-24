@@ -39,6 +39,10 @@ class LandCover(object):
         # irrigation efficiency map
         self.irrigationEfficiency = irrigationEfficiency
         
+        # includeIrrigation
+        self.includeIrrigation = False
+        if iniItems.landSurfaceOptions['includeIrrigation'] == "True": self.includeIrrigation = True
+        
         # interception definition
         # - The default option is to include not only canopy areas, 
         # - but also non canopy areas as part of interception capacity 
@@ -76,7 +80,7 @@ class LandCover(object):
             input = self.iniItemsLC[str(var)]
             vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
-            vars(self)[var] = pcr.scalar(vars(self)[var])                                
+            vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))                                
 
         # get landCovParams that are fixed for the entire simulation:
         landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
@@ -100,12 +104,13 @@ class LandCover(object):
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-        # make sure that minminSoilDepthFrac <= maxSoilDepthFrac:
-        self.minSoilDepthFrac = pcr.min(self.minSoilDepthFrac, self.maxSoilDepthFrac) 
-        
+        # TODO (URGENT): Read 'minSoilDepthFrac','maxSoilDepthFrac','rootFraction1','rootFraction2',
+        #                     'maxRootDepth','fracVegCover' from netcdf files (they change annually).
+
+
         # avoid small values (in order to avoid rounding error)
         self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
-        #~ self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
+        self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
         
         # limit 0.0 <= fracVegCover <= 1.0
         self.fracVegCover = pcr.max(0.0,self.fracVegCover)
@@ -157,6 +162,8 @@ class LandCover(object):
         # Improved Arno's scheme parameters:
         if 'arnoBeta' not in self.iniItemsLC.keys(): self.iniItemsLC['arnoBeta'] = "None" 
         if self.iniItemsLC['arnoBeta'] == "None":
+            # make sure that minminSoilDepthFrac <= maxSoilDepthFrac:
+            self.minSoilDepthFrac = pcr.min(self.minSoilDepthFrac, self.maxSoilDepthFrac) 
             self.arnoBeta = pcr.max(0.001,\
                 (self.maxSoilDepthFrac-1.)/(1.-self.minSoilDepthFrac)+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)

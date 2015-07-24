@@ -190,6 +190,10 @@ class LandSurface(object):
             logger.info("Irrigation is included/considered in this run.")
         else:     
             logger.info("Irrigation is NOT included/considered in this run.")
+            
+        # if user define their land cover types: 
+        if 'landCoverTypes' in iniItems.landSurfaceOptions.keys(): 
+            self.coverTypes = iniItems.landSurfaceOptions['landCoverTypes'].split(",")
 
         # limitAbstraction
         self.limitAbstraction = False
@@ -283,8 +287,14 @@ class LandSurface(object):
                                                         self.usingAllocSegments)
         
         # rescale landCover Fractions
-        self.scaleNaturalLandCoverFractions()
-        if self.includeIrrigation: self.scaleModifiedLandCoverFractions()
+        # - by default, the land cover fraction will always be corrected (to ensure the total of all fractions = 1.0)
+        self.noLandCoverFractionCorrection = False
+        if "noLandCoverFractionCorrection" in iniItems.landSurfaceOptions.keys():
+            if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True": self.noLandCoverFractionCorrection = True
+        # - rescaling land cover fractions
+        if self.noLandCoverFractionCorrection == False
+            self.scaleNaturalLandCoverFractions()
+            if self.includeIrrigation: self.scaleModifiedLandCoverFractions()
         
         # If using historical/dynamic irrigation file (changing every year), we have to get fraction over irrigation area 
         #                                                                   (in order to calculate irrigation area for each irrigation type)
@@ -1077,6 +1087,8 @@ class LandSurface(object):
             #   
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
+
+        # TODO (URGENT): Read land cover fractions from netcdf files. And make sure the following state tranfers work.  
 
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)

@@ -188,7 +188,9 @@ class Configuration(object):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
         
+        # working/starting directory where all s
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
+        self.starting_directory = path_of_this_module
                            
         for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
             shutil.copy(filename, self.scriptDir)
@@ -217,7 +219,6 @@ class Configuration(object):
         os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
-        self.starting_directory = path_of_this_module
         os.chdir(self.mapsDir)
 
 
@@ -330,7 +331,7 @@ class Configuration(object):
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
 
         if self.routingOptions['subDischargeIni'] == "None":
-            msg  = 'The initial condition "subDischargeIni" is not defined. The "avgDischargeShortIni" is used in this run. '
+            msg  = 'The initial condition "subDischargeIni" is given as "None". The "avgDischargeShortIni" is used in this run. '
             msg += 'Note that the "subDischargeIni" is only relevant if kinematic wave approaches are used.'
             logger.warning(msg)
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
@@ -475,7 +476,9 @@ class Configuration(object):
             msg += "\n"
             msg += "\n"
             msg += "============================================================================\n"
+            msg += "============================================================================\n"
             msg += "A special Run for debugging to PCR-GLOBWB version 1\n"
+            msg += "============================================================================\n"
             msg += "============================================================================\n"
             msg += "\n"
             logger.info(msg)
