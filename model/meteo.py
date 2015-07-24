@@ -298,9 +298,9 @@ class Meteo(object):
                 precipitationCorrectionFactor)
         self.precipitation = pcr.cover( self.precipitation, 0.0)
         
-        # ignore very small values of precipitation (less than 0.0001 m/day or less than 0.1 kg.m-2.day-1 )
+        # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
         if self.usingDailyTimeStepForcingData:
-            self.precipitation = pcr.rounddown(self.precipitation*10000.)/10000.
+            self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         # make sure precipitation is always positive:
         self.precipitation = pcr.max(0.0, self.precipitation)

@@ -887,7 +887,6 @@ class LandCover(object):
               pcr.min(1.0, pcr.ifthenelse(meteo.precipitation > 0.0, self.throughfall/meteo.precipitation, 0.0) )
                                                                          # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
         self.snowfall = pcr.min(self.snowfall, self.throughfall)
-        self.snowfall = pcr.rounddown(self.snowfall * 1000.)/1000.
         #
         self.liquidPrecip = pcr.max(0.0,\
                                     self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
