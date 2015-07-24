@@ -540,7 +540,7 @@ CRFRAC=min(1.0, CRFRAC);
 
    # small part of snow will always melt (to minimize numerical errors)
    DSC[TYPE] = DSC[TYPE] - (SC_L[TYPE] - rounddown(SC_L[TYPE]*1000)/1000);
-   SC_L[TYPE] = rounddown(SC_L[TYPE]*1000)/1000
+   SC_L[TYPE] = rounddown(SC_L[TYPE]*1000)/1000;
    
    SCF_L[TYPE] = SCF_L[TYPE] - DSC[TYPE] + PRP;
 
