@@ -883,7 +883,6 @@ class LandCover(object):
         estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
                                        meteo.precipitation, 0.0)         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
                                                                          # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
-        #
         self.snowfall = estimSnowfall * \
               pcr.min(1.0, pcr.ifthenelse(meteo.precipitation > 0.0, self.throughfall/meteo.precipitation, 0.0) )
                                                                          # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
@@ -956,7 +955,7 @@ class LandCover(object):
 
         # changes in snow cover: - melt ; + gain in snow or refreezing
         deltaSnowCover = \
-            pcr.ifthenelse(meteo.temperature <= self.freezingT, \
+            pcr.ifthenelse(meteo.temperature < self.freezingT, \
             self.refreezingCoeff*self.snowFreeWater, \
            -pcr.min(self.snowCoverSWE, \
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
