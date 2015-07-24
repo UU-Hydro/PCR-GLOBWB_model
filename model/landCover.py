@@ -985,9 +985,12 @@ class LandCover(object):
                              self.liquidPrecip                          # SCF_L[TYPE] = SCF_L[TYPE]-DSC[TYPE]+PRP;
                                      
         # netLqWaterToSoil = net liquid transferred to soil
-        self.netLqWaterToSoil = pcr.max(0., self.snowFreeWater - \
-                 self.snowWaterHoldingCap * self.snowCoverSWE)          # Pn = max(0,SCF_L[TYPE]-CWH*SC_L[TYPE])
+        #~ self.netLqWaterToSoil = pcr.max(0., self.snowFreeWater - \
+                 #~ self.snowWaterHoldingCap * self.snowCoverSWE)          # Pn = max(0,SCF_L[TYPE]-CWH*SC_L[TYPE])
         
+        self.netLqWaterToSoil = pcr.max(0., self.snowFreeWater - \
+                 pcr.rounddown(self.snowWaterHoldingCap * self.snowCoverSWE *1000.) /1000.)
+
         # update snowFreeWater (after netLqWaterToSoil) 
         self.snowFreeWater    = pcr.max(0., self.snowFreeWater - \
                                             self.netLqWaterToSoil)      # SCF_L[TYPE] = max(0,SCF_L[TYPE]-Pn)
@@ -1007,15 +1010,15 @@ class LandCover(object):
         self.actualET += self.actSnowFreeWaterEvap                      # EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
 
         if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.snowfall,self.liquidPrecip],
+            vos.waterBalanceCheck([self.snowfall, self.liquidPrecip],
                                   [self.netLqWaterToSoil,\
                                    self.actSnowFreeWaterEvap],
                                    prevStates,\
-                                  [self.snowCoverSWE,self.snowFreeWater],\
+                                  [self.snowCoverSWE, self.snowFreeWater],\
                                   'snow module',\
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-4)
-            vos.waterBalanceCheck([self.snowfall,deltaSnowCover],\
+            vos.waterBalanceCheck([self.snowfall, deltaSnowCover],\
                                   [pcr.scalar(0.0)],\
                                   [prevSnowCoverSWE],\
                                   [self.snowCoverSWE],\
