@@ -761,8 +761,8 @@ CRFRAC=min(1.0, CRFRAC);
 #---------------------------
  report (rep2) INTS = INTS;
  report (rep2) P0   = P0;
- SC=SC;
- SCF=SCF;
+ report (rep2) SC   = SC;
+ report (rep2) SCF  = SCF;
  SATFRAC= SATFRAC;
 #report (rep2)  WACT = WACT;
                 WACT = WACT;
