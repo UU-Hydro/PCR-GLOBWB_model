@@ -36,6 +36,9 @@ class PCRGlobWBVersionOne(DynamicModel):
         # output variables that will be compared (at daily resolution)
         self.debug_variables = ['runoff',
                                 'actualET',
+                                'interceptStor',
+                                'snowCoverSWE',
+                                'snowFreeWater',                                
                                 'storUppTotal',
                                 'storLowTotal',
                                 'actBareSoilEvap',
@@ -46,7 +49,6 @@ class PCRGlobWBVersionOne(DynamicModel):
                                 'temperature',
                                 'referencePotET',
                                 'interflowTotal',
-                                'interceptStor',
                                 'storGroundwater',
                                 'infiltration']
         

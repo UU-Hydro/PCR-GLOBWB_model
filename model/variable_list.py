@@ -119,6 +119,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'snow_cover_in_water_equivalent_amo
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "snowcov"
 
 # snowFreeWater
 pcrglobwb_variable_name = 'snowFreeWater'
@@ -130,6 +131,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'liquid_water_within_snowpack'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "snowliq"
 
 # topWaterLayer
 pcrglobwb_variable_name = 'topWaterLayer'
