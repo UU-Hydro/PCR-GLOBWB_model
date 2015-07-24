@@ -951,7 +951,9 @@ class LandCover(object):
         #              self.refreezingCoeff
 
         if self.debugWaterBalance:
-            prevStates = [self.snowCoverSWE,self.snowFreeWater]
+            prevStates        = [self.snowCoverSWE,self.snowFreeWater]
+            prevSnowCover     = self.snowCoverSWE
+            prevSnowFreeWater = self.snowFreeWater
 
         # changes in snow cover: - melt ; + gain in snow or refreezing
         #~ deltaSnowCover = \
@@ -986,7 +988,7 @@ class LandCover(object):
         self.netLqWaterToSoil = pcr.max(0., self.snowFreeWater - \
                  self.snowWaterHoldingCap * self.snowCoverSWE)          # Pn = max(0,SCF_L[TYPE]-CWH*SC_L[TYPE])
         
-        # update snowFreeWater (after netPfromSnowFreeWater) 
+        # update snowFreeWater (after netLqWaterToSoil) 
         self.snowFreeWater    = pcr.max(0., self.snowFreeWater - \
                                             self.netLqWaterToSoil)      # SCF_L[TYPE] = max(0,SCF_L[TYPE]-Pn)
 
@@ -1013,6 +1015,20 @@ class LandCover(object):
                                   'snow module',\
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-4)
+            vos.waterBalanceCheck([self.snowfall,deltaSnowCover],\
+                                   pcr.scalar(0.0),\
+                                   prevSnowCoverSWE,\
+                                   self.snowCoverSWE,\
+                                  'snowCoverSWE',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-5)
+            vos.waterBalanceCheck( self.liquidPrecip,
+                                  [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
+                                   prevSnowFreeWater,\
+                                   self.snowFreeWater,\
+                                  'snowFreeWater',\
+                                   True,\
+                                   currTimeStep.fulldate,threshold=1e-5)
 
     def getSoilStates(self):
 
