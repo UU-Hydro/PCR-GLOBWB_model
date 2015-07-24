@@ -262,7 +262,7 @@ class LandCover(object):
 
     def estimate_paddy_infiltration_loss(self):
         
-        if self.name == 'irrPaddy':
+        if self.name == 'irrPaddy' and self.includeIrrigation:
 
             # Due to compaction infiltration/percolation loss rate can be much smaller than original soil saturated conductivity
             # - Wada et al. (2014) assume it will be 10 times smaller
@@ -718,6 +718,8 @@ class LandCover(object):
         self.inputCropKC = cropKC                                               # This line is needed for debugging. 
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
+        # TODO (URGENT): Read 'cropKC' that changes every year (not climatology).
+
         # limit cropKC
         self.cropKC = pcr.max(cropKC, minCropCoefficientForIrrigation)
         
@@ -782,6 +784,8 @@ class LandCover(object):
             interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
         self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
         
+        # TODO (URGENT): Read 'interceptCap' and 'coverFraction' that changes every year (not climatology).
+
         # canopy/cover fraction over the entire cell area (unit: m2)
         self.coverFraction = coverFraction
         
@@ -1198,7 +1202,7 @@ class LandCover(object):
 
         # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
-        if self.name == 'irrPaddy':
+        if self.name == 'irrPaddy' and self.includeIrrigation:
             self.irrGrossDemand = \
                   pcr.ifthenelse(self.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
@@ -1210,7 +1214,7 @@ class LandCover(object):
             #~ self.irrGrossDemand = \
                   #~ pcr.ifthenelse(self.cropKC < self.prevCropKC, 0., self.cropKC) 
         
-        if self.name == 'irrNonPaddy':
+        if self.name == 'irrNonPaddy' and self.includeIrrigation:
 
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -1285,32 +1289,37 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp000005)
 
-        # irrigation efficiency                                                               # TODO: Improve the concept of irrigation efficiency
-        self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
-        # demand, including its inefficiency
-        self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
         
-        # the following irrigation demand is not limited to available water
-        self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
+        # irrigation efficiency, minimum demand for start irrigating and maximum value to cap excessive demand 
+        if self.includeIrrigation:
 
-        # reduce irrGrossDemand by netLqWaterToSoil
-        self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
+            # irrigation efficiency                                                               # TODO: Improve the concept of irrigation efficiency
+            self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+            # demand, including its inefficiency
+            self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
+            
+            # the following irrigation demand is not limited to available water
+            self.irrGrossDemand = pcr.ifthen(self.landmask, self.irrGrossDemand)
+            
+            # reduce irrGrossDemand by netLqWaterToSoil
+            self.irrGrossDemand = pcr.max(0.0, self.irrGrossDemand - self.netLqWaterToSoil)
+            
+            # minimum demand for start irrigating
+            minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
+            if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
+            self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
+                                                 self.irrGrossDemand , 0.0)
+            
+            maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
+            if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
+            self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
+            
+            # ignore small irrigation demand (less than 1 mm)
+            self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+            
+            # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
+            self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
 
-        # minimum demand for start irrigating
-        minimum_demand = 0.005   # unit: m/day                                                # TODO: set the minimum demand in the ini/configuration file.
-        if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
-        self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand,\
-                                             self.irrGrossDemand , 0.0)
-
-        maximum_demand = 0.025  # unit: m/day                                                 # TODO: set the maximum demand in the ini/configuration file.  
-        if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)    # TODO: set the minimum demand in the ini/configuration file.
-        self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
-
-        # ignore small irrigation demand (less than 1 mm)
-        self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
-
-        # irrigation demand is only calculated for areas with fracVegCover > 0     # DO WE NEED THIS ? 
-        self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
 
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
@@ -2018,7 +2027,7 @@ class LandCover(object):
         self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
         
         # Yet, we minimize directRunoff in the irrigation areas:
-        if self.name.startswith('irr'): self.directRunoff = 0.
+        if self.name.startswith('irr') and self.includeIrrigation: self.directRunoff = 0.
 
         # update topWaterLayer (above soil) after directRunoff
         self.topWaterLayer = pcr.max(0.0, self.topWaterLayer - self.directRunoff)
@@ -2150,7 +2159,7 @@ class LandCover(object):
             self.infiltration = pcr.min(self.topWaterLayer,self.parameters.kSatUpp000005)       # P0_L = min(P0_L,KS1*Duration*timeslice());
 
         # for paddy, infiltration should consider percolation losses 
-        if self.name == 'irrPaddy':
+        if self.name == 'irrPaddy' and self.includeIrrigation:
             infiltration_loss = pcr.max(self.design_percolation_loss, 
                                 ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
             self.infiltration = pcr.min(infiltration_loss, self.infiltration)
@@ -2230,7 +2239,7 @@ class LandCover(object):
         relActTranspiration = pcr.min(1.0, relActTranspiration)
         
         # an idea by Edwin - 23 March 2015: no transpiration reduction in irrigated areas:
-        if self.name.startswith('irr'): relActTranspiration = pcr.scalar(1.0)
+        if self.name.startswith('irr') and self.includeIrrigation: relActTranspiration = pcr.scalar(1.0)
         
         # estimates of actual transpiration fluxes:
         if self.numberOfLayers == 2:
@@ -3293,7 +3302,7 @@ class LandCover(object):
         self.estimateSoilFluxes(capRiseFrac,groundwater)
 
         # all fluxes are limited to available (source) storage
-        if self.name.startswith('irr'):
+        if self.name.startswith('irr') and self.includeIrrigation:
             self.scaleAllFluxesForIrrigatedAreas(groundwater)
             #~ self.scaleAllFluxes(groundwater)
         else:    

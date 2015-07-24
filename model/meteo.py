@@ -340,11 +340,11 @@ class Meteo(object):
         # make sure precipitation is always positive:
         self.precipitation = pcr.max(0.0, self.precipitation)
 
-        #~ # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
-        #~ self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
+        # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
+        self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
-        # ignore snow by setting temperature to 25 deg C
-        self.temperature = pcr.spatial(pcr.scalar(25.))
+        #~ # ignore snow by setting temperature to 25 deg C
+        #~ self.temperature = pcr.spatial(pcr.scalar(25.))
         
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
