@@ -970,7 +970,7 @@ class LandCover(object):
                                                                 #~ self.refreezingCoeff*self.snowFreeWater)
 
         # update snowCoverSWE
-        self.snowCoverSWE  = pcr.max(0.0, self.snowCoverSWE  + deltaSnowCover + self.snowfall)                              
+        self.snowCoverSWE  = pcr.max(0.0, deltaSnowCover + self.snowfall + self.snowCoverSWE)                              
                                                                         # SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW)
 
         #~ # small part of snow will always melt (to minimize numerical errors)

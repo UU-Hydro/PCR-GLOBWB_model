@@ -302,9 +302,6 @@ class Meteo(object):
         if self.usingDailyTimeStepForcingData:
             self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
-        # make sure precipitation is always positive:
-        self.precipitation = pcr.max(0.0, self.precipitation)
-        
         # reading temperature
         self.temperature = vos.netcdf2PCRobjClone(\
                                  self.tmpFileNC,'temperature',\
@@ -345,8 +342,11 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
         
-        # rounding temperature values to minimize numerical errors (note only to minimize)
-        self.temperature    = pcr.roundoff(self.temperature*100.)/100. 
+        # make sure precipitation is always positive:
+        self.precipitation = pcr.max(0.0, self.precipitation)
+
+        # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
+        self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
