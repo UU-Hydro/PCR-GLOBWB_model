@@ -349,7 +349,7 @@ class Meteo(object):
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
         # ignore snow by setting temperature to 25 deg
-        self.temperature   = pcr.spatial(pcr.scalar(25.0));
+        self.temperature  += 1000.;
         
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
