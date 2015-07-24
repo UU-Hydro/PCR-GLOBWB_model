@@ -83,29 +83,33 @@ class LandCover(object):
             vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))                                
 
         # get landCovParams that are fixed for the entire simulation:
-        landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
-                         'rootFraction1','rootFraction2',
-                         'maxRootDepth',
-                         'fracVegCover']
-        if self.iniItemsLC['landCoverMapsNC'] == str(None):
-            for var in landCovParams:
-                input = self.iniItemsLC[str(var)]
-                vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                                self.tmpDir,self.inputDir)
-                if input != "None":\
-                   vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
-        else:
-            landCoverPropertiesNC = vos.getFullPath(\
-                                    self.iniItemsLC['landCoverMapsNC'],\
-                                    self.inputDir)
-            for var in landCovParams:
-                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
-                                    landCoverPropertiesNC,var, \
-                                    cloneMapFileName = self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-
+        self.noAnnualChangesInLandCoverParameter = True
+        if self.noAnnualChangesInLandCoverParameter: 
+            landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
+                             'rootFraction1','rootFraction2',
+                             'maxRootDepth',
+                             'fracVegCover']
+            if self.iniItemsLC['landCoverMapsNC'] == str(None):
+                for var in landCovParams:
+                    input = self.iniItemsLC[str(var)]
+                    vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                                    self.tmpDir,self.inputDir)
+                    if input != "None":\
+                       vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
+            else:
+                landCoverPropertiesNC = vos.getFullPath(\
+                                        self.iniItemsLC['landCoverMapsNC'],\
+                                        self.inputDir)
+                for var in landCovParams:
+                    vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
+                                        landCoverPropertiesNC,var, \
+                                        cloneMapFileName = self.cloneMap)
+                    vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+        else: 
+            pass
         # TODO (URGENT): Read 'minSoilDepthFrac','maxSoilDepthFrac','rootFraction1','rootFraction2',
         #                     'maxRootDepth','fracVegCover' from netcdf files (they change annually).
+        # - Note file must be stored as netcdf files and may include arnoBeta as well. 
 
 
         # avoid small values (in order to avoid rounding error)
