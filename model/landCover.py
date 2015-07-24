@@ -1017,15 +1017,15 @@ class LandCover(object):
                                    currTimeStep.fulldate,threshold=1e-4)
             vos.waterBalanceCheck([self.snowfall,deltaSnowCover],\
                                   [pcr.scalar(0.0)],\
-                                   prevSnowCoverSWE,\
-                                   self.snowCoverSWE,\
+                                  [prevSnowCoverSWE],\
+                                  [self.snowCoverSWE],\
                                   'snowCoverSWE',\
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-5)
             vos.waterBalanceCheck([self.liquidPrecip],
                                   [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
-                                   prevSnowFreeWater,\
-                                   self.snowFreeWater,\
+                                  [prevSnowFreeWater],\
+                                  [self.snowFreeWater],\
                                   'snowFreeWater',\
                                    True,\
                                    currTimeStep.fulldate,threshold=1e-5)
