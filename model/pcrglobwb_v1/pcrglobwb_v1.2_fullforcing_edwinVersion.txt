@@ -536,8 +536,6 @@ CRFRAC=min(1.0, CRFRAC);
    
   #DSC[TYPE]= if(TA<=TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()));
 
-   DSC[TYPE]= if(TA< TT,CFR*SCF_L[TYPE],-min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()));
-
    report (rep1) SC_L[TYPE] = max(0.0, SC_L[TYPE]+DSC[TYPE]+SNOW);
    
    SCF_L[TYPE]= SCF_L[TYPE]-DSC[TYPE]+PRP;
