@@ -544,9 +544,8 @@ CRFRAC=min(1.0, CRFRAC);
    
    SCF_L[TYPE] = SCF_L[TYPE] - DSC[TYPE] + PRP;
 
-  #Pn = max(0,SCF_L[TYPE]- CWH*SC_L[TYPE]);
-
-   Pn = max(0,SCF_L[TYPE]- rounddown(CWH*SC_L[TYPE]*1000)/1000);
+   Pn = max(0,SCF_L[TYPE]- CWH*SC_L[TYPE]);
+  #Pn = max(0,SCF_L[TYPE]- rounddown(CWH*SC_L[TYPE]*1000)/1000);
    
    DSCR = if(Pn>0,max(-DSC[TYPE],0)/Pn,0);
    
