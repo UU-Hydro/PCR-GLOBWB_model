@@ -337,20 +337,20 @@ class Meteo(object):
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
         
-        # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
-        self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
-        self.temperature    = pcr.ifthen(self.landmask, self.temperature)
-        self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
-        
         # make sure precipitation is always positive:
         self.precipitation = pcr.max(0.0, self.precipitation)
 
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
-        # ignore snow by setting temperature to 25 deg
+        # ignore snow by setting very high temperature
         self.temperature  += 1000.;
         
+        # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
+        self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
+        self.temperature    = pcr.ifthen(self.landmask, self.temperature)
+        self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
+
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
