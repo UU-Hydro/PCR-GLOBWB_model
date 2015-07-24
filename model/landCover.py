@@ -952,7 +952,7 @@ class LandCover(object):
 
         if self.debugWaterBalance:
             prevStates        = [self.snowCoverSWE,self.snowFreeWater]
-            prevSnowCover     = self.snowCoverSWE
+            prevSnowCoverSWE  = self.snowCoverSWE
             prevSnowFreeWater = self.snowFreeWater
 
         # changes in snow cover: - melt ; + gain in snow or refreezing
