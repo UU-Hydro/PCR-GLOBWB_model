@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import types
 
 import netCDF4 as nc
 import pcraster as pcr
@@ -81,34 +80,71 @@ class LandCover(object):
             input = self.iniItemsLC[str(var)]
             vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
-            vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))
-        
+            vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))                                
 
-        # initialization some variables
-        self.fractionArea        = None           # area (m2) of a certain land cover type ; will be assigned by the landSurface module
-        self.naturalFracVegCover = None           # fraction (-) of natural area over (entire) cell ; will be assigned by the landSurface module
-        self.irrTypeFracOverIrr  = None           # fraction (m2) of a certain irrigation type over (only) total irrigation area ; will be assigned by the landSurface module
-        
-        # previous fractions of land cover (needed for transfering states when land cover fraction (annualy) changes
-        self.previousFracVegCover = None
-
-        # an option to introduce changes of land cover parameters (not only fracVegCover)
+        # get landCovParams that are fixed for the entire simulation:
         self.noAnnualChangesInLandCoverParameter = True
-        if 'annualChangesInLandCoverParameters' in iniItems.landSurfaceOptions.keys():
-            if iniItems.landSurfaceOptions['annualChangesInLandCoverParameters'] == "True": self.noAnnualChangesInLandCoverParameter = False
-        
-        if self.noAnnualChangesInLandCoverParameter == False: 
+        if self.noAnnualChangesInLandCoverParameter: 
+            landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
+                             'rootFraction1','rootFraction2',
+                             'maxRootDepth',
+                             'fracVegCover']
+            if self.iniItemsLC['landCoverMapsNC'] == str(None):
+                for var in landCovParams:
+                    input = self.iniItemsLC[str(var)]
+                    vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                                    self.tmpDir,self.inputDir)
+                    if input != "None":\
+                       vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
+            else:
+                landCoverPropertiesNC = vos.getFullPath(\
+                                        self.iniItemsLC['landCoverMapsNC'],\
+                                        self.inputDir)
+                for var in landCovParams:
+                    vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
+                                        landCoverPropertiesNC,var, \
+                                        cloneMapFileName = self.cloneMap)
+                    vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+        else: 
             pass
-            # TODO (URGENT): Read 'minSoilDepthFrac','maxSoilDepthFrac','rootFraction1','rootFraction2',
-            #                     'maxRootDepth','fracVegCover' from netcdf files (they change annually).
-            # - Note file must be stored as netcdf files and must contain arnoBeta as well. 
+        # TODO (URGENT): Read 'minSoilDepthFrac','maxSoilDepthFrac','rootFraction1','rootFraction2',
+        #                     'maxRootDepth','fracVegCover' from netcdf files (they change annually).
+        # - Note file must be stored as netcdf files and may include arnoBeta as well. 
 
-        ################################################################ The following lines are the same for both 
 
-        self.scaleRootFractions()
-        self.numberOfLayers = self.parameters.numberOfLayers
+        # avoid small values (in order to avoid rounding error)
+        self.fracVegCover = pcr.cover(self.fracVegCover, 0.0)
+        self.fracVegCover = pcr.rounddown(self.fracVegCover * 1000.)/1000.
         
+        # limit 0.0 <= fracVegCover <= 1.0
+        self.fracVegCover = pcr.max(0.0,self.fracVegCover)
+        self.fracVegCover = pcr.min(1.0,self.fracVegCover)
 
+        self.fractionArea         = None # area (m2) of a certain land cover type ; will be assigned by the landSurface module
+        self.naturalFracVegCover  = None # fraction (-) of natural area over (entire) cell ; will be assigned by the landSurface module
+        self.irrTypeFracOverIrr   = None # fraction (m2) of a certain irrigation type over (only) total irrigation area ; will be assigned by the landSurface module
+
+        # previous fractions of land cover (needed while land cover changes ; for transfering fluxes)
+        self.previousFracVegCover = None
+        
+        cellArea = vos.readPCRmapClone(\
+          iniItems.routingOptions['cellAreaMap'],
+          self.cloneMap,self.tmpDir,self.inputDir)
+        cellArea = pcr.ifthen(self.landmask, cellArea)                  # TODO: integrate this one with the one coming from the routing module
+
+        # irrigation / water allocation zones:
+        self.usingAllocSegments = usingAllocSegments # water allocation option:
+        if self.usingAllocSegments:
+
+            self.allocSegments = vos.readPCRmapClone(\
+             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
+             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+
+            #~ self.allocSegments = pcr.clump(self.allocSegments)       # According to Menno, "clump" is NOT recommended.
+
+            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
+            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
         landCovParamsAdd = ['minTopWaterLayer',
                             'minCropKC',
@@ -127,30 +163,35 @@ class LandCover(object):
                               vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
 
+        # Improved Arno's scheme parameters:
+        if 'arnoBeta' not in self.iniItemsLC.keys(): self.iniItemsLC['arnoBeta'] = "None" 
+        if self.iniItemsLC['arnoBeta'] == "None":
+            # make sure that minminSoilDepthFrac <= maxSoilDepthFrac:
+            self.minSoilDepthFrac = pcr.min(self.minSoilDepthFrac, self.maxSoilDepthFrac) 
+            self.arnoBeta = pcr.max(0.001,\
+                (self.maxSoilDepthFrac-1.)/(1.-self.minSoilDepthFrac)+\
+                                           self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
+        else:
+            self.arnoBeta = pcr.cover( 
+                            vos.readPCRmapClone(self.iniItemsLC['arnoBeta'],self.cloneMap,
+                                            self.tmpDir,self.inputDir), 0.0)
+        self.arnoBeta = pcr.max(0.001,self.arnoBeta)
+        self.arnoBeta = pcr.cover(self.arnoBeta, 0.001)
+        self.arnoBeta = pcr.ifthen(self.landmask, self.arnoBeta)
 
-        cellArea = vos.readPCRmapClone(\
-          iniItems.routingOptions['cellAreaMap'],
-          self.cloneMap,self.tmpDir,self.inputDir)
-        cellArea = pcr.ifthen(self.landmask, cellArea)                  # TODO: integrate this one with the one coming from the routing module
-        
-        # irrigation / water allocation zones:
-        self.usingAllocSegments = usingAllocSegments # water allocation option:
-        if self.usingAllocSegments:
-        
-            self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
-            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-        
-            #~ self.allocSegments = pcr.clump(self.allocSegments)       # According to Menno, "clump" is NOT recommended.
-        
-            self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
-            self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
+        self.rootZoneWaterStorageMin   = self.minSoilDepthFrac * \
+                               self.parameters.rootZoneWaterStorageCap
+        self.rootZoneWaterStorageRange = \
+                               self.parameters.rootZoneWaterStorageCap -\
+                                         self.rootZoneWaterStorageMin
 
+        self.numberOfLayers = self.parameters.numberOfLayers
+        
+        #~ self.scaleRootFractions()
+        self.scaleRootFractionsOriginalVersion()
+        
         self.calculateTotAvlWaterCapacityInRootZone()
         self.calculateParametersAtHalfTranspiration()
-        ################################################################
-
 
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(\
@@ -223,138 +264,6 @@ class LandCover(object):
                                                     var,"undefined")
 
 
-    def get_land_cover_parameters(self, date_in_string = None):
-   
-        # list of model parameters that will be read
-        # - excluing 'arnoBeta'
-        landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
-                            'rootFraction1','rootFraction2',
-                             'maxRootDepth',
-                             'fracVegCover']
-
-        # get landCovParams that are fixed for the entire simulation:
-        if date_in_string == None: 
-            
-            msg = 'Obtaining the land cover parameters that are fixed for the entire simulation.'
-            logger.info(msg)
-            
-            if self.iniItemsLC['landCoverMapsNC'] == str(None):
-                landCoverPropertiesNC = None
-                for var in landCovParams:
-                    input = self.iniItemsLC[str(var)]
-                    vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                                    self.tmpDir,self.inputDir)
-                    if input != "None":\
-                       vars(self)[var] = pcr.cover(vars()[var],0.0)                                
-            else:
-                landCoverPropertiesNC = vos.getFullPath(\
-                                        self.iniItemsLC['landCoverMapsNC'],\
-                                        self.inputDir)
-                for var in landCovParams:
-                    vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
-                                        landCoverPropertiesNC,var, \
-                                        cloneMapFileName = self.cloneMap)
-                    vars(self)[var] = pcr.cover(vars()[var], 0.0)
-
-            # The parameter arnoBeta for the Improved Arno's scheme:
-            # - There are three ways in defining arnoBeta. The ranks below indicate their priority:
-            #   1. defined as a pcraster map file or a uniform scalar value (i.e. self.iniItemsLC['arnoBeta'])
-            #   2. included in the netcdf file (i.e. self.iniItemsLC['landCoverMapsNC'])
-            #   3. approximated from the minSoilDepthFrac and maxSoilDepthFrac
-
-            arnoBeta = None
-            if 'arnoBeta' not in self.iniItemsLC.keys(): self.iniItemsLC['arnoBeta'] = "None" 
-
-            # - option one (top priority): using a pcraster file
-            if self.iniItemsLC['arnoBeta'] != "None": 
-                
-                logger.info("The parameter arnoBeta: "+str(self.iniItemsLC['arnoBeta']))
-                arnoBeta = vos.readPCRmapClone(self.iniItemsLC['arnoBeta'], self.cloneMap,\
-                                               self.tmpDir, self.inputDir))
-
-            # - option two: included in the netcdf file
-            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC == None:   
-                                    
-                if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
-                    
-                    logger.info("The parameter arnoBeta is defined in the netcdf file "+str(self.iniItemsLC['arnoBeta']))
-                    arnoBeta = vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, 'arnoBeta', self.cloneMap)
-                                        
-            # - option three: approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(self.arnoBeta, types.NoneType) and landCoverPropertiesNC == None:
-   
-                    logger.info("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
-                    
-                    # make sure that maxSoilDepthFrac >= minSoilDepthFrac:
-                    # - Note that maxSoilDepthFrac is needed only for calculating arnoBeta,
-                    #   while minSoilDepthFrac is needed not only for arnoBeta, but also for rootZoneWaterStorageMin
-                    maxSoilDepthFrac = pcr.max(minSoilDepthFrac, maxSoilDepthFrac) 
-            
-                    # estimating arnoBeta from the values of maxSoilDepthFrac and minSoilDepthFrac.
-                    arnoBeta = pcr.max(0.001,\
-                     (maxSoilDepthFrac-1.)/(1.-minSoilDepthFrac)+\
-                                               self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
-            
-
-        # get landCovParams that (annualy) changes
-        if date_in_string != None: 
-
-            msg = 'Obtaining the land cover parameters (from netcdf files) for the date: '+str(date_in_string)
-            logger.info(msg)
-            
-            # SAMPAI DI SINI
-
-                for var in landCovParams+['arnoBeta']:
-                    
-                    # set initial values to None
-                    vars()[var] = None
-                    
-                    # read parameter values from the ncFile mentioned in the ini/configuration file 
-                    ini_option = self.iniItemsLC[var+'NC']
-                    if ini_option != None: 
-                        netcdf_file = vos.getFullPath(ini_option, self.inputDir)
-                        vars()[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
-                                      date_in_string, useDoy = 'yearly',\
-                                      cloneMapFileName = self.cloneMap)
-            
-
-
-        # avoid small values of fracVegCover (in order to avoid rounding error)
-        fracVegCover = pcr.cover(fracVegCover, 0.0)
-        fracVegCover = pcr.rounddown(fracVegCover * 1000.)/1000.
-
-        # limit 0.0 <= fracVegCover <= 1.0
-        fracVegCover = pcr.max(0.0, self.fracVegCover)
-        fracVegCover = pcr.min(1.0, self.fracVegCover)
-
-        # WMIN and WMAX (unit: m)
-        rootZoneWaterStorageMin = self.minSoilDepthFrac * \
-                               self.parameters.rootZoneWaterStorageCap          # This is WMIN in the oldcalc script.
-        rootZoneWaterStorageRange = \
-                               self.parameters.rootZoneWaterStorageCap -\
-                                         self.rootZoneWaterStorageMin           # This is WMAX in the oldcalc script.
-
-        # the parameter arnoBeta (dimensionless)
-        arnoBeta = pcr.max(0.001, arnoBeta)
-        arnoBeta = pcr.cover(arnoBeta, 0.001)
-        
-        if self.numberOfLayers == 2: 
-            
-            # scaling root fractions
-            adjRootFrUpp, adjRootFrLow = \
-                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, rootFraction1, rootFraction2)
-            
-            # 
-            return pcr.ifthen(self.landmask, fracVegCover), \
-                   pcr.ifthen(self.landmask, rootZoneWaterStorageMin), \
-                   pcr.ifthen(self.landmask, rootZoneWaterStorageRange), \
-                   pcr.ifthen(self.landmask, maxRootDepth), \
-                   pcr.ifthen(self.landmask, adjRootFrUpp), \
-                   pcr.ifthen(self.landmask, adjRootFrLow) \
-
-        if self.numberOfLayers == 3: 
-                
-
     def estimate_paddy_infiltration_loss(self):
         
         if self.name == 'irrPaddy' and self.includeIrrigation:
@@ -384,44 +293,7 @@ class LandCover(object):
             
             # PS: The 'design_percolation_loss' is the maximum loss occuring in paddy fields.     
 
-    def scaleRootFractionsFromTwoLayerSoilParameters(self, rootFraction1, rootFraction2):
-                                         
-        # covering rootFraction1 and rootFraction2
-        rootFraction1 = pcr.cover(rootFraction1, 0.0)
-        rootFraction2 = pcr.cover(rootFraction2, 0.0)
-        
-        if self.numberOfLayers == 2: 
-            # root fractions
-            rootFracUpp = (0.30/0.30) * rootFraction1
-            rootFracLow = (1.20/1.20) * rootFraction2
-            adjRootFrUpp = vos.getValDivZero(rootFracUpp, (rootFracUpp + rootFracLow))
-            adjRootFrLow = vos.getValDivZero(rootFracLow, (rootFracUpp + rootFracLow))       
-                                                                                            # RFW1[TYPE]= RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
-                                                                                            # RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
-            # if not defined, put everything in the first layer:
-            adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp,1.0))) 
-            adjRootFrLow = pcr.max(0.0, pcr.scalar(1.0) - adjRootFrUpp)
-            
-            return adjRootFrUpp, adjRootFrLow 
-
-        if self.numberOfLayers == 3: 
-            # root fractions
-            rootFracUpp000005 = 0.05/0.30 * rootFraction1
-            rootFracUpp005030 = 0.25/0.30 * rootFraction1
-            rootFracLow030150 = 1.20/1.20 * rootFraction2
-            adjRootFrUpp000005 = vos.getValDivZero(rootFracUpp000005, (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150))
-            adjRootFrUpp005030 = vos.getValDivZero(rootFracUpp005030, (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150))
-            adjRootFrLow030150 = vos.getValDivZero(rootFracLow030150, (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150))
-            #
-            # if not defined, put everything in the first layer:
-            adjRootFrUpp000005 = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp000005, 1.0))) 
-            adjRootFrUpp005030 = pcr.max(0.0, pcr.ifthenelse(adjRootFrUpp000005 < 1.0, pcr.min(adjRootFrUpp005030, pcr.scalar(1.0) - adjRootFrUpp000005), 0.0)) 
-            adjRootFrLow030150 = pcr.max(0.0, pcr.scalar(1.0) - (adjRootFrUpp000005 + self.adjRootFrUpp005030)) 
-
-            return adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 
-
-
-    def scaleRootFractionsOLD(self):
+    def scaleRootFractions(self):
                                          
         if self.numberOfLayers == 2: 
             # root fractions
@@ -448,7 +320,7 @@ class LandCover(object):
             self.adjRootFrUpp005030 = pcr.ifthenelse(self.adjRootFrUpp000005 < 1.0, self.adjRootFrUpp005030, 0.0) 
             self.adjRootFrLow030150 = pcr.scalar(1.0) - (self.adjRootFrUpp000005 + self.adjRootFrUpp005030) 
 
-    def scaleRootFractionsAlternativeOLD(self):
+    def scaleRootFractionsOriginalVersion(self):
                                          
         if self.numberOfLayers == 2: 
             # root fractions

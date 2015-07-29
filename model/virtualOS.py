@@ -33,6 +33,23 @@ smallNumber = 1E-39
 # tuple of netcdf file suffixes (extensions) that can be used:
 netcdf_suffixes = ('.nc4','.nc')
 
+def checkVariableInNC(ncFile,varName):
+
+    logger.debug('Check whether the variable: '+str(varName)+' is defined in the file: '+str(ncFile))
+    
+    if ncFile in filecache.keys():
+        f = filecache[ncFile]
+        #~ print "Cached: ", ncFile
+    else:
+        f = nc.Dataset(ncFile)
+        filecache[ncFile] = f
+        #~ print "New: ", ncFile
+    
+    varName = str(varName)
+    
+    return varName in f.variables.keys()
+
+
 def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
                                   cloneMapFileName  = None,\
                                   LatitudeLongitude = True,\
@@ -180,7 +197,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 date  = datetime.datetime(date.year,int(1),int(1))
             if useDoy == "monthly":
                 date = datetime.datetime(date.year,date.month,int(1))
-            if useDoy == "yearly" or useDoy == "monthly":
+            if useDoy == "yearly" or useDoy == "monthly" or useDoy = "daily_seasonal":
                 # if the desired year is not available, use the first year or the last year that is available
                 first_year_in_nc_file = findFirstYearInNCTime(nctime)
                 last_year_in_nc_file  =  findLastYearInNCTime(nctime)
@@ -201,6 +218,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                     msg += "\n"
                     logger.warning(msg)
+                # TODO: for daily_seasonal    
             try:
                 idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                   select='exact')
@@ -466,7 +484,8 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
 	#                   resampling will be done.   
     logger.debug('read file/values: '+str(v))
     if v == "None":
-        PCRmap = str("None")
+        #~ PCRmap = str("None")
+        PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
     elif not re.match(r"[0-9.-]*$",v):
         if absolutePath != None: v = getFullPath(v,absolutePath)
         # print(v)

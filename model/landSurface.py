@@ -296,6 +296,9 @@ class LandSurface(object):
             self.scaleNaturalLandCoverFractions()
             if self.includeIrrigation: self.scaleModifiedLandCoverFractions()
         
+        ######################################################################################################################################################################################### 
+        # 29 July 2014: 
+        # 
         # If using historical/dynamic irrigation file (changing every year), we have to get fraction over irrigation area 
         #                                                                   (in order to calculate irrigation area for each irrigation type)
         #
@@ -303,6 +306,9 @@ class LandSurface(object):
         #            irrTypeFracOverIrr = fraction each land cover type (paddy or nonPaddy) over the irrigation area (dimensionless) ; this value is constant for the entire simulation
         #
         if self.includeIrrigation and self.dynamicIrrigationArea:
+            
+            logger.info('Determining fraction of total irrigated areas over each cell')
+            # Note that this is needed ONLY if historical irrigation areas are used (if self.dynamicIrrigationArea = True). 
             
             # total irrigated area fraction (over the entire cell) 
             totalIrrAreaFrac = 0.0 
@@ -1083,12 +1089,19 @@ class LandSurface(object):
         # - note, for the first time step (timeStepPCR == 1), land cover fractions have been defined in getInitialConditions
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and \
-          (currTimeStep.timeStepPCR > 1 and currTimeStep.doy == 1):     
+          (currTimeStep.timeStepPCR > 1 and currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
             #   
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
 
-        # TODO (URGENT): Read land cover fractions from netcdf files. And make sure the following state tranfers work.  
+        # TODO (URGENT): Read land cover fractions from netcdf files. And make sure the following state tranfers work.
+        # - assumption: annual resolution and stored in netcdf files
+        if self.noLandCoverFractionCorrection: 
+
+            msg = 'Read land cover fractions based on netcdf files'
+            
+            for var in self.mainStates:
+
 
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
