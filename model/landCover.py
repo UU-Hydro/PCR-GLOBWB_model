@@ -283,7 +283,7 @@ class LandCover(object):
                 
                 logger.debug("The parameter arnoBeta: "+str(self.iniItemsLC['arnoBeta']))
                 arnoBeta = vos.readPCRmapClone(self.iniItemsLC['arnoBeta'], self.cloneMap,\
-                                               self.tmpDir, self.inputDir))
+                                               self.tmpDir, self.inputDir)
 
             # - option two: included in the netcdf file
             if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC != None and get_only_fracVegCover == False:   
