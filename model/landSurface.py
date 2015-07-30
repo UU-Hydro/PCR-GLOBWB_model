@@ -83,15 +83,15 @@ class LandSurface(object):
     def __init__(self,iniItems,landmask,initialState=None):
         object.__init__(self)
 
+        # clone map, temporary directory, absolute path of input directory, and landmask
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
 
-        # get cellArea:                                                 # TODO: integrate this one with the one coming from the routing module
-        self.cellArea = vos.readPCRmapClone(\
-          iniItems.routingOptions['cellAreaMap'],
-          self.cloneMap,self.tmpDir,self.inputDir)
+        # cellArea (unit: m2)
+        self.cellArea = vos.readPCRmapClone(iniItems.routingOptions['cellAreaMap'], \
+                                            self.cloneMap, self.tmpDir, self.inputDir)
         self.cellArea = pcr.ifthen(self.landmask, self.cellArea)
         
         # number of soil layers:
@@ -180,6 +180,10 @@ class LandSurface(object):
         self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
         # TDOD: Perform water balance checks for aggregates values (from values of each land cover type).   
         
+        # limitAbstraction
+        self.limitAbstraction = False
+        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+
         # landCover types included in the simulation: 
         self.coverTypes = ["forest","grassland"]
         #
@@ -194,10 +198,6 @@ class LandSurface(object):
         # if user define their land cover types: 
         if 'landCoverTypes' in iniItems.landSurfaceOptions.keys(): 
             self.coverTypes = iniItems.landSurfaceOptions['landCoverTypes'].split(",")
-
-        # limitAbstraction
-        self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
         self.waterDemandOptions(iniItems)
@@ -296,6 +296,24 @@ class LandSurface(object):
             self.scaleNaturalLandCoverFractions()
             if self.includeIrrigation: self.scaleModifiedLandCoverFractions()
         
+        # an option to introduce changes of land cover parameters (not only fracVegCover)
+        self.noAnnualChangesInLandCoverParameter = True
+        if 'annualChangesInLandCoverParameters' in iniItems.landSurfaceOptions.keys():
+            if iniItems.landSurfaceOptions['annualChangesInLandCoverParameters'] == "True": self.noAnnualChangesInLandCoverParameter = False
+
+        # Note that "dynamicIrrigationArea" CANNOT be combined with "noLandCoverFractionCorrection"
+        if self.noLandCoverFractionCorrection: self.dynamicIrrigationArea = False
+        
+        # Also note that "annualChangesInLandCoverParameters" must be followed by "noLandCoverFractionCorrection"
+        if self.annualChangesInLandCoverParameters and self.noLandCoverFractionCorrection == False:
+            self.noLandCoverFractionCorrection = True
+            msg = "WARNING! No land cover fractions will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
+            logger.warning(msg) 
+            logger.warning(msg) 
+            logger.warning(msg) 
+            logger.warning(msg) 
+            logger.warning(msg) 
+        
         ######################################################################################################################################################################################### 
         # 29 July 2014: 
         # 
@@ -305,7 +323,7 @@ class LandSurface(object):
         # Note that: totalIrrAreaFrac   = fraction irrigated areas (e.g. paddy + nonPaddy) over the entire cell area (dimensionless) ; this value changes (if self.dynamicIrrigationArea = True)
         #            irrTypeFracOverIrr = fraction each land cover type (paddy or nonPaddy) over the irrigation area (dimensionless) ; this value is constant for the entire simulation
         #
-        if self.includeIrrigation and self.dynamicIrrigationArea:
+        if self.dynamicIrrigationArea:
             
             logger.info('Determining fraction of total irrigated areas over each cell')
             # Note that this is needed ONLY if historical irrigation areas are used (if self.dynamicIrrigationArea = True). 
@@ -411,23 +429,25 @@ class LandSurface(object):
 
     def getInitialConditions(self,iniItems,iniConditions=None):
 
-        # obtaining initial land cover fractions for runs with includeIrrigation and dynamicIrrigationArea
-        #
         # starting year in integer
         starting_year = int(iniItems.globalOptions['startTime'][0:4])
         #
         # check if the run start at the first day of the year:
         start_on_1_Jan = False
         if iniItems.globalOptions['startTime'][-5:] == "01-01": start_on_1_Jan = True
-        #
+
         # condition to consider previous year land cover fraction 
         consider_previous_year_land_cover_fraction = False
+
+
+        #######################################################################################################################################
+        # obtaining initial land cover fractions for runs with dynamicIrrigationArea
         #
         # For non spin-up runs that start at the first day of the year (1 January), 
         # - we have to consider the previous year land cover fractions, specifically if we consider the dynamic/expansion of irrigation areas
         #
         if iniConditions == None and start_on_1_Jan == True and \
-           self.dynamicIrrigationArea and self.includeIrrigation: 
+           self.dynamicIrrigationArea and self.noLandCoverFractionCorrection == False:
             # obtain the previous year land cover fractions:
             self.scaleDynamicIrrigation(starting_year - 1)                       # the previous year land cover fractions
             consider_previous_year_land_cover_fraction = True
@@ -436,13 +456,39 @@ class LandSurface(object):
         # - we do not have to consider the previous year land cover fractions
         #
         if consider_previous_year_land_cover_fraction == False and \
-           self.dynamicIrrigationArea and self.includeIrrigation: 
+           self.dynamicIrrigationArea and self.noLandCoverFractionCorrection == False:
             # just using the current year land cover fractions:
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
-        
-        # get initial land cover fractions that will be used 
-        for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+        #
+        if self.dynamicIrrigationArea:
+            # get initial land cover fractions that will be used 
+            for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+        #######################################################################################################################################
 
+
+        #######################################################################################################################################
+        # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
+        if iniConditions == None and start_on_1_Jan == True and \
+           self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
+            # obtain the previous year land cover fractions:
+            previous_year = starting_year - 1
+            for coverType in self.coverTypes:
+                one_january_prev_year = str(previous_year)+"01-01"
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_prev_year, \
+                                                                                                                    get_only_fracVegCover = True)
+            consider_previous_year_land_cover_fraction = True
+        #
+        # For spin-up runs or for runs that start after 1 January,
+        # - we do not have to consider the previous year land cover fractions
+        #
+        if consider_previous_year_land_cover_fraction == False and \
+           and self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
+            # just using the current year land cover fractions:
+            for coverType in self.coverTypes:
+                one_january_this_year = str(starting_year)+"01-01"
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
+                                                                                                                    get_only_fracVegCover = True)
+        
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
         for var in self.mainStates: vars(self)[var] = pcr.scalar(0.0)
@@ -680,46 +726,6 @@ class LandSurface(object):
         if abs(a) > threshold or abs(b) > threshold:
             logger.error("fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f" %(a,b,c)) 
 
-    def getICsFor3Layers(self,iniItems,iniConditions = None):           # TODO: Check! Do we still need this one?
-
-        # first, we set the following aggregated storages to zero
-        self.interceptStor = pcr.scalar(0.0)
-        self.snowCoverSWE  = pcr.scalar(0.0)
-        self.snowFreeWater = pcr.scalar(0.0)
-        self.topWaterLayer = pcr.scalar(0.0)
-        self.storUpp000005 = pcr.scalar(0.0)
-        self.storUpp005030 = pcr.scalar(0.0)
-        self.storLow030150 = pcr.scalar(0.0)
-
-        # then we initiate them in the following land cover loop: 
-        for coverType in self.coverTypes:
-            if iniConditions != None:
-                self.landCoverObj[coverType].getICsLC(iniItems,iniConditions['landSurface'][coverType])
-            else:
-                self.landCoverObj[coverType].getICsLC(iniItems)
-            # summarize the following initial storages:
-            self.interceptStor  += \
-                            self.landCoverObj[coverType].interceptStor*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.snowCoverSWE  += \
-                            self.landCoverObj[coverType].snowCoverSWE*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.snowFreeWater += \
-                            self.landCoverObj[coverType].snowFreeWater*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.topWaterLayer += \
-                            self.landCoverObj[coverType].topWaterLayer*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.storUpp000005  += \
-                            self.landCoverObj[coverType].storUpp000005*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.storUpp005030  += \
-                            self.landCoverObj[coverType].storUpp005030*\
-                            self.landCoverObj[coverType].fracVegCover
-            self.storLow030150  += \
-                            self.landCoverObj[coverType].storLow030150*\
-                            self.landCoverObj[coverType].fracVegCover
-                                         
     def obtainNonIrrWaterDemand(self,routing,currTimeStep):
         # get NON-Irrigation GROSS water demand and its return flow fraction
 
@@ -1090,7 +1096,6 @@ class LandSurface(object):
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and \
           (currTimeStep.timeStepPCR > 1 and currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
-            #   
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
 

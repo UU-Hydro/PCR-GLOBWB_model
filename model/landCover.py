@@ -229,7 +229,7 @@ class LandCover(object):
                                                     var,"undefined")
 
 
-    def get_land_cover_parameters(self, date_in_string = None):
+    def get_land_cover_parameters(self, date_in_string = None, get_only_fracVegCover = False):
    
         # list of model parameters that will be read
         # - excluing 'arnoBeta'
@@ -238,8 +238,12 @@ class LandCover(object):
                              'maxRootDepth',
                              'fracVegCover']
 
+        # an option to return only fracVegCover
+        if get_only_fracVegCover: landCovParams = ['fracVegCover']
+        
         # set initial values to None
-        for var in landCovParams+['arnoBeta']: vars()[var] = None
+        if get_only_fracVegCover == False: 
+            for var in landCovParams+['arnoBeta']: vars()[var] = None
         
         # get landCovParams that are fixed for the entire simulation:
         if date_in_string == None: 
@@ -272,17 +276,17 @@ class LandCover(object):
             #   3. approximated from the minSoilDepthFrac and maxSoilDepthFrac
 
             arnoBeta = None
-            if 'arnoBeta' not in self.iniItemsLC.keys(): self.iniItemsLC['arnoBeta'] = "None" 
+            if 'arnoBeta' not in self.iniItemsLC.keys() and get_only_fracVegCover == False: self.iniItemsLC['arnoBeta'] = "None" 
 
             # - option one (top priority): using a pcraster file
-            if self.iniItemsLC['arnoBeta'] != "None": 
+            if self.iniItemsLC['arnoBeta'] != "None" and get_only_fracVegCover == False: 
                 
                 logger.debug("The parameter arnoBeta: "+str(self.iniItemsLC['arnoBeta']))
                 arnoBeta = vos.readPCRmapClone(self.iniItemsLC['arnoBeta'], self.cloneMap,\
                                                self.tmpDir, self.inputDir))
 
             # - option two: included in the netcdf file
-            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC != None:   
+            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC != None and get_only_fracVegCover == False:   
                                     
                 if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
                     
@@ -290,7 +294,7 @@ class LandCover(object):
                     arnoBeta = vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, 'arnoBeta', self.cloneMap)
                                         
             # - option three: approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(arnoBeta, types.NoneType):
+            if isinstance(arnoBeta, types.NoneType) and get_only_fracVegCover == False:
    
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
                 
@@ -312,7 +316,12 @@ class LandCover(object):
             msg = 'Obtaining the land cover parameters (from netcdf files) for the year/date: '+str(date_in_string)
             logger.debug(msg)
             
-            for var in landCovParams+['arnoBeta']:
+            if get_only_fracVegCover:
+                landCovParams = ['fracVegCover']
+            else:
+                landCovParams += ['arnoBeta']
+            
+            for var in landCovParams:
                 
                 # read parameter values from the ncFile mentioned in the ini/configuration file 
                 ini_option = self.iniItemsLC[var+'NC']
@@ -323,7 +332,7 @@ class LandCover(object):
                                   cloneMapFileName = self.cloneMap)
             
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC == None:
+            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC == None and get_only_fracVegCover == False:
 
                 # make sure that maxSoilDepthFrac >= minSoilDepthFrac:
                 # - Note that maxSoilDepthFrac is needed only for calculating arnoBeta,
@@ -340,6 +349,9 @@ class LandCover(object):
         fracVegCover = pcr.max(0.0, self.fracVegCover)
         fracVegCover = pcr.min(1.0, self.fracVegCover)
 
+        if get_only_fracVegCover:
+            return pcr.ifthen(self.landmask, fracVegCover)
+        
         # WMIN and WMAX (unit: m)
         rootZoneWaterStorageMin = self.minSoilDepthFrac * \
                                self.parameters.rootZoneWaterStorageCap          # This is WMIN in the oldcalc script.
@@ -351,7 +363,7 @@ class LandCover(object):
         arnoBeta = pcr.max(0.001, arnoBeta)
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
-        if self.numberOfLayers == 2: 
+        if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
             # scaling root fractions
             adjRootFrUpp, adjRootFrLow = \
@@ -365,7 +377,7 @@ class LandCover(object):
                    pcr.ifthen(self.landmask, adjRootFrUpp), \
                    pcr.ifthen(self.landmask, adjRootFrLow) \
 
-        if self.numberOfLayers == 3: 
+        if self.numberOfLayers == 3 and get_only_fracVegCover == False: 
                 
             # scaling root fractions
             adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 =\
