@@ -130,7 +130,7 @@ class LandCover(object):
         # get additional parameter(s) for irrigation areas (ALWAYS fixed for the entire simulation)
         if self.includeIrrigation:
              # - cropDeplFactor (dimesionless, crop depletion factor while irrigation is being applied), needed for NON paddy irrigation areas
-             if self.iniItemsLC['name'].startswith('irr') and self.name != "irrPaddy"
+             if self.iniItemsLC['name'].startswith('irr') and self.name != "irrPaddy":
                  self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
                                                            self.tmpDir, self.inputDir)
              # - infiltration/percolation losses for paddy fields
