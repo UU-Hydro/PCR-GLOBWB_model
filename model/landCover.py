@@ -233,7 +233,7 @@ class LandCover(object):
    
         # list of model parameters that will be read
         # - excluing 'arnoBeta'
-        landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
+        landCovParams = ['minSoilDepthFrac',
                             'rootFraction1','rootFraction2',
                              'maxRootDepth',
                              'fracVegCover']
