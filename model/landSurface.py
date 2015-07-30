@@ -469,11 +469,11 @@ class LandSurface(object):
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
         if iniConditions == None and start_on_1_Jan == True and \
-           self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
+           self.noLandCoverFractionCorrection and self.annualChangesInLandCoverParameters:
             # obtain the previous year land cover fractions:
             previous_year = starting_year - 1
+            one_january_prev_year = str(previous_year)+"01-01"
             for coverType in self.coverTypes:
-                one_january_prev_year = str(previous_year)+"01-01"
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_prev_year, \
                                                                                                                     get_only_fracVegCover = True)
             consider_previous_year_land_cover_fraction = True
@@ -482,10 +482,10 @@ class LandSurface(object):
         # - we do not have to consider the previous year land cover fractions
         #
         if consider_previous_year_land_cover_fraction == False and \
-           self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
+           self.noLandCoverFractionCorrection and self.annualChangesInLandCoverParameters:
             # just using the current year land cover fractions:
+            one_january_this_year = str(starting_year)+"01-01"
             for coverType in self.coverTypes:
-                one_january_this_year = str(starting_year)+"01-01"
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
         
@@ -1099,14 +1099,14 @@ class LandSurface(object):
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
 
-        # TODO (URGENT): Read land cover fractions from netcdf files. And make sure the following state tranfers work.
-        # - assumption: annual resolution and stored in netcdf files
-        if self.noLandCoverFractionCorrection: 
-
-            msg = 'Read land cover fractions based on netcdf files'
-            
-            for var in self.mainStates:
-
+        # read land cover fractions from netcdf files
+        # - assumption: annual resolution
+        if self.annualChangesInLandCoverParameters and self.dynamicIrrigationArea == False and (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
+			msg = 'Read land cover fractions based on the given netcdf file.'
+			logger.debug(msg)
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = str(currTimeStep.fulldate), \
+                                                                                                                   get_only_fracVegCover = True)
 
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
