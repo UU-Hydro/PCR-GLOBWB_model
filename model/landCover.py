@@ -2415,7 +2415,7 @@ class LandCover(object):
             potTranspirationLow = pcr.max(0.0, self.potTranspiration - potTranspirationUpp)
         if self.numberOfLayers == 3:
             potTranspirationUpp000005 = pcr.min(transpFracUpp000005*self.potTranspiration, self.potTranspiration)
-            potTranspirationUpp005030 = pcr.min(transpFracUpp000005*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005)
+            potTranspirationUpp005030 = pcr.min(transpFracUpp000005*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005))
             potTranspirationLow030150 = pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005 - potTranspirationUpp005030)
             
         # estimate actual transpiration fluxes
