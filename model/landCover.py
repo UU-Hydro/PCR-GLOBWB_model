@@ -255,20 +255,20 @@ class LandCover(object):
                 landCoverPropertiesNC = None
                 for var in landCovParams:
                     input = self.iniItemsLC[str(var)]
-                    vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                    vars()[var] = vos.readPCRmapClone(input,self.cloneMap,
                                                     self.tmpDir,self.inputDir)
                     if input != "None":\
-                       vars(self)[var] = pcr.cover(vars()[var],0.0)                                
+                       vars()[var] = pcr.cover(vars()[var],0.0)                                
             else:
                 landCoverPropertiesNC = vos.getFullPath(\
                                         self.iniItemsLC['landCoverMapsNC'],\
                                         self.inputDir)
                 for var in landCovParams:
                     print var
-                    vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
+                    vars()[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                         landCoverPropertiesNC,var, \
                                         cloneMapFileName = self.cloneMap)
-                    vars(self)[var] = pcr.cover(vars()[var], 0.0)
+                    vars()[var] = pcr.cover(vars()[var], 0.0)
 
             # The parameter arnoBeta for the Improved Arno's scheme:
             # - There are three ways in defining arnoBeta. The ranks below indicate their priority:
