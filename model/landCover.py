@@ -233,7 +233,7 @@ class LandCover(object):
    
         # list of model parameters that will be read
         # - excluing 'arnoBeta'
-        landCovParams = ['minSoilDepthFrac',
+        landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
                             'rootFraction1','rootFraction2',
                              'maxRootDepth',
                              'fracVegCover']
@@ -264,10 +264,10 @@ class LandCover(object):
                                         self.iniItemsLC['landCoverMapsNC'],\
                                         self.inputDir)
                 for var in landCovParams:
-                    locals()[var] = vos.netcdf2PCRobjCloneWithoutTime(\
+                    vars()[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                         landCoverPropertiesNC, var, \
                                         cloneMapFileName = self.cloneMap)
-                    locals()[var] = pcr.cover(locals()[var], 0.0)
+                    vars()[var] = pcr.cover(vars()[str(var)], 0.0)
 
             # The parameter arnoBeta for the Improved Arno's scheme:
             # - There are three ways in defining arnoBeta. The ranks below indicate their priority:
