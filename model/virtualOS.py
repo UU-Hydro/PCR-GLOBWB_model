@@ -197,7 +197,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 date  = datetime.datetime(date.year,int(1),int(1))
             if useDoy == "monthly":
                 date = datetime.datetime(date.year,date.month,int(1))
-            if useDoy == "yearly" or useDoy == "monthly" or useDoy = "daily_seasonal":
+            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal":
                 # if the desired year is not available, use the first year or the last year that is available
                 first_year_in_nc_file = findFirstYearInNCTime(nctime)
                 last_year_in_nc_file  =  findLastYearInNCTime(nctime)
