@@ -482,7 +482,7 @@ class LandSurface(object):
         # - we do not have to consider the previous year land cover fractions
         #
         if consider_previous_year_land_cover_fraction == False and \
-           and self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
+           self.noLandCoverFractionCorrection and annualChangesInLandCoverParameters:
             # just using the current year land cover fractions:
             for coverType in self.coverTypes:
                 one_january_this_year = str(starting_year)+"01-01"
