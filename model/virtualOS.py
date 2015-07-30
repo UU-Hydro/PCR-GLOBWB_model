@@ -218,7 +218,6 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                     msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                     msg += "\n"
                     logger.warning(msg)
-                # TODO: for daily_seasonal    
             try:
                 idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                   select='exact')
@@ -228,14 +227,14 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                                                       select='before')
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "The date "+str(dateInput)+" is NOT available. The 'before' option is used while selecting netcdf time."
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'before' option is used while selecting netcdf time."
                     msg += "\n"
                 except:
                     idx = nc.date2index(date, nctime, calendar = nctime.calendar, \
                                                       select='after')
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "The date "+str(dateInput)+" is NOT available. The 'after' option is used while selecting netcdf time."
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
                     msg += "\n"
                 logger.warning(msg)
                                                   
