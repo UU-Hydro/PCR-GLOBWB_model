@@ -265,7 +265,7 @@ class LandCover(object):
                                         self.inputDir)
                 for var in landCovParams:
                     locals()[var] = pcr.cover(
-                                  vos.netcdf2PCRobjCloneWithoutTime(\
+                                    vos.netcdf2PCRobjCloneWithoutTime(\
                                         landCoverPropertiesNC, var, \
                                         cloneMapFileName = self.cloneMap), 0.0)
 
