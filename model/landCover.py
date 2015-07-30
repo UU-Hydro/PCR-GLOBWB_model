@@ -264,10 +264,10 @@ class LandCover(object):
                                         self.iniItemsLC['landCoverMapsNC'],\
                                         self.inputDir)
                 for var in landCovParams:
-                    vars()[var] = vos.netcdf2PCRobjCloneWithoutTime(\
-                                        landCoverPropertiesNC,var, \
+                    locals()[var] = vos.netcdf2PCRobjCloneWithoutTime(\
+                                        landCoverPropertiesNC, var, \
                                         cloneMapFileName = self.cloneMap)
-                    vars()[var] = pcr.cover(vars()[var], 0.0)
+                    locals()[var] = pcr.cover(locals()[var], 0.0)
 
             # The parameter arnoBeta for the Improved Arno's scheme:
             # - There are three ways in defining arnoBeta. The ranks below indicate their priority:
