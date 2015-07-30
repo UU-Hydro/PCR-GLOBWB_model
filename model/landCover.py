@@ -242,8 +242,9 @@ class LandCover(object):
         if get_only_fracVegCover: landCovParams = ['fracVegCover']
         
         # set initial values to None
+        lc_parameters = {}
         if get_only_fracVegCover == False: 
-            for var in landCovParams+['arnoBeta']: vars()[var] = None
+            for var in landCovParams+['arnoBeta']: lc_parameters[var] = None
         
         # get landCovParams that are fixed for the entire simulation:
         if date_in_string == None: 
@@ -255,19 +256,18 @@ class LandCover(object):
                 landCoverPropertiesNC = None
                 for var in landCovParams:
                     input = self.iniItemsLC[str(var)]
-                    vars()[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                                    self.tmpDir,self.inputDir)
-                    if input != "None":\
-                       vars()[var] = pcr.cover(vars()[var],0.0)                                
+                    lc_parameters[var] = vos.readPCRmapClone(input, self.cloneMap,
+                                                             self.tmpDir, self.inputDir)
+                    if input != "None":
+                        lc_parameters[var] = pcr.cover(lc_parameters[var], 0.0)                                
             else:
                 landCoverPropertiesNC = vos.getFullPath(\
                                         self.iniItemsLC['landCoverMapsNC'],\
                                         self.inputDir)
                 for var in landCovParams:
-                    locals()[var] = pcr.cover(
-                                    vos.netcdf2PCRobjCloneWithoutTime(\
-                                        landCoverPropertiesNC, var, \
-                                        cloneMapFileName = self.cloneMap), 0.0)
+                    lc_parameters[var] = pcr.cover(vos.netcdf2PCRobjCloneWithoutTime(\
+                                                   landCoverPropertiesNC, var, \
+                                                   cloneMapFileName = self.cloneMap), 0.0)
 
             # The parameter arnoBeta for the Improved Arno's scheme:
             # - There are three ways in defining arnoBeta. The ranks below indicate their priority:
@@ -275,37 +275,37 @@ class LandCover(object):
             #   2. included in the netcdf file (i.e. self.iniItemsLC['landCoverMapsNC'])
             #   3. approximated from the minSoilDepthFrac and maxSoilDepthFrac
 
-            arnoBeta = None
+            lc_parameters['arnoBeta'] = None
             if 'arnoBeta' not in self.iniItemsLC.keys() and get_only_fracVegCover == False: self.iniItemsLC['arnoBeta'] = "None" 
 
             # - option one (top priority): using a pcraster file
             if self.iniItemsLC['arnoBeta'] != "None" and get_only_fracVegCover == False: 
                 
                 logger.debug("The parameter arnoBeta: "+str(self.iniItemsLC['arnoBeta']))
-                arnoBeta = vos.readPCRmapClone(self.iniItemsLC['arnoBeta'], self.cloneMap,\
-                                               self.tmpDir, self.inputDir)
+                lc_parameters['arnoBeta'] = vos.readPCRmapClone(self.iniItemsLC['arnoBeta'], self.cloneMap,\
+                                                                self.tmpDir, self.inputDir)
 
             # - option two: included in the netcdf file
-            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC != None and get_only_fracVegCover == False:   
+            if isinstance(lc_parameters['arnoBeta'], types.NoneType) and landCoverPropertiesNC != None and get_only_fracVegCover == False:   
                                     
                 if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
                     
                     logger.debug("The parameter arnoBeta is defined in the netcdf file "+str(self.iniItemsLC['arnoBeta']))
-                    arnoBeta = vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, 'arnoBeta', self.cloneMap)
+                    lc_parameters['arnoBeta'] = vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, 'arnoBeta', self.cloneMap)
                                         
             # - option three: approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(arnoBeta, types.NoneType) and get_only_fracVegCover == False:
+            if isinstance(lc_parameters['arnoBeta'], types.NoneType) and get_only_fracVegCover == False:
    
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
                 
                 # make sure that maxSoilDepthFrac >= minSoilDepthFrac:
                 # - Note that maxSoilDepthFrac is needed only for calculating arnoBeta,
                 #   while minSoilDepthFrac is needed not only for arnoBeta, but also for rootZoneWaterStorageMin
-                maxSoilDepthFrac = pcr.max(minSoilDepthFrac, maxSoilDepthFrac) 
+                lc_parameters['maxSoilDepthFrac'] = pcr.max(lc_parameters['maxSoilDepthFrac'], lc_parameters['minSoilDepthFrac']) 
             
                 # estimating arnoBeta from the values of maxSoilDepthFrac and minSoilDepthFrac.
-                arnoBeta = pcr.max(0.001,\
-                 (maxSoilDepthFrac-1.)/(1.-minSoilDepthFrac)+\
+                lc_parameters['arnoBeta'] = pcr.max(0.001,\
+                 (lc_parameters['maxSoilDepthFrac']-1.)/(1.-lc_parameters['minSoilDepthFrac'])+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
             
 
@@ -327,9 +327,9 @@ class LandCover(object):
                 ini_option = self.iniItemsLC[var+'NC']
                 if ini_option != "None": 
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
-                    vars()[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
-                                  date_in_string, useDoy = 'yearly',\
-                                  cloneMapFileName = self.cloneMap)
+                    lc_parameters[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
+                                                                date_in_string, useDoy = 'yearly',\
+                                                                cloneMapFileName = self.cloneMap)
             
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC == None and get_only_fracVegCover == False:
