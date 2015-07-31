@@ -73,15 +73,20 @@ class LandCover(object):
         # In the original oldcalc script of Rens (2 layer model), the percolation percUpp (P1) can be negative
         # - To avoid this, Edwin changed few lines (see the method updateSoilStates)
         self.allowNegativePercolation = False
-        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True": self.allowNegativePercolation = True
+        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True":
+            msg  = 'Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n'
+            msg += 'Note that this option is only relevant for two layer soil model.'
+            logger.warning(msg)
+            self.allowNegativePercolation = True
         
         # In the original oldcalc script of Rens, there is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s) 
         # - To avoid this, Edwin changed few lines (see the methods 'scaleRootFractionsFromTwoLayerSoilParameters' and 'estimateTranspirationAndBareSoilEvap')
         self.usingOriginalOldCalcRootTranspirationPartitioningMethod = False
         if 'usingOriginalOldCalcRootTranspirationPartitioningMethod' in self.iniItemsLC.keys() and self.iniItemsLC['usingOriginalOldCalcRootTranspirationPartitioningMethod'] == "True":
+            msg  = 'Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n'
+            msg += 'There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s).'
+            logger.warning(msg)
             self.usingOriginalOldCalcRootTranspirationPartitioningMethod = True
-
-
 
         # get snow module type and its parameters:
         self.snowModuleType = self.iniItemsLC['snowModuleType']
