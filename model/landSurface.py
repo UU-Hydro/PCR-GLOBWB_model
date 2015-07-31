@@ -305,7 +305,7 @@ class LandSurface(object):
         if self.noLandCoverFractionCorrection: self.dynamicIrrigationArea = False
         
         # Also note that "noAnnualChangesInLandCoverParameter = False" must be followed by "noLandCoverFractionCorrection"
-        if noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection == False:
+        if self.noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection == False:
             self.noLandCoverFractionCorrection = True
             msg = "WARNING! No land cover fractions will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
             logger.warning(msg) 
