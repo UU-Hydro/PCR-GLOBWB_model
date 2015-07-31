@@ -664,10 +664,10 @@ CRFRAC=min(1.0, CRFRAC);
    T1_p[TYPE]= WF1*T_p[TYPE];
    T2_p[TYPE]= max(0,T_p[TYPE]-T1_p[TYPE]);
 
-   Ta_1[TYPE]= FRACTA[TYPE]*T1_p[TYPE];
-   Ta_2[TYPE]= FRACTA[TYPE]*T2_p[TYPE];
+   T_a1[TYPE]= FRACTA[TYPE]*T1_p[TYPE];
+   T_a2[TYPE]= FRACTA[TYPE]*T2_p[TYPE];
 
-   T_a[TYPE]= Ta_1[TYPE]+Ta_2[TYPE];
+   T_a[TYPE]= T_a1[TYPE]+T_a2[TYPE];
 
   #-actual bare soil evaporation
    ES_a[TYPE]= SATFRAC_L[TYPE]*min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+
