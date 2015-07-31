@@ -373,6 +373,10 @@ class LandCover(object):
         # maxium root depth
         maxRootDepth = pcr.cover(lc_parameters['maxRootDepth'], 0.0)
         
+        # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
+        self.minSoilDepthFrac = lc_parameters['minSoilDepthFrac']
+        self.maxSoilDepthFrac = lc_parameters['maxSoilDepthFrac']
+        
         if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
             # scaling root fractions
