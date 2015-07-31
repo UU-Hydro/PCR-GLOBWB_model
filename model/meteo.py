@@ -30,7 +30,8 @@ class Meteo(object):
 
         # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
         self.ignore_snow = False
-        if 'ingnoreSnow' in iniItems.meteoOptions.keys() and iniItems.meteoOptions['ignoreSnow'] == "True": self.ignore_snow = True
+        if 'ignoreSnow' in iniItems.meteoOptions.keys() and iniItems.meteoOptions['ignoreSnow'] == "True":
+            self.ignore_snow = True
 
         self.preFileNC = iniItems.meteoOptions['precipitationNC']        # starting from 19 Feb 2014, we only support netcdf input files
         self.tmpFileNC = iniItems.meteoOptions['temperatureNC']
