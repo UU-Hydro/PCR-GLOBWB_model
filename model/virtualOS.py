@@ -223,6 +223,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                                 select ='exact')
             msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
             logger.debug(msg)
+        except:
+            msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
+            logger.debug(msg)
             try:                                  
                 idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                     select = 'before')
