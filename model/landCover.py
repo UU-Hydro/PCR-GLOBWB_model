@@ -906,7 +906,7 @@ class LandCover(object):
         # get crop coefficient:
         cropKC = pcr.cover(
                  vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                    currTimeStep.doy, useDoy = 'Yes',\
+                                    currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                     cloneMapFileName = self.cloneMap), 0.0)
         self.inputCropKC = cropKC                                               # This line is needed for debugging. 
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
@@ -915,18 +915,6 @@ class LandCover(object):
 
         # limit cropKC
         self.cropKC = pcr.max(cropKC, minCropCoefficientForIrrigation)
-        
-        # get the previous day value of cropKC
-        if currTimeStep.doy > 1:
-            self.prevCropKC = pcr.cover(
-                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                    currTimeStep.doy - 1, useDoy = 'Yes',\
-                                    cloneMapFileName = self.cloneMap), 0.0) 
-        else:
-            self.prevCropKC = pcr.cover(
-                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                    366, useDoy = 'Yes',\
-                                    cloneMapFileName = self.cloneMap), 0.0)  
         
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
@@ -1064,14 +1052,14 @@ class LandCover(object):
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
                                     'interceptCapInput',\
-                                     currTimeStep.doy, useDoy = 'Yes',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                      cloneMapFileName = self.cloneMap), 0.0)
             self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
             coverFraction = \
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.coverFractionNC,\
                                     'coverFractionInput',\
-                                     currTimeStep.doy, useDoy = 'Yes',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                      cloneMapFileName = self.cloneMap), 0.0)
             coverFraction = pcr.cover(coverFraction, 0.0)
             interceptCap  = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
