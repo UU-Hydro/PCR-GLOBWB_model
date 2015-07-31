@@ -13,7 +13,7 @@ from ncConverter import *
 import ETPFunctions as refPotET
 
 # option to ignore snow
-ignore_snow = True
+ignore_snow = False
 
 class Meteo(object):
 
