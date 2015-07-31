@@ -957,14 +957,14 @@ class LandCover(object):
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
                                     'interceptCapInput',\
-                                     currTimeStep.day, useDoy = 'daily_seasonal',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                      cloneMapFileName = self.cloneMap), 0.0)
             self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
             coverFraction = \
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.coverFractionNC,\
                                     'coverFractionInput',\
-                                     currTimeStep.day, useDoy = 'daily_seasonal',\
+                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                      cloneMapFileName = self.cloneMap), 0.0)
             coverFraction = pcr.cover(coverFraction, 0.0)
             interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
