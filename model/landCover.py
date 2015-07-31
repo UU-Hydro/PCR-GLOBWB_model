@@ -377,6 +377,10 @@ class LandCover(object):
         self.minSoilDepthFrac = lc_parameters['minSoilDepthFrac']
         self.maxSoilDepthFrac = lc_parameters['maxSoilDepthFrac']
         
+        # saving also rootFraction1 and rootFraction2 (only for debugging purpose)
+        self.rootFraction1 = lc_parameters['rootFraction1']
+        self.rootFraction2 = lc_parameters['rootFraction2']
+
         if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
             # scaling root fractions
