@@ -12,9 +12,6 @@ import virtualOS as vos
 from ncConverter import *
 import ETPFunctions as refPotET
 
-# option to ignore snow
-ignore_snow = False
-
 class Meteo(object):
 
     def __init__(self,iniItems,landmask,spinUp):
@@ -30,6 +27,10 @@ class Meteo(object):
            self.landmask = vos.readPCRmapClone(\
            iniItems.globalOptions['landmask'],
            self.cloneMap,self.tmpDir,self.inputDir)	
+
+        # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
+        self.ignore_snow = False
+        if 'ingnoreSnow' in iniItems.meteoOptions.keys() and iniItems.meteoOptions['ignoreSnow'] == "True": self.ignore_snow = True
 
         self.preFileNC = iniItems.meteoOptions['precipitationNC']        # starting from 19 Feb 2014, we only support netcdf input files
         self.tmpFileNC = iniItems.meteoOptions['temperatureNC']
@@ -347,7 +348,7 @@ class Meteo(object):
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
         # ignore snow by setting temperature to 25 deg C
-        if ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
+        if self.ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
         
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
