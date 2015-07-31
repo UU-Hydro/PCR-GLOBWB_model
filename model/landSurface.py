@@ -304,8 +304,8 @@ class LandSurface(object):
         # Note that "dynamicIrrigationArea" CANNOT be combined with "noLandCoverFractionCorrection"
         if self.noLandCoverFractionCorrection: self.dynamicIrrigationArea = False
         
-        # Also note that "annualChangesInLandCoverParameters" must be followed by "noLandCoverFractionCorrection"
-        if self.annualChangesInLandCoverParameters and self.noLandCoverFractionCorrection == False:
+        # Also note that "noAnnualChangesInLandCoverParameter = False" must be followed by "noLandCoverFractionCorrection"
+        if noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection == False:
             self.noLandCoverFractionCorrection = True
             msg = "WARNING! No land cover fractions will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
             logger.warning(msg) 
@@ -469,7 +469,7 @@ class LandSurface(object):
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
         if iniConditions == None and start_on_1_Jan == True and \
-           self.noLandCoverFractionCorrection and self.annualChangesInLandCoverParameters:
+           self.noLandCoverFractionCorrection and self.noAnnualChangesInLandCoverParameter == False:
             # obtain the previous year land cover fractions:
             previous_year = starting_year - 1
             one_january_prev_year = str(previous_year)+"01-01"
@@ -482,7 +482,7 @@ class LandSurface(object):
         # - we do not have to consider the previous year land cover fractions
         #
         if consider_previous_year_land_cover_fraction == False and \
-           self.noLandCoverFractionCorrection and self.annualChangesInLandCoverParameters:
+           self.noLandCoverFractionCorrection and self.noAnnualChangesInLandCoverParameter == False:
             # just using the current year land cover fractions:
             one_january_this_year = str(starting_year)+"01-01"
             for coverType in self.coverTypes:
@@ -1101,7 +1101,8 @@ class LandSurface(object):
 
         # read land cover fractions from netcdf files
         # - assumption: annual resolution
-        if self.annualChangesInLandCoverParameters and self.dynamicIrrigationArea == False and (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
+        if self.noAnnualChangesInLandCoverParameter == False and self.dynamicIrrigationArea == False and \
+          (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
             msg = 'Read land cover fractions based on the given netcdf file.'
             logger.debug(msg)
             for coverType in self.coverTypes:
