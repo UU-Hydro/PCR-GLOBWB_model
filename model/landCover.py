@@ -377,7 +377,7 @@ class LandCover(object):
             
             # scaling root fractions
             adjRootFrUpp, adjRootFrLow = \
-                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['ootFraction1'], lc_parameters['ootFraction2'])
+                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
             
             # provide all land cover parameters
             return pcr.ifthen(self.landmask, fracVegCover), \
@@ -392,7 +392,7 @@ class LandCover(object):
                 
             # scaling root fractions
             adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 = \
-                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['ootFraction1'], lc_parameters['ootFraction2'])
+                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
             
             # provide all land cover parameters
             return pcr.ifthen(self.landmask, fracVegCover), \
