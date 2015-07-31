@@ -107,11 +107,11 @@ class LandCover(object):
         # get land cover parameters that are fixed for the entire simulation
         if self.noAnnualChangesInLandCoverParameter: 
             if self.numberOfLayers == 2: 
-                self.fracVegCover, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
+                self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp, self.adjRootFrLow = \
                                    self.get_land_cover_parameters() 
             if self.numberOfLayers == 3: 
-                self.fracVegCover, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
+                self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp000005, self.adjRootFrUpp005030, self.adjRootFrLow030150 = \
                                    self.get_land_cover_parameters() 
 
@@ -377,13 +377,13 @@ class LandCover(object):
             
             # scaling root fractions
             adjRootFrUpp, adjRootFrLow = \
-                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
+                   self.scaleRootFractionsFromTwoLayerSoilParameters(lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
             
             # provide all land cover parameters
             return pcr.ifthen(self.landmask, fracVegCover), \
+                   pcr.ifthen(self.landmask, arnoBeta), \
                    pcr.ifthen(self.landmask, rootZoneWaterStorageMin), \
                    pcr.ifthen(self.landmask, rootZoneWaterStorageRange), \
-                   pcr.ifthen(self.landmask, arnoBeta), \
                    pcr.ifthen(self.landmask, maxRootDepth), \
                    pcr.ifthen(self.landmask, adjRootFrUpp), \
                    pcr.ifthen(self.landmask, adjRootFrLow) \
@@ -392,13 +392,13 @@ class LandCover(object):
                 
             # scaling root fractions
             adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 = \
-                   self.scaleRootFractionsFromTwoLayerSoilParameters(self, lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
+                   self.scaleRootFractionsFromTwoLayerSoilParameters(lc_parameters['rootFraction1'], lc_parameters['rootFraction2'])
             
             # provide all land cover parameters
             return pcr.ifthen(self.landmask, fracVegCover), \
+                   pcr.ifthen(self.landmask, arnoBeta), \
                    pcr.ifthen(self.landmask, rootZoneWaterStorageMin), \
                    pcr.ifthen(self.landmask, rootZoneWaterStorageRange), \
-                   pcr.ifthen(self.landmask, arnoBeta), \
                    pcr.ifthen(self.landmask, maxRootDepth), \
                    pcr.ifthen(self.landmask, adjRootFrUpp000005), \
                    pcr.ifthen(self.landmask, adjRootFrUpp005030), \
