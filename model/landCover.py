@@ -70,6 +70,19 @@ class LandCover(object):
             self.improvedArnoSchemeMethod = iniItems.landSurfaceOptions['improvedArnoSchemeMethod']
             if self.improvedArnoSchemeMethod == "Original": logger.warning("Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff.")
 
+        # In the original oldcalc script of Rens (2 layer model), the percolation percUpp (P1) can be negative
+        # - To avoid this, Edwin changed few lines (see the method updateSoilStates)
+        self.allowNegativePercolation = False
+        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True": self.allowNegativePercolation = True
+        
+        # In the original oldcalc script of Rens, there is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s) 
+        # - To avoid this, Edwin changed few lines (see the methods 'scaleRootFractionsFromTwoLayerSoilParameters' and 'estimateTranspirationAndBareSoilEvap')
+        self.usingOriginalOldCalcRootTranspirationPartitioningMethod = False
+        if 'usingOriginalOldCalcRootTranspirationPartitioningMethod' in self.iniItemsLC.keys() and self.iniItemsLC['usingOriginalOldCalcRootTranspirationPartitioningMethod'] == "True":
+            self.usingOriginalOldCalcRootTranspirationPartitioningMethod = True
+
+
+
         # get snow module type and its parameters:
         self.snowModuleType = self.iniItemsLC['snowModuleType']
         snowParams      = ['freezingT',
@@ -94,11 +107,6 @@ class LandCover(object):
         # number of soil layers (two or three)
         self.numberOfLayers = self.parameters.numberOfLayers
 
-        # In the original oldcalc script of Rens (2 layer model), the percolation percUpp (P1) can be negative
-        # - To avoid this, Edwin changed few lines (see the method updateSoilStates)
-        self.allowNegativePercolation = False
-        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True": self.allowNegativePercolation = True
-        
         # an option to introduce changes of land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
         if 'annualChangesInLandCoverParameters' in iniItems.landSurfaceOptions.keys():
@@ -460,8 +468,9 @@ class LandCover(object):
                                                                                             # RFW1[TYPE]= RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
                                                                                             # RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE]);
             # if not defined, put everything in the first layer:
-            adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp,1.0))) 
-            adjRootFrLow = pcr.max(0.0, pcr.scalar(1.0) - adjRootFrUpp)
+            if self.usingOriginalOldCalcRootTranspirationPartitioningMethod == False:
+                adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp,1.0))) 
+                adjRootFrLow = pcr.max(0.0, pcr.scalar(1.0) - adjRootFrUpp)
             
             return adjRootFrUpp, adjRootFrLow 
 
@@ -475,9 +484,10 @@ class LandCover(object):
             adjRootFrLow030150 = vos.getValDivZero(rootFracLow030150, (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150))
             #
             # if not defined, put everything in the first layer:
-            adjRootFrUpp000005 = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp000005, 1.0))) 
-            adjRootFrUpp005030 = pcr.max(0.0, pcr.ifthenelse(adjRootFrUpp000005 < 1.0, pcr.min(adjRootFrUpp005030, pcr.scalar(1.0) - adjRootFrUpp000005), 0.0)) 
-            adjRootFrLow030150 = pcr.max(0.0, pcr.scalar(1.0) - (adjRootFrUpp000005 + self.adjRootFrUpp005030)) 
+            if self.usingOriginalOldCalcRootTranspirationPartitioningMethod == False:
+                adjRootFrUpp000005 = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp000005, 1.0))) 
+                adjRootFrUpp005030 = pcr.max(0.0, pcr.ifthenelse(adjRootFrUpp000005 < 1.0, pcr.min(adjRootFrUpp005030, pcr.scalar(1.0) - adjRootFrUpp000005), 0.0)) 
+                adjRootFrLow030150 = pcr.max(0.0, pcr.scalar(1.0) - (adjRootFrUpp000005 + self.adjRootFrUpp005030)) 
 
             return adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 
 
@@ -2423,7 +2433,7 @@ class LandCover(object):
             potTranspirationLow = pcr.max(0.0, self.potTranspiration - potTranspirationUpp)
         if self.numberOfLayers == 3:
             potTranspirationUpp000005 = pcr.min(transpFracUpp000005*self.potTranspiration, self.potTranspiration)
-            potTranspirationUpp005030 = pcr.min(transpFracUpp000005*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005))
+            potTranspirationUpp005030 = pcr.min(transpFracUpp005030*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005))
             potTranspirationLow030150 = pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005 - potTranspirationUpp005030)
             
         # estimate actual transpiration fluxes
