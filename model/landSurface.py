@@ -427,7 +427,7 @@ class LandSurface(object):
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
 
-    def getInitialConditions(self,iniItems,iniConditions=None):
+    def getInitialConditions(self, iniItems, iniConditions = None):
 
         # starting year in integer
         starting_year = int(iniItems.globalOptions['startTime'][0:4])
@@ -460,7 +460,7 @@ class LandSurface(object):
             # just using the current year land cover fractions:
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         #
-        if self.dynamicIrrigationArea:
+        if self.noLandCoverFractionCorrection == False:
             # get initial land cover fractions that will be used 
             for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
         #######################################################################################################################################
@@ -488,7 +488,7 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
-        
+
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
         for var in self.mainStates: vars(self)[var] = pcr.scalar(0.0)
