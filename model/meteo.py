@@ -12,6 +12,9 @@ import virtualOS as vos
 from ncConverter import *
 import ETPFunctions as refPotET
 
+# option to ignore snow
+ignore_snow = True
+
 class Meteo(object):
 
     def __init__(self,iniItems,landmask,spinUp):
@@ -343,8 +346,8 @@ class Meteo(object):
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
-        #~ # ignore snow by setting temperature to 25 deg C
-        #~ self.temperature = pcr.spatial(pcr.scalar(25.))
+        # ignore snow by setting temperature to 25 deg C
+        if ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
         
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
