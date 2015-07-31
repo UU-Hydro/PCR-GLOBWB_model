@@ -97,7 +97,7 @@ class LandCover(object):
         # In the original oldcalc script of Rens (2 layer model), the percolation percUpp (P1) can be negative
         # - To avoid this, Edwin changed few lines (see the method updateSoilStates)
         self.allowNegativePercolation = False
-        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.self.iniItemsLC['allowNegativePercolation'] == "True": self.allowNegativePercolation = True
+        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True": self.allowNegativePercolation = True
         
         # an option to introduce changes of land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
