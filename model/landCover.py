@@ -371,7 +371,7 @@ class LandCover(object):
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
         # maxium root depth
-        maxRootDepth = pcr.cover(lc_parameters['rootDepth'], 0.0)
+        maxRootDepth = pcr.cover(lc_parameters['maxRootDepth'], 0.0)
         
         if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
