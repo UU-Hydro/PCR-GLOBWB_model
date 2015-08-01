@@ -794,8 +794,10 @@ CRFRAC=min(1.0, CRFRAC);
  T1POT= T1POT;
  report (rep2) T1ACT = T1ACT;
  T2POT= T2POT;
- report (rep2) T2ACT= T2ACT;
+ report (rep2) T2ACT = T2ACT;
  report (rep2) EACT  = EACT;
+ report (rep2) T_ACT = T1ACT + T2ACT;
+ 
  EFRAC= if(ETPOT>0,EACT/ETPOT,1);
  P1= P1;
  report (rep2) Q1 = Q1;
