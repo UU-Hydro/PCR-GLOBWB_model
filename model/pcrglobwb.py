@@ -196,7 +196,7 @@ class PCRGlobWB(object):
             msg = 'The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).'
             logger.info(msg)                        # TODO: Improve these water balance checks. 
 
-            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask,self.routing.cellArea))
+            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.routing.cellArea))
             msg = 'Total area = %e km2'\
                     % (totalCellArea/1e6)
             logger.info(msg)
@@ -230,7 +230,7 @@ class PCRGlobWB(object):
                             self.routing.cellArea)
                 msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self._modelTime.doy),\
-                           int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)
+                           int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)    # TODO: Calculation does not always start from day 1.
                 logger.info(msg)
 
             logger.info("")

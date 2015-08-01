@@ -20,7 +20,9 @@ logger = logging.getLogger(__name__)
 class PCRGlobWBVersionOne(DynamicModel):
 
     def __init__(self, configuration, \
-                       modelTime):
+                       modelTime, \
+                       landmask, \
+                       cellArea):
         DynamicModel.__init__(self)
         
         # configuration (based on the ini file)
@@ -33,28 +35,36 @@ class PCRGlobWBVersionOne(DynamicModel):
         self.cloneMapFileName = self.configuration.cloneMap
         pcr.setclone(self.cloneMapFileName)
         
+        # cell area and landmask maps
+        self.cellArea = cellArea
+        self.landmask = landmask
+        
         # output variables that will be compared (at daily resolution)
-        self.debug_variables = ['runoff',
-                                'actualET',
-                                'interceptStor',
-                                'snowCoverSWE',
-                                'snowFreeWater',                                
-                                'storUppTotal',
-                                'storLowTotal',
-                                'actBareSoilEvap',
-                                'directRunoff',
-                                'gwRecharge',
-                                'baseflow',
-                                'precipitation',
-                                'temperature',
-                                'referencePotET',
-                                'interflowTotal',
-                                'storGroundwater',
-                                'infiltration',
-                                'actTranspiTotal',
-                                'actTranspiUppTotal',
-                                'actTranspiLowTotal'
-                                ]
+        self.debug_state_variables = [
+                                      'temperature',
+                                      'snowCoverSWE',
+                                      'snowFreeWater',      
+                                      'interceptStor',
+                                      'storUppTotal',
+                                      'storLowTotal',
+                                      'storGroundwater'
+                                      ]
+        self.debug_flux_variables  = [
+                                      'precipitation',
+                                      'referencePotET',
+                                      'actBareSoilEvap',
+                                      'actTranspiTotal',
+                                      'actTranspiUppTotal',
+                                      'actTranspiLowTotal'
+                                      'infiltration',
+                                      'gwRecharge',
+                                      'runoff',
+                                      'directRunoff',
+                                      'interflowTotal',
+                                      'baseflow',
+                                      'actualET'
+                                      ]
+        self.debug_variables = self.debug_state_variables + self.debug_flux_variables
         
         # folder/location of oldcalc input maps
         self.maps_folder = self.configuration.mapsDir
@@ -120,20 +130,22 @@ class PCRGlobWBVersionOne(DynamicModel):
         cmd = 'oldcalc -f '+str(os.path.basename(self.oldcalc_script_file))+" "+monthly_end_times
         print cmd
         vos.cmd_line(cmd)
-
-    def dynamic(self):
         
-        # make netcdf files, particularly for daily resolution values 
+    def dynamic(self):
         
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
 
-        # timeStamp for reporting
+        # for the first day of the year or the first timestep
+        # - initiate accumulative flux variables (for calculating yearly total)
+        if self._modelTime.timeStepPCR == 1 or self._modelTime.day == 1:
+            for var in self.debug_flux_variables: vars(self)[var+'AnnuaTot'] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+
+        # reading variables from pcraster files, then report them as netcdf files also accumulate annual total values 
+        # - timeStamp for reporting
         timeStamp = datetime.datetime(self.modelTime.year,\
                                       self.modelTime.month,\
                                       self.modelTime.day,0)
-
-        # reading variables from pcraster files and report them as netcdf files
         for var in self.debug_variables:
 
             pcraster_map_file_name = self.results_folder + "/" +\
@@ -142,13 +154,57 @@ class PCRGlobWBVersionOne(DynamicModel):
             logger.debug("Reading the variable %s from the file %s ", var, pcraster_map_file_name)
             pcr_map_values = pcr.readmap(str(pcraster_map_file_name))
             
+            logger.debug("Accumulating variable %s ", var)
+            vars(self)[var+'AnnuaTot'] += pcr_map_values * self.cellArea
+            
             short_name = varDicts.netcdf_short_name[var]
-            netcdf_file_name = self.netcdf_folder+"/"+str(var)+"_dailyTot_output_version_one.nc"
 
             logger.debug("Saving to the file %s ", netcdf_file_name)
+            netcdf_file_name = self.netcdf_folder+"/"+str(var)+"_dailyTot_output_version_one.nc"
             self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
                                            pcr.pcr2numpy(pcr_map_values,vos.MV),\
                                            timeStamp)
+                                           
+        # at the last day of the year, report yearly accumulative values (to the logger)
+        if self.modelTime.isLastDayOfYear() or self.modelTime.isLastTimeStep():
+            
+            logger.info("")
+            msg  = '\n'
+            msg += '=======================================================================================================================\n'
+            msg += '=======================================================================================================================\n'
+            msg += 'Summary of yearly annual flux values of PCR-GLOBWB 1.0.\n'
+            msg += 'The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).\n'
+            msg += '=======================================================================================================================\n'
+            msg += '=======================================================================================================================\n'
+            msg += '\n'
+            msg += '\n'
+            logger.info(msg)
+            
+            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.cellArea))
+            msg = 'Total area = %e km2'\
+                    % (totalCellArea/1e6)
+            logger.info(msg)
+            
+            for var in self.debug_flux_variables:
+                volume = vos.getMapVolume(\
+                            self.__getattribute__(var + 'AnnuaTot'),\
+                            self.cellArea)
+                msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                    % (var,int(self.modelTime.doy),\
+                           int(self.modelTime.year),volume/1e9,volume*1000/totalCellArea)
+                logger.info(msg)
+        
+            msg  = '\n'
+            msg += '\n'
+            msg += '\n'
+            msg += '=======================================================================================================================\n'
+            msg += '\n'
+            msg += '\n'
+            logger.info(msg)
+
+        # at the last time step, compare the output of version 1 to the one of version 2
+        if self.modelTime.isLastTimeStep():
+            self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
 
     def compare_output(self):
 
@@ -174,7 +230,5 @@ class PCRGlobWBVersionOne(DynamicModel):
 
             cmd = 'cdo sub '+filename_version_two+" "+filename_version_one+" "+var+"_diff.nc"
             vos.cmd_line(cmd)
-
-        pass
 
 

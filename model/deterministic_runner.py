@@ -109,20 +109,19 @@ def main():
         logger.info('\n\n\n\n\n'+'Executing PCR-GLOBWB version 1.'+'\n\n\n\n\n')
 
         # reset modelTime object
-        currTimeStep = None
-        currTimeStep = ModelTime() 
+        currTimeStep = None; currTimeStep = ModelTime() 
         currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                           configuration.globalOptions['endTime'])
         
         # execute PCR-GLOBWB version 1
-        pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(configuration, currTimeStep)
-        dynamic_framework = DynamicFramework(pcrglobwb_one,currTimeStep.nrOfTimeSteps)
+        # - including comparing model outputs (from versions one and two)
+        pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(configuration, \
+                                                              currTimeStep, \
+                                                              deterministic_runner.model.routing.cellArea, \
+                                                              deterministic_runner.model.routing.landmask)
+        dynamic_framework = DynamicFramework(pcrglobwb_one, currTimeStep.nrOfTimeSteps)
         dynamic_framework.setQuiet(True)
         dynamic_framework.run()
         
-        # comparing the output
-        pcrglobwb_one.compare_output() 
-        
 if __name__ == '__main__':
     sys.exit(main())
-
