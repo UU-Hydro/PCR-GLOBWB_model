@@ -158,9 +158,9 @@ class PCRGlobWBVersionOne(DynamicModel):
                 logger.debug("Accumulating variable %s ", var)
                 vars(self)[var+'AnnuaTot'] += pcr_map_values * self.cellArea
             
-            logger.debug("Saving to the file %s ", netcdf_file_name)
             netcdf_file_name = self.netcdf_folder + "/"+ str(var) + "_dailyTot_output_version_one.nc"
             short_name = varDicts.netcdf_short_name[var]
+            logger.debug("Saving to the file %s ", netcdf_file_name)
             self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
                                            pcr.pcr2numpy(pcr_map_values, vos.MV),\
                                            timeStamp)
