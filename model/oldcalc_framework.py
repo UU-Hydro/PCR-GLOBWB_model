@@ -138,7 +138,7 @@ class PCRGlobWBVersionOne(DynamicModel):
 
         # for the first day of the year or the first timestep
         # - initiate accumulative flux variables (for calculating yearly total)
-        if self.modelTime.timeStepPCR == 1 or self.modelTime.day == 1:
+        if self.modelTime.timeStepPCR == 1 or self.modelTime.doy == 1:
             for var in self.debug_flux_variables: vars(self)[var+'AnnuaTot'] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
 
         # reading variables from pcraster files, then report them as netcdf files also accumulate annual total values 
