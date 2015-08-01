@@ -949,7 +949,7 @@ class LandCover(object):
                                   [],\
                                   'partitioning potential evaporation',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
+                                  currTimeStep.fulldate,threshold=1e-4)
 
         # fraction of potential bare soil evaporation and transpiration
         self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, vos.smallNumber)
@@ -1147,7 +1147,7 @@ class LandCover(object):
                                   [self.interceptStor],\
                                   'interceptStor',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
+                                  currTimeStep.fulldate,threshold=1e-4)
 
     def snowMeltHBVSimple(self,meteo,currTimeStep):
 
