@@ -172,10 +172,15 @@ binding
  ESPOT   = oldcalc_results\espot;				# potential soil evaporation (m)
  ESACT   = oldcalc_results\esact;				# actual soil evaporation (m)
  EWAT    = oldcalc_results\ewat;				# potential evaporation over open water
- T1POT   = oldcalc_results\t1pot;				# potential transpiration drawn from first soil layer (m)
- T1ACT   = oldcalc_results\t1act;				# idem, actual
- T2POT   = oldcalc_results\t2pot;				# potential transpiration drawn from second soil layer (m)
- T2ACT   = oldcalc_results\t2act;				# idem, actual
+
+ T1POT   = oldcalc_results\t1pot;               # potential transpiration drawn from first soil layer (m)
+ T1ACT   = oldcalc_results\tactUpp;             # idem, actual
+
+ T2POT   = oldcalc_results\t2pot;               # potential transpiration drawn from second soil layer (m)
+ T2ACT   = oldcalc_results\tactLow;             # idem, actual
+
+ T_ACT   = oldcalc_results\tact;                # total transpiration from the entire layers
+
  SATFRAC = oldcalc_results\satf;				# fraction saturated area (-)
  WACT    = oldcalc_results\wact;				# actual water storage within root zone (m)
 
@@ -705,8 +710,6 @@ CRFRAC=min(1.0, CRFRAC);
    CR2_L[TYPE]= 0.5*(SATFRAC_L[TYPE]+CRFRAC)*min((1-THEFF2)*sqrt(KS2[TYPE]*KTHEFF2)*Duration*timeslice(),
      max(0,THEFF2_FC[TYPE]-THEFF2)*SC2[TYPE]);
    
-  #CR2_L[TYPE] = 0.0;
-   
    RQ2=  P2_IMP[TYPE]*(P1_L[TYPE]+CR2_L[TYPE]-(P2_L[TYPE]+CR1_L[TYPE]));
    Q2_L[TYPE]= max(TCL[TYPE]*RQ2+(1-TCL[TYPE])*Q2_L[TYPE],0);   
    #-water balance: scaled fluxes and new states
@@ -789,9 +792,9 @@ CRFRAC=min(1.0, CRFRAC);
  ESPOT= ESPOT;
  report (rep2) ESACT = ESACT;
  T1POT= T1POT;
- T1ACT= T1ACT;
+ report (rep2) T1ACT = T1ACT;
  T2POT= T2POT;
- T2ACT= T2ACT;
+ report (rep2) T2ACT= T2ACT;
  report (rep2) EACT  = EACT;
  EFRAC= if(ETPOT>0,EACT/ETPOT,1);
  P1= P1;

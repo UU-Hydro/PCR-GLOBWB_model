@@ -1019,7 +1019,6 @@ class LandCover(object):
                                                                          #~ # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
         # - Edwin simplify it
         self.interceptEvap = pcr.min(self.interceptStor, self.potInterceptionFlux)                      
-        self.interceptEvap = pcr.min(self.interceptEvap, self.potInterceptionFlux)
                                      
         # update interception storage 
         self.interceptStor = pcr.max(0.0, \
@@ -1077,7 +1076,7 @@ class LandCover(object):
                                      currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                      cloneMapFileName = self.cloneMap), 0.0)
             coverFraction = pcr.cover(coverFraction, 0.0)
-            interceptCap  = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
+            interceptCap  = coverFraction * interceptCap                 # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
         self.interceptCap = interceptCap
         
         # Edwin added this line to extend the interception definition (not only canopy interception)

@@ -223,6 +223,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'total_plant_transpiration_from_ent
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "tact"
 
 # actTranspiUppTotal
 pcrglobwb_variable_name = 'actTranspiUppTotal'
@@ -234,6 +235,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'total_plant_transpiration_from_upp
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "tactUpp"
 
 # actTranspiLowTotal
 pcrglobwb_variable_name = 'actTranspiLowTotal'
@@ -245,6 +247,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'total_plant_transpiration_from_low
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "tactLow"
 
 # directRunoff                    
 pcrglobwb_variable_name = 'directRunoff'

@@ -50,7 +50,11 @@ class PCRGlobWBVersionOne(DynamicModel):
                                 'referencePotET',
                                 'interflowTotal',
                                 'storGroundwater',
-                                'infiltration']
+                                'infiltration',
+                                'actTranspiTotal',
+                                'actTranspiUppTotal',
+                                'actTranspiLowTotal'
+                                ]
         
         # folder/location of oldcalc input maps
         self.maps_folder = self.configuration.mapsDir
