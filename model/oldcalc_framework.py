@@ -180,13 +180,18 @@ class PCRGlobWBVersionOne(DynamicModel):
             msg += '\n'
             logger.info(msg)
             
+            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.routing.cellArea))
+            msg = 'Total area = %e km2'\
+                    % (totalCellArea/1e6)
+            logger.info(msg)
+
             for var in self.debug_flux_variables:
                 volume = vos.getMapVolume(\
                             self.__getattribute__(var + 'AnnuaTot'),\
                             self.cellArea)
-                msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                msg = 'Accumulated %s from PCR-GLOBWB 1.0 days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self.modelTime.doy), \
-                           int(self.modelTime.year), volume/1e9, volume*1000/vos.getMapTotal(pcr.ifthen(self.landmask, self.cellArea)))
+                           int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)
                 logger.info(msg)
         
             msg  = '\n'
