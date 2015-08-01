@@ -203,8 +203,7 @@ class PCRGlobWBVersionOne(DynamicModel):
             logger.info(msg)
 
         # at the last time step, compare the output of version 1 to the one of version 2
-        if self.modelTime.isLastTimeStep():
-            self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
+        if self.modelTime.isLastTimeStep(): self.compare_output()
 
     def compare_output(self):
 
