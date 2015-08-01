@@ -55,7 +55,7 @@ class PCRGlobWBVersionOne(DynamicModel):
                                       'actBareSoilEvap',
                                       'actTranspiTotal',
                                       'actTranspiUppTotal',
-                                      'actTranspiLowTotal'
+                                      'actTranspiLowTotal',
                                       'infiltration',
                                       'gwRecharge',
                                       'runoff',
