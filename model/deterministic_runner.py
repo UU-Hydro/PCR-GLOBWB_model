@@ -117,8 +117,8 @@ def main():
         # - including comparing model outputs (from versions one and two)
         pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(configuration, \
                                                               currTimeStep, \
-                                                              deterministic_runner.model.routing.cellArea, \
-                                                              deterministic_runner.model.routing.landmask)
+                                                              deterministic_runner.model.routing.landmask, \
+                                                              deterministic_runner.model.routing.cellArea)
         dynamic_framework = DynamicFramework(pcrglobwb_one, currTimeStep.nrOfTimeSteps)
         dynamic_framework.setQuiet(True)
         dynamic_framework.run()

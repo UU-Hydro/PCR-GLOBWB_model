@@ -145,7 +145,7 @@ class PCRGlobWBVersionOne(DynamicModel):
         # - timeStamp for reporting
         timeStamp = datetime.datetime(self.modelTime.year,\
                                       self.modelTime.month,\
-                                      self.modelTime.day,0)
+                                      self.modelTime.day, 0)
         for var in self.debug_variables:
 
             pcraster_map_file_name = self.results_folder + "/" +\
@@ -160,9 +160,9 @@ class PCRGlobWBVersionOne(DynamicModel):
             short_name = varDicts.netcdf_short_name[var]
 
             logger.debug("Saving to the file %s ", netcdf_file_name)
-            netcdf_file_name = self.netcdf_folder+"/"+str(var)+"_dailyTot_output_version_one.nc"
+            netcdf_file_name = self.netcdf_folder + "/"+ str(var) + "_dailyTot_output_version_one.nc"
             self.netcdf_report.data2NetCDF(netcdf_file_name, short_name,\
-                                           pcr.pcr2numpy(pcr_map_values,vos.MV),\
+                                           pcr.pcr2numpy(pcr_map_values, vos.MV),\
                                            timeStamp)
                                            
         # at the last day of the year, report yearly accumulative values (to the logger)
@@ -190,8 +190,8 @@ class PCRGlobWBVersionOne(DynamicModel):
                             self.__getattribute__(var + 'AnnuaTot'),\
                             self.cellArea)
                 msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
-                    % (var,int(self.modelTime.doy),\
-                           int(self.modelTime.year),volume/1e9,volume*1000/totalCellArea)
+                    % (var,int(self.modelTime.doy), \
+                           int(self.modelTime.year), volume/1e9, volume*1000/totalCellArea)
                 logger.info(msg)
         
             msg  = '\n'
@@ -224,8 +224,8 @@ class PCRGlobWBVersionOne(DynamicModel):
 
             short_name = varDicts.netcdf_short_name[var]
 
-            filename_version_two = self.configuration.outNCDir+"/"+str(var)+"_dailyTot_output.nc"
-            filename_version_one = self.netcdf_folder         +"/"+str(var)+"_dailyTot_output_version_one.nc"
+            filename_version_two = self.configuration.outNCDir + "/" +str(var) +"_dailyTot_output.nc"
+            filename_version_one = self.netcdf_folder          + "/" +str(var) +"_dailyTot_output_version_one.nc"
 
             cmd = 'cdo sub '+filename_version_two+" "+filename_version_one+" "+var+"_diff.nc"
             vos.cmd_line(cmd)
