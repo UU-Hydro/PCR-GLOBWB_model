@@ -191,7 +191,7 @@ class PCRGlobWBVersionOne(DynamicModel):
                             self.cellArea)
                 msg = 'Accumulated %s from PCR-GLOBWB 1.0 days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self.modelTime.doy), \
-                           int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)
+                           int(self.modelTime.year),volume/1e9,volume*1000/totalCellArea)
                 logger.info(msg)
         
             msg  = '\n'
