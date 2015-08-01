@@ -36,8 +36,8 @@ class PCRGlobWBVersionOne(DynamicModel):
         pcr.setclone(self.cloneMapFileName)
         
         # cell area and landmask maps
-        self.cellArea = cellArea
         self.landmask = landmask
+        self.cellArea = pcr.ifthen(self.landmask, cellArea)
         
         # output variables that will be compared (at daily resolution)
         self.debug_state_variables = [
