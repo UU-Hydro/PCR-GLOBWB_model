@@ -180,7 +180,7 @@ class PCRGlobWBVersionOne(DynamicModel):
             msg += '\n'
             logger.info(msg)
             
-            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.routing.cellArea))
+            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.cellArea))
             msg = 'Total area = %e km2'\
                     % (totalCellArea/1e6)
             logger.info(msg)
