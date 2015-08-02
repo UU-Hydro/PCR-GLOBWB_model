@@ -160,7 +160,7 @@ binding
 #WMAX[COVERTYPE]      = index(COVERTABLE);
 
  MINFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of min soil depth over average soil depth
-#MAXFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of max soil depth over average soil depth
+ MAXFRAC[COVERTYPE]   = index(COVERTABLE);		    # ratio of max soil depth over average soil depth
  P2_IMP[COVERTYPE]    = index(COVERTABLE);		    # fractional area where percolation to groundwater store is impeded
 
 
