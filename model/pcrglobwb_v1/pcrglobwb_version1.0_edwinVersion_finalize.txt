@@ -309,7 +309,7 @@ areamap
  LANDMASK;
 
 timer
- 1 $13 1;
+ 1 $12 1;
  rep1 = endtime;					                # times to report TSS and initial maps
  rep2 = 1+1..endtime;				                # times to report soil states and fluxes (default: daily)
 #rep2 = $15+$15..endtime;				            # times to report soil states and fluxes
