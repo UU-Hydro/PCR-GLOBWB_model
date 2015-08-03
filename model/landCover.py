@@ -940,11 +940,11 @@ class LandCover(object):
                                 self.minCropKC * meteo.referencePotET)
         self.potTranspiration = pcr.max(0.0, \
                                 pcr.ifthen(self.landmask,\
-                                self.cropKC    * meteo.referencePotET - self.potBareSoilEvap))
+                                self.totalPotET - self.potBareSoilEvap))
     
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.totalPotET],\
-                                  [self.potBareSoilEvap,self.potTranspiration],\
+                                  [self.potBareSoilEvap, self.potTranspiration],\
                                   [],\
                                   [],\
                                   'partitioning potential evaporation',\
