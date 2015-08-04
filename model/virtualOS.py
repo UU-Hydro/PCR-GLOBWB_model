@@ -474,8 +474,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     idx = int(idx)                                                  
     logger.debug('Using the date index '+str(idx))
 
-    cropData = f.variables[varName][int(idx),:,:]       # still original data
-    factor = 1                          # needed in regridData2FinerGrid
+    cropData = f.variables[varName][int(idx),:,:].copy()       # still original data
+    factor = 1                                                 # needed in regridData2FinerGrid
     
     # store latitudes and longitudes to a new variable
     latitude  = f.variables['lat']
@@ -486,6 +486,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     if (latitude[0]- latitude[1]) < 0.0: 
         we_have_to_flip = True
         latitude = np.flipud(latitude)
+        cropData = flipud(cropData)
     
     sameClone = True
     # check whether clone and input maps have the same attributes:
@@ -510,10 +511,6 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         if colsClone != colsInput: sameClone = False
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
-
-    # flip cropData if f.variables['lat'][0] < f.variables['lat'][1] 
-    if we_have_to_flip: 
-        cropData = np.asarray(cropData[::-1,:].copy())
 
     if sameClone == False:
         
