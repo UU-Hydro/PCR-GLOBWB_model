@@ -180,6 +180,27 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         except:
             pass
 
+    if varName == "kc":   # the variable name in PCR-GLOBWB     
+       try:
+           f.variables['kc'] = \
+                f.variables['Cropcoefficient']  # the variable name in the netcdf file
+       except:
+           pass
+
+    if varName == "interceptCapInput":   # the variable name in PCR-GLOBWB     
+       try:
+           f.variables['interceptCapInput'] = \
+                f.variables['Interceptioncapacity']  # the variable name in the netcdf file
+       except:
+           pass
+
+    if varName == "coverFractionInput":   # the variable name in PCR-GLOBWB     
+       try:
+           f.variables['coverFractionInput'] = \
+                f.variables['Coverfraction']  # the variable name in the netcdf file
+       except:
+           pass
+
     # date
     date = dateInput
     if useDoy == "Yes": 
