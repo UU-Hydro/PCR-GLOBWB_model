@@ -478,8 +478,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     factor = 1                          # needed in regridData2FinerGrid
     
     # store latitudes and longitudes to a new variable
-    latitude  = f.variables['lat'][:]
-    longitude = f.variables['lon'][:]
+    latitude  = f.variables['lat']
+    longitude = f.variables['lon']
     
     # check the orientation of the latitude and flip it if necessary
     we_have_to_flip = False
@@ -546,8 +546,6 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                   regridData2FinerGrid(factor,cropData,MV), \
                   float(f.variables[varName]._FillValue))
                   
-    pietjes
-    
     #f.close();
     f = None ; cropData = None 
     # PCRaster object
