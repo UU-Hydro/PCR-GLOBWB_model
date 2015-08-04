@@ -201,6 +201,13 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
        except:
            pass
 
+    if varName == "fracVegCover":   # the variable name in PCR-GLOBWB     
+       try:
+           f.variables['fracVegCover'] = \
+                f.variables['vegetation_fraction']  # the variable name in the netcdf file
+       except:
+           pass
+
     # date
     date = dateInput
     if useDoy == "Yes": 
