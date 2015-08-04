@@ -513,6 +513,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     # flip cropData if f.variables['lat'][0] < f.variables['lat'][1] 
     if (f.variables['lat'][0] < f.variables['lat'][1]) < 0.0: 
+        pietjes
         cropData = np.flipud(cropData) 
 
     if sameClone == False:
