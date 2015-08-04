@@ -402,6 +402,13 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
        except:
            pass
 
+    if varName == "arnoBeta":   # the variable name in PCR-GLOBWB     
+       try:
+           f.variables['arnoBeta'] = \
+                f.variables['arnoSchemeBeta']  # the variable name in the netcdf file
+       except:
+           pass
+
     # date
     date = dateInput
     if useDoy == "Yes": 
