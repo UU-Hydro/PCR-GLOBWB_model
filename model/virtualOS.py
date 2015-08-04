@@ -492,9 +492,6 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         colsClone = attributeClone['cols']
         xULClone = attributeClone['xUL']
         yULClone = attributeClone['yUL']
-        
-        pietjes
-        
         # get the attributes of input (netCDF) 
         cellsizeInput = latitude[0]- latitude[1]
         cellsizeInput = float(cellsizeInput)
@@ -509,6 +506,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
 
+    print sameClone
+    
     cropData = f.variables[varName][int(idx),:,:]       # still original data
     factor = 1                          # needed in regridData2FinerGrid
     
