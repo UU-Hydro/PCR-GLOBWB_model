@@ -473,7 +473,7 @@ class LandSurface(object):
            self.noLandCoverFractionCorrection and self.noAnnualChangesInLandCoverParameter == False:
             # obtain the previous year land cover fractions:
             previous_year = starting_year - 1
-            one_january_prev_year = str(previous_year)+"01-01"
+            one_january_prev_year = str(previous_year)+"-01-01"
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_prev_year, \
                                                                                                                     get_only_fracVegCover = True)
@@ -485,7 +485,7 @@ class LandSurface(object):
         if consider_previous_year_land_cover_fraction == False and \
            self.noLandCoverFractionCorrection and self.noAnnualChangesInLandCoverParameter == False:
             # just using the current year land cover fractions:
-            one_january_this_year = str(starting_year)+"01-01"
+            one_january_this_year = str(starting_year)+"-01-01"
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
