@@ -477,8 +477,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     cropData = f.variables[varName][int(idx),:,:]       # still original data
     factor = 1                          # needed in regridData2FinerGrid
     
-    print np.ndim(cropData)
-    print cropData
+    print np.ndim(cropData[:])
+    print cropData[:]
 
     # store latitudes and longitudes to a new variable
     latitude  = f.variables['lat'][:]
