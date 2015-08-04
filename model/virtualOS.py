@@ -481,8 +481,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     print cropData
 
     # store latitudes and longitudes to a new variable
-    latitude  = f.variables['lat']
-    longitude = f.variables['lon']
+    latitude  = f.variables['lat'][:]
+    longitude = f.variables['lon'][:]
     
     # check the orientation of the latitude and flip it if necessary
     we_have_to_flip = False
