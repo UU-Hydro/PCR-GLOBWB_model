@@ -126,7 +126,9 @@ class LandCover(object):
             if self.numberOfLayers == 3: 
                 self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp000005, self.adjRootFrUpp005030, self.adjRootFrLow030150 = \
-                                   self.get_land_cover_parameters() 
+                                   self.get_land_cover_parameters()
+            # estimate parameters while transpiration is being halved
+            self.calculateParametersAtHalfTranspiration()
 
         # get additional land cover parameters (ALWAYS fixed for the entire simulation)
         landCovParamsAdd = ['minTopWaterLayer',
@@ -401,9 +403,6 @@ class LandCover(object):
         # saving also rootFraction1 and rootFraction2 (only for debugging purpose)
         self.rootFraction1 = lc_parameters['rootFraction1']
         self.rootFraction2 = lc_parameters['rootFraction2']
-
-        # estimate parameters while transpiration is being halved
-        self.calculateParametersAtHalfTranspiration()
 
         if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
