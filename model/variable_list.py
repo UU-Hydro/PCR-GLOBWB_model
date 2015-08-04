@@ -178,6 +178,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'evaporation_from_interception_stor
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "int_evap"
 
 # actSnowFreeWaterEvap
 pcrglobwb_variable_name = 'actSnowFreeWaterEvap'
@@ -189,6 +190,7 @@ netcdf_long_name[pcrglobwb_variable_name]  = 'evaporation_from_liquid_water_with
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = "scf_evap"
 
 # topWaterLayerEvap   
 pcrglobwb_variable_name = 'topWaterLayerEvap'

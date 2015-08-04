@@ -195,36 +195,41 @@ binding
 # Maps & TSS - output
 ##########################################################################################################################
 
+ # forcing variables (re-written) 
+
  prp_input = oldcalc_results\pr;                # precipitation (m/day)  
  ta_input  = oldcalc_results\ta;                # temperature (degree C)
  e0p_input = oldcalc_results\e0p;               # reference potential evaporation (m/day) 
 
 
- SC      = oldcalc_results\snowcov;			    # snow cover (m)
- SC_L    = oldcalc_results\sc;				    # idem, local value
- SCF     = oldcalc_results\snowliq;			    # liquid water stored in snow cover (m)
- SCF_L   = oldcalc_results\scf;				    # idem, local value
- SCTSS   = oldcalc_results\snowtot.tss;		    # total snow storage in equivalent water height (m)
-                                                    
- INTS    = oldcalc_results\intstor;			    # interception storage (m)
- INTS_L  = oldcalc_results\ints;			    # idem, local value
- INTSTSS = oldcalc_results\ints.tss;		    # as above, timeseries
+ SC       = oldcalc_results\snowcov;			# snow cover (m)
+ SC_L     = oldcalc_results\sc;				    # idem, local value
+ SCF      = oldcalc_results\snowliq;			# liquid water stored in snow cover (m)
+ SCF_L    = oldcalc_results\scf;				# idem, local value
+ SCTSS    = oldcalc_results\snowtot.tss;		# total snow storage in equivalent water height (m)
+                                                 
+ INTS     = oldcalc_results\intstor;			# interception storage (m)
+ INTS_L   = oldcalc_results\ints;			    # idem, local value
+ INTSTSS  = oldcalc_results\ints.tss;		    # as above, timeseries
+          
+ EACT     = oldcalc_results\eact;				# actual evapotranspiration (m)
+ EACTTSS  = oldcalc_results\eact.tss;			# as above, timeseries
+ ETPOT    = oldcalc_results\etpot;				# total potential evapotranspiration (m)
+ EFRAC    = oldcalc_results\efrac;				# fraction of actual over potential evapotranspiration (-)
+ ESPOT    = oldcalc_results\espot;				# potential soil evaporation (m)
+ ESACT    = oldcalc_results\esact;				# actual soil evaporation (m)
+ EWAT     = oldcalc_results\ewat;				# potential evaporation over open water
+          
+ T1POT    = oldcalc_results\t1pot;              # potential transpiration drawn from first soil layer (m)
+ T1ACT    = oldcalc_results\tactUpp;            # idem, actual
+          
+ T2POT    = oldcalc_results\t2pot;              # potential transpiration drawn from second soil layer (m)
+ T2ACT    = oldcalc_results\tactLow;            # idem, actual
+          
+ T_ACT    = oldcalc_results\tact;               # total transpiration from the entire layers
 
- EACT    = oldcalc_results\eact;				# actual evapotranspiration (m)
- EACTTSS = oldcalc_results\eact.tss;			# as above, timeseries
- ETPOT   = oldcalc_results\etpot;				# total potential evapotranspiration (m)
- EFRAC   = oldcalc_results\efrac;				# fraction of actual over potential evapotranspiration (-)
- ESPOT   = oldcalc_results\espot;				# potential soil evaporation (m)
- ESACT   = oldcalc_results\esact;				# actual soil evaporation (m)
- EWAT    = oldcalc_results\ewat;				# potential evaporation over open water
-
- T1POT   = oldcalc_results\t1pot;               # potential transpiration drawn from first soil layer (m)
- T1ACT   = oldcalc_results\tactUpp;             # idem, actual
-
- T2POT   = oldcalc_results\t2pot;               # potential transpiration drawn from second soil layer (m)
- T2ACT   = oldcalc_results\tactLow;             # idem, actual
-
- T_ACT   = oldcalc_results\tact;                # total transpiration from the entire layers
+ INT_EVAP = oldcalc_results\int_evap;           # evaporation from intercepted water  
+ SCF_EVAP = oldcalc_results\scf_evap;           # evaporation from snow free water
 
  SATFRAC = oldcalc_results\satf;				# fraction saturated area (-)
  WACT    = oldcalc_results\wact;				# actual water storage within root zone (m)
@@ -269,9 +274,6 @@ binding
 
  QW     = oldcalc_results\qw;					# change in storage of freshwater surface
 
- 
- # forcing variables (re-written) 
- 
  
  # channel discharge has been retained as check but is not used
  QAVG        = oldcalc_results\qaverage.map;	# channel discharge - annual average (m/s)
@@ -539,6 +541,9 @@ CRFRAC=min(1.0, CRFRAC);
  Q1S= scalar(0);
  Q2= scalar(0);
 
+ INT_EVAP = scalar(0);
+ SCF_EVAP = scalar(0);
+
  foreach TYPE in COVERTYPE{
   #-Vegetation cover fraction
 
@@ -578,6 +583,8 @@ CRFRAC=min(1.0, CRFRAC);
    EACT_L[TYPE]  = min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)));
 
    EACT_L[TYPE]  = min(T_p[TYPE], EACT_L[TYPE]);
+   
+   INT_EVAP_L = EACT_L[TYPE];   # evaporation from intercepted water
 
    report (rep1) INTS_L[TYPE] = INTS_L[TYPE]-EACT_L[TYPE];
    T_p[TYPE]                  = max(0,T_p[TYPE]-EACT_L[TYPE]);
@@ -605,6 +612,8 @@ CRFRAC=min(1.0, CRFRAC);
    report (rep1) SCF_L[TYPE]= SCF_L[TYPE]-ES_a[TYPE];
    ES_p[TYPE]= max(0,ES_p[TYPE]-ES_a[TYPE]);
    EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
+
+   SCF_EVAP_L = EACT_L[TYPE];   # evaporation from snow free water
 
   #-Direct runoff and infiltration based on improved Arno scheme
   # partial runoff when not entirely saturated (condition 1), else complete saturation excess
@@ -815,6 +824,10 @@ CRFRAC=min(1.0, CRFRAC);
    Q1= Q1+VEGFRAC[TYPE]*Q1_L[TYPE];
    Q1S= Q1S+VEGFRAC[TYPE]*Q1S_L[TYPE];
    Q2= Q2+VEGFRAC[TYPE]*Q2_L[TYPE];
+
+   INT_EVAP = INT_EVAP + VEGFRAC[TYPE]*INT_EVAP_L
+   SCF_EVAP = SCF_EVAP + VEGFRAC[TYPE]*SCF_EVAP_L
+
    }
 
 #---------------------------

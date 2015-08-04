@@ -52,6 +52,8 @@ class PCRGlobWBVersionOne(DynamicModel):
         self.debug_flux_variables  = [
                                       'precipitation',
                                       'referencePotET',
+                                      'interceptEvap',
+                                      'actSnowFreeWaterEvap',
                                       'actBareSoilEvap',
                                       'actTranspiTotal',
                                       'actTranspiUppTotal',

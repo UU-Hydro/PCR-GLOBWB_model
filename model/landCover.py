@@ -959,7 +959,7 @@ class LandCover(object):
                                   [],\
                                   'partitioning potential evaporation',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-4)
+                                  currTimeStep.fulldate,threshold=5e-4)
 
         # fraction of potential bare soil evaporation and transpiration
         self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, vos.smallNumber)
