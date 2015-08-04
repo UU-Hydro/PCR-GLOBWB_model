@@ -516,9 +516,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     # flip cropData if f.variables['lat'][0] < f.variables['lat'][1] 
     if we_have_to_flip: 
-        cropData = None
-        cropData = f.variables[varName][int(idx),:,:]
-        cropData = np.flipud(cropData) 
+        originalData = f.variables[varName][int(idx),:,:]
+        cropData = np.flipud(originalData) 
         #~ test = cropData
         #~ cropData = test[::-1,...]  
 
