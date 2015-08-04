@@ -517,6 +517,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         yIdxSta = int(np.where(abs(latitude[:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         originalData = cropData
+        cropData = None
         cropData = originalData[idx,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
