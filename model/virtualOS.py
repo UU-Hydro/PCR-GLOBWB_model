@@ -513,6 +513,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     cropData = f.variables[varName][int(idx),:,:]       # still original data
     factor = 1                          # needed in regridData2FinerGrid
     
+    np.ndim(cropData)
+    
     # flip cropData if f.variables['lat'][0] < f.variables['lat'][1] 
     if we_have_to_flip: 
         cropData = np.fliplr(cropData[:,:]) 
