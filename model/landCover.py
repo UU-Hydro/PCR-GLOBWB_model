@@ -345,7 +345,7 @@ class LandCover(object):
                                                                 cloneMapFileName = self.cloneMap)
             
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(arnoBeta, types.NoneType) and landCoverPropertiesNC == None and get_only_fracVegCover == False:
+            if isinstance(lc_parameters['arnoBeta'], types.NoneType) and landCoverPropertiesNC == None and get_only_fracVegCover == False:
 
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
 
