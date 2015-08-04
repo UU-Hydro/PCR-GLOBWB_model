@@ -486,7 +486,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         xULClone = attributeClone['xUL']
         yULClone = attributeClone['yUL']
         # get the attributes of input (netCDF) 
-        cellsizeInput = latitude[0]- latitude['lat'][1]
+        cellsizeInput = latitude[0]- latitude[1]
         cellsizeInput = float(cellsizeInput)
         rowsInput = len(latitude)
         colsInput = len(longitude)
