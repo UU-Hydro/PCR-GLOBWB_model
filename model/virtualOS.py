@@ -489,6 +489,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     if (latitude[0]- latitude[1]) < 0.0: 
         we_have_to_flip = True
         latitude = np.flipud(latitude)
+        print latitude
     
     sameClone = True
     # check whether clone and input maps have the same attributes:
