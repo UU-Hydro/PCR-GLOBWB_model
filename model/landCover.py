@@ -1151,18 +1151,6 @@ class LandCover(object):
 
     def snowMeltHBVSimple(self,meteo,currTimeStep):
 
-        # output: self.snowCoverSWE, 
-        #         self.netLqWaterToSoil, 
-        #         self.actBareSoilEvap, 
-        #         self.snowFreeWater, 
-        #         self.potBareSoilEvap, 
-        #         self.actualET
-
-        # parameters:  self.freezingT,
-        #              self.degreeDayFactor,
-        #              self.snowWaterHoldingCap,
-        #              self.refreezingCoeff
-
         if self.debugWaterBalance:
             prevStates        = [self.snowCoverSWE,self.snowFreeWater]
             prevSnowCoverSWE  = self.snowCoverSWE
