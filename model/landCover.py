@@ -169,9 +169,6 @@ class LandCover(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
-        # estimate parameters while transpiration is being halved
-        self.calculateParametersAtHalfTranspiration()
-
         # for non paddy irrigation areas, calculate TAW for estimating irrigation gross demand
         if self.includeIrrigation and self.name != 'irrPaddy': self.calculateTotAvlWaterCapacityInRootZone()
 
@@ -393,6 +390,9 @@ class LandCover(object):
         # saving also rootFraction1 and rootFraction2 (only for debugging purpose)
         self.rootFraction1 = lc_parameters['rootFraction1']
         self.rootFraction2 = lc_parameters['rootFraction2']
+
+        # estimate parameters while transpiration is being halved
+        self.calculateParametersAtHalfTranspiration()
 
         if self.numberOfLayers == 2 and get_only_fracVegCover == False:
             
