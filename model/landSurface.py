@@ -460,14 +460,15 @@ class LandSurface(object):
             # just using the current year land cover fractions:
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         #
-        if self.noLandCoverFractionCorrection == False:
-            # get initial land cover fractions that will be used 
-            for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
         #######################################################################################################################################
 
 
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
+        #
+        # For non spin-up runs that start at the first day of the year (1 January), 
+        # - we have to consider the previous year land cover fractions
+        #
         if iniConditions == None and start_on_1_Jan == True and \
            self.noLandCoverFractionCorrection and self.noAnnualChangesInLandCoverParameter == False:
             # obtain the previous year land cover fractions:
@@ -488,6 +489,11 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
+
+        #################################################################################################################################
+        # get initial land cover fractions that will be used 
+        for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
+        #################################################################################################################################
 
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
