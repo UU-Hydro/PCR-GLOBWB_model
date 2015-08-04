@@ -546,6 +546,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                   regridData2FinerGrid(factor,cropData,MV), \
                   float(f.variables[varName]._FillValue))
                   
+    pietjes
+    
     #f.close();
     f = None ; cropData = None 
     # PCRaster object
