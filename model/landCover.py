@@ -366,7 +366,7 @@ class LandCover(object):
                  (lc_parameters['maxSoilDepthFrac']-1.)/(1.-lc_parameters['minSoilDepthFrac'])+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
 
-        pcr.report(fracVegCover, "fracVegCover.map")
+        pcr.report(lc_parameters['fracVegCover'], "fracVegCover.map")
         os.system('aguila fracVegCover.map')
 
         # limit 0.0 <= fracVegCover <= 1.0
