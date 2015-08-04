@@ -343,6 +343,8 @@ class LandCover(object):
                     lc_parameters[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
                                                                 date_in_string, useDoy = 'yearly',\
                                                                 cloneMapFileName = self.cloneMap)
+                else:                                                
+                    lc_parameters[var] = None
             
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if isinstance(lc_parameters['arnoBeta'], types.NoneType) and landCoverPropertiesNC == None and get_only_fracVegCover == False:
