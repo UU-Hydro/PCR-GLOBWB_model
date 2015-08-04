@@ -364,8 +364,12 @@ class LandCover(object):
         fracVegCover = pcr.max(0.0, fracVegCover)
         fracVegCover = pcr.min(1.0, fracVegCover)
 
+        pcr.report(fracVegCover, "fracVegCover.map")
+        os.system('aguila fracVegCover.map')
+
         if get_only_fracVegCover:
             return pcr.ifthen(self.landmask, fracVegCover)
+        
         
         # WMIN (unit: m): minimum local soil water capacity within the grid-cell
         rootZoneWaterStorageMin = lc_parameters['minSoilDepthFrac'] * \
