@@ -349,6 +349,8 @@ class LandCover(object):
                     # reading parameters from pcraster maps or scalar values
                     lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
                                                              self.tmpDir, self.inputDir)
+                    print test
+                    pietjes                                         
 
             print lc_parameters.keys()
             print get_only_fracVegCover
