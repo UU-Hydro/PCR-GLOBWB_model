@@ -352,6 +352,7 @@ class LandCover(object):
                     # reading parameters from pcraster maps or scalar values
                     lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
                                                              self.tmpDir, self.inputDir)
+                    print lc_parameters[var]
                     poiet                                         
 
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
