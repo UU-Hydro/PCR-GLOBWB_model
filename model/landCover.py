@@ -340,6 +340,9 @@ class LandCover(object):
                 
                 # read parameter values from the ncFile mentioned in the ini/configuration file 
                 ini_option = self.iniItemsLC[var+'NC']
+                
+                print ini_option
+                
                 if ini_option.endswith(vos.netcdf_suffixes): 
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
                     lc_parameters[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
