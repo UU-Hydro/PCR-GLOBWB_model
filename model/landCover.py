@@ -397,6 +397,7 @@ class LandCover(object):
         
         # maxium root depth
         maxRootDepth = pcr.spatial(lc_parameters['maxRootDepth'])
+        print type(maxRootDepth)
         
         # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
         self.minSoilDepthFrac = lc_parameters['minSoilDepthFrac']
