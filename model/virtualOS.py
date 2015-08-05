@@ -542,7 +542,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
         #~ cropData = cropData[::-1,:].copy()
 
-    pcr_map = pcr.numpy2cpr(pcr.Scalar, cropData, MV)
+    pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData, MV)
     pcr.report(pcr_map, "test2.map")
     os.system("aguila test2.map")
     
