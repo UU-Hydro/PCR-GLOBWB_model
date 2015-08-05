@@ -1253,14 +1253,14 @@ class LandCover(object):
                                   [self.snowCoverSWE],\
                                   'snowCoverSWE',\
                                    True,\
-                                   currTimeStep.fulldate,threshold=1e-5)
+                                   currTimeStep.fulldate,threshold=5e-4)
             vos.waterBalanceCheck([self.liquidPrecip],
                                   [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
                                   [prevSnowFreeWater],\
                                   [self.snowFreeWater],\
                                   'snowFreeWater',\
                                    True,\
-                                   currTimeStep.fulldate,threshold=1e-5)
+                                   currTimeStep.fulldate,threshold=5e-4)
 
     def getSoilStates(self):
 
