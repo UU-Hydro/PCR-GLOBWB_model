@@ -856,6 +856,9 @@ CRFRAC=min(1.0, CRFRAC);
  report (rep2) EACT  = EACT;
  report (rep2) T_ACT = T1ACT + T2ACT;
  
+ report (rep2) INT_EVAP = INT_EVAP;
+ report (rep2) SCF_EVAP = SCF_EVAP;
+ 
  EFRAC= if(ETPOT>0,EACT/ETPOT,1);
  P1= P1;
  report (rep2) Q1 = Q1;
