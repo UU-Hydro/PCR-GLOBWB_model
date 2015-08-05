@@ -403,7 +403,7 @@ class LandCover(object):
         os.system("aguila test.map")
 
         # maxium root depth
-        maxRootDepth = lc_parameters['maxRootDepth'].copy()
+        maxRootDepth = lc_parameters['maxRootDepth']
         print type(maxRootDepth)
         
         # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
