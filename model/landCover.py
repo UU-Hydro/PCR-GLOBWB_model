@@ -353,9 +353,6 @@ class LandCover(object):
                     lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
                                                              self.tmpDir, self.inputDir)
 
-            print lc_parameters.keys()
-            print get_only_fracVegCover
-            
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if get_only_fracVegCover == False and\
                isinstance(lc_parameters['arnoBeta'], types.NoneType) and\
@@ -373,8 +370,8 @@ class LandCover(object):
                  (lc_parameters['maxSoilDepthFrac']-1.)/(1.-lc_parameters['minSoilDepthFrac'])+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
 
-        pcr.report(lc_parameters['fracVegCover'], "test.map")
-        os.system("aguila test.map")
+        #~ pcr.report(lc_parameters['fracVegCover'], "test.map")
+        #~ os.system("aguila test.map")
 
         # limit 0.0 <= fracVegCover <= 1.0
         fracVegCover = pcr.cover(lc_parameters['fracVegCover'], 0.0)
