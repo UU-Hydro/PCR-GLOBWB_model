@@ -340,14 +340,16 @@ class LandCover(object):
                 
                 # read parameter values from the ncFile mentioned in the ini/configuration file 
                 ini_option = self.iniItemsLC[var+'NC']
-                if ini_option != "None": 
+                if ini_option.endswith(vos.netcdf_suffixes): 
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
                     lc_parameters[var] = vos.netcdf2PCRobjClone(netcdf_file,var, \
                                                                 date_in_string, useDoy = 'yearly',\
                                                                 cloneMapFileName = self.cloneMap)
                 else:                                                
-                    lc_parameters[var] = None
-            
+                    # reading parameters from pcraster maps or scalar values
+                    lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
+                                                             self.tmpDir, self.inputDir)
+
             print lc_parameters.keys()
             print get_only_fracVegCover
             
