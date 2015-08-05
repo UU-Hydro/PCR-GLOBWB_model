@@ -538,7 +538,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         #~ cropData = original[::-1,:]
         #~ cropData = cropData[::-1,:]
 
-        cropData = cropData[::-1,:].copy()
+        cropData = cropData[::-1,:]
         
         print type(cropData)
 
