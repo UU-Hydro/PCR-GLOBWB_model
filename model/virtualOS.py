@@ -810,7 +810,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
                 shutil.rmtree(tmpDir)
             os.makedirs(tmpDir)
     else:
-        PCRmap = pcr.spatial(pcr.scalar(float(v)))
+        PCRmap = pcr.scalar(pcr.spatial(float(v)))
     if cover != None:
         PCRmap = pcr.cover(PCRmap, cover)
     co = None; cOut = None; err = None; warp = None
