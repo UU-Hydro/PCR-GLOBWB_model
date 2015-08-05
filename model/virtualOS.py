@@ -540,7 +540,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         print id(cropData)
         print id(original)
 
-        cropData = cropData[::-1,:].copy()
+        cropData = cropData[::-1,:]
 
         pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData, -999.9)
         pcr.report(pcr_map, "test2.map")
