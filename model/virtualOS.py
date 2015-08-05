@@ -142,7 +142,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
     return (outPCR)
 
 
-def netcdf2PCRobjCloneOriginal(ncFile,varName,dateInput,\
+def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                        useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
@@ -335,7 +335,7 @@ def netcdf2PCRobjCloneOriginal(ncFile,varName,dateInput,\
 
 
 
-def netcdf2PCRobjClone(ncFile,varName,dateInput,\
+def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
                        useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
