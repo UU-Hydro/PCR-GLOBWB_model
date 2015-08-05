@@ -803,7 +803,7 @@ class LandCover(object):
 
         # get land cover parameters at the first day of the year or the first day of the simulation
         if self.noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection and\
-           currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1: 
+           (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1): 
             if self.numberOfLayers == 2: 
                 self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp, self.adjRootFrLow = \
