@@ -461,7 +461,7 @@ class LandSurface(object):
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         #
         #################################################################################################################################
-        if self.dynamicIrrigationArea:
+        if self.noLandCoverFractionCorrection == False:
             # get initial land cover fractions that will be used 
             for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
         #################################################################################################################################
