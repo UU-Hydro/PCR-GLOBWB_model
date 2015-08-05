@@ -519,7 +519,10 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         #~ cropData = np.flipud(cropData)
 
         #~ cropData = np.flipud(cropData)
-        cropData = np.flipud(cropData).copy()
+        #~ cropData = np.flipud(cropData).copy()
+
+        original = cropData
+        cropData = np.flipud(original)
 
         #~ cropData = cropData[::-1,:].copy()
 
