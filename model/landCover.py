@@ -399,8 +399,8 @@ class LandCover(object):
         
         print lc_parameters.keys()
 
-        pcr.report(lc_parameters['maxRootDepth'], "test.map")
-        os.system("aguila test.map")
+        #~ pcr.report(lc_parameters['maxRootDepth'], "test.map")
+        #~ os.system("aguila test.map")
 
         # maxium root depth
         maxRootDepth = lc_parameters['maxRootDepth']
