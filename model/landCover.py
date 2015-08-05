@@ -397,6 +397,7 @@ class LandCover(object):
         arnoBeta = pcr.max(0.001, lc_parameters['arnoBeta'])
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
+        print lc_parameters.keys()
 
         pcr.report(lc_parameters['maxRootDepth'], "test.map")
         os.system("aguila test.map")
