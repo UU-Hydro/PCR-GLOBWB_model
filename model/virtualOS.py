@@ -532,7 +532,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         
         print type(cropData)
         
-        cropData = cropData[::-1,:].copy()
+        cropData = cropData[::-1,:]
         
         print type(cropData)
 
@@ -542,9 +542,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
         #~ cropData = cropData[::-1,:].copy()
 
-    pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData, -999.9)
-    pcr.report(pcr_map, "test2.map")
-    os.system("aguila test2.map")
+        pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData, -999.9)
+        pcr.report(pcr_map, "test2.map")
+        os.system("aguila test2.map")
     
     if sameClone == False:
         
