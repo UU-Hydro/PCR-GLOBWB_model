@@ -528,7 +528,8 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
         #~ cropData = None
         #~ del cropData
-        cropData = np.flipud(original)
+        #~ cropData = np.flipud(original).copy()
+        cropData = cropData[::-1,:]
         
         print "Test test tet"
         print id(cropData)
