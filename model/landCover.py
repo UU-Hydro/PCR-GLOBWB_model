@@ -353,7 +353,10 @@ class LandCover(object):
                     lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
                                                              self.tmpDir, self.inputDir)
                     print lc_parameters[var]
-                    poiet                                         
+
+                    pcr.report(lc_parameters[var], "test.map")
+                    os.system("aguila test.map")
+
 
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if get_only_fracVegCover == False and\
