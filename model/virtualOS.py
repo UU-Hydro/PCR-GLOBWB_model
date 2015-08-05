@@ -142,7 +142,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
     return (outPCR)
 
 
-def netcdf2PCRobjCloneBACKUP(ncFile,varName,dateInput,\
+def netcdf2PCRobjCloneOriginal(ncFile,varName,dateInput,\
                        useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
@@ -521,24 +521,24 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         #~ cropData = np.flipud(cropData)
         #~ cropData = np.flipud(cropData).copy()
 
-        original = cropData.copy()
-
-        print id(cropData)
-        print id(original)
+        #~ original = cropData.copy()
+#~ 
+        #~ print id(cropData)
+        #~ print id(original)
 
         #~ cropData = None
         #~ del cropData
         #~ cropData = np.flipud(original).copy()
         
-        print type(cropData)
+        #~ print type(cropData)
         
         #~ cropData2 = cropData[::-1,:]
         
-        cropData = None
-        cropData = original[::-1,:]
+        #~ cropData = None
+        #~ cropData = original[::-1,:]
         #~ cropData = cropData[::-1,:]
 
-        #~ cropData = cropData[::-1,:].copy()
+        cropData = cropData[::-1,:].copy()
         
         print type(cropData)
 
