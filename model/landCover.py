@@ -805,11 +805,11 @@ class LandCover(object):
             if self.numberOfLayers == 2: 
                 self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp, self.adjRootFrLow = \
-                                   self.get_land_cover_parameters() 
+                                   self.get_land_cover_parameters(currTimeStep.fulldate) 
             if self.numberOfLayers == 3: 
                 self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
                                    self.maxRootDepth, self.adjRootFrUpp000005, self.adjRootFrUpp005030, self.adjRootFrLow030150 = \
-                                   self.get_land_cover_parameters()
+                                   self.get_land_cover_parameters(currTimeStep.fulldate)
             # estimate parameters while transpiration is being halved
             self.calculateParametersAtHalfTranspiration()
 
