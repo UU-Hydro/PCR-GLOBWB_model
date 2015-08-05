@@ -532,8 +532,12 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         
         print type(cropData)
         
-        cropData2 = cropData[::-1,:]
-        cropData = cropData[::-1,:].copy()
+        #~ cropData2 = cropData[::-1,:]
+        
+        cropData = None
+        cropData = cropData[::-1,:]
+
+        #~ cropData = cropData[::-1,:].copy()
         
         print type(cropData)
 
@@ -543,7 +547,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
         #~ cropData = cropData[::-1,:].copy()
 
-        pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData2, -999.9)
+        pcr_map = pcr.numpy2pcr(pcr.Scalar, cropData, -999.9)
         pcr.report(pcr_map, "test2.map")
         os.system("aguila test2.map")
     
