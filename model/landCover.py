@@ -396,7 +396,7 @@ class LandCover(object):
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
         # maxium root depth
-        maxRootDepth = pcr.cover(pcr.ifthen(self.landmask, lc_parameters['maxRootDepth']), 0.0)
+        maxRootDepth = lc_parameters['maxRootDepth']
         
         # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
         self.minSoilDepthFrac = lc_parameters['minSoilDepthFrac']
