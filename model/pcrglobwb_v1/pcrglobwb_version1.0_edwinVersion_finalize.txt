@@ -613,7 +613,7 @@ CRFRAC=min(1.0, CRFRAC);
    ES_p[TYPE]= max(0,ES_p[TYPE]-ES_a[TYPE]);
    EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
 
-   SCF_EVAP_L = EACT_L[TYPE];   # evaporation from snow free water
+   SCF_EVAP_L = ES_a[TYPE];   # evaporation from snow free water
 
   #-Direct runoff and infiltration based on improved Arno scheme
   # partial runoff when not entirely saturated (condition 1), else complete saturation excess
