@@ -352,11 +352,8 @@ class LandCover(object):
                     # reading parameters from pcraster maps or scalar values
                     lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
                                                              self.tmpDir, self.inputDir)
+                    print var
                     print lc_parameters[var]
-
-                    pcr.report(lc_parameters[var], "test.map")
-                    os.system("aguila test.map")
-
 
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if get_only_fracVegCover == False and\
@@ -400,8 +397,12 @@ class LandCover(object):
         arnoBeta = pcr.max(0.001, lc_parameters['arnoBeta'])
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
+
+        pcr.report(lc_parameters['maxRootDepth'], "test.map")
+        os.system("aguila test.map")
+
         # maxium root depth
-        maxRootDepth = pcr.spatial(lc_parameters['maxRootDepth'])
+        maxRootDepth = lc_parameters['maxRootDepth']
         print type(maxRootDepth)
         
         # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
