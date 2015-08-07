@@ -461,10 +461,6 @@ class LandSurface(object):
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
         #
         #################################################################################################################################
-        if self.noLandCoverFractionCorrection == False:
-            # get initial land cover fractions that will be used 
-            for coverType in self.coverTypes: self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
-        #################################################################################################################################
 
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
@@ -504,9 +500,13 @@ class LandSurface(object):
                 self.landCoverObj[coverType].getICsLC(iniItems)
             # summarize/aggregate the initial states/storages (using the initial land cover fractions: previousFracVegCover)
             for var in self.mainStates:
-                land_cover_states   = vars(self.landCoverObj[coverType])[var]
+                # - initial land cover fractions (dimensionless) 
+                if isinstance(self.landCoverObj[coverType].previousFracVegCover, types.NoneType):
+                    self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
                 land_cover_fraction = self.landCoverObj[coverType].previousFracVegCover
-                vars(self)[var]    += land_cover_states * land_cover_fraction
+                # - initial land cover states (unit: m)
+                land_cover_states = vars(self.landCoverObj[coverType])[var]
+                vars(self)[var]  += land_cover_states * land_cover_fraction
 
     def waterDemandOptions(self,iniItems):
 
@@ -972,7 +972,7 @@ class LandSurface(object):
         swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'] = self.treshold_to_minimize_fossil_groundwater_irrigation
         
         # if defined, incorporating the pre-defined fraction of surface water sources (e.g. based on Siebert et al., 2014 and McDonald et al., 2014)  
-        if not isinstance(self.swAbstractionFractionData,types.NoneType):
+        if not isinstance(self.swAbstractionFractionData, types.NoneType):
             
             logger.debug('Using/incorporating the predefined fractions of surface water source.')
             swAbstractionFractionDict['estimate']   = swAbstractionFraction

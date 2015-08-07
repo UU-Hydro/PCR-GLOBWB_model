@@ -41,13 +41,13 @@ class LandCover(object):
         if "useMODFLOW" in iniItems.groundwaterOptions.keys():
             if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
         
-        # irrigation efficiency map
-        self.irrigationEfficiency = irrigationEfficiency
-        
         # includeIrrigation
         self.includeIrrigation = False
         if iniItems.landSurfaceOptions['includeIrrigation'] == "True": self.includeIrrigation = True
         
+        # irrigation efficiency map (dimensionless)
+        self.irrigationEfficiency = irrigationEfficiency
+
         # interception module type
         # - "Original" is the same as defined in van Beek et al., 2014
         # - "Default" is with little modification by Edwin Sutanudjaja (e.g. using totalPotET for the available energy)  
@@ -55,7 +55,7 @@ class LandCover(object):
         if "interceptionModuleType" in self.iniItemsLC.keys() and self.iniItemsLC['interceptionModuleType'] == "Original":
             self.interceptionModuleType = "Original"
         
-        # option to assume surface water as the first priority/alternative for water source 
+        # option to assume surface water as the first priority/alternative for water source (not used)
         self.surfaceWaterPiority = False
         
         # option to activate water balance check
@@ -75,7 +75,7 @@ class LandCover(object):
         self.allowNegativePercolation = False
         if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True":
             msg  = 'Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n'
-            msg += 'Note that this option is only relevant for two layer soil model.'
+            msg += 'Note that this option is only relevant for the two layer soil model.'
             logger.warning(msg)
             self.allowNegativePercolation = True
         
@@ -459,11 +459,11 @@ class LandCover(object):
         max_percolation_loss = 0.008 
         # - Minimum and maximum percolation loss values given in the ini or configuration file:
         if 'minPercolationLoss' in iniPaddyOptions.keys() and iniPaddyOptions['minPercolationLoss'] != "None":
-           min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['minPercolationLoss'], self.cloneMap, 	
-                                                      self.tmpDir, self.inputDir)
+            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['minPercolationLoss'], self.cloneMap, 	
+                                                       self.tmpDir, self.inputDir)
         if 'maxPercolationLoss' in iniPaddyOptions.keys() and iniPaddyOptions['maxPercolationLoss'] != "None":
-           min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['maxPercolationLoss'], self.cloneMap, 	
-                                                      self.tmpDir, self.inputDir)
+            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['maxPercolationLoss'], self.cloneMap, 	
+                                                       self.tmpDir, self.inputDir)
         # - percolation loss at paddy fields (m/day)
         design_percolation_loss = pcr.max(min_percolation_loss, \
                                   pcr.min(max_percolation_loss, design_percolation_loss))
