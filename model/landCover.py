@@ -802,7 +802,7 @@ class LandCover(object):
                  minCropCoefficient = 0.0):
 
         # get land cover parameters at the first day of the year or the first day of the simulation
-        if self.noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection and\
+        if self.noAnnualChangesInLandCoverParameter == False and\
            (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1): 
             if self.numberOfLayers == 2: 
                 self.fracVegCover, self.arnoBeta, self.rootZoneWaterStorageMin, self.rootZoneWaterStorageRange, \
