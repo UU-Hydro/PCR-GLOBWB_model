@@ -1118,7 +1118,7 @@ class LandSurface(object):
         # - done at yearly basis, at the beginning of each year
         # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
         #
-        if ((self.dynamicIrrigationArea and self.includeIrrigation) or or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
+        if ((self.dynamicIrrigationArea and self.includeIrrigation) or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
             #
             # loop for all main states:
             for var in self.mainStates:
