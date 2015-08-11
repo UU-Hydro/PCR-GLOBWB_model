@@ -341,8 +341,6 @@ class LandCover(object):
                 # read parameter values from the ncFile mentioned in the ini/configuration file 
                 ini_option = self.iniItemsLC[var+'NC']
                 
-                print ini_option
-                
                 if ini_option.endswith(vos.netcdf_suffixes): 
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
                     lc_parameters[var] = pcr.cover(
@@ -394,14 +392,8 @@ class LandCover(object):
         arnoBeta = pcr.max(0.001, lc_parameters['arnoBeta'])
         arnoBeta = pcr.cover(arnoBeta, 0.001)
         
-        print lc_parameters.keys()
-
-        #~ pcr.report(lc_parameters['maxRootDepth'], "test.map")
-        #~ os.system("aguila test.map")
-
         # maxium root depth
         maxRootDepth = lc_parameters['maxRootDepth']
-        print type(maxRootDepth)
         
         # saving also minSoilDepthFrac and maxSoilDepthFrac (only for debugging purpose)
         self.minSoilDepthFrac = lc_parameters['minSoilDepthFrac']
