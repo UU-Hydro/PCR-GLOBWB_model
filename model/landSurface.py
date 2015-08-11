@@ -1121,6 +1121,8 @@ class LandSurface(object):
         if (self.dynamicIrrigationArea or self.noAnnualChangesInLandCoverParameter == False) and \
             self.includeIrrigation and currTimeStep.doy == 1:
             #
+            pietjes
+            
             # loop for all main states:
             for var in self.mainStates:
                 
