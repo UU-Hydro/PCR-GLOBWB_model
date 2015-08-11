@@ -355,8 +355,7 @@ class LandCover(object):
                                                              self.tmpDir, self.inputDir)
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if get_only_fracVegCover == False and\
-               isinstance(lc_parameters['arnoBeta'], types.NoneType) and\
-               landCoverPropertiesNC == None:
+               isinstance(lc_parameters['arnoBeta'], types.NoneType):
 
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
 
