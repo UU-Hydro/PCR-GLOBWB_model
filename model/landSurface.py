@@ -1106,7 +1106,7 @@ class LandSurface(object):
         # read land cover fractions from netcdf files
         # - assumption: annual resolution
         if self.noAnnualChangesInLandCoverParameter == False and self.dynamicIrrigationArea == False and \
-          (currTimeStep.timeStepPCR > 1 or currTimeStep.doy == 1):
+          (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1):
             msg = 'Read land cover fractions based on the given netcdf file.'
             logger.debug(msg)
             for coverType in self.coverTypes:
