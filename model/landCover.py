@@ -149,7 +149,7 @@ class LandCover(object):
                  self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
                                                            self.tmpDir, self.inputDir)
              # - infiltration/percolation losses for paddy fields
-             if self.name == 'irrPaddy': self.estimate_paddy_infiltration_loss(self.iniItemsLC)
+             if self.name == 'irrPaddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
         
         # water allocation zones:
         self.usingAllocSegments = usingAllocSegments # water allocation option:
