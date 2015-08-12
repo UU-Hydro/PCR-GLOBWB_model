@@ -946,13 +946,11 @@ class LandCover(object):
                  vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
                                     cloneMapFileName = self.cloneMap), 0.0)
-        self.inputCropKC = cropKC                                               # This line is needed for debugging. 
+        self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
-        # TODO (URGENT): Read 'cropKC' that changes every year (not climatology).
-
         # limit cropKC
-        self.cropKC = pcr.max(cropKC, minCropCoefficientForIrrigation)
+        self.cropKC = pcr.max(self.cropKC, minCropCoefficientForIrrigation)
         
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
