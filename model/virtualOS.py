@@ -237,6 +237,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         idx = int(dateInput) - 1
     elif useDoy == "month":
         logger.debug('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
+        # make sure that date is in the correct format
+        if isinstance(date, str) == True: date = \
+                        datetime.datetime.strptime(str(date),'%Y-%m-%d') 
         idx = int(date.month) - 1
     else:
         # make sure that date is in the correct format
