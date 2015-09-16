@@ -161,7 +161,6 @@ class SpinUp(object):
         
         if self.spinUpOutputDir != None:
             logger.info('Move all netcdf files resulted from the spin-up run to the spin-up directory: '+self.spinUpOutputDir)
-            vos.cmd_line('rm -r '+self.spinUpOutputDir+"/*")
 
             # cleaning up the spin-up directory: 
             if os.path.exists(self.spinUpOutputDir): shutil.rmtree(self.spinUpOutputDir)
