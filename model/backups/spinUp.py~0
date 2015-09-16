@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import shutil
 import math
 
 import pcraster as pcr
@@ -172,6 +173,11 @@ class SpinUp(object):
 
         if self.spinUpOutputDir != None:
             logger.info('Move all netcdf files resulted from the spin-up run to the spin-up directory: '+self.spinUpOutputDir)
+            # cleaning previous spinUpOutputDir, if needeed:
+            if os.path.exists(self.spinUpOutputDir): shutil.rmtree(self.spinUpOutputDir)
+            os.makedirs(self.spinUpOutputDir)
+
+
             vos.cmd_line('rm -r '+self.spinUpOutputDir+"/*")
             vos.cmd_line('mv '+self.outNCDir+"/*.nc* "+self.spinUpOutputDir+"/")
 
