@@ -1052,14 +1052,14 @@ class LandCover(object):
         if self.interceptionModuleType == 'Modified': self.potInterceptionFlux = self.totalPotET        # added by Edwin to extend the interception scope/definition
         
         # evaporation from intercepted water (based on potInterceptionFlux)
-        #~ # - based on Van Beek et al. (2011)
-        #~ self.interceptEvap = pcr.min(self.interceptStor, \
-                                     #~ self.potInterceptionFlux * \
-             #~ (vos.getValDivZero(self.interceptStor, self.interceptCap, \
-              #~ vos.smallNumber, 0.) ** (2.00/3.00)))                      
-                                                                         #~ # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
-        # - Edwin simplify it
-        self.interceptEvap = pcr.min(self.interceptStor, self.potInterceptionFlux)                      
+        # - based on Van Beek et al. (2011)
+        self.interceptEvap = pcr.min(self.interceptStor, \
+                                     self.potInterceptionFlux * \
+             (vos.getValDivZero(self.interceptStor, self.interceptCap, \
+              vos.smallNumber, 0.) ** (2.00/3.00)))                      
+                                                                         # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
+        #~ # - Edwin simplify it
+        #~ self.interceptEvap = pcr.min(self.interceptStor, self.potInterceptionFlux)                      
                                      
         # update interception storage 
         self.interceptStor = pcr.max(0.0, \
