@@ -1001,7 +1001,8 @@ class LandCover(object):
         # get interceptCap:
         interceptCap  = pcr.scalar(self.minInterceptCap)
         coverFraction = pcr.scalar(1.0)
-        if self.interceptCapNC != None and self.coverFractionNC != None:            interceptCap = \
+        if self.interceptCapNC != None and self.coverFractionNC != None:
+			interceptCap = \
                      pcr.cover(
                      vos.netcdf2PCRobjClone(self.interceptCapNC,\
                                     'interceptCapInput',\
