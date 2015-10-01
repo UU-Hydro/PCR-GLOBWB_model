@@ -1030,8 +1030,9 @@ class LandCover(object):
                                                                          #~ # Edwin modified this line to extend the interception scope (not only canopy interception).
 
         self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
-                      pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)              
-
+                      pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
+        
+        # TODO: Check which one is correct?                            
 
         # update interception storage after throughfall 
         self.interceptStor = pcr.max(0.0, self.interceptStor + \
