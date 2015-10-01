@@ -1203,6 +1203,8 @@ class LandCover(object):
                                   #~ True,\
                                   #~ currTimeStep.fulldate,threshold=1e-4)
 
+        pass
+
     def snowMeltHBVSimple(self,meteo,currTimeStep):
 
         if self.debugWaterBalance:
