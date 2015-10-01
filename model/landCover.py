@@ -49,11 +49,20 @@ class LandCover(object):
         self.irrigationEfficiency = irrigationEfficiency
 
         # interception module type
-        # - "Original" is the same as defined in van Beek et al., 2014
-        # - "Default" is with little modification by Edwin Sutanudjaja (e.g. using totalPotET for the available energy)  
+        # - "Default" is principally the same as defined in van Beek et al., 2014 (default)
+        # - "Modified" is with a modification by Edwin Sutanudjaja: using totalPotET for the available energy  
         self.interceptionModuleType = "Default"
-        if "interceptionModuleType" in self.iniItemsLC.keys() and self.iniItemsLC['interceptionModuleType'] == "Original":
-            self.interceptionModuleType = "Original"
+        if "interceptionModuleType" in self.iniItemsLC.keys():
+            if self.iniItemsLC['interceptionModuleType'] == "Modified":
+                msg = 'Using the "Modified" version of the interception module (i.e. using totalPotET for the available energy for the interception process).'
+                logger.info(msg)
+                self.interceptionModuleType = "Modified"            
+            else:
+                if self.iniItemsLC['interceptionModuleType'] != "Default":
+                    msg = 'The interceptionModuleType '+self.iniItemsLC['interceptionModuleType']+' is NOT known.'
+                    logger.info(msg)
+                msg = 'The "Default" interceptionModuleType is used.'
+                logger.info(msg)
         
         # option to assume surface water as the first priority/alternative for water source (not used)
         self.surfaceWaterPiority = False
@@ -141,8 +150,6 @@ class LandCover(object):
             if input != "None":\
                vars(self)[var] = pcr.cover(vars(self)[var],0.0)                                
 
-        # 
-        
         # get additional parameter(s) for irrigation areas (ALWAYS fixed for the entire simulation)
         if self.includeIrrigation:
              # - cropDeplFactor (dimesionless, crop depletion factor while irrigation is being applied), needed for NON paddy irrigation areas
@@ -260,8 +267,8 @@ class LandCover(object):
         # obtain the land cover parameters 
         
         # list of model parameters that will be read
-        landCovParams = ['minSoilDepthFrac','maxSoilDepthFrac',
-                            'rootFraction1','rootFraction2',
+        landCovParams = ['minSoilDepthFrac', 'maxSoilDepthFrac',
+                            'rootFraction1', 'rootFraction2',
                              'maxRootDepth',
                              'fracVegCover']
         # - and 'arnoBeta'
@@ -380,9 +387,6 @@ class LandCover(object):
                 lc_parameters['arnoBeta'] = pcr.max(0.001,\
                  (lc_parameters['maxSoilDepthFrac']-1.)/(1.-lc_parameters['minSoilDepthFrac'])+\
                                            self.parameters.orographyBeta-0.01)   # Rens's line: BCF[TYPE]= max(0.001,(MAXFRAC[TYPE]-1)/(1-MINFRAC[TYPE])+B_ORO-0.01)
-
-        #~ pcr.report(lc_parameters['fracVegCover'], "test.map")
-        #~ os.system("aguila test.map")
 
         # limit 0.0 <= fracVegCover <= 1.0
         fracVegCover = pcr.cover(lc_parameters['fracVegCover'], 0.0)
@@ -832,12 +836,15 @@ class LandCover(object):
         # TODO: Define other snow modules
 
         # calculate qDR & qSF & q23 (and update storages)
-        self.upperSoilUpdate(meteo,groundwater,routing,\
-                             capRiseFrac,\
-                             nonIrrGrossDemandDict,swAbstractionFractionDict,\
-                             currTimeStep,\
-                             allocSegments,\
-                             desalinationWaterUse,\
+        self.upperSoilUpdate(meteo, \
+                             groundwater, \
+                             routing, \
+                             capRiseFrac, \
+                             nonIrrGrossDemandDict, 
+                             swAbstractionFractionDict,\
+                             currTimeStep, \
+                             allocSegments, \
+                             desalinationWaterUse, \
                              groundwater_pumping_region_ids,regionalAnnualGroundwaterAbstractionLimit)
 
         # saturation degrees (needed only for reporting):
@@ -986,10 +993,6 @@ class LandCover(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=5e-4)
 
-        # fraction of potential bare soil evaporation and transpiration
-        self.fracPotBareSoilEvap  = vos.getValDivZero(self.potBareSoilEvap , self.totalPotET, vos.smallNumber)
-        self.fracPotTranspiration = pcr.scalar(1.0 - self.fracPotBareSoilEvap)
-
     def interceptionUpdate(self, meteo, currTimeStep):
         
         if self.debugWaterBalance:
@@ -1015,10 +1018,11 @@ class LandCover(object):
             coverFraction = pcr.cover(coverFraction, 0.0)
             interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
 
-        self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
-        
         # canopy/cover fraction over the entire cell area (unit: m2)
         self.coverFraction = coverFraction
+
+        # Edwin added the following line to extend the interception definition.
+        self.interceptCap = pcr.max(interceptCap, self.minInterceptCap) 
         
         # throughfall = surplus above the interception storage threshold 
         self.throughfall   = pcr.max(0.0, self.interceptStor + \
@@ -1035,19 +1039,18 @@ class LandCover(object):
                                        meteo.precipitation, 0.0)         
                                                                          # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
                                                                          # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
-        #
+        # - snowfall (m/day)
         self.snowfall = estimSnowfall * \
               vos.getValDivZero(self.throughfall, meteo.precipitation, \
               vos.smallNumber)                                           # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
-        #
+        # - liquid precipitation (m/day)
         self.liquidPrecip = pcr.max(0.0,\
                                     self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
 
         # potential interception flux (m/day)
-        if self.
-        
-        
-        self.potInterceptionFlux = self.totalPotET                       # added by Edwin to extend the interception scope/definition
+        # - this is depending on 'interceptionModuleType' 
+        if self.interceptionModuleType == 'Default': self.potInterceptionFlux = self.potTranspiration                       
+        if self.interceptionModuleType == 'Modified': self.potInterceptionFlux = self.totalPotET        # added by Edwin to extend the interception scope/definition
         
         # evaporation from intercepted water (based on potInterceptionFlux)
         #~ # - based on Van Beek et al. (2011)
@@ -1063,126 +1066,37 @@ class LandCover(object):
         self.interceptStor = pcr.max(0.0, \
                              self.interceptStor - self.interceptEvap)    # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
         
-        # update potBareSoilEvap and potTranspiration 
-        self.potBareSoilEvap  = pcr.max(0.0, self.potBareSoilEvap  -\
-                                self.fracPotBareSoilEvap  * self.interceptEvap)
-        self.potTranspiration = pcr.max(0.0, self.potTranspiration -\
-                                self.fracPotTranspiration * self.interceptEvap)   
-                                                                                 # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
-                                                                                 # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
-
+        # update potBareSoilEvap and potTranspiration after interceptEvap
+        if self.interceptionModuleType == 'Modified':
+            # fraction of potential bare soil evaporation and transpiration
+            fracPotBareSoilEvap = pcr.max(0.0, pcr.min(1.0, \
+                                  vos.getValDivZero(self.potBareSoilEvap, \
+                                                    self.potBareSoilEvap + self.potTranspiration, vos.smallNumber)))
+            fracPotTranspiration = pcr.scalar(1.0 - self.fracPotBareSoilEvap)
+            # substract interceptEvap from potBareSoilEvap and potTranspiration
+            self.potBareSoilEvap  = pcr.max(0.0, self.potBareSoilEvap  -\
+                                    fracPotBareSoilEvap  * self.interceptEvap)
+            self.potTranspiration = pcr.max(0.0, self.potTranspiration -\
+                                    fracPotTranspiration * self.interceptEvap)   
+                                                                                  # original Rens line: T_p[TYPE] = max(0,T_p[TYPE]-EACT_L[TYPE])
+                                                                                  # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
+        if self.interceptionModuleType == 'Default': 
+            self.potTranspiration = pcr.max(0.0, self.potTranspiration - self.interceptEvap)   
+        
         # update actual evaporation (after interceptEvap) 
         self.actualET  = 0. # interceptEvap is the first flux in ET 
         self.actualET += self.interceptEvap
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.throughfall],\
-                                  [self.snowfall,self.liquidPrecip],\
+                                  [self.snowfall, self.liquidPrecip],\
                                   [],\
                                   [],\
                                   'rain-snow-partitioning',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
+                                  currTimeStep.fulldate, threshold=1e-5)
             vos.waterBalanceCheck([meteo.precipitation],
-                                  [self.throughfall,self.interceptEvap],
-                                  prevStates,\
-                                  [self.interceptStor],\
-                                  'interceptStor',\
-                                  True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
-
-    def interceptionUpdateDefault(self,meteo,currTimeStep):
-        
-        if self.debugWaterBalance:
-            prevStates = [self.interceptStor]
-       
-        # get interceptCap:
-        interceptCap  = pcr.scalar(self.minInterceptCap)
-        coverFraction = pcr.scalar(1.0)
-        if self.interceptCapNC != None and self.coverFractionNC != None
-            interceptCap = \
-                     pcr.cover(
-                     vos.netcdf2PCRobjClone(self.interceptCapNC,\
-                                    'interceptCapInput',\
-                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                     cloneMapFileName = self.cloneMap), 0.0)
-            self.interceptCapInput = interceptCap                        # This line is needed for debugging. 
-            coverFraction = \
-                     pcr.cover(
-                     vos.netcdf2PCRobjClone(self.coverFractionNC,\
-                                    'coverFractionInput',\
-                                     currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                     cloneMapFileName = self.cloneMap), 0.0)
-            coverFraction = pcr.cover(coverFraction, 0.0)
-            interceptCap = coverFraction * interceptCap                  # original Rens line: ICC[TYPE] = CFRAC[TYPE]*INTCMAX[TYPE];                                
-
-        self.interceptCap = pcr.max(interceptCap, self.minInterceptCap)  # Edwin added this line to extend the interception definition (not only canopy interception).
-        
-        # canopy/cover fraction over the entire cell area (unit: m2)
-        self.coverFraction = coverFraction
-        
-        # throughfall = surplus above the interception storage threshold 
-        self.throughfall   = pcr.max(0.0, self.interceptStor + \
-                                         meteo.precipitation - \
-                                         self.interceptCap)              # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
-                                                                         # Edwin modified this line to extend the interception scope (not only canopy interception).
-        # update interception storage after throughfall 
-        self.interceptStor = pcr.max(0.0, self.interceptStor + \
-                                     meteo.precipitation - \
-                                     self.throughfall)                   # original Rens line: INTS_L[TYPE] = max(0,INTS_L[TYPE]+PRPTOT-PRP)
-         
-        # partitioning throughfall into snowfall and liquid Precipitation:
-        estimSnowfall = pcr.ifthenelse(meteo.temperature < self.freezingT, \
-                                       meteo.precipitation, 0.0)         
-                                                                         # original Rens line: SNOW = if(TA<TT,PRPTOT,0)
-                                                                         # But Rens put it in his "meteo" module in order to allow snowfallCorrectionFactor (SFCF).
-        #
-        self.snowfall = estimSnowfall * \
-              vos.getValDivZero(self.throughfall, meteo.precipitation, \
-              vos.smallNumber)                                           # original Rens line: SNOW = SNOW*if(PRPTOT>0,PRP/PRPTOT,0)                                      
-        #
-        self.liquidPrecip = pcr.max(0.0,\
-                                    self.throughfall - self.snowfall)    # original Rens line: PRP = PRP-SNOW
-
-        # potential interception flux (m/day)
-        self.potInterceptionFlux = self.totalPotET                       # added by Edwin to extend the interception scope/definition
-        
-        # evaporation from intercepted water (based on potInterceptionFlux)
-        #~ # - based on Van Beek et al. (2011)
-        #~ self.interceptEvap = pcr.min(self.interceptStor, \
-                                     #~ self.potInterceptionFlux * \
-             #~ (vos.getValDivZero(self.interceptStor, self.interceptCap, \
-              #~ vos.smallNumber, 0.) ** (2.00/3.00)))                      
-                                                                         #~ # EACT_L[TYPE]= min(INTS_L[TYPE],(T_p[TYPE]*if(ICC[TYPE]>0,INTS_L[TYPE]/ICC[TYPE],0)**(2/3)))
-        # - Edwin simplify it
-        self.interceptEvap = pcr.min(self.interceptStor, self.potInterceptionFlux)                      
-                                     
-        # update interception storage 
-        self.interceptStor = pcr.max(0.0, \
-                             self.interceptStor - self.interceptEvap)    # INTS_L[TYPE]= INTS_L[TYPE]-EACT_L[TYPE]
-        
-        # update potBareSoilEvap and potTranspiration 
-        self.potBareSoilEvap  = pcr.max(0.0, self.potBareSoilEvap  -\
-                                self.fracPotBareSoilEvap  * self.interceptEvap)
-        self.potTranspiration = pcr.max(0.0, self.potTranspiration -\
-                                self.fracPotTranspiration * self.interceptEvap)   
-                                                                                 # original Rens line: T_p[TYPE]= max(0,T_p[TYPE]-EACT_L[TYPE])
-                                                                                 # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
-
-        # update actual evaporation (after interceptEvap) 
-        self.actualET  = 0. # interceptEvap is the first flux in ET 
-        self.actualET += self.interceptEvap
-
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.throughfall],\
-                                  [self.snowfall,self.liquidPrecip],\
-                                  [],\
-                                  [],\
-                                  'rain-snow-partitioning',\
-                                  True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
-            vos.waterBalanceCheck([meteo.precipitation],
-                                  [self.throughfall,self.interceptEvap],
+                                  [self.throughfall, self.interceptEvap],
                                   prevStates,\
                                   [self.interceptStor],\
                                   'interceptStor',\
@@ -1191,13 +1105,15 @@ class LandCover(object):
 
     def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
         
+        # TODO: Rewrite this method as defined by Rens. 
+        
         if self.debugWaterBalance:
             prevStates = [self.interceptStor]
        
         # get interceptCap:
         interceptCap  = pcr.scalar(self.minInterceptCap)
         coverFraction = pcr.scalar(1.0)
-        if coverFractionNC
+        if self.coverFractionNC != None or  
         
         
         not self.iniItemsLC['name'].startswith("irr"):                # This line assumes that no interception capacity for paddy and non paddy types
