@@ -49,20 +49,29 @@ class LandCover(object):
         self.irrigationEfficiency = irrigationEfficiency
 
         # interception module type
-        # - "Default" is principally the same as defined in van Beek et al., 2014 (default)
-        # - "Modified" is with a modification by Edwin Sutanudjaja: using totalPotET for the available energy  
-        self.interceptionModuleType = "Default"
+        # - "Original" is principally the same as defined in van Beek et al., 2014 (default)
+        # - "Modified" is with a modification by Edwin Sutanudjaja: extending interception definition, using totalPotET for the available energy  
+        self.interceptionModuleType = "Original"
         if "interceptionModuleType" in self.iniItemsLC.keys():
             if self.iniItemsLC['interceptionModuleType'] == "Modified":
-                msg = 'Using the "Modified" version of the interception module (i.e. using totalPotET for the available energy for the interception process).'
+                msg = 'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
                 logger.info(msg)
                 self.interceptionModuleType = "Modified"            
             else:
-                if self.iniItemsLC['interceptionModuleType'] != "Default":
+                if self.iniItemsLC['interceptionModuleType'] != "Original":
                     msg = 'The interceptionModuleType '+self.iniItemsLC['interceptionModuleType']+' is NOT known.'
                     logger.info(msg)
-                msg = 'The "Default" interceptionModuleType is used.'
+                msg = 'The "Original" interceptionModuleType is used.'
                 logger.info(msg)
+        
+        # minimum interception capacity (only used if interceptionModuleType == "Modified", extended interception definition)
+        self.minInterceptCap = 0.0
+        if self.interceptionModuleType == "Original" and "minInterceptCap" in self.iniItemsLC.keys():
+            msg = 'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
+            logger.warning(msg)
+        if self.interceptionModuleType == "Modified":
+            self.minInterceptCap = vos.readPCRmapClone(self.iniItemsLC['minInterceptCap'], self.cloneMap,
+                                                       self.tmpDir, self.inputDir)
         
         # option to assume surface water as the first priority/alternative for water source (not used)
         self.surfaceWaterPiority = False
@@ -141,8 +150,7 @@ class LandCover(object):
 
         # get additional land cover parameters (ALWAYS fixed for the entire simulation)
         landCovParamsAdd = ['minTopWaterLayer',
-                            'minCropKC',
-                            'minInterceptCap']
+                            'minCropKC']
         for var in landCovParamsAdd:
             input = self.iniItemsLC[str(var)]
             vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
@@ -1024,15 +1032,16 @@ class LandCover(object):
         self.interceptCap = pcr.max(interceptCap, self.minInterceptCap) 
         
         # throughfall = surplus above the interception storage threshold 
-        #~ self.throughfall   = pcr.max(0.0, self.interceptStor + \
-                                         #~ meteo.precipitation - \
-                                         #~ self.interceptCap)              # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
-                                                                         #~ # Edwin modified this line to extend the interception scope (not only canopy interception).
-
-        self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
-                      pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
-        
-        # TODO: Check which "throughfall" is correct?                            
+        if self.interceptionModuleType == "Modified":
+            # extended interception definition/scope (not only canopy)
+            self.throughfall   = pcr.max(0.0, self.interceptStor + \
+                                              meteo.precipitation - \
+                                              self.interceptCap)         # original Rens line: PRP = (1-CFRAC[TYPE])*PRPTOT+max(CFRAC[TYPE]*PRPTOT+INTS_L[TYPE]-ICC[TYPE],0) 
+                                                                         # Edwin modified this line to extend the interception scope (not only canopy interception).
+        if self.interceptionModuleType == "Original":
+            # only canopy interception (not only canopy)
+            self.throughfall   = (1.0 - coverFraction) * meteo.precipitation +\
+                          pcr.max(0.0,  coverFraction  * meteo.precipitation + self.interceptStor - self.interceptCap)
 
         # update interception storage after throughfall 
         self.interceptStor = pcr.max(0.0, self.interceptStor + \
@@ -1054,8 +1063,13 @@ class LandCover(object):
 
         # potential interception flux (m/day)
         # - this is depending on 'interceptionModuleType' 
-        if self.interceptionModuleType == 'Default': self.potInterceptionFlux = self.potTranspiration                       
-        if self.interceptionModuleType == 'Modified': self.potInterceptionFlux = self.totalPotET        # added by Edwin to extend the interception scope/definition
+        if self.interceptionModuleType == 'Original': 
+            # only canopy interception
+            self.potInterceptionFlux = self.potTranspiration                       
+        if self.interceptionModuleType == 'Modified': 
+            # extended interception definition/scope (not only canopy)
+            self.potInterceptionFlux = self.totalPotET        # added by Edwin to extend the interception scope/definition
+
         
         # evaporation from intercepted water (based on potInterceptionFlux)
         # - based on Van Beek et al. (2011)
@@ -1085,7 +1099,7 @@ class LandCover(object):
                                     fracPotTranspiration * self.interceptEvap)   
                                                                                   # original Rens line: T_p[TYPE] = max(0,T_p[TYPE]-EACT_L[TYPE])
                                                                                   # Edwin modified this line to extend the interception scope/definition (not only canopy interception).
-        if self.interceptionModuleType == 'Default': 
+        if self.interceptionModuleType == 'Original': 
             self.potTranspiration = pcr.max(0.0, self.potTranspiration - self.interceptEvap)   
         
         # update actual evaporation (after interceptEvap) 
@@ -2262,7 +2276,7 @@ class LandCover(object):
         # update topWaterLayer (above soil) after directRunoff
         self.topWaterLayer = pcr.max(0.0, self.topWaterLayer - self.directRunoff)
 
-    def improvedArnoScheme(self,iniWaterStorage,inputNetLqWaterToSoil,directRunoffReductionMethod = "Default"):
+    def improvedArnoScheme(self, iniWaterStorage, inputNetLqWaterToSoil, directRunoffReductionMethod = "Default"):
 
         # arnoBeta = BCF = b coefficient of soil water storage capacity distribution
         # 
