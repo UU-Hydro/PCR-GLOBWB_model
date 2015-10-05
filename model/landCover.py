@@ -1120,7 +1120,7 @@ class LandCover(object):
                                   [self.interceptStor],\
                                   'interceptStor',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-5)
+                                  currTimeStep.fulldate,threshold=1e-4)
 
     def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
         
