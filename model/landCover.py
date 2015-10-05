@@ -2304,7 +2304,7 @@ class LandCover(object):
  
         #~ WFRAC = pcr.min(1.0,DW/self.rootZoneWaterStorageRange)          # WFRAC = min(1,DW/WRANGE[TYPE]);
         # modified by Edwin ; to solve problems with rootZoneWaterStorageRange = 0.0
-        WFRAC = pcr.ifthenelse(rootZoneWaterStorageRange > 0.0, pcr.min(1.0,DW/self.rootZoneWaterStorageRange), 1.0)
+        WFRAC = pcr.ifthenelse(self.rootZoneWaterStorageRange > 0.0, pcr.min(1.0,DW/self.rootZoneWaterStorageRange), 1.0)
         
         self.WFRACB = WFRAC**(1./(1.+self.arnoBeta))                    # WFRACB = WFRAC**(1/(1+BCF[TYPE]));
         #
