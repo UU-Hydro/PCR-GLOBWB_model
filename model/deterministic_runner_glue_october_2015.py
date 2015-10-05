@@ -94,10 +94,10 @@ class DeterministicRunner(DynamicModel):
         # set parameter "storCap" based on pre-multipliers
         for coverType in self.model.landSurface.coverTypes:
             # the minimum value is zero
-            self.model.landSurface.landCoverObj[coverType].storCapUpp = pcr.max(0.0, multiplier_for_storCap*\
-                                                           self.model.landSurface.soil_topo_parameters[coverType].storCapUpp)
-            self.model.landSurface.landCoverObj[coverType].storCapLow = pcr.max(0.0, multiplier_for_storCap*\
-                                                           self.model.landSurface.soil_topo_parameters[coverType].storCapLow)
+            self.model.landSurface.soil_topo_parameters[coverType].storCapUpp = pcr.max(0.0, multiplier_for_storCap*\
+                                                     self.model.landSurface.soil_topo_parameters[coverType].storCapUpp)
+            self.model.landSurface.soil_topo_parameters[coverType].storCapLow = pcr.max(0.0, multiplier_for_storCap*\
+                                                     self.model.landSurface.soil_topo_parameters[coverType].storCapLow)
             # report the maps
             pcraster_filename = "storCapUpp"+ "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.soil_topo_parameters[coverType].storCapUpp, pcraster_filename)
