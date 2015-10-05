@@ -74,15 +74,15 @@ class DeterministicRunner(DynamicModel):
 
         # set paramater "kSat" based on the given pre-multiplier
         for coverType in self.model.landSurface.coverTypes:
-            # the minimum value is zero
+            # minimum value is zero and log-scale
             self.model.landSurface.soil_topo_parameters[coverType].kSatUpp = \
                    pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.soil_topo_parameters[coverType].kSatUpp)
             self.model.landSurface.soil_topo_parameters[coverType].kSatLow = \
                    pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.soil_topo_parameters[coverType].kSatLow)
-           # report the map
-            pcraster_filename = "kSatUpp.map"+ "_" + coverType + ".map" 
+           # report the maps
+            pcraster_filename = "kSatUpp"+ "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.soil_topo_parameters[coverType].kSatUpp, pcraster_filename)
-            pcraster_filename = "kSatLow.map"+ "_" + coverType + ".map" 
+            pcraster_filename = "kSatLow"+ "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.soil_topo_parameters[coverType].kSatLow, pcraster_filename)
  
         # set paramater "recessionCoeff" based on the given pre-multiplier
