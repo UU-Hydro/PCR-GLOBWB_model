@@ -69,17 +69,17 @@ class DeterministicRunner(DynamicModel):
         # set parameters "kSat", "storCap" and "minSoilDepthFrac" based on the given pre-multipliers
         for coverType in self.model.landSurface.coverTypes:
 
-            # "kSat"
-            # minimum value is zero and using-log-scale
-            self.model.landSurface.landCoverObj[coverType].parameter.kSatUpp = \
-                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp)
-            self.model.landSurface.landCoverObj[coverType].parameters.kSatLow = \
-                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatLow)
-            # report the maps
-            pcraster_filename = "kSatUpp"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp, pcraster_filename)
-            pcraster_filename = "kSatLow"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatLow, pcraster_filename)
+            #~ # "kSat"
+            #~ # minimum value is zero and using-log-scale
+            #~ self.model.landSurface.landCoverObj[coverType].parameter.kSatUpp = \
+                   #~ pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp)
+            #~ self.model.landSurface.landCoverObj[coverType].parameters.kSatLow = \
+                   #~ pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatLow)
+            #~ # report the maps
+            #~ pcraster_filename = "kSatUpp"+ "_" + coverType + ".map" 
+            #~ pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp, pcraster_filename)
+            #~ pcraster_filename = "kSatLow"+ "_" + coverType + ".map" 
+            #~ pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatLow, pcraster_filename)
 
             # "storCap"
             # minimum value is zero
