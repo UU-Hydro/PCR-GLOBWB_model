@@ -72,14 +72,22 @@ class DeterministicRunner(DynamicModel):
             pcraster_filename = "minSoilDepthFrac"+ "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac, pcraster_filename)
 
+        # set paramater "kSat" based on the given pre-multiplier
+        for coverType in self.model.landSurface.coverTypes:
+            # the minimum value is zero
+            self.model.landSurface.soil_topo_parameters[coverType].kSatUpp = \
+                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.soil_topo_parameters[coverType].kSatUpp)
+            self.model.landSurface.soil_topo_parameters[coverType].kSatLow = \
+                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.soil_topo_parameters[coverType].kSatLow)
+           # report the map
+            pcraster_filename = "kSatUpp.map"+ "_" + coverType + ".map" 
+            pcr.report(self.model.landSurface.soil_topo_parameters[coverType].kSatUpp, pcraster_filename)
+            pcraster_filename = "kSatLow.map"+ "_" + coverType + ".map" 
+            pcr.report(self.model.landSurface.soil_topo_parameters[coverType].kSatLow, pcraster_filename)
+ 
         # set paramater "recessionCoeff" based on the given pre-multiplier
         self.model.groundwater.recessionCoeff     = pcr.max(0.0, (10**(multiplier_for_recessionCoeff)) * self.model.groundwater.recessionCoeff)
         self.model.groundwater.recessionCoeff     = pcr.min(1.0, self.model.groundwater.recessionCoeff)
-
-        # set paramater "kSat" based on the given pre-multiplier
-        self.model.landSurface.parameters.kSatUpp = pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.parameters.kSatUpp)
-        self.model.landSurface.parameters.kSatLow = pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.parameters.kSatLow)
-
 
         # set paramater "storCap" based on pre-multipliers
         self.model.landSurface.parameters.storCapUpp = pcr.max(0.0, multiplier_for_storCap) * self.model.landSurface.parameters.storCapUpp
