@@ -242,10 +242,21 @@ class Routing(object):
             logger.info("Flood plain extents can vary during the simulation.")
             
             # get ManningsN for the flood plain areas
-            self.floodplainManN = float(iniItems.routingOptions['floodplainManningsN'])
+            input = iniItems.routingOptions['floodplainManningsN']
+            self.floodplainManN = vos.readPCRmapClone(input,\
+                                 self.cloneMap, self.tmpDir, self.inputDir)
 
-            # get elevation profile per grid cell and smoothing parameters
-            self.getElevationProfile(iniItems)
+            # reduction parameter of smoothing interval and error threshold
+            self.reductionKK = 0.5
+            if 'reductionKK' in iniItems.routingOptions.keys():
+               self.reductionKK= float(iniItems.routingOptions['reductionKK'])
+            self.criterionKK = 40.0
+            if 'criterionKK' in iniItems.routingOptions.keys():
+               self.criterionKK= float(iniItems.routingOptions['criterionKK'])
+
+            # get relative elevation (above floodplain) profile per grid cell (including smoothing parameters)
+            self.nrZLevels, self.areaFractions, self.relZ, self.floodVolume, self.kSlope, self.mInterval = \
+                            self.getElevationProfile(iniItems)
 
             # get bankfull capacity (unit: m3)
             self.predefinedBankfullCapacity = None
@@ -253,12 +264,9 @@ class Routing(object):
             if iniItems.routingOptions['bankfullCapacity'] != "None" :
             
                 self.usingFixedBankfullCapacity = True
-                self.predefinedBankfullCapacity = vos.readPCRmapClone(\
-                                             iniItems.routingOptions['bankfullCapacity'],\
-                                                 self.cloneMap,self.tmpDir,self.inputDir)
-            
+                self.predefinedBankfullCapacity = vos.readPCRmapClone(iniItems.routingOptions['bankfullCapacity'],\
+                                                                          self.cloneMap, self.tmpDir, self.inputDir)
             else:  
-            
                 msg = "The bankfull channel storage capacity is NOT defined in the configuration file. "
             
                 if self.predefinedChannelWidth != None and \
@@ -361,7 +369,7 @@ class Routing(object):
     def estimateBankfullDischarge(self, bankfullWidth, factor = 4.8):
 
         # bankfull discharge (unit: m3/s)
-        # - from Lacey formula
+        # - from Lacey formula: P = B = 4.8 * (Qbf)**0.5
 
         bankfullDischarge = (bankfullWidth / factor ) ** (2.0)
         
@@ -392,80 +400,108 @@ class Routing(object):
 
     def getElevationProfile(self, iniItems):
 
-        # reduction parameter of smoothing interval and error threshold
-        self.reductionKK = 0.5
-        if 'reductionKK' in iniItems.routingOptions.keys():
-           self.reductionKK= float(iniItems.routingOptions['reductionKK'])
-        self.criterionKK = 40.0
-        if 'criterionKK' in iniItems.routingOptions.keys():
-           self.criterionKK= float(iniItems.routingOptions['criterionKK'])
+        # get the profile of relative elevation above the floodplain (per grid cell)
+
+        # output: dictionaries kSlope, mInterval, relZ and floodVolume with the keys iCnt (index, dimensionless)
+        # - nrZLevels                     : number of intervals/levels
+        # - areaFractions (dimensionless) : percentage/fraction of flooded/innundated area
+        # - relZ (m)                      : relative elevation above floodplain 
+        # - floodVolume (m3)              : flood volume above the channel bankfull capacity 
+        # - kSlope (dimensionless)        : slope used during the interpolation
+        # - mInterval (m3)                : smoothing interval (used in the interpolation) 
+        
+        msg = 'Get the profile of relative elevation above flood plain (relZ, unit: m) !!!'
+        logger.info(msg)
 
         relativeElevationFileNC = None # TODO define relative elevation files in a netdf file.
+        if relativeElevationFileNC != None: 
+            pass # TODO: using a netcdf file 
+
         if relativeElevationFileNC == None: 
+
+            relZFileName = vos.getFullPath(iniItems.routingOptions['relativeElevationFiles'],\
+                                           iniItems.globalOptions['inputDir'])
+
+            # a dictionary contains areaFractions (dimensionless): fractions of flooded/innundated areas  
+            areaFractions = map(float, iniItems.routingOptions['relativeElevationLevels'].split(','))
+            # number of levels/intervals
+            nrZLevels     = len(areaFractions)
+            # - TODO: Read areaFractions and nrZLevels automatically. 
             
-            # get the elevation profile per grid cell
-            self.relZFileName  = vos.getFullPath(iniItems.routingOptions['relativeElevationFiles'],\
-                                                 iniItems.globalOptions['inputDir'],\
-                                                 )
-            self.areaFractions = iniItems.routingOptions['relativeElevationLevels']
-            self.areaFractions = map(float, self.areaFractions.split(','))
-            self.nrZLevels     = len(self.areaFractions)
+        ########################################################################################################
+        #
+        # patch elevations: those that are part of sills are updated on the basis of the floodplain gradient
+        # using local distances deltaX per increment upto z[N] and the sum over sills
+        # - fill all lists (including smoothing interval and slopes)
+
+        relZ = [0.] * nrZLevels
+        for iCnt in range(0, nrZLevels):
             
-        else:
-            # TODO: using netcdf files to store 
-            pass
-            
-        # - patch elevations: those that are part of sills are updated on the basis of the floodplain gradient
-        #   using local distances deltaX per increment upto z[N] and the sum over sills
-        # - fill all lists including smoothing interval and slopes
-        self.relZ= [0.]*self.nrZLevels
-        for iCnt in range(0,self.nrZLevels):
-            inputName = self.relZFileName %(self.areaFractions[iCnt]*100)
-            self.relZ[iCnt] = vos.readPCRmapClone(inputName,self.cloneMap,self.tmpDir,self.inputDir)
-            self.relZ[iCnt] = pcr.ifthen(self.landmask, pcr.cover(self.relZ[iCnt], 0.0))
-            if iCnt > 0: self.relZ[iCnt] = pcr.max(self.relZ[iCnt], self.relZ[iCnt-1])
+            if relativeElevationFileNC == None: 
+                inputName = relZFileName %(areaFractions[iCnt] * 100)
+                relZ[iCnt] = vos.readPCRmapClone(inputName, 
+                                                 self.cloneMap, self.tmpDir, self.inputDir)
+            if relativeElevationFileNC != None: 
+                pass # TODO: using a netcdf file
+
+            # covering elevation values
+            relZ[iCnt] = pcr.ifthen(self.landmask, pcr.cover(relZ[iCnt], 0.0))
+
+            # make sure that relZ[iCnt] >= relZ[iCnt-1] (added by Edwin)
+            if iCnt > 0: relZ[iCnt] = pcr.max(relZ[iCnt], relZ[iCnt-1])
         
-        # - minimum slope of floodplain, being defined as the longest sill, 
+        # - minimum slope of floodplain 
+        #   being defined as the longest sill, 
         #   first used to retrieve longest cumulative distance 
-        deltaX = [self.cellArea**0.5] * self.nrZLevels
-        deltaX[0]= 0.
+        deltaX = [self.cellArea**0.5] * nrZLevels
+        deltaX[0] = 0.0
         sumX = deltaX[:]
-        minSlope = 0.
-        for iCnt in range(self.nrZLevels):
-            if iCnt < self.nrZLevels-1:
-                deltaX[iCnt] = (self.areaFractions[iCnt+1]**0.5-self.areaFractions[iCnt]**0.5)*deltaX[iCnt]
+        minSlope = 0.0
+        for iCnt in range(nrZLevels):
+            if iCnt < nrZLevels-1:
+                deltaX[iCnt] = (areaFractions[iCnt+1]**0.5 - areaFractions[iCnt]**0.5) * deltaX[iCnt]
             else:
-                deltaX[iCnt] = (1.-self.areaFractions[iCnt-1]**0.5)*deltaX[iCnt]
+                deltaX[iCnt] = (1.0 - areaFractions[iCnt-1]**0.5)*deltaX[iCnt]
             if iCnt > 0:
-                sumX[iCnt]= pcr.ifthenelse(self.relZ[iCnt] == self.relZ[iCnt-1],sumX[iCnt-1]+deltaX[iCnt],0.)
-                minSlope= pcr.ifthenelse(self.relZ[iCnt] == self.relZ[iCnt-1],\
-                    pcr.max(sumX[iCnt],minSlope),minSlope)
-        minSlope = pcr.min(self.gradient,0.5*pcr.max(deltaX[1],minSlope)**-1.)
+                sumX[iCnt] = pcr.ifthenelse(relZ[iCnt] == relZ[iCnt-1], sumX[iCnt-1] + deltaX[iCnt], 0.0)
+                minSlope   = pcr.ifthenelse(relZ[iCnt] == relZ[iCnt-1], pcr.max( sumX[iCnt], minSlope), minSlope)
+        # - the maximum value for the floodplain slope is channel gradient (flow velocity is slower in the floodplain)
+        minSlope = pcr.min(self.gradient, 0.5* pcr.max(deltaX[1], minSlope)**-1.)
         
-        # - add small increment to elevations to each sill except in the case of lakes
-        for iCnt in range(self.nrZLevels):
-            self.relZ[iCnt]= self.relZ[iCnt] + sumX[iCnt]*pcr.ifthenelse(self.relZ[self.nrZLevels-1] > 0.,\
-                                                                         minSlope, 0.0)
-        
+        # - add small increment to elevations to each sill (except in the case of lakes, #TODO: verify this)
+        for iCnt in range(nrZLevels):
+            relZ[iCnt] = relZ[iCnt] + sumX[iCnt] * pcr.ifthenelse(relZ[nrZLevels-1] > 0., minSlope, 0.0)
+            # make sure that relZ[iCnt] >= relZ[iCnt-1] (added by Edwin)
+            if iCnt > 0: relZ[iCnt] = pcr.max(relZ[iCnt], relZ[iCnt-1])
+        #
+        ########################################################################################################
+
+
+        ########################################################################################################
         # - set slope and smoothing interval between dy= y(i+1)-y(i) and dx= x(i+1)-x(i)
         #   on the basis of volume
         #
-        self.kSlope =  [0.]*(self.nrZLevels)        # slope and
-        self.mInterval = [0.]*(self.nrZLevels)      # smoothing interval
+        floodVolume = [0.] * (nrZLevels)      # volume (unit: m3)
+        mInterval   = [0.] * (nrZLevels)      # smoothing interval (unit: m3)
+        kSlope      = [0.] * (nrZLevels)      # slope (dimensionless) 
         #
-        self.floodVolume = [0.]*(self.nrZLevels)
-        for iCnt in range(1,self.nrZLevels):
-            self.floodVolume[iCnt] = self.floodVolume[iCnt-1]+\
-                0.5*(self.areaFractions[iCnt]+self.areaFractions[iCnt-1])*\
-                (self.relZ[iCnt]-self.relZ[iCnt-1])*self.cellArea
-            self.kSlope[iCnt-1] = (self.areaFractions[iCnt]-self.areaFractions[iCnt-1])/\
-                pcr.max(0.001,self.floodVolume[iCnt]-self.floodVolume[iCnt-1])
-        for iCnt in range(1,self.nrZLevels):
-            if iCnt < (self.nrZLevels-1):
-                self.mInterval[iCnt] = 0.5*self.reductionKK*pcr.min(self.floodVolume[iCnt+1]-self.floodVolume[iCnt],\
-                    self.floodVolume[iCnt]-self.floodVolume[iCnt-1])
+        for iCnt in range(1, nrZLevels):
+            floodVolume[iCnt] = floodVolume[iCnt-1] + \
+                                0.5 * (areaFractions[iCnt] + areaFractions[iCnt-1]) * \
+                                      (relZ[iCnt] - relZ[iCnt-1]) * self.cellArea
+            kSlope[iCnt-1] = (areaFractions[iCnt] - areaFractions[iCnt-1])/\
+                              pcr.max(0.001, floodVolume[iCnt] - floodVolume[iCnt-1])
+        for iCnt in range(1, nrZLevels):
+            if iCnt < (nrZLevels-1):
+                mInterval[iCnt] = 0.5 * self.reductionKK * pcr.min(floodVolume[iCnt+1] - floodVolume[iCnt], \
+                                                                   floodVolume[iCnt] - floodVolume[iCnt-1])
             else:
-                self.mInterval[iCnt] = 0.5*self.reductionKK*(self.floodVolume[iCnt]-self.floodVolume[iCnt-1])
+                mInterval[iCnt] = 0.5 * self.reductionKK *(floodVolume[iCnt] - floodVolume[iCnt-1])
+        #
+        ########################################################################################################
+        
+        return nrZLevels, areaFractions, relZ, floodVolume, kSlope, mInterval
+
 
     def getRoutingParamAvgDischarge(self, avgDischarge, dist2celllength = None):
         # obtain routing parameters based on average (longterm) discharge
@@ -735,7 +771,7 @@ class Routing(object):
         # - estimated based on environmental flow discharge 
         self.downstreamDemand = self.estimate_discharge_for_environmental_flow(self.channelStorage)
         
-                # get routing/channel parameters/dimensions (based on avgDischarge)
+        # get routing/channel parameters/dimensions (based on avgDischarge)
         # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
         # 
         if self.method == "accuTravelTime":
@@ -750,14 +786,14 @@ class Routing(object):
         self.channelWidth = self.wMean
         
         # fraction of channel (dimensionless)
-        self.channelFraction   = pcr.max(0.0, pcr.min(1.0,\
-                                 self.channelWidth * self.channelLength / (self.cellArea)))
+        self.channelFraction = pcr.max(0.0, pcr.min(1.0,\
+                               self.channelWidth * self.channelLength / (self.cellArea)))
 
         # channel depth (unit: m)
         self.channelDepth = pcr.max(0.0, self.yMean)
         #
-        # option to use constant channel width (m)
-        if not isinstance(self.predefinedChannelWidth,types.NoneType):\
+        # option to use constant channel depth (m)
+        if not isinstance(self.predefinedChannelDepth, types.NoneType):\
            self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
 
         # channel bankfull capacity (unit: m3)
@@ -771,9 +807,11 @@ class Routing(object):
         # fraction of surface water bodies (dimensionless)
         self.dynamicFracWat = pcr.max(self.channelFraction, self.WaterBodies.fracWat)
         if self.floodPlain:
-            # return flood fraction and flood/innundation depth  above the flood plain
+            # return flood fraction and flood/innundation depth above the flood plain
             floodFraction, floodDepth = self.returnFloodedFraction(self.channelStorage)
             self.dynamicFracWat = pcr.max(self.dynamicFracWat, floodFraction)
+        
+        # maximum value of dynamicFracWat is 1.0
         self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))                  
         
         # routing methods
@@ -1097,33 +1135,35 @@ class Routing(object):
 
         return logInt,x+logInt
         
-    def returnFloodedFraction(self,channelStorage):
+    def returnFloodedFraction(self, channelStorage):
+        
+        msg = 'Calculate flood fraction and flood depth (above the floodplain).'
+        logger.info(msg)
         
         # given the flood volume (excess above the bankfull capacity),
         # return the flooded fraction and the associated water height
-        #
         # - using a logistic smoother near intersections (K&K, 2007)
 
         # flood/innundation volume (excess above the bankfull capacity, unit: m3)
-        givenCurrentFloodVolume = pcr.max(0,channelStorage-self.channelStorageCapacity)
+        givenCurrentFloodVolume = pcr.max(0.0, channelStorage - self.channelStorageCapacity)
         
         # find the match on the basis of the shortest distance 
         # to the available intersections or steps
         #
-        deltaXMin = self.floodVolume[self.nrZLevels-1]           # TODO: self.floodVolume is a bad name. 
-        y_i  =  pcr.scalar(1.)                                          
-        k    = [pcr.scalar(0.)]*2
-        mInt =  pcr.scalar(0.)
+        deltaXMin = self.floodVolume[self.nrZLevels-1]
+        y_i  =  pcr.scalar(1.0)                                          
+        k    = [pcr.scalar(0.0)]*2
+        mInt =  pcr.scalar(0.0)
         for iCnt in range(self.nrZLevels-1,0,-1):
-            #-find x_i for current volume and update match if applicable
-            # also update slope and intercept
-            deltaX    = givenCurrentFloodVolume-self.floodVolume[iCnt]
+            # - find x_i for current volume and update match if applicable
+            #   also update slope and intercept
+            deltaX    = givenCurrentFloodVolume - self.floodVolume[iCnt]
             mask      = pcr.abs(deltaX) < pcr.abs(deltaXMin)
-            deltaXMin = pcr.ifthenelse(mask,deltaX,deltaXMin)
-            y_i  = pcr.ifthenelse(mask,self.areaFractions[iCnt],y_i)
-            k[0] = pcr.ifthenelse(mask,self.kSlope[iCnt-1],k[0])
-            k[1] = pcr.ifthenelse(mask,self.kSlope[iCnt],k[1])
-            mInt = pcr.ifthenelse(mask,self.mInterval[iCnt],mInt)
+            deltaXMin = pcr.ifthenelse(mask, deltaX, deltaXMin)
+            y_i  = pcr.ifthenelse(mask, self.areaFractions[iCnt], y_i)
+            k[0] = pcr.ifthenelse(mask, self.kSlope[iCnt-1], k[0])
+            k[1] = pcr.ifthenelse(mask, self.kSlope[iCnt], k[1])
+            mInt = pcr.ifthenelse(mask, self.mInterval[iCnt], mInt)
 
         # all values returned, process data: calculate scaled deltaX and smoothed function
         # on the basis of the integrated logistic functions PHI(x) and 1-PHI(x)
@@ -1138,6 +1178,8 @@ class Routing(object):
                                          pcr.ifthenelse(pcr.abs(deltaXScaled) < self.criterionKK,\
                                                         y_i-k[0]*mInt*logInt[0]+k[1]*mInt*logInt[1],\
                                                         y_i+pcr.ifthenelse(deltaX < 0.,k[0],k[1])*deltaX), 0.0)
+        # minimum value of floodedFraction is 
+        
         floodedFraction = pcr.max(0.,pcr.min(1.,floodedFraction))                      # dimensionless
         
         floodDepth  = pcr.ifthenelse(floodedFraction > 0., \
