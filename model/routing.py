@@ -621,25 +621,30 @@ class Routing(object):
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove             # unit: m3
 
-        # for non kinematic wave approach, set subDishcarge to self.Q in m3/s
+        # for non kinematic wave approaches, set subDishcarge Q in m3/s
         self.subDischarge = self.Q / vos.secondsPerDay()
         self.subDischarge = pcr.ifthen(self.landmask, self.subDischarge)
          
 
     def estimate_length_of_sub_time_step(self): 
 
+        # estimate of water height (m) ; needed for this estimation 
+        water_height = channelStorageForRouting /\
+                      (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
+
         # estimate the length of sub-time step (unit: s):
         # - the shorter is the better
         # - estimated based on the initial or latest sub-time step discharge (unit: m3/s)
-        #
+        # 
         length_of_sub_time_step = pcr.ifthenelse(self.subDischarge > 0.0, 
-                                  self.water_height * self.dynamicFracWat * self.cellArea / \
+                                  water_height * self.dynamicFracWat * self.cellArea / \
                                   self.subDischarge, vos.secondsPerDay())
+        # TODO: Check this logic with Rens!                           
 
         # determine the number of sub time steps (based on Rens van Beek's method)
         #
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
-                             (self.water_height > self.critical_water_height) & \
+                             (water_height > self.critical_water_height) & \
                              (self.lddMap != pcr.ldd(5))
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
@@ -676,12 +681,8 @@ class Routing(object):
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
         
-        # water height (m)
-        self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
-        
         # estimate the length of sub-time step (unit: s):
-        length_of_sub_time_step, number_of_loops = \
-          self.estimate_length_of_sub_time_step()
+        length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
         
         for i_loop in range(number_of_loops):
             
@@ -689,7 +690,7 @@ class Routing(object):
             logger.info(msg)
             
             # alpha parameter and initial discharge variable needed for kinematic wave
-            # -- also including floodFraction (that is bigger than zero only if self.floodPlain)              
+            # - also including floodFraction and               
             alpha, dischargeInitial, floodFraction = \
                    self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting)
             
@@ -785,10 +786,6 @@ class Routing(object):
         # channel width (unit: m)
         self.channelWidth = self.wMean
         
-        # fraction of channel (dimensionless)
-        self.channelFraction = pcr.max(0.0, pcr.min(1.0,\
-                               self.channelWidth * self.channelLength / (self.cellArea)))
-
         # channel depth (unit: m)
         self.channelDepth = pcr.max(0.0, self.yMean)
         #
@@ -804,29 +801,35 @@ class Routing(object):
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
                         
-        # fraction of surface water bodies (dimensionless)
-        self.dynamicFracWat = pcr.max(self.channelFraction, self.WaterBodies.fracWat)
+        # fraction of channel (dimensionless)
+        # - mininum inundated fraction
+        self.channelFraction = pcr.max(0.0, pcr.min(1.0,\
+                               self.channelWidth * self.channelLength / (self.cellArea)))
+        # - innundation due to flood from channel
+        self.floodDepth = 0.0  # not flood deepth   
         if self.floodPlain:
-            # return flood fraction and flood/innundation depth above the flood plain
-            floodFraction, floodDepth = self.returnFloodedFraction(self.channelStorage)
-            self.dynamicFracWat = pcr.max(self.dynamicFracWat, floodFraction)
-        
-        # maximum value of dynamicFracWat is 1.0
-        self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))                  
+            # return inundation fraction and flood/innundation depth above the flood plain
+            inundatedFraction, floodDepth = self.returnInundationFractionAndFloodDepth(self.channelStorage)
+            self.channelFraction = pcr.max(self.channelFraction, inundatedFraction)
+            self.floodDepth = floodDepth
+                                
+        # fraction of surface water bodies (dimensionless)
+        # - including lake and reservoir surface water fraction
+        self.dynamicFracWat = self.returnDynamicFracWat()                  
         
         # routing methods
         if self.method == "accuTravelTime" or self.method == "simplifiedKinematicWave": \
-           self.simple_update(landSurface,groundwater,currTimeStep,meteo)
+           self.simple_update(landSurface, groundwater, currTimeStep, meteo)
         #
         if self.method == "kinematicWave": \
-           self.kinematic_wave_update(landSurface,groundwater,currTimeStep,meteo)                 
+           self.kinematic_wave_update(landSurface, groundwater, currTimeStep, meteo)                 
         # NOTE that this method require abstraction from fossil groundwater.
         
         # infiltration from surface water bodies (rivers/channels, as well as lakes and/or reservoirs) to groundwater bodies
         # - this exchange fluxes will be handed in the next time step
         # - in the future, this will be the interface between PCR-GLOBWB & MODFLOW (based on the difference between surface water levels & groundwater heads)
         #
-        self.calculate_exchange_to_groundwater(groundwater,currTimeStep) 
+        self.calculate_exchange_to_groundwater(groundwater, currTimeStep) 
 
         # volume water released in pits (losses: to the ocean / endorheic basin)
         self.outgoing_volume_at_pits = pcr.ifthen(self.landmask,
@@ -976,7 +979,7 @@ class Routing(object):
                                       landSurface.nonIrrReturnFlow)
         
         # calculate evaporation from water bodies - this will return self.waterBodyEvaporation (unit: m)
-        self.calculate_evaporation(landSurface,groundwater,currTimeStep,meteo)
+        self.calculate_evaporation(landSurface, groundwater, currTimeStep, meteo)
         
         if self.debugWaterBalance:\
            vos.waterBalanceCheck([self.runoff,\
@@ -1096,6 +1099,7 @@ class Routing(object):
         # flood fraction (dimensionless) and flood depth (unit: m)
         floodFraction = pcr.scalar(0.0)
         floodDepth    = pcr.scalar(0.0)
+        
         if self.floodPlain:
             
             # return flood fraction and flood/innundation depth  above the flood plain
@@ -1125,7 +1129,7 @@ class Routing(object):
         dischargeInitial = pcr.ifthenelse(alpha > 0.0,\
                                          (channel_wetted_area / alpha)**(1.0/self.beta),0.0)        # unit: m3
         
-        return (alpha, dischargeInitial, floodFraction)    
+        return (alpha, dischargeInitial, floodFraction, floodDepth)    
 
     def integralLogisticFunction(self,x):
         
@@ -1135,10 +1139,10 @@ class Routing(object):
 
         return logInt,x+logInt
         
-    def returnFloodedFraction(self, channelStorage):
+    def returnInundationFractionAndFloodDepth(self, channelStorage):
         
-        msg = 'Calculate flood fraction and flood depth (above the floodplain).'
-        logger.info(msg)
+        msg = 'Calculate channel inundated fraction and flood inundation depth above the floodplain.'
+        logger.warning(msg)
         
         # given the flood volume (excess above the bankfull capacity),
         # return the flooded fraction and the associated water height
@@ -1173,19 +1177,39 @@ class Routing(object):
                        pcr.min(self.criterionKK,pcr.abs(deltaX/pcr.max(1.,mInt)))
         logInt = self.integralLogisticFunction(deltaXScaled)
 
-        # compute fractional flooded area and flooded depth
-        floodedFraction = pcr.ifthenelse(givenCurrentFloodVolume > 0.0,\
+        # compute fractional inundated/flooded area
+        inundatedFraction = pcr.ifthenelse(givenCurrentFloodVolume > 0.0,\
                                          pcr.ifthenelse(pcr.abs(deltaXScaled) < self.criterionKK,\
                                                         y_i-k[0]*mInt*logInt[0]+k[1]*mInt*logInt[1],\
                                                         y_i+pcr.ifthenelse(deltaX < 0.,k[0],k[1])*deltaX), 0.0)
-        # minimum value of floodedFraction is 
+        # - minimum value is channelFraction
+        inundatedFraction = pcr.max(self.channelFraction, inundatedFraction)
+        # - maximum value is 1.0
+        inundatedFraction = pcr.max(0.,pcr.min(1.0, inundatedFraction))                  # dimensionless
         
-        floodedFraction = pcr.max(0.,pcr.min(1.,floodedFraction))                      # dimensionless
+        # calculate flooded/inundated depth (unit: m) above the floodplain 
+        #_- it will be zero if givenCurrentFloodVolume == 0 
+        floodDepth  = pcr.ifthenelse(inundatedFraction > 0., \
+                      givenCurrentFloodVolume/(inundatedFraction*self.cellArea),0.)      # unit: m
+        # - maximum flood depth
+        max_flood_depth = 50.0
+        floodDepth  = pcr.max(0.0, pcr.min(max_flood_depth, floodDepth))
         
-        floodDepth  = pcr.ifthenelse(floodedFraction > 0., \
-                      givenCurrentFloodVolume/(floodedFraction*self.cellArea),0.)      # unit: m
+        return inundatedFraction, floodDepth
+
+    def returnDynamicFracWat(self):
+
+        # fraction of surface water bodies (dimensionless)
+        # - lake and reservoir surface water fraction
+        dynamicFracWat = pcr.cover(\
+                         pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
+        # - fraction of channel (including its excess above bankfull capacity) 
+        dynamicFracWat += pcr.max(0.0, 1.0 - dynamicFracWat) * self.channelFraction
+        # - maximum value of dynamicFracWat is 1.0
+        dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
         
-        return floodedFraction, floodDepth
+        return dynamicFracWat                  
+
 
     def return_water_body_storage_to_channel(self, channelStorage):
 
@@ -1254,9 +1278,6 @@ class Routing(object):
         
         # channelStorage that will be given to the ROUTING operation:
         channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
-        
-        # water height (m)
-        self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
         
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
