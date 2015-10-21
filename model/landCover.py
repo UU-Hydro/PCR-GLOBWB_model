@@ -967,7 +967,7 @@ class LandCover(object):
                                          timeStamp,currTimeStep.monthIdx-1)
 
 
-    def getPotET(self,meteo,currTimeStep,minCropCoefficientForIrrigation = 0.0):
+    def getPotET(self, meteo, currTimeStep):
 
         # get crop coefficient:
         cropKC = pcr.cover(
@@ -977,9 +977,6 @@ class LandCover(object):
         self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
-        # limit cropKC
-        self.cropKC = pcr.max(self.cropKC, minCropCoefficientForIrrigation)
-        
         # calculate potential ET (unit: m/day)
         self.totalPotET = pcr.ifthen(self.landmask,\
                                      self.cropKC * meteo.referencePotET)
