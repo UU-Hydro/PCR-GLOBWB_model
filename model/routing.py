@@ -280,6 +280,9 @@ class Routing(object):
                     msg += "The bankfull capacity is estimated from average discharge (5 year long term average)."
             
                 logger.info(msg)
+            
+            # covering the value
+            self.predefinedBankfullCapacity = pcr.cover(self.predefinedBankfullCapacity, 0.0)    
 
         # zero fracwat assumption (used for debugging to the version 1)
         self.zeroFracWatAllAndAlways = False

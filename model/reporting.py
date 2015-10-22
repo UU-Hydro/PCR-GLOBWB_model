@@ -664,7 +664,7 @@ class Reporting(object):
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
                                      self._model.routing.floodDepth))
                                 
-        # flood innundation depth (unit: m) above the floodplain
+        # flood volume (unit: m3): excess above the channel storage capacity
         self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
                       pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
