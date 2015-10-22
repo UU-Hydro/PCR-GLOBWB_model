@@ -1148,7 +1148,7 @@ class Routing(object):
         channel_wetted_area = self.water_height * self.channelWidth
         # - alternative 2: the minimum wetted are is: water height x channel width (Edwin introduce this) 
         channel_wetted_area = pcr.max(channel_wetted_area,\
-                                      channelStorage / self.channelLength) unit: m2
+                                      channelStorage / self.channelLength)                          # unit: m2
 
         # channel wetted perimeter (m)
         channel_wetted_perimeter = 2.0*channel_wetted_area/self.channelWidth + self.channelWidth    # unit: m  
