@@ -1312,7 +1312,7 @@ class Routing(object):
         # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
         self.nonIrrWaterConsumption = pcr.max(0.0,\
                                       landSurface.nonIrrGrossDemand - \
-                                      self.nonIrrReturnFlow)
+                                      landSurface.nonIrrReturnFlow)
 
         # runoff from landSurface cells (unit: m/day)                   
         self.runoff = landSurface.landSurfaceRunoff +\
