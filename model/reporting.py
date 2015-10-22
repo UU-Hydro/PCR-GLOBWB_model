@@ -659,6 +659,16 @@ class Reporting(object):
             self.irrigationTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                            self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
 
+        # flood innundation depth (unit: m) above the floodplain
+        self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
+                      pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
+                                     self._model.routing.floodDepth))
+                                
+        # flood innundation depth (unit: m) above the floodplain
+        self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
+                      pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
+                      pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
+
     def report(self):
 
         # recap all variables
