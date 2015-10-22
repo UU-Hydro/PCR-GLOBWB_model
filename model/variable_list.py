@@ -863,6 +863,28 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# irrigationTranspiration
+pcrglobwb_variable_name = 'irrigationTranspiration'
+netcdf_short_name[pcrglobwb_variable_name] = 'transpiration_from_irrigation'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# floodDepth
+pcrglobwb_variable_name = 'floodDepth'
+netcdf_short_name[pcrglobwb_variable_name] = 'flood_innundation_depth'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flood innundation depth above the flood plain.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 #~ # netRechargeForModflowInput - TODO: CAN THIS VALUE BECOME NEGATIVE IN MODFLOW ??
 #~ pcrglobwb_variable_name = 'netRechargeForModflowInput'
 #~ netcdf_short_name[pcrglobwb_variable_name] = 'net_recharge_minus_abstraction'
