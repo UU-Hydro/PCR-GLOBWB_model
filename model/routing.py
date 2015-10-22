@@ -725,7 +725,7 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
             
             # update flood fraction and flood depth
-            self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorage)
+            self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorageForRouting)
             
             # update dynamicFracWat: fraction of surface water bodies (dimensionless) including lakes and reservoirs
             # - lake and reservoir surface water fraction
@@ -1467,7 +1467,7 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
 
             # update flood fraction and flood depth
-            self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorage)
+            self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorageForRouting)
             
             # update dynamicFracWat: fraction of surface water bodies (dimensionless) including lakes and reservoirs
             # - lake and reservoir surface water fraction
