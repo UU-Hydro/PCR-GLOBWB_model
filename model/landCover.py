@@ -815,8 +815,7 @@ class LandCover(object):
                  allocSegments,\
                  desalinationWaterUse,\
                  groundwater_pumping_region_ids,\
-                 regionalAnnualGroundwaterAbstractionLimit,\
-                 minCropCoefficient = 0.0):
+                 regionalAnnualGroundwaterAbstractionLimit):
 
         # get land cover parameters at the first day of the year or the first day of the simulation
         if self.noAnnualChangesInLandCoverParameter == False and\
@@ -833,7 +832,7 @@ class LandCover(object):
             self.calculateParametersAtHalfTranspiration()
 
         # calculate total PotET (based on meteo and cropKC)
-        self.getPotET(meteo,currTimeStep,minCropCoefficient) 
+        self.getPotET(meteo,currTimeStep) 
         
         # calculate interception evaporation flux (m/day) and update interception storage (m)
         self.interceptionUpdate(meteo, currTimeStep)    	 
