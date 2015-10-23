@@ -615,8 +615,6 @@ class Routing(object):
         self.Q = pcr.max(0.0, self.Q)                                    # unit: m3/day        
 
         # updating channelStorage (after routing)
-        #
-        # - alternative 1: using accutraveltimestate
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
                               pcr.max(0.0, self.characteristicDistance)) # unit: m3
@@ -716,7 +714,12 @@ class Routing(object):
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.cover(self.subDischarge, 0.0)
+            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
+            
+            # make sure that we do not get negative channel storage
+            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
             
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - \
@@ -1440,8 +1443,12 @@ class Routing(object):
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.channelLength)
-            self.subDischarge = pcr.cover(self.subDischarge, 0.0)
+            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
+            
+            # make sure that we do not get net negative channel storage
+            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
             
             # update channelStorage (m3)
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
