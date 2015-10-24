@@ -4,6 +4,7 @@
 import os
 import types
 import math
+import types
 
 from pcraster.framework import *
 import pcraster as pcr
