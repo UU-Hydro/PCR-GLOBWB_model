@@ -270,8 +270,8 @@ class Routing(object):
             else:  
                 msg = "The bankfull channel storage capacity is NOT defined in the configuration file. "
             
-                if isinstance(self.predefinedChannelWidth.types, NoneType) or\
-                   isinstance(self.predefinedChannelDepth.types, NoneType):
+                if isinstance(self.predefinedChannelWidth, types.NoneType) or\
+                   isinstance(self.predefinedChannelDepth, types.NoneType):
             
                     msg += "The bankfull capacity is estimated from average discharge (5 year long term average)."
 
