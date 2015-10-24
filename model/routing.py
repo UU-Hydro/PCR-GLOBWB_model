@@ -413,7 +413,7 @@ class Routing(object):
         # - kSlope (dimensionless)        : slope used during the interpolation
         # - mInterval (m3)                : smoothing interval (used in the interpolation) 
         
-        msg = 'Get the profile of relative elevation above flood plain (relZ, unit: m) !!!'
+        msg = 'Get the profile of relative elevation (relZ, unit: m) !!!'
         logger.info(msg)
 
         relativeElevationFileNC = None # TODO define relative elevation files in a netdf file.
