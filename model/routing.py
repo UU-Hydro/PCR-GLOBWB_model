@@ -126,25 +126,25 @@ class Routing(object):
         self.minChannelWidth = pcr.scalar(0.0)
         if "minimumChannelWidth" in iniItems.routingOptions.keys():
             if iniItems.routingOptions['minimumChannelWidth'] != "None":\
-               self.minChannelWidth = vos.readPCRmapClone(\
+               self.minChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                       iniItems.routingOptions['minimumChannelWidth'],
-                                      self.cloneMap,self.tmpDir,self.inputDir)
+                                      self.cloneMap,self.tmpDir,self.inputDir), 0.0)
         
         # option to use constant/pre-defined channel width (m)
         self.predefinedChannelWidth = None
         if "constantChannelWidth" in iniItems.routingOptions.keys():
             if iniItems.routingOptions['constantChannelWidth'] != "None":\
-               self.predefinedChannelWidth = vos.readPCRmapClone(\
+               self.predefinedChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelWidth'],
-                                             self.cloneMap,self.tmpDir,self.inputDir)
+                                             self.cloneMap,self.tmpDir,self.inputDir), 0.0)
 
         # option to use constant/pre-defined channel depth (m)
         self.predefinedChannelDepth = None
         if "constantChannelDepth" in iniItems.routingOptions.keys():
             if iniItems.routingOptions['constantChannelDepth'] != "None":\
-               self.predefinedChannelDepth = vos.readPCRmapClone(\
+               self.predefinedChannelDepth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelDepth'],
-                                             self.cloneMap,self.tmpDir,self.inputDir)
+                                             self.cloneMap,self.tmpDir,self.inputDir), 0.0)
         
 
         # an assumption for broad sheet flow in kinematic wave methods/approaches        
