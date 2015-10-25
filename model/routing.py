@@ -180,7 +180,7 @@ class Routing(object):
                                   self.cellSizeInArcDeg # unit: m/arcDegree  
 
         # the channel gradient must be >= minGradient 
-        minGradient   = 0.000005
+        minGradient   = 0.0001   # 0.000005
         self.gradient = pcr.max(minGradient,\
                         pcr.cover(self.gradient, minGradient))
 
