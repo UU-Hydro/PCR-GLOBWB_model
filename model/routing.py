@@ -225,7 +225,7 @@ class Routing(object):
         self.critical_water_height = 0.25;	# used in Van Beek et al. (2011)
 
         # assumption for the minimum fracwat value used for calculating water height
-        self.min_fracwat_for_water_height = 0.0001 # dimensionless
+        self.min_fracwat_for_water_height = 0.001 # dimensionless
         
         # assumption for minimum crop coefficient for surface water bodies 
         self.minCropWaterKC = 0.00
