@@ -180,7 +180,7 @@ class Routing(object):
                                   self.cellSizeInArcDeg # unit: m/arcDegree  
 
         # the channel gradient must be >= minGradient 
-        minGradient   = 0.0001   # 0.000005
+        minGradient   = 0.00005   # 0.000005
         self.gradient = pcr.max(minGradient,\
                         pcr.cover(self.gradient, minGradient))
 
@@ -393,11 +393,9 @@ class Routing(object):
 
         return bankfullDepth
 
-    def estimateBankfullCapacity(self, width, depth, minWidth = 5.0, minDepth = 2.0):
+    def estimateBankfullCapacity(self, width, depth, minWidth = 5.0, minDepth = 1.0):
 
         # bankfull capacity (unit: m3)
-        # - set minimum height to 2.0 m
-        # - set minimum width  to 5.0
         bankfullCapacity = pcr.max(minWidth, width) * \
                            pcr.max(minDepth, depth) * \
                            self.channelLength
@@ -529,15 +527,38 @@ class Routing(object):
         # minimum channel width (m)
         wMean = pcr.max(self.minChannelWidth, wMean)
 
+        if self.method == "accuTravelTime":
+            characteristicDistance = self.getCharacteristicDistance(yMean, wMean)
+
         # for the 'accuTravelTime' method, the characteristicDistance is also calculated 
         if self.method == "accuTravelTime": \
-            return (yMean, wMean, self.getCharacteristicDistance(yMean, wMean, \
-                                                                 dist2celllength))
+            return (yMean, wMean, characteristicDistance)
         else: 
             return (yMean, wMean)
 
-    def getCharacteristicDistance(self, yMean, wMean, dist2celllength):
+    def getCharacteristicDistance(self, yMean, wMean):
 
+        # Manning's coefficient:
+        usedManningsN = self.manningsN
+
+        # corrected Manning's coefficient: 
+        if self.floodPlain:
+
+            # wetted perimeter
+            flood_only_wetted_perimeter = self.floodDepth * (2.0) + \
+                                          pcr.max(0.0, self.innundatedFraction*self.cellArea/self.channelLength - self.channelWidth)
+            channel_only_wetted_perimeter = \
+                        pcr.min(self.channelDepth, vos.getValDivZero(self.channelStorage, self.channelLength*self.channelWidth, 0.0)) * 2.0 + \
+                        self.channelWidth
+            # total channel wetted perimeter (unit: m)
+            channel_wetted_perimeter = channel_only_wetted_perimeter + \
+                                         flood_only_wetted_perimeter
+            # minimum channel wetted perimeter = 10 cm
+            channel_wetted_perimeter = pcr.max(0.1, channel_wetted_perimeter)                             
+
+            usedManningsN = ((channel_only_wetted_perimeter/channel_wetted_perimeter) *      self.manningsN**(1.5) + \
+                             (  flood_only_wetted_perimeter/channel_wetted_perimeter) * self.floodplainManN**(1.5))**(2./3.)
+        
         # characteristicDistance (dimensionless)
         # - This will be used for accutraveltimeflux & accutraveltimestate
         # - discharge & storage = accutraveltimeflux & accutraveltimestate
@@ -548,12 +569,12 @@ class Routing(object):
              ( (yMean *   wMean)/ \
                (wMean + 2*yMean) )**(2./3.) * \
               ((self.gradient)**(0.5))/ \
-                self.manningsN * \
-                vos.secondsPerDay()                         #  meter/day
+                usedManningsN * \
+                vos.secondsPerDay()                                     # meter/day
 
         characteristicDistance = \
          pcr.max((self.cellSizeInArcDeg)*0.000000001,\
-                 characteristicDistance/dist2celllength)    # arcDeg/day
+                 characteristicDistance/self.dist2celllength)           # arcDeg/day
         
         # charateristicDistance for each lake/reservoir:
         lakeReservoirCharacteristicDistance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
@@ -1131,8 +1152,11 @@ class Routing(object):
         channel_wetted_perimeter = pcr.max(0.1, channel_wetted_perimeter)                             
             
         # corrected Manning's coefficient: 
-        usedManningsN = ((channel_only_wetted_perimeter/channel_wetted_perimeter) *      self.manningsN**(1.5) + \
-                         (  flood_only_wetted_perimeter/channel_wetted_perimeter) * self.floodplainManN**(1.5))**(2./3.)
+        if self.floodPlain:
+            usedManningsN = ((channel_only_wetted_perimeter/channel_wetted_perimeter) *      self.manningsN**(1.5) + \
+                             (  flood_only_wetted_perimeter/channel_wetted_perimeter) * self.floodplainManN**(1.5))**(2./3.)
+        else:
+            usedManningsN = self.manningsN
         
         # alpha (dimensionless) and initial estimate of channel discharge (m3/s)
         #
