@@ -527,14 +527,7 @@ class Routing(object):
         # minimum channel width (m)
         wMean = pcr.max(self.minChannelWidth, wMean)
 
-        if self.method == "accuTravelTime":
-            characteristicDistance = self.getCharacteristicDistance(yMean, wMean)
-
-        # for the 'accuTravelTime' method, the characteristicDistance is also calculated 
-        if self.method == "accuTravelTime": \
-            return (yMean, wMean, characteristicDistance)
-        else: 
-            return (yMean, wMean)
+        return (yMean, wMean)
 
     def getCharacteristicDistance(self, yMean, wMean):
 
@@ -626,10 +619,12 @@ class Routing(object):
         channelStorageForAccuTravelTime = pcr.max(0.0, self.channelStorage)
         channelStorageForAccuTravelTime = pcr.cover(channelStorageForAccuTravelTime,0.0)       # TODO: check why do we have to use the "cover" operation?
 
+        characteristicDistance = self.getCharacteristicDistance(self.yMean, self.wMean)
+
         # estimating channel discharge (m3/day)
         self.Q = pcr.accutraveltimeflux(self.lddMap,\
                                         channelStorageForAccuTravelTime,\
-                                        pcr.max(0.0, self.characteristicDistance))
+                                        pcr.max(0.0, characteristicDistance))
         self.Q = pcr.cover(self.Q, 0.0)
         # for very small velocity (i.e. characteristicDistanceForAccuTravelTime), discharge can be missing value.
         # see: http://sourceforge.net/p/pcraster/bugs-and-feature-requests/543/
@@ -641,7 +636,7 @@ class Routing(object):
         # updating channelStorage (after routing)
         self.channelStorage = pcr.accutraveltimestate(self.lddMap,\
                               channelStorageForAccuTravelTime,\
-                              pcr.max(0.0, self.characteristicDistance)) # unit: m3
+                              pcr.max(0.0, characteristicDistance)) # unit: m3
 
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove             # unit: m3
@@ -815,13 +810,7 @@ class Routing(object):
         
         # get routing/channel parameters/dimensions (based on avgDischarge)
         # and estimating water bodies fraction ; this is needed for calculating evaporation from water bodies
-        # 
-        if self.method == "accuTravelTime":
-            self.yMean, self.wMean, self.characteristicDistance = \
-                self.getRoutingParamAvgDischarge(self.avgDischarge,\
-                self.dist2celllength)
-        else:
-            self.yMean, self.wMean = \
+        self.yMean, self.wMean = \
                 self.getRoutingParamAvgDischarge(self.avgDischarge)
          
         # channel width (unit: m)
