@@ -1211,7 +1211,7 @@ class Routing(object):
         if self.floodPlain:
 
             msg = 'Calculate channel inundated fraction and flood inundation depth above the floodplain.'
-            logger.warning(msg)
+            logger.info(msg)
             
             # given the flood channel volume: channelStorage
             # - return the flooded fraction and the associated water height
