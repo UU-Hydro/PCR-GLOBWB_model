@@ -393,10 +393,10 @@ class Routing(object):
 
         return bankfullDepth
 
-    def estimateBankfullCapacity(self, width, depth, minWidth = 5.0, minDepth = 0.5):
+    def estimateBankfullCapacity(self, width, depth, minWidth = 5.0, minDepth = 2.0):
 
         # bankfull capacity (unit: m3)
-        # - set minimum height to 0.5 m
+        # - set minimum height to 2.0 m
         # - set minimum width  to 5.0
         bankfullCapacity = pcr.max(minWidth, width) * \
                            pcr.max(minDepth, depth) * \
