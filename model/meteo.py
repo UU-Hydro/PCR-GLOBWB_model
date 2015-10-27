@@ -50,6 +50,11 @@ class Meteo(object):
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
+        # option to use netcdf files that are defined per year (one file for each year)
+        self.precipitation_set_per_year  = False
+        self.temperature_set_per_year    = False
+        self.refETPotFileNC_set_per_year = False 
+        
         self.report = True
         try:
             self.outDailyTotNC = iniItems.meteoOptions['outDailyTotNC'].split(",")
@@ -290,14 +295,23 @@ class Meteo(object):
         self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
 
     def read_forcings(self,currTimeStep):
-        # reading precipitation:
-        self.precipitation = vos.netcdf2PCRobjClone(\
-                                  self.preFileNC,'precipitation',\
-                                  str(currTimeStep.fulldate), 
-                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True)
 
+        # reading precipitation:
+        if self.precipitation_set_per_year:
+            nc_file_per_year = self.preFileNC %(str(currTimeStep.year))
+            self.precipitation = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'precipitation',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+        else:
+            self.precipitation = vos.netcdf2PCRobjClone(\
+                                      self.preFileNC, 'precipitation',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
         precipitationCorrectionFactor = pcr.scalar(1.0)                 # Since 19 Feb 2014, Edwin removed the support for correcting precipitation. 
         self.precipitation = pcr.max(0.,self.precipitation*\
                 precipitationCorrectionFactor)
