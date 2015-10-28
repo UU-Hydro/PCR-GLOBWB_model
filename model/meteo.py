@@ -298,7 +298,7 @@ class Meteo(object):
 
         # reading precipitation:
         if self.precipitation_set_per_year:
-            nc_file_per_year = self.preFileNC %(str(currTimeStep.year), (str(currTimeStep.year))
+            nc_file_per_year = self.preFileNC %(str(currTimeStep.year), str(currTimeStep.year))
             self.precipitation = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, 'precipitation',\
                                       str(currTimeStep.fulldate), 
@@ -323,7 +323,7 @@ class Meteo(object):
 
         # reading temperature
         if self.temperature_set_per_year:
-            nc_file_per_year = self.tmpFileNC %(str(currTimeStep.year), (str(currTimeStep.year))
+            nc_file_per_year = self.tmpFileNC %(str(currTimeStep.year), str(currTimeStep.year))
             self.temperature = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, 'temperature',\
                                       str(currTimeStep.fulldate), 
@@ -349,7 +349,7 @@ class Meteo(object):
                                                       self.latitudes)
         if self.refETPotMethod == 'Input': 
             if self.refETPotFileNC_set_per_year: 
-                nc_file_per_year = self.etpFileNC %(str(currTimeStep.year), (str(currTimeStep.year))
+                nc_file_per_year = self.etpFileNC %(str(currTimeStep.year), str(currTimeStep.year))
                 self.referencePotET = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, 'evapotranspiration',\
                                       str(currTimeStep.fulldate), 
