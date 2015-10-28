@@ -298,7 +298,7 @@ class Meteo(object):
 
         # reading precipitation:
         if self.precipitation_set_per_year:
-            nc_file_per_year = self.preFileNC %(str(currTimeStep.year))
+            nc_file_per_year = self.preFileNC %(str(currTimeStep.year), %(str(currTimeStep.year))
             self.precipitation = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, 'precipitation',\
                                       str(currTimeStep.fulldate), 
@@ -322,12 +322,21 @@ class Meteo(object):
             self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         # reading temperature
-        self.temperature = vos.netcdf2PCRobjClone(\
+        if self.temperature_set_per_year:
+            nc_file_per_year = self.tmpFileNC %(str(currTimeStep.year), %(str(currTimeStep.year))
+            self.temperature = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'temperature',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+        else:
+            self.temperature = vos.netcdf2PCRobjClone(\
                                  self.tmpFileNC,'temperature',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True)
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True)
 
         # Downscaling precipitation and temperature
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
@@ -339,10 +348,19 @@ class Meteo(object):
                                                       currTimeStep.doy,\
                                                       self.latitudes)
         if self.refETPotMethod == 'Input': 
-            self.referencePotET = vos.netcdf2PCRobjClone(\
-                                     self.etpFileNC,'evapotranspiration',\
-                                     str(currTimeStep.fulldate), 
-                                     useDoy = None,
+            if self.refETPotFileNC_set_per_year: 
+                nc_file_per_year = self.etpFileNC %(str(currTimeStep.year), %(str(currTimeStep.year))
+                self.referencePotET = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'evapotranspiration',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+            else:
+                self.referencePotET = vos.netcdf2PCRobjClone(\
+                                      self.etpFileNC,'evapotranspiration',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True)
 
