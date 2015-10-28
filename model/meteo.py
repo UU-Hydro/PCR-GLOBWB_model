@@ -298,7 +298,8 @@ class Meteo(object):
 
         # reading precipitation:
         if self.precipitation_set_per_year:
-            nc_file_per_year = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+            print currTimeStep.year
+            nc_file_per_year = self.preFileNC %(float(currTimeStep.year), float(currTimeStep.year))
             self.precipitation = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, 'precipitation',\
                                       str(currTimeStep.fulldate), 
