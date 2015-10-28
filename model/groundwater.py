@@ -348,14 +348,15 @@ class Groundwater(object):
 
     def initialize_with_MODFLOW(self,iniItems,iniConditions):
 
-        # obtain relative groundwater head (unit: m) and 
+        # obtain relative groundwater head (unit: m) 
         self.relativeGroundwaterHead = \
-                        pcr.ifthen(self.landmask,\
+                        pcr.ifthen(self.landmask, pcr.cover(
                         vos.readPCRmapClone(iniItems.couplingToModflowOptions['relativeGroundwaterHeadFromModflow'],
-                                            self.cloneMap,self.tmpDir,self.inputDir))
-        self.baseflow = pcr.ifthen(self.landmask,\
+                                            self.cloneMap,self.tmpDir,self.inputDir), 0.0))
+        self.baseflow = pcr.ifthen(self.landmask, pcr.cover(
                         vos.readPCRmapClone(iniItems.couplingToModflowOptions['baseflowFromModflow'],                                                   
-                                            self.cloneMap,self.tmpDir,self.inputDir))
+                                            self.cloneMap,self.tmpDir,self.inputDir), 0.0))
+        
         
         # use storGroundwater from the MODFLOW calculation/simulation:
         self.storGroundwater = pcr.ifthen(self.landmask,\
