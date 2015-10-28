@@ -51,9 +51,9 @@ class Meteo(object):
         self.forcingDownscalingOptions(iniItems)
 
         # option to use netcdf files that are defined per year (one file for each year)
-        self.precipitation_set_per_year  = True
-        self.temperature_set_per_year    = True
-        self.refETPotFileNC_set_per_year = True 
+        self.precipitation_set_per_year  = iniItems.meteoOptions['precipitation_set_per_year'] == "True"
+        self.temperature_set_per_year    = iniItems.meteoOptions['temperature_set_per_year'] == "True"
+        self.refETPotFileNC_set_per_year = iniItems.meteoOptions['refETPotFileNC_set_per_year'] == "True" 
         
         self.report = True
         try:

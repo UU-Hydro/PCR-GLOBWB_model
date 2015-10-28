@@ -461,8 +461,12 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
 
+        # adjustments for the options to read different forcing files for different years (one file for each year):
+        if 'precipitation_set_per_year' not in self.meteoOptions.keys(): iniItems.meteoOptions['precipitation_set_per_year'] == "False"
+        if 'temperature_set_per_year' not in self.meteoOptions.keys(): iniItems.meteoOptions['temperature_set_per_year'] == "False"
+        if 'refETPotFileNC_set_per_year' not in self.meteoOptions.keys(): iniItems.meteoOptions['refETPotFileNC_set_per_year'] == "False"
+
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
-        
 
     def set_debug_to_version_one(self):
          
