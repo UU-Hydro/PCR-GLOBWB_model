@@ -409,12 +409,9 @@ class GroundwaterModflow(object):
                 vars(self)[var_name] = self.dem_average
 
             # calculate/simulate a steady state condition (until the modflow converges)
-            self.modflow_converged = False
-            while self.modflow_converged == False:
-                # get the current state(s) of groundwater head and put them in a dictionary
-                groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state", groundwaterHead, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
-                                                                                  self.criteria_RCLOSE[self.iteration_RCLOSE])
+            # get the current state(s) of groundwater head and put them in a dictionary
+            groundwaterHead = self.getState()
+            self.modflow_simulation("steady-state", groundwaterHead, None,1,1)
             
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
             # 
