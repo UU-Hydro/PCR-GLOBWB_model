@@ -36,11 +36,12 @@ class DeterministicRunner(DynamicModel):
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
 
-        # update model (It will pick up current model time from the modelTime object)
-        self.model.update()
-
-        # reporting is only done at the end of the month
-        if self.modelTime.isLastDayOfMonth(): self.reporting.report()
+        # update/calculate model and report ONLY at the last day of the month
+        if self.modelTime.isLastDayOfMonth():
+            # update model (It will pick up current model time from the modelTime object)
+            self.model.update()
+            # reporting is only done at the end of the month
+            self.reporting.report()
 
 def main():
     
