@@ -393,10 +393,6 @@ class GroundwaterModflow(object):
         if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
             # using pre-defined groundwater head(s) described in the ini/configuration file
-            self.groundwaterHead = vos.readPCRmapClone(self.modflowTransientInputOptions['groundwaterHeadIni'],\
-                                                       self.cloneMap, self.tmpDir, self.inputDir)
-
-            # groundwater head (unit: m) for all layers
             for i in range(1, self.number_of_layers+1):
                 var_name = 'groundwaterHeadLayer'+str(i)
                 vars(self)[var_name] = vos.readPCRmapClone(self.modflowTransientInputOptions[var_name+'Ini'],\
