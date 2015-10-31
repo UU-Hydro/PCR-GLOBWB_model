@@ -236,8 +236,8 @@ class Configuration(object):
         # making temporary directory for modflow calculation and make sure that the directory is empty
         tmp_modflow_folder = "tmp_modflow/"
         if 'tmp_modflow_folder' in self.globalOptions.keys(): tmp_modflow_folder = self.globalOptions['tmp_modflow_folder']
-        self.tmp_modflow_dir = vos.getFullPath("tmp_modflow/", \
-                                                self.globalOptions['outputDir'])+"/"
+        self.tmp_modflow_dir = vos.getFullPath(tmp_modflow_folder, \
+                                               self.globalOptions['outputDir'])+"/"
         if os.path.exists(self.tmp_modflow_dir):
             shutil.rmtree(self.tmp_modflow_dir)
         os.makedirs(self.tmp_modflow_dir)
