@@ -713,6 +713,9 @@ class GroundwaterModflow(object):
             
         # obtaining the results from modflow simulation
         self.get_all_modflow_results(simulation_type)
+        
+        # after steady state simulation, clear modflow object
+        self.pcr_modflow = None
                 
     def get_all_modflow_results(self, simulation_type):
         
