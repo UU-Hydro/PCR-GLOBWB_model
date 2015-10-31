@@ -953,7 +953,7 @@ class GroundwaterModflow(object):
         if self.number_of_layers == 1: self.pcr_modflow.setWell(abstraction, 1)
         if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
         
-        print(test)
+        print('test')
 
 
     def set_drain_package(self):
