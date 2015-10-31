@@ -714,7 +714,7 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         self.get_all_modflow_results(simulation_type)
         
-        # after steady state simulation, clear modflow object
+        # clear modflow object
         self.pcr_modflow = None
                 
     def get_all_modflow_results(self, simulation_type):
@@ -814,12 +814,10 @@ class GroundwaterModflow(object):
                 self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
                                                    cellArea = self.cellAreaMap, \
                                                    ldd = self.lddMap)        
-                self.set_drain_package()                                         
             if currTimeStep.month == 1:
                 self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
                                                    cellArea = self.cellAreaMap, \
                                                    ldd = self.lddMap)        
-                self.set_drain_package()                                         
 
         if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
 
@@ -909,6 +907,9 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, self.number_of_layers)
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
+
+        # set drain package
+        self.set_drain_package()                                         
         
         
     def set_recharge_package(self, \
