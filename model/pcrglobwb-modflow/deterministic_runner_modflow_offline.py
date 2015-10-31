@@ -39,8 +39,8 @@ class DeterministicRunner(DynamicModel):
         # update model (It will pick up current model time from the modelTime object)
         self.model.update()
 
-        # do any needed reporting for this time step        
-        self.reporting.report()
+        # reporting is only done at the end of the month
+        if self.modelTime.isLastDayOfMonth(): self.reporting.report()
 
 def main():
     
