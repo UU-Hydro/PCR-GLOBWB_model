@@ -3,6 +3,7 @@
 
 import subprocess
 import os
+import types
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -817,7 +818,7 @@ class GroundwaterModflow(object):
                                                    ldd = self.lddMap)        
                 self.set_drain_package()                                         
 
-        if self.bed_conductance == None or currTimeStep.month == 1:
+        if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
 
             logger.info("Estimating surface water bed conductance.")
         
