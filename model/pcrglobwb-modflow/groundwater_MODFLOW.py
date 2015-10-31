@@ -559,12 +559,11 @@ class GroundwaterModflow(object):
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
             groundwaterHead = self.getState()
-            while self.modflow_converged == False: self.modflow_simulation("transient", groundwaterHead, 
-                                                                                        currTimeStep, 
-                                                                                        currTimeStep.day, 
-                                                                                        currTimeStep.day, 
-                                                                                        self.criteria_HCLOSE,
-                                                                                        self.criteria_RCLOSE)
+            self.modflow_simulation("transient", groundwaterHead, 
+                                                 currTimeStep, 
+                                                 currTimeStep.day, 
+                                                 currTimeStep.day)
+
         # old-style reporting (this is usually used for debugging process)                            
         self.old_style_reporting(currTimeStep)
 
