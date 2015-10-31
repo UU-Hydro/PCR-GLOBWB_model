@@ -574,8 +574,6 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
-                           HCLOSE = 1.0,\
-                           RCLOSE = 10.* 400.*400.,\
                            MXITER = 50,\
                            ITERI = 30,\
                            NPCOND = 1,\
@@ -637,7 +635,7 @@ class GroundwaterModflow(object):
                 gwRecharge    = gwRecharge/currTimeStep.day
 
         # set recharge, river, well and drain packages
-        self.set_drain_and_river_package(discharge, currTimeStep)
+        self.set_drain_and_river_package(discharge, currTimeStep, simulation_type)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
 
@@ -796,7 +794,7 @@ class GroundwaterModflow(object):
         
         return modflow_converged    
 
-    def set_drain_and_river_package(self, discharge, currTimeStep):
+    def set_drain_and_river_package(self, discharge, currTimeStep, simulation_type):
 
         logger.info("Set the river package.")
         
