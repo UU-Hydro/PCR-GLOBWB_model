@@ -805,7 +805,6 @@ class GroundwaterModflow(object):
             self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
                                                cellArea = self.cellAreaMap, \
                                                ldd = self.lddMap)
-            self.set_drain_package()                                         
         if simulation_type == "transient":
             if self.WaterBodies == None:
                 self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
