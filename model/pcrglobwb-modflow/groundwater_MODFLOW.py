@@ -194,14 +194,15 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
-        #~ self.criteria_HCLOSE = [0.001, 0.1, 1.0]  
+        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.1, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -651,15 +652,6 @@ class GroundwaterModflow(object):
         # TSMULT = 1.0   # multiplier for the length of the successive iterations
         # SSTR   = 1     # 0 - transient, 1 - steady state
 
-        # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
-        # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
-        # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-        # HCLOSE = 0.01               # HCLOSE (unit: m) 
-        # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
-        # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
-        # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-        # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
-
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
         self.iteration_RCLOSE = 0
@@ -675,6 +667,17 @@ class GroundwaterModflow(object):
             # set PCG solver
             self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
             
+            # some notes for PCG solver values  
+            #
+            # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
+            # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
+            # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+            # HCLOSE = 0.01               # HCLOSE (unit: m) 
+            # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
+            # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
+            # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+            # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
+
             msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
             logger.info(msg)
             self.pcr_modflow.run()
@@ -684,7 +687,7 @@ class GroundwaterModflow(object):
 
             if self.modflow_converged == False:
             
-                msg += "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
+                msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                 logger.info(msg)
                 
                 # for the steady state simulation, we still save the calculated head(s) 
@@ -956,7 +959,7 @@ class GroundwaterModflow(object):
         if self.number_of_layers == 1: self.pcr_modflow.setWell(abstraction, 1)
         if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
         
-        print('test')
+        #~ print('test')
 
 
     def set_drain_package(self):
