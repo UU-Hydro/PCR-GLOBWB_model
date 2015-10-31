@@ -299,10 +299,10 @@ class GroundwaterModflow(object):
         self.bottom_layer_2 = bottom_layer_2
         self.top_layer_2    = top_layer_2
         
-        # report elevation in pcraster map
-        pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), "top_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), "bottom_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), "bottom_lowermost_layer.map")
+        #~ # report elevation in pcraster map
+        #~ pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), "top_uppermost_layer.map")
+        #~ pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), "bottom_uppermost_layer.map")
+        #~ pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), "bottom_lowermost_layer.map")
 
     def set_bcf_for_one_layer_model(self):
 
