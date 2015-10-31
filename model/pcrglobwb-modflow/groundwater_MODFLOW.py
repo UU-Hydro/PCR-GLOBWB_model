@@ -651,10 +651,6 @@ class GroundwaterModflow(object):
         # TSMULT = 1.0   # multiplier for the length of the successive iterations
         # SSTR   = 1     # 0 - transient, 1 - steady state
 
-
-
-        
-
         # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
         # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
         # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
@@ -663,7 +659,6 @@ class GroundwaterModflow(object):
         # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
         # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
         # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
-        
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
