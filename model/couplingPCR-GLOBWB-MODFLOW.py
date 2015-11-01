@@ -49,7 +49,7 @@ for clone_code in clone_codes:
 
    cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
                                                                       pcrglobwb_debug_option +" "+\
-                                                                      clone_code +\
+                                                                      clone_code +" "+\
                                                                       "1.00 0.00 0.00 1.00"
    cmd = cmd+" & "
    i_clone += 1
@@ -61,5 +61,7 @@ cmd = cmd+" & "
 # don't foget to add line
 cmd = cmd+"wait"       
 
-# execute PCR-GLOBWB and MODFLOW
-vos.cmd_line(cmd, using_subprocess = False)      
+print cmd
+
+#~ # execute PCR-GLOBWB and MODFLOW
+#~ vos.cmd_line(cmd, using_subprocess = False)      
