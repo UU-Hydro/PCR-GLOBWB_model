@@ -120,7 +120,6 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                     soilPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
                 if var == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
@@ -140,8 +139,6 @@ class SoilAndTopoParameters(object):
                                   pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
             
-            self.percolationImp = pcr.cover(self.percolationImp, 0.0)    
-        
         # make sure that resVolWC1 <= satVolWC1
         self.resVolWC1 = pcr.min(self.resVolWC1, self.satVolWC1)
         self.resVolWC2 = pcr.min(self.resVolWC2, self.satVolWC2)
