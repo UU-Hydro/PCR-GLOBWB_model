@@ -41,6 +41,7 @@ if clone_codes[0] == "Global": clone_codes = ['M%02d'%i for i in range(1,54,1)]
 
 # command lines for PCR-GLOBWB 
 i_clone = 0
+cmd = ''
 for clone_code in clone_codes:
 
    cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
