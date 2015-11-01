@@ -45,7 +45,8 @@ for clone_code in clone_codes:
 
    cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
                                                                       pcrglobwb_debug_option +" "+\
-                                                                      +clone_code +
+                                                                      clone_code +\
+                                                                      "1.00 0.00 0.00 1.00"
    cmd = cmd+" & "    pcrglobwb_debug_option = "debug"
    i_clone += 1     if without_debug: pcrglobwb_debug_option = "no_debug"
 

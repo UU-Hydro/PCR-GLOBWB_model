@@ -35,11 +35,9 @@ class DeterministicRunner(DynamicModel):
         logger.info("Adjusting some model parameters based on given values in the system argument.")
         
         # global pre-multipliers given in the argument:
-        multiplier_for_recessionCoeff   = float(system_argument[6])
-        multiplier_for_kSat             = float(system_argument[5])
-
-
         multiplier_for_minSoilDepthFrac = float(system_argument[4])
+        multiplier_for_kSat             = float(system_argument[5])
+        multiplier_for_recessionCoeff   = float(system_argument[6])
         multiplier_for_storCap          = float(system_argument[7])    
         
         # saving global pre-multipliers to the log file:
