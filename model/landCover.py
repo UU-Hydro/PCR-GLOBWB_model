@@ -3578,16 +3578,16 @@ class LandCover(object):
         
         if self.debugWaterBalance:
             #
-            vos.waterBalanceCheck([netLqWaterToSoil    ,\
-                                   self.irrGrossDemand ,\
-                                   self.satExcess     ],\
-                                  [self.directRunoff   ,\
-                                   self.openWaterEvap  ,\
-                                   self.infiltration]  ,\
-                                  [  preTopWaterLayer ],\
-                                  [self.topWaterLayer ] ,\
-                                       'topWaterLayer',True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
+            #~ vos.waterBalanceCheck([netLqWaterToSoil    ,\
+                                   #~ self.irrGrossDemand ,\
+                                   #~ self.satExcess     ],\
+                                  #~ [self.directRunoff   ,\
+                                   #~ self.openWaterEvap  ,\
+                                   #~ self.infiltration]  ,\
+                                  #~ [  preTopWaterLayer ],\
+                                  #~ [self.topWaterLayer ] ,\
+                                       #~ 'topWaterLayer',True,\
+                                   #~ currTimeStep.fulldate,threshold=1e-4)
             
             if self.numberOfLayers == 2: 
                 # 
