@@ -84,7 +84,8 @@ class SoilAndTopoParameters(object):
                           'poreSizeBeta1','poreSizeBeta2',        
                           'resVolWC1','resVolWC2',            
                           'satVolWC1','satVolWC2',
-                          'KSat1','KSat2']
+                          'KSat1','KSat2',
+                          'percolationImp']
         if optionDict['soilPropertiesNC'] == str(None):
             for var in soilParameters:
                 input = optionDict[str(var)]
@@ -93,6 +94,8 @@ class SoilAndTopoParameters(object):
                                              self.tmpDir,self.inputDir)
                 vars(self)[var] = pcr.scalar(vars(self)[var])
 
+                if input == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                
                 # extrapolation 
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
                 vars(self)[var] = pcr.cover(vars(self)[var],
@@ -108,8 +111,6 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var],
                                   pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-            
-            self.percolationImp = pcr.cover(self.percolationImp, 0.0)    
 
         else:
             soilPropertiesNC = vos.getFullPath(\
@@ -120,6 +121,8 @@ class SoilAndTopoParameters(object):
                                     soilPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
+                if input == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
                 # extrapolation 
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
