@@ -109,7 +109,7 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var],
                                   pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var],
-                                  pcr.windowaverage(vars(self)[var], 20.00))
+                                  pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
         else:
@@ -136,7 +136,7 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var],
                                   pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var],
-                                  pcr.windowaverage(vars(self)[var], 20.00))
+                                  pcr.windowaverage(vars(self)[var], 1.00))
 
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.01)
             
