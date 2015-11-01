@@ -2356,6 +2356,9 @@ class LandCover(object):
                                                                         #    Q1_L[TYPE]= max(0,Pn-(WMAX[TYPE]+P2_L[TYPE]-W[TYPE])+
                                                                         #      if(Pn>=(BCF[TYPE]+1)*WRANGE[TYPE]*WFRACB, 0,
                                                                         #      WRANGE[TYPE]*(WFRACB-Pn/((BCF[TYPE]+1)*WRANGE[TYPE]))**(BCF[TYPE]+1))); #*
+        # make sure that there is always value
+        directRunoff = pcr.cover(directRunoff, 0.0)
+        
         return directRunoff                                            
 
     def calculateOpenWaterEvap(self):
@@ -3578,7 +3581,7 @@ class LandCover(object):
         self.irrigationTranspirationDeficit = 0.0
         if self.name.startswith('irr'): self.irrigationTranspirationDeficit = pcr.max(0.0, self.potTranspiration - self.actTranspiTotal)
         
-        pcr.report(netLqWaterToSoil   , 'netLqWaterToSoil.map'    ); pcr.aguila('netLqWaterToSoil.map'    )
+        #~ pcr.report(netLqWaterToSoil   , 'netLqWaterToSoil.map'    ); pcr.aguila('netLqWaterToSoil.map'    )
         #~ pcr.report(self.irrGrossDemand, 'self.irrGrossDemand.map' ); pcr.aguila('self.irrGrossDemand.map' )
         #~ pcr.report(self.satExcess     , 'self.satExcess.map'      ); pcr.aguila('self.satExcess.map'      )
         #~ pcr.report(self.directRunoff  , 'self.directRunoff.map'   ); pcr.aguila('self.directRunoff.map'   )
