@@ -20,7 +20,7 @@ pcrglobwb_debug_option = str(sys.argv[2])
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
 
 # create the output folder 
-generalOutputFolder = generalConfiguration.globalOptions['outputFolder']
+generalOutputFolder = generalConfiguration.globalOptions['outputDir']
 if os.path.exists(generalOutputFolder): shutil.rmtree(generalOutputFolder)
 os.makedirs(generalOutputFolder)
 
