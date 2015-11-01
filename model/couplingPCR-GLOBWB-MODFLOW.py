@@ -63,5 +63,5 @@ cmd = cmd+"wait"
 
 print cmd
 
-#~ # execute PCR-GLOBWB and MODFLOW
-#~ vos.cmd_line(cmd, using_subprocess = False)      
+# execute PCR-GLOBWB and MODFLOW
+vos.cmd_line(cmd, using_subprocess = False)      
