@@ -3576,18 +3576,27 @@ class LandCover(object):
         self.irrigationTranspirationDeficit = 0.0
         if self.name.startswith('irr'): self.irrigationTranspirationDeficit = pcr.max(0.0, self.potTranspiration - self.actTranspiTotal)
         
+        pcr.report(netLqWaterToSoil   , 'netLqWaterToSoil.map')    
+        pcr.report(self.irrGrossDemand, 'self.irrGrossDemand.map')
+        pcr.report(self.satExcess     , 'self.satExcess.map')     
+        pcr.report(self.directRunoff  , 'self.directRunoff.map')  
+        pcr.report(self.openWaterEvap , 'self.openWaterEvap.map') 
+        pcr.report(self.infiltration] , 'self.infiltration.map'] 
+        pcr.report(  preTopWaterLayer , 'preTopWaterLayer.map' 
+        pcr.report(self.topWaterLayer , 'self.topWaterLayer.map') 
+
         if self.debugWaterBalance:
             #
-            #~ vos.waterBalanceCheck([netLqWaterToSoil    ,\
-                                   #~ self.irrGrossDemand ,\
-                                   #~ self.satExcess     ],\
-                                  #~ [self.directRunoff   ,\
-                                   #~ self.openWaterEvap  ,\
-                                   #~ self.infiltration]  ,\
-                                  #~ [  preTopWaterLayer ],\
-                                  #~ [self.topWaterLayer ] ,\
-                                       #~ 'topWaterLayer',True,\
-                                   #~ currTimeStep.fulldate,threshold=1e-4)
+            vos.waterBalanceCheck([netLqWaterToSoil    ,\
+                                   self.irrGrossDemand ,\
+                                   self.satExcess     ],\
+                                  [self.directRunoff   ,\
+                                   self.openWaterEvap  ,\
+                                   self.infiltration]  ,\
+                                  [  preTopWaterLayer ],\
+                                  [self.topWaterLayer ] ,\
+                                       'topWaterLayer',True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
             
             if self.numberOfLayers == 2: 
                 # 
