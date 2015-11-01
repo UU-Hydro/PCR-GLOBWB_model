@@ -58,7 +58,7 @@ for clone_code in clone_codes:
 #~ cmd += "python "       
 #~ cmd = cmd+" & "       
 
-# don't foget to add line
+# don't foget to add the following line
 cmd = cmd+"wait"       
 
 print cmd
