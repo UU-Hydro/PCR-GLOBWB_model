@@ -159,7 +159,9 @@ class DeterministicRunner(DynamicModel):
             while modflow_is_ready == False:
                 # check whether the modflow calculation is ready or not, 
                 # if it is ready it will return the variable modflow_is_ready to True
-                modflow_is_ready = self.check_modflow_status()
+                #~ modflow_is_ready = self.check_modflow_status()
+                
+                pass
         
         # do any needed reporting for this time step        
         self.reporting.report()
