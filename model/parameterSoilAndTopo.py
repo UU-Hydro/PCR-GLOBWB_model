@@ -138,9 +138,6 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var],
                                   pcr.windowaverage(vars(self)[var], 1.00))
 
-                vars(self)[var] = pcr.cover(vars(self)[var],
-                                  pcr.windowaverage(vars(self)[var], 10.00))
-
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.01)
             
         # make sure that resVolWC1 <= satVolWC1
