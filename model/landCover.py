@@ -3581,7 +3581,7 @@ class LandCover(object):
         pcr.report(self.satExcess     , 'self.satExcess.map')     
         pcr.report(self.directRunoff  , 'self.directRunoff.map')  
         pcr.report(self.openWaterEvap , 'self.openWaterEvap.map') 
-        pcr.report(self.infiltration] , 'self.infiltration.map'] 
+        pcr.report(self.infiltration  , 'self.infiltration.map'] 
         pcr.report(  preTopWaterLayer , 'preTopWaterLayer.map' 
         pcr.report(self.topWaterLayer , 'self.topWaterLayer.map') 
 
