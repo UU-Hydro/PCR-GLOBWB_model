@@ -62,4 +62,4 @@ cmd = cmd+" & "
 cmd = cmd+"wait"       
 
 # execute PCR-GLOBWB and MODFLOW
-vos.cmd_line(cmd, using_subprocess = True)      
+vos.cmd_line(cmd, using_subprocess = False)      
