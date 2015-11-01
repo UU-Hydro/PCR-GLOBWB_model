@@ -578,6 +578,7 @@ class LandSurface(object):
         except:                                                 
             pass
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
+        self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
         
         # desalination water supply option
         self.includeDesalination = False
