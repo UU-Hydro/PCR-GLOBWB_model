@@ -84,8 +84,7 @@ class SoilAndTopoParameters(object):
                           'poreSizeBeta1','poreSizeBeta2',        
                           'resVolWC1','resVolWC2',            
                           'satVolWC1','satVolWC2',
-                          'KSat1','KSat2',                
-                          'percolationImp']
+                          'KSat1','KSat2']
         if optionDict['soilPropertiesNC'] == str(None):
             for var in soilParameters:
                 input = optionDict[str(var)]
@@ -93,7 +92,25 @@ class SoilAndTopoParameters(object):
                                vos.readPCRmapClone(input,self.cloneMap,\
                                              self.tmpDir,self.inputDir)
                 vars(self)[var] = pcr.scalar(vars(self)[var])
+
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 0.75))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+            
+            self.percolationImp = pcr.cover(self.percolationImp, 0.0)    
+
         else:
             soilPropertiesNC = vos.getFullPath(\
                                optionDict['soilPropertiesNC'],
@@ -103,6 +120,24 @@ class SoilAndTopoParameters(object):
                                     soilPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 0.75))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+            
+            self.percolationImp = pcr.cover(self.percolationImp, 0.0)    
         
         # make sure that resVolWC1 <= satVolWC1
         self.resVolWC1 = pcr.min(self.resVolWC1, self.satVolWC1)
@@ -150,7 +185,23 @@ class SoilAndTopoParameters(object):
                 vars(self)[temp] = vos.readPCRmapClone(input,\
                                             self.cloneMap,
                                             self.tmpDir,self.inputDir)
+
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 0.75))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
+
         else:
             soilPropertiesNC = vos.getFullPath(\
                                optionDict['soilPropertiesNC'],
@@ -160,6 +211,20 @@ class SoilAndTopoParameters(object):
                 vars(self)[temp] = vos.netcdf2PCRobjCloneWithoutTime(\
                                      soilPropertiesNC,var, \
                                      cloneMapFileName = self.cloneMap)
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 0.75))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
 
         # layer thickness
