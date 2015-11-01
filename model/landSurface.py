@@ -1069,7 +1069,7 @@ class LandSurface(object):
                 self.groundwater_pumping_region_ids = \
                      vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
                          currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)
-                other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalr(100.) + pcr.uniqueid(self.landmask)
+                other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(100.) + pcr.uniqueid(self.landmask)
                 self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
                 self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
 
