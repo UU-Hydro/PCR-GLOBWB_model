@@ -2381,10 +2381,12 @@ class LandCover(object):
         
         # update potBareSoilEvap & potTranspiration (after openWaterEvap)
         # - CHECK; WHY DO WE USE COVER ABOVE? Edwin replaced them using the following lines:
-        self.potBareSoilEvap  = pcr.max(0.0, self.potBareSoilEvap -\
-                                vos.getValDivZero(self.potBareSoilEvap, remainingPotETP)*self.openWaterEvap )      
-        self.potTranspiration = pcr.max(0.0, self.potTranspiration -\
-                                vos.getValDivZero(self.potTranspiration, remainingPotETP)*self.openWaterEvap)
+        self.potBareSoilEvap  = pcr.cover(\
+                                pcr.max(0.0, self.potBareSoilEvap -\
+                                vos.getValDivZero(self.potBareSoilEvap, remainingPotETP)*self.openWaterEvap ), 0.0)      
+        self.potTranspiration = pcr.cover(\
+                                pcr.max(0.0, self.potTranspiration -\
+                                vos.getValDivZero(self.potTranspiration, remainingPotETP)*self.openWaterEvap), 0.0)
 
         # update top water layer after openWaterEvap
         self.topWaterLayer = pcr.max(0.,self.topWaterLayer - self.openWaterEvap)
