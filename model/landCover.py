@@ -2266,8 +2266,6 @@ class LandCover(object):
                             directRunoffReductionMethod = self.improvedArnoSchemeMethod)
         self.directRunoff = pcr.min(self.topWaterLayer, self.directRunoff)
         
-        pcr.report(self.directRunoff, 'self.directRunoff'); pcr.aguila('self.directRunoff')
-
         # Yet, we minimize directRunoff in the irrigation areas:
         if self.name.startswith('irr') and self.includeIrrigation: self.directRunoff = pcr.scalar(0.0)
 
@@ -2411,6 +2409,8 @@ class LandCover(object):
         # release excess topWaterLayer above minTopWaterLayer as additional direct runoff
         self.directRunoff += pcr.max(0.0,\
                              self.topWaterLayer - self.minTopWaterLayer)
+
+        pcr.report(self.directRunoff, 'self.directRunoff'); pcr.aguila('self.directRunoff')
 
         # update topWaterLayer after additional direct runoff
         self.topWaterLayer = pcr.min( self.topWaterLayer , \
