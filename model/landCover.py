@@ -2510,12 +2510,12 @@ class LandCover(object):
             
         # estimate actual transpiration fluxes
         if self.numberOfLayers == 2:
-            actTranspiUpp = relActTranspiration*potTranspirationUpp
-            actTranspiLow = relActTranspiration*potTranspirationLow
+            actTranspiUpp = pcr.cover(relActTranspiration*potTranspirationUpp, 0.0)
+            actTranspiLow = pcr.cover(relActTranspiration*potTranspirationLow, 0.0)
         if self.numberOfLayers == 3:
-            actTranspiUpp000005 = relActTranspiration*potTranspirationUpp000005
-            actTranspiUpp005030 = relActTranspiration*potTranspirationUpp005030
-            actTranspiLow030150 = relActTranspiration*potTranspirationLow030150
+            actTranspiUpp000005 = pcr.cover(relActTranspiration*potTranspirationUpp000005, 0.0)
+            actTranspiUpp005030 = pcr.cover(relActTranspiration*potTranspirationUpp005030, 0.0)
+            actTranspiLow030150 = pcr.cover(relActTranspiration*potTranspirationLow030150, 0.0)
 
 
         # BARE SOIL EVAPORATION
@@ -2534,7 +2534,8 @@ class LandCover(object):
                                   (1.-self.satAreaFrac)* pcr.min(\
                                    self.potBareSoilEvap,self.kUnsatUpp000005)
         actBareSoilEvap = pcr.max(0.0, actBareSoilEvap)
-        actBareSoilEvap = pcr.min(actBareSoilEvap,self.potBareSoilEvap)                            
+        actBareSoilEvap = pcr.min(actBareSoilEvap,self.potBareSoilEvap) 
+        actBareSoilEvap = pcr.cover(actBareSoilEvap, 0.0)                           
 
         # no bare soil evaporation in the inundated paddy field 
         if self.name == 'irrPaddy':
