@@ -10,6 +10,9 @@ import pcraster as pcr
 import configuration
 import virtualOS as vos
 
+import logging
+logger = logging.getLogger(__name__)
+
 # get the full path of configuration/ini file given in the system argument
 iniFileName = os.path.abspath(sys.argv[1])
 
