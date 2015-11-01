@@ -122,7 +122,7 @@ class SoilAndTopoParameters(object):
                                     cloneMapFileName = self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-                if input == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                if var == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
                 # extrapolation 
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
