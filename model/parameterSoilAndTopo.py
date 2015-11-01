@@ -229,7 +229,7 @@ class SoilAndTopoParameters(object):
                                    pcr.windowaverage(vars(self)[temp], 1.05))
                 vars(self)[temp] = pcr.cover(vars(self)[temp],
                                    pcr.windowaverage(vars(self)[temp], 1.05))
-                vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
+                vars(self)[temp] = pcr.cover(vars(self)[temp], 0.01)
 
         # layer thickness
         if self.numberOfLayers == 2:
