@@ -2410,8 +2410,6 @@ class LandCover(object):
         self.directRunoff += pcr.max(0.0,\
                              self.topWaterLayer - self.minTopWaterLayer)
 
-        pcr.report(self.directRunoff, 'self.directRunoff'); pcr.aguila('self.directRunoff')
-
         # update topWaterLayer after additional direct runoff
         self.topWaterLayer = pcr.min( self.topWaterLayer , \
                                       self.minTopWaterLayer)
@@ -3334,6 +3332,8 @@ class LandCover(object):
             self.directRunoff  = self.directRunoff + \
                                  pcr.max(0.,self.topWaterLayer - self.minTopWaterLayer)
         
+            pcr.report(self.directRunoff, 'self.directRunoff'); os.system('aguila self.directRunoff')
+
             # make sure that storage capacities are not exceeded
             self.topWaterLayer = pcr.min( self.topWaterLayer , \
                                           self.minTopWaterLayer)
@@ -3583,12 +3583,12 @@ class LandCover(object):
         
         #~ pcr.report(netLqWaterToSoil   , 'netLqWaterToSoil.map'    ); pcr.aguila('netLqWaterToSoil.map'    )
         #~ pcr.report(self.irrGrossDemand, 'self.irrGrossDemand.map' ); pcr.aguila('self.irrGrossDemand.map' )
-        pcr.report(self.satExcess     , 'self.satExcess.map'      ); pcr.aguila('self.satExcess.map'      )
-        pcr.report(self.directRunoff  , 'self.directRunoff.map'   ); pcr.aguila('self.directRunoff.map'   )
-        pcr.report(self.openWaterEvap , 'self.openWaterEvap.map'  ); pcr.aguila('self.openWaterEvap.map'  )
-        pcr.report(self.infiltration  , 'self.infiltration.map'   ); pcr.aguila('self.infiltration.map'   )
-        pcr.report(  preTopWaterLayer , 'preTopWaterLayer.map'    ); pcr.aguila('preTopWaterLayer.map'    )
-        pcr.report(self.topWaterLayer , 'self.topWaterLayer.map'  ); pcr.aguila('self.topWaterLayer.map'  )
+        #~ pcr.report(self.satExcess     , 'self.satExcess.map'      ); pcr.aguila('self.satExcess.map'      )
+        #~ pcr.report(self.directRunoff  , 'self.directRunoff.map'   ); pcr.aguila('self.directRunoff.map'   )
+        #~ pcr.report(self.openWaterEvap , 'self.openWaterEvap.map'  ); pcr.aguila('self.openWaterEvap.map'  )
+        #~ pcr.report(self.infiltration  , 'self.infiltration.map'   ); pcr.aguila('self.infiltration.map'   )
+        #~ pcr.report(  preTopWaterLayer , 'preTopWaterLayer.map'    ); pcr.aguila('preTopWaterLayer.map'    )
+        #~ pcr.report(self.topWaterLayer , 'self.topWaterLayer.map'  ); pcr.aguila('self.topWaterLayer.map'  )
 
         if self.debugWaterBalance:
             #
