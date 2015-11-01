@@ -181,7 +181,7 @@ def main():
     
     # modfiying outputDir, clone-map and landmask (based on the given system arguments)
     clone_code = str(sys.argv[3])
-    configuration.globalOptions['outputDir'] += "/"++"/" 
+    configuration.globalOptions['outputDir'] += "/"+clone_code+"/" 
     configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
     configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
     configuration.set_configuration()

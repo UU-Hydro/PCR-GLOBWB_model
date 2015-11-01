@@ -54,9 +54,9 @@ for clone_code in clone_codes:
    cmd = cmd+" & "
    i_clone += 1
 
-# command line for MODFLOW       
-cmd += "python "       
-cmd = cmd+" & "       
+#~ # command line for MODFLOW       
+#~ cmd += "python "       
+#~ cmd = cmd+" & "       
 
 # don't foget to add line
 cmd = cmd+"wait"       
