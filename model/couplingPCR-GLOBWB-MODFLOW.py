@@ -47,8 +47,8 @@ for clone_code in clone_codes:
                                                                       pcrglobwb_debug_option +" "+\
                                                                       clone_code +\
                                                                       "1.00 0.00 0.00 1.00"
-   cmd = cmd+" & "    pcrglobwb_debug_option = "debug"
-   i_clone += 1     if without_debug: pcrglobwb_debug_option = "no_debug"
+   cmd = cmd+" & "
+   i_clone += 1
 
 # command line for MODFLOW       
 cmd += "python "       
