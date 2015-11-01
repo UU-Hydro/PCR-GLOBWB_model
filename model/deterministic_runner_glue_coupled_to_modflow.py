@@ -187,8 +187,12 @@ def main():
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
                                   no_modification = False)      
-    # modfiying 'outputDir' (based on the given system argument
-    configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
+    
+    # modfiying outputDir, clone-map and landmask (based on the given system arguments)
+    clone_code = str(sys.argv[3])
+    configuration.globalOptions['outputDir'] += "/"++"/" 
+    configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
+    configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
     configuration.set_configuration()
 
     # timeStep info: year, month, day, doy, hour, etc

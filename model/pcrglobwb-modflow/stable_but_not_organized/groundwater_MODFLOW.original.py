@@ -1,10 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import datetime
 import subprocess
 import os
-import types
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -195,41 +193,26 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
-        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
-        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        #~ self.criteria_HCLOSE = [0.001, 0.1, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        #~ self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
-        # initiate somes variables/objects/classes to None
-        # - lakes and reservoir objects (they will be constant for the entrie year, only change at the beginning of the year)
-        self.WaterBodies     = None
-        # - surface water bed conductance (also only change at the beginning of the year)
-        self.bed_conductance = None
-
-        # initiate pcraster modflow object to None
-        self.pcr_modflow = None
-
+        # initiate the index for HCLOSE and RCLOSE
+        self.iteration_HCLOSE = 0
+        self.iteration_RCLOSE = 0
+        
         # the following condition is needed if we have to 
         self.valuesRechargeAndAbstractionInMonthlyTotal = False
         if 'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
-        # for online coupling purpose, we also need to know the location of pcrglobwb output
-        self.online_coupling = False
-        if 'pcrglobwb_output_folder' in self.iniItems.globalOptions.keys():
-            if self.iniItems.globalOptions['pcrglobwb_output_folder'] != "None":
-                self.online_coupling = True
-                self.pcrglobwb_output_folder = self.iniItems.globalOptions['pcrglobwb_output_folder']
-                self.pcrglobwb_output_folder = vos.getFullPath(self.pcrglobwb_output_folder, \
-                                               self.inputDir)+"/"
-
         # initiate old style reporting (this is usually used for debugging process)
         self.initiate_old_style_reporting(iniItems)
 
@@ -238,6 +221,7 @@ class GroundwaterModflow(object):
         logger.info("Initializing pcraster modflow.")
         
         # initialise pcraster modflow
+        self.pcr_modflow = None
         self.pcr_modflow = pcr.initialise(pcr.clone())
         
         # setup the DIS package specifying the grids/layers used for the groundwater model
@@ -403,9 +387,13 @@ class GroundwaterModflow(object):
         if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
             # using pre-defined groundwater head(s) described in the ini/configuration file
+            self.groundwaterHead = vos.readPCRmapClone(self.modflowTransientInputOptions['groundwaterHeadIni'],\
+                                                       self.cloneMap, self.tmpDir, self.inputDir)
+
+            # groundwater head (unit: m) for all layers
             for i in range(1, self.number_of_layers+1):
                 var_name = 'groundwaterHeadLayer'+str(i)
-                vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowTransientInputOptions[var_name+'Ini'],\
+                vars(self)[var_name] = vos.readPCRmapClone(self.modflowTransientInputOptions[var_name+'Ini'],\
                                                            self.cloneMap, self.tmpDir, self.inputDir)
                 vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
 
@@ -417,9 +405,12 @@ class GroundwaterModflow(object):
                 vars(self)[var_name] = self.dem_average
 
             # calculate/simulate a steady state condition (until the modflow converges)
-            # get the current state(s) of groundwater head and put them in a dictionary
-            groundwaterHead = self.getState()
-            self.modflow_simulation("steady-state", groundwaterHead, None,1,1)
+            self.modflow_converged = False
+            while self.modflow_converged == False:
+                # get the current state(s) of groundwater head and put them in a dictionary
+                groundwaterHead = self.getState()
+                self.modflow_simulation("steady-state", groundwaterHead, None,1,1,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                  self.criteria_RCLOSE[self.iteration_RCLOSE])
             
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
             # 
@@ -562,56 +553,17 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def check_pcrglobwb_status(self):
-
-        logger.debug("Get the status of .")
-        
-        return 
-        
-        pcrglobwb_status
-
-
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
-
-            # wait until pcrglowb is ready
-            pcrglobwb_is_ready = False
-            while pcrglobwb_is_ready == False:
-                
-                # check whether the pcrglobwb calculation is ready or not (several times per minute) 
-                # if it is ready, the following variable will be come True
-                datetime_now = datetime.datetime.now()
-                if datetime_now.second == 7 or \
-                   datetime_now.second == 10 or \
-                   datetime_now.second == 16 or \
-                   datetime_now.second == 6 or \
-                   datetime_now.second == 31:\
-                   pcrglobwb_is_ready = self.check_pcrglobwb_status()
-
-            # merging pcraster maps that will be used for modflow calculation:
-            cmd = 'python merge_pcr_maps_for_modflow ' + \
-                  self.modelTime.fulldate+" "+ \
-                  self.configuration.pcrglobwb_output_folder+"/ "+\
-                  "default"+" "+\
-                  " 8 "+\
-                  str(self.configuration.clone_codes)[1:-1].replace(" ","").replace("'","").replace('"',"")
-            msg = "Call: "+cmd; logger.info(msg); vos.cmd_line(cmd, using_subprocess = without_debug)
-
-            # get the previous state
+            # calculate modflow until it converges
+            self.modflow_converged = False
             groundwaterHead = self.getState()
-            
-            
-            self.modflow_simulation("transient", groundwaterHead, 
-                                                 currTimeStep, 
-                                                 currTimeStep.day, 
-                                                 currTimeStep.day)
-
-            # 
-            
-            # old-style reporting (this is usually used for debugging process)                            
-            self.old_style_reporting(currTimeStep)
+            while self.modflow_converged == False: self.modflow_simulation("transient",groundwaterHead,currTimeStep,currTimeStep.day,currTimeStep.day,self.criteria_HCLOSE[self.iteration_HCLOSE],\
+                                                                                                                                                      self.criteria_RCLOSE[self.iteration_RCLOSE])
+        # old-style reporting (this is usually used for debugging process)                            
+        self.old_style_reporting(currTimeStep)
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -619,6 +571,8 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
+                           HCLOSE = 1.0,\
+                           RCLOSE = 10.* 400.*400.,\
                            MXITER = 50,\
                            ITERI = 30,\
                            NPCOND = 1,\
@@ -627,9 +581,10 @@ class GroundwaterModflow(object):
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
-        # initiate pcraster modflow object including its grid/layer/elevation:
-        # - constant for the entire simulation
-        if self.pcr_modflow == None: self.initiate_modflow()
+        # initiate pcraster modflow object if modflow is not called yet:
+        if self.modflow_has_been_called == False or self.modflow_converged == False:
+            self.initiate_modflow()
+            self.modflow_has_been_called = True
 
         if simulation_type == "transient":
             logger.info("Preparing MODFLOW input for a transient simulation.")
@@ -638,12 +593,54 @@ class GroundwaterModflow(object):
             logger.info("Preparing MODFLOW input for a steady-state simulation.")
             SSTR = 1
 
+        # waterBody class to define the extent of lakes and reservoirs
+        #
+        if simulation_type == "steady-state":
+            self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                       self.landmask,\
+                                                       self.onlyNaturalWaterBodies)
+            self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
+                                               cellArea = self.cellAreaMap, \
+                                               ldd = self.lddMap)        
+        #
+        if simulation_type == "transient":
+            if currTimeStep.timeStepPCR == 1:
+               self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                          self.landmask,\
+                                                          self.onlyNaturalWaterBodies)
+            if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
+               self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
+                                                  cellArea = self.cellAreaMap, \
+                                                  ldd = self.lddMap)        
+
         # extract and set initial head for modflow simulation
         groundwaterHead = initialGroundwaterHeadInADictionary
         for i in range(1, self.number_of_layers+1):
             var_name = 'groundwaterHeadLayer'+str(i)
             initial_head = pcr.scalar(groundwaterHead[var_name])
             self.pcr_modflow.setInitialHead(initial_head, i)
+        
+        # set parameter values for the DIS package and PCG solver
+        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
+        self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+        #
+        # Some notes about the values  
+        #
+        # ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
+        # LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
+        # PERLEN = 1.0   # duration of a stress period
+        # NSTP   = 1     # number of time steps in a stress period
+        # TSMULT = 1.0   # multiplier for the length of the successive iterations
+        # SSTR   = 1     # 0 - transient, 1 - steady state
+        #
+        # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
+        # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
+        # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
+        # HCLOSE = 0.01               # HCLOSE (unit: m) 
+        # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
+        # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
+        # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
+        # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
         
         # read input files (for the steady-state condition, we use pcraster maps):
         if simulation_type == "steady-state":
@@ -659,7 +656,7 @@ class GroundwaterModflow(object):
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
         # read input files (for the transient, input files are given in netcdf files):
-        if simulation_type == "transient" and self.online_coupling == False:
+        if simulation_type == "transient":
             
             # - discharge (m3/s) from PCR-GLOBWB
             discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],
@@ -680,89 +677,60 @@ class GroundwaterModflow(object):
                 gwRecharge    = gwRecharge/currTimeStep.day
 
         # set recharge, river, well and drain packages
-        self.set_drain_and_river_package(discharge, currTimeStep, simulation_type)
+        self.set_river_package(discharge, currTimeStep)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
-
-        # set parameter values for the DIS package
-        self.pcr_modflow.setDISParameter(ITMUNI, LENUNI, PERLEN, NSTP, TSMULT, SSTR)
-        #
-        # Some notes about the values  
-        #
-        # ITMUNI = 4     # indicates the time unit (0: undefined, 1: seconds, 2: minutes, 3: hours, 4: days, 5: years)
-        # LENUNI = 2     # indicates the length unit (0: undefined, 1: feet, 2: meters, 3: centimeters)
-        # PERLEN = 1.0   # duration of a stress period
-        # NSTP   = 1     # number of time steps in a stress period
-        # TSMULT = 1.0   # multiplier for the length of the successive iterations
-        # SSTR   = 1     # 0 - transient, 1 - steady state
-
-        # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
-        self.iteration_HCLOSE = 0
-        self.iteration_RCLOSE = 0
-        self.modflow_converged = False
-
-        # execute MODFLOW 
-        while self.modflow_converged == False:
-            
-            # convergence criteria 
-            HCLOSE = self.criteria_HCLOSE[self.iteration_HCLOSE]
-            RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
-            
-            # set PCG solver
-            self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
-            
-            # some notes for PCG solver values  
-            #
-            # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
-            # ITERI  = 30                 # number of inner iterations                   # Deltares use 30
-            # NPCOND = 1                  # 1 - Modified Incomplete Cholesky, 2 - Polynomial matrix conditioning method;
-            # HCLOSE = 0.01               # HCLOSE (unit: m) 
-            # RCLOSE = 10.* 400.*400.     # RCLOSE (unit: m3)
-            # RELAX  = 1.00               # relaxation parameter used with NPCOND = 1
-            # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
-            # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
-
-            msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
-            logger.info(msg)
-            self.pcr_modflow.run()
-
-            # check whether the modflow has converged or not
-            self.modflow_converged = self.pcr_modflow.converged()
-
-            if self.modflow_converged == False:
-            
-                msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
-                logger.info(msg)
-                
-                # for the steady state simulation, we still save the calculated head(s) 
-                # so that we can use them as the initial estimate for the next iteration
-                if simulation_type == "steady-state": 
-                    for i in range(1, self.number_of_layers+1):
-                        var_name = 'groundwaterHeadLayer'+str(i)
-                        vars(self)[var_name] = None
-                        vars(self)[var_name] = self.pcr_modflow.getHeads(i)
-                # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
-
-                # set a new iteration index for the RCLOSE
-                self.iteration_RCLOSE += 1 
-                # reset if the index has reached the length of available criteria
-                if self.iteration_RCLOSE > (len(self.criteria_RCLOSE)-1): self.iteration_RCLOSE = 0     
-            
-                # set a new iteration index for the HCLOSE
-                if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1 
-
-            else:
-            
-                msg  = "\n\n\n"
-                msg += "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
-                msg += "\n\n"
-                logger.info(msg)
-            
-        # obtaining the results from modflow simulation
-        self.get_all_modflow_results(simulation_type)
+        self.set_drain_package()
         
-        # clear modflow object
-        self.pcr_modflow = None
+        # execute MODFLOW 
+        msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
+        logger.info(msg)
+        self.pcr_modflow.run()
+        
+        # check whether a run has converged or not
+        self.modflow_converged = self.check_modflow_convergence()
+        if self.modflow_converged == False:
+
+            msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
+            logger.info(msg)
+            
+            # iteration index for the RCLOSE
+            self.iteration_RCLOSE += 1 
+            # reset if the index has reached the length of available criteria
+            if self.iteration_RCLOSE > (len(self.criteria_RCLOSE)-1): self.iteration_RCLOSE = 0     
+
+            # iteration index for the HCLOSE
+            if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1 
+            
+            # we have to reset modflow as we want to change the PCG setup
+            self.modflow_has_been_called = False
+            
+            # for the steady state simulation, we still save the calculated head(s) 
+            # so that we can use them as the initial estimate for the next iteration
+            if simulation_type == "steady-state": 
+                for i in range(1, self.number_of_layers+1):
+                    var_name = 'groundwaterHeadLayer'+str(i)
+                    vars(self)[var_name] = None
+                    vars(self)[var_name] = self.pcr_modflow.getHeads(i)
+            # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
+            
+        else:
+
+            msg  = "\n\n\n"
+            msg += "HURRAY!!! MODFLOW CONVERGED with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
+            msg += "\n\n"
+            logger.info(msg)
+
+            # reset the iteration because modflow has converged
+            self.iteration_HCLOSE = 0
+            self.iteration_RCLOSE = 0
+            
+            # FIXME: The following line is useless. 
+            # - Originial idea: As modflow has converged, we don't need to re-initialize pcraster modflow (in order to save some calculation time).
+            self.modflow_has_been_called = True
+            
+            # obtaining the results from modflow simulation
+            self.get_all_modflow_results(simulation_type)
                 
     def get_all_modflow_results(self, simulation_type):
         
@@ -822,7 +790,7 @@ class GroundwaterModflow(object):
             #~ pcr.report(self.groundwaterDepthLayer1, "gw_depth_layer_1.map")
 
 
-    def old_check_modflow_convergence(self, file_name = "pcrmf.lst"):
+    def check_modflow_convergence(self, file_name = "pcrmf.lst"):
         
         # open and read the lst file
         file_name = self.tmp_modflow_dir+"/"+file_name
@@ -839,37 +807,26 @@ class GroundwaterModflow(object):
         
         return modflow_converged    
 
-    def set_drain_and_river_package(self, discharge, currTimeStep, simulation_type):
+    def set_river_package(self, discharge, currTimeStep):
 
         logger.info("Set the river package.")
         
-        # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
-        # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
-        if simulation_type == "steady-state":
-            self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
-                                                       self.landmask,\
-                                                       self.onlyNaturalWaterBodies)
-            self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
-                                               cellArea = self.cellAreaMap, \
-                                               ldd = self.lddMap)
-        if simulation_type == "transient":
-            if self.WaterBodies == None:
-                self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
-                                                           self.landmask,\
-                                                           self.onlyNaturalWaterBodies)
-                self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
-                                                   cellArea = self.cellAreaMap, \
-                                                   ldd = self.lddMap)        
-            if currTimeStep.month == 1:
-                self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
-                                                   cellArea = self.cellAreaMap, \
-                                                   ldd = self.lddMap)        
+        # - surface water river bed/bottom elevation and conductance 
+        need_to_define_surface_water_bed = False
+        if currTimeStep == None:
+            # this is for a steady state simulation (no currTimeStep define)
+            need_to_define_surface_water_bed = True
+        else:    
+            # only at the first month of the model simulation or the first month of the year
+            if self.firstMonthOfSimulation or currTimeStep.month == 1:
+                need_to_define_surface_water_bed = True
+                self.firstMonthOfSimulation = False          # This part becomes False as we don't need it anymore. 
 
-        if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
+        if need_to_define_surface_water_bed:
 
-            logger.info("Estimating surface water bed conductance.")
+            logger.info("Estimating the surface water bed elevation and surface water bed conductance.")
         
-            # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? 
+            #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? 
             #~ additional_depth = 500.
             #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      #~ self.dem_riverbed - additional_depth)
@@ -880,7 +837,6 @@ class GroundwaterModflow(object):
             surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
             #
             surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
-            #
             #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
             #
             # rounding values for surface_water_bed_elevation
@@ -900,10 +856,12 @@ class GroundwaterModflow(object):
                                              bed_conductance) 
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
+
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
             # - 'channel width' for lakes and reservoirs 
             channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
             self.channel_width = pcr.cover(channel_width, self.bankfull_width)
+        
 
         logger.info("Estimating surface water elevation.")
         
@@ -953,10 +911,6 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, self.number_of_layers)
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
-
-        # set drain package
-        self.set_drain_package()                                         
-        
         
     def set_recharge_package(self, \
                              gwRecharge, gwAbstraction = 0.0, 
@@ -1002,8 +956,6 @@ class GroundwaterModflow(object):
         # set the well based on number of layers
         if self.number_of_layers == 1: self.pcr_modflow.setWell(abstraction, 1)
         if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
-        
-        #~ print('test')
 
 
     def set_drain_package(self):

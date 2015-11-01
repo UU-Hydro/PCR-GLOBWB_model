@@ -94,4 +94,3 @@ class ModflowOfflineCoupling(object):
         self.dumpState(outputDirectory = self._configuration.endStateDir,\
                              timeStamp = self._configuration.globalOptions['startTime']+".ini")
 
-

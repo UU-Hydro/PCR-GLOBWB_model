@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import datetime
 import subprocess
 import os
 import types
@@ -221,15 +220,6 @@ class GroundwaterModflow(object):
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
-        # for online coupling purpose, we also need to know the location of pcrglobwb output
-        self.online_coupling = False
-        if 'pcrglobwb_output_folder' in self.iniItems.globalOptions.keys():
-            if self.iniItems.globalOptions['pcrglobwb_output_folder'] != "None":
-                self.online_coupling = True
-                self.pcrglobwb_output_folder = self.iniItems.globalOptions['pcrglobwb_output_folder']
-                self.pcrglobwb_output_folder = vos.getFullPath(self.pcrglobwb_output_folder, \
-                                               self.inputDir)+"/"
-
         # initiate old style reporting (this is usually used for debugging process)
         self.initiate_old_style_reporting(iniItems)
 
@@ -562,56 +552,18 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def check_pcrglobwb_status(self):
-
-        logger.debug("Get the status of .")
-        
-        return 
-        
-        pcrglobwb_status
-
-
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
-
-            # wait until pcrglowb is ready
-            pcrglobwb_is_ready = False
-            while pcrglobwb_is_ready == False:
-                
-                # check whether the pcrglobwb calculation is ready or not (several times per minute) 
-                # if it is ready, the following variable will be come True
-                datetime_now = datetime.datetime.now()
-                if datetime_now.second == 7 or \
-                   datetime_now.second == 10 or \
-                   datetime_now.second == 16 or \
-                   datetime_now.second == 6 or \
-                   datetime_now.second == 31:\
-                   pcrglobwb_is_ready = self.check_pcrglobwb_status()
-
-            # merging pcraster maps that will be used for modflow calculation:
-            cmd = 'python merge_pcr_maps_for_modflow ' + \
-                  self.modelTime.fulldate+" "+ \
-                  self.configuration.pcrglobwb_output_folder+"/ "+\
-                  "default"+" "+\
-                  " 8 "+\
-                  str(self.configuration.clone_codes)[1:-1].replace(" ","").replace("'","").replace('"',"")
-            msg = "Call: "+cmd; logger.info(msg); vos.cmd_line(cmd, using_subprocess = without_debug)
-
-            # get the previous state
             groundwaterHead = self.getState()
-            
-            
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
                                                  currTimeStep.day, 
                                                  currTimeStep.day)
 
-            # 
-            
-            # old-style reporting (this is usually used for debugging process)                            
-            self.old_style_reporting(currTimeStep)
+        # old-style reporting (this is usually used for debugging process)                            
+        self.old_style_reporting(currTimeStep)
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -659,7 +611,7 @@ class GroundwaterModflow(object):
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
         # read input files (for the transient, input files are given in netcdf files):
-        if simulation_type == "transient" and self.online_coupling == False:
+        if simulation_type == "transient":
             
             # - discharge (m3/s) from PCR-GLOBWB
             discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],

@@ -11,7 +11,7 @@ from configuration import Configuration
 from currTimeStep import ModelTime
 from reporting import Reporting
 
-from modflow_online import ModflowOnlineCoupling
+from modflow_offline import ModflowOfflineCoupling
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,8 +38,7 @@ class DeterministicRunner(DynamicModel):
 
         # update/calculate model and report ONLY at the last day of the month
         if self.modelTime.isLastDayOfMonth():
-            
-            # update MODFLOW model (It will pick up current model time from the modelTime object)
+            # update model (It will pick up current model time from the modelTime object)
             self.model.update()
             # reporting is only done at the end of the month
             self.reporting.report()

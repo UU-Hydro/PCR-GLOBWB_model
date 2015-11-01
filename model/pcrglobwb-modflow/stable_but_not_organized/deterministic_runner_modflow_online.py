@@ -11,7 +11,7 @@ from configuration import Configuration
 from currTimeStep import ModelTime
 from reporting import Reporting
 
-from modflow_online import ModflowOnlineCoupling
+from modflow_offline import ModflowOfflineCoupling
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,13 +36,25 @@ class DeterministicRunner(DynamicModel):
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
 
-        # update/calculate model and report ONLY at the last day of the month
-        if self.modelTime.isLastDayOfMonth():
-            
-            # update MODFLOW model (It will pick up current model time from the modelTime object)
-            self.model.update()
-            # reporting is only done at the end of the month
-            self.reporting.report()
+        pcrglobwb_is_ready = False
+        while pcrglobwb_is_ready == False:
+            # check whether the pcrglobwb calculation is ready or not, 
+            # if it is ready, the following variable will be come True
+            pcrglobwb_is_ready = self.check_pcrglobwb_status()
+        
+        # merging pcraster maps that will be used for modflow calculation:
+        cmd =    
+
+
+        # update model (It will pick up current model time from the modelTime object)
+        self.model.update()
+
+        # do any needed reporting for this time step        
+        self.reporting.report()
+
+    def check_pcrglobwb_status(self):
+
+
 
 def main():
     
