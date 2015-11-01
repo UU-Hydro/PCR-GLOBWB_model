@@ -1314,6 +1314,8 @@ class LandCover(object):
             self.effSatLow = pcr.max(0., self.storLow/ self.parameters.storCapLow)  # THEFF2= max(0,S2_L[TYPE]/SC2[TYPE]);
             self.effSatUpp = pcr.min(1., self.effSatUpp)
             self.effSatLow = pcr.min(1., self.effSatLow)
+            self.effSatUpp = pcr.cover(self.effSatUpp, 0.0)
+            self.effSatLow = pcr.cover(self.effSatLow, 0.0)
             
             # matricSuction (m)
             self.matricSuctionUpp = self.parameters.airEntryValueUpp*\
