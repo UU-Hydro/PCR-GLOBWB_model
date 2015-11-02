@@ -1351,7 +1351,8 @@ class LandCover(object):
             # gradient for capillary rise (index indicating target store to its underlying store)
             self.gradientUppLow = pcr.max(0.0,\
                          (self.matricSuctionUpp-self.matricSuctionLow)*2./\
-                         (self.parameters.thickUpp+self.parameters.thickLow)-pcr.scalar(1.0))     
+                         (self.parameters.thickUpp+self.parameters.thickLow)-pcr.scalar(1.0))
+            self.gradientUppLow = pcr.cover(self.gradientUppLow, 0.0)                  
                                                                                                  # GRAD = max(0,2*(PSI1-PSI2)/(Z1[TYPE]+Z2[TYPE])-1);
              
             # readily available water in the root zone (upper soil layers)
