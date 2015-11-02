@@ -13,11 +13,14 @@ import virtualOS as vos
 import logging
 logger = logging.getLogger(__name__)
 
-# get the full path of configuration/ini file given in the system argument
-iniFileName = os.path.abspath(sys.argv[1])
+# get the PCR-GLOBWB configuration/ini file given in the system argument
+pcrglobwbIniFileName = os.path.abspath(sys.argv[1])
+
+# get the PCR-GLOBWB-MODFLOW configuration file given in the system argument
+modflowIniFileName = os.path.abspath(sys.argv[2]
 
 # option for using debugging # TODO
-pcrglobwb_debug_option = str(sys.argv[2])
+pcrglobwb_debug_option = str(sys.argv[3])
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
@@ -47,19 +50,18 @@ i_clone = 0
 cmd = ''
 for clone_code in clone_codes:
 
-   cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
+   cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + pcrglobwbIniFileName +" "+\
                                                                       pcrglobwb_debug_option +" "+\
                                                                       clone_code +" "+\
-                                                                      "1.00 -0.25 0.00 1.00"
    cmd = cmd+" & "
    i_clone += 1
 
-#~ # command line for MODFLOW       
-#~ cmd += "python "       
-#~ cmd = cmd+" & "       
+# command line for MODFLOW       
+cmd += "python "       
+cmd = cmd+" & "       
 
 # don't foget to add the following line
-cmd = cmd+"wait"       
+cmd = cmd + "wait"       
 
 print cmd
 
