@@ -299,12 +299,12 @@ class SoilAndTopoParameters(object):
             self.effSatAtFieldCapUpp = \
                      (self.matricSuctionFC / self.airEntryValueUpp)**\
                                         (-1.0/ self.poreSizeBetaUpp )          # saturation degree at field capacity       : THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
-            self.effSatAtFieldCapUpp = pcr.cover(self.effSatAtFieldCapUpp, 0.0)
+            self.effSatAtFieldCapUpp = pcr.cover(self.effSatAtFieldCapUpp, 1.0)
             
             self.effSatAtFieldCapLow = \
                      (self.matricSuctionFC / self.airEntryValueLow)**\
                                         (-1.0/ self.poreSizeBetaLow )
-            self.effSatAtFieldCapLow = pcr.cover(self.effSatAtFieldCapLow, 0.0)
+            self.effSatAtFieldCapLow = pcr.cover(self.effSatAtFieldCapLow, 1.0)
 
             self.kUnsatAtFieldCapUpp = pcr.max(0., \
              (self.effSatAtFieldCapUpp ** self.campbellBetaUpp) * self.kSatUpp)  # unsaturated conductivity at field capacity: KTHEFF_FC = max(0,THEFF_FC[TYPE]**BCB*KS1)
