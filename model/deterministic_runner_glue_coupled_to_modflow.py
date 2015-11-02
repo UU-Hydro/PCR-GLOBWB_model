@@ -153,16 +153,16 @@ class DeterministicRunner(DynamicModel):
         self.model.read_forcings()
         self.model.update(report_water_balance=True)
  
-        # at the last day of the month, stop calculation until the modflow calculation is ready
-        if self.modelTime.isLastDayOfMonth():
-            modflow_is_ready = False
-            while modflow_is_ready == False:
-                # check whether the modflow calculation is ready or not, 
-                # if it is ready it will return the variable modflow_is_ready to True
-                #~ modflow_is_ready = self.check_modflow_status()
-                
-                pass
-        
+        #~ # at the last day of the month, stop calculation until the modflow calculation is ready
+        #~ if self.modelTime.isLastDayOfMonth():
+            #~ modflow_is_ready = False
+            #~ while modflow_is_ready == False:
+                #~ # check whether the modflow calculation is ready or not, 
+                #~ # if it is ready it will return the variable modflow_is_ready to True
+                modflow_is_ready = self.check_modflow_status()
+                #~ 
+                #~ pass
+ 
         # do any needed reporting for this time step        
         self.reporting.report()
 
