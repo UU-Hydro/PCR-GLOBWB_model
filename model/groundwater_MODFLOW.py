@@ -783,25 +783,52 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         self.get_all_modflow_results(simulation_type)
         
-        
-        
-        # save some variables to pcraster maps (so that they can also be accessed from PCR-GLOBWB)
-        
-        
-        
-
-        # - use the first day of the month as the time stamp (to ) 
-        timeStamp = str(self._modelTime.fulldate) 
-        
-        for variable, map in self.getVariableValuesForPCRGLOBWB.iteritems():
-            vos.writePCRmapToDir(\
-             map,\
-             str(variable)+"_"+
-             timeStamp+".map",\
-             outputDirectory)
-
         # clear modflow object
         self.pcr_modflow = None
+        
+        # calculate some variables that will be accessed from PCR-GLOBWB (for online coupling purpose)
+        self.calculate_values_for_pcrglobwb()
+        
+    def calculate_values_for_pcrglobwb(self, simulation_type):
+
+        logger.info("Calculate some variables for PCR-GLOBWB (needed for online coupling purpose: 'relativeGroundwaterHead', 'baseflow', and 'storGroundwater'")
+        
+        # relative uppermost groundwater head (unit: m) above the minimum elevation within grid
+        uppermost_head = vars(self)['groundwaterHeadLayer'+str(self.number_of_layers)]
+        self.relativeGroundwaterHead = uppermost_head - sef.dem_minimum
+        
+        # baseflow (unit: m/day)
+        # - initiate the (accumulated) volume rate (m3/day) (for accumulating the fluxes from all layers)
+        totalBaseflowVolumeRate = pcr.scalar(0.0) 
+        # - accumulating fluxes from all layers
+        for i in range(1, self.number_of_layers+1):
+            # from the river leakage
+            var_name = 'riverLeakageLayer'+str(i)
+            totalBaseflowVolumeRate += pcr.cover(vars(self)[var_name], 0.0)
+            # from the drain package
+            var_name = 'drainLayer'+str(i)
+            totalBaseflowVolumeRate += pcr.cover(vars(self)[var_name], 0.0)
+            # use only in the landmask region
+            if i == self._model.modflow.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self.landmask, \
+                                                                                               self.totalBaseflowVolumeRate)
+        # - convert the unit to m/day and convert the flow direction 
+        #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
+        self.baseflow = pcr.scalar(-1.0) * totalBaseflowVolumeRate/self.cellArea
+        
+        # storGroundwater (unit: m)
+        # - from the lowermost layer
+        accesibleGroundwaterThickness = pcr.ifthen(self.landmask, \
+                                                       self.specific_yield_1 * \
+                                                       pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self.max_accesible_elevation, \
+                                                                                                         self.bottom_layer_1)))
+        # - from the uppermost layer                                                
+        if self.number_of_layers == 2:\
+           accesibleGroundwaterThickness += pcr.ifthen(self.landmask, \
+                                                       self.specific_yield_2 * \
+                                                       pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self.max_accesible_elevation, \
+                                                                                                         self.bottom_layer_2)))
+        # - storGroundwater (unit: m) that can be accessed for abstraction
+        self.storGroundwater = accesibleGroundwaterThickness                                                                                                
                 
     def get_all_modflow_results(self, simulation_type):
         

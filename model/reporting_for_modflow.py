@@ -15,7 +15,7 @@ import pcraster as pcr
 
 from ncConverter import *
 
-import variable_list as varDicts
+import variable_list_for_modflow as varDicts
 
 class Reporting(object):
 
@@ -292,7 +292,7 @@ class Reporting(object):
                                                                                                                  self._model.modflow.bottom_layer_1))) + \
                                                     pcr.ifthen(self._model.landmask, \
                                                                self._model.modflow.specific_yield_2 * \
-                                                               pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self._model.modflow.max_accesible_elevation, \
+                                                               pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self._model.modflow.max_accesible_elevation, \
                                                                                                                  self._model.modflow.bottom_layer_2)))
             self.accesibleGroundwaterVolume = self.accesibleGroundwaterThickness *\
                                               self._model.modflow.cellAreaMap 

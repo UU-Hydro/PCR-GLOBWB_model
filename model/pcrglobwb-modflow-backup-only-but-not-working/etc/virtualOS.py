@@ -1068,7 +1068,7 @@ def getLastDayOfMonth(date):
 def getMinMaxMean(mapFile,ignoreEmptyMap=False):
     mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
     mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
-    nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 ) [0] #/ getNumNonMissingValues(mapFile)
+    nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
     if nrValues == 0.0 and ignoreEmptyMap: 
         return 0.0,0.0,0.0
     else:
@@ -1454,3 +1454,10 @@ def cmd_line(command_line,using_subprocess = True):
     else:
         os.system(co)
 
+def plot_variable(pcr_variable, filename = "test.map"):
+
+    pcr.report(pcr_variable, filename)
+    cmd = 'aguila '+str(filename)
+    os.system(cmd)
+    
+    

@@ -7,9 +7,9 @@ import sys
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
-from configuration import Configuration
+from configuration_for_modflow import Configuration
 from currTimeStep import ModelTime
-from reporting import Reporting
+from reporting_for_modflow import Reporting
 
 from modflow import ModflowCoupling
 
