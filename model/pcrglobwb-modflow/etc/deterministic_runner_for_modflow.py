@@ -11,7 +11,7 @@ from configuration import Configuration
 from currTimeStep import ModelTime
 from reporting import Reporting
 
-from modflow_online import ModflowOnlineCoupling
+from modflow import ModflowCoupling
 
 import logging
 logger = logging.getLogger(__name__)

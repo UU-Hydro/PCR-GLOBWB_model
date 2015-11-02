@@ -1789,7 +1789,11 @@ class LandCover(object):
         # water demand that must be satisfied by groundwater abstraction (not limited to available water)
         self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, groundwater_demand_estimate)
         #####################################################################################################
-
+        
+        # for non-productive aquifer, reduce potGroundwaterAbstract to the current baseflow rate
+        limitedPotGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, pcr.max(routing.avgBaseflow, 0.0))
+        self.potGroundwaterAbstract = pcr.ifthenelse(groundwater.productive_aquifer, \
+                                                     self.potGroundwaterAbstract, limitedPotGroundwaterAbstract)
 
         # constraining groundwater abstraction with the regional annual pumping capacity
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:

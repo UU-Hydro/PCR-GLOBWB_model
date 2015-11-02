@@ -25,25 +25,18 @@ pcrglobwb_debug_option = str(sys.argv[3])
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
 
-# create the output folder 
-generalOutputFolder = generalConfiguration.globalOptions['outputDir']
-if os.path.exists(generalOutputFolder): shutil.rmtree(generalOutputFolder)
-os.makedirs(generalOutputFolder)
-
 # make log folder and initialize logging
+generalOutputFolder = generalConfiguration.globalOptions['outputDir']
 logFileFolder = generalOutputFolder+"/global_log/"
 if os.path.exists(logFileFolder): shutil.rmtree(logFileFolder)
 os.makedirs(logFileFolder)
 generalConfiguration.initialize_logging(logFileFolder)
 
-# make the global folder that will contain merged pcraster maps
-globalOutputFolder = generalOutputFolder+"/global/"
-if os.path.exists(globalOutputFolder): shutil.rmtree(globalOutputFolder)
-os.makedirs(globalOutputFolder)
-
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
 if clone_codes[0] == "Global": clone_codes = ['M%02d'%i for i in range(1,54,1)]
+
+# TODO: run a steady state modflow to estimate the initial values for relativeGroundwaterHead, storGroundwater and baseflow
 
 # command lines for PCR-GLOBWB 
 i_clone = 0

@@ -26,7 +26,7 @@ This file is to handle the configuration for modflow run.
 
 class Configuration(object):
 
-    def __init__(self, iniFileName, debug_mode = False, no_modification = True):
+    def __init__(self, iniFileName, debug_mode = False, steady_state_only = False):
         object.__init__(self)
 
         # timestamp of this run, used in logging file names, etc
@@ -41,8 +41,44 @@ class Configuration(object):
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
         
-        # if no_modification, set configuration directly (otherwise, the function/method  
-        if no_modification: self.set_configuration()
+        # option to define an online coupling between PCR-GLOBWB and MODFLOW
+        self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
+
+        # option for steady state only
+        self.steady_state_only = steady_state_only
+        # - modify output directory
+        if self.steady_state_only:
+            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/steady_state/"
+        else:
+            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/transient/"
+        
+        # set all paths, clean output when requested, initialize logging, copy ini file, make backup scripts, etc.
+        self.set_configuration()
+
+    def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
+
+        self.online_coupling_between_pcrglobwb_and_moflow = False
+        if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
+
+            self.online_coupling_to_pcrglobwb = True
+
+            # using the cloneMap and landmask as defined in the self.globalModflowOptions:
+            self.globalOptions['cloneMap'] = self.globalModflowOptions['cloneMap']
+            self.globalOptions['landmask'] = self.globalModflowOptions['landmask']
+            
+            # the output directory for modflow calculation is stored
+            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/modflow/"
+            
+            # temporary modflow output folder
+            if 'tmp_modflow_dir' in self.globalModflowOptions.keys():
+			    self.globalOptions['tmp_modflow_dir'] = self.globalModflowOptions['tmp_modflow_dir']
+			
+			# water bodies file 
+			if 'waterBodyInputNC' not in self.modflowParameterOptions.keys():
+			    self.modflowParameterOptions['waterBodyInputNC'] = self.routingOptions['waterBodyInputNC']
+			
+			if 'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
+			    self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
 
     def set_configuration(self):
 
@@ -183,10 +219,9 @@ class Configuration(object):
         except: 
             pass # for new outputDir (not exist yet)
 
-        # making temporary directory:
+        # making temporary directory (needed for resampling process)
         self.tmpDir = vos.getFullPath("tmp/", \
                                       self.globalOptions['outputDir'])
-        
         if os.path.exists(self.tmpDir):
             shutil.rmtree(self.tmpDir)
         os.makedirs(self.tmpDir)
@@ -218,14 +253,16 @@ class Configuration(object):
             shutil.rmtree(self.logFileDir)
         os.makedirs(self.logFileDir)
 
-        # making endStateDir directory:
+        # making endStateDir directory
+        # - this directory will contain the calculated groundwater head values
         self.endStateDir = vos.getFullPath("states/", \
                                            self.globalOptions['outputDir'])
         if os.path.exists(self.endStateDir):
             shutil.rmtree(self.endStateDir)
         os.makedirs(self.endStateDir)
 
-        # making pcraster maps directory:
+        # making pcraster maps directory
+        # - this directory will contain all variables/maps that will be used during the pcraster-modflow coupling
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
         cleanMapDir = True
@@ -234,13 +271,14 @@ class Configuration(object):
         os.makedirs(self.mapsDir)
         
         # making temporary directory for modflow calculation and make sure that the directory is empty
-        tmp_modflow_folder = "tmp_modflow/"
-        if 'tmp_modflow_folder' in self.globalOptions.keys(): tmp_modflow_folder = self.globalOptions['tmp_modflow_folder']
-        self.tmp_modflow_dir = vos.getFullPath(tmp_modflow_folder, \
-                                               self.globalOptions['outputDir'])+"/"
+        self.tmp_modflow_dir = "tmp_modflow/"
+        if 'tmp_modflow_dir' in self.globalModflowOptions.keys():
+           self.tmp_modflow_dir = vos.getFullPath(self.tmp_modflow_dir, \
+                                                  self.globalOptions['outputDir'])+"/"
         if os.path.exists(self.tmp_modflow_dir):
             shutil.rmtree(self.tmp_modflow_dir)
         os.makedirs(self.tmp_modflow_dir)
         #
         # go to the temporary directory for the modflow calulation (so that all calculation will be saved in that folder)  
         os.chdir(self.tmp_modflow_dir)
+

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 import waterBodies_for_modflow as waterBodies
 
-import virtualOS as vos
+import virtualOS as vos+
 from ncConverter import *
 
 class GroundwaterModflow(object):
@@ -29,6 +29,15 @@ class GroundwaterModflow(object):
         
         return result
 
+    def getVariableValuesForPCRGLOBWB(self):
+        
+        result = {}
+        
+        result['relativeGroundwaterHead'] = self.relativeGroundwaterHead 
+        result['baseflow']                = self.baseflow
+        result['storGroundwater']         = self.storGroundwater
+        
+        return result
 
     def __init__(self, iniItems, landmask):
         object.__init__(self)
@@ -123,7 +132,7 @@ class GroundwaterModflow(object):
         self.specificYield = pcr.max(0.001,self.specificYield)
         # TODO: Add the minimum value in the ini/configuration file
 
-        # estimate of total aquifer/groundwater thickness (unit: m) 
+        # estimate of total aquifer/groundwater thickness (unit: m) for calculating KD
         totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
                                     'thickness', self.cloneMap)
         # extrapolation 
@@ -438,9 +447,6 @@ class GroundwaterModflow(object):
             
             # TODO: Also please consider to use Deltares's trick to remove isolated cells. 
         
-        # after having the initial head, set the following variable to True to indicate the first month of the model simulation
-        self.firstMonthOfSimulation = True      
-
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)  # TODO: Define this one as part of 
@@ -777,6 +783,23 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         self.get_all_modflow_results(simulation_type)
         
+        
+        
+        # save some variables to pcraster maps (so that they can also be accessed from PCR-GLOBWB)
+        
+        
+        
+
+        # - use the first day of the month as the time stamp (to ) 
+        timeStamp = str(self._modelTime.fulldate) 
+        
+        for variable, map in self.getVariableValuesForPCRGLOBWB.iteritems():
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             timeStamp+".map",\
+             outputDirectory)
+
         # clear modflow object
         self.pcr_modflow = None
                 
@@ -784,58 +807,56 @@ class GroundwaterModflow(object):
         
         logger.info("Get all modflow results.")
         
-        if self.modflow_converged:
-
-            # obtaining the results from modflow simulation
+        # obtaining the results from modflow simulation
+        
+        for i in range(1, self.number_of_layers+1):
             
-            for i in range(1, self.number_of_layers+1):
-                
-                # groundwater head (unit: m)
-                var_name = 'groundwaterHeadLayer'+str(i)
-                vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getHeads(i)
-                
-                # river leakage (unit: m3/day)
-                var_name = 'riverLeakageLayer'+str(i)
-                vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getRiverLeakage(i)
-                
-                # drain (unit: m3/day)
-                var_name = 'drainLayer'+str(i)
-                vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getDrain(i)
-                
-                # bdgfrf - cell-by-cell flows right (m3/day)
-                var_name = 'flowRightFaceLayer'+str(i)
-                vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getRightFace(i)
+            # groundwater head (unit: m)
+            var_name = 'groundwaterHeadLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getHeads(i)
+            
+            # river leakage (unit: m3/day)
+            var_name = 'riverLeakageLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getRiverLeakage(i)
+            
+            # drain (unit: m3/day)
+            var_name = 'drainLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getDrain(i)
+            
+            # bdgfrf - cell-by-cell flows right (m3/day)
+            var_name = 'flowRightFaceLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getRightFace(i)
 
-                # bdgfff - cell-by-cell flows front (m3/day)
-                var_name = 'flowFrontFaceLayer'+str(i)
+            # bdgfff - cell-by-cell flows front (m3/day)
+            var_name = 'flowFrontFaceLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getFrontFace(i)
+            
+            # bdgflf - cell-by-cell flows lower (m3/day) 
+            # Note: No flow through the lower face of the bottom layer
+            if i > 1:
+                var_name = 'flowLowerFaceLayer'+str(i)
                 vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getFrontFace(i)
-                
-                # bdgflf - cell-by-cell flows lower (m3/day) 
-                # Note: No flow through the lower face of the bottom layer
-                if i > 1:
-                    var_name = 'flowLowerFaceLayer'+str(i)
-                    vars(self)[var_name] = None
-                    vars(self)[var_name] = self.pcr_modflow.getLowerFace(i)
+                vars(self)[var_name] = self.pcr_modflow.getLowerFace(i)
 
-                # flow to/from constant head cells (unit: m3/day)
-                var_name = 'flowConstantHeadLayer'+str(i)
+            # flow to/from constant head cells (unit: m3/day)
+            var_name = 'flowConstantHeadLayer'+str(i)
+            vars(self)[var_name] = None
+            vars(self)[var_name] = self.pcr_modflow.getConstantHead(i)
+
+            # cell-by-cell storage flow term (unit: m3)
+            if simulation_type == "transient":
+                var_name = 'flowStorageLayer'+str(i)
                 vars(self)[var_name] = None
-                vars(self)[var_name] = self.pcr_modflow.getConstantHead(i)
+                vars(self)[var_name] = self.pcr_modflow.getStorage(i)
 
-                # cell-by-cell storage flow term (unit: m3)
-                if simulation_type == "transient":
-                    var_name = 'flowStorageLayer'+str(i)
-                    vars(self)[var_name] = None
-                    vars(self)[var_name] = self.pcr_modflow.getStorage(i)
-
-            #~ # for debuging only
-            #~ pcr.report(self.groundwaterHeadLayer1 , "gw_head_layer_1.map")
-            #~ pcr.report(self.groundwaterDepthLayer1, "gw_depth_layer_1.map")
+        #~ # for debuging only
+        #~ pcr.report(self.groundwaterHeadLayer1 , "gw_head_layer_1.map")
+        #~ pcr.report(self.groundwaterDepthLayer1, "gw_depth_layer_1.map")
 
 
     def old_check_modflow_convergence(self, file_name = "pcrmf.lst"):
@@ -1000,6 +1021,37 @@ class GroundwaterModflow(object):
         #~ self.pcr_modflow.setIndicatedRecharge(net_RCH, pcr.spatial(pcr.nominal(1)))
 
     def set_well_package(self, gwAbstraction):
+
+        if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstraction)
+        if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstraction)
+
+    def set_well_package_for_two_layer_model(self, gwAbstraction):
+		
+        # abstraction volume (negative value, unit: m3/day)
+        abstraction = pcr.cover(gwAbstraction, 0.0) * self.cellAreaMap * pcr.scalar(-1.0)
+
+        # set the well package
+        self.pcr_modflow.setWell(abstraction, 1)
+
+    def set_well_package_for_two_layer_model(self, gwAbstraction):
+		
+		gwAbstraction = pcr.cover(gwAbstraction, 0.0)
+		
+		# abstraction for the layer 1 (lower layer) is limited only in productive aquifer
+        abstraction_layer_1 = pcr.ifthenelse(self.productiveAquifer, gwAbstraction, 0.0)
+		
+		# abstraction for the layer 2 (upper layer)
+        abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+
+        # abstraction volume (negative value, unit: m3/day)
+        abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
+        abstraction_layer_2 = abstraction_layer_2 * self.cellAreaMap * pcr.scalar(-1.0)
+
+        # set the well package
+        self.pcr_modflow.setWell(abstraction_layer_1, 1)
+        self.pcr_modflow.setWell(abstraction_layer_2, 2)
+
+    def set_well_package_OLD(self, gwAbstraction):
         
         logger.info("Set the well package.")
 
