@@ -257,6 +257,8 @@ class SoilAndTopoParameters(object):
             self.rootZoneWaterStorageCap = self.storCapUpp000005 + \
                                            self.storCapUpp005030 + \
                                            self.storCapLow030150
+        
+        self.storCapUpp = pcr.scalar(0.3)                                   
 
     def readSoil(self, iniItems, optionDict = None):
 
