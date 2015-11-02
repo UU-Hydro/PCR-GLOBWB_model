@@ -343,16 +343,16 @@ class SoilAndTopoParameters(object):
         if self.numberOfLayers == 2:
             self.effSatAt50Upp = (self.matricSuction50/self.airEntryValueUpp)**\
                                                     (-1.0/self.poreSizeBetaUpp)
-            self.effSatAt50Upp = pcr.cover(self.effSatAt50Upp, 0.0)                                        
+            self.effSatAt50Upp = pcr.cover(self.effSatAt50Upp, 1.0)                                        
             self.effSatAt50Low = (self.matricSuction50/self.airEntryValueLow)**\
                                                     (-1.0/self.poreSizeBetaLow)
-            self.effSatAt50Low = pcr.cover(self.effSatAt50Low, 0.0)                                        
+            self.effSatAt50Low = pcr.cover(self.effSatAt50Low, 1.0)                                        
             self.effSatAtWiltPointUpp = pcr.cover(\
                                  (self.matricSuctionWP/self.airEntryValueUpp)**\
-                                                    (-1.0/self.poreSizeBetaUpp), 0.0)
+                                                    (-1.0/self.poreSizeBetaUpp), 1.0)
             self.effSatAtWiltPointLow = pcr.cover(\
                                  (self.matricSuctionWP/self.airEntryValueLow)**\
-                                                    (-1.0/self.poreSizeBetaLow), 0.0)
+                                                    (-1.0/self.poreSizeBetaLow), 1.0)
         if self.numberOfLayers == 3:
             self.effSatAt50Upp000005 = (self.matricSuction50/self.airEntryValueUpp000005)**\
                                                           (-1.0/self.poreSizeBetaUpp000005)
