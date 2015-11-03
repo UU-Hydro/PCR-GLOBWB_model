@@ -22,7 +22,7 @@ class DeterministicRunner(DynamicModel):
         DynamicModel.__init__(self)
 
         self.modelTime = modelTime        
-        self.model = ModflowOfflineCoupling(configuration, modelTime)
+        self.model = ModflowCoupling(configuration, modelTime)
 
         self.reporting = Reporting(configuration, self.model, modelTime)
         
