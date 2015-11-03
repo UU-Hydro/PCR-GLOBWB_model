@@ -61,10 +61,7 @@ def main():
     # option to perform steady state calculation only
     steady_state_only = False
     if len(sys.argv) > 3:
-        if sys.argv[2] == "steady-state": steady_state_only = True
-    
-    print steady_state_only
-    sys.exit()
+        if sys.argv[3] == "steady-state": steady_state_only = True
     
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
