@@ -53,8 +53,6 @@ class ModflowCoupling(object):
         
     def dumpState(self, outputDirectory, timeStamp = "Default"):
 
-        # write all states to disk to facilitate restarting
-
         state = self.getState()
         
         groundWaterState = state['groundwater']
@@ -63,6 +61,20 @@ class ModflowCoupling(object):
         if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
         
         for variable, map in groundWaterState.iteritems():
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             timeStamp+".map",\
+             outputDirectory)
+
+    def dumpVariableValuesForPCRGLOBWB(self, outputDirectory, timeStamp = "Default"):
+
+        variables = self.modflow.getVariableValuesForPCRGLOBWB()
+        
+        # time stamp used as part of the file name:
+        if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+        
+        for variable, map in variables.iteritems():
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
@@ -82,8 +94,13 @@ class ModflowCoupling(object):
 
         # save/dump states at the end of the month or at the end of model simulation
         if self._modelTime.isLastDayOfMonth() or self._modelTime.isLastTimeStep():
+
             logger.info("Save or dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
+
+            logger.info("Save or dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+            self.dumpState(self._configuration.endStateDir)
+
 
     def get_initial_heads(self):
         logger.info("Get initial head values (based on a steady-state simulation or a pre-defined pcraster map.")
@@ -94,5 +111,11 @@ class ModflowCoupling(object):
         logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
         self.dumpState(outputDirectory = self._configuration.endStateDir,\
                              timeStamp = self._configuration.globalOptions['startTime']+".ini")
+                             
+        # save/dump some variables for PCR-GLOBWB
+        if self._configuration.steady_state_only:
+            logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
+            self.dumpVariableValuesForPCRGLOBWB = self._configuration.endMapsDir,\
+                                      timeStamp = self._configuration.globalOptions['startTime']+".ini")
 
 

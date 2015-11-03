@@ -217,7 +217,6 @@ class Configuration(object):
         # making backup for the python scripts used:
         self.scriptDir = vos.getFullPath("scripts/", \
                                          self.globalOptions['outputDir'])
-
         if os.path.exists(self.scriptDir):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
