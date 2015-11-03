@@ -50,10 +50,13 @@ def checkVariableInNC(ncFile,varName):
     return varName in f.variables.keys()
 
 
-def netcdf2PCRobjCloneWithoutTime(ncFile,varName,
+def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
                                   cloneMapFileName  = None,\
                                   LatitudeLongitude = True,\
-                                  specificFillValue = None):
+                                  specificFillValue = None,\
+                                  absolutePath = None):
+    
+    if absolutePath != None: ncFile = getFullPath(ncFile, absolutePath)
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
