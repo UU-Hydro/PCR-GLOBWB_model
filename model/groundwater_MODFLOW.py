@@ -1073,24 +1073,24 @@ class GroundwaterModflow(object):
 		
         # abstraction volume (negative value, unit: m3/day)
         abstraction = pcr.cover(gwAbstraction, 0.0) * self.cellAreaMap * pcr.scalar(-1.0)
-
+        
         # set the well package
         self.pcr_modflow.setWell(abstraction, 1)
 
     def set_well_package_for_two_layer_model(self, gwAbstraction):
 		
-		gwAbstraction = pcr.cover(gwAbstraction, 0.0)
-		
-		# abstraction for the layer 1 (lower layer) is limited only in productive aquifer
+        gwAbstraction = pcr.cover(gwAbstraction, 0.0)
+        
+        # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
         abstraction_layer_1 = pcr.ifthenelse(self.productiveAquifer, gwAbstraction, 0.0)
-		
-		# abstraction for the layer 2 (upper layer)
+        
+        # abstraction for the layer 2 (upper layer)
         abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
-
+        
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
         abstraction_layer_2 = abstraction_layer_2 * self.cellAreaMap * pcr.scalar(-1.0)
-
+        
         # set the well package
         self.pcr_modflow.setWell(abstraction_layer_1, 1)
         self.pcr_modflow.setWell(abstraction_layer_2, 2)
@@ -1098,10 +1098,10 @@ class GroundwaterModflow(object):
     def set_well_package_OLD(self, gwAbstraction):
         
         logger.info("Set the well package.")
-
+        
         # reducing the size of table by ignoring cells with zero abstraction
         gwAbstraction = pcr.ifthen(gwAbstraction > 0.0, gwAbstraction)
-
+        
         # abstraction only in productive aquifer
         gwAbstraction = pcr.ifthen(self.productiveAquifer, gwAbstraction)
         
@@ -1116,7 +1116,6 @@ class GroundwaterModflow(object):
         if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
         
         #~ print('test')
-
 
     def set_drain_package(self):
 
