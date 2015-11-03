@@ -222,7 +222,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # extent of the productive aquifer (a boolean map)
-        # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise)
+        # - Principle: In non-productive aquifer areas, no capillary rise and groundwater abstraction should not exceed recharge
         # 
         self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
         excludeUnproductiveAquifer = True
@@ -233,8 +233,7 @@ class Groundwater(object):
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
                 self.productive_aquifer = pcr.cover(\
-                 pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(1.0))
-                self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer) 
+                 pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(0.0))
         # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
         #####################################################################################################################################################
 
