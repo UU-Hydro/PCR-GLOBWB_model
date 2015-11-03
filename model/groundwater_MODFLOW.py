@@ -914,7 +914,7 @@ class GroundwaterModflow(object):
 
         # relative uppermost groundwater head (unit: m) above the minimum elevation within grid
         uppermost_head = vars(self)['groundwaterHeadLayer'+str(self.number_of_layers)]
-        self.relativeGroundwaterHead = uppermost_head - sef.dem_minimum
+        self.relativeGroundwaterHead = uppermost_head - self.dem_minimum
         
 
         # baseflow (unit: m/day)
