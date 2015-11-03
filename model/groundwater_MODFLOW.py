@@ -1075,7 +1075,7 @@ class GroundwaterModflow(object):
             # - river bed condutance (unit: m2/day)
             bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
-            bed_surface_area = pcr.min(bed_surface_area,\
+            bed_surface_area = pcr.max(bed_surface_area,\
                                pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                           pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
             bed_surface_area = pcr.cover(bed_surface_area, \
