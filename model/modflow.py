@@ -98,9 +98,8 @@ class ModflowCoupling(object):
             logger.info("Save or dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
-            logger.info("Save or dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
-            self.dumpState(self._configuration.endStateDir)
-
+            logger.info("Save/dump some variables for PCR-GLOBWB simulation to pcraster maps to the directory %s", self._configuration.endStateDir)
+            self.dumpVariableValuesForPCRGLOBWB(self._configuration.mapsDir)
 
     def get_initial_heads(self):
         logger.info("Get initial head values (based on a steady-state simulation or a pre-defined pcraster map.")
@@ -114,7 +113,7 @@ class ModflowCoupling(object):
                              
         # save/dump some variables for PCR-GLOBWB
         if self._configuration.steady_state_only:
-            logger.info("Save/dump states of the initial conitions used to pcraster maps to the directory %s", self._configuration.endStateDir)
+            logger.info("Save/dump some variables for PCR-GLOBWB simulation to pcraster maps to the directory %s", self._configuration.endStateDir)
             self.dumpVariableValuesForPCRGLOBWB(outputDirectory = self._configuration.mapsDir,\
                                                       timeStamp = self._configuration.globalOptions['startTime']+".ini")
 
