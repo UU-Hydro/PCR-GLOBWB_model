@@ -52,11 +52,16 @@ class Groundwater(object):
         self.useMODFLOW = False
         if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
 
+
+        ######################################################################################
         # a netcdf file containing the groundwater properties 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] != "None":
             groundwaterPropertiesNC = vos.getFullPath(\
                                       iniItems.groundwaterOptions[\
                                       'groundwaterPropertiesNC'],self.inputDir)
+        ######################################################################################
+
+
 
         # assign aquifer specific yield (dimensionless) 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'specificYield' in iniItems.groundwaterOptions.keys():
@@ -163,22 +168,17 @@ class Groundwater(object):
         # option for limitting fossil groundwater abstractions: 
         self.limitFossilGroundwaterAbstraction = False
 
+
+        #####################################################################################################################################################
         # total groundwater thickness (unit: m) 
-        # - this is needed to define the area of productive aquifer and/or fossil groundwater capacity (the latter is needed only for run without MODFLOW) 
+        # - For PCR-GLOBWB, the estimate of total groundwater thickness is needed to estimate for the following purpose:
+        #   - productive aquifer areas (where capillary rise can occur and groundwater depletion can occur)
+        #   - and also to estimate fossil groundwater capacity (the latter is needed only for run without MODFLOW) 
         totalGroundwaterThickness = None
+        if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
 
-        # estimate of fossil groundwater capacity (based on the aquifer thickness and specific yield)
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False: 
-
-            logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
-            self.limitFossilGroundwaterAbstraction = True
-
-            logger.info('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
-            # TODO: Make the following aquifer thickness information can be used to define the extent of productive aquifer. 
-            
-            totalGroundwaterThickness = vos.readPCRmapClone(\
-                                   iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
-                                      self.cloneMap,self.tmpDir,self.inputDir)
+            totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
+                                                            self.cloneMap, self.tmpDir, self.inputDir)
             
             # extrapolation of totalGroundwaterThickness 
             # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
@@ -193,23 +193,48 @@ class Groundwater(object):
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
             
             # set minimum thickness
-            minimumThickness = pcr.scalar(float(\
-                               iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
-            totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
+            if 'minimumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+                minimumThickness = pcr.scalar(float(\
+                                   iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
+                totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
+
+            # set maximum thickness
+            if 'maximumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+                maximumThickness = float(self.iniItems.modflowParameterOptions['maximumTotalGroundwaterThickness'])
+                totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
+            
+            # estimate of total groundwater thickness (unit: m)
+            self.totalGroundwaterThickness = totalGroundwaterThickness    
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
+        # estimate of fossil groundwater capacity (based on the aquifer thickness and specific yield)
+        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False: 
+
+            logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
+            self.limitFossilGroundwaterAbstraction = True
+
+            logger.info('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
+            # TODO: Make the following aquifer thickness information can be used to define the extent of productive aquifer. 
+            
 
             # estimate of capacity (unit: m) of renewable groundwater (to correct the initial estimate of fossil groundwater capacity)
             # - this value is NOT relevant, but requested in the IWMI project
-            if 'estimateOfRenewableGroundwaterCapacity' not in iniItems.groundwaterOptions.keys(): iniItems.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'] = 0.0
+            if 'estimateOfRenewableGroundwaterCapacity' not in iniItems.groundwaterOptions.keys():\
+                iniItems.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'] = 0.0
             storGroundwaterCap =  pcr.cover(
                                   vos.readPCRmapClone(\
                                   iniItems.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'],
                                   self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-            #
             # fossil groundwater capacity (unit: m)
             self.fossilWaterCap = pcr.ifthen(self.landmask,\
                                   pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap))
+        #####################################################################################################################################################
 
+
+        #####################################################################################################################################################
         # zones at which groundwater allocations are determined
         self.usingAllocSegments = False
         # - by default, it is consistent with the one defined in the landSurfaceOptions
@@ -225,7 +250,10 @@ class Groundwater(object):
                 self.usingAllocSegments = False
         else:
             self.usingAllocSegments = False
-        
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
         # incorporating groundwater distribution network:
         if self.usingAllocSegments:
 
@@ -241,19 +269,29 @@ class Groundwater(object):
 
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
+        #####################################################################################################################################################
+
         
+        #####################################################################################################################################################
         # maximumDailyGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
         self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
                                                                       self.cloneMap,self.tmpDir,self.inputDir)
+        #####################################################################################################################################################
         
+
+        #####################################################################################################################################################
         # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
         self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'],
                                                                       self.cloneMap,self.tmpDir,self.inputDir)
+        #####################################################################################################################################################
 
+
+        #####################################################################################################################################################
         # extent of the productive aquifer (a boolean map)
         # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise) 
+
         self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
-        excludeUnproductiveAquifer = False
+        excludeUnproductiveAquifer = True
         if excludeUnproductiveAquifer:
             if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys():
                 minimumTransmissivityForProductiveAquifer = vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
@@ -261,8 +299,9 @@ class Groundwater(object):
                 self.productive_aquifer = pcr.cover(\
                  pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(1.0))
                 self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer) 
-
         # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
+        #####################################################################################################################################################
+
         
         # get the initial conditions
         self.getICs(iniItems,spinUp)

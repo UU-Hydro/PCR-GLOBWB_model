@@ -102,6 +102,8 @@ class GroundwaterModflow(object):
         self.onlyNaturalWaterBodies = False
         if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
 
+        
+        
         # groundwater linear recession coefficient (day-1) ; 
         # - the linear reservoir concept is still being used to represent fast response flow, 
         #   particularly from karstic aquifer in mountainous regions                    
@@ -152,6 +154,8 @@ class GroundwaterModflow(object):
         maximumThickness = float(self.iniItems.modflowParameterOptions['maximumTotalGroundwaterThickness'])
         self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
 
+        
+        ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
         self.usePreDefinedConfiningLayer = False
         if self.number_of_layers > 1 and self.iniItems.modflowParameterOptions['usePreDefinedConfiningLayer'] == "True":
@@ -168,7 +172,10 @@ class GroundwaterModflow(object):
             self.maximumConfiningLayerResistance = pcr.cover(\
                                                    vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'],\
                                                                        self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+        ##############################################################################################################################################
         
+
+        ##############################################################################################################################################
         # surface water bed thickness  (unit: m)
         bed_thickness  = 0.1              # TODO: Define this as part of the configuration file
         # surface water bed resistance (unit: day)
@@ -176,12 +183,14 @@ class GroundwaterModflow(object):
         minimum_bed_resistance = float(self.iniItems.modflowParameterOptions['minimumBedResistance'])
         self.bed_resistance = pcr.max(minimum_bed_resistance,\
                                               bed_resistance,)
+        ##############################################################################################################################################
         
         # option to ignore capillary rise
-        self.ignoreCapRise = True
-        if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "False": self.ignoreCapRise = False
+        self.ignoreCapRise = False
+        if 'ignoreCapRise' and self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = False
         
-        # option to ignore abstraction in unproductive aquifer
+
+        # option to reduce abstraction in unproductive aquifer
         minTransimissivityForProductiveAquifer = 0.0
         self.productiveAquifer = pcr.boolean(1.0)
         if 'minTransimissivityForProductiveAquifer' in self.iniItems.modflowParameterOptions.keys():
@@ -190,6 +199,7 @@ class GroundwaterModflow(object):
         self.productiveAquifer = pcr.cover(pcr.ifthen(self.kSatAquifer * self.totalGroundwaterThickness > minTransimissivityForProductiveAquifer, \
                                            pcr.boolean(1.0)), pcr.boolean(0.0))
         # TODO: You may want to classify this productivity per layer. 
+        
         
         # assumption for the thickness (m) of accessible groundwater (needed for coupling to PCR-GLOBWB)
         # - Note that this assumption value does not affect the modflow calculation. The values is needed merely for reporting "accesibleGroundwaterVolume".
