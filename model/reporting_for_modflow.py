@@ -250,59 +250,32 @@ class Reporting(object):
                 self.groundwaterHead = pcr.ifthen(self._model.landmask, vars(self)[var_head_name])                                        
                 self.groundwaterDepth = pcr.ifthen(self._model.landmask, vars(self)[var_depth_name])                                        
 
-        # total baseflow (unit: m3/day)
-        if "totalBaseflowVolumeRate" in self.variables_for_report:
+        # an estimate of total groundwater storage (m3) and thickness (m) 
+        # - these values can be negative
+        if "groundwaterVolumeEstimate" or "groundwaterVolumeThickness" in self.variables_for_report:
+            # - from the lowermost layer
+            self.groundwaterVolumeThickness = pcr.ifthen(self._model.landmask, \
+                                                         self._model.modflow.specific_yield_1 * \
+                                                        (self.groundwaterHeadLayer1 - self._model.modflow.bottom_layer_1))
+            # - from the uppermost layer
+            if self._model.modflow.number_of_layers == 2:\
+               self.groundwaterVolumeThickness += \
+                                              pcr.ifthen(self._model.landmask, \
+                                                         self._model.modflow.specific_yield_2 * \
+                                                        (self.groundwaterHeadLayer2 - self._model.modflow.bottom_layer_2))
+            self.groundwaterVolumeEstimate = self.accesibleGroundwaterThickness *\
+                                             self._model.modflow.cellAreaMap 
             
-            # initiate the (accumulated) value (for accumulating the fluxes from all layers)
-            self.totalBaseflowVolumeRate = pcr.scalar(0.0) 
-            
-            # Note that positive values in flow/flux variables indicate water entering aquifer/groundwater bodies.
-            for i in range(1, self._model.modflow.number_of_layers+1):
-                
-                # from the river leakage
-                var_name = 'riverLeakageLayer'+str(i)
-                self.totalBaseflowVolumeRate += vars(self._model.modflow)[var_name]
-                # from the drain package
-                var_name = 'drainLayer'+str(i)
-                self.totalBaseflowVolumeRate += vars(self._model.modflow)[var_name]
-                
-                # report only in the landmask region
-                if i == self._model.modflow.number_of_layers: self.totalBaseflowVolumeRate = pcr.ifthen(self._model.landmask, \
-                                                                                                        self.totalBaseflowVolumeRate)
-        
-        # relative groundwater head (at the top layer) above the minimum elevation within the grid cell
-        # - this is needed for coupling with PCR-GLOBWB
-        self.relativeGroundwaterHead = pcr.ifthen(self._model.landmask, self.groundwaterHead - self._model.modflow.dem_minimum)
+            # TODO: Make this reporting more flexible for multiple layers
 
     def additional_post_processing(self):
 
-        # estimate of total groundwwater storage that is accesible (based on the assumption of a certain limit of pumping depth)
-        if "accesibleGroundwaterVolume" or "accesibleGroundwaterThickness" in self.variables_for_report:
+        pass
             
-            if self._model.modflow.number_of_layers == 1:\
-               self.accesibleGroundwaterThickness = pcr.ifthen(self._model.landmask, \
-                                                               self._model.modflow.specific_yield_1 * \
-                                                               pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self._model.modflow.max_accesible_elevation, \
-                                                                                                                 self._model.modflow.bottom_layer_1)))
-                                                            
-            if self._model.modflow.number_of_layers == 2:\
-               self.accesibleGroundwaterThickness = pcr.ifthen(self._model.landmask, \
-                                                               self._model.modflow.specific_yield_1 * \
-                                                               pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self._model.modflow.max_accesible_elevation, \
-                                                                                                                 self._model.modflow.bottom_layer_1))) + \
-                                                    pcr.ifthen(self._model.landmask, \
-                                                               self._model.modflow.specific_yield_2 * \
-                                                               pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self._model.modflow.max_accesible_elevation, \
-                                                                                                                 self._model.modflow.bottom_layer_2)))
-            self.accesibleGroundwaterVolume = self.accesibleGroundwaterThickness *\
-                                              self._model.modflow.cellAreaMap 
-            
-            # TODO: Make the reporting of accesibleGroundwaterThickness more generic.
-            
-        # report elevation in pcraster map
-        self.top_uppermost_layer    = pcr.ifthen(self._model.landmask, self._model.modflow.top_layer_2   )
-        self.bottom_uppermost_layer = pcr.ifthen(self._model.landmask, self._model.modflow.bottom_layer_2)
-        self.bottom_lowermost_layer = pcr.ifthen(self._model.landmask, self._model.modflow.bottom_layer_1)
+        #~ # report elevation in pcraster map
+        #~ self.top_uppermost_layer    = pcr.ifthen(self._model.landmask, self._model.modflow.top_layer_2   )
+        #~ self.bottom_uppermost_layer = pcr.ifthen(self._model.landmask, self._model.modflow.bottom_layer_2)
+        #~ self.bottom_lowermost_layer = pcr.ifthen(self._model.landmask, self._model.modflow.bottom_layer_1)
 
     def report(self):
 

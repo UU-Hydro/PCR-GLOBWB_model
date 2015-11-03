@@ -79,6 +79,9 @@ class Configuration(object):
 			
 			if 'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
 			    self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
+			
+			# reportingOptions are taken from 'reportingForModflowOptions'
+			self.reportingOptions = self.reportingModflowOptions
 
     def set_configuration(self):
 

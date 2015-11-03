@@ -793,10 +793,12 @@ class GroundwaterModflow(object):
 
         logger.info("Calculate some variables for PCR-GLOBWB (needed for online coupling purpose: 'relativeGroundwaterHead', 'baseflow', and 'storGroundwater'")
         
+
         # relative uppermost groundwater head (unit: m) above the minimum elevation within grid
         uppermost_head = vars(self)['groundwaterHeadLayer'+str(self.number_of_layers)]
         self.relativeGroundwaterHead = uppermost_head - sef.dem_minimum
         
+
         # baseflow (unit: m/day)
         # - initiate the (accumulated) volume rate (m3/day) (for accumulating the fluxes from all layers)
         totalBaseflowVolumeRate = pcr.scalar(0.0) 
@@ -815,6 +817,7 @@ class GroundwaterModflow(object):
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
         self.baseflow = pcr.scalar(-1.0) * totalBaseflowVolumeRate/self.cellArea
         
+
         # storGroundwater (unit: m)
         # - from the lowermost layer
         accesibleGroundwaterThickness = pcr.ifthen(self.landmask, \
@@ -827,8 +830,10 @@ class GroundwaterModflow(object):
                                                        self.specific_yield_2 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_2)))
+        # - TODO: Make this flexible for multiple layers. 
         # - storGroundwater (unit: m) that can be accessed for abstraction
         self.storGroundwater = accesibleGroundwaterThickness                                                                                                
+
                 
     def get_all_modflow_results(self, simulation_type):
         
