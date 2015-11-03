@@ -1060,10 +1060,10 @@ class GroundwaterModflow(object):
             surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      self.dem_riverbed - additional_depth)
             #
-            # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
-            surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
-            surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
-            surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+            #~ # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
+            #~ surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            #~ surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+            #~ surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
             #
             surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
             #
