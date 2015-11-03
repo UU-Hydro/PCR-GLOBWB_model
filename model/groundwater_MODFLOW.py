@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 import waterBodies_for_modflow as waterBodies
 
-import virtualOS as vos+
+import virtualOS as vos
 from ncConverter import *
 
 class GroundwaterModflow(object):
