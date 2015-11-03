@@ -672,11 +672,26 @@ class GroundwaterModflow(object):
             gwRecharge    = pcr.max(0.0, gwRecharge) 
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
 
-        # read input files (for the transient, input files are given in netcdf files):
+        # read input files 
         if simulation_type == "transient":
             
-            if self.online_coupling == False:
+            if self.online_coupling:
+
+                # for online coupling, we will read files from pcraster maps
+                
+                # - discharge (m3/s) from PCR-GLOBWB
+                discharge = vos.readPCRmapClone()
+                
+                # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
+                gwRecharge = vos.readPCRmapClone()
+
+                # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+                gwAbstraction = pcr.spatial(pcr.scalar(0.0))
             
+            else:
+            
+                # for offline coupling, we will read files from netcdf files
+                
                 # - discharge (m3/s) from PCR-GLOBWB
                 discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],
                                                    "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
@@ -684,17 +699,15 @@ class GroundwaterModflow(object):
                 gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
                                                    "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
             
-            else:
+                # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+                gwAbstraction = pcr.spatial(pcr.scalar(0.0))
+                if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
+                    gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
+                                                           "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+
+        # an option to ignore capillary rise
+        if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
             
-            SAMPAI DI SINI
-            
-            
-            if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
-            # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-            gwAbstraction = pcr.spatial(pcr.scalar(0.0))
-            if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
-                gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
-                                                       "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
             # convert the values of abstraction and recharge to daily average
             if self.valuesRechargeAndAbstractionInMonthlyTotal: 
