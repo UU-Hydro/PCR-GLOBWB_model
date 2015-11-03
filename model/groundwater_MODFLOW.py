@@ -929,11 +929,10 @@ class GroundwaterModflow(object):
             var_name = 'drainLayer'+str(i)
             totalBaseflowVolumeRate += pcr.cover(vars(self)[var_name], 0.0)
             # use only in the landmask region
-            if i == self._model.modflow.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self.landmask, \
-                                                                                               self.totalBaseflowVolumeRate)
+            if i == self.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self.landmask, self.totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
-        self.baseflow = pcr.scalar(-1.0) * totalBaseflowVolumeRate/self.cellArea
+        self.baseflow = pcr.scalar(-1.0) * totalBaseflowVolumeRate/self.cellAreaMap
         
 
         # storGroundwater (unit: m)
