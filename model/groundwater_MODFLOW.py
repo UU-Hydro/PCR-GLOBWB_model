@@ -947,7 +947,7 @@ class GroundwaterModflow(object):
                                                        self.specific_yield_2 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_2)))
-        # - TODO: Make this flexible for multiple layers. 
+        # - TODO: Make this flexible for a model that has more than two layers. 
         # - storGroundwater (unit: m) that can be accessed for abstraction
         self.storGroundwater = accesibleGroundwaterThickness                                                                                                
 

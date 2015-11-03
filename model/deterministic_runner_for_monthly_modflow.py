@@ -63,6 +63,9 @@ def main():
     if len(sys.argv) > 3:
         if sys.argv[2] == "steady-state": steady_state_only = True
     
+    print steady_state_only
+    sys.exit()
+    
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
