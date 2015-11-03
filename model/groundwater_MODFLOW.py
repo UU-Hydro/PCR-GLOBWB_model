@@ -707,12 +707,11 @@ class GroundwaterModflow(object):
 
         # an option to ignore capillary rise
         if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
-            
 
-            # convert the values of abstraction and recharge to daily average
-            if self.valuesRechargeAndAbstractionInMonthlyTotal: 
-                gwAbstraction = gwAbstraction/currTimeStep.day
-                gwRecharge    = gwRecharge/currTimeStep.day
+        # convert the values of abstraction and recharge to daily average
+        if self.valuesRechargeAndAbstractionInMonthlyTotal: 
+            gwAbstraction = gwAbstraction/currTimeStep.day
+            gwRecharge    = gwRecharge/currTimeStep.day
 
         # set recharge, river, well and drain packages
         self.set_drain_and_river_package(discharge, currTimeStep, simulation_type)
