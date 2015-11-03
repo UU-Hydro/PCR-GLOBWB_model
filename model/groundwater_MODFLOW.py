@@ -907,7 +907,7 @@ class GroundwaterModflow(object):
         # calculate some variables that will be accessed from PCR-GLOBWB (for online coupling purpose)
         self.calculate_values_for_pcrglobwb()
         
-    def calculate_values_for_pcrglobwb(self, simulation_type):
+    def calculate_values_for_pcrglobwb(self):
 
         logger.info("Calculate some variables for PCR-GLOBWB (needed for online coupling purpose: 'relativeGroundwaterHead', 'baseflow', and 'storGroundwater'")
         
