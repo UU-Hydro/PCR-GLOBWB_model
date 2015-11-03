@@ -57,8 +57,6 @@ class Configuration(object):
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
-        print self.allSections
-        
         self.online_coupling_between_pcrglobwb_and_moflow = False
         if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
 
@@ -83,7 +81,7 @@ class Configuration(object):
                 self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
 			
             # reportingOptions are taken from 'reportingForModflowOptions
-            self.reportingOptions = self.reportingModflowOptions
+            self.reportingOptions = self.reportingForModflowOptions
 
     def set_configuration(self):
 

@@ -53,8 +53,6 @@ def main():
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
     
-    print iniFileName
-    
     # debug option
     debug_mode = False
     if len(sys.argv) > 2:
