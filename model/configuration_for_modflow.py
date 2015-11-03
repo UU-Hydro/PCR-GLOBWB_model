@@ -175,6 +175,8 @@ class Configuration(object):
 
         # all sections provided in the configuration/ini file
         self.allSections  = config.sections()
+        
+        print self.allSections
 
         # read all sections 
         for sec in self.allSections:
