@@ -53,6 +53,31 @@ class Groundwater(object):
         if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
 
 
+        #####################################################################################################################################################
+        # limitAbstraction options
+        self.limitAbstraction = False
+        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        
+        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater, the concept of fossil groundwater is abandoned)
+        if self.useMODFLOW:
+            self.limitAbstraction = True
+            self.limitFossilGroundwaterAbstraction = False
+
+        # option for limitting regional groundwater abstractions
+        if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
+            logger.info('Limit for annual regional groundwater abstraction is used.')
+            self.limitRegionalAnnualGroundwaterAbstraction = True
+            self.pumpingCapacityNC = vos.getFullPath(\
+                                     iniItems.groundwaterOptions['pumpingCapacityNC'],self.inputDir,False)
+        else:
+            logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
+            self.limitRegionalAnnualGroundwaterAbstraction = False
+        
+        # option for limitting fossil groundwater abstractions: 
+        self.limitFossilGroundwaterAbstraction = False
+        #####################################################################################################################################################
+
+
         ######################################################################################
         # a netcdf file containing the groundwater properties 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] != "None":
@@ -62,7 +87,7 @@ class Groundwater(object):
         ######################################################################################
 
 
-
+        #####################################################################################################################################################
         # assign aquifer specific yield (dimensionless) 
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'specificYield' in iniItems.groundwaterOptions.keys():
             self.specificYield  = vos.readPCRmapClone(\
@@ -73,7 +98,10 @@ class Groundwater(object):
         self.specificYield = pcr.cover(self.specificYield,0.0)       
         self.specificYield = pcr.max(0.010,self.specificYield)          # TODO: Set the minimum values of specific yield.      
         self.specificYield = pcr.min(1.000,self.specificYield)       
+        #####################################################################################################################################################
 
+
+        #####################################################################################################################################################
         # assign aquifer hydraulic conductivity (unit: m/day)
         if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'kSatAquifer' in iniItems.groundwaterOptions.keys():
             self.kSatAquifer = vos.readPCRmapClone(\
@@ -83,7 +111,10 @@ class Groundwater(object):
                                groundwaterPropertiesNC,'kSatAquifer',self.cloneMap)
         self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
         self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
+        #####################################################################################################################################################
+
         
+        #####################################################################################################################################################
         # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC      
         try: 
             self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
@@ -93,7 +124,7 @@ class Groundwater(object):
             self.recessionCoeff = None
             msg = "The 'recessionCoeff' cannot be read from the file: "+groundwaterPropertiesNC
             logger.warning(msg)
-        
+ 
         # assign the reccession coefficient based on the given pcraster file 
         if 'recessionCoeff' in iniItems.groundwaterOptions.keys(): 
             if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
@@ -136,38 +167,19 @@ class Groundwater(object):
         else:
             minRecessionCoeff = 1.0e-4                                               # This is the minimum value used in Van Beek et al. (2011). 
         self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
+        #####################################################################################################################################################
         
-        # assign the river/strean/surface water bed conductivity
+
+        #####################################################################################################################################################
+        # assign the river/stream/surface water bed conductivity
         # - the default value is equal to kSatAquifer 
         self.riverBedConductivity = self.kSatAquifer 
         # - assign riverBedConductivity coefficient based on the given pcraster file 
         if 'riverBedConductivity' in iniItems.groundwaterOptions.keys(): 
             if iniItems.groundwaterOptions['riverBedConductivity'] != "None":\
                self.riverBedConductivity = vos.readPCRmapClone(iniItems.groundwaterOptions['riverBedConductivity'],self.cloneMap,self.tmpDir,self.inputDir)
+        #####################################################################################################################################################
         
-        # limitAbstraction options
-        self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
-        
-        # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater, the concept of fossil groundwater is abandoned)
-        if self.useMODFLOW:
-            self.limitAbstraction = True
-            self.limitFossilGroundwaterAbstraction = False
-
-        # option for limitting regional groundwater abstractions
-        if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
-            logger.info('Limit for annual regional groundwater abstraction is used.')
-            self.limitRegionalAnnualGroundwaterAbstraction = True
-            self.pumpingCapacityNC = vos.getFullPath(\
-                                     iniItems.groundwaterOptions['pumpingCapacityNC'],self.inputDir,False)
-        else:
-            logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-            self.limitRegionalAnnualGroundwaterAbstraction = False
-        
-        
-        # option for limitting fossil groundwater abstractions: 
-        self.limitFossilGroundwaterAbstraction = False
-
 
         #####################################################################################################################################################
         # total groundwater thickness (unit: m) 
@@ -205,6 +217,25 @@ class Groundwater(object):
             
             # estimate of total groundwater thickness (unit: m)
             self.totalGroundwaterThickness = totalGroundwaterThickness    
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
+        # extent of the productive aquifer (a boolean map)
+        # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise)
+        # 
+        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
+        excludeUnproductiveAquifer = True
+        if excludeUnproductiveAquifer:
+            if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
+                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer']:
+                minimumTransmissivityForProductiveAquifer = \
+                                          vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
+                                                              self.cloneMap, self.tmpDir, self.inputDir)
+                self.productive_aquifer = pcr.cover(\
+                 pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(1.0))
+                self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer) 
+        # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
         #####################################################################################################################################################
 
 
@@ -286,23 +317,6 @@ class Groundwater(object):
         #####################################################################################################################################################
 
 
-        #####################################################################################################################################################
-        # extent of the productive aquifer (a boolean map)
-        # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise) 
-
-        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
-        excludeUnproductiveAquifer = True
-        if excludeUnproductiveAquifer:
-            if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys():
-                minimumTransmissivityForProductiveAquifer = vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
-                                                                                    self.cloneMap,self.tmpDir,self.inputDir)
-                self.productive_aquifer = pcr.cover(\
-                 pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(1.0))
-                self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer) 
-        # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
-        #####################################################################################################################################################
-
-        
         # get the initial conditions
         self.getICs(iniItems,spinUp)
 

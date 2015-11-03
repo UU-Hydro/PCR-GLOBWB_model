@@ -76,7 +76,7 @@ class GroundwaterModflow(object):
         minimum_channel_width = 0.5                                               # TODO: Define this one in the configuration file
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
-        #~ # cell fraction if channel water reaching the flood plan               # NOT USED YET 
+        #~ # cell fraction if channel water reaching the flood plain               # NOT USED YET 
         #~ self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
         
         # coefficient of Manning
@@ -104,55 +104,154 @@ class GroundwaterModflow(object):
 
         
         
-        # groundwater linear recession coefficient (day-1) ; 
-        # - the linear reservoir concept is still being used to represent fast response flow, 
-        #   particularly from karstic aquifer in mountainous regions                    
-        #
-        self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
-                                                                 'recessionCoeff', self.cloneMap)
-        self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
-        self.recessionCoeff = pcr.min(1.0000,self.recessionCoeff)       
-        #
-        if 'minRecessionCoeff' in iniItems.modflowParameterOptions.keys():
-            minRecessionCoeff = float(iniItems.modflowParameterOptions['minRecessionCoeff'])
-        else:
-            minRecessionCoeff = 1.0e-4 
-        self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
-        
-        # aquifer saturated conductivity (m/day)
-        self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
-                                                             'kSatAquifer', self.cloneMap)
-        self.kSatAquifer = pcr.cover(self.kSatAquifer,pcr.mapmaximum(self.kSatAquifer))       
-        self.kSatAquifer = pcr.max(1E-5,self.kSatAquifer)
-        # TODO: Add the minimum value in the ini/configuration file
-        
-        # aquifer specific yield (dimensionless)
-        self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['groundwaterPropertiesNC'],\
-                                                               'specificYield', self.cloneMap)
-        self.specificYield = pcr.cover(self.specificYield,pcr.mapmaximum(self.specificYield))       
-        self.specificYield = pcr.min(1.000,self.specificYield)       
-        self.specificYield = pcr.max(0.001,self.specificYield)
-        # TODO: Add the minimum value in the ini/configuration file
+        ######################################################################################
+        # a netcdf file containing the groundwater properties 
+        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] != "None":
+            groundwaterPropertiesNC = vos.getFullPath(\
+                                      iniItems.groundwaterOptions[\
+                                      'groundwaterPropertiesNC'],self.inputDir)
+        ######################################################################################
 
-        # estimate of total aquifer/groundwater thickness (unit: m) for calculating KD
-        totalGroundwaterThickness = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['estimateOfTotalGroundwaterThicknessNC'],\
-                                    'thickness', self.cloneMap)
-        # extrapolation 
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 0.75))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 1.00))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,\
-                                    pcr.windowaverage(totalGroundwaterThickness, 1.50))
-        totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
+
+        #####################################################################################################################################################
+        # assign aquifer specific yield (dimensionless) 
+        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'specificYield' in iniItems.groundwaterOptions.keys():
+            self.specificYield  = vos.readPCRmapClone(\
+               iniItems.groundwaterOptions['specificYield'],self.cloneMap,self.tmpDir,self.inputDir)
+        else:       
+            self.specificYield = vos.netcdf2PCRobjCloneWithoutTime(\
+                                 groundwaterPropertiesNC,'specificYield',self.cloneMap)
+        self.specificYield = pcr.cover(self.specificYield,0.0)       
+        self.specificYield = pcr.max(0.010,self.specificYield)          # TODO: Set the minimum values of specific yield.      
+        self.specificYield = pcr.min(1.000,self.specificYield)       
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
+        # assign aquifer hydraulic conductivity (unit: m/day)
+        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'kSatAquifer' in iniItems.groundwaterOptions.keys():
+            self.kSatAquifer = vos.readPCRmapClone(\
+               iniItems.groundwaterOptions['kSatAquifer'],self.cloneMap,self.tmpDir,self.inputDir)
+        else:       
+            self.kSatAquifer = vos.netcdf2PCRobjCloneWithoutTime(\
+                               groundwaterPropertiesNC,'kSatAquifer',self.cloneMap)
+        self.kSatAquifer = pcr.cover(self.kSatAquifer,0.0)       
+        self.kSatAquifer = pcr.max(0.010,self.kSatAquifer)
+        #####################################################################################################################################################
+
+        
+        #####################################################################################################################################################
+        # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC      
+        try: 
+            self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
+                                  groundwaterPropertiesNC,'recessionCoeff',\
+                                  cloneMapFileName = self.cloneMap)    
+        except:    
+            self.recessionCoeff = None
+            msg = "The 'recessionCoeff' cannot be read from the file: "+groundwaterPropertiesNC
+            logger.warning(msg)
+ 
+        # assign the reccession coefficient based on the given pcraster file 
+        if 'recessionCoeff' in iniItems.groundwaterOptions.keys(): 
+            if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
+               self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
+
+        # calculate the reccession coefficient based on the given parameters 
+        if isinstance(self.recessionCoeff,types.NoneType) and\
+                          'recessionCoeff' not in iniItems.groundwaterOptions.keys(): 
+            
+            msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
+            logger.info(msg)
+            
+            # reading the 'aquiferWidth' value from the landSurfaceOptions (slopeLength)
+            if iniItems.landSurfaceOptions['topographyNC'] == None:
+                aquiferWidth = vos.readPCRmapClone(iniItems.landSurfaceOptions['slopeLength'],self.cloneMap,self.tmpDir,self.inputDir)
+            else:    
+                topoPropertiesNC = vos.getFullPath(iniItems.landSurfaceOptions['topographyNC'],self.inputDir)
+                aquiferWidth = vos.netcdf2PCRobjCloneWithoutTime(topoPropertiesNC,'slopeLength',self.cloneMap)
+            # covering aquiferWidth with its maximum value
+            aquiferWidth = pcr.ifthen(self.landmask, pcr.cover(aquiferWidth, pcr.mapmaximum(aquiferWidth))) 
+            
+            # aquifer thickness (unit: m) for recession coefficient
+            aquiferThicknessForRecessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['aquiferThicknessForRecessionCoeff'],\
+                                                                    self.cloneMap,self.tmpDir,self.inputDir)
+            
+            # calculate recessionCoeff (unit; day-1)
+            self.recessionCoeff = (math.pi**2.) * aquiferThicknessForRecessionCoeff / \
+                                  (4.*self.specificYield*(aquiferWidth**2.))                                                               
+
+        # assign the reccession coefficient based on the given pcraster file 
+        if 'recessionCoeff' in iniItems.groundwaterOptions.keys(): 
+            if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
+               self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
+
+        # minimum and maximum values for groundwater recession coefficient (day-1)
+        self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)       
+        self.recessionCoeff = pcr.min(0.9999,self.recessionCoeff)       
+        if 'minRecessionCoeff' in iniItems.groundwaterOptions.keys():
+            minRecessionCoeff = float(iniItems.groundwaterOptions['minRecessionCoeff'])
+        else:
+            minRecessionCoeff = 1.0e-4                                               # This is the minimum value used in Van Beek et al. (2011). 
+        self.recessionCoeff = pcr.max(minRecessionCoeff,self.recessionCoeff)      
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
+        # assign the river/stream/surface water bed conductivity
+        # - the default value is equal to kSatAquifer 
+        self.riverBedConductivity = self.kSatAquifer 
+        # - assign riverBedConductivity coefficient based on the given pcraster file 
+        if 'riverBedConductivity' in iniItems.groundwaterOptions.keys(): 
+            if iniItems.groundwaterOptions['riverBedConductivity'] != "None":\
+               self.riverBedConductivity = vos.readPCRmapClone(iniItems.groundwaterOptions['riverBedConductivity'],self.cloneMap,self.tmpDir,self.inputDir)
         #
-        # set minimum thickness
-        minimumThickness = float(self.iniItems.modflowParameterOptions['minimumTotalGroundwaterThickness'])
-        totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
-        #
-        # set maximum thickness
-        maximumThickness = float(self.iniItems.modflowParameterOptions['maximumTotalGroundwaterThickness'])
-        self.totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
+        # surface water bed thickness  (unit: m)
+        bed_thickness  = 0.1
+        # surface water bed resistance (unit: day)
+        bed_resistance = bed_thickness / (self.riverBedConductivity) 
+        minimum_bed_resistance = 1.0
+        self.bed_resistance = pcr.max(minimum_bed_resistance,\
+                                              bed_resistance,)
+        ##############################################################################################################################################
+
+
+        #####################################################################################################################################################
+        # total groundwater thickness (unit: m) 
+        # - For PCR-GLOBWB, the estimate of total groundwater thickness is needed to estimate for the following purpose:
+        #   - productive aquifer areas (where capillary rise can occur and groundwater depletion can occur)
+        #   - and also to estimate fossil groundwater capacity (the latter is needed only for run without MODFLOW) 
+        totalGroundwaterThickness = None
+        if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+
+            totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
+                                                            self.cloneMap, self.tmpDir, self.inputDir)
+            
+            # extrapolation of totalGroundwaterThickness 
+            # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                        pcr.windowaverage(totalGroundwaterThickness, 1.00))
+            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
+            
+            # set minimum thickness
+            if 'minimumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+                minimumThickness = pcr.scalar(float(\
+                                   iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
+                totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
+
+            # set maximum thickness
+            if 'maximumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+                maximumThickness = float(self.iniItems.modflowParameterOptions['maximumTotalGroundwaterThickness'])
+                totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
+            
+            # estimate of total groundwater thickness (unit: m)
+            self.totalGroundwaterThickness = totalGroundwaterThickness    
+        #####################################################################################################################################################
 
         
         ##############################################################################################################################################
@@ -175,32 +274,33 @@ class GroundwaterModflow(object):
         ##############################################################################################################################################
         
 
-        ##############################################################################################################################################
-        # surface water bed thickness  (unit: m)
-        bed_thickness  = 0.1              # TODO: Define this as part of the configuration file
-        # surface water bed resistance (unit: day)
-        bed_resistance = bed_thickness / (self.kSatAquifer) 
-        minimum_bed_resistance = float(self.iniItems.modflowParameterOptions['minimumBedResistance'])
-        self.bed_resistance = pcr.max(minimum_bed_resistance,\
-                                              bed_resistance,)
-        ##############################################################################################################################################
-        
+        #####################################################################################################################################################
+        # extent of the productive aquifer (a boolean map)
+        # - Principle: In non-productive aquifer areas, groundwater cannot be abstracted (including no capillary rise)
+        # 
+        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
+        excludeUnproductiveAquifer = True
+        if excludeUnproductiveAquifer:
+            if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
+                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer']:
+                minimumTransmissivityForProductiveAquifer = \
+                                          vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
+                                                              self.cloneMap, self.tmpDir, self.inputDir)
+                self.productive_aquifer = pcr.cover(\
+                 pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(1.0))
+                self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer) 
+        # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
+        #####################################################################################################################################################
+
+
+        #####################################################################################################################################################
         # option to ignore capillary rise
         self.ignoreCapRise = False
         if 'ignoreCapRise' and self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = False
+        #####################################################################################################################################################
         
 
-        # option to reduce abstraction in unproductive aquifer
-        minTransimissivityForProductiveAquifer = 0.0
-        self.productiveAquifer = pcr.boolean(1.0)
-        if 'minTransimissivityForProductiveAquifer' in self.iniItems.modflowParameterOptions.keys():
-            if self.iniItems.modflowParameterOptions['minTransimissivityForProductiveAquifer'] != "None":
-                minTransimissivityForProductiveAquifer = float(self.iniItems.modflowParameterOptions['minTransimissivityForProductiveAquifer'])
-        self.productiveAquifer = pcr.cover(pcr.ifthen(self.kSatAquifer * self.totalGroundwaterThickness > minTransimissivityForProductiveAquifer, \
-                                           pcr.boolean(1.0)), pcr.boolean(0.0))
-        # TODO: You may want to classify this productivity per layer. 
-        
-        
+        #####################################################################################################################################################
         # assumption for the thickness (m) of accessible groundwater (needed for coupling to PCR-GLOBWB)
         # - Note that this assumption value does not affect the modflow calculation. The values is needed merely for reporting "accesibleGroundwaterVolume".
         accesibleDepth = 1000.0
@@ -208,9 +308,6 @@ class GroundwaterModflow(object):
             if self.iniItems.modflowParameterOptions['accesibleDepth'] != "None":
                 accesibleDepth = float(self.iniItems.modflowParameterOptions['accesibleDepth'])
         self.max_accesible_elevation = self.dem_average - accesibleDepth
-        
-        # a variable to indicate if the modflow has been called or not
-        self.modflow_has_been_called = False
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
