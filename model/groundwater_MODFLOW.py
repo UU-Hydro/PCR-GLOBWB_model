@@ -1189,7 +1189,7 @@ class GroundwaterModflow(object):
         gwAbstraction = pcr.cover(gwAbstraction, 0.0)
         
         # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
-        abstraction_layer_1 = pcr.ifthenelse(self.productiveAquifer, gwAbstraction, 0.0)
+        abstraction_layer_1 = pcr.ifthenelse(self.productive_aquifer, gwAbstraction, 0.0)
         
         # abstraction for the layer 2 (upper layer)
         abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
@@ -1210,7 +1210,7 @@ class GroundwaterModflow(object):
         gwAbstraction = pcr.ifthen(gwAbstraction > 0.0, gwAbstraction)
         
         # abstraction only in productive aquifer
-        gwAbstraction = pcr.ifthen(self.productiveAquifer, gwAbstraction)
+        gwAbstraction = pcr.ifthen(self.productive_aquifer, gwAbstraction)
         
         # abstraction volume (negative value, unit: m3/day)
         abstraction = gwAbstraction * self.cellAreaMap * pcr.scalar(-1.0)
