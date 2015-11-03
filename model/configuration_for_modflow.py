@@ -174,8 +174,6 @@ class Configuration(object):
         # all sections provided in the configuration/ini file
         self.allSections  = config.sections()
         
-        print self.allSections
-
         # read all sections 
         for sec in self.allSections:
             vars(self)[sec] = {}                               # example: to instantiate self.globalOptions 
@@ -188,27 +186,6 @@ class Configuration(object):
         
         # full path for the clone map
         self.cloneMap = vos.getFullPath(self.globalOptions['cloneMap'], self.globalOptions['inputDir'])
-
-        # full paths for the folders/files mentioned in the modflowTransientInputOptions
-        for item in [
-                     'dischargeInputNC',                        
-                     'groundwaterRechargeInputNC',              
-                     'groundwaterAbstractionInputNC',           
-                     ]:
-            if self.modflowTransientInputOptions[item] != "None":\
-               self.modflowTransientInputOptions[item]  = vos.getFullPath(self.modflowTransientInputOptions[item], self.globalOptions['inputDir'])
-
-        # full paths for the folders/files mentioned in the modflowParameterOptions
-        for item in [
-                     'groundwaterPropertiesNC',
-                     'estimateOfTotalGroundwaterThicknessNC',
-                     'topographyNC',
-                     'channelNC',
-                     'waterBodyInputNC'                        
-                     ]:
-            if self.modflowParameterOptions[item] != "None":\
-               self.modflowParameterOptions[item]  = vos.getFullPath(self.modflowParameterOptions[item], self.globalOptions['inputDir'])
-               
 
     def create_output_directories(self):
         # making the root/parent of OUTPUT directory:
