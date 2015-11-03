@@ -16,7 +16,7 @@ Created on May 20, 2015
 
 @author: Edwin H. Sutanudjaja
 '''
-class ModflowOfflineCoupling(object):
+class ModflowCoupling(object):
     
     def __init__(self, configuration, currTimeStep):
         self._configuration = configuration
