@@ -71,14 +71,14 @@ class Configuration(object):
             
             # temporary modflow output folder
             if 'tmp_modflow_dir' in self.globalModflowOptions.keys():
-			    self.globalOptions['tmp_modflow_dir'] = self.globalModflowOptions['tmp_modflow_dir']
+                self.globalOptions['tmp_modflow_dir'] = self.globalModflowOptions['tmp_modflow_dir']
 			
 			# water bodies file 
-			if 'waterBodyInputNC' not in self.modflowParameterOptions.keys():
-			    self.modflowParameterOptions['waterBodyInputNC'] = self.routingOptions['waterBodyInputNC']
+            if 'waterBodyInputNC' not in self.modflowParameterOptions.keys():
+                self.modflowParameterOptions['waterBodyInputNC'] = self.routingOptions['waterBodyInputNC']
 			
-			if 'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
-			    self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
+            if 'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
+                self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
 			
 			# reportingOptions are taken from 'reportingForModflowOptions'
 			self.reportingOptions = self.reportingModflowOptions
