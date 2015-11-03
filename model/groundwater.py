@@ -212,7 +212,7 @@ class Groundwater(object):
 
             # set maximum thickness
             if 'maximumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
-                maximumThickness = float(self.iniItems.modflowParameterOptions['maximumTotalGroundwaterThickness'])
+                maximumThickness = float(self.iniItems.groundwaterOptions['maximumTotalGroundwaterThickness'])
                 totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
             
             # estimate of total groundwater thickness (unit: m)
