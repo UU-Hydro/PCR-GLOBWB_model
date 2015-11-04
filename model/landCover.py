@@ -147,6 +147,8 @@ class LandCover(object):
                                    self.get_land_cover_parameters()
             # estimate parameters while transpiration is being halved
             self.calculateParametersAtHalfTranspiration()
+            # calculate TAW for estimating irrigation gross demand
+            if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # get additional land cover parameters (ALWAYS fixed for the entire simulation)
         landCovParamsAdd = ['minTopWaterLayer',
@@ -187,9 +189,6 @@ class LandCover(object):
         
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
-
-        # calculate TAW for estimating irrigation gross demand
-        if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
