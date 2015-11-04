@@ -188,9 +188,7 @@ class LandCover(object):
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
-        print self.name
-        
-        # for non paddy irrigation areas, calculate TAW for estimating irrigation gross demand
+        # calculate TAW for estimating irrigation gross demand
         if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # get the names of cropCoefficient files:
