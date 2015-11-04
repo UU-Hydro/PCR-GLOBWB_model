@@ -892,7 +892,7 @@ class GroundwaterModflow(object):
                 if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1
                      
                 # we give up if we already using all available HCLOSE
-                if self.iteration_RCLOSE == 0 and self.iteration_HCLOSE == length(self.criteria_HCLOSE):
+                if self.iteration_RCLOSE == 0 and self.iteration_HCLOSE == len(self.criteria_HCLOSE):
                     
                     msg  = "\n\n\n"
                     msg += "NOT GOOD!!! MODFLOW STILL FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
@@ -1122,7 +1122,7 @@ class GroundwaterModflow(object):
                                                                            self.dem_floodplain + water_above_fpl, \
                                                                            surface_water_elevation)
         # - surface water elevation for lakes and reservoirs:
-        lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, surface_water_elevation)
+        lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.min(surface_water_elevation, self.dem_floodplain))
         lake_reservoir_water_elevation = pcr.areamaximum(lake_reservoir_water_elevation, self.WaterBodies.waterBodyIds)
         lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, \
                                          pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds))
