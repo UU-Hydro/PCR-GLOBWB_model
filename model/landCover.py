@@ -165,7 +165,8 @@ class LandCover(object):
                  self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsLC['cropDeplFactor'], self.cloneMap, \
                                                            self.tmpDir, self.inputDir)
              # - infiltration/percolation losses for paddy fields
-             if self.name == 'irrPaddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
+             if self.name == 'irrPaddy' or self.name == 'irr_paddy':\
+                 self.design_percolation_loss = self.estimate_paddy_infiltration_loss(self.iniItemsLC)
         
         # water allocation zones:
         self.usingAllocSegments = usingAllocSegments # water allocation option:
@@ -188,7 +189,7 @@ class LandCover(object):
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
         # for non paddy irrigation areas, calculate TAW for estimating irrigation gross demand
-        if self.includeIrrigation and self.name != 'irrPaddy': self.calculateTotAvlWaterCapacityInRootZone()
+        if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
@@ -1462,14 +1463,14 @@ class LandCover(object):
 
         # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
-        if self.name == 'irrPaddy' and self.includeIrrigation:
+        if (self.name == 'irrPaddy' or self.name == 'irr_paddy') and self.includeIrrigation:
             self.irrGrossDemand = \
                   pcr.ifthenelse(self.cropKC > 0.75, \
                      pcr.max(0.0,self.minTopWaterLayer - \
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
             
-        if self.name == 'irrNonPaddy' and self.includeIrrigation:
+        if (self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name ==  "irr_non_paddy_crops") and self.includeIrrigation:
 
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -1550,12 +1551,14 @@ class LandCover(object):
             
             # minimum demand for start irrigating
             minimum_demand = 0.005   # unit: m/day                                                   # TODO: set the minimum demand in the ini/configuration file.
-            if self.name == 'irrPaddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)       # TODO: set the minimum demand in the ini/configuration file.
+            if self.name == 'irrPaddy' or\
+               self.name == 'irr_paddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)      # TODO: set the minimum demand in the ini/configuration file.
             self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
                                                  self.irrGrossDemand , 0.0)                          
                                                                                                      
             maximum_demand = 0.025  # unit: m/day                                                    # TODO: set the maximum demand in the ini/configuration file.  
-            if self.name == 'irrPaddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)       # TODO: set the minimum demand in the ini/configuration file.
+            if self.name == 'irrPaddy' or\
+               self.name == 'irr_paddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)      # TODO: set the minimum demand in the ini/configuration file.
             self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)                       
                                                                                                      
             # ignore small irrigation demand (less than 1 mm)                                        
@@ -1567,8 +1570,8 @@ class LandCover(object):
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
         self.totalPotentialMaximumIrrGrossDemandNonPaddy = 0.0
-        if self.name == 'irrPaddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
-        if self.name == 'irrNonPaddy': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
+        if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
+        if self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name == 'irr_non_paddy_crops': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 
         # non irrigation demand is only calculated for areas with fracVegCover > 0                   # DO WE NEED THIS ?
         nonIrrGrossDemandDict['potential_demand']['domestic']  = pcr.ifthenelse(self.fracVegCover > 0.0, nonIrrGrossDemandDict['potential_demand']['domestic'] , 0.0) 
@@ -1790,11 +1793,6 @@ class LandCover(object):
         self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, groundwater_demand_estimate)
         #####################################################################################################
         
-        # for non-productive aquifer, reduce potGroundwaterAbstract to the current baseflow rate
-        limitedPotGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, pcr.max(routing.avgBaseflow, 0.0))
-        self.potGroundwaterAbstract = pcr.ifthenelse(groundwater.productive_aquifer, \
-                                                     self.potGroundwaterAbstract, limitedPotGroundwaterAbstract)
-
         # constraining groundwater abstraction with the regional annual pumping capacity
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
@@ -1864,7 +1862,11 @@ class LandCover(object):
         readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction)
         # - ignore groundwater storage in non-productive aquifer 
         readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
-        #
+        
+        # for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
+        readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, \
+                                                readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0))
+        
         if groundwater.usingAllocSegments:
 
             logger.debug('Allocation of non fossil groundwater abstraction.')
@@ -2214,8 +2216,8 @@ class LandCover(object):
         # irrigation gross demand (m) per cover type (limited by available water)
         self.irrGrossDemandPaddy    = 0.0
         self.irrGrossDemandNonPaddy = 0.0
-        if self.name == 'irrPaddy': self.irrGrossDemandPaddy = self.irrGrossDemand
-        if self.name == 'irrNonPaddy': self.irrGrossDemandNonPaddy = self.irrGrossDemand
+        if self.name == 'irrPaddy' or self.name == "irr_paddy": self.irrGrossDemandPaddy = self.irrGrossDemand
+        if self.name == 'irrNonPaddy' or self.name == "irr_non_paddy" or self.name == "irr_non_paddy_crops": self.irrGrossDemandNonPaddy = self.irrGrossDemand
 
         # non irrigation water demand (including livestock) limited to available/allocated water (unit: m/day)
         self.nonIrrGrossDemand = pcr.max(0.0, \
@@ -2379,7 +2381,7 @@ class LandCover(object):
         # openWaterEvap is ONLY for evaporation from paddy field areas
         self.openWaterEvap = pcr.spatial(pcr.scalar(0.))
 
-        if self.name == 'irrPaddy':  # only open water evaporation from the paddy field
+        if self.name == 'irrPaddy' or self.name == "irr_paddy":  # only open water evaporation from the paddy field
             self.openWaterEvap = \
              pcr.min(\
              pcr.max(0.,self.topWaterLayer), remainingPotETP)  
@@ -2406,7 +2408,7 @@ class LandCover(object):
             self.infiltration = pcr.min(self.topWaterLayer,self.parameters.kSatUpp000005)       # P0_L = min(P0_L,KS1*Duration*timeslice());
 
         # for paddy, infiltration should consider percolation losses 
-        if self.name == 'irrPaddy' and self.includeIrrigation:
+        if (self.name == 'irrPaddy' or self.name == "irr_paddy") and self.includeIrrigation:
             infiltration_loss = pcr.max(self.design_percolation_loss, 
                                 ((1./self.irrigationEfficiencyUsed) - 1.) * self.topWaterLayer)
             self.infiltration = pcr.min(infiltration_loss, self.infiltration)
@@ -2545,7 +2547,7 @@ class LandCover(object):
         actBareSoilEvap = pcr.cover(actBareSoilEvap, 0.0)                           
 
         # no bare soil evaporation in the inundated paddy field 
-        if self.name == 'irrPaddy':
+        if self.name == 'irrPaddy' or self.name == "irr_paddy":
             # no bare soil evaporation if topWaterLayer is above treshold
             #~ treshold = 0.0005 # unit: m ; 
             treshold = self.potBareSoilEvap + self.potTranspiration                # an idea by Edwin on 23 march 2015
