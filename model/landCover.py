@@ -1865,7 +1865,7 @@ class LandCover(object):
         
         # for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
         readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, \
-                                                readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0))
+                                                readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0)))
         
         if groundwater.usingAllocSegments:
 
