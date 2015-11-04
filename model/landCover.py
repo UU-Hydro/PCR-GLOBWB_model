@@ -830,6 +830,8 @@ class LandCover(object):
                                    self.get_land_cover_parameters(currTimeStep.fulldate)
             # estimate parameters while transpiration is being halved
             self.calculateParametersAtHalfTranspiration()
+            # calculate TAW for estimating irrigation gross demand
+            if self.includeIrrigation: self.calculateTotAvlWaterCapacityInRootZone()
 
         # calculate total PotET (based on meteo and cropKC)
         self.getPotET(meteo,currTimeStep) 
