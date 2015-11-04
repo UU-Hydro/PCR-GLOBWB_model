@@ -45,6 +45,9 @@ class Groundwater(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
 
+        # configuration from the ini file
+        self.iniItems = iniItems
+
         # option to activate a water balance check
         self.debugWaterBalance = True
         if iniItems.routingOptions['debugWaterBalance'] == "False": self.debugWaterBalance = False
