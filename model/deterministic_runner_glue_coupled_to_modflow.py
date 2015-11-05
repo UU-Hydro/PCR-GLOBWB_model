@@ -110,6 +110,8 @@ class DeterministicRunner(DynamicModel):
         # update model (will pick up current model time from model time object)
         self.model.read_forcings()
         self.model.update(report_water_balance = False)
+        # - For a run coupled to MODFLOW, the water balance checks are not valid due to lateral flow. 
+         
  
         # do any needed reporting for this time step        
         self.reporting.report()
@@ -128,7 +130,7 @@ class DeterministicRunner(DynamicModel):
 
     def check_modflow_status(self):
 
-        status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
+        status_file = str(self.configuration.globalOptions['outputDir'])+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
         print status_file
         status = os.path.exists(status_file)
         if status == False: return status	
