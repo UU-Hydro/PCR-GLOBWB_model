@@ -484,8 +484,6 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
-            print self.landCoverObj.keys()
-            
             if 'grassland' in self.landCoverObj.keys():
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
@@ -501,6 +499,8 @@ class LandSurface(object):
             ####################################################################################################################################################################
             
             consider_previous_year_land_cover_fraction = True
+
+        print self.landCoverObj.keys()
         #
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
