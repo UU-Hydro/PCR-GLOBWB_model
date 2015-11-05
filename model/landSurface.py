@@ -484,6 +484,8 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
+            print self.landCoverObj.keys()
+            
             if 'grassland' in self.landCoverObj.keys():
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
