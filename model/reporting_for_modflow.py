@@ -256,18 +256,18 @@ class Reporting(object):
 
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
-        if "groundwaterVolumeEstimate" or "groundwaterVolumeThickness" in self.variables_for_report:
+        if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
             # - from the lowermost layer
-            self.groundwaterVolumeThickness = pcr.ifthen(self._model.landmask, \
-                                                         self._model.modflow.specific_yield_1 * \
-                                                        (self.groundwaterHeadLayer1 - self._model.modflow.bottom_layer_1))
+            self.groundwaterThicknessEstimate = pcr.ifthen(self._model.landmask, \
+                                                           self._model.modflow.specific_yield_1 * \
+                                                          (self.groundwaterHeadLayer1 - self._model.modflow.bottom_layer_1))
             # - from the uppermost layer
             if self._model.modflow.number_of_layers == 2:\
-               self.groundwaterVolumeThickness += \
-                                              pcr.ifthen(self._model.landmask, \
-                                                         self._model.modflow.specific_yield_2 * \
-                                                        (self.groundwaterHeadLayer2 - self._model.modflow.bottom_layer_2))
-            self.groundwaterVolumeEstimate = self.groundwaterVolumeThickness *\
+               self.groundwaterThicknessEstimate += \
+                                                pcr.ifthen(self._model.landmask, \
+                                                           self._model.modflow.specific_yield_2 * \
+                                                          (self.groundwaterHeadLayer2 - self._model.modflow.bottom_layer_2))
+            self.groundwaterVolumeEstimate = self.groundwaterThicknessEstimate *\
                                              self._model.modflow.cellAreaMap 
             
             # TODO: Make this reporting more flexible for multiple layers
