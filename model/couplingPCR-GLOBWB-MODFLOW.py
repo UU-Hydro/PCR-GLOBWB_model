@@ -22,6 +22,11 @@ debug_option = str(sys.argv[2])
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
 
+# make global output directory (it will contain a "maps" directory that will contain merged pcraster maps)
+global_maps_folder = generalConfiguration.globalOptions['outputDir']+"/global/maps/"
+if os.path.exists(global_maps_folder): shutil.rmtree(global_maps_folder)
+os.makedirs(global_maps_folder)
+
 # make log folder and initialize logging
 generalOutputFolder = generalConfiguration.globalOptions['outputDir']
 logFileFolder = generalOutputFolder+"/global_log/"

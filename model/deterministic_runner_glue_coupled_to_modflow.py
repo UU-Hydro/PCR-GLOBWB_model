@@ -122,10 +122,10 @@ class DeterministicRunner(DynamicModel):
             # wait until modflow run is done
             modflow_is_ready = False
             while modflow_is_ready == False:
-                if datetime.datetime.now().second == 1 or\
+                if datetime.datetime.now().second == 7 or\
+                   datetime.datetime.now().second == 10 or\
                    datetime.datetime.now().second == 16 or\
-                   datetime.datetime.now().second == 31 or\
-                   datetime.datetime.now().second == 46:\
+                   datetime.datetime.now().second == 6:\
                    modflow_is_ready = self.check_modflow_status()
 
     def check_modflow_status(self):

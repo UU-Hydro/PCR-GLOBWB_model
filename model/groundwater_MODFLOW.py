@@ -688,40 +688,8 @@ class GroundwaterModflow(object):
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
 
-            #~ # wait until pcrglowb is ready
-            #~ pcrglobwb_is_ready = False
-            #~ while pcrglobwb_is_ready == False:
-                #~ 
-                #~ # check whether the pcrglobwb calculation is ready or not (several times per minute) 
-                #~ # if it is ready, the following variable will be come True
-                #~ datetime_now = datetime.datetime.now()
-                #~ if datetime_now.second == 7 or \
-                   #~ datetime_now.second == 10 or \
-                   #~ datetime_now.second == 16 or \
-                   #~ datetime_now.second == 6 or \
-                   #~ datetime_now.second == 31:\
-                   #~ pcrglobwb_is_ready = self.check_pcrglobwb_status()
-
-            #~ # merging pcraster maps that will be used for modflow calculation:
-            #~ cmd = 'python merge_pcr_maps_for_modflow ' + \
-                  #~ self.modelTime.fulldate+" "+ \
-                  #~ self.configuration.pcrglobwb_output_folder+"/ "+\
-                  #~ "default"+" "+\
-                  #~ " 8 "+\
-                  #~ str(self.configuration.clone_codes)[1:-1].replace(" ","").replace("'","").replace('"',"")
-            #~ msg = "Call: "+cmd; logger.info(msg); vos.cmd_line(cmd, using_subprocess = without_debug)
-            #~ # merging pcraster maps that will be used for modflow calculation:
-            #~ cmd = 'python merge_pcr_maps_for_modflow ' + \
-                  #~ self.modelTime.fulldate+" "+ \
-                  #~ self.configuration.pcrglobwb_output_folder+"/ "+\
-                  #~ "default"+" "+\
-                  #~ " 8 "+\
-                  #~ str(self.configuration.clone_codes)[1:-1].replace(" ","").replace("'","").replace('"',"")
-            #~ msg = "Call: "+cmd; logger.info(msg); vos.cmd_line(cmd, using_subprocess = without_debug)
-
             # get the previous state
             groundwaterHead = self.getState()
-            
             
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
@@ -784,15 +752,19 @@ class GroundwaterModflow(object):
             if self.online_coupling:
 
                 # for online coupling, we will read files from pcraster maps
+                directory = self.iniItems.main_output_directory + "/global/maps/"
                 
                 # - discharge (m3/s) from PCR-GLOBWB
-                discharge = vos.readPCRmapClone()
+                discharge_file_name = directory + "monthly_discharge_cubic_meter_per_second_" + str(currTimeStep.fulldate) + ".map" 
+                discharge = vos.readPCRmapClone(discharge_file_name, self.cloneMap, self.tmpDir)
                 
                 # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-                gwRecharge = vos.readPCRmapClone()
+                gwRecharge_file_name = directory + "groundwater_recharge_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
+                gwRecharge = vos.readPCRmapClone(gwRecharge_file_name, self.cloneMap, self.tmpDir)
 
                 # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-                gwAbstraction = pcr.spatial(pcr.scalar(0.0))
+                gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
+                gwAbstraction = vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir)
             
             else:
             

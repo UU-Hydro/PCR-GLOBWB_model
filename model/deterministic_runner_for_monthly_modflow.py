@@ -52,10 +52,10 @@ class DeterministicRunner(DynamicModel):
             # wait until all pcrglobwb model runs are done
             pcrglobwb_is_ready = False
             while pcrglobwb_is_ready == False:
-                if datetime.datetime.now().second == 1 or\
+                if datetime.datetime.now().second == 7 or\
+                   datetime.datetime.now().second == 10 or\
                    datetime.datetime.now().second == 16 or\
-                   datetime.datetime.now().second == 31 or\
-                   datetime.datetime.now().second == 46:\
+                   datetime.datetime.now().second == 6:\
                    pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging pcraster maps that are needed to run modflow
@@ -74,7 +74,8 @@ class DeterministicRunner(DynamicModel):
         clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory)+"/"+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
-            print status_file
+            msg = 'Waiting for the file: '+status_file
+            logger.warning(msg)
             status = os.path.exists(status_file)
             if status == False: return status	
                     

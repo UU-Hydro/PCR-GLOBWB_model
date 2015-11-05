@@ -133,8 +133,8 @@ class PCRGlobWB(object):
             # averaging
             number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
             self.variables['monthly_discharge_cubic_meter_per_second'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
-            self.variables['groundwater_recharge_meter_per_day'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
-            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            self.variables['groundwater_recharge_meter_per_day'] = self.variables['groundwater_recharge_meter_per_day'] / number_of_days
+            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['groundwater_abstraction_meter_per_day'] / number_of_days
         
             # time stamp used as part of the file name:
             if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
