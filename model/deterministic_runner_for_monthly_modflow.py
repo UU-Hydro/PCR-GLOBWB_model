@@ -3,6 +3,7 @@
 
 import os
 import sys
+import datetime
 
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
@@ -51,7 +52,11 @@ class DeterministicRunner(DynamicModel):
             # wait until all pcrglobwb model runs are done
             pcrglobwb_is_ready = False
             while pcrglobwb_is_ready == False:
-                pcrglobwb_is_ready = self.check_pcrglobwb_status()
+                if datetime.datetime.now().second == 1 or\
+                   datetime.datetime.now().second == 16 or\
+                   datetime.datetime.now().second == 31 or\
+                   datetime.datetime.now().second == 46:\
+                   pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging pcraster maps that are needed to run modflow
             cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcr_maps_for_modflow.py " + str(self.modelTime.fulldate) + " " +\
@@ -70,7 +75,6 @@ class DeterministicRunner(DynamicModel):
         clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory)+"/"+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
-            print status_file
             status = os.path.exists(status_file)
             if status == False: return status	
                     
