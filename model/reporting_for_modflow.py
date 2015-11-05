@@ -250,6 +250,10 @@ class Reporting(object):
                 self.groundwaterHead = pcr.ifthen(self._model.landmask, vars(self)[var_head_name])                                        
                 self.groundwaterDepth = pcr.ifthen(self._model.landmask, vars(self)[var_depth_name])                                        
 
+        # relative groundwater head above the minimum level (within the grid)
+        self.relativeGroundwaterHead = pcr.ifthen(self._model.landmask, self._model.modflow.relativeGroundwaterHead) 
+
+
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
         if "groundwaterVolumeEstimate" or "groundwaterVolumeThickness" in self.variables_for_report:
