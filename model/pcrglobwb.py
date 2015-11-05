@@ -114,7 +114,7 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
-    def calculateAndDumpVariableValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
+    def calculateAndDumpMonthlyValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
 
         logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
         
