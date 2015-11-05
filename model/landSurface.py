@@ -340,11 +340,33 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
+        ####################################################################################################################################################################
+        # correcting land cover fractions
+        total_fractions = pcr.scalar(0.0)
+        for coverType in self.coverTypes:
+            total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+
+        if 'grassland' in self.landCoverObj.keys():
+            self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
+        
+        if 'short_natural' in self.landCoverObj.keys():
+            self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+
+        total_fractions = pcr.scalar(0.0)
+        for coverType in self.coverTypes:
+            total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+
+        for coverType in self.coverTypes:
+            self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
+        ####################################################################################################################################################################
+
+
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
 
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
+
 
     def initiate_old_style_land_surface_reporting(self,iniItems):
 
@@ -473,9 +495,32 @@ class LandSurface(object):
             # obtain the previous year land cover fractions:
             previous_year = starting_year - 1
             one_january_prev_year = str(previous_year)+"-01-01"
+            
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_prev_year, \
                                                                                                                     get_only_fracVegCover = True)
+                total_fractions = total_fractions + self.landCoverObj[coverType].previousFracVegCover                                                                                                   
+            
+            ####################################################################################################################################################################
+            # correcting land cover fractions
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
+
+            if 'grassland' in self.landCoverObj.keys():
+                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
+            
+            if 'short_natural' in self.landCoverObj.keys():
+                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
+
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
+
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions                                                                                                   
+            ####################################################################################################################################################################
+            
             consider_previous_year_land_cover_fraction = True
         #
         # For spin-up runs or for runs that start after 1 January,
@@ -489,6 +534,27 @@ class LandSurface(object):
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
 
+            ####################################################################################################################################################################
+            # correcting land cover fractions
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
+
+            if 'grassland' in self.landCoverObj.keys():
+                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
+            
+            if 'short_natural' in self.landCoverObj.keys():
+                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
+
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
+
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions                                                                                                   
+            ####################################################################################################################################################################
+        
+        
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
         for var in self.mainStates: vars(self)[var] = pcr.scalar(0.0)
@@ -1102,8 +1168,30 @@ class LandSurface(object):
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and \
           (currTimeStep.timeStepPCR > 1 and currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
+            
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
+
+            ####################################################################################################################################################################
+            # correcting land cover fractions
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            if 'grassland' in self.landCoverObj.keys():
+                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
+            
+            if 'short_natural' in self.landCoverObj.keys():
+                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+            
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
+            ####################################################################################################################################################################
+
 
         # read land cover fractions from netcdf files
         # - assumption: annual resolution
@@ -1114,6 +1202,27 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = str(currTimeStep.fulldate), \
                                                                                                                    get_only_fracVegCover = True)
+
+            ####################################################################################################################################################################
+            # correcting land cover fractions
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            if 'grassland' in self.landCoverObj.keys():
+                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
+            
+            if 'short_natural' in self.landCoverObj.keys():
+                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+            
+            total_fractions = pcr.scalar(0.0)
+            for coverType in self.coverTypes:
+                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+            
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
+            ####################################################################################################################################################################
+
 
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
