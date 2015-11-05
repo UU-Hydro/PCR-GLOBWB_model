@@ -119,22 +119,22 @@ class PCRGlobWB(object):
         logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
         
         if self._modelTime.day == 1 or self._modelTime.timeStepPCR == 1:
-            variables = {}
-            variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
-            variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
-            variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+            self.variables = {}
+            self.variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
+            self.variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+            self.variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
         
-        variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
-        variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
-        variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+        self.variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
+        self.variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+        self.variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
         
         if self._modelTime.isLastDayOfMonth():
 
             # averaging
             number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
-            variables['monthly_discharge_cubic_meter_per_second'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
-            variables['groundwater_recharge_meter_per_day'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
-            variables['groundwater_abstraction_meter_per_day'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            self.variables['monthly_discharge_cubic_meter_per_second'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            self.variables['groundwater_recharge_meter_per_day'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
         
             # time stamp used as part of the file name:
             if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
