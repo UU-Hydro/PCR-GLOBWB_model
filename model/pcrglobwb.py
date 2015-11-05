@@ -410,7 +410,7 @@ class PCRGlobWB(object):
             self.dumpState(self._configuration.endStateDir)
 
         # save/dump some variables for the purpose of coupling with MODFLOW:
-        if self._configuration.online_coupling_to_pcrglobwb and self.modelTime.isLastDayOfMonth():
+        if self._configuration.online_coupling_to_pcrglobwb and self._modelTime.isLastDayOfMonth():
             logger.info("Save/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.mapsDir)
             self.dumpVariableValuesForMODFLOW(self._configuration.mapsDir)
         
