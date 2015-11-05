@@ -485,10 +485,10 @@ class LandSurface(object):
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
             if 'grassland' in self.landCoverObj.keys():
-                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
+                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
             if 'short_natural' in self.landCoverObj.keys():
-                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
+                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
 
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
@@ -518,10 +518,10 @@ class LandSurface(object):
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
             if 'grassland' in self.landCoverObj.keys():
-                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
+                self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
             if 'short_natural' in self.landCoverObj.keys():
-                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
+                self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
 
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
@@ -1156,10 +1156,10 @@ class LandSurface(object):
                 total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
             if 'grassland' in self.landCoverObj.keys():
-                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
+                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
             
             if 'short_natural' in self.landCoverObj.keys():
-                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
             
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
@@ -1187,10 +1187,10 @@ class LandSurface(object):
                 total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
             if 'grassland' in self.landCoverObj.keys():
-                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
+                self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
             
             if 'short_natural' in self.landCoverObj.keys():
-                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
+                self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
             
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
