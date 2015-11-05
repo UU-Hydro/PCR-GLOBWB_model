@@ -41,7 +41,9 @@ class Configuration(object):
 
         self.online_coupling_between_pcrglobwb_and_moflow = False
         if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
+            
             self.online_coupling_to_pcrglobwb = True
+            self.groundwaterOptions['useMODFLOW'] = "True"
 
     def set_configuration(self):
 

@@ -141,7 +141,7 @@ class PCRGlobWB(object):
             
             logger.info('Dumping some monthly variables for the MODFLOW input.')
 
-            for variable, map in variables.iteritems():
+            for variable, map in self.variables.iteritems():
                 vos.writePCRmapToDir(\
                  map,\
                  str(variable)+"_"+
