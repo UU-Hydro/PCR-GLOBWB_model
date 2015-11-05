@@ -1873,6 +1873,9 @@ class LandCover(object):
         readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, \
                                                 readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0)))
         
+        # avoid the condition that the entire groundwater volume abstracted instantaneously
+        readAvlStorGroundwater *= 0.75
+
         if groundwater.usingAllocSegments:
 
             logger.debug('Allocation of non fossil groundwater abstraction.')
