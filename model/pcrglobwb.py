@@ -114,27 +114,44 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
-    def dumpVariableValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
+    def calculateAndDumpVariableValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
 
-        variables = {}
-        variables['discharge'] = self.routing.discharge
-        variables['gwRecharge'] = self.landSurface.gwRecharge
-        variables['gwAbstraction'] = self.landSurface.totalGroundwaterAbstraction
+        logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
+        
+        if self._modelTime.day == 1 or self._modelTime.timeStepPCR == 1:
+            variables = {}
+            variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
+            variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+            variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+        
+        variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.discharge))
+        variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+        variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+        
+        if self._modelTime.isLastDayOfMonth():
 
-        # time stamp used as part of the file name:
-        if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+            # averaging
+            number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
+            variables['monthly_discharge_cubic_meter_per_second'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            variables['groundwater_recharge_meter_per_day'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
+            variables['groundwater_abstraction_meter_per_day'] = variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
         
-        for variable, map in variables.iteritems():
-            vos.writePCRmapToDir(\
-             map,\
-             str(variable)+"_"+
-             timeStamp+".map",\
-             outputDirectory)
-        
-        # make an empty file
-        filename = outputDirectory+"/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_is_ready.txt"
-        if os.path.exists(filename): os.remove(filename)
-        open(filename, "w").close()    
+            # time stamp used as part of the file name:
+            if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+            
+            logger.info('Dumping some monthly variables for the MODFLOW input.')
+
+            for variable, map in variables.iteritems():
+                vos.writePCRmapToDir(\
+                 map,\
+                 str(variable)+"_"+
+                 timeStamp+".map",\
+                 outputDirectory)
+            
+            # make an empty file
+            filename = outputDirectory+"/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_is_ready.txt"
+            if os.path.exists(filename): os.remove(filename)
+            open(filename, "w").close()    
 
     def resume(self):
         #restore state from disk. used when restarting
@@ -400,19 +417,18 @@ class PCRGlobWB(object):
             surfaceWaterStoresAtBeginning = self.totalSurfaceWaterStores()     
 
         self.meteo.update(self._modelTime)                                         
-        self.landSurface.update(self.meteo,self.groundwater,self.routing,self._modelTime)      
-        self.groundwater.update(self.landSurface,self.routing,self._modelTime)
-        self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
+        self.landSurface.update(self.meteo, self.groundwater, self.routing, self._modelTime)      
+        self.groundwater.update(self.landSurface, self.routing, self._modelTime)
+        self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
         # save/dump states at the end of the year or at the end of model simulation
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
-        # save/dump some variables for the purpose of coupling with MODFLOW:
-        if self._configuration.online_coupling_to_pcrglobwb and self._modelTime.isLastDayOfMonth():
-            logger.info("Save/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.mapsDir)
-            self.dumpVariableValuesForMODFLOW(self._configuration.mapsDir)
+        # calculating and dumping some monthly values for the purpose of coupling with MODFLOW:
+        if self._configuration.online_coupling_to_pcrglobwb:
+            self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
         if (report_water_balance):
             landWaterStoresAtEnd    = self.totalLandWaterStores()          # not including surface water bodies
