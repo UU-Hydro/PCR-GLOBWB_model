@@ -340,27 +340,6 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
-        ####################################################################################################################################################################
-        # correcting land cover fractions
-        total_fractions = pcr.scalar(0.0)
-        for coverType in self.coverTypes:
-            total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
-
-        if 'grassland' in self.landCoverObj.keys():
-            self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['grassland'].fracVegCover, 1.0)
-        
-        if 'short_natural' in self.landCoverObj.keys():
-            self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.0, self.landCoverObj['short_natural'].fracVegCover, 1.0)
-
-        total_fractions = pcr.scalar(0.0)
-        for coverType in self.coverTypes:
-            total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
-
-        for coverType in self.coverTypes:
-            self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
-        ####################################################################################################################################################################
-
-
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
 
