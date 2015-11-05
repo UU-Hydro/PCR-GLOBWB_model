@@ -47,14 +47,14 @@ for clone_code in clone_codes:
    cmd = cmd+" & "
    i_clone += 1
 
-# command line for MODFLOW       
-cmd += "python "       
-cmd = cmd+" & "       
+#~ # command line for MODFLOW       
+#~ cmd += "python "       
+#~ cmd = cmd+" & "       
 
 # don't foget to add the following line
 cmd = cmd + "wait"       
 
 print cmd
 
-#~ # execute PCR-GLOBWB and MODFLOW
-#~ vos.cmd_line(cmd, using_subprocess = False)      
+# execute PCR-GLOBWB and MODFLOW
+vos.cmd_line(cmd, using_subprocess = False)      
