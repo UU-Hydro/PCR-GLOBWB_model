@@ -408,29 +408,7 @@ class Groundwater(object):
 
     def getICs(self,iniItems,iniConditions = None):
 
-        self.initialize_states(iniItems,iniConditions)
-        if self.useMODFLOW: self.initialize_with_MODFLOW(iniItems,iniConditions) 
-
-    def initialize_with_MODFLOW(self,iniItems,iniConditions):
-
-        # obtain relative groundwater head (unit: m) from the 
-        self.relativeGroundwaterHead = \
-                        pcr.ifthen(self.landmask, pcr.cover(
-                        vos.readPCRmapClone(iniItems.couplingToModflowOptions['relativeGroundwaterHeadFromModflow'],
-                                            self.cloneMap,self.tmpDir,self.inputDir), 0.0))
-        
-        
-        self.baseflow = pcr.ifthen(self.landmask, pcr.cover(
-                        vos.readPCRmapClone(iniItems.couplingToModflowOptions['baseflowFromModflow'],                                                   
-                                            self.cloneMap,self.tmpDir,self.inputDir), 0.0))
-        
-        
-        # use storGroundwater from the MODFLOW calculation/simulation:
-        self.storGroundwater = pcr.ifthen(self.landmask,\
-                               vos.readPCRmapClone(iniItems.couplingToModflowOptions['storGroundwaterFromModflow'],  
-                                                   self.cloneMap,self.tmpDir,self.inputDir))
-        
-        # additional states from MODFLOW can be added here !!!
+        self.initialize_states(iniItems, iniConditions)
 
     def initialize_states(self, iniItems, iniConditions):
  
@@ -456,15 +434,25 @@ class Groundwater(object):
             self.avgNonFossilAllocationShort = vos.readPCRmapClone(\
                                                iniItems.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'],
                                                self.cloneMap,self.tmpDir,self.inputDir)
-        else:                     # during/after spinUp
-            self.storGroundwater             = iniConditions['groundwater'][ 'storGroundwater']
-            self.avgAbstraction              = iniConditions['groundwater'][ 'avgTotalGroundwaterAbstraction']      
-            self.avgAllocation               = iniConditions['groundwater'][ 'avgTotalGroundwaterAllocationLong']
-            self.avgAllocationShort          = iniConditions['groundwater'][ 'avgTotalGroundwaterAllocationShort']
-            self.avgNonFossilAllocation      = iniConditions['groundwater'][ 'avgNonFossilGroundwaterAllocationLong']      
-            self.avgNonFossilAllocationShort = iniConditions['groundwater'][ 'avgNonFossilGroundwaterAllocationShort']      
+            
+            # additional initial conditions (needed for the online coupling between 
+            self.relativeGroundwaterHead = vos.readPCRmapClone(\
+                                           iniItems.groundwaterOptions['relativeGroundwaterHeadIni'],
+                                           self.cloneMap,self.tmpDir,self.inputDir)
+            self.baseflow = vos.readPCRmapClone(\                                   
+                            iniItems.groundwaterOptions['baseflowIni'],
+                            self.cloneMap,self.tmpDir,self.inputDir)
 
-        
+        else:                     # during/after spinUp
+            self.storGroundwater             = iniConditions['groundwater']['storGroundwater']
+            self.avgAbstraction              = iniConditions['groundwater']['avgTotalGroundwaterAbstraction']      
+            self.avgAllocation               = iniConditions['groundwater']['avgTotalGroundwaterAllocationLong']
+            self.avgAllocationShort          = iniConditions['groundwater']['avgTotalGroundwaterAllocationShort']
+            self.avgNonFossilAllocation      = iniConditions['groundwater']['avgNonFossilGroundwaterAllocationLong']      
+            self.avgNonFossilAllocationShort = iniConditions['groundwater']['avgNonFossilGroundwaterAllocationShort']
+            
+            self.relativeGroundwaterHead     = iniConditions['groundwater']['relativeGroundwaterHead']
+            self.baseflow                    = iniConditions['groundwater']['baseflow']
         
         # initial condition for storGroundwaterFossil (unit: m)
         #
