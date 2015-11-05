@@ -378,8 +378,9 @@ class LandCover(object):
                                                                 cloneMapFileName = self.cloneMap), 0.0)
                 else:                                                
                     # reading parameters from pcraster maps or scalar values
-                    lc_parameters[var] = vos.readPCRmapClone(ini_option, self.cloneMap, \
-                                                             self.tmpDir, self.inputDir)
+                    lc_parameters[var] = pcr.cover(
+                                         vos.readPCRmapClone(ini_option, self.cloneMap, \
+                                                             self.tmpDir, self.inputDir), 0.0)
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
             if get_only_fracVegCover == False and\
                isinstance(lc_parameters['arnoBeta'], types.NoneType):
