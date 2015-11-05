@@ -3,6 +3,7 @@
 
 import os
 import sys
+import datetime
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel
@@ -29,6 +30,9 @@ class DeterministicRunner(DynamicModel):
         
         # the model will set paramaters based on global pre-multipliers given in the argument:
         if system_argument != None: self.adusting_parameters(configuration, system_argument)
+
+        # make the configuration available for the other method/function
+        self.configuration = configuration
 
     def adusting_parameters(self, configuration, system_argument): 
 
@@ -116,7 +120,11 @@ class DeterministicRunner(DynamicModel):
             # wait until modflow run is done
             modflow_is_ready = False
             while modflow_is_ready == False:
-                modflow_is_ready = self.check_modflow_status()
+                if datetime.datetime.now().second == 1 or\
+                   datetime.datetime.now().second == 16 or\
+                   datetime.datetime.now().second == 31 or\
+                   datetime.datetime.now().second == 46:\
+                   modflow_is_ready = self.check_modflow_status()
 
     def check_modflow_status(self):
 
