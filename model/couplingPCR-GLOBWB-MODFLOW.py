@@ -47,9 +47,10 @@ for clone_code in clone_codes:
    cmd = cmd+" & "
    i_clone += 1
 
-#~ # command line for MODFLOW       
-#~ cmd += "python "       
-#~ cmd = cmd+" & "       
+# command line for MODFLOW       
+cmd += "python deterministic_runner_for_monthly_modflow.py " + iniFileName +" "+\
+                                                               debug_option +" transient"
+cmd = cmd+" & "       
 
 # don't foget to add the following line
 cmd = cmd + "wait"       

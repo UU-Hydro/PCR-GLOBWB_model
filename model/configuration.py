@@ -31,8 +31,17 @@ class Configuration(object):
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
         
+        # option to define an online coupling between PCR-GLOBWB and MODFLOW
+        self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
+
         # if no_modification, set configuration directly (otherwise, the function/method  
         if no_modification: self.set_configuration()
+
+    def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
+
+        self.online_coupling_between_pcrglobwb_and_moflow = False
+        if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
+            self.online_coupling_to_pcrglobwb = True
 
     def set_configuration(self):
 

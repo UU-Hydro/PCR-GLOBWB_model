@@ -66,8 +66,11 @@ class Configuration(object):
             self.globalOptions['cloneMap'] = self.globalModflowOptions['cloneMap']
             self.globalOptions['landmask'] = self.globalModflowOptions['landmask']
             
+            # the main output directory
+            self.main_output_directory = self.globalOptions['outputDir']
+            
             # the output directory for modflow calculation is stored
-            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/modflow/"
+            self.globalOptions['outputDir'] = self.main_output_directory + "/modflow/"
             
             # temporary modflow output folder
             if 'tmp_modflow_dir' in self.globalModflowOptions.keys():
@@ -220,10 +223,8 @@ class Configuration(object):
         if os.path.exists(self.scriptDir):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
-        
-        path_of_this_module = os.path.abspath(os.path.dirname(__file__))
-                           
-        for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+        self.path_of_this_module = os.path.abspath(os.path.dirname(__file__))
+        for filename in glob.glob(os.path.join(self.path_of_this_module, '*.py')):
             shutil.copy(filename, self.scriptDir)
 
         # making log directory:

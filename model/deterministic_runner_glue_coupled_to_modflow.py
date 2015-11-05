@@ -112,13 +112,15 @@ class DeterministicRunner(DynamicModel):
 
         # at the last day of the month, stop calculation until the modflow calculation is ready
         if self.modelTime.isLastDayOfMonth():
+
+            # wait until modflow run is done
             modflow_is_ready = False
             while modflow_is_ready == False:
-                # check whether the modflow calculation is ready or not, 
-                # if it is ready it will return the variable modflow_is_ready to True
                 modflow_is_ready = self.check_modflow_status()
-                
-                pass
+
+    def check_modflow_status(self):
+
+        pass
  
 
 def main():

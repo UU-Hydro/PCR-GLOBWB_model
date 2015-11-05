@@ -28,6 +28,9 @@ class DeterministicRunner(DynamicModel):
         
         self.steady_state_only = configuration.steady_state_only
         
+        # make the configuration available for the other method/function
+        self.configuration = configuration
+        
     def initial(self): 
         
         # get or prepare the initial condition for groundwater head 
@@ -43,10 +46,34 @@ class DeterministicRunner(DynamicModel):
         # update/calculate model and report ONLY at the last day of the month
         if self.modelTime.isLastDayOfMonth():
             
+            # wait until all pcrglobwb model runs are done
+            pcrglobwb_is_ready = False
+            while modflow_is_ready == False:
+                pcrglobwb_is_ready = self.check_pcrglobwb_status()
+                
+            # merging pcraster maps that are needed to run modflow
+            cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcr_maps_for_modflow.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                          str(self.configuration.main_output_directory)+"/ default 8 "+\
+                                                                                                          str(self.configuration.globalOptions['cloneAreas'])
+            vos.cmd_line(cmd, using_subprocess = False)                                                                                    
+                                                                                           
+            
             # update MODFLOW model (It will pick up current model time from the modelTime object)
             self.model.update()
             # reporting is only done at the end of the month
             self.reporting.report()
+
+    def check_pcrglobwb_status(self):
+
+        clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
+        for clone_area in clone_areas:
+            status_file = str(self.configuration.main_output_directory)+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_is_ready.txt"+
+            status = os.path.exists(filename):
+			if status == False: return status	
+                    
+        print status
+        
+        return status
 
 def main():
     

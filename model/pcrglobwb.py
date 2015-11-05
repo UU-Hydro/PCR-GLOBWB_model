@@ -114,6 +114,28 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
+    def dumpVariableValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
+
+        variables = {}
+        variables['discharge'] = self.routing.discharge
+        variables['gwRecharge'] = self.landSurface.gwRecharge
+        variables['gwAbstraction'] = self.landSurface.totalGroundwaterAbstraction
+
+        # time stamp used as part of the file name:
+        if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+        
+        for variable, map in variables.iteritems():
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             timeStamp+".map",\
+             outputDirectory)
+        
+        # make an empty file
+        filename = outputDirectory+"/pcrglobwb_files_for_"str(self._modelTime.fulldate)+"_is_ready.txt"
+        if os.path.exists(filename): os.remove(filename)
+        open(filename, "w").close()    
+
     def resume(self):
         #restore state from disk. used when restarting
         pass
@@ -367,11 +389,11 @@ class PCRGlobWB(object):
                                self._modelTime.fulldate,threshold=1e-3)
     
     def read_forcings(self):
-        logger.info("reading forcings for time %s", self._modelTime)
+        logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
     
-    def update(self, report_water_balance=False):
-        logger.info("updating model for time %s", self._modelTime)
+    def update(self, report_water_balance = False):
+        logger.info("Updating model for time %s", self._modelTime)
         
         if (report_water_balance):
             landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
@@ -384,9 +406,14 @@ class PCRGlobWB(object):
 
         # save/dump states at the end of the year or at the end of model simulation
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
-            logger.info("save/dump states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+            logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
+        # save/dump some variables for the purpose of coupling with MODFLOW:
+        if self._configuration.online_coupling_to_pcrglobwb and self.modelTime.isLastDayOfMonth():
+            logger.info("Save/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.mapsDir)
+            self.dumpVariableValuesForMODFLOW(self._configuration.mapsDir)
+        
         if (report_water_balance):
             landWaterStoresAtEnd    = self.totalLandWaterStores()          # not including surface water bodies
             surfaceWaterStoresAtEnd = self.totalSurfaceWaterStores()     

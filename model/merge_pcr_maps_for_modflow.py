@@ -245,7 +245,7 @@ for fileName in files.keys():
 	ll= []
 	outputFileName= os.path.join(outputDir,fileName)
 	for area in areas:
-		inputFileName= os.path.join(inputDirRoot,area,'states',fileName)
+		inputFileName= os.path.join(inputDirRoot,area,'maps',fileName)
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
