@@ -81,6 +81,11 @@ class ModflowCoupling(object):
              timeStamp+".map",\
              outputDirectory)
 
+        # make an empty file
+        filename = outputDirectory+"/modflow_files_for_"+str(self._modelTime.fulldate)+"_is_ready.txt"
+        if os.path.exists(filename): os.remove(filename)
+        open(filename, "w").close()    
+
     def getState(self):
         result = {}
         result['groundwater'] = self.modflow.getState()

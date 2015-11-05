@@ -120,7 +120,12 @@ class DeterministicRunner(DynamicModel):
 
     def check_modflow_status(self):
 
-        pass
+        status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
+        print status_file
+        status = os.path.exists(status_file)
+        if status == False: return status	
+                    
+        return status
  
 
 def main():

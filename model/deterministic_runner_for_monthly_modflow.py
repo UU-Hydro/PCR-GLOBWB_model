@@ -13,6 +13,8 @@ from reporting_for_modflow import Reporting
 
 from modflow import ModflowCoupling
 
+import virtualOS as vos
+
 import logging
 logger = logging.getLogger(__name__)
 
