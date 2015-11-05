@@ -594,9 +594,8 @@ class LandSurface(object):
         # historical irrigation area (unit: hectar)
         self.dynamicIrrigationArea = False
         if iniItems.landSurfaceOptions['historicalIrrigationArea'] != "None":
+            logger.info("Using the dynamicIrrigationArea option. Extent of irrigation areas is based on the file provided in the 'historicalIrrigationArea'.")
             self.dynamicIrrigationArea = True
-        else:
-            logger.info("Extent of irrigation areas is SAME for EVERY YEAR.")
         #
         if self.dynamicIrrigationArea:
             self.dynamicIrrigationAreaFile = vos.getFullPath(\
