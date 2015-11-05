@@ -48,7 +48,7 @@ class DeterministicRunner(DynamicModel):
             
             # wait until all pcrglobwb model runs are done
             pcrglobwb_is_ready = False
-            while modflow_is_ready == False:
+            while pcrglobwb_is_ready == False:
                 pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging pcraster maps that are needed to run modflow
