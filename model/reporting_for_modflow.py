@@ -263,7 +263,7 @@ class Reporting(object):
                                               pcr.ifthen(self._model.landmask, \
                                                          self._model.modflow.specific_yield_2 * \
                                                         (self.groundwaterHeadLayer2 - self._model.modflow.bottom_layer_2))
-            self.groundwaterVolumeEstimate = self.accesibleGroundwaterThickness *\
+            self.groundwaterVolumeEstimate = self.groundwaterVolumeThickness *\
                                              self._model.modflow.cellAreaMap 
             
             # TODO: Make this reporting more flexible for multiple layers
