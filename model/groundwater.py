@@ -551,7 +551,7 @@ class Groundwater(object):
         self.storGroundwater = self.storGroundwater
         self.baseflow = self.baseflow 
 
-        if currTimeStep.day == 1 and currTimeStep.timestepPCR > 1: 
+        if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1: 
 
             # for online coupling, we will read files from pcraster maps, using the previous day values
             directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"

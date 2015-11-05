@@ -922,7 +922,7 @@ class LandSurface(object):
             # update dzGroundwater from file, from modflow calculation, using the previous time step
             # - assumption that it will be updated once every month
             
-            if currTimeStep.day == 1 and currTimeStep.timestepPCR > 1: 
+            if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1: 
 
                 # for online coupling, we will read files from pcraster maps
                 directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
