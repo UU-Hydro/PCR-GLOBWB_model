@@ -401,10 +401,8 @@ class LandCover(object):
         fracVegCover = pcr.max(0.0, fracVegCover)
         fracVegCover = pcr.min(1.0, fracVegCover)
         
-        fracVegCover = pcr.rounddown(fracVegCover * 1000.)/1000.
+        fracVegCover = pcr.rounddown(fracVegCover * 100.)/100.
         
-        fracVegCover = pcr.scalar(1./6.)
-
         if get_only_fracVegCover:
             return pcr.ifthen(self.landmask, fracVegCover)
         
