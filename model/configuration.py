@@ -45,6 +45,9 @@ class Configuration(object):
             self.online_coupling_between_pcrglobwb_and_moflow = True
             self.groundwaterOptions['useMODFLOW'] = "True"
 
+            # the main output directory
+            self.main_output_directory = self.globalOptions['outputDir']
+
     def set_configuration(self):
 
         # set all paths, clean output when requested
