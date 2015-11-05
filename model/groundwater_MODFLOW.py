@@ -336,14 +336,8 @@ class GroundwaterModflow(object):
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
-        # for online coupling purpose, we also need to know the location of pcrglobwb output
-        self.online_coupling = False
-        if 'pcrglobwb_output_folder' in self.iniItems.globalOptions.keys():
-            if self.iniItems.globalOptions['pcrglobwb_output_folder'] != "None":
-                self.online_coupling = True
-                self.pcrglobwb_output_folder = self.iniItems.globalOptions['pcrglobwb_output_folder']
-                self.pcrglobwb_output_folder = vos.getFullPath(self.pcrglobwb_output_folder, \
-                                               self.inputDir)+"/"
+        # option for online coupling purpose, we also need to know the location of pcrglobwb output
+        self.online_coupling = self.iniItems.online_coupling_between_pcrglobwb_and_moflow
 
         # initiate old style reporting (this is usually used for debugging process)
         self.initiate_old_style_reporting(iniItems)
