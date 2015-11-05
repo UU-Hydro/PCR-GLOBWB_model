@@ -237,7 +237,7 @@ class Groundwater(object):
                                                               self.cloneMap, self.tmpDir, self.inputDir)
                 self.productive_aquifer = pcr.cover(\
                  pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(0.0))
-        self.productive_aquifer = pcr.cover(self.productive_aquifer, 0.0)
+        self.productive_aquifer = pcr.cover(self.productive_aquifer, pcr.boolean(0.0))
         # - TODO: Check and re-calculate the GLHYMPS map to confirm the kSatAquifer value in groundwaterPropertiesNC (e.g. we miss some parts of HPA).  
         #####################################################################################################################################################
 
