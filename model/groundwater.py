@@ -508,6 +508,12 @@ class Groundwater(object):
         self.avgNonFossilAllocationShort = pcr.ifthen(self.landmask,\
                                                       self.avgNonFossilAllocationShort)
 
+        self.relativeGroundwaterHead = pcr.cover(self.relativeGroundwaterHead, 0.0)
+        self.relativeGroundwaterHead = pcr.ifthen(self.landmask, self.relativeGroundwaterHead)
+        
+        self.baseflow = pcr.cover(self.baseflow, 0.0)
+        self.baseflow = pcr.ifthen(self.landmask, self.baseflow)
+        
         # storGroundwaterFossil can be negative (particularly if limitFossilGroundwaterAbstraction == False)
         self.storGroundwaterFossil = pcr.ifthen(self.landmask,\
                                                 self.storGroundwaterFossil)
@@ -541,16 +547,28 @@ class Groundwater(object):
         logger.info("Updating groundwater based on the MODFLOW output.")
 
         # relativeGroundwaterHead, storGroundwater and baseflow fields are assumed to be constant  
+        self.relativeGroundwaterHead = self.relativeGroundwaterHead
         self.storGroundwater = self.storGroundwater
         self.baseflow = self.baseflow 
 
-        # update storGroundwater and baseflow from MODFLOW
-        if currTimeStep.day == 1:
+        if currTimeStep.day == 1 and currTimeStep.timestepPCR > 1: 
+
+            # for online coupling, we will read files from pcraster maps, using the previous day values
+            directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
+            yesterday = str(currTimeStep.yesterday())
             
-            # WORK ON THIS
-            
-            pass
+            # - relative groundwater head from MODFLOW
+            filename = directory + "relativeGroundwaterHead_" + str(yesterday) + ".map" 
+            self.relativeGroundwaterHead = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
         
+            # - storGroundwater from MODFLOW
+            filename = directory + "storGroundwater_" + str(yesterday) + ".map" 
+            self.storGroundwater = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
+
+            # - baseflow from MODFLOW
+            filename = directory + "baseflow_" + str(yesterday) + ".map" 
+            self.baseflow = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
+
         # river bed exchange has been accomodated in baseflow (via MODFLOW, river and drain packages)
         self.surfaceWaterInf = pcr.scalar(0.0) 
         

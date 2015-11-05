@@ -345,6 +345,9 @@ class LandSurface(object):
 
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
+        
+        # make iniItems available for the other methods/functions:
+        self.iniItems = iniItems
 
 
     def initiate_old_style_land_surface_reporting(self,iniItems):
@@ -919,9 +922,15 @@ class LandSurface(object):
             # update dzGroundwater from file, from modflow calculation, using the previous time step
             # - assumption that it will be updated once every month
             
-            # WORK ON THIS ! 
-            
-            
+            if currTimeStep.day == 1 and currTimeStep.timestepPCR > 1: 
+
+                # for online coupling, we will read files from pcraster maps
+                directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
+                
+                # - relative groundwater head from MODFLOW
+                yesterday = str(currTimeStep.yesterday())
+                filename = directory + "relativeGroundwaterHead_" + str(yesterday) + ".map" 
+                dzGroundwater = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
                     
         else:
             dzGroundwater = groundwater.storGroundwater/groundwater.specificYield
@@ -929,6 +938,8 @@ class LandSurface(object):
         # add some tolerance/influence level (unit: m)
         dzGroundwater += self.soil_topo_parameters['default'].maxGWCapRise;
         
+        # set minimum value to zero (zero relativeGroundwaterHead indicate no capRiseFrac)
+        dzGroundwater = pcr.max(0.0, dzGroundwater)
 
         # approximate cell fraction under influence of capillary rise
 

@@ -137,6 +137,10 @@ class ModelTime(object):
     def isLastTimeStep(self):
         return self._currTime == self._endTime
 
+    def yesterday_in_string(self):
+		yesterday = self.currTime - datetime.timedelta(days=1)
+        return str(yesterday.strftime('%Y-%m-%d'))
+
     #FIXME: use isLastDayOfMonth
     @property
     def endMonth(self):
