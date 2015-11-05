@@ -562,7 +562,7 @@ class Groundwater(object):
         
         # Note: The following variable (unmetDemand) is a bad name and used in the past. 
         #       Its definition is actually as follows: (the amount of demand that is satisfied/allocated from fossil groundwater) 
-        # t
+        #
         self.unmetDemand = self.fossilGroundwaterAlloc
 
 
