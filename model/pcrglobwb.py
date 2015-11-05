@@ -426,8 +426,8 @@ class PCRGlobWB(object):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
-        # calculating and dumping some monthly values for the purpose of coupling with MODFLOW:
-        if self._configuration.online_coupling_to_pcrglobwb:
+        # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
+        if self._configuration.online_coupling_between_pcrglobwb_and_moflow:
             self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
         if (report_water_balance):

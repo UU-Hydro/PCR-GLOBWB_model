@@ -60,7 +60,7 @@ class Configuration(object):
         self.online_coupling_between_pcrglobwb_and_moflow = False
         if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
 
-            self.online_coupling_to_pcrglobwb = True
+            self.online_coupling_between_pcrglobwb_and_moflow = True
 
             # using the cloneMap and landmask as defined in the self.globalModflowOptions:
             self.globalOptions['cloneMap'] = self.globalModflowOptions['cloneMap']
