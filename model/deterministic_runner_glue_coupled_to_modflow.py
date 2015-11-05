@@ -132,7 +132,7 @@ class DeterministicRunner(DynamicModel):
 
         status_file = str(self.configuration.mapsDir)+"/modflow_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
         msg = 'Waiting for the file: '+status_file
-        logger.debug(msg)
+        logger.info(msg)
         status = os.path.exists(status_file)
         if status == False: return status	
                     
