@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 # get the configuration/ini file given in the system argument
 iniFileName = os.path.abspath(sys.argv[1])
 
-# option for using debugging # TODO
-pcrglobwb_debug_option = str(sys.argv[2])
+# option for debugging
+debug_option = str(sys.argv[2])
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
@@ -41,8 +41,9 @@ cmd = ''
 for clone_code in clone_codes:
 
    cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
-                                                                      pcrglobwb_debug_option +" "+\
+                                                                      debug_option +" "+\
                                                                       clone_code +" "+\
+                                                                      "1.00 -0.25 0.00 1.00"+" "
    cmd = cmd+" & "
    i_clone += 1
 
