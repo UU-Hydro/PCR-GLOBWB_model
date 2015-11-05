@@ -43,7 +43,7 @@ for clone_code in clone_codes:
    cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
                                                                       debug_option +" "+\
                                                                       clone_code +" "+\
-                                                                      "1.00 -0.25 0.00 1.00"+" "
+                                                                      "-0.25 0.00 1.00"+" "
    cmd = cmd+" & "
    i_clone += 1
 
