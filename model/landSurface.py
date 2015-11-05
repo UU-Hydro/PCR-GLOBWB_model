@@ -913,7 +913,15 @@ class LandSurface(object):
 
         # relative groundwater head (m) above the minimum elevation within a grid cell
         if groundwater.useMODFLOW == True:
+            
             dzGroundwater = groundwater.relativeGroundwaterHead
+            
+            # update dzGroundwater from file, from modflow calculation, using the previous time step
+            # - assumption that it will be updated once every month
+            
+            # WORK ON THIS ! 
+            
+            
                     
         else:
             dzGroundwater = groundwater.storGroundwater/groundwater.specificYield

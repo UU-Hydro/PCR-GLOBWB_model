@@ -750,15 +750,15 @@ class GroundwaterModflow(object):
                 
                 # - discharge (m3/s) from PCR-GLOBWB
                 discharge_file_name = directory + "monthly_discharge_cubic_meter_per_second_" + str(currTimeStep.fulldate) + ".map" 
-                discharge = vos.readPCRmapClone(discharge_file_name, self.cloneMap, self.tmpDir)
+                discharge = pcr.cover(vos.readPCRmapClone(discharge_file_name, self.cloneMap, self.tmpDir), 0.0)
                 
                 # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
                 gwRecharge_file_name = directory + "groundwater_recharge_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
-                gwRecharge = vos.readPCRmapClone(gwRecharge_file_name, self.cloneMap, self.tmpDir)
+                gwRecharge = pcr.cover(vos.readPCRmapClone(gwRecharge_file_name, self.cloneMap, self.tmpDir), 0.0)
 
                 # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
                 gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
-                gwAbstraction = vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir)
+                gwAbstraction = pcr.cover(vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir), 0.0)
             
             else:
             

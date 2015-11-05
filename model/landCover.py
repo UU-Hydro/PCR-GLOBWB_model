@@ -2004,10 +2004,6 @@ class LandCover(object):
             #~ # Shall we will always try to fulfil the remaining industrial and domestic demand?
             #~ self.potFossilGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potFossilGroundwaterAbstract)
 
-        else:
-
-            logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-
 
 
         if self.limitAbstraction == False:                              # TODO: For runs without any water use, we can exclude this. 
