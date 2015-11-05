@@ -1847,7 +1847,7 @@ class LandCover(object):
                 
             # reduced (after pumping capacity) potential groundwater abstraction/demand (unit: m) and considering the average recharge (baseflow) 
             self.potGroundwaterAbstract = pcr.min(self.potGroundwaterAbstract, \
-                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea + prc.max(0.0, routing.avgBaseflow / routing.cellArea))
+                                      remainingPixelAnnualGroundwaterAbstractionLimit/routing.cellArea + pcr.max(0.0, routing.avgBaseflow / routing.cellArea))
             ################## end of NEW METHOD (but still under development) ##########################################################################################################
 
 
