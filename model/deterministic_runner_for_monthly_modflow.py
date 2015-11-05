@@ -63,7 +63,6 @@ class DeterministicRunner(DynamicModel):
                                                                                                           str(self.configuration.main_output_directory)+"/ default 8 "+\
                                                                                                           str(self.configuration.globalOptions['cloneAreas'])
             vos.cmd_line(cmd, using_subprocess = False)                                                                                    
-                                                                                           
             
             # update MODFLOW model (It will pick up current model time from the modelTime object)
             self.model.update()
