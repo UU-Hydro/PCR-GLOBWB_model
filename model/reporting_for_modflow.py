@@ -296,7 +296,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_dailyTot_output.nc",\
                                             short_name,\
-                  pcr2numpy(self.__getattribute__(var),vos.MV),\
+                  pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
                                             timeStamp)
 
         # writing monthly output to netcdf files
@@ -321,7 +321,7 @@ class Reporting(object):
                                             str(var)+\
                                                "_monthTot_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var+'MonthTot'),\
+                      pcr.pcr2numpy(self.__getattribute__(var+'MonthTot'),\
                        vos.MV),timeStamp)
         #
         # - average
@@ -351,7 +351,7 @@ class Reporting(object):
                                                str(var)+\
                                                "_monthAvg_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var+'MonthAvg'),\
+                      pcr.pcr2numpy(self.__getattribute__(var+'MonthAvg'),\
                        vos.MV),timeStamp)
         #
         # - last day of the month
@@ -366,7 +366,7 @@ class Reporting(object):
                                                str(var)+\
                                                "_monthEnd_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var),\
+                      pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
 
         # writing yearly output to netcdf files
@@ -391,7 +391,7 @@ class Reporting(object):
                                                str(var)+\
                                                "_annuaTot_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var+'AnnuaTot'),\
+                      pcr.pcr2numpy(self.__getattribute__(var+'AnnuaTot'),\
                        vos.MV),timeStamp)
 
         # - average
@@ -421,7 +421,7 @@ class Reporting(object):
                                                str(var)+\
                                                "_annuaAvg_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var+'AnnuaAvg'),\
+                      pcr.pcr2numpy(self.__getattribute__(var+'AnnuaAvg'),\
                        vos.MV),timeStamp)
         #
         # -last day of the year
@@ -436,7 +436,7 @@ class Reporting(object):
                                                str(var)+\
                                                "_annuaEnd_output.nc",\
                                                short_name,\
-                      pcr2numpy(self.__getattribute__(var),\
+                      pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
 
         logger.info("reporting for time %s", self._modelTime.currTime)
