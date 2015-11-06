@@ -1062,15 +1062,15 @@ class GroundwaterModflow(object):
             #~ bed_surface_area = self.bankfull_width * self.channelLength
 
             # - bed resistance (unit: day), assuming higher resistance for lakes and reservoirs (due to the sedimentation)
-            multiplying_factor = 5.
+            multiplying_factor = 10.
             bed_resistance_used = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.bed_resistance * multiplying_factor)
             bed_resistance_used = pcr.cover(bed_resistance_used, self.bed_resistance)
 
             # - river bed condutance (unit: m2/day)
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
-            #~ bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
-                                             #~ bed_conductance) 
-            bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000. 
+            bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
+                                             bed_conductance) 
+            #~ bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")

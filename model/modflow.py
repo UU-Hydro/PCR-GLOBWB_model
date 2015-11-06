@@ -81,10 +81,11 @@ class ModflowCoupling(object):
              timeStamp+".map",\
              outputDirectory)
 
-        # make an empty file
-        filename = outputDirectory+"/modflow_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
-        if os.path.exists(filename): os.remove(filename)
-        open(filename, "w").close()    
+        # for a transient run with the coupled PCR-GLOBWB-MODFLOW, make an empty file to indicate that modflow files are ready
+        if self._configuration.steady_state_only == False:
+            filename = outputDirectory+"/modflow_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
+            if os.path.exists(filename): os.remove(filename)
+            open(filename, "w").close()    
 
     def getState(self):
         result = {}
