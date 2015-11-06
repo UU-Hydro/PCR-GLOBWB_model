@@ -84,7 +84,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # minimum channel gradient
-        minGradient   = 0.00005                                                   # TODO: Define this one in the configuration file
+        minGradient   = 0.0005                                                     # TODO: Define this one in the configuration file
         self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
@@ -311,7 +311,8 @@ class GroundwaterModflow(object):
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
-        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
+        #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
+        self.criteria_HCLOSE = [0.005, 0.01, 0.1, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -1066,10 +1067,15 @@ class GroundwaterModflow(object):
             bed_resistance_used = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.bed_resistance * multiplying_factor)
             bed_resistance_used = pcr.cover(bed_resistance_used, self.bed_resistance)
 
-            # - river bed condutance (unit: m2/day)
+            # - surface water bed condutance (unit: m2/day)
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
             bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                              bed_conductance) 
+            # - averaging the conductance value at lakes and reservoirs (this may be needed due to ease the convergence)
+            self.bed_conductance = pcr.cover(\
+                                   pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                              pcr.areaaverage(bed_conductance, self.WaterBodies.waterBodyIds)), bed_conductance)
+            
             #~ bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
