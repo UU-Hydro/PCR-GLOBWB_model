@@ -74,7 +74,7 @@ class DeterministicRunner(DynamicModel):
 
         clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
         for clone_area in clone_areas:
-            status_file = str(self.configuration.main_output_directory)+"/"+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
+            status_file = str(self.configuration.main_output_directory)+"/"+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
             msg = 'Waiting for the file: '+status_file
             if self.count_check < 7:
                 logger.debug(msg)
