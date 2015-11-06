@@ -311,16 +311,16 @@ class GroundwaterModflow(object):
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
-        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
-        #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
+        #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
         #~ self.criteria_HCLOSE = [0.005, 0.01, 0.1, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        #~ self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -554,7 +554,7 @@ class GroundwaterModflow(object):
         # influence zone depth (m)  # TODO: Define this one as part of 
         influence_zone_depth = 5.0
         
-        # bottom_elevation > flood_plain elevation - influence zone
+        # bottom_elevation = flood_plain elevation - influence zone
         bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
         # reducing noise (so we will not introduce unrealistic sinks)      # TODO: Define the window size as part of the configuration/ini file
@@ -572,15 +572,10 @@ class GroundwaterModflow(object):
         # bottom_elevation >= 0.0 (must be higher than sea level)
         bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
          
-        # bottom_elevation < dem_average (this is to drain overland flow)
+        # bottom_elevation <= dem_average (this is to drain overland flow)
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
-        #~ # define values only in landmask region
-        #~ bottom_of_bank_storage = pcr.ifthen(self.landmask, bottom_of_bank_storage)
-        
-        # TODO: Check again this concept. 
-        
         # TODO: We may want to improve this concept - by incorporating the following:
         # - smooth bottom_elevation
         # - upstream areas in the mountainous regions and above perrenial stream starting points may also be drained (otherwise water will be accumulated and trapped there) 
