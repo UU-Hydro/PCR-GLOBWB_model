@@ -1084,9 +1084,9 @@ class GroundwaterModflow(object):
             # - surface water bed condutance (unit: m2/day)
             bed_resistance_used = self.bed_resistance
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
-            bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
-                                             bed_conductance) 
-            #~ bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
+            #~ bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
+                                             #~ bed_conductance) 
+            bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
@@ -1239,6 +1239,8 @@ class GroundwaterModflow(object):
         drain_conductance = pcr.cover(drain_conductance, \
                             self.recessionCoeff * self.specificYield * self.cellAreaMap)       # unit: m2/day
 
+        #~ drain_conductance = pcr.ifthenelse(drain_conductance < 1e-20, 0.0, \
+                                           #~ drain_conductance) 
         drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000. 
 
         # reducing the size of table by ignoring cells with zero conductance
