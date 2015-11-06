@@ -1053,16 +1053,17 @@ class GroundwaterModflow(object):
             #
             # - river bed condutance (unit: m2/day)
             bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                     self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat # I have problem with the convergence if I use this one. 
-            bed_surface_area = pcr.max(bed_surface_area,\
-                               pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                          pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
+                                                     self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat 
+            #~ bed_surface_area = pcr.max(bed_surface_area,\
+                               #~ pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                          #~ pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
             bed_surface_area = pcr.cover(bed_surface_area, \
                                          self.bankfull_width * self.channelLength)
             #~ bed_surface_area = self.bankfull_width * self.channelLength
             bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
-            bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
-                                             bed_conductance) 
+            #~ bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
+                                             #~ bed_conductance) 
+            bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000. 
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
@@ -1214,6 +1215,8 @@ class GroundwaterModflow(object):
         # - drainage conductance is a linear reservoir coefficient
         drain_conductance = pcr.cover(drain_conductance, \
                             self.recessionCoeff * self.specificYield * self.cellAreaMap)       # unit: m2/day
+
+        drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000. 
 
         # reducing the size of table by ignoring cells with zero conductance
         drain_conductance = pcr.ifthen(drain_conductance > 0.0, drain_conductance)
