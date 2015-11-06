@@ -1064,6 +1064,7 @@ class GroundwaterModflow(object):
             # - bed resistance (unit: day), assuming higher resistance for lakes and reservoirs (due to the sedimentation)
             multiplying_factor = 5.
             bed_resistance_used = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.bed_resistance * multiplying_factor)
+            bed_resistance_used = pcr.cover(bed_resistance_used, self.bed_resistance)
 
             # - river bed condutance (unit: m2/day)
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
