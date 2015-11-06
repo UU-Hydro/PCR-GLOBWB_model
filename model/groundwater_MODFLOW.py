@@ -868,7 +868,7 @@ class GroundwaterModflow(object):
                     msg += "But, we decide to use the last calculated groundwater heads."
                     msg += "\n\n"
 
-                    logger.warning(nsg)
+                    logger.warning(msg)
                     
                     self.modflow_converged = True
 
@@ -1131,16 +1131,14 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
         # - make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
-        self.surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
+        surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         #
-        #~ # reducing the size of table by ignoring cells with zero conductance and outside the landmask regions           # FIXME: Oliver should fix this. 
-        #~ self.bed_conductance = pcr.ifthen(self.landmask, self.bed_conductance)
-        #~ self.bed_conductance = pcr.ifthen(self.bed_conductance > 0.0, self.bed_conductance)
-        #~ self.surface_water_elevation = pcr.ifthen(self.bed_conductance > 0.0, self.surface_water_elevation)
-        #~ self.surface_water_bed_elevation = pcr.ifthen(self.bed_conductance > 0.0, self.surface_water_bed_elevation)
-        #
+        # reducing the size of table by ignoring cells with zero conductance and outside the landmask region 
+        bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
+        bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+        
         # set the RIV package only to the uppermost layer
-        self.pcr_modflow.setRiver(self.surface_water_elevation, self.surface_water_bed_elevation, self.bed_conductance, self.number_of_layers)
+        self.pcr_modflow.setRiver(surface_water_elevation, self.surface_water_bed_elevation, bed_conductance_used, self.number_of_layers)
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
 
@@ -1244,15 +1242,11 @@ class GroundwaterModflow(object):
                                            #~ drain_conductance) 
         drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000. 
 
-        # reducing the size of table by ignoring cells with zero conductance
-        drain_conductance = pcr.ifthen(drain_conductance > 0.0, drain_conductance)
-        drain_elevation   = pcr.ifthen(drain_elevation   > 0.0, drain_elevation)
-
-        # FIXME: The following cover operations should not be necessary (Oliver should fix this).
+        # reducing the size of table by ignoring cells outside landmask region
+        drain_conductance = pcr.ifthen(self.landmask, drain_conductance)
         drain_conductance = pcr.cover(drain_conductance, 0.0)
-        drain_elevation   = pcr.cover(drain_elevation  , 0.0)
         
-        #~ # set the DRN package only to the uppermost layer               # TODO: We may want to introduce this to all layers
+        #~ # set the DRN package only to the uppermost layer
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
 
         self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
