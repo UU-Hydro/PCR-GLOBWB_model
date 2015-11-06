@@ -1073,7 +1073,7 @@ class GroundwaterModflow(object):
                                      pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      self.WaterBodies.fracWat), 0.0)
             # - adding rivers (# TODO: Incorporate the concept of dynamicFracWat)
-            surface_water_fraction += (1.0 - surface_water_fraction) * (self.bankfull_width * self.channelLength)/sell.cellAreaMap
+            surface_water_fraction += (1.0 - surface_water_fraction) * (self.bankfull_width * self.channelLength)/self.cellAreaMap
             # - minimum 0.0 and maximum 1.0
             surface_water_fraction = pcr.min(1.0, pcr.max(0.0, surface_water_fraction))                                         
             # bed surface area (unit: m2)
