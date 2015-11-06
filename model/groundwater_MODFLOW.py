@@ -320,7 +320,7 @@ class GroundwaterModflow(object):
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
         #~ self.criteria_RCLOSE = [10., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -1066,6 +1066,7 @@ class GroundwaterModflow(object):
             #~ bed_surface_area = self.bankfull_width * self.channelLength
             #~ ############################################################################################################################################
 
+            
             ############################################################################################################################################
             # surface water fraction (dimensionless)
             # - lakes and reservoir
