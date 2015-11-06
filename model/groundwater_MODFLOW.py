@@ -1034,24 +1034,24 @@ class GroundwaterModflow(object):
 
             logger.info("Estimating surface water bed conductance.")
         
-            # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? NOTE: This will provide unrealistic groundwater depth. Need further investigations (consider to use US). 
+            #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? NOTE: This will provide unrealistic groundwater depth. Need further investigations (consider to use US). 
             #~ additional_depth = 1500.
             #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      #~ self.dem_riverbed - additional_depth)
             #
-            # - for lakes and resevoirs, estimate bed elevation from dem and bankfull depth
+            # - for lakes and resevoirs, alternative 2: estimate bed elevation from dem and bankfull depth
             surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
             surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
             surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
             #
+            # - surface water bed elevation for rivers, lakes and reservoirs
             surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
-            #
             #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
             #
-            # rounding values for surface_water_bed_elevation
+            # - rounding values for surface_water_bed_elevation
             self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
-            #
-            # - river bed condutance (unit: m2/day)
+
+            # - bed surface area (unit: m2)
             bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat 
             #~ bed_surface_area = pcr.max(bed_surface_area,\
@@ -1060,7 +1060,14 @@ class GroundwaterModflow(object):
             bed_surface_area = pcr.cover(bed_surface_area, \
                                          self.bankfull_width * self.channelLength)
             #~ bed_surface_area = self.bankfull_width * self.channelLength
-            bed_conductance = (1.0/self.bed_resistance) * bed_surface_area
+
+            # - bed resistance (unit: day), assuming higher resistance for lakes and reservoirs (due to the sedimentation)
+            minimum_lake_bed_resistance = 10.
+            multiplying_factor = 3.
+            bed_resistance_used = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, pcr.min(minimum_lake_bed_resistance, self.bed_resistance * multiplying_factor))
+
+            # - river bed condutance (unit: m2/day)
+            bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
             #~ bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                              #~ bed_conductance) 
             bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000. 
