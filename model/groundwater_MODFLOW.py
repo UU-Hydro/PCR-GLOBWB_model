@@ -311,8 +311,9 @@ class GroundwaterModflow(object):
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
-        self.criteria_HCLOSE = [0.005, 0.01, 0.1, 1.0]  
+        #~ self.criteria_HCLOSE = [0.005, 0.01, 0.1, 1.0]  
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -1052,30 +1053,37 @@ class GroundwaterModflow(object):
             # - rounding values for surface_water_bed_elevation
             self.surface_water_bed_elevation = pcr.roundup(surface_water_bed_elevation * 1000.)/1000.
 
-            # - bed surface area (unit: m2)
-            bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                                     self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat 
+            #~ ############################################################################################################################################
+            #~ # - bed surface area (unit: m2)
+            #~ bed_surface_area = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     #~ self.WaterBodies.fracWat * self.cellAreaMap)   # TODO: Incorporate the concept of dynamicFracWat 
             #~ bed_surface_area = pcr.max(bed_surface_area,\
                                #~ pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                           #~ pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds)))
-            bed_surface_area = pcr.cover(bed_surface_area, \
-                                         self.bankfull_width * self.channelLength)
+            #~ bed_surface_area = pcr.cover(bed_surface_area, \
+                                         #~ self.bankfull_width * self.channelLength)
             #~ bed_surface_area = self.bankfull_width * self.channelLength
+            #~ ############################################################################################################################################
 
-            # - bed resistance (unit: day), assuming higher resistance for lakes and reservoirs (due to the sedimentation)
-            multiplying_factor = 10.
-            bed_resistance_used = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.bed_resistance * multiplying_factor)
-            bed_resistance_used = pcr.cover(bed_resistance_used, self.bed_resistance)
+            ############################################################################################################################################
+            # surface water fraction (dimensionless)
+            # - lakes and reservoir
+            surface_water_fraction = pcr.cover(\
+                                     pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     self.WaterBodies.fracWat), 0.0)
+            # - adding rivers (# TODO: Incorporate the concept of dynamicFracWat)
+            surface_water_fraction += (1.0 - surface_water_fraction) * (self.bankfull_width * self.channelLength)/sell.cellAreaMap
+            # - minimum 0.0 and maximum 1.0
+            surface_water_fraction = pcr.min(1.0, pcr.max(0.0, surface_water_fraction))                                         
+            # bed surface area (unit: m2)
+            bed_surface_area = surface_water_fraction * self.cellAreaMap
+            ############################################################################################################################################
+
 
             # - surface water bed condutance (unit: m2/day)
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
             bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                              bed_conductance) 
-            # - averaging the conductance value at lakes and reservoirs (this may be needed due to ease the convergence)
-            self.bed_conductance = pcr.cover(\
-                                   pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                              pcr.areaaverage(bed_conductance, self.WaterBodies.waterBodyIds)), bed_conductance)
-            
             #~ bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
              
