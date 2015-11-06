@@ -121,6 +121,7 @@ class DeterministicRunner(DynamicModel):
 
             # wait until modflow run is done
             modflow_is_ready = False
+            self.count_check = 0
             while modflow_is_ready == False:
                 if datetime.datetime.now().second == 7 or\
                    datetime.datetime.now().second == 10 or\
@@ -132,10 +133,12 @@ class DeterministicRunner(DynamicModel):
 
         status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_is_ready.txt"
         msg = 'Waiting for the file: '+status_file
-        logger.info(msg)
+        if self.count_check < 7:
+            logger.debug(msg)
+            self.count_check += 1
         status = os.path.exists(status_file)
         if status == False: return status	
-                    
+        if status: self.count_check = 0            
         return status
  
 
