@@ -1082,6 +1082,7 @@ class GroundwaterModflow(object):
 
 
             # - surface water bed condutance (unit: m2/day)
+            bed_resistance_used = self.bed_resistance
             bed_conductance = (1.0/bed_resistance_used) * bed_surface_area
             bed_conductance = pcr.ifthenelse(bed_conductance < 1e-20, 0.0, \
                                              bed_conductance) 
