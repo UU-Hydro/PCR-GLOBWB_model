@@ -72,7 +72,10 @@ class DeterministicRunner(DynamicModel):
 
     def check_pcrglobwb_status(self):
 
-        clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
+        if self.configuration.globalOptions['cloneAreas'] == "Global":
+            clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
+        else:
+            clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory)+"/"+str(clone_area)+"/maps/pcrglobwb_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
             msg = 'Waiting for the file: '+status_file
