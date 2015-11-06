@@ -576,8 +576,8 @@ class GroundwaterModflow(object):
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
-        # define values only in landmask region
-        bottom_of_bank_storage = pcr.ifthen(self.landmask, bottom_of_bank_storage)
+        #~ # define values only in landmask region
+        #~ bottom_of_bank_storage = pcr.ifthen(self.landmask, bottom_of_bank_storage)
         
         # TODO: Check again this concept. 
         
