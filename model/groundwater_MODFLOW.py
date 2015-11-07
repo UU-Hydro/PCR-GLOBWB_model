@@ -312,8 +312,8 @@ class GroundwaterModflow(object):
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
-        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 1.0]  
-        self.criteria_HCLOSE = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -513,6 +513,9 @@ class GroundwaterModflow(object):
 		
         if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
+            msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
+            logger.info(msg)
+            
             # using pre-defined groundwater head(s) described in the ini/configuration file
             for i in range(1, self.number_of_layers+1):
                 var_name = 'groundwaterHeadLayer'+str(i)
@@ -522,11 +525,23 @@ class GroundwaterModflow(object):
 
         else:    
 
-            # using the digital elevation model as the initial head
+            msg = "Estimating initial conditions based on the steady state simulation using the input as defined in the ini/configuration file."
+            logger.info(msg)
+
+            # using the digital elevation model as the initial heads 
             for i in range(1, self.number_of_layers+1):
                 var_name = 'groundwaterHeadLayer'+str(i)
                 vars(self)[var_name] = self.dem_average
 
+            # using initial head estimate
+            if 'usingInitialHeadEstimate' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                self.iniItems.modflowSteadyStateInputOptions['usingInitialHeadEstimate'] == "True":
+                for i in range(1, self.number_of_layers+1):
+                    var_name = 'groundwaterHeadLayer'+str(i)
+                    vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions[var_name+'Ini'],\
+                                                               self.cloneMap, self.tmpDir, self.inputDir)
+                    vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
+            
             # calculate/simulate a steady state condition (until the modflow converges)
             # get the current state(s) of groundwater head and put them in a dictionary
             groundwaterHead = self.getState()
