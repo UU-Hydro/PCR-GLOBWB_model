@@ -973,17 +973,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-
-
-
-
-
-
-
-
-
-
-
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None
 #~ del pcrglobwb_variable_name
