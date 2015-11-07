@@ -676,7 +676,7 @@ class Reporting(object):
         # water withdrawal for irrigation sectors
         self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
         self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
-        self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrigationWaterWithdrawal
+        self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
         # water withdrawal for livestock, industry and domestic water demands
         self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
