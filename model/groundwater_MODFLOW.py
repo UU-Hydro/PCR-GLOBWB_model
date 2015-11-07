@@ -837,10 +837,10 @@ class GroundwaterModflow(object):
 
             if self.modflow_converged == False:
             
-                logger.info()
+                logger.info('')
                 msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                 logger.info(msg)
-                logger.info()
+                logger.info('')
                 
                 # for the steady state simulation, we still save the calculated head(s) 
                 # so that we can use them as the initial estimate for the next iteration
