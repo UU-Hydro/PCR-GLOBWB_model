@@ -538,7 +538,7 @@ class GroundwaterModflow(object):
                 self.iniItems.modflowSteadyStateInputOptions['usingInitialHeadEstimate'] == "True":
                 for i in range(1, self.number_of_layers+1):
                     var_name = 'groundwaterHeadLayer'+str(i)
-                    vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions[var_name+'Ini'],\
+                    vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions[var_name+'Estimate'],\
                                                                self.cloneMap, self.tmpDir, self.inputDir)
                     vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
             
