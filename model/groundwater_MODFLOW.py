@@ -73,7 +73,7 @@ class GroundwaterModflow(object):
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
         # minimum channel width
-        minimum_channel_width = 0.5                                               # TODO: Define this one in the configuration file
+        minimum_channel_width = 5.0                                                # TODO: Define this one in the configuration file
         self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
         #~ # cell fraction if channel water reaching the flood plain               # NOT USED YET 
@@ -84,7 +84,7 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # minimum channel gradient
-        minGradient   = 0.0005                                                     # TODO: Define this one in the configuration file
+        minGradient   = 0.00005                                                    # TODO: Define this one in the configuration file
         self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
