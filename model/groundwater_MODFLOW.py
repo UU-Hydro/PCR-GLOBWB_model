@@ -837,21 +837,26 @@ class GroundwaterModflow(object):
 
             if self.modflow_converged == False:
             
+                logger.info()
                 msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                 logger.info(msg)
+                logger.info()
                 
                 # for the steady state simulation, we still save the calculated head(s) 
                 # so that we can use them as the initial estimate for the next iteration
                 # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
                 if simulation_type == "steady-state": 
 
+                    msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
+                    logger.info(msg)
+                    
                     # obtain the result from the uncoverged modflow simulation
                     for i in range(1, self.number_of_layers+1):
                         var_name = 'groundwaterHeadLayer'+str(i)
                         vars(self)[var_name] = None
                         vars(self)[var_name] = self.pcr_modflow.getHeads(i)
 
-                    # set the result from the uncoverged modflow simulation as the initial condition
+                    # set the result from the uncoverged modflow simulation as the initial new estimate
                     for i in range(1, self.number_of_layers+1):
                         var_name = 'groundwaterHeadLayer'+str(i)
                         initial_head = pcr.scalar(vars(self)[var_name])
@@ -1072,8 +1077,8 @@ class GroundwaterModflow(object):
             river_fraction = (1.0 - lake_and_reservoir_fraction) * (self.bankfull_width * self.channelLength)/self.cellAreaMap
             
             # lake and reservoir resistance (day)
-            # - assumption: minimum resistance: 20 day (due to the sedimentation, maximum conductivity: 0.005 m/day and thickness 0.1 m)
-            lake_and_reservoir_resistance  = pcr.max(0.1 / 0.005, self.bed_resistance)
+            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.25 m)
+            lake_and_reservoir_resistance  = pcr.max(0.25 / 0.005, self.bed_resistance)
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
                                                   self.cellAreaMap
