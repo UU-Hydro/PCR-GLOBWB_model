@@ -704,7 +704,7 @@ class GroundwaterModflow(object):
                            MXITER = 50,\
                            ITERI = 30,\
                            NPCOND = 1,\
-                           RELAX = 1.00,\
+                           RELAX = 0.98,\
                            NBPOL = 2,\
                            DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
@@ -1077,8 +1077,8 @@ class GroundwaterModflow(object):
             river_fraction = (1.0 - lake_and_reservoir_fraction) * (self.bankfull_width * self.channelLength)/self.cellAreaMap
             
             # lake and reservoir resistance (day)
-            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.25 m)
-            lake_and_reservoir_resistance  = pcr.max(0.25 / 0.005, self.bed_resistance)
+            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
+            lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
                                                   self.cellAreaMap
