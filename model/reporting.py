@@ -593,6 +593,9 @@ class Reporting(object):
         self.totalWaterStorageThickness  = self.totalActiveStorageThickness + \
                                            self._model.groundwater.storGroundwaterFossil
 
+        # total water storage volume (m3) for the entire water column: 
+        self.totalWaterStorageVolume = self.totalWaterStorageThickness * self._model.routing.cellArea
+        
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
 
@@ -658,6 +661,7 @@ class Reporting(object):
         if self._model.landSurface.includeIrrigation:
             self.irrigationTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                            self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.irrigationTranspiration = pcr.ifthen(self._model.routing.landmask, self.irrigationTranspiration)                               
 
         # flood innundation depth (unit: m) above the floodplain
         self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
@@ -668,6 +672,16 @@ class Reporting(object):
         self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
                       pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
+        
+        # water withdrawal for irrigation sectors
+        self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
+        self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
+        self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrigationWaterWithdrawal
+        
+        # water withdrawal for livestock, industry and domestic water demands
+        self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
+        self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
+        self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
 
     def report(self):
 

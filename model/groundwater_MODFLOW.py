@@ -533,7 +533,7 @@ class GroundwaterModflow(object):
                 var_name = 'groundwaterHeadLayer'+str(i)
                 vars(self)[var_name] = self.dem_average
 
-            # using initial head estimate
+            # using initial head estimate given in the configuration file
             if 'usingInitialHeadEstimate' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
                 self.iniItems.modflowSteadyStateInputOptions['usingInitialHeadEstimate'] == "True":
                 for i in range(1, self.number_of_layers+1):

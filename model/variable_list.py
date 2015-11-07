@@ -698,6 +698,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "Including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# totalWaterStorageVolume
+pcrglobwb_variable_name = 'totalWaterStorageVolume'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_volume_of_water_storage'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "Including fossil groundwater."
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # surfaceWaterStorage
 pcrglobwb_variable_name = 'surfaceWaterStorage'
 netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_storage'
@@ -896,16 +907,81 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flood innundation volume above the channel storage capacity. Not including flood overtopping reservoirs and lakes.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-#~ # netRechargeForModflowInput - TODO: CAN THIS VALUE BECOME NEGATIVE IN MODFLOW ??
-#~ pcrglobwb_variable_name = 'netRechargeForModflowInput'
-#~ netcdf_short_name[pcrglobwb_variable_name] = 'net_recharge_minus_abstraction'
-#~ netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-#~ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-#~ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-#~ netcdf_long_name[pcrglobwb_variable_name]  = None
-#~ description[pcrglobwb_variable_name]       = None
-#~ comment[pcrglobwb_variable_name]           = None
-#~ latex_symbol[pcrglobwb_variable_name]      = None
+# irrPaddyWaterWithdrawal
+pcrglobwb_variable_name = 'irrPaddyWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'paddy_irrigation_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# irrNonPaddyWaterWithdrawal
+pcrglobwb_variable_name = 'irrNonPaddyWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'non_paddy_irrigation_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# irrigationWaterWithdrawal 
+pcrglobwb_variable_name = 'irrigationWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'irrigation_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# domesticWaterWithdrawal   
+pcrglobwb_variable_name = 'domesticWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'domestic_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# industryWaterWithdrawal
+pcrglobwb_variable_name = 'industryWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'industry_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# livestockWaterWithdrawal  
+pcrglobwb_variable_name = 'livestockWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'livestock_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+
+
+
+
+
+
+
+
+
 
 
 #~ # remove/clear pcrglobwb_variable_name 
