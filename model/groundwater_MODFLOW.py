@@ -576,6 +576,9 @@ class GroundwaterModflow(object):
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
+        # rounding down
+        bottom_of_bank_storage = pcr.rounddown(bottom_of_bank_storage * 1000.)/1000.
+        
         # TODO: We may want to improve this concept - by incorporating the following:
         # - smooth bottom_elevation
         # - upstream areas in the mountainous regions and above perrenial stream starting points may also be drained (otherwise water will be accumulated and trapped there) 
@@ -1122,7 +1125,7 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
         #
         # - covering the missing values and rounding
-        surface_water_elevation = pcr.cover(surface_water_elevation, self.surface_water_bed_elevation)
+        surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
         # - make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
@@ -1130,6 +1133,7 @@ class GroundwaterModflow(object):
         #
         # reducing the size of table by ignoring cells with zero conductance and outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
+        bed_conductance_used = pcr.rounddown(bed_conductance_used*10000.)/10000.
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
         
         # set the RIV package only to the uppermost layer
