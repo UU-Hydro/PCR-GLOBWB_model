@@ -464,9 +464,9 @@ class Reporting(object):
     def basic_post_processing(self):
 
         # forcing 
-        self.precipitation  = pcr.ifthen(self.landmask, self._model.meteo.precipitation) 
-        self.temperature    = pcr.ifthen(self.landmask, self._model.meteo.temperature)
-        self.referencePotET = pcr.ifthen(self.landmask, self._model.meteo.referencePotET) 
+        self.precipitation  = pcr.ifthen(self._model.routing.landmask, self._model.meteo.precipitation) 
+        self.temperature    = pcr.ifthen(self._model.routing.landmask, self._model.meteo.temperature)
+        self.referencePotET = pcr.ifthen(self._model.routing.landmask, self._model.meteo.referencePotET) 
 
         # potential and actual evaporation from land surface part (m)
         self.totalLandSurfacePotET = self._model.landSurface.totalPotET 
