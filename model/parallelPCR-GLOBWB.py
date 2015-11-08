@@ -66,12 +66,15 @@ i_clone = 0
 cmd = ''
 for clone_code in clone_codes:
 
-   cmd += "python deterministic_runner_glue_coupled_to_modflow.py " + iniFileName +" "+\
-                                                                      debug_option +" "+\
-                                                                      clone_code +" "+\
-                                                                      "-0.25 0.00 1.00"+" "
+   cmd += "python deterministic_runner_glue_october_2015.py " + iniFileName +" "+\
+                                                                debug_option +" "+\
+                                                                clone_code +" "+\
+                                                                "1.00 -0.25 0.00 1.00"+" "
    cmd = cmd+" & "
    i_clone += 1
+
+# don't foget to add the following line
+cmd = cmd + "wait"       
 
 print cmd
 
