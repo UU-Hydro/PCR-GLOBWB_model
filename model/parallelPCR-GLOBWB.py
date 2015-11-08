@@ -66,10 +66,10 @@ i_clone = 0
 cmd = ''
 for clone_code in clone_codes:
 
-   cmd += "python deterministic_runner_glue_october_2015.py " + iniFileName +" "+\
-                                                                debug_option +" "+\
-                                                                clone_code +" "+\
-                                                                "1.00 -0.25 0.00 1.00"+" "
+   cmd += "python deterministic_runner_glue_parallel.py " + iniFileName +" "+\
+                                                            debug_option +" "+\
+                                                            clone_code +" "+\
+                                                            "1.00 -0.25 0.00 1.00"+" "
    cmd = cmd+" & "
    i_clone += 1
 
