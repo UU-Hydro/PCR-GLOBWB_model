@@ -4,6 +4,8 @@
 import os
 import sys
 import shutil
+import glob
+import datetime
 
 import pcraster as pcr
 
@@ -22,17 +24,36 @@ debug_option = str(sys.argv[2])
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
 
-# make global output directory (it will contain a "maps" directory that will contain merged pcraster maps)
+# clean any files exists on the ouput directory
+clean_previous_output = True
+if clean_previous_output and os.path.exists(generalConfiguration.globalOptions['outputDir']): shutil.rmtree(generalConfiguration.globalOptions['outputDir'])
+
+# make log folder and initialize logging
+generalOutputFolder = generalConfiguration.globalOptions['outputDir']
+logFileFolder = generalOutputFolder+"/global/log/"
+if os.path.exists(logFileFolder): shutil.rmtree(logFileFolder)
+os.makedirs(logFileFolder)
+generalConfiguration.initialize_logging(logFileFolder)
+
+# copy ini file to the log folder:
+timestamp = datetime.datetime.now()
+shutil.copy(iniFileName, logFileFolder + \
+                         os.path.basename(iniFileName) + '_' +  str(timestamp.isoformat()).replace(":",".") + '.ini')
+
+# make global output maps directory (it will contain a "maps" directory that will contain merged pcraster maps)
 global_maps_folder = generalConfiguration.globalOptions['outputDir']+"/global/maps/"
 if os.path.exists(global_maps_folder): shutil.rmtree(global_maps_folder)
 os.makedirs(global_maps_folder)
 
-# make log folder and initialize logging
-generalOutputFolder = generalConfiguration.globalOptions['outputDir']
-logFileFolder = generalOutputFolder+"/global_log/"
-if os.path.exists(logFileFolder): shutil.rmtree(logFileFolder)
-os.makedirs(logFileFolder)
-generalConfiguration.initialize_logging(logFileFolder)
+# make the backup of these python scripts to a specific backup folder and go to the backup folder
+scriptDir = generalConfiguration.globalOptions['outputDir']+"/global/scripts/"
+if os.path.exists(scriptDir): shutil.rmtree(scriptDir)
+os.makedirs(scriptDir)
+path_of_this_module = os.path.abspath(os.path.dirname(__file__))
+# working/starting directory where all script files are used
+for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+    shutil.copy(filename, scriptDir)
+os.chdir(scriptDir)    
 
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))

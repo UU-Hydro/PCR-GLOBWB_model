@@ -913,9 +913,10 @@ class GroundwaterModflow(object):
         self.pcr_modflow = None
         
         # calculate some variables that will be accessed from PCR-GLOBWB (for online coupling purpose)
-        self.calculate_values_for_pcrglobwb()
+        length_of_stress_period = PERLEN
+        self.calculate_values_for_pcrglobwb(length_of_stress_period)
         
-    def calculate_values_for_pcrglobwb(self):
+    def calculate_values_for_pcrglobwb(self, length_of_stress_period):
 
         logger.info("Calculate some variables for PCR-GLOBWB (needed for online coupling purpose: 'relativeGroundwaterHead', 'baseflow', and 'storGroundwater'")
         
@@ -940,7 +941,7 @@ class GroundwaterModflow(object):
             if i == self.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self.landmask, totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
-        self.baseflow = pcr.scalar(-1.0) * totalBaseflowVolumeRate/self.cellAreaMap
+        self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self.cellAreaMap) / length_of_stress_period
         
 
         # storGroundwater (unit: m)
