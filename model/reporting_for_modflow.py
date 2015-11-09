@@ -286,7 +286,7 @@ class Reporting(object):
         totalBaseflowVolumeRate = pcr.ifthen(self._model.landmask, totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
-        self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self.cellAreaMap)
+        self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self._model.modflow.cellAreaMap)
 
 
     def additional_post_processing(self):
