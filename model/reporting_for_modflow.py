@@ -275,7 +275,7 @@ class Reporting(object):
         # - initiate the (accumulated) volume rate (m3/day) (for accumulating the fluxes from all layers)
         totalBaseflowVolumeRate = pcr.scalar(0.0) 
         # - accumulating fluxes from all layers
-        for i in range(1, self.number_of_layers+1):
+        for i in range(1, self._model.modflow.number_of_layers+1):
             # from the river leakage
             var_name = 'riverLeakageLayer'+str(i)
             totalBaseflowVolumeRate += pcr.cover(vars(self._model.modflow)[var_name], 0.0)
