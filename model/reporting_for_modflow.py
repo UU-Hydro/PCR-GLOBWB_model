@@ -282,8 +282,8 @@ class Reporting(object):
             # from the drain package
             var_name = 'drainLayer'+str(i)
             totalBaseflowVolumeRate += pcr.cover(vars(self._model.modflow)[var_name], 0.0)
-            # use only in the landmask region
-            if i == self.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self._model.landmask, totalBaseflowVolumeRate)
+        # use only in the landmask region
+        totalBaseflowVolumeRate = pcr.ifthen(self._model.landmask, totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
         self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self.cellAreaMap)
