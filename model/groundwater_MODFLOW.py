@@ -1102,7 +1102,7 @@ class GroundwaterModflow(object):
                                           pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
 
             # make the lake and reservor resistance even higher (to avoid too high seepage)   # TODO: Investigate this !!!!             
-            lake_and_reservoir_resistance *= 100.
+            lake_and_reservoir_resistance *= 10.
 
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
