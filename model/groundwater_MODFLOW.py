@@ -913,10 +913,9 @@ class GroundwaterModflow(object):
         self.pcr_modflow = None
         
         # calculate some variables that will be accessed from PCR-GLOBWB (for online coupling purpose)
-        length_of_stress_period = PERLEN
-        self.calculate_values_for_pcrglobwb(length_of_stress_period)
+        self.calculate_values_for_pcrglobwb()
         
-    def calculate_values_for_pcrglobwb(self, length_of_stress_period):
+    def calculate_values_for_pcrglobwb(self):
 
         logger.info("Calculate some variables for PCR-GLOBWB (needed for online coupling purpose: 'relativeGroundwaterHead', 'baseflow', and 'storGroundwater'")
         
@@ -941,7 +940,7 @@ class GroundwaterModflow(object):
             if i == self.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self.landmask, totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
         #   for this variable, positive values indicates flow leaving aquifer (following PCR-GLOBWB assumption, opposite direction from MODFLOW) 
-        self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self.cellAreaMap) / length_of_stress_period
+        self.baseflow = pcr.scalar(-1.0) * (totalBaseflowVolumeRate/self.cellAreaMap)
         
 
         # storGroundwater (unit: m)
@@ -1092,9 +1091,16 @@ class GroundwaterModflow(object):
             # river fraction (dimensionless)
             river_fraction = (1.0 - lake_and_reservoir_fraction) * (self.bankfull_width * self.channelLength)/self.cellAreaMap
             
+            # to decrease the conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
+            lake_and_reservoir_fraction = pcr.cover(\
+                                          pcr.min(lake_and_reservoir_fraction,\
+                                          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                          pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
+
             # lake and reservoir resistance (day)
-            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
-            lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
+            lake_and_reservoir_resistance = self.bed_resistance
+            #~ # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
+            #~ lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
                                                   self.cellAreaMap
