@@ -941,22 +941,30 @@ class Routing(object):
         # - References: de Graaf et al. (2014); Wada et al. (2012); Wada et al. (2010)
         # - TODO: This concept should be IMPROVED. 
         #
-        riverbedConductivity  = groundwater.riverBedConductivity        # unit: m/day
-        riverbedConductivity  = pcr.min(0.1, riverbedConductivity)      # maximum conductivity is 0.1 m/day (as recommended by Marc Bierkens: resistance = 1 day for 0.1 m river bed thickness)
-        total_groundwater_abstraction = pcr.max(0.0, groundwater.nonFossilGroundwaterAbs + groundwater.fossilGroundwaterAbstr)   # unit: m
-        self.riverbedExchange = pcr.max(0.0,\
-                                pcr.min(pcr.max(0.0,self.channelStorage),\
-                                pcr.ifthenelse(groundwater.baseflow > 0.0, \
-                                pcr.ifthenelse(total_groundwater_abstraction > groundwater.baseflow, \
-                                riverbedConductivity * self.dynamicFracWat * self.cellArea, \
-                                0.0), 0.0)))
-        self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)                         
-        factor = 0.25 # to avoid flip flop
-        self.riverbedExchange = pcr.min(self.riverbedExchange, (1.0-factor)*pcr.max(0.0,self.channelStorage))                                                             
-        self.riverbedExchange = pcr.ifthenelse(self.channelStorage < 0.0, 0.0, self.riverbedExchange)
-        self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
-        self.riverbedExchange = pcr.ifthen(self.landmask, self.riverbedExchange)
-
+        if groundwater.useMODFLOW:
+        
+            # river bed exchange have been calculated within the MODFLOW (via baseflow variable)
+            
+            self.riverbedExchange = pcr.scalar(0.0)
+        
+        else:
+        
+            riverbedConductivity  = groundwater.riverBedConductivity        # unit: m/day
+            riverbedConductivity  = pcr.min(0.1, riverbedConductivity)      # maximum conductivity is 0.1 m/day (as recommended by Marc Bierkens: resistance = 1 day for 0.1 m river bed thickness)
+            total_groundwater_abstraction = pcr.max(0.0, groundwater.nonFossilGroundwaterAbs + groundwater.fossilGroundwaterAbstr)   # unit: m
+            self.riverbedExchange = pcr.max(0.0,\
+                                    pcr.min(pcr.max(0.0,self.channelStorage),\
+                                    pcr.ifthenelse(groundwater.baseflow > 0.0, \
+                                    pcr.ifthenelse(total_groundwater_abstraction > groundwater.baseflow, \
+                                    riverbedConductivity * self.dynamicFracWat * self.cellArea, \
+                                    0.0), 0.0)))
+            self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)                         
+            factor = 0.25 # to avoid flip flop
+            self.riverbedExchange = pcr.min(self.riverbedExchange, (1.0-factor)*pcr.max(0.0,self.channelStorage))                                                             
+            self.riverbedExchange = pcr.ifthenelse(self.channelStorage < 0.0, 0.0, self.riverbedExchange)
+            self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
+            self.riverbedExchange = pcr.ifthen(self.landmask, self.riverbedExchange)
+            
         # update channelStorage (m3) after riverbedExchange (m3)
         self.channelStorage  -= self.riverbedExchange
         self.local_input_to_surface_water -= self.riverbedExchange
