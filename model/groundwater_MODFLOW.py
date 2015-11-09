@@ -318,8 +318,8 @@ class GroundwaterModflow(object):
         # list of the convergence criteria for RCLOSE (unit: m3)
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
-        #~ self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -1090,22 +1090,24 @@ class GroundwaterModflow(object):
             # river fraction (dimensionless)
             river_fraction = (1.0 - lake_and_reservoir_fraction) * (self.bankfull_width * self.channelLength)/self.cellAreaMap
             
-            # to decrease the conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
+            # lake and reservoir resistance (day)
+            lake_and_reservoir_resistance = self.bed_resistance
+            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
+            lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
+
+            # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
             lake_and_reservoir_fraction = pcr.cover(\
                                           pcr.min(lake_and_reservoir_fraction,\
                                           pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                           pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
 
-            # lake and reservoir resistance (day)
-            lake_and_reservoir_resistance = self.bed_resistance
-            #~ # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
-            #~ lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
                                                   self.cellAreaMap
             # river conductance (m2/day)
             river_conductance = (1.0/self.bed_resistance) * river_fraction *\
                                                             self.cellAreaMap
+            
             # surface water bed condutance (unit: m2/day)
             bed_conductance = lake_and_reservoir_conductance + river_conductance
             bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
