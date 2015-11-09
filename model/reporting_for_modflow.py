@@ -281,7 +281,7 @@ class Reporting(object):
             totalBaseflowVolumeRate += pcr.cover(vars(self._model.modflow)[var_name], 0.0)
             # from the drain package
             var_name = 'drainLayer'+str(i)
-            totalBaseflowVolumeRate += pcr.cover(self._model.modflow)[var_name], 0.0)
+            totalBaseflowVolumeRate += pcr.cover(vars(self._model.modflow)[var_name], 0.0)
             # use only in the landmask region
             if i == self.number_of_layers: totalBaseflowVolumeRate = pcr.ifthen(self._model.landmask, totalBaseflowVolumeRate)
         # - convert the unit to m/day and convert the flow direction 
