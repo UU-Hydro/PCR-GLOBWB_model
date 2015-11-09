@@ -57,11 +57,13 @@ class Configuration(object):
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
+        # the default option is offline coupling procedure
         self.online_coupling_between_pcrglobwb_and_moflow = False
 
         if 'globalModflowOptions' in self.allSections:
 
-            if self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":\
+            if 'online_coupling_between_pcrglobwb_and_moflow' in self.globalModflowOptions.keys() and\
+               self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":\
                self.online_coupling_between_pcrglobwb_and_moflow = True
 
             # using the cloneMap and landmask as defined in the self.globalModflowOptions:
