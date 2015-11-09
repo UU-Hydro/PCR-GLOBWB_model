@@ -58,9 +58,11 @@ class Configuration(object):
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
         self.online_coupling_between_pcrglobwb_and_moflow = False
-        if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
 
-            self.online_coupling_between_pcrglobwb_and_moflow = True
+        if 'globalModflowOptions' in self.allSections:
+
+            if self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":\
+               self.online_coupling_between_pcrglobwb_and_moflow = True
 
             # using the cloneMap and landmask as defined in the self.globalModflowOptions:
             self.globalOptions['cloneMap'] = self.globalModflowOptions['cloneMap']
