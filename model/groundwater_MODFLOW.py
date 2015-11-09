@@ -1092,17 +1092,18 @@ class GroundwaterModflow(object):
             
             # lake and reservoir resistance (day)
             lake_and_reservoir_resistance = self.bed_resistance
+
             # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
             lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
 
-            # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
-            lake_and_reservoir_fraction = pcr.cover(\
-                                          pcr.min(lake_and_reservoir_fraction,\
-                                          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                          pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
+            #~ # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
+            #~ lake_and_reservoir_fraction = pcr.cover(\
+                                          #~ pcr.min(lake_and_reservoir_fraction,\
+                                          #~ pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                          #~ pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
 
-            # make the lake and reservor resistance even higher (to avoid too high seepage)   # TODO: Investigate this !!!!             
-            lake_and_reservoir_resistance *= 10.
+            #~ # make the lake and reservor resistance even higher (to avoid too high seepage)   # TODO: Investigate this !!!!             
+            #~ lake_and_reservoir_resistance *= 10.
 
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
