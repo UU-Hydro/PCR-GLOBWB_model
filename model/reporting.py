@@ -628,7 +628,7 @@ class Reporting(object):
                                 pcr.cover(\
                                 pcr.ifthen(\
                                 pcr.scalar(self._model.routing.WaterBodies.waterBodyIds) > 0.,\
-                                           self._model.routing.WaterBodies.waterBodyStorage)), 0.0)  # Note: This value is after lake/reservoir outflow.
+                                           self._model.routing.WaterBodies.waterBodyStorage), 0.0))     # Note: This value is after lake/reservoir outflow.
         # - snowMelt (m)
         self.snowMelt = self._model.landSurface.snowMelt
 
