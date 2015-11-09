@@ -15,7 +15,7 @@ import pcraster as pcr
 
 from ncConverter import *
 
-import variable as varDicts
+import variable_list as varDicts
 
 class Reporting(object):
 
