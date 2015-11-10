@@ -125,7 +125,7 @@ class ModflowCoupling(object):
                              timeStamp = self._configuration.globalOptions['startTime']+".ini")
                              
         # save/dump some initial variables for PCR-GLOBWB
-        if self._configuration.steady_state_only or self._configuration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True":
+        if self._configuration.steady_state_only or self._configuration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "False":
             logger.info("Save/dump some variables for PCR-GLOBWB simulation to pcraster maps to the directory %s", self._configuration.endStateDir)
             self.dumpVariableValuesForPCRGLOBWB(outputDirectory = self._configuration.mapsDir,\
                                                       timeStamp = self._configuration.globalOptions['startTime']+".ini")
