@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 iniFileName = os.path.abspath(sys.argv[1])
 
 # option for debugging
-debug_option = "True"
+debug_option = "False"
 if len(sys.argv) > 2: debug_option = str(sys.argv[2])
 
 # object to handle configuration/ini file
