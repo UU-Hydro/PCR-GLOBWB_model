@@ -581,6 +581,7 @@ class Routing(object):
                                               #~ pcr.max(distance_to_outlets + pcr.downstreamdist(self.lddMap)*1.50, lakeReservoirCharacteristicDistance))
         lakeReservoirCharacteristicDistance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
                                               pcr.max(distance_to_outlets + pcr.downstreamdist(self.lddMap)*2.50, lakeReservoirCharacteristicDistance))
+        lakeReservoirCharacteristicDistance = pcr.areamaximum(lakeReservoirCharacteristicDistance, self.WaterBodies.waterBodyIds)
         #
         # TODO: calculate lakeReservoirCharacteristicDistance while obtaining lake & reservoir parameters
         
