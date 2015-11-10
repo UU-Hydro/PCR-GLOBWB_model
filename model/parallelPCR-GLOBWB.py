@@ -20,7 +20,7 @@ iniFileName = os.path.abspath(sys.argv[1])
 
 # option for debugging
 debug_option = "True"
-if length(sys.argv) > 2: debug_option = str(sys.argv[2])
+if len(sys.argv) > 2: debug_option = str(sys.argv[2])
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
