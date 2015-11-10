@@ -310,9 +310,9 @@ class GroundwaterModflow(object):
         
         # list of the convergence criteria for HCLOSE (unit: m)
         # - Deltares default's value is 0.001 m                         # check this value with Jarno
-        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
-        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
+        #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -1092,17 +1092,18 @@ class GroundwaterModflow(object):
             
             # lake and reservoir resistance (day)
             lake_and_reservoir_resistance = self.bed_resistance
+
             # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
             lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
 
-            # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
-            lake_and_reservoir_fraction = pcr.cover(\
-                                          pcr.min(lake_and_reservoir_fraction,\
-                                          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
-                                          pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
+            #~ # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
+            #~ lake_and_reservoir_fraction = pcr.cover(\
+                                          #~ pcr.min(lake_and_reservoir_fraction,\
+                                          #~ pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                          #~ pcr.areaaverage(self.bankfull_width * self.channelLength, self.WaterBodies.waterBodyIds))), 0.0)
 
-            # make the lake and reservor resistance even higher (to avoid too high seepage)   # TODO: Investigate this !!!!             
-            lake_and_reservoir_resistance *= 10.
+            #~ # make the lake and reservor resistance even higher (to avoid too high seepage)   # TODO: Investigate this !!!!             
+            #~ lake_and_reservoir_resistance *= 10.
 
             # lake and reservoir conductance (m2/day)
             lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction * \
@@ -1280,8 +1281,14 @@ class GroundwaterModflow(object):
         #~ # set the DRN package only to the uppermost layer
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
 
+        # set the DRN package only to both layers
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
+
+        # set the DRN package only to the lowermost layer
         self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
-        self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
+        self.pcr_modflow.setDrain(pcr.spatial(pcr.scalar(0.0)),pcr.spatial(pcr.scalar(0.0)), 2)
+
 
     def return_innundation_fraction(self,relative_water_height):
 

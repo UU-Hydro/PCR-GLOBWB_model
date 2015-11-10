@@ -52,7 +52,7 @@ class DeterministicRunner(DynamicModel):
             # wait until all pcrglobwb model runs are done
             pcrglobwb_is_ready = False
             self.count_check = 0
-            while pcrglobwb_is_ready == False:
+            while pcrglobwb_is_ready == False and self.configuration.online_coupling_between_pcrglobwb_and_moflow:
                 if datetime.datetime.now().second == 7 or\
                    datetime.datetime.now().second == 10 or\
                    datetime.datetime.now().second == 16 or\
@@ -60,10 +60,11 @@ class DeterministicRunner(DynamicModel):
                    pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging pcraster maps that are needed to run modflow
-            cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcr_maps_for_modflow.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                          str(self.configuration.main_output_directory)+"/ default 8 "+\
-                                                                                                          str(self.configuration.globalOptions['cloneAreas'])
-            vos.cmd_line(cmd, using_subprocess = False)                                                                                    
+            if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+                cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcr_maps_for_modflow.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                              str(self.configuration.main_output_directory)+"/ default 8 "+\
+                                                                                                              str(self.configuration.globalOptions['cloneAreas'])
+                vos.cmd_line(cmd, using_subprocess = False)                                                                                    
             
             # update MODFLOW model (It will pick up current model time from the modelTime object)
             self.model.update()

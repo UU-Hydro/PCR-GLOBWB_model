@@ -67,6 +67,13 @@ class ModflowCoupling(object):
              timeStamp+".map",\
              outputDirectory)
 
+        for variable, map in groundWaterState.iteritems():
+            vos.writePCRmapToDir(\
+             pcr.ifthen(self.landmask, map),\
+             str(variable)+"_"+
+             timeStamp+".masked.map",\
+             outputDirectory)
+
     def dumpVariableValuesForPCRGLOBWB(self, outputDirectory, timeStamp = "Default"):
 
         variables = self.modflow.getVariableValuesForPCRGLOBWB()
