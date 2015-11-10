@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 iniFileName = os.path.abspath(sys.argv[1])
 
 # option for debugging
-debug_option = str(sys.argv[2])
+debug_option = "True":
+if length(sys.argv) > 2: debug_option = str(sys.argv[2])
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
@@ -69,7 +70,7 @@ for clone_code in clone_codes:
    cmd += "python deterministic_runner_glue_parallel.py " + iniFileName +" "+\
                                                             debug_option +" "+\
                                                             clone_code +" "+\
-                                                            "1.00 -0.25 0.00 1.00"+" "
+                                                            "-0.25 0.00 1.00"+" "
    cmd = cmd+" & "
    i_clone += 1
 
