@@ -260,7 +260,7 @@ class Configuration(object):
         self.tmp_modflow_dir = "tmp_modflow/"
         if 'tmp_modflow_dir' in self.globalOptions.keys():
             self.tmp_modflow_dir = self.globalOptions['tmp_modflow_dir']
-        self.tmp_modflow_dir = vos.getFullPath(self.globalOptions['tmp_modflow_dir'], \
+        self.tmp_modflow_dir = vos.getFullPath(self.tmp_modflow_dir, \
                                                self.globalOptions['outputDir'])+"/"
         if os.path.exists(self.tmp_modflow_dir):
             shutil.rmtree(self.tmp_modflow_dir)
