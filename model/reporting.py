@@ -632,6 +632,10 @@ class Reporting(object):
         # - snowMelt (m)
         self.snowMelt = self._model.landSurface.snowMelt
 
+        # channel storage (unit: m3)
+        self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \
+                                pcr.cover(self._model.routing.channelStorage, 0.0)) 
+        
         # An example to report variables from certain land cover types 
         # - evaporation from irrigation areas (m/day) - values are average over the entire cell area
         if self._model.landSurface.includeIrrigation:
