@@ -48,7 +48,7 @@ class Configuration(object):
         self.steady_state_only = steady_state_only
         # - modify output directory
         if self.steady_state_only:
-            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/steady_state/"
+            self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/steady-state_only/"
         else:
             self.globalOptions['outputDir'] = self.globalOptions['outputDir'] + "/transient/"
         

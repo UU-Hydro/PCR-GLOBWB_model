@@ -89,7 +89,7 @@ class ModflowCoupling(object):
              outputDirectory)
 
         # for a transient run with the coupled PCR-GLOBWB-MODFLOW, make an empty file to indicate that modflow files are ready
-        if self._configuration.steady_state_only == False:
+        if self._configuration.online_coupling_between_pcrglobwb_and_moflow:
             filename = outputDirectory+"/modflow_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)
             open(filename, "w").close()    
@@ -124,8 +124,8 @@ class ModflowCoupling(object):
         self.dumpState(outputDirectory = self._configuration.endStateDir,\
                              timeStamp = self._configuration.globalOptions['startTime']+".ini")
                              
-        # save/dump some variables for PCR-GLOBWB
-        if self._configuration.steady_state_only:
+        # save/dump some initial variables for PCR-GLOBWB
+        if self._configuration.steady_state_only or self._configuration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True":
             logger.info("Save/dump some variables for PCR-GLOBWB simulation to pcraster maps to the directory %s", self._configuration.endStateDir)
             self.dumpVariableValuesForPCRGLOBWB(outputDirectory = self._configuration.mapsDir,\
                                                       timeStamp = self._configuration.globalOptions['startTime']+".ini")
