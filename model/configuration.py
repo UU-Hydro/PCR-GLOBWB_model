@@ -475,6 +475,8 @@ class Configuration(object):
             logger.warning(msg)
             self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
 
+        print self.meteoOptions.keys()
+        
         # adjustments for the options to read different forcing files for different years (one file for each year):
         if 'precipitation_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['precipitation_set_per_year'] == "False"
         if 'temperature_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['temperature_set_per_year'] == "False"
