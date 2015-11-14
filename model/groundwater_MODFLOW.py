@@ -1447,4 +1447,3 @@ class GroundwaterModflow(object):
                                          var,\
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,currTimeStep.annuaIdx-1)
-
