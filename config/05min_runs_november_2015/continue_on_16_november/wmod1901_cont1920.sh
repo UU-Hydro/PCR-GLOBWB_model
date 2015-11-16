@@ -6,4 +6,4 @@
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
 python couplingPCR-GLOBWB-MODFLOW.py ../config/05min_runs_november_2015/continue_on_16_november/setup_05min_pcrglobwb-modflow_cartesius_from_1920_continue.ini no_debug
 
-# pcrglobwb modflow - start from 1901
+# pcrglobwb modflow - start from 1901 - continue from 1920
