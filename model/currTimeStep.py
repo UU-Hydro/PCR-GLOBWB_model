@@ -97,8 +97,11 @@ class ModelTime(object):
     def update(self,timeStepPCR):
         self._timeStepPCR = timeStepPCR
         self._currTime = self._startTime + datetime.timedelta(days=1 * (timeStepPCR - 1))
-        self._fulldate = str(self.currTime.strftime('%Y-%m-%d'))
+        
+        #~ self._fulldate = str(self.currTime.strftime('%Y-%m-%d'))     # This does not work for the date before 1900
+        self._fulldate = '%04i-%02i-%02i' %(self._currTime.year, self._currTime.month, self._currTime.day)
         #~ print(self._fulldate)
+        
         if self.spinUpStatus == True : 
             logger.info("Spin-Up "+str(self._noSpinUp)+" of "+str(self._maxSpinUps))
 
