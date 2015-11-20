@@ -66,8 +66,8 @@ class DeterministicRunner(DynamicModel):
                                                                                                               str(self.configuration.globalOptions['cloneAreas'])
                 vos.cmd_line(cmd, using_subprocess = False)
                 
-                # cleaning up unmerged files
-                clean_up_pcraster_maps = True
+                # cleaning up unmerged files (not tested yet)
+                clean_up_pcraster_maps = False
                 if clean_up_pcraster_maps:                                                                                    
                     files_to_be_removed = glob.glob(str(self.configuration.main_output_directory) + "/M*/maps/*" + str(self.modelTime.fulldate) + "*")
                     for f in files_to_be_removed: os.remove(f)
