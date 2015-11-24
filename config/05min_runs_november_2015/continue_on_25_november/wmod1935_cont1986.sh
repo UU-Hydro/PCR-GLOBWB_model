@@ -4,7 +4,7 @@
 #SBATCH -p fat                                                                                                                                                                              
 
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
-python couplingPCR-GLOBWB-MODFLOW.py ../config/05min_runs_november_2015/continue_on_25_november/setup_05min_pcrglobwb-modflow_cartesius_from_1964_continue.ini no_debug
+python couplingPCR-GLOBWB-MODFLOW.py ../config/05min_runs_november_2015/continue_on_25_november/setup_05min_pcrglobwb-modflow_cartesius_from_1986_continue.ini no_debug
 
 # pcrglobwb modflow - start from 1935 - continue from 1957 - continue from 1964 - continue from 1986
 
