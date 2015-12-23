@@ -195,8 +195,10 @@ class mymodflow(DynamicModel):
 		#~ mf.setConductivity(00, khoriz_l2, kvert_l2, 2)
 		#~ mf.setConductivity(00, khoriz_l1, kvert_l1, 1)
 		
-		self.input_kvert_l2 = 0.5 * kvert_l2                            # correction is needed here
-		self.input_kvert_l1 = kvert_l1
+		self.input_kvert_l2  = 0.5 * kvert_l2 # correction is needed here
+		self.input_kvert_l1  = kvert_l1
+		self.input_khoriz_l2 = khoriz_l2
+		self.input_khoriz_l1 = khoriz_l1
 
 		# set storage
 		spe_yi_inp			=	ifthen(landmask, spe_yi_inp_ori * 0.5)
