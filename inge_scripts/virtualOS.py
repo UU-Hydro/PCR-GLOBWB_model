@@ -21,9 +21,6 @@ import numpy as np
 import numpy.ma as ma
 import pcraster as pcr
 
-import logging
-logger = logging.getLogger(__name__)
-
 # file cache to minimize/reduce opening/closing files.  
 filecache = dict()
 
@@ -36,7 +33,7 @@ netcdf_suffixes = ('.nc4','.nc')
 
 def checkVariableInNC(ncFile,varName):
 
-    logger.debug('Check whether the variable: '+str(varName)+' is defined in the file: '+str(ncFile))
+    print('Check whether the variable: '+str(varName)+' is defined in the file: '+str(ncFile))
     
     if ncFile in filecache.keys():
         f = filecache[ncFile]
@@ -59,7 +56,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     
     if absolutePath != None: ncFile = getFullPath(ncFile, absolutePath)
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    print('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
@@ -123,7 +120,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
         cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
 
-        if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+        if factor > 1: print('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
     
     # convert to PCR object and close f
     if specificFillValue != None:
@@ -160,7 +157,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     #~ print ncFile
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    print('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in filecache.keys():
         f = filecache[ncFile]
@@ -237,10 +234,10 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     # date
     date = dateInput
     if useDoy == "Yes": 
-        logger.debug('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
+        print('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
         idx = int(dateInput) - 1
     elif useDoy == "month":  # PS: WE NEED THIS ONE FOR NETCDF FILES that contain only 12 monthly values (e.g. cropCoefficientWaterNC).
-        logger.debug('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
+        print('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
         # make sure that date is in the correct format
         if isinstance(date, str) == True: date = \
                         datetime.datetime.strptime(str(date),'%Y-%m-%d') 
@@ -269,7 +266,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 msg += "The date "+str(dateInput)+" is NOT available. "
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                 msg += "\n"
-                logger.warning(msg)
+                print(msg)
             if date.year > last_year_in_nc_file:  
                 if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(last_year_in_nc_file) == False:
                     date = datetime.datetime(first_year_in_nc_file,date.month,28)
@@ -280,15 +277,15 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 msg += "The date "+str(dateInput)+" is NOT available. "
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                 msg += "\n"
-                logger.warning(msg)
+                print(msg)
         try:
             idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                 select ='exact')
             msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
-            logger.debug(msg)
+            print(msg)
         except:
             msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
-            logger.debug(msg)
+            print(msg)
             try:                                  
                 idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                     select = 'before')
@@ -303,10 +300,10 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
                 msg += "\n"
-            logger.warning(msg)
+            print(msg)
                                                   
     idx = int(idx)                                                  
-    logger.debug('Using the date index '+str(idx))
+    print('Using the date index '+str(idx))
 
     sameClone = True
     # check whether clone and input maps have the same attributes:
@@ -337,7 +334,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
 
     if sameClone == False:
         
-        logger.debug('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
+        print('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
         # crop to cloneMap:
         #~ xIdxSta = int(np.where(f.variables['lon'][:] == xULClone + 0.5*cellsizeInput)[0])
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
@@ -350,7 +347,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
         cropData = f.variables[varName][idx,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
-        if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+        if factor > 1: print('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
     # convert to PCR object and close f
     if specificFillValue != None:
@@ -383,7 +380,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
     
     #~ print ncFile
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    print('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in filecache.keys():
         f = filecache[ncFile]
@@ -446,7 +443,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
     # date
     date = dateInput
     if useDoy == "Yes": 
-        logger.debug('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
+        print('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
         idx = int(dateInput) - 1
     else:
         # make sure that date is in the correct format
@@ -454,7 +451,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
                         datetime.datetime.strptime(str(date),'%Y-%m-%d') 
         date = datetime.datetime(date.year,date.month,date.day)
         if useDoy == "month":
-            logger.debug('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
+            print('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
             idx = int(date.month) - 1
         if useDoy == "yearly":
             date  = datetime.datetime(date.year,int(1),int(1))
@@ -472,7 +469,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
                 msg += "The date "+str(dateInput)+" is NOT available. "
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                 msg += "\n"
-                logger.warning(msg)
+                print(msg)
             if date.year > last_year_in_nc_file:  
                 date = datetime.datetime(last_year_in_nc_file,date.month,date.day)
                 msg  = "\n"
@@ -480,15 +477,15 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
                 msg += "The date "+str(dateInput)+" is NOT available. "
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
                 msg += "\n"
-                logger.warning(msg)
+                print(msg)
         try:
             idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                 select ='exact')
             msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
-            logger.debug(msg)
+            print(msg)
         except:
             msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
-            logger.debug(msg)
+            print(msg)
             try:                                  
                 idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                     select = 'before')
@@ -503,10 +500,10 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
                 msg += "\n"
-            logger.warning(msg)
+            print(msg)
                                                   
     idx = int(idx)                                                  
-    logger.debug('Using the date index '+str(idx))
+    print('Using the date index '+str(idx))
 
     cropData = f.variables[varName][int(idx),:,:].copy()       # still original data
     factor = 1                                                 # needed in regridData2FinerGrid
@@ -588,7 +585,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
     
     if sameClone == False:
         
-        logger.debug('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
+        print('Crop to the clone map with lower left corner (x,y): '+str(xULClone)+' , '+str(yULClone))
         # crop to cloneMap:
         minX    = min(abs(longitude[:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
         xIdxSta = int(np.where(abs(longitude[:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
@@ -599,7 +596,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
         cropData = cropData[yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
-        if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
+        if factor > 1: print('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
     # convert to PCR object and close f
     if specificFillValue != None:
@@ -799,7 +796,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
 	# v: inputMapFileName or floating values
 	# cloneMapFileName: If the inputMap and cloneMap have different clones,
 	#                   resampling will be done.   
-    logger.debug('read file/values: '+str(v))
+    print('read file/values: '+str(v))
     if v == "None":
         #~ PCRmap = str("None")
         PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
@@ -1329,7 +1326,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                   extra_info_for_water_balance_reporting = "",
                                   ignore_small_values = True):
 
-    logger.debug("Allocation of abstraction.")
+    print("Allocation of abstraction.")
     
     # demand volume in each cell (unit: m3)
     if ignore_small_values: # ignore small values to avoid runding error
@@ -1456,7 +1453,7 @@ def findFirstYearInNCTime(ncTimeVariable):
 def cmd_line(command_line,using_subprocess = True):
 
     msg = "Call: "+str(command_line)
-    logger.debug(msg)
+    print(msg)
     
     co = command_line
     if using_subprocess:
