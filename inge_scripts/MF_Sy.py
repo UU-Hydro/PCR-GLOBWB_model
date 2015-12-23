@@ -276,39 +276,39 @@ class mymodflow(DynamicModel):
 		
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
-
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
-		    varName = "recharge"	
-		    print(ncFile)
-		    rch_human = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
+			varName = "recharge"	
+			print(ncFile)
+			rch_human = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
-		    varName = "rechargeTotal"
-		    print(ncFile)
-		    rch_nat= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
-						 	useDoy = None,
-							cloneMapFileName = self.cloneMap, \
-							)
-		
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/discharge_hum_monthAvg_output.nc"
-		    varName = "discharge"
-		    print(ncFile)
-		    Qinp= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
+			varName = "rechargeTotal"
+			print(ncFile)
+			rch_nat= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-		
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/gwab_m3_05min.nc"
-		    varName = "gwab_m3_05min"
-		    print(ncFile)
-		    totGW = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/discharge_hum_monthAvg_output.nc"
+			varName = "discharge"
+			print(ncFile)
+			Qinp= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-		
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/gwab_m3_05min.nc"
+			varName = "gwab_m3_05min"
+			print(ncFile)
+			totGW = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+							useDoy = None,
+							cloneMapFileName = self.cloneMap, \
+							)
+			
 			# river package
 			#-aqverage
 			qaverage			=	Qinp
