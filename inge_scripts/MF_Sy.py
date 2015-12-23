@@ -10,7 +10,7 @@ from pcraster.framework import *
 import pcraster as pcr
 
 import ncConverter as ncReport
-import currTimeStep as modelTime
+from currTimeStep import ModelTime
 import virtualOS as vos
 
 
@@ -421,7 +421,7 @@ def main():
 	strEndTime   = sys.argv[2]
 	
 	# initiating modelTime object
-	modelTime 		= modelTime.ModelTime()
+	modelTime = ModelTime()
 	modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
 	
 	myModel			= mymodflow(cloneMap,modelTime)
