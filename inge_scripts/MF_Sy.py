@@ -273,6 +273,10 @@ class mymodflow(DynamicModel):
 			self.mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
 			self.mf.addLayer(self.input_top_l2)
 			
+			# boundary conditions  
+			self.mf.setBoundary(self.input_ibound,1)
+			self.mf.setBoundary(self.input_ibound,2)
+
 			# horizontal and vertical conductivities 
 			self.mf.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
 			self.mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
@@ -280,10 +284,6 @@ class mymodflow(DynamicModel):
 			# storage coefficients 
 			self.mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
 			self.mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
-			
-			# boundary conditions  
-			self.mf.setBoundary(self.input_ibound,1)
-			self.mf.setBoundary(self.input_ibound,2)
 			
 			# initial heads
 			self.mf.setInitialHead(self.head_bottomMF,1)
