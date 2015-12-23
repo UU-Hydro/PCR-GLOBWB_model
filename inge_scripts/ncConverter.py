@@ -34,8 +34,8 @@ class PCR2netCDF():
         self.set_general_netcdf_attributes(specificAttributeDictionary)
         
         # netcdf format and zlib setup 
-        self.format = 'NETCDF3_CLASSIC'
-        self.zlib = False
+        self.format = 'NETCDF4'
+        self.zlib = True
             
     def set_general_netcdf_attributes(self, specificAttributeDictionary = None):
 
