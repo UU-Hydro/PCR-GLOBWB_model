@@ -266,7 +266,6 @@ class mymodflow(DynamicModel):
 		
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
 			self.mf = None
-			del self.mf
 			self.mf = pcr.initialise(clone())	
 			
 			# bottom and layer elevations
