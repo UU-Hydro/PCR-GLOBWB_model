@@ -41,7 +41,7 @@ class PCR2netCDF():
         if "zlib" in iniItems.reportingOptions.keys():
             if iniItems.reportingOptions['zlib'] == "True": self.zlib = True 
             
-    def set_general_netcdf_attributes(self,iniItems,specificAttributeDictionary=None):
+    def set_general_netcdf_attributes(self, specificAttributeDictionary = None):
 
         # netCDF attributes (based on the configuration file or specificAttributeDictionary):
         self.attributeDictionary = {}
