@@ -265,7 +265,7 @@ class mymodflow(DynamicModel):
 		if self.modelTime.isLastDayOfMonth():
 		
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
-			if self.mf == None: self.mf = pcr.initialise(clone())	
+			self.mf = pcr.initialise(clone())	
 			
 			# bottom and layer elevations
 			self.mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
@@ -374,6 +374,7 @@ class mymodflow(DynamicModel):
 			
 			# retrieve outputs
 			gw_head1			=	self.mf.getHeads(1)
+
 			gw_head2			=	self.mf.getHeads(2)
 			riv_baseflow		=	self.mf.getRiverLeakage(2)
 			drn_baseflow		=	self.mf.getDrain(2)
@@ -387,6 +388,7 @@ class mymodflow(DynamicModel):
 			# all outputs are masked		
 			self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
 			self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
+
 			self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
 			self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
 			self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
@@ -405,10 +407,10 @@ class mymodflow(DynamicModel):
 			#~ pcr.report(gw_depth2, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/depth_topMF.map")
 			#~ pcr.report(tot_baseflowMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
 					
-			timeStamp 	= 	datetime.datetime(self.modelTime.year,\
-									self.modelTime.month,\
-									self.modelTime.day,\
-									0)
+			#~ timeStamp 	= 	datetime.datetime(self.modelTime.year,\
+									#~ self.modelTime.month,\
+									#~ self.modelTime.day,\
+									#~ 0)
 			
 			#~ # reporting to netcdf files
 			#~ for variable in self.variable_output:
