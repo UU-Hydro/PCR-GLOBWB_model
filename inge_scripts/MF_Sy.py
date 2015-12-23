@@ -9,7 +9,7 @@ from pcraster import *
 from pcraster.framework import *
 import pcraster as pcr
 
-import ncConverter2 as ncReport
+import ncConverter as ncReport
 import currTimeStep as modelTime
 import virtualOS as vos
 
@@ -70,10 +70,10 @@ class mymodflow(DynamicModel):
 		
 	
 		# make netcdf file    
-		outDir	=	"/projects/0/dfguu/users/inge/modflow_Sy1/tmp/"
+		self.outDir = "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/"
 					 
 		for variable in self.variable_output:
-			self.netcdfReport.createNetCDF(ncFileName = str(outDir) + self.netcdf_output["file_name"][variable], \
+			self.netcdfReport.createNetCDF(ncFileName = str(self.outDir) + self.netcdf_output["file_name"][variable], \
 										   varName = variable, 
 		                                   varUnits = self.netcdf_output["unit"][variable])
 
@@ -106,8 +106,12 @@ class mymodflow(DynamicModel):
 		bottom_l1			=	dem-aqdepth
 		top_l1				=	top_l2- (aqdepth*0.1)				     						## layer 2 is 10% total thickness	
 		
-		mf.createBottomLayer(bottom_l1,top_l1)
-		mf.addLayer(top_l2)
+		self.input_bottom_l1 = bottom_l1
+		self.input_top_l1    = top_l2
+		self.input_top_l2    = top_l2 
+		
+		#~ mf.createBottomLayer(bottom_l1,top_l1)
+		#~ mf.addLayer(top_l2)
 	
 		self.bottom_elevation_aquifer	=	dem_ini- aqdepth												##** nodig voor groundwater storage
 				
@@ -117,10 +121,11 @@ class mymodflow(DynamicModel):
 		
 		# set boundary conditions
 		ibound_l1			= 	cover(ifthen(landmask, nominal(1)),nominal(-1))
-		#pcr.report(ibound_l1, "test.map") ; os.system("aguila test.map")  
 		
-		mf.setBoundary(ibound_l1,2)
-		mf.setBoundary(ibound_l1,1)
+		self.input_ibound = ibound_l1
+		
+		#~ mf.setBoundary(ibound_l1,2)
+		#~ mf.setBoundary(ibound_l1,1)
 		
 		## set initial values
 		iHead				=	cover(iHeadini,0.0)						 			
@@ -171,13 +176,17 @@ class mymodflow(DynamicModel):
 		kvert_l2 = min(kvert_l2_ori * 10**(-2), khoriz_l2)
 		kvert_l1 = min(kvert_l1_ori * 10**(-2), khoriz_l1)
 		kvert_l2 = cover((kvert_l2*cellarea)/((5.0/60.0)**2.0),1E10)
-		kvert_l1 = cover(max(1E10,(kvert_l1*cellarea)/((5.0/60.0)**2.0)),1E10)  # kvert onderste laag is nu super hoog
+		kvert_l1 = cover(max(1E99,(kvert_l1*cellarea)/((5.0/60.0)**2.0)),1E10)  # kvert onderste laag is nu super hoog
 		################################
-		pcr.report(kD_l2, "kD_l2.map")
-		pcr.report(kD_l1, "kD_l1.map")
-		mf.setConductivity(00,khoriz_l2, kvert_l2,2)
-		mf.setConductivity(00,khoriz_l1, kvert_l1,1)
+		#~ pcr.report(kD_l2, "kD_l2.map")
+		#~ pcr.report(kD_l1, "kD_l1.map")
 		
+		#~ mf.setConductivity(00, khoriz_l2, kvert_l2, 2)
+		#~ mf.setConductivity(00, khoriz_l1, kvert_l1, 1)
+		
+		self.input_kvert_l2 = 0.5 * kvert_l2                            # correction is needed here
+		self.input_kvert_l1 = kvert_l1
+
 		# set storage
 		spe_yi_inp			=	ifthen(landmask, spe_yi_inp_ori * 0.5)
 		spe_yi_inp			=	min(1.0, max(0.01,spe_yi_inp))	
@@ -187,11 +196,15 @@ class mymodflow(DynamicModel):
 		#stor_conf			=	cover(cover(ifthenelse(conflayers == boolean(1), stor_coef, spe_yi_inp),spe_yi_inp),1000.0)	 
 		stor_prim			=	cover(spe_yi_inp,1000.0)
 		stor_sec			=	cover(spe_yi_inp,1000.0)
-		mf.setStorage(stor_prim, stor_sec,1)
-		mf.setStorage(stor_prim, stor_sec,2)
+
+		#~ mf.setStorage(stor_prim, stor_sec,1)
+		#~ mf.setStorage(stor_prim, stor_sec,2)
+		
+		self.input_stor_prim = stor_prim
+		self.input_stor_sec  = stor_sec
 		
 		# solver
-		mf.setPCG(1500,1250,1,1,160000,0.98,2,1)	
+		#~ mf.setPCG(1500,1250,1,1,160000,0.98,2,1)	
 		
 		# adding river
 		riv_manning			=	scalar(0.0450)
@@ -231,12 +244,34 @@ class mymodflow(DynamicModel):
 	
 		self.modelTime.update(self.currentTimeStep())
 		
-		# simulation parameter
-		## this does not work:     
-		NSTP = self.currentTimeStep.day
-		PERLEN = currentTimeStep.day
+		# clear previous modflow object
+		mf = None
+		del mf
+		
+		# bottom and layer elevations
+		mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
+		mf.addLayer(self.input_top_l2)
+
+		# horizontal and vertical conductivities 
+		mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
+		mf.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
+
+		# storage coefficients 
+		mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
+		mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
+
+		# boundary conditions  
+		mf.setBoundary(self.input_ibound,2)
+		mf.setBoundary(self.input_ibound,1)
+
+		# simulation parameters
+		NSTP   = self.modelTime.day
+		PERLEN = self.modelTime.day
 		mf.setDISParameter(4,2,PERLEN,NSTP,1,0)
 		
+		# solver parameters
+		mf.setPCG(1500,1250,1,0.001,160000,0.98,2,1)	
+
 		if self.modelTime.isLastDayOfMonth():
 		
 		    dateInput = self.modelTime.fulldate		
@@ -335,12 +370,13 @@ class mymodflow(DynamicModel):
 		    head_topMF 		= 	gw_head2
 		    head_bottomMF 	= 	gw_head1
 		    tot_baseflowMF	=	riv_baseflow + drn_baseflow
-		# - report new initial conditions 
-		    pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_topMF.map")
-		    pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/ini/head_topMF")
-		    pcr.report(head_bottomMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
-		    pcr.report(gw_depth2, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/depth_topMF.map")
-		    pcr.report(tot_baseflowMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
+
+		#~ # - report new initial conditions 
+		    #~ pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_topMF.map")
+		    #~ pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/ini/head_topMF")
+		    #~ pcr.report(head_bottomMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
+		    #~ pcr.report(gw_depth2, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/depth_topMF.map")
+		    #~ pcr.report(tot_baseflowMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
 					
 		    timeStamp 	= 	datetime.datetime(self.modelTime.year,\
 									self.modelTime.month,\
@@ -348,11 +384,9 @@ class mymodflow(DynamicModel):
 									0)
 	
 			# reporting to netcdf files
-			#self.outNCDir  = iniItems.outNCDir
-		    outDir	=	"/projects/0/dfguu/users/inge/modflow_Sy1/tmp/"													## --> output dir
 		    for variable in self.variable_output:
 			    chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-			    self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
+			    self.netcdfReport.data2NetCDF(ncFile = str(self.outDir) + self.netcdf_output["file_name"][variable],\
 										varName = variable,\
 										varField = chosenVarField,
 										timeStamp = timeStamp)
