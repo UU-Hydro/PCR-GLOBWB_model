@@ -372,33 +372,36 @@ class mymodflow(DynamicModel):
 			
 			print('after modflow')
 			
-			# retrieve outputs
-			gw_head1			=	self.mf.getHeads(1)
+			self.head_bottomMF	=	self.mf.getHeads(1)
+			self.head_topMF 	= 	self.mf.getHeads(2)
 
-			gw_head2			=	self.mf.getHeads(2)
-			riv_baseflow		=	self.mf.getRiverLeakage(2)
-			drn_baseflow		=	self.mf.getDrain(2)
+			#~ # retrieve outputs
+			#~ gw_head1			=	self.mf.getHeads(1)
+#~ 
+			#~ gw_head2			=	self.mf.getHeads(2)
+			#~ riv_baseflow		=	self.mf.getRiverLeakage(2)
+			#~ drn_baseflow		=	self.mf.getDrain(2)
 			#~ recharge			=	self.mf.getRecharge(2)
-							
-			gw_depth2			=	self.dem- gw_head2
-			gw_depth1			=	self.dem- gw_head1
-			head_diff			=	gw_head1-gw_head2
-			
-			# reporting all outputs from MF to de netcdf-dir	
-			# all outputs are masked		
-			self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
-			self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
-
-			self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
-			self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
-			self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
-			self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
-			self.head_diffMF	= 	ifthen(self.landmask,head_diff)
-			self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
+							#~ 
+			#~ gw_depth2			=	self.dem- gw_head2
+			#~ gw_depth1			=	self.dem- gw_head1
+			#~ head_diff			=	gw_head1-gw_head2
+			#~ 
+			#~ # reporting all outputs from MF to de netcdf-dir	
+			#~ # all outputs are masked		
+			#~ self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
+			#~ self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
+#~ 
+			#~ self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
+			#~ self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
+			#~ self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
+			#~ self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
+			#~ self.head_diffMF	= 	ifthen(self.landmask,head_diff)
+			#~ self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
 			#~ self.rechargeMF		= 	ifthen(self.landmask,recharge)
-			head_topMF 		= 	gw_head2
-			head_bottomMF 	= 	gw_head1
-			tot_baseflowMF	=	riv_baseflow + drn_baseflow
+			#~ head_topMF 		= 	gw_head2
+			#~ head_bottomMF 	= 	gw_head1
+			#~ tot_baseflowMF	=	riv_baseflow + drn_baseflow
 			
 			#~ # - report new initial conditions 
 			#~ pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_topMF.map")
