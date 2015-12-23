@@ -19,7 +19,7 @@ import virtualOS as vos
 
 class mymodflow(DynamicModel):
 	
-	def __init__(self, cloneMap, modelTime):
+	def __init__(self, cloneMap, modelTime, output_directory):
 		DynamicModel.__init__(self)
 		self.cloneMap = cloneMap
 		setclone(self.cloneMap)
@@ -78,7 +78,7 @@ class mymodflow(DynamicModel):
 		
 	
 		# make netcdf file    
-		self.outDir = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+		self.outDir = output_directory
 		os.chdir(self.outDir)
 		try:
 			os.makedirs("/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/")
@@ -349,22 +349,22 @@ class mymodflow(DynamicModel):
 			riv_bot_comb		=	cover(ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
 			riv_cond_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
 			
-			self.mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
-			
-			self.mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
+			#~ self.mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
+			#~ 
+			#~ self.mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
 			
 			
 			totGW_used = cover(ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
 			totGW_used_2 = (totGW_used*(10.0**6.0))
 			totGW_used_m3d = cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
 			
-			self.mf.setWell(totGW_used_m3d,1)
+			#~ self.mf.setWell(totGW_used_m3d,1)
 			
 			rch_hum = rch_human
 			rch = cover(ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
 			rch_inp = cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
 			
-			self.mf.setRecharge(rch_inp,1)			
+			#~ self.mf.setRecharge(rch_inp,1)			
 					
 			print('before modflow')
 
@@ -434,11 +434,13 @@ def main():
 	strStartTime = sys.argv[1]
 	strEndTime   = sys.argv[2]
 	
+	output_directory = 
+	
 	# initiating modelTime object
 	modelTime = ModelTime()
 	modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
 	
-	myModel			= mymodflow(cloneMap,modelTime)
+	myModel			= mymodflow(cloneMap,modelTime,output_directory)
 	DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
 	DynamicModel.run()			 
 	
