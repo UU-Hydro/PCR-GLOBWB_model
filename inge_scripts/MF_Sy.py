@@ -272,8 +272,8 @@ class mymodflow(DynamicModel):
 			self.mf.addLayer(self.input_top_l2)
 			
 			# horizontal and vertical conductivities 
-			self.mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
 			self.mf.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
+			self.mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
 			
 			# storage coefficients 
 			self.mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
