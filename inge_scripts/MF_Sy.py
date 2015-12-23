@@ -434,7 +434,7 @@ def main():
 	strStartTime = sys.argv[1]
 	strEndTime   = sys.argv[2]
 	
-	output_directory = 
+	output_directory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
 	
 	# initiating modelTime object
 	modelTime = ModelTime()
