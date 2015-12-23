@@ -36,10 +36,6 @@ class PCR2netCDF():
         # netcdf format and zlib setup 
         self.format = 'NETCDF3_CLASSIC'
         self.zlib = False
-        if "formatNetCDF" in iniItems.reportingOptions.keys():
-            self.format = str(iniItems.reportingOptions['formatNetCDF'])
-        if "zlib" in iniItems.reportingOptions.keys():
-            if iniItems.reportingOptions['zlib'] == "True": self.zlib = True 
             
     def set_general_netcdf_attributes(self, specificAttributeDictionary = None):
 
