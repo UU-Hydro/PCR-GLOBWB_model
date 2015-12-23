@@ -410,10 +410,11 @@ class mymodflow(DynamicModel):
 			# reporting to netcdf files
 			for variable in self.variable_output:
 				chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-				self.netcdfReport.data2NetCDF(ncFile = str(self.outDir) + self.netcdf_output["file_name"][variable],\
-										varName = variable,\
-										varField = chosenVarField,
-										timeStamp = timeStamp)
+				self.netcdfReport.data2NetCDF(
+				                        str(self.outDir) + self.netcdf_output["file_name"][variable],\
+										variable, \
+										chosenVarField, \
+										timeStamp)
 
 cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
 strStartTime = sys.argv[1]
