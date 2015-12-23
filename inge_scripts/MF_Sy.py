@@ -280,12 +280,12 @@ class mymodflow(DynamicModel):
 			self.mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
 			
 			# boundary conditions  
-			self.mf.setBoundary(self.input_ibound,2)
 			self.mf.setBoundary(self.input_ibound,1)
+			self.mf.setBoundary(self.input_ibound,2)
 			
 			# initial heads
-			self.mf.setInitialHead(self.head_topMF 	, 2)	
 			self.mf.setInitialHead(self.head_bottomMF,1)
+			self.mf.setInitialHead(self.head_topMF 	, 2)	
 
 			# simulation parameters
 			NSTP   = self.modelTime.day
