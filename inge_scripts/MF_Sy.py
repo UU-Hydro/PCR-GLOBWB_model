@@ -137,9 +137,12 @@ class mymodflow(DynamicModel):
 		
 		## set initial values
 		iHead				=	cover(iHeadini,0.0)						 			
-		mf.setInitialHead(iHead,2)
-		mf.setInitialHead(iHead,1)	
 		
+		#~ mf.setInitialHead(iHead,2)
+		#~ mf.setInitialHead(iHead,1)	
+		
+		self.input_iHead = iHead
+
 		# set conductivities
 		rho_water			=	scalar(1000)
 		miu_water			=	scalar(0.001)
@@ -252,37 +255,47 @@ class mymodflow(DynamicModel):
 	
 		self.modelTime.update(self.currentTimeStep())
 		
-		# clear previous modflow object
-		mf = None
-		del mf
-		mf = initialise(clone())	
-
-		# bottom and layer elevations
-		mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
-		mf.addLayer(self.input_top_l2)
-
-		# horizontal and vertical conductivities 
-		mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
-		mf.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
-
-		# storage coefficients 
-		mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
-		mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
-
-		# boundary conditions  
-		mf.setBoundary(self.input_ibound,2)
-		mf.setBoundary(self.input_ibound,1)
-
-		# simulation parameters
-		NSTP   = self.modelTime.day
-		PERLEN = self.modelTime.day
-		mf.setDISParameter(4,2,PERLEN,NSTP,1,0)
-		
-		# solver parameters
-		mf.setPCG(1500,1250,1,0.001,160000,0.98,2,1)	
-
 		if self.modelTime.isLastDayOfMonth():
 		
+			# clear previous modflow object
+			mf = initialise(clone())	
+			
+			# bottom and layer elevations
+			mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
+			mf.addLayer(self.input_top_l2)
+			
+			# horizontal and vertical conductivities 
+			mf.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
+			mf.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
+			
+			# storage coefficients 
+			mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
+			mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
+			
+			# boundary conditions  
+			mf.setBoundary(self.input_ibound,2)
+			mf.setBoundary(self.input_ibound,1)
+			
+			# simulation parameters
+			NSTP   = self.modelTime.day
+			PERLEN = self.modelTime.day
+			mf.setDISParameter(4,2,PERLEN,NSTP,1,0)
+			
+			# solver parameters
+			mf.setPCG(1500,1250,1,0.001,160000,0.98,2,1)	
+
+			# initial heads
+			try:
+				# using the head values that are calculated from the previous time step
+				print('using the head values that are calculated from the previous time step')
+				mf.setInitialHead(self.head_topMF 	, 2)	
+				mf.setInitialHead(self.head_bottomMF, 1)
+			except:
+				# using the head values that are defined in the initial part
+				print('using the head values that are defined in the initial part')
+				mf.setInitialHead(self.input_iHead, 2)
+				mf.setInitialHead(self.input_iHead, 1)	
+			
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
 			
