@@ -17,10 +17,10 @@ import virtualOS as vos
 
 class PCR2netCDF():
     
-    def __init__(self,iniItems,specificAttributeDictionary=None):
+    def __init__(self, cloneMap, specificAttributeDictionary = None):
         		
         # cloneMap
-        pcr.setclone(iniItems.cloneMap)
+        pcr.setclone(cloneMap)
         cloneMap = pcr.boolean(1.0)
         
         # latitudes and longitudes
@@ -31,7 +31,7 @@ class PCR2netCDF():
         #       Consult with Stefanie regarding CF convention. 
         
         # set the general netcdf attributes (based on the information given in the ini/configuration file) 
-        self.set_general_netcdf_attributes(iniItems, specificAttributeDictionary)
+        self.set_general_netcdf_attributes(specificAttributeDictionary)
         
         # netcdf format and zlib setup 
         self.format = 'NETCDF3_CLASSIC'
@@ -45,14 +45,9 @@ class PCR2netCDF():
 
         # netCDF attributes (based on the configuration file or specificAttributeDictionary):
         self.attributeDictionary = {}
-        if specificAttributeDictionary == None:
-            self.attributeDictionary['institution'] = iniItems.globalOptions['institution']
-            self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
-            self.attributeDictionary['description'] = iniItems.globalOptions['description']
-        else:
-            self.attributeDictionary['institution'] = specificAttributeDictionary['institution']
-            self.attributeDictionary['title'      ] = specificAttributeDictionary['title'      ]
-            self.attributeDictionary['description'] = specificAttributeDictionary['description']
+        self.attributeDictionary['institution'] = specificAttributeDictionary['institution']
+        self.attributeDictionary['title'      ] = specificAttributeDictionary['title'      ]
+        self.attributeDictionary['description'] = specificAttributeDictionary['description']
 
     def createNetCDF(self, ncFileName, varName, varUnits, longName = None):
 

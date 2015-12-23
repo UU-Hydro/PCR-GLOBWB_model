@@ -29,7 +29,10 @@ class mymodflow(DynamicModel):
 									"rechargeMF"] 
 									 
 		# initiate netcdf report class
-		self.netcdfReport 		= 	ncReport.PCR2netCDF(self.cloneMap)
+		specificAttributeDictionary['institution'] = 'test'
+		specificAttributeDictionary['title'      ] = 'test'
+		specificAttributeDictionary['description'] = 'test'		
+		self.netcdfReport = ncReport.PCR2netCDF(self.cloneMap, specificAttributeDictionary)
 		
 		# output netcdf files; variable names and units:
 		self.netcdf_output 	= 	{}
@@ -247,7 +250,8 @@ class mymodflow(DynamicModel):
 		# clear previous modflow object
 		mf = None
 		del mf
-		
+		mf = initialise(clone())	
+
 		# bottom and layer elevations
 		mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
 		mf.addLayer(self.input_top_l2)
@@ -391,7 +395,7 @@ class mymodflow(DynamicModel):
 										varField = chosenVarField,
 										timeStamp = timeStamp)
 
-cloneMap 		= "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
 strStartTime = sys.argv[1]
 strEndTime   = sys.argv[2]
 
@@ -400,7 +404,6 @@ modelTime 		= modelTime.ModelTime()
 modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
 
 myModel			= mymodflow(cloneMap,modelTime)
-mf				=	initialise(clone())	
 DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
 DynamicModel.run()			 
 
