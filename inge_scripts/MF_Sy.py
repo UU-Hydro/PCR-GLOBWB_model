@@ -293,7 +293,7 @@ class mymodflow(DynamicModel):
 			self.mf.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
-			HCLOSE = 0.001
+			HCLOSE = 1
 			RCLOSE = 160000
 			self.mf.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
