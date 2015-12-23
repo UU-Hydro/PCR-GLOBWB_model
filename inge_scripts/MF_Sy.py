@@ -284,7 +284,7 @@ class mymodflow(DynamicModel):
 			
 			# initial heads
 			self.mf.setInitialHead(self.head_topMF 	, 2)	
-			self.mf.setInitialHead(self.head_bottomMF, 1)
+			self.mf.setInitialHead(self.head_bottomMF,1)
 
 			# simulation parameters
 			NSTP   = self.modelTime.day
@@ -405,25 +405,29 @@ class mymodflow(DynamicModel):
 									self.modelTime.day,\
 									0)
 			
-			# reporting to netcdf files
-			for variable in self.variable_output:
-				chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-				self.netcdfReport.data2NetCDF(
-				                        str(self.outDir) + self.netcdf_output["file_name"][variable],\
-										variable, \
-										chosenVarField, \
-										timeStamp)
+			#~ # reporting to netcdf files
+			#~ for variable in self.variable_output:
+				#~ chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
+				#~ self.netcdfReport.data2NetCDF(
+				                        #~ str(self.outDir) + self.netcdf_output["file_name"][variable],\
+										#~ variable, \
+										#~ chosenVarField, \
+										#~ timeStamp)
 
-cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-strStartTime = sys.argv[1]
-strEndTime   = sys.argv[2]
-
-# initiating modelTime object
-modelTime 		= modelTime.ModelTime()
-modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
-
-myModel			= mymodflow(cloneMap,modelTime)
-DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
-DynamicModel.run()			 
-
-
+def main():
+	
+	cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+	strStartTime = sys.argv[1]
+	strEndTime   = sys.argv[2]
+	
+	# initiating modelTime object
+	modelTime 		= modelTime.ModelTime()
+	modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
+	
+	myModel			= mymodflow(cloneMap,modelTime)
+	DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
+	DynamicModel.run()			 
+	
+if __name__ == '__main__':
+    sys.exit(main())
+	
