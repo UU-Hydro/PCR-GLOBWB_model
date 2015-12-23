@@ -265,8 +265,7 @@ class mymodflow(DynamicModel):
 		if self.modelTime.isLastDayOfMonth():
 		
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
-			self.mf = None
-			self.mf = pcr.initialise(clone())	
+			if self.mf == None: self.mf = pcr.initialise(clone())	
 			
 			# bottom and layer elevations
 			self.mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
@@ -378,7 +377,7 @@ class mymodflow(DynamicModel):
 			gw_head2			=	self.mf.getHeads(2)
 			riv_baseflow		=	self.mf.getRiverLeakage(2)
 			drn_baseflow		=	self.mf.getDrain(2)
-			recharge			=	self.mf.getRecharge(2)
+			#~ recharge			=	self.mf.getRecharge(2)
 							
 			gw_depth2			=	self.dem- gw_head2
 			gw_depth1			=	self.dem- gw_head1
@@ -394,7 +393,7 @@ class mymodflow(DynamicModel):
 			self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
 			self.head_diffMF	= 	ifthen(self.landmask,head_diff)
 			self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
-			self.rechargeMF		= 	ifthen(self.landmask,recharge)
+			#~ self.rechargeMF		= 	ifthen(self.landmask,recharge)
 			head_topMF 		= 	gw_head2
 			head_bottomMF 	= 	gw_head1
 			tot_baseflowMF	=	riv_baseflow + drn_baseflow
@@ -420,7 +419,7 @@ class mymodflow(DynamicModel):
 										#~ chosenVarField, \
 										#~ timeStamp)
 
-			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
+			# clear the modflow object
 			self.mf = None
 
 def main():
