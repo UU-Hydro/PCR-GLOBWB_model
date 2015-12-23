@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Sy_1 
 # NOTE layers in PCR-MODFLOW : 1= bottom 2 = top 
 
@@ -364,8 +367,12 @@ class mymodflow(DynamicModel):
 			
 			self.mf.setRecharge(rch_inp,1)			
 					
+			print('before modflow')
+
 			# execuate MODFLOW
 			self.mf.run()
+			
+			print('after modflow')
 			
 			# retrieve outputs
 			gw_head1			=	self.mf.getHeads(1)
