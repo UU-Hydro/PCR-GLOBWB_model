@@ -79,6 +79,7 @@ class mymodflow(DynamicModel):
 	
 		# make netcdf file    
 		self.outDir = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+		os.chdir(self.outDir)
 		try:
 			os.makedirs("/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/")
 		except:
