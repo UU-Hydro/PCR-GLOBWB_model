@@ -420,6 +420,9 @@ class mymodflow(DynamicModel):
 										#~ chosenVarField, \
 										#~ timeStamp)
 
+			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
+			self.mf = None
+
 def main():
 	
 	cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
