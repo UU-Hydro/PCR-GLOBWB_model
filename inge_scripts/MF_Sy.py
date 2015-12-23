@@ -267,7 +267,7 @@ class mymodflow(DynamicModel):
 		
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
 			self.mf = None
-			self.mf = pcr.initialise(clone())	
+			self.mf = pcr.initialise(pcr.clone())	
 			
 			# bottom and layer elevations
 			self.mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
@@ -428,6 +428,7 @@ class mymodflow(DynamicModel):
 
 			# clear the modflow object
 			self.mf = None
+			del self.mf
 
 def main():
 	
