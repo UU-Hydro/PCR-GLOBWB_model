@@ -20,6 +20,7 @@ class mymodflow(DynamicModel):
 		DynamicModel.__init__(self)
 		self.cloneMap = cloneMap
 		setclone(self.cloneMap)
+		pcr.setclone(self.cloneMap)
 				
 		self.modelTime = modelTime
 		
@@ -263,7 +264,7 @@ class mymodflow(DynamicModel):
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
 			self.mf = None
 			del self.mf
-			self.mf = initialise(clone())	
+			self.mf = pcr.initialise(clone())	
 			
 			# bottom and layer elevations
 			self.mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
@@ -288,7 +289,7 @@ class mymodflow(DynamicModel):
 			# simulation parameters
 			NSTP   = self.modelTime.day
 			PERLEN = self.modelTime.day
-			self.mf.setDISParameter(4,2,PERLEN,NSTP,1,0)
+			self.mf.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
 			HCLOSE = 0.001
