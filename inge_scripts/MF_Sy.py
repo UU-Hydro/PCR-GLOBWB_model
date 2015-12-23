@@ -141,7 +141,8 @@ class mymodflow(DynamicModel):
 		#~ mf.setInitialHead(iHead,2)
 		#~ mf.setInitialHead(iHead,1)	
 		
-		self.input_iHead = iHead
+		self.head_topMF    = iHead  # NOTE: THIS MUST BE FROM THE RESULT OF A STEADY STATE SIMULATION 	
+		self.head_bottomMF = iHead  # NOTE: THIS MUST BE FROM THE RESULT OF A STEADY STATE SIMULATION
 
 		# set conductivities
 		rho_water			=	scalar(1000)
@@ -259,7 +260,8 @@ class mymodflow(DynamicModel):
 		
 		if self.modelTime.isLastDayOfMonth():
 		
-			# clear previous modflow object
+			# due to the changes in DIS package, we have to initiate the modflow object
+			mf = None
 			mf = initialise(clone())	
 			
 			# bottom and layer elevations
@@ -284,19 +286,13 @@ class mymodflow(DynamicModel):
 			mf.setDISParameter(4,2,PERLEN,NSTP,1,0)
 			
 			# solver parameters
-			mf.setPCG(1500,1250,1,0.001,160000,0.98,2,1)	
+			HCLOSE = 0.001
+			RCLOSE = 160000
+			mf.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
 			# initial heads
-			try:
-				# using the head values that are calculated from the previous time step
-				print('using the head values that are calculated from the previous time step')
-				mf.setInitialHead(self.head_topMF 	, 2)	
-				mf.setInitialHead(self.head_bottomMF, 1)
-			except:
-				# using the head values that are defined in the initial part
-				print('using the head values that are defined in the initial part')
-				mf.setInitialHead(self.input_iHead, 2)
-				mf.setInitialHead(self.input_iHead, 1)	
+			mf.setInitialHead(self.head_topMF 	, 2)	
+			mf.setInitialHead(self.head_bottomMF, 1)
 			
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
