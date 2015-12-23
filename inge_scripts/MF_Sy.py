@@ -29,6 +29,7 @@ class mymodflow(DynamicModel):
 									"rechargeMF"] 
 									 
 		# initiate netcdf report class
+		specificAttributeDictionary = {}
 		specificAttributeDictionary['institution'] = 'test'
 		specificAttributeDictionary['title'      ] = 'test'
 		specificAttributeDictionary['description'] = 'test'		
