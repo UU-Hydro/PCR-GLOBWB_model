@@ -358,6 +358,8 @@ class mymodflow(DynamicModel):
 			pcr_modflow.get_results()
 			self.head_bottomMF = pcr_modflow.head_bottomMF
 			self.head_topMF    = pcr_modflow.head_topMF
+			
+			del pcr_modflow
 
 			#~ # retrieve outputs
 			#~ gw_head1			=	pcr_modflow.getHeads(1)
