@@ -9,6 +9,8 @@ class PCRasterModflow():
 		
 		self.cloneMap = cloneMap
 		pcr.setclone(self.cloneMap)
+		
+		self.first_time_step = True
 
 	def initialize(self, modelTime, \
 	                     input_bottom_l1, input_top_l1, input_top_l2, \
@@ -39,8 +41,10 @@ class PCRasterModflow():
 		self.pcr_modflow.setStorage(input_stor_prim, input_stor_sec,2)
 		
 		# initial heads
-		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
-		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
+		if self.first_time_step:
+			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
+			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
+			self.first_time_step = False
 
 		# simulation parameters
 		NSTP   = modelTime.day
