@@ -356,9 +356,10 @@ class mymodflow(DynamicModel):
 			print('after modflow')
 			
 			pcr_modflow.get_results()
-			self.head_bottomMF = pcr_modflow.head_bottomMF
-			self.head_topMF    = pcr_modflow.head_topMF
+			self.head_bottomMF = pcr.scalar(pcr_modflow.head_bottomMF)
+			self.head_topMF    = pcr.scalar(pcr_modflow.head_topMF)
 			
+			pcr_modflow = None
 			del pcr_modflow
 
 			#~ # retrieve outputs
