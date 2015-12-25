@@ -75,7 +75,10 @@ class mymodflow(DynamicModel):
 	
 		# make netcdf file    
 		outDir	=	"/projects/0/dfguu/users/edwin/modflow_Sy1/tmp_ori/"
-		os.makedirs(outDir)
+		try:
+			os.makedirs(outDir)
+		except:
+			pass
 					 
 		for variable in self.variable_output:
 			self.netcdfReport.createNetCDF(ncFileName = str(outDir) + self.netcdf_output["file_name"][variable], \
