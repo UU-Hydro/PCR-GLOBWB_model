@@ -264,6 +264,11 @@ class mymodflow(DynamicModel):
 			#~ pcr_modflow = None
 			#~ pcr_modflow = pcr.initialise(pcr.clone())	
 			
+			# simulation parameters
+			NSTP   = 30 # self.modelTime.day
+			PERLEN = 30 # self.modelTime.day
+			pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
+
 			# bottom and layer elevations
 			pcr_modflow.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
 			pcr_modflow.addLayer(self.input_top_l2)
@@ -284,10 +289,6 @@ class mymodflow(DynamicModel):
 			pcr_modflow.setInitialHead(self.head_bottomMF,1)
 			pcr_modflow.setInitialHead(self.head_topMF 	, 2)	
 
-			# simulation parameters
-			NSTP   = 30 # self.modelTime.day
-			PERLEN = 30 # self.modelTime.day
-			pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
 			HCLOSE = 1
