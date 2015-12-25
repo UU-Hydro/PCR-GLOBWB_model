@@ -431,8 +431,6 @@ class mymodflow(DynamicModel):
 			#~ pcr_modflow = None
 			#~ del pcr_modflow
 
-pcr_modflow.
-
 def main():
 	
 	cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
