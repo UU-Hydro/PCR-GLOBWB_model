@@ -259,12 +259,9 @@ class mymodflow(DynamicModel):
 		#self.storcoef_act	=	stor_conf
 		self.storcoef_act	= 	stor_prim
 		
-	def dynamic(self):
-	
-		self.modelTime.update(self.currentTimeStep())
-		
-		if self.modelTime.isLastDayOfMonth():
-		
+		test = True
+		if test:
+
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
 			pcr_modflow = None
 			pcr_modflow = pcr.initialise(pcr.clone())	
@@ -290,8 +287,8 @@ class mymodflow(DynamicModel):
 			pcr_modflow.setInitialHead(self.head_topMF 	, 2)	
 
 			# simulation parameters
-			NSTP   = self.modelTime.day
-			PERLEN = self.modelTime.day
+			NSTP   = 30; self.modelTime.day
+			PERLEN = 30; self.modelTime.day
 			pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
@@ -299,6 +296,12 @@ class mymodflow(DynamicModel):
 			RCLOSE = 160000
 			pcr_modflow.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
+	def dynamic(self):
+	
+		self.modelTime.update(self.currentTimeStep())
+		
+		if self.modelTime.isLastDayOfMonth():
+		
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
 			
