@@ -8,7 +8,6 @@ import os
 import sys
 import datetime
 
-from pcraster import *
 from pcraster.framework import *
 import pcraster as pcr
 
@@ -91,30 +90,30 @@ class mymodflow(DynamicModel):
 		                                   varUnits = self.netcdf_output["unit"][variable])
 
 	def initial (self):
-		iHeadini			=	self.readmap("/projects/0/dfguu/users/inge/modflow_coupling_global_natural/head_topMF")		
-		landmask			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask")
-		dem_ini				= 	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_avg_05min")
-		min_dem				=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min")
-		cellarea			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/cellArea_05min")
-		riv_slope			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/gradient_05min")
-		Z0_floodplain		=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_floodplain_05min")
-		aqdepth				= 	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/damc_ave")
-		spe_yi_inp_ori			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/StorCoeff_NEW")
-		KQ3					=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW")
-		conflayers			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4")				
-		ksat_log			=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave")
-		ksat_l1_conf_log	=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave")
-		ksat_l2_conf_log	=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave")		
-		ldd					=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd")
-		qbank				=	self.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs")
+		iHeadini			=	pcr.readmap("/projects/0/dfguu/users/inge/modflow_coupling_global_natural/head_topMF")		
+		landmask			=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask")
+		dem_ini				= 	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_avg_05min")
+		min_dem				=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min")
+		cellarea			=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/cellArea_05min")
+		riv_slope			=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/gradient_05min")
+		Z0_floodplain		=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_floodplain_05min")
+		aqdepth				= 	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/damc_ave")
+		spe_yi_inp_ori		=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/StorCoeff_NEW")
+		KQ3					=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW")
+		conflayers			=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4")				
+		ksat_log			=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave")
+		ksat_l1_conf_log	=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave")
+		ksat_l2_conf_log	=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave")		
+		ldd					=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd")
+		qbank				=	pcr.readmap("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs")
 		self.landmask		=	landmask
 		self.dem			=	dem_ini
 		self.cellarea		=	cellarea
 		self.min_dem		=	min_dem
 		aqdepth_ini			=	aqdepth
 		self.aqdepth_ini	=	aqdepth_ini
-		aqdepth				=	cover(ifthenelse(aqdepth > 0.0, aqdepth, 200.0),200.0)			## over land max 200 m, over sea 200m			
-		dem					=	cover(ifthen(landmask, dem_ini),0.0)
+		aqdepth				=	pcr.cover(pcr.ifthenelse(aqdepth > 0.0, aqdepth, 200.0),200.0)			## over land max 200 m, over sea 200m			
+		dem					=	pcr.cover(pcr.ifthen(landmask, dem_ini),0.0)
 		top_l2				=	dem
 		bottom_l1			=	dem-aqdepth
 		top_l1				=	top_l2- (aqdepth*0.1)				     						## layer 2 is 10% total thickness	
@@ -133,7 +132,7 @@ class mymodflow(DynamicModel):
 		# self.pcr_modflow.setDISParameter(4,2,1,1,1,0)	
 		
 		# set boundary conditions
-		ibound_l1			= 	cover(ifthen(landmask, nominal(1)),nominal(-1))
+		ibound_l1			= 	pcr.cover(pcr.ifthen(landmask, nominal(1)),nominal(-1))
 		
 		self.input_ibound = ibound_l1
 		
@@ -141,7 +140,7 @@ class mymodflow(DynamicModel):
 		#~ self.pcr_modflow.setBoundary(ibound_l1,1)
 		
 		## set initial values
-		iHead				=	cover(iHeadini,0.0)						 			
+		iHead				=	pcr.cover(iHeadini,0.0)						 			
 		
 		#~ self.pcr_modflow.setInitialHead(iHead,2)
 		#~ self.pcr_modflow.setInitialHead(iHead,1)	
@@ -156,44 +155,44 @@ class mymodflow(DynamicModel):
 		
 		dikte_l2_ini		=	aqdepth*0.1								# top layer			
 		dikte_l1_ini		=	aqdepth - dikte_l2_ini					# bottom layer		
-		dikte_l2			=	ifthen(landmask, cover(dikte_l2_ini, 20.0))
-		dikte_l1			=   ifthen(landmask, cover(dikte_l1_ini, 180.0))
+		dikte_l2			=	pcr.ifthen(landmask, pcr.cover(dikte_l2_ini, 20.0))
+		dikte_l1			=   pcr.ifthen(landmask, pcr.cover(dikte_l1_ini, 180.0))
 		self.dikte_l1		= 	dikte_l1
 		self.dikte_l2		= 	dikte_l2
 		#-no confined layers
 		ksat_inp_ini		=	rho_water* (10**ksat_log)* (g_gravity/ miu_water) *24.0 *3600.0		
 		#-confining layers 	
 		## conf maps are read in read maps 				
-		conflayers			=	cover(conflayers, boolean(0))
+		conflayers			=	pcr.cover(conflayers, boolean(0))
 		#-khorizontal 
 		ksat_l1_conf		=	rho_water* (10**ksat_l1_conf_log)* (g_gravity/ miu_water) *24.0 *3600.0    # fine grained    
 		ksat_l2_conf		= 	rho_water* (10**ksat_l2_conf_log)* (g_gravity/ miu_water) *24.0 *3600.0	   # coarse grained		
-		khoriz_l1_ini		=	cover(ksat_l1_conf, ksat_inp_ini)
-		khoriz_l2_ini		=	cover(ksat_l2_conf, ksat_inp_ini)
+		khoriz_l1_ini		=	pcr.cover(ksat_l1_conf, ksat_inp_ini)
+		khoriz_l2_ini		=	pcr.cover(ksat_l2_conf, ksat_inp_ini)
 		# minumim value for aquifer areas:
-		khoriz_l1_ini		=	ifthenelse(aqdepth >-999.9, max(khoriz_l1_ini,0.01),khoriz_l1_ini)      #**
-		khoriz_l2_ini		=	ifthenelse(aqdepth >-999.9, max(khoriz_l2_ini,0.01),khoriz_l2_ini)		#**			# minimum value = fine grained unc. sed.
+		khoriz_l1_ini		=	pcr.ifthenelse(aqdepth >-999.9, max(khoriz_l1_ini,0.01),khoriz_l1_ini)      #**
+		khoriz_l2_ini		=	pcr.ifthenelse(aqdepth >-999.9, max(khoriz_l2_ini,0.01),khoriz_l2_ini)		#**			# minimum value = fine grained unc. sed.
 		#k vertical
-		#kvert_l2_ini		=	ifthenelse(khoriz_l2_ini > -999.9, (khoriz_l2_ini*cellarea)/((5.0/60.0)**2.0),(10.0*cellarea)/((5.0/60.0)**2.0))
-		#kvert_l1			=	ifthenelse(khoriz_l1_ini > -999.9, (10*cellarea)/((5.0/60.0)**2.0),(10.0*cellarea)/((5.0/60.0)**2.0))
+		#kvert_l2_ini		=	pcr.ifthenelse(khoriz_l2_ini > -999.9, (khoriz_l2_ini*cellarea)/((5.0/60.0)**2.0),(10.0*cellarea)/((5.0/60.0)**2.0))
+		#kvert_l1			=	pcr.ifthenelse(khoriz_l1_ini > -999.9, (10*cellarea)/((5.0/60.0)**2.0),(10.0*cellarea)/((5.0/60.0)**2.0))
 		#kvert_l2				=	max(dikte_l2/5000, kvert_l2_ini)  #**
-		#kvert_l2			=	cover(ifthenelse(conflayers == boolean(1), (0.008*cellarea)/((5.0/60.0)**2.0), kvert_l2_ini),kvert_l2_ini)
+		#kvert_l2			=	pcr.cover(pcr.ifthenelse(conflayers == boolean(1), (0.008*cellarea)/((5.0/60.0)**2.0), kvert_l2_ini),kvert_l2_ini)
 		kD_l2_ini			=	khoriz_l2_ini*(dikte_l2)
 		kD_l1_ini			=	khoriz_l1_ini*(dikte_l1)	
 		kD_l2				=	max(30,kD_l2_ini)
 		kD_l1				=	max(30,kD_l1_ini)
-		khoriz_l2_ori			=	cover(kD_l2/(dikte_l2),20.) 			#10.
-		khoriz_l1_ori			=	cover(kD_l1/(dikte_l1),190.)	 		#90.	
+		khoriz_l2_ori			=	pcr.cover(kD_l2/(dikte_l2),20.) 			#10.
+		khoriz_l1_ori			=	pcr.cover(kD_l1/(dikte_l1),190.)	 		#90.	
 		#################################
 		khoriz_l2 = khoriz_l2_ori * 10**(0)
 		khoriz_l1 = khoriz_l1_ori * 10**(0)
-		kvert_l2_ori = khoriz_l2	#cover(kvert_l2,1E10)
-		kvert_l1_ori = khoriz_l1	#cover(kvert_l1,1E10)
+		kvert_l2_ori = khoriz_l2	#pcr.cover(kvert_l2,1E10)
+		kvert_l1_ori = khoriz_l1	#pcr.cover(kvert_l1,1E10)
 		# kvert range, but do make sure kvert <= khoriz
 		kvert_l2 = min(kvert_l2_ori * 10**(-2), khoriz_l2)
 		kvert_l1 = min(kvert_l1_ori * 10**(-2), khoriz_l1)
-		kvert_l2 = cover((kvert_l2*cellarea)/((5.0/60.0)**2.0),1E10)
-		kvert_l1 = cover(max(1E99,(kvert_l1*cellarea)/((5.0/60.0)**2.0)),1E10)  # kvert onderste laag is nu super hoog
+		kvert_l2 = pcr.cover((kvert_l2*cellarea)/((5.0/60.0)**2.0),1E10)
+		kvert_l1 = pcr.cover(max(1E99,(kvert_l1*cellarea)/((5.0/60.0)**2.0)),1E10)  # kvert onderste laag is nu super hoog
 		################################
 		#~ pcr.report(kD_l2, "kD_l2.map")
 		#~ pcr.report(kD_l1, "kD_l1.map")
@@ -207,14 +206,14 @@ class mymodflow(DynamicModel):
 		self.input_khoriz_l1 = khoriz_l1
 
 		# set storage
-		spe_yi_inp			=	ifthen(landmask, spe_yi_inp_ori * 0.5)
+		spe_yi_inp			=	pcr.ifthen(landmask, spe_yi_inp_ori * 0.5)
 		spe_yi_inp			=	min(1.0, max(0.01,spe_yi_inp))	
 		#- Limit for aquifer area
-		spe_yi_inp			=	ifthenelse(aqdepth >-999.9, max(spe_yi_inp, 0.11), spe_yi_inp)    # if in aquifer spec yield is miminal fine grained
+		spe_yi_inp			=	pcr.ifthenelse(aqdepth >-999.9, max(spe_yi_inp, 0.11), spe_yi_inp)    # if in aquifer spec yield is miminal fine grained
 		#stor_coef			=	scalar(0.01)
-		#stor_conf			=	cover(cover(ifthenelse(conflayers == boolean(1), stor_coef, spe_yi_inp),spe_yi_inp),1000.0)	 
-		stor_prim			=	cover(spe_yi_inp,1000.0)
-		stor_sec			=	cover(spe_yi_inp,1000.0)
+		#stor_conf			=	pcr.cover(pcr.cover(pcr.ifthenelse(conflayers == boolean(1), stor_coef, spe_yi_inp),spe_yi_inp),1000.0)	 
+		stor_prim			=	pcr.cover(spe_yi_inp,1000.0)
+		stor_sec			=	pcr.cover(spe_yi_inp,1000.0)
 
 		#~ self.pcr_modflow.setStorage(stor_prim, stor_sec,1)
 		#~ self.pcr_modflow.setStorage(stor_prim, stor_sec,2)
@@ -231,31 +230,31 @@ class mymodflow(DynamicModel):
 		resistance			=	scalar(1.0)
 		self.resistance		=	resistance
 		riv_bedres_inp		=	scalar(1.0000)
-		min_dem2			=	ifthenelse(min_dem < 0.0, 0.0, min_dem)
-		Z0_floodplain2		= 	ifthenelse(Z0_floodplain < 0.0, max(min_dem2,Z0_floodplain),Z0_floodplain)
+		min_dem2			=	pcr.ifthenelse(min_dem < 0.0, 0.0, min_dem)
+		Z0_floodplain2		= 	pcr.ifthenelse(Z0_floodplain < 0.0, max(min_dem2,Z0_floodplain),Z0_floodplain)
 		
 		riv_width			= 	4.8* ((qbank)**0.5)
 		self.riv_width		=	max(riv_width,0.5) #*** minimum gegeven 
 	    # RIVERS ONLY
-		riv_slope			=	ifthen(riv_width > 0.0, riv_slope)
-		self.riv_slope_used	= 	ifthen(riv_slope > 0.00005, riv_slope)	    #** bigger									
-		self.riv_head_ini	= 	cover(ifthenelse(riv_width > 30.0, Z0_floodplain2,top_l2),0.0)
+		riv_slope			=	pcr.ifthen(riv_width > 0.0, riv_slope)
+		self.riv_slope_used	= 	pcr.ifthen(riv_slope > 0.00005, riv_slope)	    #** bigger									
+		self.riv_head_ini	= 	pcr.cover(pcr.ifthenelse(riv_width > 30.0, Z0_floodplain2,top_l2),0.0)
 		self.riv_depth_bkfl	= 	((riv_manning*(qbank)**0.5)/(self.riv_width*self.riv_slope_used**0.5))**(3.0/5.0)
 		self.riv_bot_bkfl	=	min_dem2- self.riv_depth_bkfl
 	
 		# adding drain
 		# base of groundwater that contribute to baseflow
 		DZS3INFLUENCED		=	scalar(5.0)
-		BASE_S3				=	areaminimum(Z0_floodplain2, subcatchment(ldd, nominal(uniqueid(ifthen(Z0_floodplain2 > -999.9, boolean(1))))))
+		BASE_S3				=	pcr.areaminimum(Z0_floodplain2, subcatchment(ldd, nominal(uniqueid(pcr.ifthen(Z0_floodplain2 > -999.9, boolean(1))))))
 		BASE_S3				=	max(Z0_floodplain2- DZS3INFLUENCED, downstream(ldd,Z0_floodplain2),BASE_S3)			# for mountainous areas
-		BASE_S3				=	ifthenelse(aqdepth > -9999.9, max(Z0_floodplain, BASE_S3), BASE_S3)					# for aquifers
-		self.BASE_S3_used	=	cover(BASE_S3,-900000.0)
-		storcoef_act		=	ifthenelse(landmask, spe_yi_inp,0.0)
-		KQ3					=	cover(min(1.0,KQ3),0.0)		#**
+		BASE_S3				=	pcr.ifthenelse(aqdepth > -9999.9, max(Z0_floodplain, BASE_S3), BASE_S3)					# for aquifers
+		self.BASE_S3_used	=	pcr.cover(BASE_S3,-900000.0)
+		storcoef_act		=	pcr.ifthenelse(landmask, spe_yi_inp,0.0)
+		KQ3					=	pcr.cover(min(1.0,KQ3),0.0)		#**
 		KQ3min				=	1.0e-4 						#**
 		KQ3					=	max(KQ3min,KQ3)				#**
-		KQ3_x_Sy			=	cover(KQ3* storcoef_act, 0.0)			#**
-		self.KQ3_x_Sy_AR	=	cover(ifthenelse(self.BASE_S3_used == -900000.0, 0.0, KQ3_x_Sy*cellarea),0.0)
+		KQ3_x_Sy			=	pcr.cover(KQ3* storcoef_act, 0.0)			#**
+		self.KQ3_x_Sy_AR	=	pcr.cover(pcr.ifthenelse(self.BASE_S3_used == -900000.0, 0.0, KQ3_x_Sy*cellarea),0.0)
 		#self.storcoef_act	=	stor_conf
 		self.storcoef_act	= 	stor_prim
 		
@@ -341,32 +340,32 @@ class mymodflow(DynamicModel):
 			#-aqverage
 			qaverage			=	Qinp
 			riv_depth_avg1		= 	((self.riv_manning*((qaverage)**0.5))/(self.riv_width*self.riv_slope_used**0.5))**(3.0/5.0)
-			riv_depth_avg		=	ifthenelse(riv_depth_avg1 < 0.01, 0.0, riv_depth_avg1)
+			riv_depth_avg		=	pcr.ifthenelse(riv_depth_avg1 < 0.01, 0.0, riv_depth_avg1)
 			riv_head			=	self.riv_bot_bkfl + riv_depth_avg
-			riv_head2			= 	cover(riv_head,self.riv_head_ini)
-			riv_cond			= 	cover((1/self.resistance)*ifthenelse(self.riv_width >= 30.0, self.riv_width*(self.cellarea*2.0)**0.5,0.0),0.0)
-			drn_width			= 	ifthenelse(riv_cond == 0.0, max(10.0,self.riv_width),0.0)								
-			drn_cond			=	cover(ifthenelse(riv_cond == 0.0,(1.0/self.resistance)*drn_width*(self.cellarea*2)**0.5,0.0),0.0) 
-			drn_cond			=	ifthenelse(abs(drn_cond) < 1e-20, 0.0, drn_cond)						
+			riv_head2			= 	pcr.cover(riv_head,self.riv_head_ini)
+			riv_cond			= 	pcr.cover((1/self.resistance)*pcr.ifthenelse(self.riv_width >= 30.0, self.riv_width*(self.cellarea*2.0)**0.5,0.0),0.0)
+			drn_width			= 	pcr.ifthenelse(riv_cond == 0.0, max(10.0,self.riv_width),0.0)								
+			drn_cond			=	pcr.cover(pcr.ifthenelse(riv_cond == 0.0,(1.0/self.resistance)*drn_width*(self.cellarea*2)**0.5,0.0),0.0) 
+			drn_cond			=	pcr.ifthenelse(abs(drn_cond) < 1e-20, 0.0, drn_cond)						
 			
-			riv_head_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_head2, self.riv_head_ini),0.0)
-			riv_bot_comb		=	cover(ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
-			riv_cond_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
+			riv_head_comb		=	pcr.cover(pcr.ifthenelse(riv_cond > 0.0, riv_head2, self.riv_head_ini),0.0)
+			riv_bot_comb		=	pcr.cover(pcr.ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
+			riv_cond_comb		=	pcr.cover(pcr.ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
 			
 			#~ self.pcr_modflow.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
 			#~ 
 			#~ self.pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
 			
 			
-			totGW_used = cover(ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
+			totGW_used = pcr.cover(pcr.ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
 			totGW_used_2 = (totGW_used*(10.0**6.0))
-			totGW_used_m3d = cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
+			totGW_used_m3d = pcr.cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
 			
 			#~ self.pcr_modflow.setWell(totGW_used_m3d,1)
 			
 			rch_hum = rch_human
-			rch = cover(ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
-			rch_inp = cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
+			rch = pcr.cover(pcr.ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
+			rch_inp = pcr.cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
 			
 			#~ self.pcr_modflow.setRecharge(rch_inp,1)			
 					
@@ -397,13 +396,13 @@ class mymodflow(DynamicModel):
 			#~ self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
 			#~ self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
 #~ 
-			#~ self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
-			#~ self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
-			#~ self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
-			#~ self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
-			#~ self.head_diffMF	= 	ifthen(self.landmask,head_diff)
-			#~ self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
-			#~ self.rechargeMF		= 	ifthen(self.landmask,recharge)
+			#~ self.depth_bottomMF	= 	pcr.ifthen(self.landmask,gw_depth1)
+			#~ self.depth_topMF	= 	pcr.ifthen(self.landmask,gw_depth2)
+			#~ self.riv_baseflowMF	= 	pcr.ifthen(self.landmask,riv_baseflow)
+			#~ self.drn_baseflowMF	= 	pcr.ifthen(self.landmask,drn_baseflow)
+			#~ self.head_diffMF	= 	pcr.ifthen(self.landmask,head_diff)
+			#~ self.tot_baseflowMF	= 	pcr.ifthen(self.landmask,riv_baseflow + drn_baseflow)
+			#~ self.rechargeMF		= 	pcr.ifthen(self.landmask,recharge)
 			#~ head_topMF 		= 	gw_head2
 			#~ head_bottomMF 	= 	gw_head1
 			#~ tot_baseflowMF	=	riv_baseflow + drn_baseflow
