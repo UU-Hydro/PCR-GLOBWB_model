@@ -429,9 +429,9 @@ class mymodflow(DynamicModel):
 										#~ chosenVarField, \
 										#~ timeStamp)
 
-			# clear the modflow object
-			self.pcr_modflow = None
-			del self.pcr_modflow
+			#~ # clear the modflow object
+			#~ self.pcr_modflow = None
+			#~ del self.pcr_modflow
 
 def main():
 	
