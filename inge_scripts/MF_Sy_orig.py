@@ -346,11 +346,11 @@ class mymodflow(DynamicModel):
 			head_bottomMF 	= 	gw_head1
 			tot_baseflowMF	=	riv_baseflow + drn_baseflow
 			# - report new initial conditions 
-			pcr.report(head_topMF, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/head_topMF.map")
-			pcr.report(head_topMF, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/ini/head_topMF")
-			pcr.report(head_bottomMF, "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
-			pcr.report(gw_depth2, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/depth_topMF.map")
-			pcr.report(tot_baseflowMF, "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
+			#~ pcr.report(head_topMF, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/head_topMF.map")
+			#~ pcr.report(head_topMF, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/ini/head_topMF")
+			#~ pcr.report(head_bottomMF, "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
+			#~ pcr.report(gw_depth2, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/depth_topMF.map")
+			#~ pcr.report(tot_baseflowMF, "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
 					
 			timeStamp 	= 	datetime.datetime(self.modelTime.year,\
 									self.modelTime.month,\
