@@ -121,7 +121,7 @@ class mymodflow(DynamicModel):
 				
 		#* OLD
 		# simulaton parameter
-		# mf.setDISParameter(4,2,1,1,1,0)	
+		mf.setDISParameter(4,2,1,1,1,0)	
 		
 		# set boundary conditions
 		ibound_l1			= 	cover(ifthen(landmask, nominal(1)),nominal(-1))
@@ -235,7 +235,7 @@ class mymodflow(DynamicModel):
 		#self.storcoef_act	=	stor_conf
 		self.storcoef_act	= 	stor_prim
 		
-		mf.setDISParameter(4,2,1,1,1,0)
+		#~ mf.setDISParameter(4,2,1,1,1,0)
 		
 	def dynamic(self):
 	
