@@ -241,120 +241,120 @@ class mymodflow(DynamicModel):
 		
 		if self.modelTime.isLastDayOfMonth():
 		
-		    dateInput = self.modelTime.fulldate		
-		    print(dateInput)		
-
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
-		    varName = "recharge"	
-		    print(ncFile)
-		    rch_human = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+			dateInput = self.modelTime.fulldate		
+			print(dateInput)		
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
+			varName = "recharge"	
+			print(ncFile)
+			rch_human = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
-		    varName = "rechargeTotal"
-		    print(ncFile)
-		    rch_nat= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
-						 	useDoy = None,
-							cloneMapFileName = self.cloneMap, \
-							)
-		
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/discharge_hum_monthAvg_output.nc"
-		    varName = "discharge"
-		    print(ncFile)
-		    Qinp= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
+			varName = "rechargeTotal"
+			print(ncFile)
+			rch_nat= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-		
-		    ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/gwab_m3_05min.nc"
-		    varName = "gwab_m3_05min"
-		    print(ncFile)
-		    totGW = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+			
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/discharge_hum_monthAvg_output.nc"
+			varName = "discharge"
+			print(ncFile)
+			Qinp= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
-		
-		# river package
-		#-aqverage
-	    	    qaverage			=	Qinp
-		    riv_depth_avg1		= 	((self.riv_manning*((qaverage)**0.5))/(self.riv_width*self.riv_slope_used**0.5))**(3.0/5.0)
-		    riv_depth_avg		=	ifthenelse(riv_depth_avg1 < 0.01, 0.0, riv_depth_avg1)
-		    riv_head			=	self.riv_bot_bkfl + riv_depth_avg
-		    riv_head2			= 	cover(riv_head,self.riv_head_ini)
-		    riv_cond			= 	cover((1/self.resistance)*ifthenelse(self.riv_width >= 30.0, self.riv_width*(self.cellarea*2.0)**0.5,0.0),0.0)
-		    drn_width			= 	ifthenelse(riv_cond == 0.0, max(10.0,self.riv_width),0.0)								
-		    drn_cond			=	cover(ifthenelse(riv_cond == 0.0,(1.0/self.resistance)*drn_width*(self.cellarea*2)**0.5,0.0),0.0) 
-		    drn_cond			=	ifthenelse(abs(drn_cond) < 1e-20, 0.0, drn_cond)						
 			
-		    riv_head_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_head2, self.riv_head_ini),0.0)
-		    riv_bot_comb		=	cover(ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
-		    riv_cond_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
+			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/gwab_m3_05min.nc"
+			varName = "gwab_m3_05min"
+			print(ncFile)
+			totGW = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
+							useDoy = None,
+							cloneMapFileName = self.cloneMap, \
+							)
 			
-		    mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
+			# river package
+			#-aqverage
+			qaverage			=	Qinp
+			riv_depth_avg1		= 	((self.riv_manning*((qaverage)**0.5))/(self.riv_width*self.riv_slope_used**0.5))**(3.0/5.0)
+			riv_depth_avg		=	ifthenelse(riv_depth_avg1 < 0.01, 0.0, riv_depth_avg1)
+			riv_head			=	self.riv_bot_bkfl + riv_depth_avg
+			riv_head2			= 	cover(riv_head,self.riv_head_ini)
+			riv_cond			= 	cover((1/self.resistance)*ifthenelse(self.riv_width >= 30.0, self.riv_width*(self.cellarea*2.0)**0.5,0.0),0.0)
+			drn_width			= 	ifthenelse(riv_cond == 0.0, max(10.0,self.riv_width),0.0)								
+			drn_cond			=	cover(ifthenelse(riv_cond == 0.0,(1.0/self.resistance)*drn_width*(self.cellarea*2)**0.5,0.0),0.0) 
+			drn_cond			=	ifthenelse(abs(drn_cond) < 1e-20, 0.0, drn_cond)						
 			
-		    mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
+			riv_head_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_head2, self.riv_head_ini),0.0)
+			riv_bot_comb		=	cover(ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
+			riv_cond_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
 			
-
-		    totGW_used = cover(ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
-		    totGW_used_2 = (totGW_used*(10.0**6.0))
-	    	totGW_used_m3d = cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
+			mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
 			
-		    mf.setWell(totGW_used_m3d,1)
-		
-		    rch_hum = rch_human
-		    rch = cover(ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
- 		    rch_inp = cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
-		
-		    mf.setRecharge(rch_inp,1)			
+			mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
+			
+			
+			totGW_used = cover(ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
+			totGW_used_2 = (totGW_used*(10.0**6.0))
+			totGW_used_m3d = cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
+			
+			mf.setWell(totGW_used_m3d,1)
+			
+			rch_hum = rch_human
+			rch = cover(ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
+			rch_inp = cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
+			
+			mf.setRecharge(rch_inp,1)			
 					
 			# execuate MODFLOW
-		    mf.run()
-		
-		# retrieve outputs
-		    gw_head1			=	mf.getHeads(1)
-		    gw_head2			=	mf.getHeads(2)
-		    riv_baseflow		=	mf.getRiverLeakage(2)
-		    drn_baseflow		=	mf.getDrain(2)
-		    recharge			=	mf.getRecharge(2)
+			mf.run()
+			
+			# retrieve outputs
+			gw_head1			=	mf.getHeads(1)
+			gw_head2			=	mf.getHeads(2)
+			riv_baseflow		=	mf.getRiverLeakage(2)
+			drn_baseflow		=	mf.getDrain(2)
+			recharge			=	mf.getRecharge(2)
 							
-		    gw_depth2			=	self.dem- gw_head2
-		    gw_depth1			=	self.dem- gw_head1
-		    head_diff			=	gw_head1-gw_head2
+			gw_depth2			=	self.dem- gw_head2
+			gw_depth1			=	self.dem- gw_head1
+			head_diff			=	gw_head1-gw_head2
 			
 			# reporting all outputs from MF to de netcdf-dir	
 			# all outputs are masked		
-		    self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
-		    self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
-		    self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
-		    self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
-		    self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
-		    self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
-		    self.head_diffMF	= 	ifthen(self.landmask,head_diff)
-		    self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
-		    self.rechargeMF		= 	ifthen(self.landmask,recharge)
-		    head_topMF 		= 	gw_head2
-		    head_bottomMF 	= 	gw_head1
-		    tot_baseflowMF	=	riv_baseflow + drn_baseflow
-		# - report new initial conditions 
-		    pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_topMF.map")
-		    pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/ini/head_topMF")
-		    pcr.report(head_bottomMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
-		    pcr.report(gw_depth2, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/depth_topMF.map")
-		    pcr.report(tot_baseflowMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
+			self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
+			self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
+			self.depth_bottomMF	= 	ifthen(self.landmask,gw_depth1)
+			self.depth_topMF	= 	ifthen(self.landmask,gw_depth2)
+			self.riv_baseflowMF	= 	ifthen(self.landmask,riv_baseflow)
+			self.drn_baseflowMF	= 	ifthen(self.landmask,drn_baseflow)
+			self.head_diffMF	= 	ifthen(self.landmask,head_diff)
+			self.tot_baseflowMF	= 	ifthen(self.landmask,riv_baseflow + drn_baseflow)
+			self.rechargeMF		= 	ifthen(self.landmask,recharge)
+			head_topMF 		= 	gw_head2
+			head_bottomMF 	= 	gw_head1
+			tot_baseflowMF	=	riv_baseflow + drn_baseflow
+			# - report new initial conditions 
+			pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_topMF.map")
+			pcr.report(head_topMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/ini/head_topMF")
+			pcr.report(head_bottomMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/head_bottomMF.map")							## --> can the dir-path be automatic  
+			pcr.report(gw_depth2, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/depth_topMF.map")
+			pcr.report(tot_baseflowMF, "/projects/0/dfguu/users/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
 					
-		    timeStamp 	= 	datetime.datetime(self.modelTime.year,\
+			timeStamp 	= 	datetime.datetime(self.modelTime.year,\
 									self.modelTime.month,\
 									self.modelTime.day,\
 									0)
-	
+			
 			# reporting to netcdf files
 			#self.outNCDir  = iniItems.outNCDir
 			outDir	=	"/projects/0/dfguu/users/edwin/modflow_Sy1/tmp_ori/"
-		    for variable in self.variable_output:
-			    chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-			    self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
+			for variable in self.variable_output:
+				chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
+				self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
 										varName = variable,\
 										varField = chosenVarField,
 										timeStamp = timeStamp)
