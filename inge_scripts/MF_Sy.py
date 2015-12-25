@@ -287,8 +287,8 @@ class mymodflow(DynamicModel):
 			pcr_modflow.setInitialHead(self.head_topMF 	, 2)	
 
 			# simulation parameters
-			NSTP   = 30; self.modelTime.day
-			PERLEN = 30; self.modelTime.day
+			NSTP   = 30 # self.modelTime.day
+			PERLEN = 30 # self.modelTime.day
 			pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
