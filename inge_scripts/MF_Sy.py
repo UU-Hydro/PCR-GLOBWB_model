@@ -431,23 +431,17 @@ class mymodflow(DynamicModel):
 			#~ pcr_modflow = None
 			#~ del pcr_modflow
 
-def main():
-	
-	cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-	strStartTime = sys.argv[1]
-	strEndTime   = sys.argv[2]
-	
-	output_directory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
-	
-	# initiating modelTime object
-	modelTime = ModelTime()
-	modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
-	
-	myModel			= mymodflow(cloneMap,modelTime,output_directory)
-	pcr_modflow = pcr.initialise(pcr.clone())
-	DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
-	DynamicModel.run()			 
-	
-if __name__ == '__main__':
-    sys.exit(main())
-	
+cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+strStartTime = sys.argv[1]
+strEndTime   = sys.argv[2]
+
+output_directory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+
+# initiating modelTime object
+modelTime = ModelTime()
+modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
+
+myModel			= mymodflow(cloneMap,modelTime,output_directory)
+pcr_modflow = pcr.initialise(pcr.clone())
+DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
+DynamicModel.run()			 
