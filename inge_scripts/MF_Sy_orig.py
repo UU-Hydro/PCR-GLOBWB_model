@@ -352,20 +352,20 @@ class mymodflow(DynamicModel):
 			#~ pcr.report(gw_depth2, "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/depth_topMF.map")
 			#~ pcr.report(tot_baseflowMF, "/projects/0/dfguu/edwin/inge/modflow_Sy1/tmp/tot_baseflowMF.map")
 					
-			timeStamp 	= 	datetime.datetime(self.modelTime.year,\
-									self.modelTime.month,\
-									self.modelTime.day,\
-									0)
-			
-			# reporting to netcdf files
-			#self.outNCDir  = iniItems.outNCDir
-			outDir	=	"/projects/0/dfguu/users/edwin/modflow_Sy1/tmp_ori/"
-			for variable in self.variable_output:
-				chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-				self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
-										varName = variable,\
-										varField = chosenVarField,
-										timeStamp = timeStamp)
+			#~ timeStamp 	= 	datetime.datetime(self.modelTime.year,\
+									#~ self.modelTime.month,\
+									#~ self.modelTime.day,\
+									#~ 0)
+			#~ 
+			#~ # reporting to netcdf files
+			#~ #self.outNCDir  = iniItems.outNCDir
+			#~ outDir	=	"/projects/0/dfguu/users/edwin/modflow_Sy1/tmp_ori/"
+			#~ for variable in self.variable_output:
+				#~ chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
+				#~ self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
+										#~ varName = variable,\
+										#~ varField = chosenVarField,
+										#~ timeStamp = timeStamp)
 
 cloneMap 		= "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
 strStartTime = sys.argv[1]
