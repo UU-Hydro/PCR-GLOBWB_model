@@ -428,9 +428,9 @@ class mymodflow(DynamicModel):
 										#~ chosenVarField, \
 										#~ timeStamp)
 
-			#~ # clear the modflow object
-			#~ pcr_modflow = None
-			#~ del pcr_modflow
+			# clear the modflow object
+			pcr_modflow = None
+			del pcr_modflow
 
 cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
 strStartTime = sys.argv[1]
