@@ -416,7 +416,7 @@ class mymodflow(DynamicModel):
 			del pcr_modflow
 
 cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-cloneMap 	 = "/projects/0/dfguu/data/hydroworld/others/Japan/Japan05min.clone.map"
+#~ cloneMap 	 = "/projects/0/dfguu/data/hydroworld/others/Japan/Japan05min.clone.map"
 strStartTime = sys.argv[1]
 strEndTime   = sys.argv[2]
 
