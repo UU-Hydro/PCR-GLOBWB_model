@@ -39,8 +39,8 @@ class PCRasterModflow():
 		self.pcr_modflow.setStorage(input_stor_prim, input_stor_sec,2)
 		
 		# initial heads
-		self.pcr_modflow.setInitialHead(initial_head_bottom, 1)
-		self.pcr_modflow.setInitialHead(initial_head_top,    2)	
+		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
+		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
 
 		# simulation parameters
 		NSTP   = modelTime.day
@@ -61,6 +61,6 @@ class PCRasterModflow():
 		gw_head_1 = self.pcr_modflow.getHeads(1)
 		gw_head_2 = self.pcr_modflow.getHeads(2)
 		
-		self.head_bottomMF = gw_head_1
-		self.head_topMF    = gw_head_2
+		self.head_bottomMF = pcr.scalar(gw_head_1)
+		self.head_topMF    = pcr.scalar(gw_head_2)
 
