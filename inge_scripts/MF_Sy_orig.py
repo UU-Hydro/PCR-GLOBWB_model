@@ -29,7 +29,11 @@ class mymodflow(DynamicModel):
 									"rechargeMF"] 
 									 
 		# initiate netcdf report class
-		self.netcdfReport 		= 	ncReport.PCR2netCDF(self.cloneMap)
+		specificAttributeDictionary = {}
+		specificAttributeDictionary['institution'] = 'test'
+		specificAttributeDictionary['title'      ] = 'test'
+		specificAttributeDictionary['description'] = 'test'		
+		self.netcdfReport = ncReport.PCR2netCDF(self.cloneMap, specificAttributeDictionary)
 		
 		# output netcdf files; variable names and units:
 		self.netcdf_output 	= 	{}
