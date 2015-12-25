@@ -270,7 +270,8 @@ class mymodflow(DynamicModel):
 		
 			pcr_modflow = None
 			pcr_modflow = pcraster_modflow.PCRasterModflow(self.cloneMap)
-			pcr_modflow.initialize(self, self.modelTime, \
+			pcr_modflow.initialize(
+			             self.modelTime, \
 	                     self.input_bottom_l1, self.self.input_top_l1, self.input_top_l2, \
 	                     self.input_ibound, \
 	                     self.input_khoriz_l1, self.input_kvert_l1, \
