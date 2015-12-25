@@ -123,28 +123,28 @@ class mymodflow(DynamicModel):
 		self.input_top_l1    = top_l2
 		self.input_top_l2    = top_l2 
 		
-		#~ pcr_modflow.createBottomLayer(bottom_l1,top_l1)
-		#~ pcr_modflow.addLayer(top_l2)
+		#~ self.pcr_modflow.createBottomLayer(bottom_l1,top_l1)
+		#~ self.pcr_modflow.addLayer(top_l2)
 	
 		self.bottom_elevation_aquifer	=	dem_ini- aqdepth												##** nodig voor groundwater storage
 				
 		#* OLD
 		# simulaton parameter
-		# pcr_modflow.setDISParameter(4,2,1,1,1,0)	
+		# self.pcr_modflow.setDISParameter(4,2,1,1,1,0)	
 		
 		# set boundary conditions
 		ibound_l1			= 	cover(ifthen(landmask, nominal(1)),nominal(-1))
 		
 		self.input_ibound = ibound_l1
 		
-		#~ pcr_modflow.setBoundary(ibound_l1,2)
-		#~ pcr_modflow.setBoundary(ibound_l1,1)
+		#~ self.pcr_modflow.setBoundary(ibound_l1,2)
+		#~ self.pcr_modflow.setBoundary(ibound_l1,1)
 		
 		## set initial values
 		iHead				=	cover(iHeadini,0.0)						 			
 		
-		#~ pcr_modflow.setInitialHead(iHead,2)
-		#~ pcr_modflow.setInitialHead(iHead,1)	
+		#~ self.pcr_modflow.setInitialHead(iHead,2)
+		#~ self.pcr_modflow.setInitialHead(iHead,1)	
 		
 		self.head_topMF    = iHead  # NOTE: THIS MUST BE FROM THE RESULT OF A STEADY STATE SIMULATION 	
 		self.head_bottomMF = iHead  # NOTE: THIS MUST BE FROM THE RESULT OF A STEADY STATE SIMULATION
@@ -198,8 +198,8 @@ class mymodflow(DynamicModel):
 		#~ pcr.report(kD_l2, "kD_l2.map")
 		#~ pcr.report(kD_l1, "kD_l1.map")
 		
-		#~ pcr_modflow.setConductivity(00, khoriz_l2, kvert_l2, 2)
-		#~ pcr_modflow.setConductivity(00, khoriz_l1, kvert_l1, 1)
+		#~ self.pcr_modflow.setConductivity(00, khoriz_l2, kvert_l2, 2)
+		#~ self.pcr_modflow.setConductivity(00, khoriz_l1, kvert_l1, 1)
 		
 		self.input_kvert_l2  = 0.5 * kvert_l2 # correction is needed here
 		self.input_kvert_l1  = kvert_l1
@@ -216,14 +216,14 @@ class mymodflow(DynamicModel):
 		stor_prim			=	cover(spe_yi_inp,1000.0)
 		stor_sec			=	cover(spe_yi_inp,1000.0)
 
-		#~ pcr_modflow.setStorage(stor_prim, stor_sec,1)
-		#~ pcr_modflow.setStorage(stor_prim, stor_sec,2)
+		#~ self.pcr_modflow.setStorage(stor_prim, stor_sec,1)
+		#~ self.pcr_modflow.setStorage(stor_prim, stor_sec,2)
 		
 		self.input_stor_prim = stor_prim
 		self.input_stor_sec  = stor_sec
 		
 		# solver
-		#~ pcr_modflow.setPCG(1500,1250,1,1,160000,0.98,2,1)	
+		#~ self.pcr_modflow.setPCG(1500,1250,1,1,160000,0.98,2,1)	
 		
 		# adding river
 		riv_manning			=	scalar(0.0450)
@@ -263,38 +263,38 @@ class mymodflow(DynamicModel):
 		if test:
 
 			# due to the changes (PERLEN and NSTP) in the DIS package, we have to re-initiate the modflow object
-			pcr_modflow = None
-			pcr_modflow = pcr.initialise(pcr.clone())	
+			self.pcr_modflow = None
+			self.pcr_modflow = pcr.initialise(pcr.clone())	
 			
 			# bottom and layer elevations
-			pcr_modflow.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
-			pcr_modflow.addLayer(self.input_top_l2)
+			self.pcr_modflow.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
+			self.pcr_modflow.addLayer(self.input_top_l2)
 			
 			# boundary conditions  
-			pcr_modflow.setBoundary(self.input_ibound,1)
-			pcr_modflow.setBoundary(self.input_ibound,2)
+			self.pcr_modflow.setBoundary(self.input_ibound,1)
+			self.pcr_modflow.setBoundary(self.input_ibound,2)
 
 			# horizontal and vertical conductivities 
-			pcr_modflow.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
-			pcr_modflow.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
+			self.pcr_modflow.setConductivity(00, self.input_khoriz_l1, self.input_kvert_l1, 1)
+			self.pcr_modflow.setConductivity(00, self.input_khoriz_l2, self.input_kvert_l2, 2)
 			
 			# storage coefficients 
-			pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,1)
-			pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,2)
+			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,1)
+			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,2)
 			
 			# initial heads
-			pcr_modflow.setInitialHead(self.head_bottomMF,1)
-			pcr_modflow.setInitialHead(self.head_topMF 	, 2)	
+			self.pcr_modflow.setInitialHead(self.head_bottomMF,1)
+			self.pcr_modflow.setInitialHead(self.head_topMF 	, 2)	
 
 			# simulation parameters
 			NSTP   = 30 # self.modelTime.day
 			PERLEN = 30 # self.modelTime.day
-			pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
+			self.pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
 			HCLOSE = 1
 			RCLOSE = 160000
-			pcr_modflow.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
+			self.pcr_modflow.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
 	def dynamic(self):
 	
@@ -353,40 +353,40 @@ class mymodflow(DynamicModel):
 			riv_bot_comb		=	cover(ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
 			riv_cond_comb		=	cover(ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
 			
-			#~ pcr_modflow.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
+			#~ self.pcr_modflow.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
 			#~ 
-			#~ pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
+			#~ self.pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
 			
 			
 			totGW_used = cover(ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
 			totGW_used_2 = (totGW_used*(10.0**6.0))
 			totGW_used_m3d = cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
 			
-			#~ pcr_modflow.setWell(totGW_used_m3d,1)
+			#~ self.pcr_modflow.setWell(totGW_used_m3d,1)
 			
 			rch_hum = rch_human
 			rch = cover(ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
 			rch_inp = cover(max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
 			
-			#~ pcr_modflow.setRecharge(rch_inp,1)			
+			#~ self.pcr_modflow.setRecharge(rch_inp,1)			
 					
 			print('before modflow')
 
 			# execuate MODFLOW
-			pcr_modflow.run()
+			self.pcr_modflow.run()
 			
 			print('after modflow')
 			
-			self.head_bottomMF	=	pcr_modflow.getHeads(1)
-			self.head_topMF 	= 	pcr_modflow.getHeads(2)
+			self.head_bottomMF	=	self.pcr_modflow.getHeads(1)
+			self.head_topMF 	= 	self.pcr_modflow.getHeads(2)
 
 			#~ # retrieve outputs
-			#~ gw_head1			=	pcr_modflow.getHeads(1)
+			#~ gw_head1			=	self.pcr_modflow.getHeads(1)
 #~ 
-			#~ gw_head2			=	pcr_modflow.getHeads(2)
-			#~ riv_baseflow		=	pcr_modflow.getRiverLeakage(2)
-			#~ drn_baseflow		=	pcr_modflow.getDrain(2)
-			#~ recharge			=	pcr_modflow.getRecharge(2)
+			#~ gw_head2			=	self.pcr_modflow.getHeads(2)
+			#~ riv_baseflow		=	self.pcr_modflow.getRiverLeakage(2)
+			#~ drn_baseflow		=	self.pcr_modflow.getDrain(2)
+			#~ recharge			=	self.pcr_modflow.getRecharge(2)
 							#~ 
 			#~ gw_depth2			=	self.dem- gw_head2
 			#~ gw_depth1			=	self.dem- gw_head1
@@ -430,8 +430,8 @@ class mymodflow(DynamicModel):
 										#~ timeStamp)
 
 			# clear the modflow object
-			pcr_modflow = None
-			del pcr_modflow
+			self.pcr_modflow = None
+			del self.pcr_modflow
 
 def main():
 	
