@@ -52,8 +52,8 @@ class PCRasterModflow():
 		self.pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 		
 		# solver parameters
-		HCLOSE = 1
-		RCLOSE = 160000
+		HCLOSE = 0.000000000000000000000001 # 1
+		RCLOSE = 0.000000000000000000000001 # 160000
 		self.pcr_modflow.setPCG(1500,1250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
 	def run(self):
