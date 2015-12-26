@@ -70,4 +70,5 @@ class PCRasterModflow():
 
 		self.pcr_modflow = None
 		del self.pcr_modflow
+		self.pcr_modflow = 0.0
 		

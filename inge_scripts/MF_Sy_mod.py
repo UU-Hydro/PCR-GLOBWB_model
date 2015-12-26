@@ -361,6 +361,7 @@ class mymodflow(DynamicModel):
 			
 			pcr_modflow = None
 			del pcr_modflow
+			pcr_modflow = 0.0
 
 			#~ # retrieve outputs
 			#~ gw_head1			=	pcr_modflow.getHeads(1)
