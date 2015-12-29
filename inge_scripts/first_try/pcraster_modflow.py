@@ -55,6 +55,8 @@ class PCRasterModflow():
 		self.pcr_modflow.setStorage(input_stor_prim, input_stor_sec,2)
 		
 		# initial heads
+		initial_head_bottom = input_top_l2 
+		initial_head_top    = input_top_l2
 		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
 		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
 		self.first_time_step = False
