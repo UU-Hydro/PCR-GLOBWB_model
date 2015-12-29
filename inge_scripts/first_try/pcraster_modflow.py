@@ -34,7 +34,6 @@ class PCRasterModflow():
 		os.system(cmd)
 		
 		self.pcr_modflow = pcr.initialise(pcr.clone())
-		self.pcr_modflow = pcr.initialise(pcr.clone())
 		
 		# bottom and layer elevations
 		self.pcr_modflow.createBottomLayer(input_bottom_l1, input_top_l1)
@@ -53,10 +52,9 @@ class PCRasterModflow():
 		self.pcr_modflow.setStorage(input_stor_prim, input_stor_sec,2)
 		
 		# initial heads
-		if self.first_time_step:
-			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
-			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
-			self.first_time_step = False
+		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
+		self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
+		self.first_time_step = False
 
 		# simulation parameters
 		NSTP   = modelTime.day
@@ -79,6 +77,10 @@ class PCRasterModflow():
 		
 		gw_head_1 = self.pcr_modflow.getHeads(1)
 		gw_head_2 = self.pcr_modflow.getHeads(2)
+		
+		riv_baseflow =	self.pcr_modflow.getRiverLeakage(2)
+		drn_baseflow =	self.pcr_modflow.getDrain(2)
+		recharge	 =	self.pcr_modflow.getRecharge(2)
 		
 		self.head_bottomMF = pcr.scalar(gw_head_1)
 		self.head_topMF    = pcr.scalar(gw_head_2)
