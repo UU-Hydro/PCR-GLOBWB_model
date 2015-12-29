@@ -23,6 +23,7 @@ class PCRasterModflow():
 		
 		self.pcr_modflow = None
 		self.pcr_modflow = pcr.initialise(pcr.clone())
+		self.pcr_modflow = pcr.initialise(pcr.clone())
 		
 		# bottom and layer elevations
 		self.pcr_modflow.createBottomLayer(input_bottom_l1, input_top_l1)
