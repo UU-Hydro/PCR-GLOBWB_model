@@ -277,7 +277,8 @@ class mymodflow(DynamicModel):
 	                     self.input_khoriz_l1, self.input_kvert_l1, \
 	                     self.input_khoriz_l2, self.input_kvert_l2, \
 	                     self.input_stor_prim, self.input_stor_sec, \
-	                     self.head_bottomMF, self.head_topMF)
+	                     self.head_bottomMF, self.head_topMF, \
+	                     self.outDir)
 
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		

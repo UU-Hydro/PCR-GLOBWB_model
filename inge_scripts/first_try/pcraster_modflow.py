@@ -19,9 +19,13 @@ class PCRasterModflow():
 	                     input_khoriz_l2, input_kvert_l2, \
 	                     input_stor_prim, input_stor_sec, \
 	                     initial_head_bottom, initial_head_top, \
-	                     ):
+	                     outDir):
 		
 		self.pcr_modflow = None
+		del self.pcr_modflow
+		
+		# remove all pcraster modflow 
+		
 		self.pcr_modflow = pcr.initialise(pcr.clone())
 		self.pcr_modflow = pcr.initialise(pcr.clone())
 		
@@ -70,7 +74,7 @@ class PCRasterModflow():
 		self.head_topMF    = pcr.scalar(gw_head_2)
 
 		del gw_head_1
-		del gw_head_2git 
+		del gw_head_2 
 		
 		self.pcr_modflow = None
 		del self.pcr_modflow
