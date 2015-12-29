@@ -30,6 +30,8 @@ class PCRasterModflow():
 		os.system(cmd)
 		cmd = 'rm '+ outDir + "/fort*"
 		os.system(cmd)
+		cmd = 'rm '+ outDir + "/mf2kerr*"
+		os.system(cmd)
 		
 		self.pcr_modflow = pcr.initialise(pcr.clone())
 		self.pcr_modflow = pcr.initialise(pcr.clone())
