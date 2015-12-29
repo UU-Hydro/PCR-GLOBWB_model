@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pcraster as pcr
+import os
 
 class PCRasterModflow():
 	
@@ -24,7 +25,11 @@ class PCRasterModflow():
 		self.pcr_modflow = None
 		del self.pcr_modflow
 		
-		# remove all pcraster modflow 
+		# remove all previous pcraster modflow files
+		cmd = 'rm '+ outDir + "/pcrmf*"
+		os.system(cmd)
+		cmd = 'rm '+ outDir + "/fort*"
+		os.system(cmd)
 		
 		self.pcr_modflow = pcr.initialise(pcr.clone())
 		self.pcr_modflow = pcr.initialise(pcr.clone())

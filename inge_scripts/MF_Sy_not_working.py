@@ -331,7 +331,6 @@ class mymodflow(DynamicModel):
 			
 			#~ mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
 			
-			
 			totGW_used = pcr.cover(pcr.ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
 			totGW_used_2 = (totGW_used*(10.0**6.0))
 			totGW_used_m3d = pcr.cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
@@ -342,8 +341,13 @@ class mymodflow(DynamicModel):
 			rch = pcr.cover(pcr.ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
 			rch_inp = pcr.cover(pcr.max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
 			
-			mf.setRecharge(rch_inp,1)			
+			#~ mf.setRecharge(rch_inp,1)			
+			
+			# initialize modflow
+			mf = None
 					
+
+
 			# execute MODFLOW
 			mf.run()
 			
