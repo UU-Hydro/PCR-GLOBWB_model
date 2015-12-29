@@ -22,7 +22,7 @@ class PCRasterModflow():
 						 initial_head_bottom, initial_head_top, \
 						 riv_head_comb, riv_bot_comb, riv_cond_comb, \
 						 BASE_S3_used, KQ3_x_Sy_AR, 
-						 rch_inp, \
+						 totGW_used_m3d, rch_inp, \
 						 outDir):
 		
 		self.pcr_modflow = None

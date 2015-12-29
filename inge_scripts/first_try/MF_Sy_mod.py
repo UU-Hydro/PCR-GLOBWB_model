@@ -347,7 +347,7 @@ class mymodflow(DynamicModel):
 	                     self.head_bottomMF, self.head_topMF, \
 	                     riv_head_comb, riv_bot_comb, riv_cond_comb, \
 	                     self.BASE_S3_used, self.KQ3_x_Sy_AR, 
-	                     rch_inp, \
+	                     totGW_used_m3d. rch_inp, \
 	                     self.outDir)
 
 			print('before modflow')
