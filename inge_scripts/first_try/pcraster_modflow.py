@@ -74,6 +74,9 @@ class PCRasterModflow():
 		
 	def get_results(self):
 
+		gw_head_1 = None
+		gw_head_2 = None
+		
 		gw_head_1 = self.pcr_modflow.getHeads(1)
 		gw_head_2 = self.pcr_modflow.getHeads(2)
 		
