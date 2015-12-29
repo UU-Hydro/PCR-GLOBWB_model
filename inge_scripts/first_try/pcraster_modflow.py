@@ -70,7 +70,7 @@ class PCRasterModflow():
 		self.pcr_modflow.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
 		self.pcr_modflow.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb, 2)
-		self.pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR, 2)
+		self.pcr_modflow.setDrain(BASE_S3_used, KQ3_x_Sy_AR, 2)
 		
 		self.pcr_modflow.setWell(totGW_used_m3d,1)
 		self.pcr_modflow.setRecharge(rch_inp,1)			
