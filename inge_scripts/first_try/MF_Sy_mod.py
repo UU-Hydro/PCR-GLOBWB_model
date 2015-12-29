@@ -268,18 +268,6 @@ class mymodflow(DynamicModel):
 		
 		if self.modelTime.isLastDayOfMonth():
 		
-			pcr_modflow = None
-			pcr_modflow = pcraster_modflow.PCRasterModflow(self.cloneMap)
-			pcr_modflow.initialize( \
-			             self.modelTime, \
-	                     self.input_bottom_l1, self.input_top_l1, self.input_top_l2, \
-	                     self.input_ibound, \
-	                     self.input_khoriz_l1, self.input_kvert_l1, \
-	                     self.input_khoriz_l2, self.input_kvert_l2, \
-	                     self.input_stor_prim, self.input_stor_sec, \
-	                     self.head_bottomMF, self.head_topMF, \
-	                     self.outDir)
-
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
 			
@@ -335,7 +323,6 @@ class mymodflow(DynamicModel):
 			#~ 
 			#~ pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
 			
-			
 			totGW_used = pcr.cover(pcr.ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
 			totGW_used_2 = (totGW_used*(10.0**6.0))
 			totGW_used_m3d = pcr.cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
@@ -348,6 +335,21 @@ class mymodflow(DynamicModel):
 			
 			#~ pcr_modflow.setRecharge(rch_inp,1)			
 					
+			pcr_modflow = None
+			pcr_modflow = pcraster_modflow.PCRasterModflow(self.cloneMap)
+			pcr_modflow.initialize( \
+			             self.modelTime, \
+	                     self.input_bottom_l1, self.input_top_l1, self.input_top_l2, \
+	                     self.input_ibound, \
+	                     self.input_khoriz_l1, self.input_kvert_l1, \
+	                     self.input_khoriz_l2, self.input_kvert_l2, \
+	                     self.input_stor_prim, self.input_stor_sec, \
+	                     self.head_bottomMF, self.head_topMF, \
+	                     riv_head_comb, riv_bot_comb, riv_cond_comb, \
+	                     self.BASE_S3_used, self.KQ3_x_Sy_AR, 
+	                     rch_inp, \
+	                     self.outDir)
+
 			print('before modflow')
 
 			# execuate MODFLOW

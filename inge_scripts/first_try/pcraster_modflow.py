@@ -20,7 +20,10 @@ class PCRasterModflow():
 	                     input_khoriz_l2, input_kvert_l2, \
 	                     input_stor_prim, input_stor_sec, \
 	                     initial_head_bottom, initial_head_top, \
-	                     outDir):
+	                     riv_head_comb, riv_bot_comb, riv_cond_comb, \
+	                     self.BASE_S3_used, self.KQ3_x_Sy_AR, 
+	                     rch_inp, \
+	                     self.outDir)
 		
 		self.pcr_modflow = None
 		del self.pcr_modflow
@@ -66,6 +69,12 @@ class PCRasterModflow():
 		RCLOSE = 160000 # 0.000000000000000000000001 # 160000
 		self.pcr_modflow.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
+		self.pcr_modflow.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb, 2)
+		self.pcr_modflow.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR, 2)
+		
+		self.pcr_modflow.setWell(totGW_used_m3d,1)
+		self.pcr_modflow.setRecharge(rch_inp,1)			
+
 	def run(self):
 	
 		self.pcr_modflow.run()
@@ -78,9 +87,9 @@ class PCRasterModflow():
 		gw_head_1 = self.pcr_modflow.getHeads(1)
 		gw_head_2 = self.pcr_modflow.getHeads(2)
 		
-		riv_baseflow =	self.pcr_modflow.getRiverLeakage(2)
-		drn_baseflow =	self.pcr_modflow.getDrain(2)
-		recharge	 =	self.pcr_modflow.getRecharge(2)
+		riv_baseflow = self.pcr_modflow.getRiverLeakage(2)
+		drn_baseflow = self.pcr_modflow.getDrain(2)
+		recharge	 = self.pcr_modflow.getRecharge(2)
 		
 		self.head_bottomMF = pcr.scalar(gw_head_1)
 		self.head_topMF    = pcr.scalar(gw_head_2)
