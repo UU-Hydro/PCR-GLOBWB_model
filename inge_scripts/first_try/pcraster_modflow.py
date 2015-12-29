@@ -70,7 +70,7 @@ class PCRasterModflow():
 		self.head_topMF    = pcr.scalar(gw_head_2)
 
 		del gw_head_1
-		del gw_head_2
+		del gw_head_2git 
 		
 		self.pcr_modflow = None
 		del self.pcr_modflow
