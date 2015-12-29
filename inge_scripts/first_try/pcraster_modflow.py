@@ -23,7 +23,7 @@ class PCRasterModflow():
 						 riv_head_comb, riv_bot_comb, riv_cond_comb, \
 						 BASE_S3_used, KQ3_x_Sy_AR, 
 						 rch_inp, \
-						 self.outDir)
+						 outDir):
 		
 		self.pcr_modflow = None
 		del self.pcr_modflow
