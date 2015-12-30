@@ -16,7 +16,7 @@ import virtualOS as vos
 
 class mymodflow(DynamicModel):
 	
-	def __init__(self, cloneMap, modelTime):
+	def __init__(self, cloneMap, modelTime, output_directory):
 		DynamicModel.__init__(self)
 		
 		self.cloneMap = cloneMap
@@ -26,14 +26,18 @@ class mymodflow(DynamicModel):
 		
 		# list the variable that you want to report:      
 		self.variable_output 	= 	["head_bottomMF","head_topMF", "depth_bottomMF", "depth_topMF", \
-									"head_diffMF", "riv_baseflowMF","drn_baseflowMF", "tot_baseflowMF", \
-									"rechargeMF"] 
+									 "head_diffMF", "riv_baseflowMF","drn_baseflowMF", "tot_baseflowMF", \
+									 "rechargeMF"] 
 									 
 		# initiate netcdf report class
-		self.netcdfReport = ncReport.PCR2netCDF(self.cloneMap)
+		specificAttributeDictionary = {}
+		specificAttributeDictionary['institution'] = 'test'
+		specificAttributeDictionary['title'      ] = 'test'
+		specificAttributeDictionary['description'] = 'test'		
+		self.netcdfReport = ncReport.PCR2netCDF(self.cloneMap, specificAttributeDictionary)
 		
 		# output netcdf files; variable names and units:
-		self.netcdf_output 	= 	{}
+		self.netcdf_output = {}
 		self.netcdf_output["file_name"] = 	{}
 		self.netcdf_output["unit"] = 	{}
 		
@@ -70,7 +74,7 @@ class mymodflow(DynamicModel):
 		self.netcdf_output["unit"]["abstractionMF"] = "m"	
 	
 		# preparing output directory
-		self.outDir	= "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+		self.outDir	= output_directory
 		clean_output_directory = True
 		try:
 			os.makedirs(self.outDir)
@@ -92,74 +96,125 @@ class mymodflow(DynamicModel):
 
 	def initial (self):
 		
-		iHeadini			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/modflow_coupling_global_natural/head_topMF",\
+		# Here I suggested to use the function vos.readPCRmapClone so that it can automatically resample pcraster maps to the given self.cloneMap)  													
+
+		iHeadini			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/modflow_coupling_global_natural/head_topMF.map",\
+													self.cloneMap, self.tmpDir)
+		# Why did you use only one initial head? You must define two initial head values, one for the 1st layer and the other for the 2nd layer. 
+															
+		landmask			=	pcr.nominal(\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask.map"), \
+													self.cloneMap, self.tmpDir), 0.0)		
+		
+		dem_ini				= 	pcr.cover(\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_avg_05min.map",\
+													self.cloneMap, self.tmpDir), 0.0)		
+		
+		min_dem				=	pcr.cover(\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min.map".\
+													self.cloneMap, self.tmpDir), 0.0)		
+		
+		cellarea			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/cellArea_05min.map",\
 													self.cloneMap, self.tmpDir)		
-		landmask			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask")
+		
+		riv_slope			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/gradient_05min.map",\
 													self.cloneMap, self.tmpDir)		
-		dem_ini				= 	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_avg_05min",\
+		
+		Z0_floodplain		=	pcr.cover(\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_floodplain_05min.map",\
+													self.cloneMap, self.tmpDir), 0.0)		
+		
+		aqdepth				= 	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/damc_ave.map",\
 													self.cloneMap, self.tmpDir)		
-		min_dem				=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min".\
+		
+		spe_yi_inp_ori		=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/StorCoeff_NEW.map",\
+													self.cloneMap, self.tmpDir)
+		# Why are these values can be above 1.0? I suggest that you fix this map. 
+		# Moreover, specific yield values for sand should be already below <= 0.35 (or even lower). To solve this issue, I add the following line (temporary solution).
+		spe_yi_inp_ori		=	pcr.pcr.min(spe_yi_inp_ori, 0.30) 
+															
+		KQ3					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW.map",\
+													self.cloneMap, self.tmpDir)
+															
+		conflayers			=	pcr.boolean(\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4.map",\				
+													self.cloneMap, self.tmpDir), 0.0)	
+		ksat_log			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave.map",\
 													self.cloneMap, self.tmpDir)		
-		cellarea			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/cellArea_05min",\
+		ksat_l1_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave.map",\
 													self.cloneMap, self.tmpDir)		
-		riv_slope			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/gradient_05min",\
-													self.cloneMap, self.tmpDir)		
-		Z0_floodplain		=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_floodplain_05min",\
-													self.cloneMap, self.tmpDir)		
-		aqdepth				= 	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/damc_ave",\
-													self.cloneMap, self.tmpDir)		
-		spe_yi_inp_ori		=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/StorCoeff_NEW",\
-													self.cloneMap, self.tmpDir)		
-		KQ3					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW",\
-													self.cloneMap, self.tmpDir)		
-		conflayers			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4",\				
-													self.cloneMap, self.tmpDir)		
-		ksat_log			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave",\
-													self.cloneMap, self.tmpDir)		
-		ksat_l1_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave",\
-													self.cloneMap, self.tmpDir)		
-		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave",\		
+		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave.map",\		
 													self.cloneMap, self.tmpDir)		
 		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd",\
 													self.cloneMap, self.tmpDir, None, True, None, False)		
-		qbank				=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs",\
-													self.cloneMap, self.tmpDir)		
+		qbank				=	pcr.cover(\
+		                        vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs",\
+													self.cloneMap, self.tmpDir), 0.0)
 		
 		self.landmask		=	landmask
 		self.dem			=	dem_ini
 		self.cellarea		=	cellarea
 		self.min_dem		=	min_dem
+		
 		aqdepth_ini			=	aqdepth
 		self.aqdepth_ini	=	aqdepth_ini
+		# What are the differences among "aqdepth", "aqdepth_ini" and "self.aqdepth_ini"? 
+		
 		aqdepth				=	pcr.cover(pcr.ifthenelse(aqdepth > 0.0, aqdepth, 200.0),200.0)			## over land max 200 m, over sea 200m			
+		# If you want to limit the aquifer depth to 200.00, I suggest to add the following line.
+		aqdepth				=	pcr.max(200.0, aqdepth)			
+		
 		dem					=	pcr.cover(pcr.ifthen(landmask, dem_ini),0.0)
 		top_l2				=	dem
 		bottom_l1			=	dem-aqdepth
-		top_l1				=	top_l2- (aqdepth*0.1)				     						## layer 2 is 10% total thickness	
+		top_l1				=	top_l2- (aqdepth*0.1)				     								## layer 2 is 10% total thickness	
 		
-		mf.createBottomLayer(bottom_l1,top_l1)
-		mf.addLayer(top_l2)
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
+		#~ mf.createBottomLayer(bottom_l1, top_l1)
+		#~ mf.addLayer(top_l2)
+
+		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section. 
+		self.input_bottom_l1 = bottom_l1
+		self.input_top_l1    = top_l1
+		self.input_top_l2    = top_l2
 	
-		self.bottom_elevation_aquifer	=	dem_ini- aqdepth									##** nodig voor groundwater storage
+		self.bottom_elevation_aquifer =	dem_ini - aqdepth												##** nodig voor groundwater storage
 				
-		#* OLD
-		# simulaton parameter
-		# mf.setDISParameter(4,2,1,1,1,0)	
+		#~ #* OLD - This is WRONG. - We are NOT using this one anymore.
+		#~ # simulaton parameter
+		#~ # mf.setDISParameter(4,2,1,1,1,0)	
 		
 		# set boundary conditions
 		ibound_l1			= 	pcr.cover(pcr.ifthen(landmask, pcr.nominal(1)),pcr.nominal(-1))
-		# pcr.report(ibound_l1, "test.map") ; os.system("aguila test.map")  
 		
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
 		#~ mf.setBoundary(ibound_l1,2)
 		#~ mf.setBoundary(ibound_l1,1)
 		
-		## set initial values
-		iHead				=	pcr.cover(iHeadini,0.0)						 			
+		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section. 
+		self.ibound_l1 = ibound_l1
+		self.ibound_l2 = ibound_l2
 
-		#~ mf.setInitialHead(iHead,2)	# Why did you put the same initial values?
+		## set initial values
+		iHead				=	pcr.cover(iHeadini,0.0)
+		# Why is there only one set of initial head values?
+		# Note: If you still do not know the initial head condition values, you have to estimate them (both for the 1st and 2nd layer) from a steady-state simulation.  						 			
+
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
+		#~ mf.setInitialHead(iHead,2)	# Why did you put the same initial values for both layers?
 		#~ mf.setInitialHead(iHead,1)	
 		
-		# set conductivities
+		
+		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section.
+		# - As the current quick fix (temporary) solution, I just assume that the initial condition equal to top layer elevation. 
+		self.input_head_top    = top_l1 
+		self.input_head_bottom = top_l1 
+
+		
+		
+		# set conductivities - I did NOT check this part as I trust your justification for this. 
+		######################################################################################################################################### 
+
 		rho_water			=	pcr.scalar(1000)
 		miu_water			=	pcr.scalar(0.001)
 		g_gravity			=	pcr.scalar(9.81)
@@ -200,43 +255,81 @@ class mymodflow(DynamicModel):
 		kvert_l2_ori = khoriz_l2	#pcr.cover(kvert_l2,1E10)
 		kvert_l1_ori = khoriz_l1	#pcr.cover(kvert_l1,1E10)
 		# kvert range, but do make sure kvert <= khoriz
-		kvert_l2 = min(kvert_l2_ori * 10**(-2), khoriz_l2)
-		kvert_l1 = min(kvert_l1_ori * 10**(-2), khoriz_l1)
+		kvert_l2 = pcr.min(kvert_l2_ori * 10**(-2), khoriz_l2)
+		kvert_l1 = pcr.min(kvert_l1_ori * 10**(-2), khoriz_l1)
 		kvert_l2 = pcr.cover((kvert_l2*cellarea)/((5.0/60.0)**2.0),1E10)
 		kvert_l1 = pcr.cover(pcr.max(1E10,(kvert_l1*cellarea)/((5.0/60.0)**2.0)),1E10)  # kvert onderste laag is nu super hoog
 		################################
-		pcr.report(kD_l2, "kD_l2.map")
-		pcr.report(kD_l1, "kD_l1.map")
+		#~ pcr.report(kD_l2, "kD_l2.map")
+		#~ pcr.report(kD_l1, "kD_l1.map")
+
+		###################################################################################################################################################################### 
+		# end of set conductivities - I did NOT check the above part as I trust your justification for this. 
+
 
 		# make the vertical conductivities of the bottom layer very high 
 		# such that the values of VCONT (1/resistance) depending only on the values given for the top layer  
 		# see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
 		# - very high conductivity values for the bottom layer 
-		kvert_l1 =  pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
+		kvert_l1 =  pcr.spatial(pcr.scalar(1e99)) * self.cellarea/\
 													(pcr.clone().cellSize()*pcr.clone().cellSize())
         # - correcting the values for the top layer (see also pages 5-12 to 5-16 on http://pubs.usgs.gov/twri/twri6a1/#pdf)
 		kvert_l2 =  0.5 * kvert_l2
 		
-		#~ mf.setConductivity(00,khoriz_l2, kvert_l2,2)
-		#~ mf.setConductivity(00,khoriz_l1, kvert_l1,1)
-		
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
+		#~ mf.setConductivity(00, khoriz_l2, kvert_l2,2)
+		#~ mf.setConductivity(00, khoriz_l1, kvert_l1,1)
+
+		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section.
+		self.input_khoriz_l2 = khoriz_l2
+		self.input_kvert_l2  = kvert_l2
+		self.input_khoriz_l2 = khoriz_l1
+		self.input_kvert_l1  = kvert_l1
+
+
+
 		# set storage
 		spe_yi_inp			=	pcr.ifthen(landmask, spe_yi_inp_ori * 0.5)
-		spe_yi_inp			=	min(1.0, pcr.max(0.01,spe_yi_inp))	
+		# Why do you half this?
+
+		spe_yi_inp			=	pcr.min(1.0, pcr.max(0.01,spe_yi_inp))	
+
 		#- Limit for aquifer area
 		spe_yi_inp			=	pcr.ifthenelse(aqdepth >-999.9, pcr.max(spe_yi_inp, 0.11), spe_yi_inp)    # if in aquifer spec yield is miminal fine grained
 		#stor_coef			=	pcr.scalar(0.01)
 		#stor_conf			=	pcr.cover(pcr.cover(pcr.ifthenelse(conflayers == boolean(1), stor_coef, spe_yi_inp),spe_yi_inp),1000.0)	 
-		stor_prim			=	pcr.cover(spe_yi_inp,1000.0)
-		stor_sec			=	pcr.cover(spe_yi_inp,1000.0)
 
+		# I don't think it is a good idea to cover this map with 1000 (above 1.0).
+		#~ stor_prim		=	pcr.cover(spe_yi_inp,1000.0) # I don't think it is a good idea to cover this map with 1000.
+		#~ stor_sec			=	pcr.cover(spe_yi_inp,1000.0) # I don't think it is a good idea to cover this map with 1000.
+		
+		# I suggest to cover this with 0.35 (maximum specific yield for sand) and limit the value to 0.01 (which is also your minimum value)
+		stor_prim =	pcr.cover(spe_yi_inp, 0.35)
+		stor_sec  =	pcr.cover(spe_yi_inp, 0.35)
+		
+		
+		# NOTE: The storage coefficient values MUST BE corrected with cell areas (as we use the LAT/LON coordinate system, see: http://www.hydrol-earth-syst-sci.net/15/2913/2011/hess-15-2913-2011.html)
+		stor_prim =	stor_prim * self.cellarea/\
+		                        (pcr.clone().cellSize()*pcr.clone().cellSize())
+		stor_sec  =	stor_se   * self.cellarea/\ 
+		                        (pcr.clone().cellSize()*pcr.clone().cellSize())
+		
+
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
 		#~ mf.setStorage(stor_prim, stor_sec,1)
 		#~ mf.setStorage(stor_prim, stor_sec,2)
 		
+		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section.
+		self.input_stor_prim = stor_prim
+		self.input_stor_sec  = stor_sec
+
+
+		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
 		#~ # solver
 		#~ mf.setPCG(1500,1250,1,1,160000,0.98,2,1)	
 		
-		# adding river
+
+		# adding river - Edwin did NOT carefully check this part.
 		riv_manning			=	pcr.scalar(0.0450)
 		self.riv_manning	=	riv_manning
 		resistance			=	pcr.scalar(1.0)
@@ -244,7 +337,6 @@ class mymodflow(DynamicModel):
 		riv_bedres_inp		=	pcr.scalar(1.0000)
 		min_dem2			=	pcr.ifthenelse(min_dem < 0.0, 0.0, min_dem)
 		Z0_floodplain2		= 	pcr.ifthenelse(Z0_floodplain < 0.0, pcr.max(min_dem2,Z0_floodplain),Z0_floodplain)
-		
 		riv_width			= 	4.8* ((qbank)**0.5)
 		self.riv_width		=	pcr.max(riv_width,0.5) #*** minimum gegeven 
 	    # RIVERS ONLY
@@ -254,15 +346,16 @@ class mymodflow(DynamicModel):
 		self.riv_depth_bkfl	= 	((riv_manning*(qbank)**0.5)/(self.riv_width*self.riv_slope_used**0.5))**(3.0/5.0)
 		self.riv_bot_bkfl	=	min_dem2- self.riv_depth_bkfl
 	
-		# adding drain
+		
+		# adding drain - Edwin did NOT carefully check this part.
 		# base of groundwater that contribute to baseflow
 		DZS3INFLUENCED		=	pcr.scalar(5.0)
 		BASE_S3				=	pcr.areaminimum(Z0_floodplain2, pcr.subcatchment(ldd, pcr.nominal(uniqueid(pcr.ifthen(Z0_floodplain2 > -999.9, boolean(1))))))
 		BASE_S3				=	pcr.max(Z0_floodplain2- DZS3INFLUENCED, downstream(ldd,Z0_floodplain2),BASE_S3)			# for mountainous areas
-		BASE_S3				=	pcr.ifthenelse(aqdepth > -9999.9, pcr.max(Z0_floodplain, BASE_S3), BASE_S3)					# for aquifers
+		BASE_S3				=	pcr.ifthenelse(aqdepth > -9999.9, pcr.max(Z0_floodplain, BASE_S3), BASE_S3)				# for aquifers
 		self.BASE_S3_used	=	pcr.cover(BASE_S3,-900000.0)
 		storcoef_act		=	pcr.ifthenelse(landmask, spe_yi_inp,0.0)
-		KQ3					=	pcr.cover(min(1.0,KQ3),0.0)		#**
+		KQ3					=	pcr.cover(pcr.min(1.0,KQ3),0.0)		#**
 		KQ3min				=	1.0e-4 						#**
 		KQ3					=	pcr.max(KQ3min,KQ3)				#**
 		KQ3_x_Sy			=	pcr.cover(KQ3* storcoef_act, 0.0)			#**
@@ -279,6 +372,10 @@ class mymodflow(DynamicModel):
 			dateInput = self.modelTime.fulldate		
 			print(dateInput)		
 			
+			# number of days for this month
+			number_of_days_in_the_month = self.modelTime.day
+
+			# - It seems this file is NOT CORRECT. This file has a daily resolution (not monthly one) and starting on 1960-01-01 and ending on 1961-09-03.
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
 			varName = "recharge"	
 			print(ncFile)
@@ -287,6 +384,10 @@ class mymodflow(DynamicModel):
 							cloneMapFileName = self.cloneMap, \
 							)
 			
+			# another recharge file
+			# - This file has a monthly resolution 
+			# - Please check the unit. Is it true that the unit is: kg m-2 s-1? If it is true, then you have to convert it to m day-1
+			#   Note that (assuming 1 kg of water = 1000 m3): 1 kg m-2 s-1 = 1000 m s-1 = 1000 * (24 * 3600) m day-1
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
 			varName = "rechargeTotal"
 			print(ncFile)
@@ -295,15 +396,20 @@ class mymodflow(DynamicModel):
 							cloneMapFileName = self.cloneMap, \
 							)
 			
+			# discharge file
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/discharge_hum_monthAvg_output.nc"
 			varName = "discharge"
+			# - This file has a monthly resolution 
 			print(ncFile)
 			Qinp= vos.netcdf2PCRobjClone(ncFile,varName,dateInput, \
 							useDoy = None,
 							cloneMapFileName = self.cloneMap, \
 							)
 			
+			# groundwater abstraction file
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/gwab_m3_05min.nc"
+			# - This file has a monthly resolution 
+			# - The unit is: 10^6 m3 per month. Note that: 10^6 m3 per month = 10^6 / (number_of_days_in_the_month) m3 day-1
 			varName = "gwab_m3_05min"
 			print(ncFile)
 			totGW = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
@@ -327,26 +433,69 @@ class mymodflow(DynamicModel):
 			riv_bot_comb		=	pcr.cover(pcr.ifthenelse(riv_cond > 0.0, self.riv_bot_bkfl, self.riv_head_ini),0.0)
 			riv_cond_comb		=	pcr.cover(pcr.ifthenelse(riv_cond > 0.0, riv_cond, drn_cond),0.0)
 			
-			#~ mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
 			
-			#~ mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR,2)
-			
+			# abstraction package
 			totGW_used = pcr.cover(pcr.ifthen(self.aqdepth_ini > -999.9, totGW),0.0) # unit: 10**6 m3 per month
-			totGW_used_2 = (totGW_used*(10.0**6.0))
-			totGW_used_m3d = pcr.cover((totGW_used_2/30.0)*-1.0,0.0)   # this should be devided by days of the month (simplified to 30d)
+			totGW_used_2 = (totGW_used*(10.0**6.0))     
+			#~ totGW_used_m3d = pcr.cover((totGW_used_2/30.0)*-1.0,0.0)   						# this should be divided by days of the month (simplified to 30d)
+			totGW_used_m3d = pcr.cover((totGW_used_2/number_of_days_in_the_month)*-1.0,0.0) 
 			
-			#~ mf.setWell(totGW_used_m3d,1)
 			
+			# recharge package
 			rch_hum = rch_human
-			rch = pcr.cover(pcr.ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  # if abstr dan rch abstr anders ruch nat 
+			#
+			# Why do we have to do this? I think that this is inconsistent. (?)
+			rch = pcr.cover(pcr.ifthen(totGW_used_m3d > -999.9, rch_hum), rch_nat)  			# if abstr dan rch abstr anders ruch nat 
+			#
+			# correcting recharge values as we use the LAT/LON coordinate system.  
 			rch_inp = pcr.cover(pcr.max(0.0, (rch *self.cellarea)/(5.0/60.0)**2.0),0.0)		
 			
-			#~ mf.setRecharge(rch_inp,1)			
-			
-			# initialize modflow
-			mf = None
-					
 
+			# go to the output directory so that all temporary pcraster modfow files will be written there
+			os.chdir(self.outDir)
+
+			# remove all previous pcraster modflow files (if there are any) 
+			cmd = 'rm '+ self.outDir + "/pcrmf*"
+			os.system(cmd)
+			cmd = 'rm '+ self.outDir + "/fort*"
+			os.system(cmd)
+			cmd = 'rm '+ self.outDir + "/mf2kerr*"
+			os.system(cmd)
+
+			# initialize modflow
+			# - deleting previous modflow object
+			mf = None; del mf
+			# - initialize a pcraster modflow object
+			mf = pcr.initialise(pcr.clone())
+			
+
+			# bottom and layer elevations
+			mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
+			mf.addLayer(self.input_top_l2)
+			
+			# boundary conditions  
+			mf.setBoundary(self.input_ibound_l1, 1)
+			mf.setBoundary(self.input_ibound_l2, 2)
+	
+			# horizontal and vertical conductivities 
+			self.pcr_modflow.setConductivity(00 , self.input_khoriz_l1, self.input_kvert_l1, 1)
+			self.pcr_modflow.setConductivity(00 , self.input_khoriz_l2, self.input_kvert_l2, 2)
+			
+			# storage coefficients 
+			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,1)
+			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,2)
+			
+			# initial heads
+			initial_head_bottom = self.input_head_bottom   
+			initial_head_top    = self.input_head_top
+			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
+			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
+
+			# set all modflow packages
+			mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
+			mf.setRecharge(rch_inp,1)			
+			mf.setWell(totGW_used_m3d,1)
+			mf.setDrain(self.BASE_S3_used, self.KQ3_x_Sy_AR, 2)         # Note: You may want to try to put the drain package also in the bottom (in order to make sure that recharged water will not be 'trapped'). 
 
 			# execute MODFLOW
 			mf.run()
@@ -357,10 +506,14 @@ class mymodflow(DynamicModel):
 			riv_baseflow		=	mf.getRiverLeakage(2)
 			drn_baseflow		=	mf.getDrain(2)
 			recharge			=	mf.getRecharge(2)
-							
-			gw_depth2			=	self.dem- gw_head2
-			gw_depth1			=	self.dem- gw_head1
-			head_diff			=	gw_head1-gw_head2
+			
+			# use the calculated head values for the next time step
+			self.input_head_bottom = gw_head1
+			self.input_head_top	   = gw_head2			
+
+			gw_depth2			=	self.dem - gw_head2
+			gw_depth1			=	self.dem - gw_head1
+			head_diff			=	gw_head1 - gw_head2
 			
 			# reporting all outputs from MF to de netcdf-dir	
 			# all outputs are masked		
@@ -378,7 +531,6 @@ class mymodflow(DynamicModel):
 			tot_baseflowMF	=	riv_baseflow + drn_baseflow
 			
 			# reporting to pcraster maps 
-			
 			pcr.report(head_topMF    , self.outDir + "/" + "head_topMF.map")
 			pcr.report(head_bottomMF , self.outDir + "/" + "head_bottomMF.map")							## --> can the dir-path be automatic  
 			pcr.report(gw_depth2     , self.outDir + "/" + "depth_topMF.map")
@@ -397,17 +549,19 @@ class mymodflow(DynamicModel):
 										varField = chosenVarField,
 										timeStamp = timeStamp)
 
-cloneMap 	 = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-strStartTime = sys.argv[1]
-strEndTime   = sys.argv[2]
+cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+outputDirectory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+strStartTime    = sys.argv[1]
+strEndTime      = sys.argv[2]
 
 # initiating modelTime object
 modelTime 		= modelTime.ModelTime()
 modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
-
-myModel			= mymodflow(cloneMap,modelTime)
+myModel			= mymodflow(cloneMap, modelTime, , outputDirectory)
 DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
 DynamicModel.run()			 
+
+
 
 
 
