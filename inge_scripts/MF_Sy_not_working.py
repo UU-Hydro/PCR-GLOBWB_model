@@ -557,11 +557,6 @@ strEndTime      = sys.argv[2]
 # initiating modelTime object
 modelTime 		= modelTime.ModelTime()
 modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
-myModel			= mymodflow(cloneMap, modelTime, , outputDirectory)
+myModel			= mymodflow(cloneMap, modelTime, outputDirectory)
 DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)     #***
 DynamicModel.run()			 
-
-
-
-
-
