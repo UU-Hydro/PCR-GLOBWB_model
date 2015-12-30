@@ -104,7 +104,7 @@ class mymodflow(DynamicModel):
 															
 		landmask			=	pcr.boolean(\
 								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask.map", \
-													self.cloneMap, self.tmpDir, False, False, True))		
+													self.cloneMap, self.tmpDir, False, None, False, True))
 		
 		dem_ini				= 	pcr.cover(\
 								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_avg_05min.map",\
@@ -138,15 +138,18 @@ class mymodflow(DynamicModel):
 															
 		conflayers			=	pcr.boolean(\
 								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4.map",\
-													self.cloneMap, self.tmpDir))	
+													self.cloneMap, self.tmpDir, False, None, False, True))
+
 		ksat_log			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave.map",\
 													self.cloneMap, self.tmpDir)		
 		ksat_l1_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave.map",\
 													self.cloneMap, self.tmpDir)		
 		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave.map",\
 													self.cloneMap, self.tmpDir)		
+
 		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd.map",\
 													self.cloneMap, self.tmpDir, None, True, None, False)		
+
 		qbank				=	pcr.cover(\
 		                        vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs.map",\
 													self.cloneMap, self.tmpDir), 0.0)
