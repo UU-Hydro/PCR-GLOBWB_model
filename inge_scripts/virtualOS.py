@@ -816,7 +816,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
             if isLddMap == True: PCRmap = pcr.ldd(PCRmap)
             if isNomMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
             if isNomMap == True: PCRmap = pcr.nominal(PCRmap)
-            if isBooleanMap: PCRmap = pcr.boolean(PCRmap)
+            if isBooleanMap == True: PCRmap = pcr.boolean(PCRmap)
             if os.path.isdir(tmpDir):
                 shutil.rmtree(tmpDir)
             os.makedirs(tmpDir)
