@@ -792,7 +792,7 @@ def writePCRmapToDir(v,outFileName,outDir):
     fullFileName = getFullPath(outFileName,outDir)
     pcr.report(v,fullFileName)
 
-def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
+def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False,isBooleanMap=True):
 	# v: inputMapFileName or floating values
 	# cloneMapFileName: If the inputMap and cloneMap have different clones,
 	#                   resampling will be done.   
@@ -809,13 +809,14 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
         else:
             # resample using GDAL:
             output = tmpDir+'temp.map'
-            warp = gdalwarpPCR(v,output,cloneMapFileName,tmpDir,isLddMap,isNomMap)
+            warp = gdalwarpPCR(v,output,cloneMapFileName,tmpDir,isLddMap,isNomMap,isBooleanMap)
             # read from temporary file and delete the temporary file:
             PCRmap = pcr.readmap(output)
             if isLddMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) < 10., PCRmap)
             if isLddMap == True: PCRmap = pcr.ldd(PCRmap)
             if isNomMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
             if isNomMap == True: PCRmap = pcr.nominal(PCRmap)
+            if isBooleanMap: PCRmap = pcr.boolean(PCRmap)
             if os.path.isdir(tmpDir):
                 shutil.rmtree(tmpDir)
             os.makedirs(tmpDir)
@@ -861,7 +862,7 @@ def isSameClone(inputMapFileName,cloneMapFileName):
     if yULClone != yULInput: sameClone = False
     return sameClone
 
-def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False):
+def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False,isBooleanMap=False):
     # 19 Mar 2013 created by Edwin H. Sutanudjaja
     # all input maps must be in PCRaster maps
     # 
@@ -893,6 +894,7 @@ def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False):
     # 
     co = 'gdal_translate -of PCRaster '+ \
               str(tmpDir)+'tmp_out.tif '+str(output)
+    co = 'pcrcalc '+str(output)+' = "scalar('+str(tmpDir)+'tmp_out.tif ' +')"'
     cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     co = 'mapattr -c '+str(cloneOut)+' '+str(output)
