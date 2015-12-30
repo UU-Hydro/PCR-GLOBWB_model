@@ -494,6 +494,16 @@ class mymodflow(DynamicModel):
 			mf.setInitialHead(pcr.scalar(initial_head_bottom), 1)
 			mf.setInitialHead(pcr.scalar(initial_head_top),    2)	
 
+			# simulation parameters
+			NSTP   = number_of_days_in_the_month
+			PERLEN = number_of_days_in_the_month
+			self.pcr_modflow.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
+			
+			# solver parameters
+			HCLOSE = 1      # 0.000000000000000000000001 # 1
+			RCLOSE = 160000 # 0.000000000000000000000001 # 160000
+			self.pcr_modflow.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
+
 			# set all modflow packages
 			mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
 			mf.setRecharge(rch_inp,1)			
