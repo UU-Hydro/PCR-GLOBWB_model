@@ -565,8 +565,8 @@ class mymodflow(DynamicModel):
 										chosenVarField,
 										timeStamp)
 
-cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-#~ cloneMap 	    = "/projects/0/dfguu/data/hydroworld/others/Mississippi/Mississippi05min.clone.map"
+#~ cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+cloneMap 	    = "/projects/0/dfguu/data/hydroworld/others/Mississippi/Mississippi05min.clone.map"
 outputDirectory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
 strStartTime    = sys.argv[1]
 strEndTime      = sys.argv[2]
