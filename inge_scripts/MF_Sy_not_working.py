@@ -311,7 +311,7 @@ class mymodflow(DynamicModel):
 		# NOTE: The storage coefficient values MUST BE corrected with cell areas (as we use the LAT/LON coordinate system, see: http://www.hydrol-earth-syst-sci.net/15/2913/2011/hess-15-2913-2011.html)
 		stor_prim =	stor_prim * self.cellarea/\
 		                        (pcr.clone().cellSize()*pcr.clone().cellSize())
-		stor_sec  =	stor_se   * self.cellarea/\
+		stor_sec  =	stor_sec  * self.cellarea/\
 		                        (pcr.clone().cellSize()*pcr.clone().cellSize())
 		
 
