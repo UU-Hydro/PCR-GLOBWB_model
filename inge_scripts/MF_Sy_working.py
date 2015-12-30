@@ -278,6 +278,8 @@ class mymodflow(DynamicModel):
 
 
 		
+		# Correcting vertical conductivities
+		##################################################################################################################
 		# make the vertical conductivities of the bottom layer very high 
 		# such that the values of VCONT (1/resistance) depending only on the values given for the top layer  
 		# see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
@@ -286,6 +288,7 @@ class mymodflow(DynamicModel):
 													(pcr.clone().cellSize()*pcr.clone().cellSize())
         # - correcting the values for the top layer (see also pages 5-12 to 5-16 on http://pubs.usgs.gov/twri/twri6a1/#pdf)
 		kvert_l2 =  0.5 * kvert_l2
+		##################################################################################################################
 		
 		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
 		#~ mf.setConductivity(00, khoriz_l2, kvert_l2,2)
@@ -470,7 +473,7 @@ class mymodflow(DynamicModel):
 			# go to the output directory so that all temporary pcraster modfow files will be written there
 			os.chdir(self.outDir)
 
-			# remove all previous pcraster modflow files (if there are any) 
+			# remove all previous pcraster modflow files (if there are any) - this may not be needed
 			cmd = 'rm '+ self.outDir + "/pcrmf*"
 			os.system(cmd)
 			cmd = 'rm '+ self.outDir + "/fort*"
@@ -478,13 +481,14 @@ class mymodflow(DynamicModel):
 			cmd = 'rm '+ self.outDir + "/mf2kerr*"
 			os.system(cmd)
 
+
+			###################################################################################################################
 			# initialize modflow
 			# - deleting previous modflow object
 			mf = None; del mf
 			# - initialize a pcraster modflow object
 			mf = pcr.initialise(pcr.clone())
 			
-
 			# bottom and layer elevations
 			mf.createBottomLayer(self.input_bottom_l1, self.input_top_l1)
 			mf.addLayer(self.input_top_l2)
@@ -501,7 +505,7 @@ class mymodflow(DynamicModel):
 			mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
 			mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
 			
-			# initial heads
+			# initial heads (from the initial section or from the previous time step)
 			initial_head_bottom = self.input_head_bottom   
 			initial_head_top    = self.input_head_top
 			mf.setInitialHead(pcr.scalar(initial_head_bottom), 1)
@@ -525,6 +529,8 @@ class mymodflow(DynamicModel):
 
 			# execute MODFLOW
 			mf.run()
+			###################################################################################################################
+			
 			
 			# retrieve outputs
 			gw_head1			=	mf.getHeads(1)
