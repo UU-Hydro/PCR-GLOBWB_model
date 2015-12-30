@@ -103,7 +103,7 @@ class mymodflow(DynamicModel):
 		# Why did you use only one initial head? You must define two initial head values, one for the 1st layer and the other for the 2nd layer. 
 															
 		landmask			=	pcr.nominal(\
-								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask.map"), \
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/landmask.map", \
 													self.cloneMap, self.tmpDir), 0.0)		
 		
 		dem_ini				= 	pcr.cover(\
