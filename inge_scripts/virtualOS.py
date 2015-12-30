@@ -895,8 +895,9 @@ def gdalwarpPCR(input,output,cloneOut,tmpDir,isLddMap=False,isNominalMap=False,i
     co = 'gdal_translate -of PCRaster '+ \
               str(tmpDir)+'tmp_out.tif '+str(output)
     if isBooleanMap:
-        co = 'pcrcalc "'+str(output)+'" = "scalar('+str(tmpDir)+'tmp_out.tif ' +')"'
+        co = 'pcrcalc "'+str(output)+'" = "scalar('+str(tmpDir)+'tmp_out.tif' +')"'
         print(co)
+        sys.exit()
     cOut,err = subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     # 
     co = 'mapattr -c '+str(cloneOut)+' '+str(output)
