@@ -148,7 +148,7 @@ class mymodflow(DynamicModel):
 		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd.map",\
 													self.cloneMap, self.tmpDir, None, True, None, False)		
 		qbank				=	pcr.cover(\
-		                        vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs",\
+		                        vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs.map",\
 													self.cloneMap, self.tmpDir), 0.0)
 		
 		self.landmask		=	landmask
