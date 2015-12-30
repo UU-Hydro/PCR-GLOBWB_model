@@ -1,5 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Sy_1 
 # NOTE layers in PCR-MODFLOW : 1= bottom 2 = top 
+
+#Edwin Sutanudjaja has modified this script
 
 import os
 import sys
@@ -566,19 +571,27 @@ class mymodflow(DynamicModel):
 										timeStamp)
 
 # output directory
-outputDirectory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
+outputDirectory = "/projects/0/dfguu/users/edwin/modflow_Sy1/global/"
 
 # define your own clone map here 
 # - global clone map
-#~ cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
-# - Mississippi clone map
-cloneMap 	    = "/projects/0/dfguu/data/hydroworld/others/Mississippi/Mississippi05min.clone.map"
+cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+#~ # - Mississippi clone map
+#~ cloneMap 	    = "/projects/0/dfguu/data/hydroworld/others/Mississippi/Mississippi05min.clone.map"
 
 # starting time and end time defined based on the system arguments
 strStartTime    = sys.argv[1]
 strEndTime      = sys.argv[2]
 
-$ 
+# using the system arguments to set outputDirectory and cloneMap
+try:
+	outputDirectory = str(sys.argv[3])
+except:
+	pass
+try:
+	cloneMap = str(sys.argv[4])	 
+except:
+	pass
 
 # initiating modelTime object
 modelTime 		= modelTime.ModelTime()
@@ -586,5 +599,5 @@ modelTime.getStartEndTimeSteps(strStartTime,strEndTime)
 
 # running the model
 myModel			= mymodflow(cloneMap, modelTime, outputDirectory)
-DynamicModel	= DynamicFramework(myModel,modelTime.nrOfTimeSteps)
+DynamicModel	= DynamicFramework(myModel, modelTime.nrOfTimeSteps)
 DynamicModel.run()			 
