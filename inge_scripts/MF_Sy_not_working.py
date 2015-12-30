@@ -9,7 +9,7 @@ import datetime
 from pcraster.framework import *
 import pcraster as pcr
 
-import ncConverter2 as ncReport
+import ncConverter as ncReport
 import currTimeStep as modelTime
 import virtualOS as vos
 
