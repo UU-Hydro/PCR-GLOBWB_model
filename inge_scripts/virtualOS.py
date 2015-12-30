@@ -792,7 +792,7 @@ def writePCRmapToDir(v,outFileName,outDir):
     fullFileName = getFullPath(outFileName,outDir)
     pcr.report(v,fullFileName)
 
-def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False,isBooleanMap=True):
+def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False,isBooleanMap=False):
 	# v: inputMapFileName or floating values
 	# cloneMapFileName: If the inputMap and cloneMap have different clones,
 	#                   resampling will be done.   
