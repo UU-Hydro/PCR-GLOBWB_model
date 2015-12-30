@@ -143,7 +143,7 @@ class mymodflow(DynamicModel):
 													self.cloneMap, self.tmpDir)		
 		ksat_l1_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl1B_ave.map",\
 													self.cloneMap, self.tmpDir)		
-		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave.map",\		
+		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave.map",\
 													self.cloneMap, self.tmpDir)		
 		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd",\
 													self.cloneMap, self.tmpDir, None, True, None, False)		
