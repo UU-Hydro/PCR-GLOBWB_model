@@ -131,7 +131,7 @@ class mymodflow(DynamicModel):
 													self.cloneMap, self.tmpDir)
 		# Why are these values can be above 1.0? I suggest that you fix this map. 
 		# Moreover, specific yield values for sand should be already below <= 0.35 (or even lower). To solve this issue, I add the following line (temporary solution).
-		spe_yi_inp_ori		=	pcr.pcr.min(spe_yi_inp_ori, 0.30) 
+		spe_yi_inp_ori		=	pcr.min(spe_yi_inp_ori, 0.30) 
 															
 		KQ3					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW.map",\
 													self.cloneMap, self.tmpDir)
@@ -517,8 +517,8 @@ class mymodflow(DynamicModel):
 			
 			# reporting all outputs from MF to de netcdf-dir	
 			# all outputs are masked		
-			self.head_bottomMF	=	gw_head1 #pcr.pcr.max(-100, gw_head1)
-			self.head_topMF 	= 	gw_head2 #pcr.pcr.max(-100, gw_head2)
+			self.head_bottomMF	=	gw_head1 #pcr.max(-100, gw_head1)
+			self.head_topMF 	= 	gw_head2 #pcr.max(-100, gw_head2)
 			self.depth_bottomMF	= 	pcr.ifthen(self.landmask,gw_depth1)
 			self.depth_topMF	= 	pcr.ifthen(self.landmask,gw_depth2)
 			self.riv_baseflowMF	= 	pcr.ifthen(self.landmask,riv_baseflow)
