@@ -192,8 +192,8 @@ class mymodflow(DynamicModel):
 		#~ mf.setBoundary(ibound_l1,1)
 		
 		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section. 
-		self.ibound_l1 = ibound_l1
-		self.ibound_l2 = ibound_l2
+		self.input_ibound_l1 = ibound_l1
+		self.input_ibound_l2 = ibound_l1
 
 		## set initial values
 		iHead				=	pcr.cover(iHeadini,0.0)
