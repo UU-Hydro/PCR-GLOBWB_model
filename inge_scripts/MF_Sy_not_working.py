@@ -137,7 +137,7 @@ class mymodflow(DynamicModel):
 													self.cloneMap, self.tmpDir)
 															
 		conflayers			=	pcr.boolean(\
-								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4.map",\				
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/conflayers4.map",\
 													self.cloneMap, self.tmpDir), 0.0)	
 		ksat_log			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/lkmc_ave.map",\
 													self.cloneMap, self.tmpDir)		
