@@ -90,7 +90,7 @@ class mymodflow(DynamicModel):
 		
 		# make netcdf files    
 		for variable in self.variable_output:
-			self.netcdfReport.createNetCDF(ncFileName = str(outDir) + self.netcdf_output["file_name"][variable], \
+			self.netcdfReport.createNetCDF(ncFileName = str(self.outDir) + self.netcdf_output["file_name"][variable], \
 										   varName = variable, 
 		                                   varUnits = self.netcdf_output["unit"][variable])
 
@@ -541,10 +541,9 @@ class mymodflow(DynamicModel):
 									self.modelTime.day,\
 									0)
 			# reporting to netcdf files
-			outDir = self.outDir																								## --> output dir
 			for variable in self.variable_output:
 				chosenVarField = pcr2numpy(self.__getattribute__(variable), vos.MV)
-				self.netcdfReport.data2NetCDF(ncFile = str(outDir) + self.netcdf_output["file_name"][variable],\
+				self.netcdfReport.data2NetCDF(ncFile = str(self.outDir) + self.netcdf_output["file_name"][variable],\
 										varName = variable,\
 										varField = chosenVarField,
 										timeStamp = timeStamp)
