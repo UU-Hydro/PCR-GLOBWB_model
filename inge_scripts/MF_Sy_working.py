@@ -135,7 +135,8 @@ class mymodflow(DynamicModel):
 		spe_yi_inp_ori		=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/StorCoeff_NEW.map",\
 													self.cloneMap, self.tmpDir)
 		# Why are these values can be above 1.0? I suggest that you fix this map. 
-		# Moreover, specific yield values for sand should be already below <= 0.35 (or even lower). To solve this issue, I add the following line (temporary solution).
+		# Moreover, specific yield values for sand should be already below <= 0.35 (or even lower). 
+		# To solve this issue, I add the following line (temporary solution).
 		spe_yi_inp_ori		=	pcr.min(spe_yi_inp_ori, 0.30) 
 															
 		KQ3					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/Recess_NEW.map",\
@@ -169,7 +170,7 @@ class mymodflow(DynamicModel):
 		# What are the differences among "aqdepth", "aqdepth_ini" and "self.aqdepth_ini"? 
 		
 		aqdepth				=	pcr.cover(pcr.ifthenelse(aqdepth > 0.0, aqdepth, 200.0),200.0)			## over land max 200 m, over sea 200m			
-		# If you want to limit the aquifer depth to 200.00, I suggest to add the following line.
+		# If you want to limit the minimum aquifer depth to 200.00, I suggest to add the following line.
 		aqdepth				=	pcr.max(200.0, aqdepth)			
 		
 		dem					=	pcr.cover(pcr.ifthen(landmask, dem_ini),0.0)
@@ -203,10 +204,11 @@ class mymodflow(DynamicModel):
 		self.input_ibound_l1 = ibound_l1
 		self.input_ibound_l2 = ibound_l1
 
+		
 		## set initial values
 		iHead				=	pcr.cover(iHeadini,0.0)
 		# Why is there only one set of initial head values?
-		# Note: If you still do not know the initial head condition values, you have to estimate them (both for the 1st and 2nd layer) from a steady-state simulation.  						 			
+		# Note: If you still do not have the initial head condition values, you have to estimate them (both for the 1st and 2nd layer) from a steady-state simulation (without any abstraction).  						 			
 
 		# Edwin moved all pcraster modflow operations to the dynamic section (so that we can re-initialize the "mf" (pcraster modflow) object for every time step).
 		#~ mf.setInitialHead(iHead,2)	# Why did you put the same initial values for both layers?
@@ -275,6 +277,7 @@ class mymodflow(DynamicModel):
 		# end of set conductivities - I did NOT check the above part as I trust your justification for this. 
 
 
+		
 		# make the vertical conductivities of the bottom layer very high 
 		# such that the values of VCONT (1/resistance) depending only on the values given for the top layer  
 		# see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
@@ -383,11 +386,12 @@ class mymodflow(DynamicModel):
 			# number of days for this month
 			number_of_days_in_the_month = self.modelTime.day
 
-			# - It seems this file is NOT CORRECT. 
+			# recharge file (with human influence)
+			# - It seems the following file is NOT CORRECT. 
 			#   This file has a daily resolution (not monthly one) and starting on 1960-01-01 and ending on 1961-09-03.
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
 			varName = "recharge"	
-
+			# - As a quick fix (temporary) solution. I just use the other recharge file. 
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
 			varName = "rechargeTotal"
 			print(ncFile)
@@ -509,8 +513,8 @@ class mymodflow(DynamicModel):
 			mf.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
 			# solver parameters
-			HCLOSE = 1      # 0.000000000000000000000001 # 1
-			RCLOSE = 160000 # 0.000000000000000000000001 # 160000
+			HCLOSE = 0.001       # 1      # 0.000000000000000000000001 # 1
+			RCLOSE = 160000      # 160000 # 0.000000000000000000000001 # 160000
 			mf.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
 
 			# set all modflow packages
