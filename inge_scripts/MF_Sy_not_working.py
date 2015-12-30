@@ -381,10 +381,10 @@ class mymodflow(DynamicModel):
 			# - It seems this file is NOT CORRECT. 
 			#   This file has a daily resolution (not monthly one) and starting on 1960-01-01 and ending on 1961-09-03.
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchhum2_05min.nc"
+			varName = "recharge"	
 
 			ncFile = "/projects/0/dfguu/users/inge/inputMAPS/maps__/Yoshi_rchnat_05min.nc"
-
-			varName = "recharge"	
+			varName = "rechargeTotal"
 			print(ncFile)
 			rch_human = vos.netcdf2PCRobjClone(ncFile,varName, dateInput, \
 							useDoy = None,
