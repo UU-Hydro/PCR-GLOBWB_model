@@ -301,7 +301,7 @@ class mymodflow(DynamicModel):
 		self.input_kvert_l1  = kvert_l1
 
 
-
+	
 		# set storage
 		spe_yi_inp			=	pcr.ifthen(landmask, spe_yi_inp_ori * 0.5)
 		# Why do you half this?
@@ -322,7 +322,8 @@ class mymodflow(DynamicModel):
 		stor_sec  =	pcr.cover(spe_yi_inp, 0.35)
 		
 		
-		# NOTE: The storage coefficient values MUST BE corrected with cell areas (as we use the LAT/LON coordinate system, see: http://www.hydrol-earth-syst-sci.net/15/2913/2011/hess-15-2913-2011.html)
+		# NOTE: The storage coefficient values MUST BE corrected with cell areas (as we use the LAT/LON coordinate system)
+		# see Eqs. (1) and (2) from http://www.hydrol-earth-syst-sci.net/15/2913/2011/hess-15-2913-2011.html) http://www.hydrol-earth-syst-sci.net/15/2913/2011/hess-15-2913-2011.html)
 		stor_prim =	stor_prim * self.cellarea/\
 		                        (pcr.clone().cellSize()*pcr.clone().cellSize())
 		stor_sec  =	stor_sec  * self.cellarea/\
@@ -383,8 +384,7 @@ class mymodflow(DynamicModel):
 		
 		if self.modelTime.isLastDayOfMonth():
 		
-			dateInput = self.modelTime.fulldate		
-			print(dateInput)		
+			dateInput = self.modelTime.fulldate; print(dateInput)		
 			
 			# number of days for this month
 			number_of_days_in_the_month = self.modelTime.day
@@ -512,11 +512,11 @@ class mymodflow(DynamicModel):
 			mf.setInitialHead(pcr.scalar(initial_head_top),    2)	
 
 			# simulation parameters
-			NSTP   = number_of_days_in_the_month
 			PERLEN = number_of_days_in_the_month
+			NSTP   = number_of_days_in_the_month
 			mf.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
-			# solver parameters (Please try to use stricter/small)
+			# solver parameters (Please try to use stricter/smaller convergence criteria)
 			HCLOSE = 0.001       # 1      # 0.000000000000000000000001 # 1
 			RCLOSE = 160000      # 160000 # 0.000000000000000000000001 # 160000
 			mf.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
