@@ -516,7 +516,7 @@ class mymodflow(DynamicModel):
 			PERLEN = number_of_days_in_the_month
 			mf.setDISParameter(4,2,PERLEN,NSTP,1.0,0)
 			
-			# solver parameters
+			# solver parameters (Please try to use stricter/small)
 			HCLOSE = 0.001       # 1      # 0.000000000000000000000001 # 1
 			RCLOSE = 160000      # 160000 # 0.000000000000000000000001 # 160000
 			mf.setPCG(500,250,1,HCLOSE,RCLOSE,0.98,2,1)	
