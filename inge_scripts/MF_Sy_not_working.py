@@ -478,18 +478,18 @@ class mymodflow(DynamicModel):
 			mf.setBoundary(self.input_ibound_l2, 2)
 	
 			# horizontal and vertical conductivities 
-			self.pcr_modflow.setConductivity(00 , self.input_khoriz_l1, self.input_kvert_l1, 1)
-			self.pcr_modflow.setConductivity(00 , self.input_khoriz_l2, self.input_kvert_l2, 2)
+			mf.setConductivity(00 , self.input_khoriz_l1, self.input_kvert_l1, 1)
+			mf.setConductivity(00 , self.input_khoriz_l2, self.input_kvert_l2, 2)
 			
 			# storage coefficients 
-			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,1)
-			self.pcr_modflow.setStorage(self.input_stor_prim, self.input_stor_sec,2)
+			mf.setStorage(self.input_stor_prim, self.input_stor_sec,1)
+			mf.setStorage(self.input_stor_prim, self.input_stor_sec,2)
 			
 			# initial heads
 			initial_head_bottom = self.input_head_bottom   
 			initial_head_top    = self.input_head_top
-			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_bottom), 1)
-			self.pcr_modflow.setInitialHead(pcr.scalar(initial_head_top),    2)	
+			mf.setInitialHead(pcr.scalar(initial_head_bottom), 1)
+			mf.setInitialHead(pcr.scalar(initial_head_top),    2)	
 
 			# set all modflow packages
 			mf.setRiver(riv_head_comb, riv_bot_comb, riv_cond_comb,2)
@@ -549,6 +549,7 @@ class mymodflow(DynamicModel):
 										timeStamp = timeStamp)
 
 cloneMap 	    = "/projects/0/dfguu/users/inge/inputMAPS/Clone_05min.map" # "../MFinp/australia/australia_clone.map" "../../PCR-GLOBWB/MFinp/australia/australia_clone.map" #
+cloneMap 	    = "/projects/0/dfguu/data/hydroworld/others/Mississippi/Mississippi05min.clone.map"
 outputDirectory = "/projects/0/dfguu/users/edwin/modflow_Sy1/tmp/"
 strStartTime    = sys.argv[1]
 strEndTime      = sys.argv[2]
