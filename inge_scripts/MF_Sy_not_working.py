@@ -111,7 +111,7 @@ class mymodflow(DynamicModel):
 													self.cloneMap, self.tmpDir), 0.0)		
 		
 		min_dem				=	pcr.cover(\
-								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min.map".\
+								vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/dem_min_05min.map",\
 													self.cloneMap, self.tmpDir), 0.0)		
 		
 		cellarea			=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/surface_parameters_MF/cellArea_05min.map",\
