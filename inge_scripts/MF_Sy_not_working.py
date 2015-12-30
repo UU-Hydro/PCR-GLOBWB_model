@@ -286,7 +286,7 @@ class mymodflow(DynamicModel):
 		# The following lines are needed as Edwin moved all pcraster modflow operations to the dynamic section.
 		self.input_khoriz_l2 = khoriz_l2
 		self.input_kvert_l2  = kvert_l2
-		self.input_khoriz_l2 = khoriz_l1
+		self.input_khoriz_l1 = khoriz_l1
 		self.input_kvert_l1  = kvert_l1
 
 
