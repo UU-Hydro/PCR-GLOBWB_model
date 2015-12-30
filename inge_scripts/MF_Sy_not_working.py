@@ -145,7 +145,7 @@ class mymodflow(DynamicModel):
 													self.cloneMap, self.tmpDir)		
 		ksat_l2_conf_log	=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/aquifer_parameters_MF/kl2B_ave.map",\
 													self.cloneMap, self.tmpDir)		
-		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd",\
+		ldd					=	vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/ldd.map",\
 													self.cloneMap, self.tmpDir, None, True, None, False)		
 		qbank				=	pcr.cover(\
 		                        vos.readPCRmapClone("/projects/0/dfguu/users/inge/inputMAPS/maps__/Qbankfull_edwinInputs",\
