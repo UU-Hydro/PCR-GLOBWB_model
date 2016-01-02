@@ -442,6 +442,8 @@ class Groundwater(object):
                 self.relativeGroundwaterHead = vos.readPCRmapClone(\
                                                iniItems.groundwaterOptions['relativeGroundwaterHeadIni'],
                                                self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                self.relativeGroundwaterHead = self.storGroundwater / self.specificYield
             self.baseflow = vos.readPCRmapClone(\
                             iniItems.groundwaterOptions['baseflowIni'],
                             self.cloneMap,self.tmpDir,self.inputDir)
