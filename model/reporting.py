@@ -706,7 +706,7 @@ class Reporting(object):
                                     'desalinationAbstraction',\
                                     'domesticWaterWithdrawal',\
                                     'industryWaterWithdrawal',\
-                                    'livestockWaterWithdrawal'\
+                                    'livestockWaterWithdrawal',\
                                     'irrigationWaterWithdrawal',\
                                     'irrGrossDemand',\
                                     'nonIrrGrossDemand',\
