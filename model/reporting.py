@@ -675,13 +675,15 @@ class Reporting(object):
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
 
-       # flood innundation depth (unit: m) above the floodplain
-        self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
+        # flood innundation depth (unit: m) above the floodplain
+        if self._model.routing.floodPlain:\
+           self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
                                      self._model.routing.floodDepth))
                                 
         # flood volume (unit: m3): excess above the channel storage capacity
-        self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
+        if self._model.routing.floodPlain:\
+           self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
                       pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
         
