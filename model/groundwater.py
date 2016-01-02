@@ -437,10 +437,11 @@ class Groundwater(object):
                                                iniItems.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'],
                                                self.cloneMap,self.tmpDir,self.inputDir)
             
-            # additional initial conditions (needed for the online coupling between 
-            self.relativeGroundwaterHead = vos.readPCRmapClone(\
-                                           iniItems.groundwaterOptions['relativeGroundwaterHeadIni'],
-                                           self.cloneMap,self.tmpDir,self.inputDir)
+            # additional initial conditions (needed ONLY for the online coupling between PCR-GLOBWB and MODFLOW))
+            if iniItems.groundwaterOptions['relativeGroundwaterHeadIni'] != "None":\
+                self.relativeGroundwaterHead = vos.readPCRmapClone(\
+                                               iniItems.groundwaterOptions['relativeGroundwaterHeadIni'],
+                                               self.cloneMap,self.tmpDir,self.inputDir)
             self.baseflow = vos.readPCRmapClone(\
                             iniItems.groundwaterOptions['baseflowIni'],
                             self.cloneMap,self.tmpDir,self.inputDir)
