@@ -387,11 +387,11 @@ class Configuration(object):
             logger.warning(msg)
             self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
         
-        if 'relativeGroundWaterHeadIni' not in self.groundwaterOptions.keys():
-            msg  = 'The initial condition "relativeGroundWaterHeadIni" is not defined. "None" is assumed here. '
-            msg += 'Note that the "relativeGroundWaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
+        if 'relativeGroundwaterHeadIni' not in self.groundwaterOptions.keys():
+            msg  = 'The initial condition "relativeGroundwaterHeadIni" is not defined. "None" is assumed here. '
+            msg += 'Note that the "relativeGroundwaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
             logger.warning(msg)
-            self.groundwaterOptions['relativeGroundWaterHeadIni'] = "None"
+            self.groundwaterOptions['relativeGroundwaterHeadIni'] = "None"
 
         if 'baseflowIni' not in self.groundwaterOptions.keys():
             msg  = 'The initial condition "relativeGroundWaterIni" is not defined. "0.0" is assumed here. '
