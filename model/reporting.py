@@ -636,14 +636,27 @@ class Reporting(object):
         self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
                               pcr.cover(self._model.routing.channelStorage, 0.0)) 
         
-        # An example to report variables from certain land cover types 
-        # - evaporation from irrigation areas (m/day) - values are average over the entire cell area
-        if self._model.landSurface.includeIrrigation:
-            self.evaporation_from_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
-                                               self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
-                                               self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
-                                               self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
         
+        # Some examples to report variables from certain land cover types:
+        # - unit: m/day - values are average over the entire cell area
+        if self._model.landSurface.includeIrrigation:
+            self.precipitation_at_irrigation    = self._model.meteo.precipitation * \
+                                                  self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                                  self._model.meteo.precipitation * \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.netLqWaterToSoil_at_irrigation = self._model.landSurface.landCoverObj['irrPaddy'].netLqWaterToSoil * \
+                                                  self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].netLqWaterToSoil * \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.evaporation_from_irrigation    = self._model.landSurface.landCoverObj['irrPaddy'].actualET * \
+                                                  self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].actualET * \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
+            self.transpiration_from_irrigation  = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal * \
+                                                  self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * \
+                                                  self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover        
+
         # Total groundwater abstraction (m) (assuming otherWaterSourceAbstraction as fossil groundwater abstraction
         self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbstraction +\
                                            self.fossilGroundwaterAbstraction
@@ -662,13 +675,7 @@ class Reporting(object):
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
 
-        # transpiration from irrigation areas (in percentage)
-        if self._model.landSurface.includeIrrigation:
-            self.irrigationTranspiration = self._model.landSurface.landCoverObj['irrPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
-                                           self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover
-            self.irrigationTranspiration = pcr.ifthen(self._model.routing.landmask, self.irrigationTranspiration)                               
-
-        # flood innundation depth (unit: m) above the floodplain
+       # flood innundation depth (unit: m) above the floodplain
         self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
                                      self._model.routing.floodDepth))
@@ -687,6 +694,48 @@ class Reporting(object):
         self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
         self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
         self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
+
+        
+        ######################################################################################################################################################################
+        # All water withdrawal variables in volume unit (m3): 
+        waterWithdrawalVariables = [
+                                    'totalGroundwaterAbstraction',\
+                                    'surfaceWaterAbstraction',\
+                                    'desalinationAbstraction',\
+                                    'domesticWaterWithdrawal',\
+                                    'industryWaterWithdrawal',\
+                                    'livestockWaterWithdrawal'\
+                                    'irrigationWaterWithdrawal',\
+                                    'irrGrossDemand',\
+                                    'nonIrrGrossDemand',\
+                                    'totalGrossDemand'\
+                                    ]
+        for var in waterWithdrawalVariables:
+                volVariable = var + 'Volume'
+                vars(self)[volVariable] = None 
+                vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
+        ######################################################################################################################################################################
+                                                         
+
+        ##########################################################################################################################################################################################
+        # Consumptive water use (unit: m3/day) for livestock, domestic and industry 
+        self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume 
+        self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
+        self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
+        ##########################################################################################################################################################################################
+
+
+        ######################################################################################################################################################################
+        # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
+        # irrigation_water_consumption = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
+        #                                                                         (self.precipitation_at_irrigation_volume + self.irrigationWaterWithdrawal)  
+        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+        # - additional values (may be needed) 
+        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        ######################################################################################################################################################################
+
 
     def report(self):
 
