@@ -69,7 +69,7 @@ for clone_code in clone_codes:
 
    cmd += "python deterministic_runner_parallel.py " + iniFileName +" "+\
                                                       debug_option +" "+\
-                                                        clone_code +" "+\
+                                                        clone_code +" "
    cmd = cmd+" & "
    i_clone += 1
 
