@@ -131,7 +131,7 @@ class Configuration(object):
         logger.info('Debugging output to %s', dbg_filename)
         
         if system_arguments != None:
-            logger.info('The command line used to execute this run: %s', system_arguments)
+            logger.info('The system arguments given to execute this run: %s', system_arguments)
        
     def backup_configuration(self):
         
