@@ -130,7 +130,7 @@ def main():
     configuration.globalOptions['outputDir'] += "/"+clone_code+"/" 
     configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
     configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
-    configuration.set_configuration()
+    configuration.set_configuration(system_arguments = sys.argv)
 
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
