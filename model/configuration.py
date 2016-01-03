@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Configuration(object):
 
-    def __init__(self, iniFileName, debug_mode = False, no_modification = True):
+    def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None):
         object.__init__(self)
 
         # timestamp of this run, used in logging file names, etc
@@ -35,7 +35,7 @@ class Configuration(object):
         self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
 
         # if no_modification, set configuration directly (otherwise, the function/method  
-        if no_modification: self.set_configuration()
+        if no_modification: self.set_configuration(system_arguments)
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
@@ -48,14 +48,14 @@ class Configuration(object):
             # the main output directory
             self.main_output_directory = self.globalOptions['outputDir']
 
-    def set_configuration(self):
+    def set_configuration(self, system_arguments = None):
 
         # set all paths, clean output when requested
         self.set_input_files()
         self.create_output_directories()
         
         # initialize logging 
-        self.initialize_logging()
+        self.initialize_logging(system_arguments)
         
         # copy ini file
         self.backup_configuration()
@@ -66,7 +66,7 @@ class Configuration(object):
         # options/settings used during debugging to PCR-GLOBWB version 1.0
         self.set_debug_to_version_one()
 
-    def initialize_logging(self, log_file_location = "Default"):
+    def initialize_logging(self, system_arguments = None, log_file_location = "Default"):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
@@ -130,6 +130,9 @@ class Configuration(object):
         logger.info('Logging output to %s', log_filename)
         logger.info('Debugging output to %s', dbg_filename)
         
+        if system_arguments != None:
+            logger.info('The command line used to execute this run: %s', system_arguments)
+       
     def backup_configuration(self):
         
         # copy ini File to logDir:
