@@ -55,7 +55,7 @@ class Configuration(object):
         self.create_output_directories()
         
         # initialize logging 
-        self.initialize_logging(system_arguments)
+        self.initialize_logging("Default", system_arguments)
         
         # copy ini file
         self.backup_configuration()
@@ -66,7 +66,7 @@ class Configuration(object):
         # options/settings used during debugging to PCR-GLOBWB version 1.0
         self.set_debug_to_version_one()
 
-    def initialize_logging(self, system_arguments = None, log_file_location = "Default"):
+    def initialize_logging(self, log_file_location = "Default", system_arguments = None):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
