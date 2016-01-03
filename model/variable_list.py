@@ -896,17 +896,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Excluding surface water bodies.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# evaporation_from_irrigation
-pcrglobwb_variable_name = 'evaporation_from_irrigation'
-netcdf_short_name[pcrglobwb_variable_name] = 'evaporation_from_irrigation'
-netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
-netcdf_long_name[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
-latex_symbol[pcrglobwb_variable_name]      = None
-
 # fraction_of_surface_water
 pcrglobwb_variable_name = 'dynamicFracWat'
 netcdf_short_name[pcrglobwb_variable_name] = 'fractioon_of_surface_water'
@@ -1114,6 +1103,50 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm3.year-1'
 netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# precipitation_at_irrigation
+pcrglobwb_variable_name = 'precipitation_at_irrigation'
+netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# evaporation_from_irrigation
+pcrglobwb_variable_name = 'evaporation_from_irrigation'
+netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# netLqWaterToSoil_at_irrigation
+pcrglobwb_variable_name = 'netLqWaterToSoil_at_irrigation'
+netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# transpiration_from_irrigation
+pcrglobwb_variable_name = 'transpiration_from_irrigation'
+netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area (not only irrigation fraction).'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # precipitation_at_irrigation_volume
