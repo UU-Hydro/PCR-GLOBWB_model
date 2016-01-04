@@ -594,7 +594,8 @@ class GroundwaterModflow(object):
         # - extent of mountainous region
         mountainous_extent  = pcr.ifthen((self.dem_average - self.dem_floodplain) > 50.0, pcr.boolean(1.0))
         # - sub_catchment classes
-        sub_catchment_class = pcr.subcatchment(self.lddMap, pcr.nominal(pcr.uniqueid(mountainous_extent)))
+        sub_catchment_class = pcr.ifthen(mountainous_extent, \
+                              pcr.subcatchment(self.lddMap, pcr.nominal(pcr.uniqueid(mountainous_extent))))
         # - bottom of bak storage
         bottom_of_bank_storage = pcr.cover(pcr.areaminimum(bottom_of_bank_storage, sub_catchment_class), \
                                            bottom_of_bank_storage)  
