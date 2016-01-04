@@ -590,6 +590,15 @@ class GroundwaterModflow(object):
         bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
         bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
 
+        # for the mountainous region, the bottom of bank storage equal to its lowest point
+        # - extent of mountainous region
+        mountainous_extent  = pcr.ifthen((self.dem_average - self.dem_floodplain) > 50.0, pcr.boolean(1.0))
+        # - sub_catchment classes
+        sub_catchment_class = pcr.subcatchment(self.lddMap, pcr.nominal(pcr.uniqueid(mountainous_extent)))
+        # - bottom of bak storage
+        bottom_of_bank_storage = pcr.cover(pcr.areaminimum(bottom_of_bank_storage, sub_catchment_class), \
+                                           bottom_of_bank_storage)  
+
         # rounding down
         bottom_of_bank_storage = pcr.rounddown(bottom_of_bank_storage * 1000.)/1000.
         
@@ -1067,16 +1076,21 @@ class GroundwaterModflow(object):
             #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
                                                      #~ self.dem_riverbed - additional_depth)
             #
-            # - for lakes and resevoirs, alternative 2: estimate bed elevation from dem and bankfull depth
+            #~ # - for lakes and resevoirs, alternative 2: estimate bed elevation from dem and bankfull depth
+            #~ surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            #~ surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+            #~ surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+            
+            # - for lakes and resevoirs, alternative 3: estimate bed elevation from DEM only
+            #                                           This is to avoid that groundwater heads fall too far below DEM
+            #                                           This will also smooth groundwater heads.     
             surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
-            surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
-            surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
-            #
-            # - surface water bed elevation for rivers, lakes and reservoirs
+            
+            # surface water bed elevation for rivers, lakes and reservoirs
             surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
             #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
-            #
-            # - rounding values for surface_water_bed_elevation
+            
+            # rounding values for surface_water_bed_elevation
             self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
 
 
@@ -1093,8 +1107,8 @@ class GroundwaterModflow(object):
             # lake and reservoir resistance (day)
             lake_and_reservoir_resistance = self.bed_resistance
 
-            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.005 m/day and thickness 0.15 m)
-            lake_and_reservoir_resistance  = pcr.max(0.15 / 0.005, self.bed_resistance)
+            # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.001 m/day and thickness 0.50 m)
+            lake_and_reservoir_resistance  = pcr.max(0.50 / 0.001, self.bed_resistance)
 
             #~ # to further decrease bed conductance in lakes and reservoir, we limit the lake and reservoir fraction as follows:
             #~ lake_and_reservoir_fraction = pcr.cover(\
@@ -1268,8 +1282,9 @@ class GroundwaterModflow(object):
 
         # specify the drain package the drain package is used to simulate the drainage of bank storage 
 
-        # - estimate bottom of bank stoarage for flood plain areas
+        # - estimate bottom of bank storage for flood plain areas
         drain_elevation = self.estimate_bottom_of_bank_storage()                               # unit: m
+        
         # - for lakes and/or reservoirs, ignore the drainage
         drain_conductance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, pcr.scalar(0.0))
         # - drainage conductance is a linear reservoir coefficient
@@ -1278,7 +1293,7 @@ class GroundwaterModflow(object):
 
         #~ drain_conductance = pcr.ifthenelse(drain_conductance < 1e-20, 0.0, \
                                            #~ drain_conductance) 
-        drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000. 
+        #~ drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000.                  # It is not a good idea to round the values down (water can be trapped).  
 
         # reducing the size of table by ignoring cells outside landmask region
         drain_conductance = pcr.ifthen(self.landmask, drain_conductance)
@@ -1287,13 +1302,13 @@ class GroundwaterModflow(object):
         #~ # set the DRN package only to the uppermost layer
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
 
-        # set the DRN package only to both layers
-        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
-        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
-
-        # set the DRN package only to the lowermost layer
+        # set the DRN package only to both layers ------ 4 January 2016: I think that we should use this as we want all recharge will be released as baseflow.
         self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
-        self.pcr_modflow.setDrain(pcr.spatial(pcr.scalar(0.0)),pcr.spatial(pcr.scalar(0.0)), 2)
+        self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
+
+        #~ # set the DRN package only to the lowermost layer
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
+        #~ self.pcr_modflow.setDrain(pcr.spatial(pcr.scalar(0.0)),pcr.spatial(pcr.scalar(0.0)), 2)
 
 
     def return_innundation_fraction(self,relative_water_height):
