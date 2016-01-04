@@ -459,7 +459,7 @@ class GroundwaterModflow(object):
         primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary = pcr.max(1e-20, primary)
         #~ secondary = pcr.max(1e-5, primary * 0.001)                                                                                        # dummy values if we use layer type 00
-        secondary = pcr.cover(pcr.min(0.001, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        secondary = pcr.cover(pcr.min(0.005, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         secondary = pcr.max(1e-20, secondary)
 
         #~ primary_confined = pcr.cover(pcr.min(0.01, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
