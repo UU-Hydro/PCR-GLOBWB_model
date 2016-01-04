@@ -458,12 +458,14 @@ class GroundwaterModflow(object):
         # - correction due to the usage of lat/lon coordinates
         primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary = pcr.max(1e-20, primary)
-        secondary = pcr.max(1e-5, primary * 0.001)         # dummy values as we used layer type 00
+        #~ secondary = pcr.max(1e-5, primary * 0.001)         # dummy values as we used layer type 00
+        secondary = pcr.cover(pcr.min(0.01, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        secondary = pcr.max(1e-20, secondary)
+
+        #~ primary_confined = pcr.cover(pcr.min(0.01, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         
-        primary_confined = pcr.cover(pcr.min(0.01, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        
-        #~ self.pcr_modflow.setStorage(primary, secondary, 1)
-        self.pcr_modflow.setStorage(primary_confined, secondary, 1)
+        self.pcr_modflow.setStorage(primary, secondary, 1)
+        #~ self.pcr_modflow.setStorage(primary_confined, secondary, 1)
         self.pcr_modflow.setStorage(primary, secondary, 2)
 
         # specification for conductivities (BCF package)
@@ -502,10 +504,10 @@ class GroundwaterModflow(object):
         # set conductivity values to MODFLOW
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             vertical_conductivity_layer_1, 1)              
-        #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+        #~ self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              #~ vertical_conductivity_layer_1, 1)              
+        self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+                                             vertical_conductivity_layer_1, 1)              
 
         # make the following value(s) available for the other modules/methods:
         self.specific_yield_1 = self.specificYield
