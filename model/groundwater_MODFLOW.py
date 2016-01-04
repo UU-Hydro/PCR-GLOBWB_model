@@ -509,10 +509,10 @@ class GroundwaterModflow(object):
         # set conductivity values to MODFLOW
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
-        #~ self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             #~ vertical_conductivity_layer_1, 1)              
-        self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
+        #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+                                             #~ vertical_conductivity_layer_1, 1)              
 
         # make the following value(s) available for the other modules/methods:
         self.specific_yield_1 = self.specificYield
