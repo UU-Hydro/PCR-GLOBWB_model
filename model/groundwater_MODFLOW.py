@@ -495,6 +495,10 @@ class GroundwaterModflow(object):
         horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
 
+        # maximum transmissivity
+        horizontal_conductivity_layer_1 = pcr.min(250.00, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+        
         # ignoring the vertical conductivity in the lower layer 
         # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
         vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
