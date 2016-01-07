@@ -58,7 +58,7 @@ class DeterministicRunner(DynamicModel):
         # - also saving the adjusted parameter maps to pcraster files
         # - these will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
         # "recessionCoeff"
-        # minimu value is zero and using log-scale
+        # minimum value is zero and using log-scale
         self.model.groundwater.recessionCoeff = pcr.max(0.0, (10**(multiplier_for_recessionCoeff)) * self.model.groundwater.recessionCoeff)
         self.model.groundwater.recessionCoeff = pcr.min(1.0, self.model.groundwater.recessionCoeff)
         # report the map

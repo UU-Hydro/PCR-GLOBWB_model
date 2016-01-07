@@ -313,7 +313,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
+        #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -460,13 +461,10 @@ class GroundwaterModflow(object):
         primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary = pcr.max(1e-20, primary)
         #~ secondary = pcr.max(1e-5, primary * 0.001)                                                                                        # dummy values if we use layer type 00
-        secondary = pcr.cover(pcr.min(0.005, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        secondary = pcr.cover(pcr.min(0.005, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values if we use layer type 00
         secondary = pcr.max(1e-20, secondary)
 
-        #~ primary_confined = pcr.cover(pcr.min(0.01, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        
         self.pcr_modflow.setStorage(primary, secondary, 1)
-        #~ self.pcr_modflow.setStorage(primary_confined, secondary, 1)
         self.pcr_modflow.setStorage(primary, secondary, 2)
 
         # specification for conductivities (BCF package)
@@ -495,9 +493,9 @@ class GroundwaterModflow(object):
         horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
                                           horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
 
-        # maximum transmissivity
-        horizontal_conductivity_layer_1 = pcr.min(250.00, \
-                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+        # TODO: Shall we also set maximum transmissivity?
+        #~ horizontal_conductivity_layer_1 = pcr.min(250.00, \
+                                          #~ horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
         
         # ignoring the vertical conductivity in the lower layer 
         # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
@@ -555,7 +553,7 @@ class GroundwaterModflow(object):
             # calculate/simulate a steady state condition (until the modflow converges)
             # get the current state(s) of groundwater head and put them in a dictionary
             groundwaterHead = self.getState()
-            self.modflow_simulation("steady-state", groundwaterHead, None,1,1)
+            self.modflow_simulation("steady-state", groundwaterHead, None, 1, 1)
             
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
             # 
@@ -572,7 +570,13 @@ class GroundwaterModflow(object):
                 vars(self)[var_name] = pcr.cover(vars(self)[var_name], self.dem_average)
                 # TODO: Define the window sizes as part of the configuration file. Also consider to use the inverse distance method. 
             
-            # TODO: Also please consider to use Deltares's trick to remove isolated cells. 
+            # TODO: Also please consider to use Deltares's trick to remove isolated cells.
+            
+            # TODO: Add a transient simulation with constant input during a number of time steps.
+            time_step_length = # from the ini file
+            for i in range(1, number_of_extra_spin_up):
+                groundwaterHead = self.getState()
+                self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
         
     def estimate_bottom_of_bank_storage(self):
 
