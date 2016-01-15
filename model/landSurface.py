@@ -307,7 +307,7 @@ class LandSurface(object):
         # Also note that "noAnnualChangesInLandCoverParameter = False" must be followed by "noLandCoverFractionCorrection"
         if self.noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection == False:
             self.noLandCoverFractionCorrection = True
-            msg = "WARNING! No land cover fractions will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
+            msg = "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
             logger.warning(msg) 
             logger.warning(msg) 
             logger.warning(msg) 
