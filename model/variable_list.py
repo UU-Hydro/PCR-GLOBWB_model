@@ -898,7 +898,7 @@ latex_symbol[pcrglobwb_variable_name]      = None
 
 # fraction_of_surface_water
 pcrglobwb_variable_name = 'dynamicFracWat'
-netcdf_short_name[pcrglobwb_variable_name] = 'fractioon_of_surface_water'
+netcdf_short_name[pcrglobwb_variable_name] = 'fraction_of_surface_water'
 netcdf_unit[pcrglobwb_variable_name]       = '1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
