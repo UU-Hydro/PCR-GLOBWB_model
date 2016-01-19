@@ -731,11 +731,12 @@ class Reporting(object):
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
         # irrigation_water_consumption = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
         #                                                                         (self.precipitation_at_irrigation_volume + self.irrigationWaterWithdrawal)  
-        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
-        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
-        # - additional values (may be needed) 
-        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
-        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        if self._model.landSurface.includeIrrigation:
+            self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+            self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+            # - additional values (may be needed) 
+            self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+            self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
         ######################################################################################################################################################################
 
 
