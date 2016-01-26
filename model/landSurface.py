@@ -1159,10 +1159,10 @@ class LandSurface(object):
         
         # updating fracVegCover of each landCover (landCover fraction) 
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
-        # - done at yearly basis, at the beginning of each year
+        # - done at yearly basis, at the beginning of each year, also at the beginning of simulation
         #
         if self.dynamicIrrigationArea and self.includeIrrigation and \
-          (currTimeStep.timeStepPCR == 1 and currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
+          (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1) and self.noLandCoverFractionCorrection == False:     
             
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
