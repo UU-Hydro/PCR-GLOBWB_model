@@ -60,7 +60,7 @@ class DeterministicRunner(DynamicModel):
         # - also saving the adjusted parameter maps to pcraster files
         # - these will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
         # "recessionCoeff"
-        # minimu value is zero and using log-scale
+        # minimum value is zero and using log-scale
         self.model.groundwater.recessionCoeff = pcr.max(0.0, (10**(multiplier_for_recessionCoeff)) * self.model.groundwater.recessionCoeff)
         self.model.groundwater.recessionCoeff = pcr.min(1.0, self.model.groundwater.recessionCoeff)
         # report the map
@@ -76,36 +76,79 @@ class DeterministicRunner(DynamicModel):
             pcraster_filename = "degreeDayFactor" + "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.landCoverObj[coverType].degreeDayFactor , pcraster_filename)
 
-            # "kSat"
-            # minimum value is zero and using-log-scale
-            self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp = \
-                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp)
-            self.model.landSurface.landCoverObj[coverType].parameters.kSatLow = \
-                   pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatLow)
-            # report the maps
-            pcraster_filename = "kSatUpp"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp, pcraster_filename)
-            pcraster_filename = "kSatLow"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatLow, pcraster_filename)
+            # "kSat" and "storCap" for 2 layer model
+            if self.model.landSurface.numberOfSoilLayers == 2:
 
-            # "storCap"
-            # minimum value is zero
-            self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp = pcr.max(0.0, multiplier_for_storCap*\
-                                                                                                self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp)
-            self.model.landSurface.landCoverObj[coverType].parameters.storCapLow = pcr.max(0.0, multiplier_for_storCap*\
-                                                                                                self.model.landSurface.landCoverObj[coverType].parameters.storCapLow)
-            # report the maps
-            pcraster_filename = "storCapUpp"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp, pcraster_filename)
-            pcraster_filename = "storCapLow"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapLow, pcraster_filename)
+                # "kSat"
+			    # minimum value is zero and using-log-scale
+                self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp = \
+                       pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp)
+                self.model.landSurface.landCoverObj[coverType].parameters.kSatLow = \
+                       pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatLow)
+                # report the maps
+                pcraster_filename = "kSatUpp"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp, pcraster_filename)
+                pcraster_filename = "kSatLow"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatLow, pcraster_filename)
+
+                # "storCap"
+                # minimum value is zero
+                self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp = pcr.max(0.0, multiplier_for_storCap*\
+                                                                                                    self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp)
+                self.model.landSurface.landCoverObj[coverType].parameters.storCapLow = pcr.max(0.0, multiplier_for_storCap*\
+                                                                                                    self.model.landSurface.landCoverObj[coverType].parameters.storCapLow)
+                # report the maps
+                pcraster_filename = "storCapUpp"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp, pcraster_filename)
+                pcraster_filename = "storCapLow"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapLow, pcraster_filename)
+            
+            # "kSat" and "storCap" for 3 layer model
+            if self.model.landSurface.numberOfSoilLayers == 3:
+
+                # "kSat"
+			    # minimum value is zero and using-log-scale
+                self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp000005 = \
+                       pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp000005)
+                self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp005030 = \
+                       pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp005030)
+                self.model.landSurface.landCoverObj[coverType].parameters.kSatLow030150 = \
+                       pcr.max(0.0, (10**(multiplier_for_kSat)) * self.model.landSurface.landCoverObj[coverType].parameters.kSatLow030150)
+                # report the maps
+                pcraster_filename = "kSatUpp000005"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp000005, pcraster_filename)
+                pcraster_filename = "kSatUpp005030"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp005030, pcraster_filename)
+                pcraster_filename = "kSatLow030150"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.kSatLow030150, pcraster_filename)
+
+                # "storCap"
+                # minimum value is zero
+                self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp000005 = pcr.max(0.0, multiplier_for_storCap*\
+                                                                                                          self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp000005)
+                self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp005030 = pcr.max(0.0, multiplier_for_storCap*\
+                                                                                                          self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp005030)
+                self.model.landSurface.landCoverObj[coverType].parameters.storCapLow030150 = pcr.max(0.0, multiplier_for_storCap*\
+                                                                                                          self.model.landSurface.landCoverObj[coverType].parameters.storCapLow030150)
+                # report the maps
+                pcraster_filename = "storCapUpp000005"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp000005, pcraster_filename)
+                pcraster_filename = "storCapUpp005030"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp005030, pcraster_filename)
+                pcraster_filename = "storCapLow030150"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.storCapLow030150, pcraster_filename)
 
 
-            # re-calculate rootZoneWaterStorageCap as the consequence of the modification of "storCap"
+			# re-calculate rootZoneWaterStorageCap as the consequence of the modification of "storCap"
             # This is WMAX in the oldcalc script.
-            self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap = self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp +\
-                                                                                                self.model.landSurface.landCoverObj[coverType].parameters.storCapLow
-            # report the map
+            if self.model.landSurface.numberOfSoilLayers == 2:
+                self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap = self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp +\
+                                                                                                    self.model.landSurface.landCoverObj[coverType].parameters.storCapLow
+            if self.model.landSurface.numberOfSoilLayers == 3:
+                self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap = self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp000005 +\
+                                                                                                    self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp005030 +\
+																									self.model.landSurface.landCoverObj[coverType].parameters.storCapLow030150
+			# report the map
             pcraster_filename = "rootZoneWaterStorageCap"+ "_" + coverType + ".map" 
             pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap, pcraster_filename)
             

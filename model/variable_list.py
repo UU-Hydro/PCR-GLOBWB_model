@@ -156,6 +156,39 @@ comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 pcr_short_name[pcrglobwb_variable_name]    = "sUpp"
 
+# storUpp000005 
+pcrglobwb_variable_name = 'storUpp000005'
+netcdf_short_name[pcrglobwb_variable_name] = 'upper_soil_storage_5cm'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'upper_soil_storage_5cm'       # first 5 cm of soil
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# storUpp005030 
+pcrglobwb_variable_name = 'storUpp005030'
+netcdf_short_name[pcrglobwb_variable_name] = 'upper_soil_storage_5_30cm'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'upper_soil_storage_5_30cm'       # from 5 to 30 cm of soil
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# storLow030150 
+pcrglobwb_variable_name = 'storLow030150'
+netcdf_short_name[pcrglobwb_variable_name] = 'lower_soil_storage_30_150cm'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'lower_soil_storage_30_150cm'       # from 30 to 150 cm of soil
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # storLowTotal 
 pcrglobwb_variable_name = 'storLowTotal'
 netcdf_short_name[pcrglobwb_variable_name] = 'lower_soil_storage'

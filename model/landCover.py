@@ -534,7 +534,7 @@ class LandCover(object):
             if self.usingOriginalOldCalcRootTranspirationPartitioningMethod == False:
                 adjRootFrUpp000005 = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp000005, 1.0))) 
                 adjRootFrUpp005030 = pcr.max(0.0, pcr.ifthenelse(adjRootFrUpp000005 < 1.0, pcr.min(adjRootFrUpp005030, pcr.scalar(1.0) - adjRootFrUpp000005), 0.0)) 
-                adjRootFrLow030150 = pcr.max(0.0, pcr.scalar(1.0) - (adjRootFrUpp000005 + self.adjRootFrUpp005030)) 
+                adjRootFrLow030150 = pcr.max(0.0, pcr.scalar(1.0) - (adjRootFrUpp000005 + adjRootFrUpp005030)) 
 
             return adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 
 

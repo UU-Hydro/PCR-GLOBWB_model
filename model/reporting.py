@@ -544,6 +544,11 @@ class Reporting(object):
         
         # fraction of surface water bodies.
         self.dynamicFracWat = self._model.routing.dynamicFracWat
+		
+        if self._model.landSurface.numberOfSoilLayers == 3:
+            self.storUpp000005  = self._model.landSurface.storUpp000005
+            self.storUpp005030  = self._model.landSurface.storUpp005030
+            self.storLow030150  = self._model.landSurface.storLow030150
         
     def additional_post_processing(self):
         # In this method/function, users can add their own post-processing.
