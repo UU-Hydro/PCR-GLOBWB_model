@@ -10,4 +10,4 @@ python parallelPCR-GLOBWB_without_prefactors.py ../config/05min_runs_january_201
 #                                                           - continue from 1958
 #                                                           - continue from 1971
 #                                                           - continue from 1983
-#                                                           - continue from 1986
+#                                                           - continue from 1996
