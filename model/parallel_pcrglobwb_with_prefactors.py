@@ -66,9 +66,9 @@ i_clone = 0
 cmd = ''
 for clone_code in clone_codes:
 
-   cmd += "deterministic_runner_glue_with_parallel_option_february_2016.py " + iniFileName +" "+\
-                                                                               debug_option +" "+\
-                                                                               clone_code +" "
+   cmd += "python deterministic_runner_glue_with_parallel_option_february_2016.py " + iniFileName +" "+\
+                                                                                      debug_option +" "+\
+                                                                                      clone_code +" "
    cmd = cmd+" & "
    i_clone += 1
 

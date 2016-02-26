@@ -32,11 +32,11 @@ class DeterministicRunner(DynamicModel):
 
     def adusting_parameters(self, configuration, system_argument): 
 
-        logger.info("Adjusting some model parameters based on given values in the system argument.")
-        
         # global pre-multipliers given in the argument:
-        if length(system_argument) > 4:
+        if len(system_argument) > 4:
             
+            logger.info("Adjusting some model parameters based on given values in the system argument.")
+
 		    # pre-multipliers for minSoilDepthFrac, kSat, recessionCoeff, storCap and degreeDayFactor
             multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale
             multiplier_for_kSat             = float(system_argument[5])  # log scale
@@ -51,6 +51,8 @@ class DeterministicRunner(DynamicModel):
         # - this will be overwrite any previous given pre-multipliers
         if 'prefactorOptions' in configuration.allSections:
             
+            logger.info("Adjusting some model parameters based on given values in the ini/configuration file.")
+
             self.multiplier_for_refPotET    = float(configuration.prefactorOptions['linear_multiplier_for_refPotET'        ])  # linear scale
             multiplier_for_degreeDayFactor  = float(configuration.prefactorOptions['linear_multiplier_for_degreeDayFactor' ])  # linear scale
             multiplier_for_minSoilDepthFrac = float(configuration.prefactorOptions['linear_multiplier_for_minSoilDepthFrac'])  # linear scale
