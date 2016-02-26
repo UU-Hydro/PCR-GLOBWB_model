@@ -38,7 +38,7 @@ class DeterministicRunner(DynamicModel):
             logger.info("Adjusting some model parameters based on given values in the system argument.")
 
 		    # pre-multipliers for minSoilDepthFrac, kSat, recessionCoeff, storCap and degreeDayFactor
-            multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale
+            multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale                                        # Note that this one do NOT work for the changing WMIN.  
             multiplier_for_kSat             = float(system_argument[5])  # log scale
             multiplier_for_recessionCoeff   = float(system_argument[6])  # log scale
             multiplier_for_storCap          = float(system_argument[7])  # linear scale
@@ -173,45 +173,47 @@ class DeterministicRunner(DynamicModel):
             pcr.report(self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap, pcraster_filename)
             
             # "minSoilDepthFrac"
-            # minimum value is zero
-            self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.max(0.0, multiplier_for_minSoilDepthFrac*\
-                                                           self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)
-            # for minSoilDepthFrac - values will be limited by maxSoilDepthFrac
-            self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.min(\
-                                                           self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,\
-                                                           self.model.landSurface.landCoverObj[coverType].maxSoilDepthFrac)
-            # maximum value is 1.0
-            self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.min(1.0, self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)
-            # report the map
-            pcraster_filename = "minSoilDepthFrac"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac, pcraster_filename)
-
-            # re-calculate arnoBeta (as the consequence of the modification of minSoilDepthFrac)
-            self.model.landSurface.landCoverObj[coverType].arnoBeta = pcr.max(0.001,\
-                 (self.model.landSurface.landCoverObj[coverType].maxSoilDepthFrac-1.)/(1.-self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)+\
-                                           self.model.landSurface.landCoverObj[coverType].parameters.orographyBeta-0.01)
-            self.model.landSurface.landCoverObj[coverType].arnoBeta = pcr.cover(pcr.max(0.001,\
-                  self.model.landSurface.landCoverObj[coverType].arnoBeta), 0.001)
-            # report the map
-            pcraster_filename = "arnoBeta"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].arnoBeta, pcraster_filename)
-
-            # re-calculate rootZoneWaterStorageMin (as the consequence of the modification of minSoilDepthFrac)
-            # This is WMIN in the oldcalc script.
-            # WMIN (unit: m): minimum local soil water capacity within the grid-cell
-            self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin = self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac *\
-                                                                                     self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap 
-            # report the map
-            pcraster_filename = "rootZoneWaterStorageMin"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin, pcraster_filename)
-
-            # re-calculate rootZoneWaterStorageRange (as the consequence of the modification of rootZoneWaterStorageRange and minSoilDepthFrac)
-            # WMAX - WMIN (unit: m)
-            self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageRange = self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap -\
-                                                                                       self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin
-            # report the map
-            pcraster_filename = "rootZoneWaterStorageRange"+ "_" + coverType + ".map" 
-            pcr.report(self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageRange, pcraster_filename)
+            if multiplier_for_minSoilDepthFrac != 1.0:
+                
+                # minimum value is zero
+                self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.max(0.0, multiplier_for_minSoilDepthFrac*\
+                                                               self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)
+                # for minSoilDepthFrac - values will be limited by maxSoilDepthFrac
+                self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.min(\
+                                                               self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,\
+                                                               self.model.landSurface.landCoverObj[coverType].maxSoilDepthFrac)
+                # maximum value is 1.0
+                self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = pcr.min(1.0, self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)
+                # report the map
+                pcraster_filename = "minSoilDepthFrac"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac, pcraster_filename)
+                
+                # re-calculate arnoBeta (as the consequence of the modification of minSoilDepthFrac)
+                self.model.landSurface.landCoverObj[coverType].arnoBeta = pcr.max(0.001,\
+                     (self.model.landSurface.landCoverObj[coverType].maxSoilDepthFrac-1.)/(1.-self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac)+\
+                                               self.model.landSurface.landCoverObj[coverType].parameters.orographyBeta-0.01)
+                self.model.landSurface.landCoverObj[coverType].arnoBeta = pcr.cover(pcr.max(0.001,\
+                      self.model.landSurface.landCoverObj[coverType].arnoBeta), 0.001)
+                # report the map
+                pcraster_filename = "arnoBeta"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].arnoBeta, pcraster_filename)
+                
+                # re-calculate rootZoneWaterStorageMin (as the consequence of the modification of minSoilDepthFrac)
+                # This is WMIN in the oldcalc script.
+                # WMIN (unit: m): minimum local soil water capacity within the grid-cell
+                self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin = self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac *\
+                                                                                         self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap 
+                # report the map
+                pcraster_filename = "rootZoneWaterStorageMin"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin, pcraster_filename)
+                
+                # re-calculate rootZoneWaterStorageRange (as the consequence of the modification of rootZoneWaterStorageRange and minSoilDepthFrac)
+                # WMAX - WMIN (unit: m)
+                self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageRange = self.model.landSurface.landCoverObj[coverType].parameters.rootZoneWaterStorageCap -\
+                                                                                           self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageMin
+                # report the map
+                pcraster_filename = "rootZoneWaterStorageRange"+ "_" + coverType + ".map" 
+                pcr.report(self.model.landSurface.landCoverObj[coverType].rootZoneWaterStorageRange, pcraster_filename)
 
     def initial(self): 
         pass
