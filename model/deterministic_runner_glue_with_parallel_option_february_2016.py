@@ -38,7 +38,7 @@ class DeterministicRunner(DynamicModel):
             logger.info("Adjusting some model parameters based on given values in the system argument.")
 
 		    # pre-multipliers for minSoilDepthFrac, kSat, recessionCoeff, storCap and degreeDayFactor
-            multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale                                        # Note that this one do NOT work for the changing WMIN.  
+            multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale                                        # Note that this one does NOT work for the changing WMIN or Joyce land cover options.  
             multiplier_for_kSat             = float(system_argument[5])  # log scale
             multiplier_for_recessionCoeff   = float(system_argument[6])  # log scale
             multiplier_for_storCap          = float(system_argument[7])  # linear scale
@@ -53,7 +53,7 @@ class DeterministicRunner(DynamicModel):
             
             logger.info("Adjusting some model parameters based on given values in the ini/configuration file.")
 
-            self.multiplier_for_refPotET    = float(configuration.prefactorOptions['linear_multiplier_for_refPotET'        ])  # linear scale
+            self.multiplier_for_refPotET    = float(configuration.prefactorOptions['linear_multiplier_for_refPotET'        ])  # linear scale  # Note that this one does NOT work for the changing WMIN or Joyce land cover options.
             multiplier_for_degreeDayFactor  = float(configuration.prefactorOptions['linear_multiplier_for_degreeDayFactor' ])  # linear scale
             multiplier_for_minSoilDepthFrac = float(configuration.prefactorOptions['linear_multiplier_for_minSoilDepthFrac'])  # linear scale
             multiplier_for_kSat             = float(configuration.prefactorOptions['log_10_multiplier_for_kSat'            ])  # log scale
