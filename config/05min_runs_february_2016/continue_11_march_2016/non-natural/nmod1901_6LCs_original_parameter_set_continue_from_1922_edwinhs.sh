@@ -8,4 +8,3 @@ python parallel_pcrglobwb_with_prefactors.py ../config/05min_runs_february_2016/
 
 # pcrglobwb only (with accutraveltime, without modflow) - start
 #                                                         continue from 1922
-
