@@ -373,13 +373,13 @@ endDate    = str(sys.argv[5])
 # list of netcdf files that will be merged:
 netcdfList = str(sys.argv[6])
 netcdfList = list(set(netcdfList.split(",")))
-if file_type == "outDailyTot": netcdfList = ['%s_dailyTot_output.nc'%s for var in netcdfList]
-if file_type == "outMonthTot": netcdfList = ['%s_monthTot_output.nc'%s for var in netcdfList]
-if file_type == "outMonthAvg": netcdfList = ['%s_monthAvg_output.nc'%s for var in netcdfList]
-if file_type == "outMonthEnd": netcdfList = ['%s_monthEnd_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaTot": netcdfList = ['%s_annuaTot_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaAvg": netcdfList = ['%s_annuaAvg_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaEnd": netcdfList = ['%s_annuaEnd_output.nc'%s for var in netcdfList]
+if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%s for var in netcdfList]
+if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%s for var in netcdfList]
+if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%s for var in netcdfList]
+if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%s for var in netcdfList]
+if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%s for var in netcdfList]
+if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%s for var in netcdfList]
+if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%s for var in netcdfList]
 
 # netcdf format and zlib option:
 ncFormat   = str(sys.argv[7])

@@ -232,15 +232,19 @@ command= 'mapattr -s -R %d -C %d -P "yb2t"	-B -x %f -y %f -l %f %s' %\
 os.system(command)
 setclone(tempCloneMap)
 
-print areas
-print areas[0]
+#~ print areas
+#~ print areas[0]
 
 inputDir= os.path.join(inputDirRoot,areas[0],'maps')
 files= getFileList(inputDir, '*%s.map' % chosenDate)
 
 
 ncores = min(len(files), ncores)
+print
+print
 print 'Using %d cores to process' % ncores,
+print
+print
 
 for fileName in files.keys():
 	print fileName,
@@ -256,7 +260,13 @@ print
 print
 pool = Pool(processes=ncores)		# start "ncores" of worker processes
 pool.map(joinMaps,files.values())
+print
+print
 
 #-remove temporary file
 os.remove(tempCloneMap)
+print
+print
 print ' all done'
+print
+print
