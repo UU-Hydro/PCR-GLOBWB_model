@@ -263,9 +263,9 @@ class GroundwaterModflow(object):
             self.confiningLayerThickness = pcr.cover(\
                                            vos.readPCRmapClone(self.iniItems.modflowParameterOptions['confiningLayerThickness'],\
                                                                self.cloneMap, self.tmpDir, self.inputDir), 0.0)
-            # minimum confining layer vertical conductivity (unit: m/day)
-            self.minimumConfiningLayerVerticalConductivity = pcr.cover(\
-                                           vos.readPCRmapClone(self.iniItems.modflowParameterOptions['minimumConfiningLayerVerticalConductivity'],\
+            # maximum confining layer vertical conductivity (unit: m/day)
+            self.maximumConfiningLayerVerticalConductivity = pcr.cover(\
+                                           vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerVerticalConductivity'],\
                                                                self.cloneMap, self.tmpDir, self.inputDir), 0.0)
             # confining layer resistance (unit: day)
             self.maximumConfiningLayerResistance = pcr.cover(\
@@ -282,7 +282,8 @@ class GroundwaterModflow(object):
         excludeUnproductiveAquifer = True
         if excludeUnproductiveAquifer:
             if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
-                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer']:
+                                                             (iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "None" or\
+                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "False"):
                 minimumTransmissivityForProductiveAquifer = \
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
@@ -313,7 +314,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.5, 1.0]  
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
+        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
@@ -321,7 +323,8 @@ class GroundwaterModflow(object):
         # - Deltares default's value for their 25 and 250 m resolution models is 10 m3  # check this value with Jarno
         cell_area_assumption = verticalSizeInMeter * float(pcr.cellvalue(pcr.mapmaximum(horizontalSizeInMeter),1)[0])
         #~ self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -338,6 +341,14 @@ class GroundwaterModflow(object):
         if 'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
+        
+        # minimum and maximum transmissivity values (unit: m2/day)
+        self.minimumTransmissivity = 10.0     # assumption used by Deltares
+        self.maximumTransmissivity = 100000.0 # ridiculosly high (for 20 m/day with the thickness = 5 km)
+        if 'minimumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
+            self.minimumTransmissivity = float(self.iniItems.modflowParameterOptions['minimumTransmissivity'])
+        if 'maximumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
+            self.maximumTransmissivity = float(self.iniItems.modflowParameterOptions['maximumTransmissivity'])
         
         # option for online coupling purpose, we also need to know the location of pcrglobwb output
         self.online_coupling = self.iniItems.online_coupling_between_pcrglobwb_and_moflow
@@ -441,13 +452,19 @@ class GroundwaterModflow(object):
         secondary = primary                                            # dummy values as we used the layer type 00
         self.pcr_modflow.setStorage(primary, secondary, 1)
 
-        # specification for conductivities (BCF package)
+        # specification for horizontal conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
-        # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
-        minimimumTransmissivity = 10.
-        horizontal_conductivity = pcr.max(minimimumTransmissivity, \
+        # set the minimum value for transmissivity
+        horizontal_conductivity = pcr.max(self.minimumTransmissivity, \
                                           horizontal_conductivity * self.total_thickness) / self.total_thickness
+        # set the maximum value for transmissivity
+        horizontal_conductivity = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.total_thickness) / self.total_thickness
+
+        # specification for horizontal conductivities (BCF package)
         vertical_conductivity   = horizontal_conductivity               # dummy values, as one layer model is used
+
+        # set BCF package
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
 
@@ -469,34 +486,36 @@ class GroundwaterModflow(object):
 
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
-        # set the minimum value for transmissivity; (Deltares's default value: 10 m2/day)
-        minimimumTransmissivity = 10.
-
-        # layer 2 (upper layer)
-        horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
+        
+        # layer 2 (upper layer) - horizontal conductivity
+        horizontal_conductivity_layer_2 = pcr.max(self.minimumTransmissivity, \
                                           horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
+        horizontal_conductivity_layer_2 = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
+
+        # layer 2 (upper layer) - vertical conductivity
         vertical_conductivity_layer_2   = self.kSatAquifer * self.cellAreaMap/\
                                           (pcr.clone().cellSize()*pcr.clone().cellSize())
         
         if self.usePreDefinedConfiningLayer:
-            #~ # - reduce horizonal conductivity for the confining layer part        # NOT NECESSARY
-            #~ horizontal_conductivity_layer_2 = pcr.max(minimimumTransmissivity, \
-                                                      #~ minimimumTransmissivity + self.kSatAquifer * pcr.max(0.0, self.thickness_of_layer_2 - self.confiningLayerThickness)) / \
-                                                      #~ self.thickness_of_layer_2
-            # - vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity and maximumConfiningLayerResistance
-            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.minimumConfiningLayerVerticalConductivity)
-            vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/self.maximumConfiningLayerResistance,\
+
+            # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity and maximumConfiningLayerResistance
+            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
+            vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
+            vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/self.maximumConfiningLayerResistance, \
                                                      vertical_conductivity_layer_2)
+            # minimum resistance is one day
+            vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/1.0,\
+                                                     vertical_conductivity_layer_2)
+            # correcting vertical conductivity
             vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
         
         # layer 1 (lower layer)
-        horizontal_conductivity_layer_1 = pcr.max(minimimumTransmissivity, \
+        horizontal_conductivity_layer_1 = pcr.max(self.minimumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+        horizontal_conductivity_layer_1 = pcr.min(self.maximumTransmissivity, \
                                           horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
 
-        # TODO: Shall we also set maximum transmissivity?
-        #~ horizontal_conductivity_layer_1 = pcr.min(250.00, \
-                                          #~ horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
-        
         # ignoring the vertical conductivity in the lower layer 
         # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
         vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
@@ -707,15 +726,6 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def check_pcrglobwb_status(self):
-
-        logger.debug("Get the status of .")
-        
-        return 
-        
-        pcrglobwb_status
-
-
     def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
@@ -724,13 +734,19 @@ class GroundwaterModflow(object):
             # get the previous state
             groundwaterHead = self.getState()
             
+            # length of a stress period
+            PERLEN = currTimeStep.day
+            if currTimeStep.startTime.day != 1 and currTimeStep.monthIdx == 1:
+                PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
+            
+            # number of time step within a stress period
+            NSTP   = PERLEN
+            
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
-                                                 currTimeStep.day, 
-                                                 currTimeStep.day)
+                                                 PERLEN, 
+                                                 NSTP)
 
-            # 
-            
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
 
@@ -799,6 +815,8 @@ class GroundwaterModflow(object):
                 gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
                 gwAbstraction = pcr.cover(vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir), 0.0)
             
+                # TODO: Try to read from netcdf files, avoid reading from pcraster maps (avoid resampling using gdal) 
+
             else:
             
                 # for offline coupling, we will read files from netcdf files
@@ -816,8 +834,20 @@ class GroundwaterModflow(object):
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                            "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
 
-        # an option to ignore capillary rise
+
+        #####################################################################################################################################################
+        # option to ignore negative capillary rise:
+        self.ignoreCapRise = False
+        if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = True
+        #
+        # for a steady-state simulation, the capillary rise is usually ignored: 
+        if simulation_type == "steady-state" and \
+           'ignoreCapRiseSteadyState' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+           self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "False":\
+            self.ignoreCapRise = False
+        #####################################################################################################################################################
         if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
+
 
         # convert the values of abstraction and recharge to daily average
         if self.valuesRechargeAndAbstractionInMonthlyTotal: 

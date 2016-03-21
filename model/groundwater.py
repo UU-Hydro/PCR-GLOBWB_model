@@ -61,6 +61,11 @@ class Groundwater(object):
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
+        # option for limitting fossil groundwater abstractions:
+        self.limitFossilGroundwaterAbstraction = False
+        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True":
+            self.limitFossilGroundwaterAbstraction = True
+
         # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater, the concept of fossil groundwater is abandoned)
         if self.useMODFLOW:
             self.limitAbstraction = True
@@ -75,9 +80,6 @@ class Groundwater(object):
         else:
             logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
             self.limitRegionalAnnualGroundwaterAbstraction = False
-
-        # option for limitting fossil groundwater abstractions:
-        self.limitFossilGroundwaterAbstraction = False
         #####################################################################################################################################################
 
 
@@ -232,7 +234,8 @@ class Groundwater(object):
         excludeUnproductiveAquifer = True
         if excludeUnproductiveAquifer:
             if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
-                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer']:
+                                                             (iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "None" or\
+                                                              iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "False"):
                 minimumTransmissivityForProductiveAquifer = \
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
@@ -248,11 +251,9 @@ class Groundwater(object):
         if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False:
 
             logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
-            self.limitFossilGroundwaterAbstraction = True
 
             logger.info('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
             # TODO: Make the following aquifer thickness information can be used to define the extent of productive aquifer.
-
 
             # estimate of capacity (unit: m) of renewable groundwater (to correct the initial estimate of fossil groundwater capacity)
             # - this value is NOT relevant, but requested in the IWMI project
@@ -464,7 +465,7 @@ class Groundwater(object):
         # Note that storGroundwaterFossil should not be depleted during the spin-up.
         #
         if iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum" and\
-           self.limitFossilGroundwaterAbstraction:
+           self.limitFossilGroundwaterAbstraction and self.limitAbstraction == False:
             logger.info("Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage.")
             self.storGroundwaterFossil = self.fossilWaterCap
         #
@@ -475,7 +476,7 @@ class Groundwater(object):
                                          self.cloneMap,self.tmpDir,self.inputDir)
         #
         if iniItems.groundwaterOptions['storGroundwaterFossilIni'] != "Maximum" and\
-           self.limitFossilGroundwaterAbstraction:
+           self.limitFossilGroundwaterAbstraction and self.limitAbstraction == False:
             logger.info("The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity).")
             self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)
             self.storGroundwaterFossil = pcr.max(0.0, self.storGroundwaterFossil)

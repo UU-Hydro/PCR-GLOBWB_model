@@ -2069,7 +2069,7 @@ class LandCover(object):
             # water demand that must be satisfied by fossil groundwater abstraction           
             self.potFossilGroundwaterAbstract = pcr.min(self.potFossilGroundwaterAbstract, correctedRemainingTotalDemand)
             
-            if groundwater.limitFossilGroundwaterAbstraction == False:
+            if groundwater.limitFossilGroundwaterAbstraction == False and self.limitAbstraction == False::
 
                 # Note: If limitFossilGroundwaterAbstraction == False, 
                 #       allocation of fossil groundwater abstraction is not needed.  
@@ -2087,7 +2087,7 @@ class LandCover(object):
                 # fossil groundwater allocation (unit: m/day)
                 self.fossilGroundwaterAlloc = self.fossilGroundwaterAbstr
         
-            if groundwater.limitFossilGroundwaterAbstraction:
+            if groundwater.limitFossilGroundwaterAbstraction and self.limitAbstraction == False:
 
                 logger.debug('Fossil groundwater abstractions are allowed, but with limit.')
                 
