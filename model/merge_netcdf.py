@@ -137,7 +137,13 @@ def mergeNetCDF(inputTuple):
 		if timeStepType == "monthly":
 			number_of_months = calculate_monthdelta(startTime, endTime +  datetime.timedelta(days = 1)) + 1
 			datetime_range = [startTime + relativedelta(months =+x) for x in range(0, number_of_months)]
-		
+			# make sure that datetime_range values always at the last day of the month:
+			for i in length(0, length(datetime_range)):
+				year_used  = datetime_range[i].year
+				month_used = datetime_range[i].month
+				day_used   = calendar.monthrange(year_used, month_used)
+				datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(day_used), 0)
+				
 		if timeStepType == "yearly":
 			number_of_years = endTime.year - startTime.year + 1
 			datetime_range = [startTime + relativedelta(years =+x) for x in range(0, number_of_years)]
