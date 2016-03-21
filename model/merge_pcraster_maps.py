@@ -265,8 +265,6 @@ print
 
 #-remove temporary file
 os.remove(tempCloneMap)
-print
-print
 print ' all done'
 print
 print
