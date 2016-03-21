@@ -45,8 +45,7 @@ class DeterministicRunner(DynamicModel):
                           "outMonthTotNC", "outMonthAvgNC", "outMonthEndNC",
                           "outAnnuaTotNC", "outAnnuaAvgNC", "outAnnuaEndNC" ]
         for nc_report_type in nc_report_list:
-            vars(self)[nc_report_type] = self.configuration.reportingOptions[nc_report_type]
-            #~ vars(self)[nc_report_type] = list(set(self.configuration.reportingOptions[nc_report_type].split(",")))  # We don't have to convert it to a list
+            vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
         
     def initial(self): 
         
