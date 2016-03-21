@@ -147,6 +147,12 @@ def mergeNetCDF(inputTuple):
 		if timeStepType == "yearly":
 			number_of_years = endTime.year - startTime.year + 1
 			datetime_range = [startTime + relativedelta(years =+x) for x in range(0, number_of_years)]
+			# make sure that datetime_range values always at the last day of the year:
+			for i in range(0, len(datetime_range)):
+				year_used  = datetime_range[i].year
+				month_used = 12
+				day_used   = 31
+				datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(day_used), 0)
 
 		if timeStepType == "single":
 			datetime_range = [startTime]
@@ -154,9 +160,9 @@ def mergeNetCDF(inputTuple):
 		# time variables that will be used (using numerical values)
 		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 		
-		print datetime_range
-		print timeStepType
-		print uniqueTimes
+		#~ print datetime_range
+		#~ print timeStepType
+		#~ print uniqueTimes
 	
 	for ncFile in netCDFInput.values():
 
@@ -415,12 +421,12 @@ else:
     areas = list(set(areas.split(",")))
 
 
-# for testing, we use only a single core
-mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+#~ # for testing, we use only a single core
+#~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
 
-#~ ll = []
-#~ for ncName in netcdfList:
-	#~ ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
-#~ pool = Pool(processes = ncores)    # start "ncores" of worker processes
-#~ pool.map(mergeNetCDF, ll)          # multicore processing
+ll = []
+for ncName in netcdfList:
+	ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+pool = Pool(processes = ncores)    # start "ncores" of worker processes
+pool.map(mergeNetCDF, ll)          # multicore processing
 
