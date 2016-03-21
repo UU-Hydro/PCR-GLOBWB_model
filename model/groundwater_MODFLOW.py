@@ -35,7 +35,8 @@ class GroundwaterModflow(object):
         # groundwater head (unit: m) for all layers
         for i in range(1, self.number_of_layers+1):
             var_name = 'groundwaterDepthLayer'+str(i)
-            result[var_name] = self.dem_average - vars(self)[var_name]
+            headname = 'groundwaterHeadLayer' +str(i)
+            result[var_name] = self.dem_average - vars(self)[headname]
 
         return result
 
