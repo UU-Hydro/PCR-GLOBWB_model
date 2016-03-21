@@ -591,11 +591,11 @@ class GroundwaterModflow(object):
             
             # TODO: Also please consider to use Deltares's trick to remove isolated cells.
             
-            # TODO: Add a transient simulation with constant input during a number of time steps.
-            time_step_length = # from the ini file
-            for i in range(1, number_of_extra_spin_up):
-                groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
+            #~ # TODO: Add a transient simulation with constant input during a number of time steps (not finished yet)
+            #~ time_step_length = # from the ini file
+            #~ for i in range(1, number_of_extra_spin_up):
+                #~ groundwaterHead = self.getState()
+                #~ self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
         
     def estimate_bottom_of_bank_storage(self):
 
