@@ -1229,10 +1229,14 @@ class GroundwaterModflow(object):
         #
         # - make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
         surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
-        #
+        
+        # to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
+        minimum_water_height = 0.10
+        surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
+                                                                                                                                    self.surface_water_bed_elevation)
+        
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
-        #~ bed_conductance_used = pcr.rounddown(bed_conductance_used*10000.)/10000.
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
         
         # set the RIV package only to the uppermost layer
