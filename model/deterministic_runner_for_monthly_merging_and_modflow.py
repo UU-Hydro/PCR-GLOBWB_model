@@ -103,7 +103,7 @@ class DeterministicRunner(DynamicModel):
         if self.modelTime.isLastDayOfYear():
 
             # merging netcdf files at monthly and annual resolutions
-            start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
+            start_date = '%04i-%02i-31' %(self.modelTime.year, self.modelTime.month)
             if (self.modelTime.startTime.day != 1 or \
                 self.modelTime.startTime.month != 1) and \
                 self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
