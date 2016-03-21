@@ -148,6 +148,7 @@ def mergeNetCDF(inputTuple):
 		# time variables that will be used (using numerical values)
 		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 		
+		print timeStepType
 		print uniqueTimes
 	
 	for ncFile in netCDFInput.values():
