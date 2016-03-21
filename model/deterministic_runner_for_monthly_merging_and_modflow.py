@@ -76,7 +76,7 @@ class DeterministicRunner(DynamicModel):
             start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
             if self.modelTime.startTime.day != 1 and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
             end_date   = self.modelTime.fulldate
-            self.merging_netcdf_files("outDailyTot", start_date, end_date)
+            self.merging_netcdf_files("outDailyTotNC", start_date, end_date)
             
             # for runs with modflow
             if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
@@ -107,12 +107,12 @@ class DeterministicRunner(DynamicModel):
             start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
             if self.modelTime.startTime.day != 1 and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
             end_date   = self.modelTime.fulldate
-            self.merging_netcdf_files("outMonthTot", start_date, end_date)
-            self.merging_netcdf_files("outMonthAvg", start_date, end_date)
-            self.merging_netcdf_files("outMonthEnd", start_date, end_date)
-            self.merging_netcdf_files("outAnnuaTot", start_date, end_date)
-            self.merging_netcdf_files("outAnnuaAvg", start_date, end_date)
-            self.merging_netcdf_files("outAnnuaEnd", start_date, end_date)
+            self.merging_netcdf_files("outMonthTotNC", start_date, end_date)
+            self.merging_netcdf_files("outMonthAvgNC", start_date, end_date)
+            self.merging_netcdf_files("outMonthEndNC", start_date, end_date)
+            self.merging_netcdf_files("outAnnuaTotNC", start_date, end_date)
+            self.merging_netcdf_files("outAnnuaAvgNC", start_date, end_date)
+            self.merging_netcdf_files("outAnnuaEndNC", start_date, end_date)
 
     def merging_netcdf_files(self, nc_report_type, start_date, end_date, max_number_of_cores = 20):
 
