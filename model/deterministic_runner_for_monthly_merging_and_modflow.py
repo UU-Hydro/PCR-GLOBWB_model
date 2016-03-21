@@ -115,7 +115,7 @@ class DeterministicRunner(DynamicModel):
 
     def merging_netcdf_files(self, nc_report_type, start_date, end_date, max_number_of_cores = 20):
 
-        if str(vars(self)[nc_report_type] != "None":
+        if str(vars(self)[nc_report_type]) != "None":
         
             cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
                                                                                             str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
