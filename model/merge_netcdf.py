@@ -372,6 +372,7 @@ endDate    = str(sys.argv[5])
 
 # list of netcdf files that will be merged:
 netcdfList = str(sys.argv[6])
+print netcdfList
 netcdfList = list(set(netcdfList.split(",")))
 if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%s for var in netcdfList]
 if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%s for var in netcdfList]
