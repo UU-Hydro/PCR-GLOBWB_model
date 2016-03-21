@@ -146,8 +146,7 @@ def mergeNetCDF(inputTuple):
 			datetime_range = [startTime]
 		
 		# time variables that will be used (using numerical values)
-		else:	
-			uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
+		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 	
 	for ncFile in netCDFInput.values():
 
