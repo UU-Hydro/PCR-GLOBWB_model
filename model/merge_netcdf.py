@@ -398,7 +398,7 @@ else:
 
 
 # for testing, we use only a single core
-mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate))
+mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
 
 #~ ll = []
 #~ for ncName in netcdfList:
