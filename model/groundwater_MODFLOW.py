@@ -29,6 +29,16 @@ class GroundwaterModflow(object):
         
         return result
 
+    def getGroundwaterDepth(self):
+        result = {}
+        
+        # groundwater head (unit: m) for all layers
+        for i in range(1, self.number_of_layers+1):
+            var_name = 'groundwaterDepthLayer'+str(i)
+            result[var_name] = self.dem_average - vars(self)[var_name]
+
+        return result
+
     def getVariableValuesForPCRGLOBWB(self):
         
         result = {}

@@ -74,6 +74,29 @@ class ModflowCoupling(object):
              timeStamp+".masked.map",\
              outputDirectory)
 
+    def dumpGroundwaterDepth(self, outputDirectory, timeStamp = "Default"):
+
+        depth = self.getState()
+        
+        groundWaterDepth = depth['groundwater_depth']
+        
+        # time stamp used as part of the file name:
+        if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+        
+        for variable, map in groundWaterDepth.iteritems():
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             timeStamp+".map",\
+             outputDirectory)
+
+        for variable, map in groundWaterDepth.iteritems():
+            vos.writePCRmapToDir(\
+             pcr.ifthen(self.landmask, map),\
+             str(variable)+"_"+
+             timeStamp+".masked.map",\
+             outputDirectory)
+
     def dumpVariableValuesForPCRGLOBWB(self, outputDirectory, timeStamp = "Default"):
 
         variables = self.modflow.getVariableValuesForPCRGLOBWB()
@@ -101,6 +124,12 @@ class ModflowCoupling(object):
         
         return result
         
+    def getGroundwaterDepth(self):
+        result = {}
+        result['groundwater_depth'] = self.modflow.getGroundwaterDepth()
+        
+        return result
+
     def update(self):
         logger.info("Updating model for time %s", self._modelTime)
         
@@ -125,6 +154,12 @@ class ModflowCoupling(object):
         self.dumpState(outputDirectory = self._configuration.endStateDir,\
                              timeStamp = self._configuration.globalOptions['startTime']+".ini")
                              
+
+        # save/dump groundwater depth 
+        logger.info("Save/dump groundwater depth maps to the directory %s", self._configuration.endStateDir)
+        self.dumpGroundwaterDepth(outputDirectory = self._configuration.endStateDir,\
+                                  timeStamp = self._configuration.globalOptions['startTime']+".ini")
+
         # save/dump some initial variables for PCR-GLOBWB
         if self._configuration.steady_state_only or self._configuration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "False":
             logger.info("Save/dump some variables for PCR-GLOBWB simulation to pcraster maps to the directory %s", self._configuration.endStateDir)
