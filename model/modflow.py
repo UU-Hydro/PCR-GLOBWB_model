@@ -76,7 +76,7 @@ class ModflowCoupling(object):
 
     def dumpGroundwaterDepth(self, outputDirectory, timeStamp = "Default"):
 
-        depth = self.getState()
+        depth = self.getGroundwaterDepth()
         
         groundWaterDepth = depth['groundwater_depth']
         
