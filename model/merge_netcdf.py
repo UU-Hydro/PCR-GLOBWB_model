@@ -415,12 +415,12 @@ else:
     areas = list(set(areas.split(",")))
 
 
-#~ # for testing, we use only a single core
-#~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+# for testing, we use only a single core
+mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
 
-ll = []
-for ncName in netcdfList:
-	ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
-pool = Pool(processes = ncores)    # start "ncores" of worker processes
-pool.map(mergeNetCDF, ll)          # multicore processing
+#~ ll = []
+#~ for ncName in netcdfList:
+	#~ ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+#~ pool = Pool(processes = ncores)    # start "ncores" of worker processes
+#~ pool.map(mergeNetCDF, ll)          # multicore processing
 
