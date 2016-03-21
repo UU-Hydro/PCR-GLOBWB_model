@@ -1175,10 +1175,15 @@ class GroundwaterModflow(object):
             
             # surface water bed condutance (unit: m2/day)
             bed_conductance = lake_and_reservoir_conductance + river_conductance
-            bed_conductance = pcr.rounddown(bed_conductance*10000.)/10000.
             self.bed_conductance = pcr.cover(bed_conductance, 0.0)
             ############################################################################################################################################
             
+            # set minimum conductance values (to remove water above surface level)
+            # - assume all cells have minimum river width
+            minimum_width = 2.0   # Sutanudjaja et al. (2011)
+            minimum_conductance = (1.0/self.bed_resistance) * \
+                                  pcr.max(minimum_width, self.bankfull_width) * self.channelLength)/self.cellAreaMap
+            self.bed_conductance = pcr.max(minimum_conductance, self.bed_conductance)
 
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
             # - 'channel width' for lakes and reservoirs 
@@ -1227,7 +1232,7 @@ class GroundwaterModflow(object):
         #
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
-        bed_conductance_used = pcr.rounddown(bed_conductance_used*10000.)/10000.
+        #~ bed_conductance_used = pcr.rounddown(bed_conductance_used*10000.)/10000.
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
         
         # set the RIV package only to the uppermost layer
