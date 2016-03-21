@@ -115,17 +115,19 @@ class DeterministicRunner(DynamicModel):
 
     def merging_netcdf_files(self, nc_report_type, start_date, end_date, max_number_of_cores = 20):
 
-        cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
-                                                                                        str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
-                                                                                        str(nc_report_type)  + " " +\
-                                                                                        str(start_date) + " " +\
-                                                                                        str(end_date)   + " " +\
-                                                                                        str(vars(self)[nc_report_type]) + " " +\
-                                                                                        str(self.netcdf_format)  + " "  +\
-                                                                                        str(self.zlib_option  )  + " "  +\
-                                                                                        str(max_number_of_cores) + " "  +\
-                                                                                        str(self.configuration.globalOptions['cloneAreas'])  + " "
-        vos.cmd_line(cmd, using_subprocess = False)
+        if str(vars(self)[nc_report_type] != "None:"
+        
+            cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
+                                                                                            str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
+                                                                                            str(nc_report_type)  + " " +\
+                                                                                            str(start_date) + " " +\
+                                                                                            str(end_date)   + " " +\
+                                                                                            str(vars(self)[nc_report_type]) + " " +\
+                                                                                            str(self.netcdf_format)  + " "  +\
+                                                                                            str(self.zlib_option  )  + " "  +\
+                                                                                            str(max_number_of_cores) + " "  +\
+                                                                                            str(self.configuration.globalOptions['cloneAreas'])  + " "
+            vos.cmd_line(cmd, using_subprocess = False)
 
     def check_pcrglobwb_status(self):
 
