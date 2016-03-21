@@ -1182,7 +1182,7 @@ class GroundwaterModflow(object):
             # - assume all cells have minimum river width
             minimum_width = 2.0   # Sutanudjaja et al. (2011)
             minimum_conductance = (1.0/self.bed_resistance) * \
-                                  pcr.max(minimum_width, self.bankfull_width) * self.channelLength)/self.cellAreaMap
+                                  pcr.max(minimum_width, self.bankfull_width) * self.channelLength/self.cellAreaMap
             self.bed_conductance = pcr.max(minimum_conductance, self.bed_conductance)
 
             logger.info("Estimating outlet widths of lakes and/or reservoirs.")
