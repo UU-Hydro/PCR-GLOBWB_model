@@ -141,7 +141,7 @@ def mergeNetCDF(inputTuple):
 			for i in range(0, len(datetime_range)):
 				year_used  = datetime_range[i].year
 				month_used = datetime_range[i].month
-				day_used   = calendar.monthrange(year_used, month_used)
+				day_used   = calendar.monthrange(year_used, month_used)[1]
 				datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(day_used), 0)
 				
 		if timeStepType == "yearly":
