@@ -20,8 +20,8 @@ iniFileName = os.path.abspath(sys.argv[1])
 
 # option for debuging and paralelization 
 debug_option = "parallel"
-print sys.argv
-if len(sys.argv) > 1: debug_option = str(sys.argv[2]) 
+if len(sys.argv) > 2: debug_option = str(sys.argv[2]) 
+print debug_option
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
