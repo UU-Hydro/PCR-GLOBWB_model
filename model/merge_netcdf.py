@@ -99,7 +99,7 @@ def mergeNetCDF(inputTuple):
 	variables= {}
 	variableName = None
 	
-	calendar= {}
+	calendar_used = {}
 	uniqueTimes = np.array([])
 
 	# defining time based on the given arguments 
@@ -188,13 +188,13 @@ def mergeNetCDF(inputTuple):
 		lonMin= getMin(lonMin,variables[index][lonVar][:])
 		lonMax= getMax(lonMax,variables[index][lonVar][:])
 	
-		#-assign calendar
+		#-assign calendar (used)
 		if 'time' in  variables[index].keys():
 			for name in variables[index]['time'].ncattrs():
-				if name not in calendar.keys():
-					calendar[name]= getattr(variables[index]['time'],name)
+				if name not in calendar_used.keys():
+					calendar_used[name]= getattr(variables[index]['time'],name)
 				else:
-					if getattr(variables[index]['time'],name) != calendar[name]:
+					if getattr(variables[index]['time'],name) != calendar_used[name]:
 						rootgrp.close()
 						sys.exit('calendars are incompatible')
 			#-time
@@ -253,12 +253,12 @@ def mergeNetCDF(inputTuple):
 	date_time=rootgrp.createDimension('time',len(uniqueTimes))
 	#~ date_time=rootgrp.createDimension('time', None)
 	date_time= rootgrp.createVariable('time','f8',('time',))
-	for attr,value in calendar.iteritems():
+	for attr,value in calendar_used.iteritems():
 		setattr(date_time,attr,str(value))
 	date_time[:]= uniqueTimes
 
 	# - setting variable
-	if len(calendar) == 0:
+	if len(calendar_used) == 0:
 		varStructure= ('latitude','longitude')  
 	else:
 		varStructure= ('time','latitude','longitude')  
