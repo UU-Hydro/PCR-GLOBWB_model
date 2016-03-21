@@ -232,6 +232,9 @@ command= 'mapattr -s -R %d -C %d -P "yb2t"	-B -x %f -y %f -l %f %s' %\
 os.system(command)
 setclone(tempCloneMap)
 
+print areas
+print areas[0]
+
 inputDir= os.path.join(inputDirRoot,areas[0],'maps')
 files= getFileList(inputDir, '*%s.map' % chosenDate)
 
