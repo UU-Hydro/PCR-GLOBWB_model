@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 iniFileName = os.path.abspath(sys.argv[1])
 
 # option for debuging and paralelization 
-debug_option = str(sys.argv[2])
+debug_option = "parallel"
+if len(sys.argv) > 1: debug_option = str(sys.argv[2]) 
 
 # object to handle configuration/ini file
 generalConfiguration = configuration.Configuration(iniFileName = iniFileName, debug_mode = False, no_modification = False)
