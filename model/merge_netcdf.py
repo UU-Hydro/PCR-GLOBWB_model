@@ -325,6 +325,9 @@ def mergeNetCDF(inputTuple):
 				sampleArray[sampleArray == variables[index][variableName]._FillValue]= MV
 				variableArray[row0:row1,col0:col1][variableArray[row0:row1,col0:col1] == MV]= \
 					sampleArray[variableArray[row0:row1,col0:col1] == MV]
+
+				print 'time is present :' + str(date_value)
+
 			except:
 				if posCnt == None:
 					print 'time not present'
