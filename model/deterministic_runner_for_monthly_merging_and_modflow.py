@@ -86,9 +86,8 @@ class DeterministicRunner(DynamicModel):
                 vos.cmd_line(cmd, using_subprocess = False)
                 
                 # cleaning up unmerged files (not tested yet)
-                if self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps
-                
-                clean_up_pcraster_maps = True
+                clean_up_pcraster_maps = False
+                if self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps = True
                 if clean_up_pcraster_maps:                                                                                    
                     files_to_be_removed = glob.glob(str(self.configuration.main_output_directory) + "/M*/maps/*" + str(self.modelTime.fulldate) + "*")
                     for f in files_to_be_removed: os.remove(f)
