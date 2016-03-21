@@ -374,13 +374,13 @@ endDate    = str(sys.argv[5])
 netcdfList = str(sys.argv[6])
 print netcdfList
 netcdfList = list(set(netcdfList.split(",")))
-if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%s for var in netcdfList]
-if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%s for var in netcdfList]
-if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%s for var in netcdfList]
-if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%s for var in netcdfList]
-if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%s for var in netcdfList]
+if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%var for var in netcdfList]
+if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%var for var in netcdfList]
+if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%var for var in netcdfList]
+if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%var for var in netcdfList]
 
 # netcdf format and zlib option:
 ncFormat   = str(sys.argv[7])
