@@ -122,10 +122,12 @@ def mergeNetCDF(inputTuple):
 		
 		# temporal resolution
 		timeStepType = "daily"
-		
-		if (f.variables['time'][1] - f.variables['time'][0]) > 25.0: timeStepType = "monthly"
-		if (f.variables['time'][1] - f.variables['time'][0]) > 305.0: timeStepType = "yearly"
-		
+		if len(f.variables['time']) > 1:
+			if (f.variables['time'][1] - f.variables['time'][0]) > 25.0: timeStepType = "monthly"
+			if (f.variables['time'][1] - f.variables['time'][0]) > 305.0: timeStepType = "yearly"
+		else:	
+			timeStepType = "single"
+
 		f.close() 
 
 		if timeStepType == "daily":
@@ -139,9 +141,13 @@ def mergeNetCDF(inputTuple):
 		if timeStepType == "yearly":
 			number_of_years = endTime.year - startTime.year + 1
 			datetime_range = [startTime + relativedelta(years =+x) for x in range(0, number_of_years)]
+
+		if timeStepType == "single":
+			datetime_range = [startTime]
 		
 		# time variables that will be used (using numerical values)
-		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
+		else:	
+			uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 	
 	for ncFile in netCDFInput.values():
 
