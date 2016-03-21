@@ -73,8 +73,7 @@ class DeterministicRunner(DynamicModel):
                    pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging netcdf files at daily resolution
-            start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
-            if self.modelTime.startTime.day != 1 and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
+            start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)             # TODO: Make it flexible for a run starting not on the 1st January.
             end_date   = self.modelTime.fulldate
             self.merging_netcdf_files("outDailyTotNC", start_date, end_date)
             
@@ -102,12 +101,15 @@ class DeterministicRunner(DynamicModel):
         # monthly and annual merging
         if self.modelTime.isLastDayOfYear():
 
-            # merging netcdf files at monthly and annual resolutions
-            start_date = '%04i-12-31' %(self.modelTime.year)
-            end_date   = self.modelTime.fulldate
+            # merging netcdf files at monthly resolutions
+            start_date = '%04i-01-31' %(self.modelTime.year)                  # TODO: Make it flexible for a run starting not on the 1st January.
             self.merging_netcdf_files("outMonthTotNC", start_date, end_date)
             self.merging_netcdf_files("outMonthAvgNC", start_date, end_date)
             self.merging_netcdf_files("outMonthEndNC", start_date, end_date)
+
+            # merging netcdf files at annual resolutions
+            start_date = '%04i-12-31' %(self.modelTime.year)                  # TODO: Make it flexible for a run starting not on the 1st January.
+            end_date   = self.modelTime.fulldate
             self.merging_netcdf_files("outAnnuaTotNC", start_date, end_date)
             self.merging_netcdf_files("outAnnuaAvgNC", start_date, end_date)
             self.merging_netcdf_files("outAnnuaEndNC", start_date, end_date)
