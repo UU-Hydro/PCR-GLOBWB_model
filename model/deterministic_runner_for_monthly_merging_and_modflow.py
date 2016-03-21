@@ -4,6 +4,7 @@
 import os
 import sys
 import datetime
+import glob
 
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
