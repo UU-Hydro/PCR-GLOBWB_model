@@ -73,7 +73,7 @@ class DeterministicRunner(DynamicModel):
                    pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging netcdf files at daily resolution
-            start_date = '%04i-%02i-01' %(self._currTime.year, self._currTime.month)
+            start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
             if self.modelTime.startTime.day != 1 and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
             end_date   = self.modelTime.fulldate
             self.merging_netcdf_files("outDailyTot", start_date, end_date)
@@ -104,7 +104,7 @@ class DeterministicRunner(DynamicModel):
         if self.modelTime.isLastDayOfYear():
 
             # merging netcdf files at monthly and annual resolutions
-            start_date = '%04i-%02i-01' %(self._currTime.year, self._currTime.month)
+            start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
             if self.modelTime.startTime.day != 1 and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
             end_date   = self.modelTime.fulldate
             self.merging_netcdf_files("outMonthTot", start_date, end_date)
