@@ -352,10 +352,7 @@ lonMax          =  180 - deltaLon / 2
 # input directory:
 inputDirRoot = sys.argv[1] 
 
-# output directory:
-if os.path.basename(sys.argv[2]).endswith(('.nc4','.nc')):
-	outputFile = sys.argv[2]
-	outputDir  = os.path.dirname(outputFile)
+outputDir    = sys.argv[2]
 
 # making outputDir
 try:
