@@ -135,7 +135,7 @@ def mergeNetCDF(inputTuple):
 			datetime_range = [startTime + datetime.timedelta(days = x) for x in range(0, number_of_days)]
 			
 		if timeStepType == "monthly":
-			number_of_months = calculate_monthdelta(startTime, endTime +  datetime.timedelta(days = 1)) + 2
+			number_of_months = calculate_monthdelta(startTime, endTime +  datetime.timedelta(days = 1)) + 1
 			datetime_range = [startTime + relativedelta(months =+x) for x in range(0, number_of_months)]
 		
 		if timeStepType == "yearly":
@@ -148,6 +148,7 @@ def mergeNetCDF(inputTuple):
 		# time variables that will be used (using numerical values)
 		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 		
+		print datetime_range
 		print timeStepType
 		print uniqueTimes
 	
