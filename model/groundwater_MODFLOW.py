@@ -791,9 +791,10 @@ class GroundwaterModflow(object):
             gwRecharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterRechargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
             #
-            # for steady state simulation, ignore any abstractions (to avoid unrealistic starting heads) 
-            gwRecharge    = pcr.max(0.0, gwRecharge) 
+            # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
+            gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
+                                                self.cloneMap, self.tmpDir, self.inputDir)
 
         # read input files 
         if simulation_type == "transient":
@@ -843,8 +844,8 @@ class GroundwaterModflow(object):
         # for a steady-state simulation, the capillary rise is usually ignored: 
         if simulation_type == "steady-state" and \
            'ignoreCapRiseSteadyState' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
-           self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "False":\
-            self.ignoreCapRise = False
+           self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "True":\
+            self.ignoreCapRise = True
         #####################################################################################################################################################
         if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
 
