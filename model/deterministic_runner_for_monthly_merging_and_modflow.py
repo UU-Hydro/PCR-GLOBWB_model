@@ -155,7 +155,7 @@ def main():
     # debug option
     debug_mode = False
     if len(sys.argv) > 2:
-        if sys.argv[2] == "debug": debug_mode = True
+        if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel": debug_mode = True
     
     # options to perform steady state calculation
     steady_state_only = False
