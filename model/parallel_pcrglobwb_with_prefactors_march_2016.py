@@ -62,15 +62,12 @@ os.chdir(scriptDir)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
 if clone_codes[0] == "Global": clone_codes = ['M%02d'%i for i in range(1,54,1)]
 
-# TODO: command lines to run a steady state of MODFLOW
+# TODO: command lines to run a steady state of MODFLOW (NOT FINISHED YET)
 #~ if ("globalModflowOptions" in generalConfiguration.allSections) and\
    #~ (generalConfiguration.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True") and\
    #~ (generalConfiguration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "False"):
-    #~ 
     #~ logger.info('Performing a steady state groundwater model to estimate initial conditions for MODFLOW')
-    #~ 
     #~ cmd += "python deterministic_runner_for_monthly_merging_and_modflow.py " + iniFileName +" "+debug_option +" steady-state-only"
-#~ 
     #~ vos.cmd_line(cmd, using_subprocess = False)      
 
 # command line(s) for PCR-GLOBWB 
