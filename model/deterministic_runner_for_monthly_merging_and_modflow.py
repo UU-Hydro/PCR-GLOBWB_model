@@ -105,8 +105,8 @@ class DeterministicRunner(DynamicModel):
             # merging netcdf files at monthly and annual resolutions
             start_date = '%04i-%02i-01' %(self.modelTime.year, self.modelTime.month)
             if (self.modelTime.startTime.day != 1 or \
-                self.modelTime.startTime.month != 1)
-                and self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
+                self.modelTime.startTime.month != 1) and \
+                self.modelTime.monthIdx == 1: start_date = self.configuration.globalOptions['startTime'] 
             end_date   = self.modelTime.fulldate
             self.merging_netcdf_files("outMonthTotNC", start_date, end_date)
             self.merging_netcdf_files("outMonthAvgNC", start_date, end_date)
