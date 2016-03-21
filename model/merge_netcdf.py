@@ -385,18 +385,19 @@ if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%s for var
 ncFormat   = str(sys.argv[7])
 using_zlib = str(sys.argv[8])
 
+# maximum number of cores that will be used
+max_number_of_cores = int(sys.argv[9])
+
+# number of cores that will be used
+ncores = min(len(netcdfList), max_number_of_cores)
+
 # clone areas
-areas = str(sys.argv[9])
+areas = str(sys.argv[10])
 if areas == "global":
 	areas = ['M%02d'%i for i in range(1,54,1)]
 else:
     areas = list(set(areas.split(",")))
 
-# maximum number of cores that will be used
-max_number_of_cores = int(sys.argv[3])
-
-# number of cores that will be used
-ncores = min(len(netcdfList), max_number_of_cores)
 
 #~ # for testing, we use only a single core
 #~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate))
