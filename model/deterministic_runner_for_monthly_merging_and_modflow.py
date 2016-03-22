@@ -118,16 +118,25 @@ class DeterministicRunner(DynamicModel):
 
         if str(vars(self)[nc_report_type]) != "None":
         
+            netcdf_files_that_will_be_merged = vars(self)[nc_report_type]
+            
+            msg = "Merging netcdf files for the files/variables: " + netcdf_files_that_will_be_merged
+            logger.info(msg)
+            
             cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
                                                                                             str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
                                                                                             str(nc_report_type)  + " " +\
                                                                                             str(start_date) + " " +\
                                                                                             str(end_date)   + " " +\
-                                                                                            str(vars(self)[nc_report_type]) + " " +\
+                                                                                            str(netcdf_files_that_will_be_merged) + " " +\
                                                                                             str(self.netcdf_format)  + " "  +\
                                                                                             str(self.zlib_option  )  + " "  +\
                                                                                             str(max_number_of_cores) + " "  +\
                                                                                             str(self.configuration.globalOptions['cloneAreas'])  + " "
+            
+            msg = "Using the following command line: " + cmd
+            logger.info(msg)
+            
             vos.cmd_line(cmd, using_subprocess = False)
 
     def check_pcrglobwb_status(self):
