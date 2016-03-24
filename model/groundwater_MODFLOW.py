@@ -95,7 +95,8 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
         
         # minimum channel gradient
-        minGradient   = 0.00005                                                    # TODO: Define this one in the configuration file
+        minGradient   = 0.00005                                                                                     # TODO: Define this one in the configuration file
+        minGradient   = 0.000005   # 24 March 2016: I lower this so that we don't have too deep water table.        # TODO: Define this one in the configuration file
         self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
