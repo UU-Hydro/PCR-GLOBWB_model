@@ -3,20 +3,20 @@
 #SBATCH -t 119:59:00 
 #SBATCH -p fat                                                                                                                                                                              
 
-# preparing initial conditions
-python MCmergeMaps.py 1950-12-31 /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/
-
-# preparing input for the steady-state simulation: 
-# -  discharge
-python nc_basin_merge.py /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/ /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950 1 1950-12-31 1950-12-31 selected discharge_annuaAvg_output.nc
-# -  gwRecharge
-python nc_basin_merge.py /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/ /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950 1 1950-12-31 1950-12-31 selected gwRecharge_annuaTot_output.nc
-# - ccnverting to pcraster maps: discharge in m3/s and gwRecharge in m/day
-cd /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950
-pcrcalc  discharge_annuaAvg_output.map = "scalar( discharge_annuaAvg_output.nc)"
-pcrcalc gwRecharge_annuaAvg_output.map = "scalar(gwRecharge_annuaTot_output.nc) / 365"
-# - do not forget to change the mapattr 
-mapattr -c /projects/0/dfguu/data/hydroworld/PCRGLOBWB20/input5min/routing/lddsound_05min.map *.map
+#~ # preparing initial conditions
+#~ python MCmergeMaps.py 1950-12-31 /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/
+#~ 
+#~ # preparing input for the steady-state simulation: 
+#~ # -  discharge
+#~ python nc_basin_merge.py /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/ /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950 1 1950-12-31 1950-12-31 selected discharge_annuaAvg_output.nc
+#~ # -  gwRecharge
+#~ python nc_basin_merge.py /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/ /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950 1 1950-12-31 1950-12-31 selected gwRecharge_annuaTot_output.nc
+#~ # - ccnverting to pcraster maps: discharge in m3/s and gwRecharge in m/day
+#~ cd /scratch-shared/edwinhs/05min_runs_february_2016_continue/pcrglobwb_only_from_1901_6LCs_original_parameter_set_natural/adjusted_ksat/continue_from_1929/global/netcdf/1950
+#~ pcrcalc  discharge_annuaAvg_output.map = "scalar( discharge_annuaAvg_output.nc)"
+#~ pcrcalc gwRecharge_annuaAvg_output.map = "scalar(gwRecharge_annuaTot_output.nc) / 365"
+#~ # - do not forget to change the mapattr 
+#~ mapattr -c /projects/0/dfguu/data/hydroworld/PCRGLOBWB20/input5min/routing/lddsound_05min.map *.map
 
 # steady state run
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
