@@ -18,7 +18,7 @@
 #~ # - do not forget to change the mapattr 
 #~ mapattr -c /projects/0/dfguu/data/hydroworld/PCRGLOBWB20/input5min/routing/lddsound_05min.map *.map
 
-# steady state run (this has been performed)
+# steady state run
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
 python deterministic_runner_for_monthly_merging_and_modflow.py ../config/05min_runs_february_2016/with_modflow/adjusted_ksat/setup_05min_CRU-TS3.23_ERA20C_pcrglobwb_modflow_parallel_6LCs_original_parameter_set_adjusted_ksat_from_1935.STEADYSTATE.ini debug steady-state-only
 
