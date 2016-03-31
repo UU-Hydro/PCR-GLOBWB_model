@@ -158,7 +158,8 @@ class DeterministicRunner(DynamicModel):
 
     def check_pcrglobwb_status(self):
 
-        if self.configuration.globalOptions['cloneAreas'] == "Global":
+        if self.configuration.globalOptions['cloneAreas'] == "Global" or \
+           self.configuration.globalOptions['cloneAreas'] == "part_one":
             clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
         else:
             clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
