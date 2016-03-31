@@ -36,16 +36,23 @@ class DeterministicRunner(DynamicModel):
         # make the configuration available for the other method/function
         self.configuration = configuration
         
-        # netcdf merging options
-        self.netcdf_format = self.configuration.mergingOutputOptions['formatNetCDF']
-        self.zlib_option   = self.configuration.mergingOutputOptions['zlib']
+        # indicating whether this run includes modflow or merging processes
+        # - Only the "Global" and "part_one" runs include modflow or merging processes 
+        self.include_merging_or_modflow = True
+        if self.configuration.globalOptions['cloneAreas'] == "part_two": self.include_merging_or_modflow = False
         
-        # output files/variables that will be merged
-        nc_report_list = ["outDailyTotNC",
-                          "outMonthTotNC", "outMonthAvgNC", "outMonthEndNC",
-                          "outAnnuaTotNC", "outAnnuaAvgNC", "outAnnuaEndNC" ]
-        for nc_report_type in nc_report_list:
-            vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
+        if self.include_merging_or_modflow:
+        
+            # netcdf merging options
+            self.netcdf_format = self.configuration.mergingOutputOptions['formatNetCDF']
+            self.zlib_option   = self.configuration.mergingOutputOptions['zlib']
+            
+            # output files/variables that will be merged
+            nc_report_list = ["outDailyTotNC",
+                              "outMonthTotNC", "outMonthAvgNC", "outMonthEndNC",
+                              "outAnnuaTotNC", "outAnnuaAvgNC", "outAnnuaEndNC" ]
+            for nc_report_type in nc_report_list:
+                vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
         
     def initial(self): 
         
@@ -66,10 +73,10 @@ class DeterministicRunner(DynamicModel):
             pcrglobwb_is_ready = False
             self.count_check = 0
             while pcrglobwb_is_ready == False and self.configuration.online_coupling_between_pcrglobwb_and_moflow:
-                if datetime.datetime.now().second == 7 or\
-                   datetime.datetime.now().second == 10 or\
-                   datetime.datetime.now().second == 16 or\
-                   datetime.datetime.now().second == 6:\
+                if datetime.datetime.now().second == 14 or\
+                   datetime.datetime.now().second == 29 or\
+                   datetime.datetime.now().second == 34 or\
+                   datetime.datetime.now().second == 49:\
                    pcrglobwb_is_ready = self.check_pcrglobwb_status()
                 
             # merging netcdf files at daily resolution
@@ -118,7 +125,8 @@ class DeterministicRunner(DynamicModel):
         # make an empty file indicating that merging process is done 
         if self.modelTime.isLastDayOfMonth() or self.modelTime.isLastDayOfYear():
 
-            filename = outputDirectory+"/merged_netcdf_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
+            outputDirectory = str(self.configuration.main_output_directory) + "/global/netcdf/"
+            filename = outputDirectory + "/merged_netcdf_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)
             open(filename, "w").close()    
 

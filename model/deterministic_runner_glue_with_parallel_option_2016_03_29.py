@@ -246,25 +246,30 @@ class DeterministicRunner(DynamicModel):
         # at the last day of the month, stop calculation until the merging process is ready and until modflow calculation is ready (only for a run with modflow) 
         if self.modelTime.isLastDayOfMonth(): 
 
-            # for runs with modflow, 
+            # for runs with modflow, wait until modflow run is done
             if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
-                # wait until modflow run is done
                 modflow_is_ready = False
                 self.count_check = 0
                 while modflow_is_ready == False:
-                    if datetime.datetime.now().second == 7 or\
-                       datetime.datetime.now().second == 10 or\
-                       datetime.datetime.now().second == 16 or\
-                       datetime.datetime.now().second == 6:\
+                    if datetime.datetime.now().second == 14 or\
+                       datetime.datetime.now().second == 29 or\
+                       datetime.datetime.now().second == 34 or\
+                       datetime.datetime.now().second == 59:\
                        modflow_is_ready = self.check_modflow_status()
                 
-            # wait until all pcrglobwb model runs are ready
-            
+            # wait until merged files are ready
+            merged_files_are_ready = False
+            while merged_files_are_ready == False:
+                if datetime.datetime.now().second == 14 or\
+                   datetime.datetime.now().second == 29 or\
+                   datetime.datetime.now().second == 34 or\
+                   datetime.datetime.now().second == 59:\
+                   merged_files_are_ready = self.check_merging_status()
 
     def check_modflow_status(self):
 
-        status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
-        msg = 'Waiting for the file: '+status_file
+        status_file = str(self.configuration.main_output_directory) + "/modflow/transient/maps/modflow_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
+        msg = 'Waiting for the file: ' + status_file
         if self.count_check < 7:
             logger.debug(msg)
             self.count_check += 1
@@ -277,8 +282,8 @@ class DeterministicRunner(DynamicModel):
     
     def check_merging_status(self):
 
-        status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
-        msg = 'Waiting for the file: '+status_file
+        status_file = str(self.configuration.main_output_directory) + "/global/netcdf/merged_netcdf_files_for_"    + str(self.modelTime.fulldate) + "_are_ready.txt"
+        msg = 'Waiting for the file: ' + status_file
         if self.count_check < 7:
             logger.debug(msg)
             self.count_check += 1

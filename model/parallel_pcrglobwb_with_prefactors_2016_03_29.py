@@ -71,13 +71,19 @@ for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
     shutil.copy(filename, scriptDir)
 os.chdir(scriptDir)    
 
+# option to also execute merging (and MODFLOW) processes:
+with_merging_or_modflow = True
+
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
-if clone_codes[0] == "Global": clone_codes = ['M%02d'%i for i in range(1,54,1)]
-if clone_codes[0] == "part_one": clone_codes = ["M17","M19","M26","M13","M18","M20","M05","M03","M21","M46","M27","M49","M16","M44","M52","M25","M09","M08","M11","M42","M12","M39"]
-if clone_codes[0] == "part_two": clone_codes = ["M07","M15","M38","M48","M40","M41","M22","M14","M23","M51","M04","M06","M10","M02","M45","M35","M47","M50","M24","M01","M36","M53","M33","M43","M34","M37","M31","M32","M28","M30","M29"]
-
-# TODO: UNTIL THIS PART
+if clone_codes[0] == "Global": 
+    clone_codes = ['M%02d'%i for i in range(1,54,1)]
+if clone_codes[0] == "part_one": 
+    clone_codes = ["M17","M19","M26","M13","M18","M20","M05","M03","M21","M46","M27","M49","M16","M44","M52","M25","M09","M08","M11","M42","M12","M39"]
+if clone_codes[0] == "part_two": 
+    clone_codes = ["M07","M15","M38","M48","M40","M41","M22","M14","M23","M51","M04","M06","M10","M02","M45","M35","M47","M50","M24","M01","M36","M53","M33","M43","M34","M37","M31","M32","M28","M30","M29"]
+    # the execution of merging and modflow processes are done in another node
+    with_merging_or_modflow = False
 
 # TODO: command lines to run a steady state of MODFLOW (NOT FINISHED YET)
 #~ if ("globalModflowOptions" in generalConfiguration.allSections) and\
@@ -93,19 +99,17 @@ i_clone = 0
 cmd = ''
 for clone_code in clone_codes:
 
-   cmd += "python deterministic_runner_glue_with_parallel_option_march_2016.py " + iniFileName +" "+\
-                                                                                   debug_option +" "+\
-                                                                                   clone_code +" "
+   cmd += "python deterministic_runner_glue_with_parallel_option_2016_03_29.py " + iniFileName  + " " + debug_option + " " + clone_code + " "
    cmd = cmd + " & "
    i_clone += 1
 
 
-# command line(s) for MODFLOW       
-if generalConfiguration.online_coupling_between_pcrglobwb_and_moflow:
+# command line(s) for merging and MODFLOW processes:       
+if with_merging_or_modflow:
 
-   logger.info('Also with MODFLOW')
+   logger.info('Also with merging and MODFLOW processes ')
    
-   cmd += "python deterministic_runner_for_monthly_merging_and_modflow.py " + iniFileName +" "+debug_option +" transient"
+   cmd += "python deterministic_runner_for_monthly_merging_and_modflow_2016_03_29.py " + iniFileName +" "+debug_option +" transient"
 
    cmd = cmd + " & "       
 
