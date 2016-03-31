@@ -125,8 +125,8 @@ class DeterministicRunner(DynamicModel):
         # make an empty file indicating that merging process is done 
         if self.modelTime.isLastDayOfMonth() or self.modelTime.isLastDayOfYear():
 
-            outputDirectory = str(self.configuration.main_output_directory) + "/global/netcdf/"
-            filename = outputDirectory + "/merged_netcdf_files_for_" + str(self.modelTime.fulldate)+"_are_ready.txt"
+            outputDirectory = str(self.configuration.main_output_directory) + "/global/maps/"
+            filename = outputDirectory + "/merged_files_for_" + str(self.modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)
             open(filename, "w").close()    
 

@@ -282,7 +282,7 @@ class DeterministicRunner(DynamicModel):
     
     def check_merging_status(self):
 
-        status_file = str(self.configuration.main_output_directory) + "/global/netcdf/merged_netcdf_files_for_"    + str(self.modelTime.fulldate) + "_are_ready.txt"
+        status_file = str(self.configuration.main_output_directory) + "/global/maps/merged_files_for_"    + str(self.modelTime.fulldate) + "_are_ready.txt"
         msg = 'Waiting for the file: ' + status_file
         if self.count_check < 7:
             logger.debug(msg)
