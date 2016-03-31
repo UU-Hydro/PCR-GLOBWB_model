@@ -36,10 +36,10 @@ if clean_previous_output and os.path.exists(generalConfiguration.globalOptions['
 # make log folder and initialize logging
 generalOutputFolder = generalConfiguration.globalOptions['outputDir']
 logFileFolder = generalOutputFolder + "/global/log/"
-if os.path.exists(logFileFolder):
+if os.path.exists(logFileFolder) and clean_previous_output:  
     shutil.rmtree(logFileFolder)
     os.makedirs(logFileFolder)
-else:
+if os.path.exists(logFileFolder) == False: 
     os.makedirs(logFileFolder)
 generalConfiguration.initialize_logging(logFileFolder)
 
@@ -57,10 +57,11 @@ if os.path.exists(global_maps_folder):
 else:
     os.makedirs(global_maps_folder)
 
-# UNTIL THIS PART
-
 # make the backup of these python scripts to a specific backup folder and go to the backup folder
 scriptDir = generalConfiguration.globalOptions['outputDir'] + "/global/scripts/"
+if generalConfiguration.globalOptions['cloneAreas'] == "part_one" or\
+   generalConfiguration.globalOptions['cloneAreas'] == "part_two":
+    scriptDir = scriptDir + "/" + generalConfiguration.globalOptions['cloneAreas'] + "/"
 logger.info('Making the backup of the python scripts used to the folder %s', scriptDir)
 if os.path.exists(scriptDir): shutil.rmtree(scriptDir)
 os.makedirs(scriptDir)
@@ -73,6 +74,10 @@ os.chdir(scriptDir)
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
 if clone_codes[0] == "Global": clone_codes = ['M%02d'%i for i in range(1,54,1)]
+if clone_codes[0] == "part_one": clone_codes = ["M17","M19","M26","M13","M18","M20","M05","M03","M21","M46","M27","M49","M16","M44","M52","M25","M09","M08","M11","M42","M12","M39"]
+if clone_codes[0] == "part_two": clone_codes = ["M07","M15","M38","M48","M40","M41","M22","M14","M23","M51","M04","M06","M10","M02","M45","M35","M47","M50","M24","M01","M36","M53","M33","M43","M34","M37","M31","M32","M28","M30","M29"]
+
+# TODO: UNTIL THIS PART
 
 # TODO: command lines to run a steady state of MODFLOW (NOT FINISHED YET)
 #~ if ("globalModflowOptions" in generalConfiguration.allSections) and\

@@ -243,8 +243,6 @@ class DeterministicRunner(DynamicModel):
         # do any needed reporting for this time step        
         self.reporting.report()
 
-        # TODO: UNTIL THIS PART
-        
         # at the last day of the month, stop calculation until the merging process is ready and until modflow calculation is ready (only for a run with modflow) 
         if self.modelTime.isLastDayOfMonth(): 
 
@@ -260,9 +258,24 @@ class DeterministicRunner(DynamicModel):
                        datetime.datetime.now().second == 6:\
                        modflow_is_ready = self.check_modflow_status()
                 
-                # wait until all pcrglobwb model runs are ready
+            # wait until all pcrglobwb model runs are ready
+            
 
     def check_modflow_status(self):
+
+        status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
+        msg = 'Waiting for the file: '+status_file
+        if self.count_check < 7:
+            logger.debug(msg)
+            self.count_check += 1
+        status = os.path.exists(status_file)
+        if status == False: return status	
+        if status: self.count_check = 0            
+        return status
+
+    # TODO: UNTIL THIS PART
+    
+    def check_merging_status(self):
 
         status_file = str(self.configuration.main_output_directory)+"/modflow/transient/maps/modflow_files_for_"+str(self.modelTime.fulldate)+"_are_ready.txt"
         msg = 'Waiting for the file: '+status_file
