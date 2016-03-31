@@ -126,7 +126,7 @@ class DeterministicRunner(DynamicModel):
         if self.modelTime.isLastDayOfMonth() or self.modelTime.isLastDayOfYear():
 
             outputDirectory = str(self.configuration.main_output_directory) + "/global/netcdf/"
-            filename = outputDirectory + "/merged_netcdf_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
+            filename = outputDirectory + "/merged_netcdf_files_for_" + str(self.modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)
             open(filename, "w").close()    
 
