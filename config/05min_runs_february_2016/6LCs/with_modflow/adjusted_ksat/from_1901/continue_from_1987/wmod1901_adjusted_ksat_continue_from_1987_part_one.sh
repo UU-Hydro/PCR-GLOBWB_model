@@ -10,5 +10,5 @@ python parallel_pcrglobwb_with_prefactors_2016_03_29.py ../config/05min_runs_feb
 # NOTE: pcrglobwb modflow with adjusted_ksat - start from 1901
 #                                              continue from 1925
 #                                              continue from 1942 (part_one)
-#                                              continue from 1975 (part_one)
+#                                              continue from 1987 (part_one)
 
