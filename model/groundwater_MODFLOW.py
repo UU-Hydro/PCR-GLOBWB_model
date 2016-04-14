@@ -829,6 +829,10 @@ class GroundwaterModflow(object):
                 gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
                 gwAbstraction = pcr.cover(vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir), 0.0)
             
+                # - channel storage (unit: m/day) 
+                channel_storage_file_name = directory + "channel_storage_cubic_meter_" + str(currTimeStep.fulldate) + ".map"
+                channelStorage = pcr.cover(vos.readPCRmapClone(channel_storage_file_name, self.cloneMap, self.tmpDir), 0.0)
+                
                 # TODO: Try to read from netcdf files, avoid reading from pcraster maps (avoid resampling using gdal) 
 
             else:
@@ -847,6 +851,9 @@ class GroundwaterModflow(object):
                 if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                            "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+                
+                # - for offline coupling, I'm afraid that we cannot use channel storage
+                channelStorage = None                                           
 
 
         #####################################################################################################################################################

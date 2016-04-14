@@ -119,23 +119,28 @@ class PCRGlobWB(object):
         logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
         
         if self._modelTime.day == 1 or self._modelTime.timeStepPCR == 1:
+            
             self.variables = {}
+            
             self.variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
             self.variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
             self.variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
-        
+            
         self.variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
         self.variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
         self.variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
         
         if self._modelTime.isLastDayOfMonth():
 
-            # averaging
+            # averaging monthly discharge, groundwater recharge and groundwater abstraction
             number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
-            self.variables['monthly_discharge_cubic_meter_per_second'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days
-            self.variables['groundwater_recharge_meter_per_day'] = self.variables['groundwater_recharge_meter_per_day'] / number_of_days
-            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['groundwater_abstraction_meter_per_day'] / number_of_days
+            self.variables['monthly_discharge_cubic_meter_per_second'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days # unit: m3/s
+            self.variables['groundwater_recharge_meter_per_day'] = self.variables['groundwater_recharge_meter_per_day'] / number_of_days             # unit: m/day
+            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['groundwater_abstraction_meter_per_day'] / number_of_days       # unit: m/day
         
+            # channel storage at the last day of the month
+            self.variables['channel_storage_cubic_meter'] = pcr.ifthen(self.routing.landmask, self.routing.channelStorage)                           # unit: m/day
+
             # time stamp used as part of the file name:
             if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
             
