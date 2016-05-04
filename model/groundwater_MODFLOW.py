@@ -1108,7 +1108,7 @@ class GroundwaterModflow(object):
         
         return modflow_converged    
 
-    def set_drain_and_river_package(self, discharge, channel_storage currTimeStep, simulation_type):
+    def set_drain_and_river_package(self, discharge, channel_storage, currTimeStep, simulation_type):
 
         logger.info("Set the river package.")
         
