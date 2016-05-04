@@ -876,7 +876,7 @@ class GroundwaterModflow(object):
             gwRecharge    = gwRecharge/currTimeStep.day
 
         # set recharge, river, well and drain packages
-        self.set_drain_and_river_package(discharge, currTimeStep, simulation_type)
+        self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type)
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
 
