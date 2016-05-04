@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 15:00 
-#SBATCH -p normal                                                                                                                                                                              
+#SBATCH -t 59:00 
+#SBATCH -p short                                                                                                                                                                              
 
 # transient run
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
