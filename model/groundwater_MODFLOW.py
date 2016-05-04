@@ -1108,7 +1108,7 @@ class GroundwaterModflow(object):
         
         return modflow_converged    
 
-    def set_drain_and_river_package(self, discharge, currTimeStep, simulation_type):
+    def set_drain_and_river_package(self, discharge, channel_storage currTimeStep, simulation_type):
 
         logger.info("Set the river package.")
         
@@ -1252,26 +1252,22 @@ class GroundwaterModflow(object):
         
 
         
-        ######################## WORK ON THIS #########################################################################################################################
-        
         # to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
         minimum_water_height = 0.10
         surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
                                                                                                                                     self.surface_water_bed_elevation)
-        
+
         # also to minimize negative channel storage, ignore river infiltration in smaller rivers
         minimum_channel_width = 0.10
         surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
                                                                                                                                     self.surface_water_bed_elevation)
-        
+
         # also ignore river infiltration if channel storage is already negative
-        surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
-                                                                                                                                    self.surface_water_bed_elevation)
+        # - to minimize negative channel storage, ignore river infiltration with low channel storage
+        if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
+            minimum_channel_storage = 0.0
+            surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
         
-        ######################## WORK ON THIS #########################################################################################################################
-
-
-
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
