@@ -1253,12 +1253,12 @@ class GroundwaterModflow(object):
 
         
         # to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
-        minimum_water_height = 0.10
+        minimum_water_height  = 0.50
         surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
                                                                                                                                     self.surface_water_bed_elevation)
 
         # also to minimize negative channel storage, ignore river infiltration in smaller rivers
-        minimum_channel_width = 0.10
+        minimum_channel_width = 5.00
         surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
                                                                                                                                     self.surface_water_bed_elevation)
 
