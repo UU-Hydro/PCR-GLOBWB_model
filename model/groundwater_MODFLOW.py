@@ -1264,7 +1264,7 @@ class GroundwaterModflow(object):
 
         # also ignore river infiltration if channel storage is already negative
         # - to minimize negative channel storage, ignore river infiltration with low channel storage
-        if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
+        if isinstance(channel_storage, types.NoneType):
             minimum_channel_storage = 0.0
             surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
         
