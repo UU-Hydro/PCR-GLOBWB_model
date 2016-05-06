@@ -1221,7 +1221,7 @@ class GroundwaterModflow(object):
         # - calculating water level (unit: m) above the flood plain   # TODO: Improve this concept (using Rens's latest innundation scheme) 
         #----------------------------------------------------------
         water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)   # unit: m, water level above the floodplain (not distributed)
-        water_above_fpl *= self.bankfull_depth * self.bankfull_width / self.cellAreaMap  # unit: m, water level above the floodplain (distributed within the cell)
+        water_above_fpl *= self.bankfull_depth * self.channel_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
         # TODO: Improve this concept using Rens's latest scheme
         #
         # - corrected surface water elevation
@@ -1240,6 +1240,11 @@ class GroundwaterModflow(object):
         lake_reservoir_water_elevation = pcr.areaaverage(surface_water_elevation, self.WaterBodies.waterBodyIds)
         lake_reservoir_water_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
         # 
+        # - to minimize negative channel storage, ignore river infiltration in smaller rivers ; no infiltration if HRIV = RBOT (and h < RBOT)  
+        minimum_channel_width = 5.0
+        surface_water_elevation = pcr.ifthenelse(self.channel_width > minimum_channel_width, surface_water_elevation, \
+                                                                                        self.surface_water_bed_elevation)
+        #
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
         #
@@ -1251,23 +1256,15 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         
 
-        
-        # to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
+        # - to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
         minimum_water_height  = 0.50
-        surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
-                                                                                                                                    self.surface_water_bed_elevation)
-
-        # also to minimize negative channel storage, ignore river infiltration in smaller rivers
-        minimum_channel_width = 5.00
-        surface_water_elevation = pcr.ifthenelse(surface_water_elevation - self.surface_water_bed_elevation > minimum_water_height, surface_water_elevation, \
-                                                                                                                                    self.surface_water_bed_elevation)
-
-        # also ignore river infiltration if channel storage is already negative
+        surface_water_elevation = pcr.ifthenelse((surface_water_elevation - self.surface_water_bed_elevation) > minimum_water_height, surface_water_elevation, \
+                                                                                                                                      self.surface_water_bed_elevation)
         # - to minimize negative channel storage, ignore river infiltration with low channel storage
         if isinstance(channel_storage, types.NoneType):
-            minimum_channel_storage = 0.0
+            minimum_channel_storage = 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength   # unit: m3
             surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
-        
+
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
