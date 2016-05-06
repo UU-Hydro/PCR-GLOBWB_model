@@ -1158,7 +1158,7 @@ class GroundwaterModflow(object):
             #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
             
             # rounding values for surface_water_bed_elevation
-            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
+            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 100.)/100.
 
 
             logger.info("Estimating surface water bed conductance.")
@@ -1262,8 +1262,12 @@ class GroundwaterModflow(object):
                                                                                                                                       self.surface_water_bed_elevation)
         # - to minimize negative channel storage, ignore river infiltration with low channel storage
         if isinstance(channel_storage, types.NoneType):
-            minimum_channel_storage = 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength   # unit: m3
+            minimum_channel_storage = pcr.max(0.0, 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
             surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
+
+        # make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
+        surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
+        surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
 
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
