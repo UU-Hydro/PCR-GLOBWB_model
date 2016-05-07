@@ -1248,7 +1248,7 @@ class GroundwaterModflow(object):
         # - merge lake and reservoir water elevation
         surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
         #
-        # - covering the missing values and rounding
+        # - covering missing values and rounding
         surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         #
@@ -1261,7 +1261,7 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.ifthenelse((surface_water_elevation - self.surface_water_bed_elevation) > minimum_water_height, surface_water_elevation, \
                                                                                                                                       self.surface_water_bed_elevation)
         # - to minimize negative channel storage, ignore river infiltration with low channel storage
-        if isinstance(channel_storage, types.NoneType):
+        if not isinstance(channel_storage, types.NoneType):
             minimum_channel_storage = pcr.max(0.0, 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
             surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
 
@@ -1273,13 +1273,27 @@ class GroundwaterModflow(object):
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
         
+        
+        #~ # for the case HRIV == RBOT, we can use drain package --------- NOT NEEDED
+        #~ additional_drain_elevation   = pcr.cover(\
+                                       #~ pcr.ifthen(surface_water_elevation <= self.surface_water_bed_elevation, self.surface_water_bed_elevation), 0.0)
+        #~ additional_drain_conductance = pcr.cover(\
+                                       #~ pcr.ifthen(surface_water_elevation <= self.surface_water_bed_elevation, bed_conductance_used), 0.0)
+        #~ bed_conductance_used = \
+                              #~ pcr.ifthenelse(surface_water_elevation <= self.surface_water_bed_elevation, 0.0, bed_conductance_used)
+        #~ #
+        #~ # set the DRN package only to the uppermost layer
+        #~ self.pcr_modflow.setDrain(additional_drain_elevation, \
+                                  #~ additional_drain_conductance, self.number_of_layers)
+
+        
         # set the RIV package only to the uppermost layer
         self.pcr_modflow.setRiver(surface_water_elevation, self.surface_water_bed_elevation, bed_conductance_used, self.number_of_layers)
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
 
         # set drain package
-        self.set_drain_package()                                         
+        self.set_drain_package(additional_drain_elevation, additional_drain_conductance)                                         
         
         
     def set_recharge_package(self, \
