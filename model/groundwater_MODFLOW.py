@@ -1293,7 +1293,7 @@ class GroundwaterModflow(object):
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
 
         # set drain package
-        self.set_drain_package(additional_drain_elevation, additional_drain_conductance)                                         
+        self.set_drain_package()                                         
         
         
     def set_recharge_package(self, \
