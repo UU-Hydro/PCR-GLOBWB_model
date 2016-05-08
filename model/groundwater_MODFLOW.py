@@ -1265,6 +1265,11 @@ class GroundwaterModflow(object):
             minimum_channel_storage = pcr.max(0.0, 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
             surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
 
+        # - also ignore river infiltration in the mountainous region
+        mountainous_extent  = pcr.cover(\
+                              pcr.ifthen((self.dem_average - self.dem_floodplain) > 50.0, pcr.boolean(1.0)), pcr.boolean(0.0))
+        surface_water_elevation = pcr.ifthenelse(mountainous_extent, self.surface_water_bed_elevation, surface_water_elevation)
+
         # make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
         surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
