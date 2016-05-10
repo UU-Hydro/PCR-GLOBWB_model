@@ -609,9 +609,14 @@ class GroundwaterModflow(object):
             number_of_extra_months = 12 * number_of_extra_years    
             time_step_length       = 31 # unit: days
             for i in range(1, number_of_extra_months + 1):
+                
+                msg = "Extra steady state simulation (monthly stress period): " + str(i) + " from " + str(number_of_extra_months) 
+                logger.info(msg)
+
                 groundwaterHead = self.getState()
                 self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
         
+
     def estimate_bottom_of_bank_storage(self):
 
         # influence zone depth (m)  # TODO: Define this one as part of 
@@ -867,7 +872,7 @@ class GroundwaterModflow(object):
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                            "total_groundwater_abstraction", str(currTimeStep.fulldate), None, self.cloneMap)
                 
-                # - for offline coupling, the provision of channel storage is only optional
+                # - for offline coupling, the provision of channel storage (unit: m3) is only optional
                 channelStorage = None                                           
                 if 'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
                    self.iniItems.modflowTransientInputOptions['channelStorageInputNC'][-4:] != "None": 
