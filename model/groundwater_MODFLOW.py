@@ -1159,7 +1159,10 @@ class GroundwaterModflow(object):
                                                    cellArea = self.cellAreaMap, \
                                                    ldd = self.lddMap)        
 
-        if isinstance(self.bed_conductance, types.NoneType) or currTimeStep.month == 1:
+        # reset bed conductance at the first month (due to a new inclusion of lakes/reservoirs)
+        if currTimeStep != None and currTimeStep.month == 1: self.bed_conductance == None
+        
+        if isinstance(self.bed_conductance, types.NoneType):
 
             logger.info("Estimating surface water bed elevation.")
         
