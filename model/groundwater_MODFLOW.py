@@ -614,7 +614,10 @@ class GroundwaterModflow(object):
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length) 
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length)
+                
+                # reporting the calculated head to pcraster files
+                 
         
 
     def estimate_bottom_of_bank_storage(self):
