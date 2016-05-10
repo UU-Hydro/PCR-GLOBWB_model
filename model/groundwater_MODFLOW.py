@@ -604,11 +604,13 @@ class GroundwaterModflow(object):
             
             # TODO: Also please consider to use Deltares's trick to remove isolated cells.
             
-            #~ # TODO: Add a transient simulation with constant input during a number of time steps (not finished yet)
-            #~ time_step_length = # from the ini file
-            #~ for i in range(1, number_of_extra_spin_up):
-                #~ groundwaterHead = self.getState()
-                #~ self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
+            # An extra steady state simulation 
+            number_of_extra_years  = 25                                 # TODO: Define this from the configuration file.
+            number_of_extra_months = 12 * number_of_extra_years    
+            time_step_length       = 31 # unit: days
+            for i in range(1, number_of_extra_months + 1):
+                groundwaterHead = self.getState()
+                self.modflow_simulation("steady-state_extra", groundwaterHead, None, time_step_length, time_step_length) 
         
     def estimate_bottom_of_bank_storage(self):
 
@@ -787,6 +789,11 @@ class GroundwaterModflow(object):
         if simulation_type == "steady-state":
             logger.info("Preparing MODFLOW input for a steady-state simulation.")
             SSTR = 1
+        if simulation_type == "steady-state-extra":
+            msg  = "Preparing MODFLOW input for an 'extra' steady-state simulation: "
+            msg += "a transient simulation with constant input for 30 day (monthly) stress period with daily time step."
+            logger.info(msg)
+            SSTR = 0
 
         # extract and set initial head for modflow simulation
         groundwaterHead = initialGroundwaterHeadInADictionary
@@ -796,7 +803,7 @@ class GroundwaterModflow(object):
             self.pcr_modflow.setInitialHead(initial_head, i)
         
         # read input files (for the steady-state condition, we use pcraster maps):
-        if simulation_type == "steady-state":
+        if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
             # - discharge (m3/s) from PCR-GLOBWB
             discharge = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgDischargeInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
@@ -808,6 +815,14 @@ class GroundwaterModflow(object):
             gwAbstraction = pcr.spatial(pcr.scalar(0.0))
             gwAbstraction = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgGroundwaterAbstractionInputMap'],\
                                                 self.cloneMap, self.tmpDir, self.inputDir)
+            
+            # - average channel storage (unit: m3) from PCR-GLOBWB 
+            channelStorage = None                                           
+            if 'avgChannelStorageInputMap' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+               self.iniItems.modflowSteadyStateInputOptions['avgChannelStorageInputMap'][-4:] != "None": 
+                channelStorage = pcr.cover(\
+                                 vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions['avgChannelStorageInputMap'],\
+                                                     self.cloneMap, self.tmpDir, self.inputDir), 0.0)
 
         # read input files 
         if simulation_type == "transient":
@@ -841,19 +856,23 @@ class GroundwaterModflow(object):
                 
                 # - discharge (m3/s) from PCR-GLOBWB
                 discharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['dischargeInputNC'],
-                                                   "discharge",str(currTimeStep.fulldate),None,self.cloneMap)
+                                                   "discharge", str(currTimeStep.fulldate), None, self.cloneMap)
                 # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
                 gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
-                                                   "groundwater_recharge",str(currTimeStep.fulldate),None,self.cloneMap)
+                                                   "groundwater_recharge", str(currTimeStep.fulldate), None, self.cloneMap)
             
                 # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
                 gwAbstraction = pcr.spatial(pcr.scalar(0.0))
                 if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
-                                                           "total_groundwater_abstraction",str(currTimeStep.fulldate),None,self.cloneMap)
+                                                           "total_groundwater_abstraction", str(currTimeStep.fulldate), None, self.cloneMap)
                 
-                # - for offline coupling, I'm afraid that we cannot use channel storage
+                # - for offline coupling, the provision of channel storage is only optional
                 channelStorage = None                                           
+                if 'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
+                   self.iniItems.modflowTransientInputOptions['channelStorageInputNC'][-4:] != "None": 
+                    channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
+                                                           "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
 
 
         #####################################################################################################################################################
@@ -862,7 +881,8 @@ class GroundwaterModflow(object):
         if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = True
         #
         # for a steady-state simulation, the capillary rise is usually ignored: 
-        if simulation_type == "steady-state" and \
+        if (simulation_type == "steady-state" or\
+            simulation_type == "steady-state-extra") and \
            'ignoreCapRiseSteadyState' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
            self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "True":\
             self.ignoreCapRise = True
