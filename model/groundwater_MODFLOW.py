@@ -1139,7 +1139,7 @@ class GroundwaterModflow(object):
         
         # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
         # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
-        if simulation_type == "steady-state":
+        if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
             self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
                                                        self.landmask,\
                                                        self.onlyNaturalWaterBodies)
