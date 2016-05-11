@@ -1028,18 +1028,22 @@ class GroundwaterModflow(object):
                 # set a new iteration index for the HCLOSE
                 if self.iteration_RCLOSE == 0: self.iteration_HCLOSE += 1
                      
-                # we give up if we already using all available HCLOSE
+                # if we already using all available HCLOSE
                 if self.iteration_RCLOSE == 0 and self.iteration_HCLOSE == len(self.criteria_HCLOSE):
                     
                     msg  = "\n\n\n"
                     msg += "NOT GOOD!!! MODFLOW STILL FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                     msg += "\n"
-                    msg += "But, we decide to use the last calculated groundwater heads."
-                    msg += "\n\n"
+
+                    #~ # we give up 
+                    #~ msg += "But, we decide to use the last calculated groundwater heads."
+                    #~ msg += "\n\n"
+                    #~ self.modflow_converged = True
 
                     logger.warning(msg)
                     
-                    self.modflow_converged = True
+                    additional_HLCOSE = max(self.criteria_HCLOSE) + 0.5
+                    self.criteria_HCLOSE.append(additional_HLCOSE)
 
             else:
             
