@@ -329,7 +329,7 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        #~ self.criteria_HCLOSE = [0.5, 1.0]
+        self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -1033,7 +1033,7 @@ class GroundwaterModflow(object):
                     
                     msg  = "\n\n\n"
                     msg += "NOT GOOD!!! MODFLOW STILL FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
-                    msg += "\n"
+                    msg += "\n\n"
 
                     #~ # we give up 
                     #~ msg += "But, we decide to use the last calculated groundwater heads."
@@ -1043,9 +1043,9 @@ class GroundwaterModflow(object):
                     logger.warning(msg)
                     
                     print(self.criteria_HCLOSE)
-                    print(max(self.criteria_HCLOSE))
+                    print(HCLOSE)
                     
-                    additional_HLCOSE = max(self.criteria_HCLOSE) + 0.5
+                    additional_HLCOSE = HCLOSE + 0.5
                     self.criteria_HCLOSE.append(additional_HLCOSE)
 
             else:
