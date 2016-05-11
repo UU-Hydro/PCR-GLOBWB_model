@@ -1042,6 +1042,9 @@ class GroundwaterModflow(object):
 
                     logger.warning(msg)
                     
+                    print(self.criteria_HCLOSE)
+                    print(max(self.criteria_HCLOSE)
+                    
                     additional_HLCOSE = max(self.criteria_HCLOSE) + 0.5
                     self.criteria_HCLOSE.append(additional_HLCOSE)
 
