@@ -604,21 +604,60 @@ class GroundwaterModflow(object):
             
             # TODO: Also please consider to use Deltares's trick to remove isolated cells.
             
-            # An extra steady state simulation 
-            number_of_extra_years  = 25                                 # TODO: Define this from the configuration file.
-            number_of_extra_months = 12 * number_of_extra_years    
-            time_step_length       = 31 # unit: days
-            for i in range(1, number_of_extra_months + 1):
-                
-                msg = "Extra steady state simulation (monthly stress period): " + str(i) + " from " + str(number_of_extra_months) 
+            # An extra steady state simulation using transient simulation with constant input
+            self.transient_simulation_with_constant_input
+                 
+
+    def transient_simulation_with_constant_input(self):
+
+        time_step_length      = 30 # unit: days
+
+        number_of_extra_years = 10                                                    
+
+        if "extraSpinUpYears" in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYears'] != "None":
+            number_of_extra_years = int(\
+                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYears'])
+
+        number_of_extra_months = 12 * number_of_extra_years    
+
+        # maximum number of months = 999
+        if number_of_extra_months > 999:
+            
+            msg = "To avoid a very long spin up, we limit the number of extra months to 999 months."
+            logger.info(msg)
+            number_of_extra_months = min(999, number_of_extra_months)
+        
+        if number_of_extra_months > 0:
+        
+            # preparing extra spin up folder/directory:
+            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_up/"
+            if os.path.exists(extra_spin_up_directory): shutil.rmtree(extra_spin_up_directory)
+            os.makedirs(extra_spin_up_directory)
+            
+            for i_month in range(1, number_of_extra_months + 1):
+            
+                msg  = "\n"
+                msg += "\n"
+                msg += "Extra steady state simulation (transient simulation with constant input and monthly stress period): " + str(i) + " from " + str(number_of_extra_months) 
+                msg += "\n"
+                msg += "\n"
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
                 self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length)
-                
+            
                 # reporting the calculated head to pcraster files
-                 
-        
+                # - extension for output file:
+                extension = "00" + str(i_month)
+                if i_month > 9: extension = "0" + str(i_month)
+                if i_month > 99: extension = str(i_month)
+                
+                for i in range(1, self.number_of_layers+1):
+
+                    var_name = 'groundwaterHeadLayer' + str(i)
+                    file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_"
+                    pcr.report(vars()[var_name], file_name) 
 
     def estimate_bottom_of_bank_storage(self):
 
