@@ -605,7 +605,7 @@ class GroundwaterModflow(object):
             # TODO: Also please consider to use Deltares's trick to remove isolated cells.
             
             # An extra steady state simulation using transient simulation with constant input
-            self.transient_simulation_with_constant_input(initial_heads)
+            self.transient_simulation_with_constant_input()
                  
 
     def transient_simulation_with_constant_input(self):
