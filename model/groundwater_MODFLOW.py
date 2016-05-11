@@ -639,7 +639,7 @@ class GroundwaterModflow(object):
             
                 msg  = "\n"
                 msg += "\n"
-                msg += "Extra steady state simulation (transient simulation with constant input and monthly stress period): " + str(i) + " from " + str(number_of_extra_months) 
+                msg += "Extra steady state simulation (transient simulation with constant input and monthly stress period): " + str(i_month) + " from " + str(number_of_extra_months) 
                 msg += "\n"
                 msg += "\n"
                 logger.info(msg)
