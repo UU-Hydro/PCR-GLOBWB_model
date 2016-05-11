@@ -656,7 +656,7 @@ class GroundwaterModflow(object):
                 for i in range(1, self.number_of_layers+1):
 
                     var_name = 'groundwaterHeadLayer' + str(i)
-                    file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_"
+                    file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
                     pcr.report(groundwaterHead[var_name], file_name) 
 
     def estimate_bottom_of_bank_storage(self):
