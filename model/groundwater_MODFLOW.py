@@ -328,9 +328,9 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
-        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.5, 1.0]
+        #~ self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -339,8 +339,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
-        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -1002,25 +1002,29 @@ class GroundwaterModflow(object):
                 logger.info(msg)
                 logger.info('')
                 
-                # for the steady state simulation, we still save the calculated head(s) 
-                # so that we can use them as the initial estimate for the next iteration
-                # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
-                if simulation_type == "steady-state": 
 
-                    msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
-                    logger.info(msg)
-                    
-                    # obtain the result from the uncoverged modflow simulation
-                    for i in range(1, self.number_of_layers+1):
-                        var_name = 'groundwaterHeadLayer'+str(i)
-                        vars(self)[var_name] = None
-                        vars(self)[var_name] = self.pcr_modflow.getHeads(i)
 
-                    # set the result from the uncoverged modflow simulation as the initial new estimate
-                    for i in range(1, self.number_of_layers+1):
-                        var_name = 'groundwaterHeadLayer'+str(i)
-                        initial_head = pcr.scalar(vars(self)[var_name])
-                        self.pcr_modflow.setInitialHead(initial_head, i)
+                #~ ####################################################################################################################################### OPTIONAL ######
+                #~ # for the steady state simulation, we still save the calculated head(s) 
+                #~ # so that we can use them as the initial estimate for the next iteration (by doing this, it may ease the convergence??)
+                #~ # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
+                #~ if simulation_type == "steady-state": 
+#~ 
+                    #~ msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
+                    #~ logger.info(msg)
+                    #~ 
+                    #~ # obtain the result from the uncoverged modflow simulation
+                    #~ for i in range(1, self.number_of_layers+1):
+                        #~ var_name = 'groundwaterHeadLayer'+str(i)
+                        #~ vars(self)[var_name] = None
+                        #~ vars(self)[var_name] = self.pcr_modflow.getHeads(i)
+#~ 
+                    #~ # set the result from the uncoverged modflow simulation as the initial new estimate
+                    #~ for i in range(1, self.number_of_layers+1):
+                        #~ var_name = 'groundwaterHeadLayer'+str(i)
+                        #~ initial_head = pcr.scalar(vars(self)[var_name])
+                        #~ self.pcr_modflow.setInitialHead(initial_head, i)
+                #~ ####################################################################################################################################### OPTIONAL ######
 
 
                 # set a new iteration index for the RCLOSE
@@ -1043,13 +1047,38 @@ class GroundwaterModflow(object):
 
                         msg += "But, we decide to use the last calculated groundwater heads."
                         msg += "\n\n"
-                        self.modflow_converged = True
+                        logger.warning(msg)
 
-                    logger.warning(msg)
-                    
-                    additional_HLCOSE = HCLOSE + 0.5
-                    self.criteria_HCLOSE.append(additional_HLCOSE)
-                    self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
+                        msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
+                        logger.info(msg)
+                        
+                        # obtain the result from the uncoverged modflow simulation
+                        for i in range(1, self.number_of_layers+1):
+                            var_name = 'groundwaterHeadLayer'+str(i)
+                            vars(self)[var_name] = None
+                            vars(self)[var_name] = self.pcr_modflow.getHeads(i)
+                        
+                        # set the result from the uncoverged modflow simulation as the initial new estimate
+                        for i in range(1, self.number_of_layers+1):
+                            var_name = 'groundwaterHeadLayer'+str(i)
+                            initial_head = pcr.scalar(vars(self)[var_name])
+                            self.pcr_modflow.setInitialHead(initial_head, i)
+                        
+                        
+                            self.modflow_converged = True
+
+                    else: 
+
+                        additional_HLCOSE = HCLOSE * 2.0
+
+                        msg += "We will try again using the HCLOSE: " + str(additional_HLCOSE)
+                        msg += "\n\n"
+                        logger.warning(msg)
+
+                        self.criteria_HCLOSE.append(additional_HLCOSE)
+                        self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
+                        
+                        # TODO: Shall we also increase RCLOSE ??
 
             else:
             
