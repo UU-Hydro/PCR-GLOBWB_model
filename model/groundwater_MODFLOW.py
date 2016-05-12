@@ -328,7 +328,7 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
@@ -1036,10 +1036,12 @@ class GroundwaterModflow(object):
                     msg += "NOT GOOD!!! MODFLOW STILL FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                     msg += "\n\n"
 
-                    #~ # we give up 
-                    #~ msg += "But, we decide to use the last calculated groundwater heads."
-                    #~ msg += "\n\n"
-                    #~ self.modflow_converged = True
+                    # for a steady-state simulation, we give up 
+                    if simulation_type == "steady-state": 
+
+                        msg += "But, we decide to use the last calculated groundwater heads."
+                        msg += "\n\n"
+                        self.modflow_converged = True
 
                     logger.warning(msg)
                     
