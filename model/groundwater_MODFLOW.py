@@ -339,7 +339,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
