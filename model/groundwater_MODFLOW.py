@@ -328,9 +328,9 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        #~ self.criteria_HCLOSE = [0.5, 1.0]
+        self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -375,6 +375,10 @@ class GroundwaterModflow(object):
     def initiate_modflow(self):
 
         logger.info("Initializing pcraster modflow.")
+        
+        # removing all previous pcraster modflow files:
+        cmd = 'rm -r ' + self.tmp_modflow_dir + '/*'
+        os.system(cmd)
         
         # initialise pcraster modflow
         self.pcr_modflow = pcr.initialise(pcr.clone())
@@ -1193,7 +1197,7 @@ class GroundwaterModflow(object):
     def old_check_modflow_convergence(self, file_name = "pcrmf.lst"):
         
         # open and read the lst file
-        file_name = self.tmp_modflow_dir+"/"+file_name
+        file_name = self.tmp_modflow_dir + "/" + file_name
         f = open(file_name) ; all_lines = f.read() ; f.close()
         
         # split the content of the file into several lines
