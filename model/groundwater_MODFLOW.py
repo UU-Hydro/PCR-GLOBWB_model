@@ -989,15 +989,15 @@ class GroundwaterModflow(object):
             # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
             # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
 
-            msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
+            msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)+" and MXITER = "+str(MXITER)+" and ITERI = "+str(ITERI)
             logger.info(msg)
             
             print("test0")
             try:
                 self.pcr_modflow.run()
+                self.modflow_converged = self.pcr_modflow.converged()
             except:
                 self.modflow_converged = False
-                pass
 
             print("test1")
             
