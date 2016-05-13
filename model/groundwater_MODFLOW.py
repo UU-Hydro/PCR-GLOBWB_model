@@ -328,9 +328,9 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
-        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.5, 1.0]
+        #~ self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -808,16 +808,12 @@ class GroundwaterModflow(object):
                 PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
             
             # number of time step within a stress period
-            NSTP   = PERLEN
+            NSTP = PERLEN 
             
-            #~ self.modflow_simulation("transient", groundwaterHead, 
-                                                 #~ currTimeStep, 
-                                                 #~ PERLEN, 
-                                                 #~ NSTP)
-
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
-                                                 PERLEN, 1)
+                                                 PERLEN, 
+                                                 NSTP)
 
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
@@ -1000,7 +996,6 @@ class GroundwaterModflow(object):
             msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)+" and MXITER = "+str(MXITER)+" and ITERI = "+str(ITERI)
             logger.info(msg)
             
-            print("test0")
             try:
                 self.pcr_modflow.run()
                 self.modflow_converged = self.pcr_modflow.converged()
@@ -1008,11 +1003,7 @@ class GroundwaterModflow(object):
             except:
                 self.modflow_converged = False
 
-            print("test1")
-            
             print self.modflow_converged
-
-            print("test3")
 
             if self.modflow_converged == False:
             
