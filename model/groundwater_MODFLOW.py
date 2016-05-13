@@ -378,7 +378,7 @@ class GroundwaterModflow(object):
         logger.info("Initializing pcraster modflow.")
         
         # removing all previous pcraster modflow files:
-        if os.path.exists(self.tmp_modflow_dir): shutil.rmtree(self.tmpDir)
+        if os.path.exists(self.tmp_modflow_dir): shutil.rmtree(self.tmp_modflow_dir)
         os.makedirs(self.tmp_modflow_dir)
         
         # initialise pcraster modflow
