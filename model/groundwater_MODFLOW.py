@@ -989,10 +989,22 @@ class GroundwaterModflow(object):
 
             msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
             logger.info(msg)
+            
+            print("test0")
             self.pcr_modflow.run()
 
+            print("test1")
+            
             # check whether the modflow has converged or not
             self.modflow_converged = self.pcr_modflow.converged()
+            
+            print self.modflow_converged
+            
+            self.modflow_converged = self.old_check_modflow_convergence()
+
+            print self.modflow_converged
+
+            print("test3")
 
             if self.modflow_converged == False:
             
@@ -1041,24 +1053,9 @@ class GroundwaterModflow(object):
                     # for a steady-state simulation, we give up 
                     if simulation_type == "steady-state": 
 
-                        msg += "But, we decide to use the last calculated groundwater heads."
+                        msg += "But, we give up and we can only decide/suggest to use the last calculated groundwater heads."
                         msg += "\n\n"
                         logger.warning(msg)
-
-                        msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
-                        logger.info(msg)
-                        
-                        # obtain the result from the uncoverged modflow simulation
-                        for i in range(1, self.number_of_layers+1):
-                            var_name = 'groundwaterHeadLayer'+str(i)
-                            vars(self)[var_name] = None
-                            vars(self)[var_name] = self.pcr_modflow.getHeads(i)
-                        
-                        # set the result from the uncoverged modflow simulation as the initial new estimate
-                        for i in range(1, self.number_of_layers+1):
-                            var_name = 'groundwaterHeadLayer'+str(i)
-                            initial_head = pcr.scalar(vars(self)[var_name])
-                            self.pcr_modflow.setInitialHead(initial_head, i)
                         
                         # force MODFLOW to converge
                         self.modflow_converged = True
@@ -1084,7 +1081,7 @@ class GroundwaterModflow(object):
                 logger.info(msg)
             
         # obtaining the results from modflow simulation
-        self.get_all_modflow_results(simulation_type)
+        if self.modflow_converged: self.get_all_modflow_results(simulation_type)
         
         # clear modflow object
         self.pcr_modflow = None
