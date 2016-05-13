@@ -808,7 +808,11 @@ class GroundwaterModflow(object):
                 PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
             
             # number of time step within a stress period
-            NSTP = PERLEN 
+            #~ NSTP = PERLEN                                            # THIS IS NOT ALWAYS WORKING - TODO: FIX ME 
+            NSTP = 1
+            
+            self.PERLEN = PERLEN   # number of days within a stress period
+            self.NSTP   = NSTP     # number of time steps within a stress period
             
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
