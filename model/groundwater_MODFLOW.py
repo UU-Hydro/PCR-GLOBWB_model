@@ -933,19 +933,16 @@ class GroundwaterModflow(object):
 
 
         #####################################################################################################################################################
-        # option to ignore negative capillary rise:
-        self.ignoreCapRise = False
-        if self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = True
-        #
         # for a steady-state simulation, the capillary rise is usually ignored: 
         if (simulation_type == "steady-state" or\
-            simulation_type == "steady-state-extra") and \
-           'ignoreCapRiseSteadyState' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
-           self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "True":\
+            simulation_type == "steady-state-extra"):
             self.ignoreCapRise = True
+            if 'ignoreCapRiseSteadyState' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                self.iniItems.modflowSteadyStateInputOptions['ignoreCapRiseSteadyState'] == "False": self.ignoreCapRise = False
         #####################################################################################################################################################
-        if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
 
+        # ignore capillary rise if needed:
+        if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
 
         # convert the values of abstraction and recharge to daily average
         if self.valuesRechargeAndAbstractionInMonthlyTotal: 
