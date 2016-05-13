@@ -993,7 +993,11 @@ class GroundwaterModflow(object):
             logger.info(msg)
             
             print("test0")
-            self.pcr_modflow.run()
+            try:
+                self.pcr_modflow.run()
+            except:
+                self.modflow_converged = False
+                pass
 
             print("test1")
             
