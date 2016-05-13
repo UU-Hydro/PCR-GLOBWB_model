@@ -1000,31 +1000,28 @@ class GroundwaterModflow(object):
                 msg = "MODFLOW FAILED TO CONVERGE with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)
                 logger.info(msg)
                 logger.info('')
-                
 
+                ####################################################################################################################################### OPTIONAL ######
+                # for the steady state simulation, we still save the calculated head(s) 
+                # so that we can use them as the initial estimate for the next iteration (by doing this, it may ease the convergence?? - TODO: check this
+                # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
+                if simulation_type == "steady-state": 
 
-                #~ ####################################################################################################################################### OPTIONAL ######
-                #~ # for the steady state simulation, we still save the calculated head(s) 
-                #~ # so that we can use them as the initial estimate for the next iteration (by doing this, it may ease the convergence??)
-                #~ # NOTE: We must NOT extract the calculated heads of a transient simulation result that does not converge.
-                #~ if simulation_type == "steady-state": 
-#~ 
-                    #~ msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
-                    #~ logger.info(msg)
-                    #~ 
-                    #~ # obtain the result from the uncoverged modflow simulation
-                    #~ for i in range(1, self.number_of_layers+1):
-                        #~ var_name = 'groundwaterHeadLayer'+str(i)
-                        #~ vars(self)[var_name] = None
-                        #~ vars(self)[var_name] = self.pcr_modflow.getHeads(i)
-#~ 
-                    #~ # set the result from the uncoverged modflow simulation as the initial new estimate
-                    #~ for i in range(1, self.number_of_layers+1):
-                        #~ var_name = 'groundwaterHeadLayer'+str(i)
-                        #~ initial_head = pcr.scalar(vars(self)[var_name])
-                        #~ self.pcr_modflow.setInitialHead(initial_head, i)
-                #~ ####################################################################################################################################### OPTIONAL ######
+                    msg = "Set the result from the uncoverged modflow simulation as the initial new estimate (for a steady-state simulation only)."
+                    logger.info(msg)
+                    
+                    # obtain the result from the uncoverged modflow simulation
+                    for i in range(1, self.number_of_layers+1):
+                        var_name = 'groundwaterHeadLayer'+str(i)
+                        vars(self)[var_name] = None
+                        vars(self)[var_name] = self.pcr_modflow.getHeads(i)
 
+                    # set the result from the uncoverged modflow simulation as the initial new estimate
+                    for i in range(1, self.number_of_layers+1):
+                        var_name = 'groundwaterHeadLayer'+str(i)
+                        initial_head = pcr.scalar(vars(self)[var_name])
+                        self.pcr_modflow.setInitialHead(initial_head, i)
+                ####################################################################################################################################### OPTIONAL ######
 
                 # set a new iteration index for the RCLOSE
                 self.iteration_RCLOSE += 1 
@@ -1064,7 +1061,7 @@ class GroundwaterModflow(object):
                             self.pcr_modflow.setInitialHead(initial_head, i)
                         
                         
-                            self.modflow_converged = True
+                        self.modflow_converged = True
 
                     else: 
 
