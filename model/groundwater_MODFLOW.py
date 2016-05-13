@@ -974,7 +974,9 @@ class GroundwaterModflow(object):
             RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
             
             # set PCG solver
-            self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+            #~ self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+
+            self.pcr_modflow.setPCG(5, 5, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
             
             # some notes for PCG solver values  
             #
