@@ -1060,7 +1060,7 @@ class GroundwaterModflow(object):
                             initial_head = pcr.scalar(vars(self)[var_name])
                             self.pcr_modflow.setInitialHead(initial_head, i)
                         
-                        
+                        # force MODFLOW to converge
                         self.modflow_converged = True
 
                     else: 
