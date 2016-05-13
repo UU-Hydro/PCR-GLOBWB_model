@@ -997,10 +997,10 @@ class GroundwaterModflow(object):
 
             print("test1")
             
-            # check whether the modflow has converged or not
-            self.modflow_converged = self.pcr_modflow.converged()
-            
-            print self.modflow_converged
+            #~ # check whether the modflow has converged or not
+            #~ self.modflow_converged = self.pcr_modflow.converged()
+            #~ 
+            #~ print self.modflow_converged
             
             self.modflow_converged = self.old_check_modflow_convergence()
 
