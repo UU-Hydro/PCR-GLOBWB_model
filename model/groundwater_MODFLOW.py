@@ -377,8 +377,8 @@ class GroundwaterModflow(object):
         logger.info("Initializing pcraster modflow.")
         
         # removing all previous pcraster modflow files:
-        cmd = 'rm -r ' + self.tmp_modflow_dir + '/*'
-        os.system(cmd)
+        if os.path.exists(self.tmp_modflow_dir): shutil.rmtree(self.tmpDir)
+        os.makedirs(self.tmp_modflow_dir)
         
         # initialise pcraster modflow
         self.pcr_modflow = pcr.initialise(pcr.clone())
@@ -999,8 +999,8 @@ class GroundwaterModflow(object):
             
             try:
                 self.pcr_modflow.run()
-                self.modflow_converged = self.pcr_modflow.converged()
-                self.modflow_converged = self.old_check_modflow_convergence()
+                self.modflow_converged = self.pcr_modflow.converged()           # TODO: Ask Oliver to fix the non-convergence issue that can appear before reaching the end of stress period.  
+                #~ self.modflow_converged = self.old_check_modflow_convergence()
             except:
                 self.modflow_converged = False
 
