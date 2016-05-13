@@ -590,6 +590,9 @@ class GroundwaterModflow(object):
             groundwaterHead = self.getState()
             self.modflow_simulation("steady-state", groundwaterHead, None, 1, 1)
             
+            # An extra steady state simulation using transient simulation with constant input
+            self.transient_simulation_with_constant_input()
+
             # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
             # 
             # - the calculate groundwater head within the landmask region
@@ -606,10 +609,6 @@ class GroundwaterModflow(object):
                 # TODO: Define the window sizes as part of the configuration file. Also consider to use the inverse distance method. 
             
             # TODO: Also please consider to use Deltares's trick to remove isolated cells.
-            
-            # An extra steady state simulation using transient simulation with constant input
-            self.transient_simulation_with_constant_input()
-                 
 
     def transient_simulation_with_constant_input(self):
 
