@@ -1205,6 +1205,8 @@ class GroundwaterModflow(object):
         for i in range(0,200): 
             if 'FAILED TO CONVERGE' in all_lines[-i]: modflow_converged = False
         
+        print modflow_converged
+        
         return modflow_converged    
 
     def set_drain_and_river_package(self, discharge, channel_storage, currTimeStep, simulation_type):
