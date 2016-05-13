@@ -308,7 +308,8 @@ class GroundwaterModflow(object):
         #####################################################################################################################################################
         # option to ignore capillary rise
         self.ignoreCapRise = False
-        if 'ignoreCapRise' and self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = False
+        if 'ignoreCapRise' in self.iniItems.modflowParameterOptions.keys() and \
+            self.iniItems.modflowParameterOptions['ignoreCapRise'] == "True": self.ignoreCapRise = True
         #####################################################################################################################################################
         
 
