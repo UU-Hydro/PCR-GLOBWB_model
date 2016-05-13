@@ -828,7 +828,7 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
-                           MXITER = 50,\
+                           MXITER = 100,\
                            ITERI = 30,\
                            NPCOND = 1,\
                            RELAX = 0.98,\
@@ -982,10 +982,8 @@ class GroundwaterModflow(object):
             RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
             
             # set PCG solver
-            #~ self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
+            self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
 
-            self.pcr_modflow.setPCG(5, 5, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
-            
             # some notes for PCG solver values  
             #
             # MXITER = 50                 # maximum number of outer iterations           # Deltares use 50
