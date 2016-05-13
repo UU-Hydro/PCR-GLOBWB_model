@@ -810,10 +810,14 @@ class GroundwaterModflow(object):
             # number of time step within a stress period
             NSTP   = PERLEN
             
+            #~ self.modflow_simulation("transient", groundwaterHead, 
+                                                 #~ currTimeStep, 
+                                                 #~ PERLEN, 
+                                                 #~ NSTP)
+
             self.modflow_simulation("transient", groundwaterHead, 
                                                  currTimeStep, 
-                                                 PERLEN, 
-                                                 NSTP)
+                                                 PERLEN, 1)
 
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
