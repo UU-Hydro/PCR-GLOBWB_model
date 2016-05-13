@@ -808,7 +808,7 @@ class GroundwaterModflow(object):
                 PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
             
             # number of time step within a stress period
-            NSTP = PERLEN * 4
+            NSTP = PERLEN * 2
             
             self.PERLEN = PERLEN   # number of days within a stress period
             self.NSTP   = NSTP     # number of time steps within a stress period
@@ -827,7 +827,7 @@ class GroundwaterModflow(object):
                            currTimeStep = None,\
                            PERLEN = 1.0, 
                            NSTP   = 1, \
-                           MXITER = 100,\
+                           MXITER = 50,\
                            ITERI = 30,\
                            NPCOND = 1,\
                            RELAX = 0.98,\
