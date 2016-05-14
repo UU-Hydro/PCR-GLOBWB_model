@@ -1232,7 +1232,7 @@ class GroundwaterModflow(object):
                                                    ldd = self.lddMap)        
 
         # reset bed conductance at the first month (due to possibility of new inclusion of lakes/reservoirs)
-        if currTimeStep != None or currTimeStep.month == 1: self.bed_conductance = None
+        if currTimeStep == None or currTimeStep.month == 1: self.bed_conductance = None
         
         if isinstance(self.bed_conductance, types.NoneType):
 
