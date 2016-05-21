@@ -622,7 +622,7 @@ class LandSurface(object):
             self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
         except:                                                 
             pass
-        self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+        #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
         self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
