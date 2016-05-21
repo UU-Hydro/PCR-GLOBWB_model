@@ -262,7 +262,9 @@ class Configuration(object):
             self.landSurfaceOptions['limitAbstraction'] = False
 
         # irrigation efficiency map 
-        if 'irrigationEfficiency' not in self.landSurfaceOptions.keys():
+        if 'irrigationEfficiency' not in self.landSurfaceOptions.keys() or\
+            self.landSurfaceOptions['irrigationEfficiency'] == "False" or\:
+            self.landSurfaceOptions['irrigationEfficiency'] == "None":
             logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
             self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
         
