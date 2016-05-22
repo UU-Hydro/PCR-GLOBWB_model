@@ -392,7 +392,8 @@ class GroundwaterModflow(object):
         # - constant head for outside the landmask
         ibound = pcr.ifthen(self.landmask, pcr.nominal(1))
         ibound = pcr.cover(ibound, pcr.nominal(-1))
-        for i in range(1, self.number_of_layers+1): self.pcr_modflow.setBoundary(ibound, i)
+        self.ibound = ibound
+        for i in range(1, self.number_of_layers+1): self.pcr_modflow.setBoundary(self.ibound, i)
         
         # setup the BCF package 
         if self.number_of_layers == 1: self.set_bcf_for_one_layer_model()
@@ -483,6 +484,10 @@ class GroundwaterModflow(object):
         # specification for horizontal conductivities (BCF package)
         vertical_conductivity   = horizontal_conductivity               # dummy values, as one layer model is used
 
+        #~ # for areas with ibound <= 0, we set very high horizontal conductivity values:             # TODO: Check this, shall we implement this?
+        #~ horizontal_conductivity = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity, \
+                                                   #~ pcr.mapmaximum(horizontal_conductivity))
+
         # set BCF package
         self.pcr_modflow.setConductivity(00, horizontal_conductivity, \
                                              vertical_conductivity, 1)              
@@ -542,6 +547,12 @@ class GroundwaterModflow(object):
         vertical_conductivity_layer_2 *= 0.5
         # see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
         
+        #~ # for areas with ibound <= 0, we set very high horizontal conductivity values:             # TODO: Check this, shall we implement this?
+        #~ horizontal_conductivity_layer_2 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_2, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_2))
+        #~ horizontal_conductivity_layer_1 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_1, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_1))
+
         # set conductivity values to MODFLOW
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
