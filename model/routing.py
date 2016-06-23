@@ -1448,6 +1448,9 @@ class Routing(object):
                                self.WaterBodies.waterBodyOut,
                                self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3
             
+            # move waterBodyOutflow to outside water bodies
+            waterBodyOutflow = pcr.upstream(self.lddMap, waterBodyOutflow) 
+            
             # update channelStorage (m3) after waterBodyOutflow (m3)
             channelStorageForRouting += waterBodyOutflow
             # Note that local_input_to_surface_water does not include waterBodyOutflow
