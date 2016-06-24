@@ -1454,7 +1454,6 @@ class Routing(object):
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
                                        landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
-                                       waterBodyOutflow/self.cellArea,\
                                        storage_change_in_volume/self.cellArea],\
                                       [water_body_evaporation_volume/self.cellArea],\
                                       [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
