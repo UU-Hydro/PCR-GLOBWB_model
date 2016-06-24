@@ -1451,6 +1451,18 @@ class Routing(object):
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
             channelStorageForRouting += storage_change_in_volume 
             
+            if self.debugWaterBalance:\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
+                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
+                                       waterBodyOutflow/self.cellArea,\
+                                       storage_change_in_volume/self.cellArea],\
+                                      [water_body_evaporation_volume/self.cellArea],\
+                                      [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
+                                      [channelStorageForRouting/self.cellArea],\
+                                       'channelStorageForRouting (after routing, without lakes/reservoirs)',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=5e-4)
+
             # lakes and reservoirs: update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
                                     self.timestepsToAvgDischarge,\
@@ -1483,18 +1495,6 @@ class Routing(object):
                                 pcr.cover(waterBodyOutflowInM3PerSec, 0.0)                             
             self.subDischarge = pcr.ifthen(self.landmask, dischargeInitial)
 
-
-            if self.debugWaterBalance:\
-                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
-                                       waterBodyOutflow/self.cellArea,\
-                                       storage_change_in_volume/self.cellArea],\
-                                      [water_body_evaporation_volume/self.cellArea],\
-                                      [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
-                                      [channelStorageForRouting/self.cellArea],\
-                                       'channelStorageForRouting (after routing, without lakes/reservoirs)',\
-                                       True,\
-                                       currTimeStep.fulldate,threshold=5e-4)
 
             # total discharge_volume (m3) until this present i_loop
             acc_discharge_volume += self.subDischarge * length_of_sub_time_step
