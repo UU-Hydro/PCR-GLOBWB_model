@@ -1416,7 +1416,7 @@ class Routing(object):
                                        True,\
                                        currTimeStep.fulldate,threshold=5e-5)
 
-            # lakes and reservoirs
+            # the kinematic wave is implemented only for channels (not to lakes and reservoirs)
             # at cells where lakes and/or reservoirs defined, move channelStorage to waterBodyStorage
             #
             storageAtLakeAndReservoirs = \
@@ -1428,7 +1428,30 @@ class Routing(object):
             storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
             channelStorageForRouting -= storageAtLakeAndReservoirs               # unit: m3
 
-            # update waterBodyStorage (inflow, storage and outflow)
+
+            # alpha parameter and initial discharge variable needed for kinematic wave
+            alpha, dischargeInitial = \
+                   self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
+                                                                                 self.water_height, \
+                                                                                 self.innundatedFraction, self.floodDepth)
+            
+            # discharge (m3/s) based on kinematic wave approximation
+            #~ logger.debug('start pcr.kinematic')
+            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                              alpha, self.beta, \
+                                              1, length_of_sub_time_step, self.channelLength)
+            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
+            #~ logger.debug('done')
+            
+            # make sure that we do not get negative channel storage
+            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
+
+            # update channelStorage (m3)
+            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            channelStorageForRouting += storage_change_in_volume 
+            
+            # lakes and reservoirs: update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
                                     self.timestepsToAvgDischarge,\
                                     self.maxTimestepsToAvgDischargeShort,\
@@ -1447,40 +1470,20 @@ class Routing(object):
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut,
                                self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3
-            
+
             # update channelStorage (m3) after waterBodyOutflow (m3)
-            channelStorageForRouting += waterBodyOutflow
+            channelStorageForRouting += pcr.upstream(self.lddMap, waterBodyOutflow)
             # Note that local_input_to_surface_water does not include waterBodyOutflow
 
-            # alpha parameter and initial discharge variable needed for kinematic wave
-            alpha, dischargeInitial = \
-                   self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
-                                                                                 self.water_height, \
-                                                                                 self.innundatedFraction, self.floodDepth)
-
-            # at the lake/reservoir outlets, use the discharge of water body outflow
+            # at the lake/reservoir outlets, add the discharge of water body outflow
             waterBodyOutflowInM3PerSec = pcr.ifthen(\
                                          self.WaterBodies.waterBodyOut,
                                          self.WaterBodies.waterBodyOutflow) / length_of_sub_time_step
-            dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
-            dischargeInitial = pcr.ifthen(self.landmask, dischargeInitial)
-            
-            # discharge (m3/s) based on kinematic wave approximation
-            #~ logger.debug('start pcr.kinematic')
-            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              alpha, self.beta, \
-                                              1, length_of_sub_time_step, self.channelLength)
-            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
-            #~ logger.debug('done')
-            
-            # make sure that we do not get net negative channel storage
-            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
-                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
-            
-            # update channelStorage (m3)
-            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
-            channelStorageForRouting += storage_change_in_volume 
-            
+            self.subDischarge = self.subDischarge + \
+                                pcr.cover(waterBodyOutflowInM3PerSec, 0.0)                             
+            self.subDischarge = pcr.ifthen(self.landmask, dischargeInitial)
+
+
             if self.debugWaterBalance:\
                 vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
                                        landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
