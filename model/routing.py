@@ -1445,7 +1445,7 @@ class Routing(object):
             
             # set discharge to zero for lakes and reservoirs:
             self.subDischarge = pcr.cover(\
-                                pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., 0.0), self.subDischarge)
+                                pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., pcr.scalar(0.0)), self.subDischarge)
             
             # make sure that we do not get negative channel storage
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
