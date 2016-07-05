@@ -1447,12 +1447,10 @@ class Routing(object):
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut,
                                self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3
-            
-            # update channelStorage (m3) after waterBodyOutflow (m3)
-            #~ # - alternative 1: put outflow at the outlet - NOT WORKING
-            #~ channelStorageForRouting += waterBodyOutflow
-            # - alternative 2: put outflow at the downstream of the outlet
-            channelStorageForRouting += pcr.upstream(self.lddMap, waterBodyOutflow)
+            # - put outflow at the downstream of the outlet
+            waterBodyOutflow = pcr.upstream(self.lddMap, waterBodyOutflow)
+            # - update channelStorage (m3) after waterBodyOutflow (m3)
+            channelStorageForRouting += waterBodyOutflow
             
             # Note that local_input_to_surface_water does not include waterBodyOutflow
 
