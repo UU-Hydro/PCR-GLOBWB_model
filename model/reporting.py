@@ -147,6 +147,29 @@ class Reporting(object):
                                             "_monthEnd_output.nc",\
                                             short_name,unit,long_name)
         #
+        # -- maximum of the month
+        self.outMonthMaxNC = ["None"]
+        try:
+            self.outMonthMaxNC = list(set(self.configuration.reportingOptions['outMonthMaxNC'].split(",")))
+        except:
+            pass
+        if self.outMonthMaxNC[0] != "None":
+
+            for var in self.outMonthMaxNC:
+
+                logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
+
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name  
+
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_monthMax_output.nc",\
+                                            short_name,unit,long_name)
+        #
         # - YEARly output in netCDF files:
         # -- cummulative
         self.outAnnuaTotNC = ["None"]
@@ -225,15 +248,39 @@ class Reporting(object):
                                             str(var)+\
                                             "_annuaEnd_output.nc",\
                                             short_name,unit,long_name)
+        # -- maximum of the year
+        self.outAnnuaMaxNC = ["None"]
+        try:
+            self.outAnnuaMaxNC = list(set(self.configuration.reportingOptions['outAnnuaMaxNC'].split(",")))
+        except:
+            pass
+        if self.outAnnuaMaxNC[0] != "None":
+
+            for var in self.outAnnuaMaxNC:
+
+                logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
+
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name  
+
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_AnnuaMax_output.nc",\
+                                            short_name,unit,long_name)
         
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\
                                     self.outMonthTotNC +\
                                     self.outMonthAvgNC +\
                                     self.outMonthEndNC +\
+                                    self.outMonthMaxNC +\
                                     self.outAnnuaTotNC +\
                                     self.outAnnuaAvgNC +\
-                                    self.outAnnuaEndNC
+                                    self.outAnnuaEndNC +\
+                                    self.outMonthMaxNC
 
     def post_processing(self):
 
@@ -839,6 +886,30 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
+        #
+        # - maximum
+        if self.outMonthMaxNC[0] != "None":
+            for var in self.outMonthMaxNC:
+
+                # introduce variables at the beginning of simulation or
+                #     reset variables at the beginning of the month
+                if self._modelTime.timeStepPCR == 1 or \
+                   self._modelTime.day == 1:\
+                   vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
+
+                # find the maximum
+                vars(self)[var+'MonthMax'] = pcr.max(vars(self)[var], vars(self)[var+'MonthMax'])
+
+                # reporting at the end of the month:
+                if self._modelTime.endMonth == True: 
+
+                    short_name = varDicts.netcdf_short_name[var]
+                    self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                               "_monthMax_output.nc",\
+                                               short_name,\
+                      pcr.pcr2numpy(self.__getattribute__(var+'MonthMax'),\
+                       vos.MV),timeStamp)
 
         # writing yearly output to netcdf files
         # - cummulative
@@ -846,7 +917,7 @@ class Reporting(object):
             for var in self.outAnnuaTotNC:
 
                 # introduce variables at the beginning of simulation or
-                #     reset variables at the beginning of the month
+                #     reset variables at the beginning of the year
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:\
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
@@ -908,5 +979,29 @@ class Reporting(object):
                                                "_annuaEnd_output.nc",\
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var),\
+                       vos.MV),timeStamp)
+        #
+        # - maximum
+        if self.outAnnuaMaxNC[0] != "None":
+            for var in self.outAnnuaMaxNC:
+
+                # introduce variables at the beginning of simulation or
+                #     reset variables at the beginning of the year
+                if self._modelTime.timeStepPCR == 1 or \
+                   self._modelTime.doy == 1:\
+                   vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
+
+                # find the maximum
+                vars(self)[var+'AnnuaMax'] = pcr.max(vars(self)[var], vars(self)[var+'AnnuaMax'])
+
+                # reporting at the end of the year:
+                if self._modelTime.endYear == True: 
+
+                    short_name = varDicts.netcdf_short_name[var]
+                    self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                               "_annuaMax_output.nc",\
+                                               short_name,\
+                      pcr.pcr2numpy(self.__getattribute__(var+'AnnuaMax'),\
                        vos.MV),timeStamp)
        
