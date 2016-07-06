@@ -691,6 +691,8 @@ class Routing(object):
         """
 
         ##########################################################################################################################
+        
+        # TODO: REMOVE THIS METHOD AS THIS IS IRRELEVANT. 
 
         logger.info("Using the simplifiedKinematicWave method ! ")
         
