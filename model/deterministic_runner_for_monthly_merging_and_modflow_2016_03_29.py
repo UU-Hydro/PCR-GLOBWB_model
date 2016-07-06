@@ -49,8 +49,8 @@ class DeterministicRunner(DynamicModel):
             
             # output files/variables that will be merged
             nc_report_list = ["outDailyTotNC",
-                              "outMonthTotNC", "outMonthAvgNC", "outMonthEndNC",
-                              "outAnnuaTotNC", "outAnnuaAvgNC", "outAnnuaEndNC" ]
+                              "outMonthTotNC", "outMonthAvgNC", "outMonthEndNC", "outMonthMaxNC", 
+                              "outAnnuaTotNC", "outAnnuaAvgNC", "outAnnuaEndNC", "outAnnuaMaxNC"]
             for nc_report_type in nc_report_list:
                 vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
         
