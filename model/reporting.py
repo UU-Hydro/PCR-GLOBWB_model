@@ -268,7 +268,7 @@ class Reporting(object):
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
-                                            "_AnnuaMax_output.nc",\
+                                            "_annuaMax_output.nc",\
                                             short_name,unit,long_name)
         
         # list of variables that will be reported:
