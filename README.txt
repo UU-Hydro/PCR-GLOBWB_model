@@ -1,4 +1,11 @@
 PCR-GLOBWB git repository.
+
+PCR-GLOBWB is copyrighted by Utrecht University and released under the GPL license, version 3
+
+This program comes with ABSOLUTELY NO WARRANTY
+
+See the "LICENSE" file for more information.
+
 For questions, please contact Edwin Sutanudjaja (e-mail: E.H.Sutanudjaja@uu.nl).
 
 Some git reference cards:
