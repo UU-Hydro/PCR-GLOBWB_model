@@ -38,8 +38,8 @@ class SoilAndTopoParameters(object):
 
     def read(self, iniItems, optionDict = None):
 		
-        self.readTopo(iniItems, optionDict = None)
-        self.readSoil(iniItems, optionDict = None)
+        self.readTopo(iniItems, optionDict)
+        self.readSoil(iniItems, optionDict)
 
     def readTopo(self, iniItems, optionDict):
 
@@ -300,7 +300,7 @@ class SoilAndTopoParameters(object):
                                                             self.tmpDir,self.inputDir)
         
         # read soil parameter based on the FAO soil map:
-        self.readSoilMapOfFAO(iniItems)                                 
+        self.readSoilMapOfFAO(iniItems, optionDict)                                 
        
         # assign Campbell's (1974) beta coefficient, as well as degree 
         # of saturation at field capacity and corresponding unsaturated hydraulic conductivity
