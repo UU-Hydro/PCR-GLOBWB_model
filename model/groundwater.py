@@ -217,8 +217,6 @@ class Groundwater(object):
         if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys() and\
            (self.limitFossilGroundwaterAbstraction or self.useMODFLOW):
 
-            print "test"
-            
             totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
                                                             self.cloneMap, self.tmpDir, self.inputDir)
 
