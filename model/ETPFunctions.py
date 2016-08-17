@@ -1,10 +1,32 @@
-#! /usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pcraster as pcr
 import math
+
 #  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
 # Convert all arguments to deg using * 180 / pi
-
 
 
 def HamonPotET(airT,doy,lat):
@@ -18,7 +40,7 @@ def HamonPotET(airT,doy,lat):
 def dayLength(doy,lat):
     """ daylength fraction of day  """
     lat = lat * pcr.scalar(math.pi) /  180.0
-    M_PI_2 = pcr.spatial(pcr.scalar(math.pi / 2))
+    M_PI_2 = pcr.spatial(pcr.scalar(math.pi / 2.0))
     dec = pcr.sin( (6.224111 + 0.017202  * doy) *  180 / math.pi)
     dec = pcr.scalar(0.39785 * pcr.sin ((4.868961 + .017203 *  doy + 0.033446 * pcr.sin (dec*   180 / math.pi)) *  180 / math.pi))
     dec = pcr.scalar(pcr.asin(dec))

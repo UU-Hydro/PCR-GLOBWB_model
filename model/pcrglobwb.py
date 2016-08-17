@@ -1,8 +1,32 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
+import shutil
 import sys
 import math
 import gc
-import logging
 
 import pcraster as pcr
 
@@ -13,6 +37,7 @@ import groundwater
 import routing
 
 
+import logging
 logger = logging.getLogger(__name__)
 
 '''
@@ -48,7 +73,22 @@ class PCRGlobWB(object):
         # number of upperSoilLayers:
         self.numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
 
+        # preparing sub-modules
         self.createSubmodels(initialState)
+        
+        # option for debugging to PCR-GLOBWB version 1.0
+        self.debug_to_version_one = False
+        if configuration.debug_to_version_one: self.debug_to_version_one = True
+        if self.debug_to_version_one:
+            
+            # preparing initial folder directory
+            self.directory_for_initial_maps = vos.getFullPath("initials/", self.configuration.mapsDir)
+            if os.path.exists(self.directory_for_initial_maps): shutil.rmtree(self.directory_for_initial_maps)
+            os.makedirs(self.directory_for_initial_maps)
+            
+            # dump the initial state
+            self.dumpState(self.directory_for_initial_maps, "initial")
+
          
     @property
     def configuration(self):
@@ -65,12 +105,10 @@ class PCRGlobWB(object):
         # short name for every land cover type (needed for file name)
         self.shortNames = ['f','g','p','n']
         
-        
-    def dumpState(self, outputDirectory):
+    def dumpState(self, outputDirectory, specific_date_string = None):
         #write all state to disk to facilitate restarting
 
-        if outputDirectory == None:
-            return
+        if specific_date_string == None: specific_date_string = str(self._modelTime.fulldate)
         
         state = self.getState()
         
@@ -81,7 +119,7 @@ class PCRGlobWB(object):
                 vos.writePCRmapToDir(\
                 map,\
                  str(variable)+"_"+coverType+"_"+
-                 str(self._modelTime.fulldate)+".map",\
+                 specific_date_string+".map",\
                  outputDirectory)
                 
         groundWaterState = state['groundwater']
@@ -89,7 +127,7 @@ class PCRGlobWB(object):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
-             str(self._modelTime.fulldate)+".map",\
+             specific_date_string+".map",\
              outputDirectory)
 
         routingState = state['routing']
@@ -97,9 +135,53 @@ class PCRGlobWB(object):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
-             str(self._modelTime.fulldate)+".map",\
+             specific_date_string+".map",\
              outputDirectory)
         
+    def calculateAndDumpMonthlyValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
+
+        logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
+        
+        if self._modelTime.day == 1 or self._modelTime.timeStepPCR == 1:
+            
+            self.variables = {}
+            
+            self.variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
+            self.variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+            self.variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+            
+        self.variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
+        self.variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
+        self.variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
+        
+        if self._modelTime.isLastDayOfMonth():
+
+            # averaging monthly discharge, groundwater recharge and groundwater abstraction
+            number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
+            self.variables['monthly_discharge_cubic_meter_per_second'] = self.variables['monthly_discharge_cubic_meter_per_second'] / number_of_days # unit: m3/s
+            self.variables['groundwater_recharge_meter_per_day'] = self.variables['groundwater_recharge_meter_per_day'] / number_of_days             # unit: m/day
+            self.variables['groundwater_abstraction_meter_per_day'] = self.variables['groundwater_abstraction_meter_per_day'] / number_of_days       # unit: m/day
+        
+            # channel storage at the last day of the month
+            self.variables['channel_storage_cubic_meter'] = pcr.ifthen(self.routing.landmask, self.routing.channelStorage)                           # unit: m/day
+
+            # time stamp used as part of the file name:
+            if timeStamp == "Default": timeStamp = str(self._modelTime.fulldate) 
+            
+            logger.info('Dumping some monthly variables for the MODFLOW input.')
+
+            for variable, map in self.variables.iteritems():
+                vos.writePCRmapToDir(\
+                 map,\
+                 str(variable)+"_"+
+                 timeStamp+".map",\
+                 outputDirectory)
+            
+            # make an empty file
+            filename = outputDirectory+"/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
+            if os.path.exists(filename): os.remove(filename)
+            open(filename, "w").close()    
+
     def resume(self):
         #restore state from disk. used when restarting
         pass
@@ -107,22 +189,21 @@ class PCRGlobWB(object):
 
     #FIXME: implement
     def setState(self, state):
-        logger.info("cannot set state")
+        logger.error("cannot set state")
 
         
-    def report(self, storesAtBeginning, storesAtEnd):
-        #report the state. which states are written when is based on the configuration
+    def report_summary(self, landWaterStoresAtBeginning, landWaterStoresAtEnd,\
+                             surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd):
 
-        #set total to 0 on first day of the year                             
+        # set total to 0 on first day of the year                             
         if self._modelTime.doy == 1 or self._modelTime.isFirstTimestep():
 
             # set all accumulated variables to zero
+
             self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.scalar(0.0)) 
 
             for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.scalar(0.0))            
 
-            self.nonFossilGroundwaterAbsAcc   = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.allocNonFossilGroundwaterAcc = pcr.ifthen(self.landmask, pcr.scalar(0.0))
             self.baseflowAcc                  = pcr.ifthen(self.landmask, pcr.scalar(0.0))
 
             self.surfaceWaterInfAcc           = pcr.ifthen(self.landmask, pcr.scalar(0.0))
@@ -133,43 +214,63 @@ class PCRGlobWB(object):
             self.waterBalanceAcc              = pcr.ifthen(self.landmask, pcr.scalar(0.0))
             self.absWaterBalanceAcc           = pcr.ifthen(self.landmask, pcr.scalar(0.0))
 
-            # also save the storage at the first day of the year (or the first time step)
-            self.storageAtFirstDay  = pcr.ifthen(self.landmask, storesAtBeginning) 
+            # non irrigation water use (unit: m) 
+            self.nonIrrigationWaterUseAcc     = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            
+            # non irrigation return flow to water body and water body evaporation (unit: m) 
+            self.nonIrrReturnFlowAcc          = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.waterBodyEvaporationAcc      = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+
+            # surface water input/loss volume (m3) and outgoing volume (m3) at pits 
+            self.surfaceWaterInputAcc         = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.dischargeAtPitAcc            = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            
+            # also save the storages at the first day of the year (or the first time step)
+            # - land surface storage (unit: m)
+            self.storageAtFirstDay            = pcr.ifthen(self.landmask, landWaterStoresAtBeginning)
+            # - channel storages (unit: m3)
+            self.channelVolumeAtFirstDay      = pcr.ifthen(self.landmask, surfaceWaterStoresAtBeginning)
             
         # accumulating until the last day of the year:
         self.precipitationAcc   += self.meteo.precipitation
         for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] += vars(self.landSurface)[var]            
 
-        self.nonFossilGroundwaterAbsAcc += self.groundwater.nonFossilGroundwaterAbs
-        self.allocNonFossilGroundwaterAcc += self.groundwater.allocNonFossilGroundwater
         self.baseflowAcc         += self.groundwater.baseflow
 
-        self.surfaceWaterInfAcc += self.groundwater.surfaceWaterInf
+        self.surfaceWaterInfAcc  += self.groundwater.surfaceWaterInf
         
         self.runoffAcc           += self.routing.runoff
         self.unmetDemandAcc      += self.groundwater.unmetDemand
 
         self.waterBalance = \
-          (storesAtBeginning - storesAtEnd +\
+          (landWaterStoresAtBeginning - landWaterStoresAtEnd +\
            self.meteo.precipitation + self.landSurface.irrGrossDemand + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
-        self.waterBalanceAcc    =    self.waterBalanceAcc + self.waterBalance
-        self.absWaterBalanceAcc = self.absWaterBalanceAcc + pcr.abs(self.waterBalance)
+        self.waterBalanceAcc    += self.waterBalance
+        self.absWaterBalanceAcc += pcr.abs(self.waterBalance)
 
-        if self._modelTime.isLastDayOfYear():
-            self.dumpState(self._configuration.endStateDir)
+        # consumptive water use for non irrigation demand (m)
+        self.nonIrrigationWaterUseAcc += self.routing.nonIrrWaterConsumption 
+        
+        self.waterBodyEvaporationAcc  += self.routing.waterBodyEvaporation
+
+        self.surfaceWaterInputAcc     += self.routing.local_input_to_surface_water  # unit: m3
+        self.dischargeAtPitAcc        += self.routing.outgoing_volume_at_pits       # unit: m3
+        
+        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
             
-            msg = 'The following waterBalance checks assume fracWat = 0 for all cells (not including surface water bodies).'
-            logging.getLogger("model").info(msg)                        # TODO: Improve these water balance checks. 
+            logger.info("")
+            msg = 'The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).'
+            logger.info(msg)                        # TODO: Improve these water balance checks. 
 
-            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask,self.routing.cellArea))
+            totalCellArea = vos.getMapTotal(pcr.ifthen(self.landmask, self.routing.cellArea))
             msg = 'Total area = %e km2'\
                     % (totalCellArea/1e6)
-            logging.getLogger("model").info(msg)
+            logger.info(msg)
 
             deltaStorageOneYear = vos.getMapVolume( \
-                                     pcr.ifthen(self.landmask,storesAtEnd) - \
+                                     pcr.ifthen(self.landmask,landWaterStoresAtBeginning) - \
                                      pcr.ifthen(self.landmask,self.storageAtFirstDay),
                                      self.routing.cellArea)
             msg = 'Delta total storage days 1 to %i in %i = %e km3 = %e mm'\
@@ -177,18 +278,19 @@ class PCRGlobWB(object):
                        int(self._modelTime.year),\
                        deltaStorageOneYear/1e9,\
                        deltaStorageOneYear*1000/totalCellArea)
-            logging.getLogger("model").info(msg)
+            logger.info(msg)
 
-            # reporting the endStates at the end of the Year:
             variableList = ['precipitation',
-                            'nonFossilGroundwaterAbs',
-                            'allocNonFossilGroundwater',
                             'baseflow',
                             'surfaceWaterInf',
                             'runoff',
                             'unmetDemand']
             variableList += self.landSurface.fluxVars
-            variableList += ['waterBalance','absWaterBalance']                
+            variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']                
+
+            # consumptive water use for irrigation (unit: m)
+            self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
+                                                           self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(\
@@ -196,8 +298,54 @@ class PCRGlobWB(object):
                             self.routing.cellArea)
                 msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self._modelTime.doy),\
+                           int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)    # TODO: Calculation does not always start from day 1.
+                logger.info(msg)
+
+            logger.info("")
+            msg = 'The following summary is for surface water bodies.'
+            logger.info(msg) 
+
+            deltaChannelStorageOneYear = vos.getMapTotal( \
+                                         pcr.ifthen(self.landmask,surfaceWaterStoresAtEnd) - \
+                                         pcr.ifthen(self.landmask,self.channelVolumeAtFirstDay))
+            msg = 'Delta surface water storage days 1 to %i in %i = %e km3 = %e mm'\
+                % (    int(self._modelTime.doy),\
+                       int(self._modelTime.year),\
+                       deltaChannelStorageOneYear/1e9,\
+                       deltaChannelStorageOneYear*1000/totalCellArea)
+            logger.info(msg)
+            
+            variableList = ['waterBodyEvaporation']
+            for var in variableList:
+                volume = vos.getMapVolume(\
+                            self.__getattribute__(var + 'Acc'),\
+                            self.routing.cellArea)
+                msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                    % (var,int(self._modelTime.doy),\
                            int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)
-                logging.getLogger("model").info(msg)
+                logger.info(msg)
+
+
+            # surface water balance check 
+            surfaceWaterInputTotal = vos.getMapTotal(self.surfaceWaterInputAcc)
+            msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                    % ("surfaceWaterInput",int(self._modelTime.doy),\
+                           int(self._modelTime.year),surfaceWaterInputTotal/1e9,surfaceWaterInputTotal*1000/totalCellArea)
+            logger.info(msg)
+
+            dischargeAtPitTotal = vos.getMapTotal(self.dischargeAtPitAcc)
+            msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                    % ("dischargeAtPitTotal",int(self._modelTime.doy),\
+                           int(self._modelTime.year),dischargeAtPitTotal/1e9,      dischargeAtPitTotal*1000/totalCellArea)
+            logger.info(msg)
+
+            surfaceWaterBalance = surfaceWaterInputTotal - dischargeAtPitTotal + deltaChannelStorageOneYear 
+            msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
+                    % ("surfaceWaterBalance",int(self._modelTime.doy),\
+                           int(self._modelTime.year),surfaceWaterBalance/1e9,      surfaceWaterBalance*1000/totalCellArea)
+            logger.info(msg)
+            
+                
         
     def getState(self):
         result = {}
@@ -232,7 +380,9 @@ class PCRGlobWB(object):
         return result
         
     
-    def totalLandStores(self):
+    def totalLandWaterStores(self):
+        # unit: m, not including surface water bodies
+        
         
         if self.numberOfSoilLayers == 2: total = \
                 self.landSurface.interceptStor  +\
@@ -257,128 +407,66 @@ class PCRGlobWB(object):
         
         return total
     
-    def totalCatchmentStores(self, total_land_stores):
+    def totalSurfaceWaterStores(self):
+        # unit: m3, only surface water bodies
         
-        total_per_catchment = self.routing.channelStorage
-        
-        if self.numberOfSoilLayers == 2: total = \
-                self.landSurface.interceptStor  +\
-                self.landSurface.snowFreeWater  +\
-                self.landSurface.snowCoverSWE   +\
-                self.landSurface.topWaterLayer  +\
-                self.landSurface.storUpp        +\
-                self.landSurface.storLow        +\
-                self.groundwater.storGroundwater
+        return pcr.ifthen(self.landmask, self.routing.channelStorage)
 
-        if self.numberOfSoilLayers == 3: total = \
-                self.landSurface.interceptStor  +\
-                self.landSurface.snowFreeWater  +\
-                self.landSurface.snowCoverSWE   +\
-                self.landSurface.topWaterLayer  +\
-                self.landSurface.storUpp000005  +\
-                self.landSurface.storUpp005030  +\
-                self.landSurface.storLow030150  +\
-                self.groundwater.storGroundwater
-        
-        total = pcr.ifthen(self.landmask, total)
-        
-        return total
-
-    def checkWaterBalance(self, storesAtBeginning, storesAtEnd):
-		# for the entire modules: snow + interception + soil + groundwater + waterDemand
-		# except: river/routing 
-
-        irrGrossDemand  = pcr.ifthen(self.landmask,\
-                                self.landSurface.irrGrossDemand)        # unit: m
-
-        nonIrrGrossDemand = \
-                           pcr.ifthen(self.landmask,\
-                                self.landSurface.nonIrrGrossDemand)     # unit: m
-
-        precipitation   = pcr.ifthen(self.landmask,\
-                                     self.meteo.precipitation)          # unit: m
-
-        surfaceWaterInf =  pcr.ifthen(self.landmask,\
-                                      self.groundwater.surfaceWaterInf)
-        
-        surfaceWaterAbstraction = \
-                           pcr.ifthen(self.landmask,\
-                                      self.landSurface.actSurfaceWaterAbstract)                                     
-        
-        nonFossilGroundwaterAbs = pcr.ifthen(self.landmask,self.groundwater.nonFossilGroundwaterAbs)   
-
-        unmetDemand      = pcr.ifthen(self.landmask,\
-                                      self.groundwater.unmetDemand)                                   # PS: We assume that unmetDemand is extracted (only) to satisfy local demand.
-
-        runoff           = pcr.ifthen(self.landmask,self.routing.runoff)
-        
-        actualET         = pcr.ifthen(self.landmask,\
-                                      self.landSurface.actualET)
-
+    def checkLandSurfaceWaterBalance(self, storesAtBeginning, storesAtEnd):
+		
+		# for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
+		# 
+        # - incoming fluxes (unit: m)
+        precipitation   = pcr.ifthen(self.landmask, self.meteo.precipitation)
+        irrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.irrGrossDemand)
+        surfaceWaterInf = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
+		# 
+        # - outgoing fluxes (unit: m)
+        actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET)
+        runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
+        nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
+		# 
         vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
                               [actualET,runoff,nonFossilGroundwaterAbs],\
                               [storesAtBeginning],\
                               [storesAtEnd],\
-                              'all modules (including water demand), but except river/routing',\
+                              'all stores (snow + interception + soil + groundwater), but except river/routing',\
                                True,\
                                self._modelTime.fulldate,threshold=1e-3)
-
-        
-        if self.landSurface.usingAllocSegments:
-
-            allocSurfaceWaterAbstract = \
-                           pcr.ifthen(self.landmask,\
-                                      self.landSurface.allocSurfaceWaterAbstract)
-
-            allocNonFossilGroundwaterAbs = \
-                           pcr.ifthen(self.landmask,\
-                                      self.groundwater.allocNonFossilGroundwater)
-
-            allocUnmetDemand = unmetDemand                           # PS: We assume that unmetDemand is extracted (only) to satisfy local demand.
-
-            segTotalDemand = pcr.areatotal( pcr.cover((irrGrossDemand+nonIrrGrossDemand)           * self.routing.cellArea, 0.0), self.landSurface.allocSegments) / self.landSurface.segmentArea
-            
-            segAllocSurfaceWaterAbstract    = pcr.areatotal( pcr.cover(allocSurfaceWaterAbstract   * self.routing.cellArea, 0.0), self.landSurface.allocSegments) / self.landSurface.segmentArea
-
-            segAllocNonFossilGroundwaterAbs = pcr.areatotal( pcr.cover(allocNonFossilGroundwaterAbs * self.routing.cellArea, 0.0), self.landSurface.allocSegments) / self.landSurface.segmentArea
-
-            segAllocUnmetDemand             = pcr.areatotal( pcr.cover(allocUnmetDemand * self.routing.cellArea, 0.0), self.landSurface.allocSegments) / self.landSurface.segmentArea
-            
-            vos.waterBalanceCheck([segTotalDemand],\
-                                  [segAllocSurfaceWaterAbstract,segAllocNonFossilGroundwaterAbs,segAllocUnmetDemand],\
-                                  [pcr.scalar(0.0)],\
-                                  [pcr.scalar(0.0)],\
-                                  'Water balance error in water allocation (per zone). Note that error here is most likely due to rounding error (32 bit implementation of pcraster)',\
-                                   True,\
-                                   self._modelTime.fulldate,threshold=5e-3)
-        else:    
-            
-            vos.waterBalanceCheck([irrGrossDemand,nonIrrGrossDemand],\
-                                  [surfaceWaterAbstraction,nonFossilGroundwaterAbs,unmetDemand],\
-                                  [pcr.scalar(0.0)],\
-                                  [pcr.scalar(0.0)],\
-                                  'Water balance error in water allocation.',\
-                                   True,\
-                                   self._modelTime.fulldate,threshold=1e-3)
     
     def read_forcings(self):
-        logger.info("reading forcings for time %s", self._modelTime)
+        logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
     
-    def update(self, report_water_balance=False):
-        logger.info("updating model to time %s", self._modelTime)
+    def update(self, report_water_balance = False):
+        logger.info("Updating model for time %s", self._modelTime)
         
         if (report_water_balance):
-            storesAtBeginning = self.totalLandStores()
+            landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
+            surfaceWaterStoresAtBeginning = self.totalSurfaceWaterStores()     
 
         self.meteo.update(self._modelTime)                                         
-        self.landSurface.update(self.meteo,self.groundwater,self.routing,self._modelTime)      
-        self.groundwater.update(self.landSurface,self.routing,self._modelTime)
-        self.routing.update(self.landSurface,self.groundwater,self._modelTime,self.meteo)
+        self.landSurface.update(self.meteo, self.groundwater, self.routing, self._modelTime)      
+        self.groundwater.update(self.landSurface, self.routing, self._modelTime)
+        self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
-        if (report_water_balance):
-            storesAtEnd = self.totalLandStores()
-            self.checkWaterBalance(storesAtBeginning, storesAtEnd)
+        # save/dump states at the end of the year or at the end of model simulation
+        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
+            logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+            self.dumpState(self._configuration.endStateDir)
+
+        # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
+        if self._configuration.online_coupling_between_pcrglobwb_and_moflow:
+            self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
-        if (report_water_balance):    
-            self.report(storesAtBeginning, storesAtEnd)
+        if (report_water_balance):
+            landWaterStoresAtEnd    = self.totalLandWaterStores()          # not including surface water bodies
+            surfaceWaterStoresAtEnd = self.totalSurfaceWaterStores()     
+            
+            # water balance check for the land surface water part
+            self.checkLandSurfaceWaterBalance(landWaterStoresAtBeginning, landWaterStoresAtEnd)
+            
+            # TODO: include water balance checks for the surface water part and combination of both land surface and surface water parts
+
+            self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
+                                surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)

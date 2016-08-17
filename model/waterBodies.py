@@ -1,5 +1,26 @@
-#!/usr/bin/ python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import types
@@ -32,7 +53,7 @@ class WaterBodies(object):
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = False
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
-            logger.info("WARNING!! Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
+            logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
         
@@ -59,7 +80,6 @@ class WaterBodies(object):
         self.maxResvrFrac = 0.75
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
-                               cellLengthFD,cellSizeInArcDeg,\
                                initial_condition_dictionary = None):
 
         # parameters for Water Bodies: fracWat              
@@ -249,7 +269,7 @@ class WaterBodies(object):
         # for a natural run (self.onlyNaturalWaterBodies == True) 
         # which uses only the year 1900, assume all reservoirs are lakes
         if self.onlyNaturalWaterBodies == True and date_used == self.dateForNaturalCondition:
-            logger.info("WARNING!! Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
+            logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.waterBodyTyp = \
              pcr.ifthen(pcr.scalar(self.waterBodyTyp) > 0.,\
                         pcr.nominal(1))                         
@@ -257,10 +277,10 @@ class WaterBodies(object):
         # check that all lakes and/or reservoirs have types, ids, surface areas and outlets:
         test = pcr.defined(self.waterBodyTyp) & pcr.defined(self.waterBodyArea) &\
                pcr.defined(self.waterBodyIds) & pcr.boolean(pcr.areamaximum(pcr.scalar(self.waterBodyOut), self.waterBodyIds))
-        a,b,c = vos.getMinMaxMean(pcr.scalar(test) - pcr.scalar(1.0))
+        a,b,c = vos.getMinMaxMean(pcr.cover(pcr.scalar(test), 1.0) - pcr.scalar(1.0))
         threshold = 1e-3
         if abs(a) > threshold or abs(b) > threshold:
-            logger.info("WARNING !!!!! Missing information in some lakes and/or reservoirs.")
+            logger.warning("Missing information in some lakes and/or reservoirs.")
 
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
@@ -345,13 +365,13 @@ class WaterBodies(object):
              downstreamDemand)
         
         if self.debugWaterBalance:\
-           vos.waterBalanceCheck([          self.inflow/self.waterBodyArea],\
-                                 [self.waterBodyOutflow/self.waterBodyArea],\
-                                 [           preStorage/self.waterBodyArea],\
-                                 [self.waterBodyStorage/self.waterBodyArea],\
-                                   'WaterBodyStorage',\
+           vos.waterBalanceCheck([          pcr.cover(self.inflow/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)],\
+                                 [           pcr.cover(preStorage/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0)],\
+                                   'WaterBodyStorage (unit: m)',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=1e-3)
+                                  currTimeStep.fulldate,threshold=5e-3)
 
     def moveFromChannelToWaterBody(self,\
                                    newStorageAtLakeAndReservoirs,\

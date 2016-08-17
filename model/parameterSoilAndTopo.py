@@ -1,5 +1,26 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 
@@ -8,9 +29,10 @@ import virtualOS as vos
 
 class SoilAndTopoParameters(object):
 
-    def __init__(self,iniItems,landmask):
+    def __init__(self, iniItems, landmask):
         object.__init__(self)
 
+        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
@@ -19,42 +41,47 @@ class SoilAndTopoParameters(object):
         # How many soil layers (excluding groundwater):
         self.numberOfLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
 
-    def read(self,iniItems):
+    def read(self, iniItems, optionDict = None):
 		
-        self.readTopo(iniItems)
-        self.readSoil(iniItems)
+        self.readTopo(iniItems, optionDict)
+        self.readSoil(iniItems, optionDict)
 
-    def readTopo(self,iniItems):
+    def readTopo(self, iniItems, optionDict):
+
+        # a dictionary/section of options that will be used
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
 
         # maps of elevation attributes: 
         topoParams = ['tanslope','slopeLength','orographyBeta']
-        if iniItems.landSurfaceOptions['topographyNC'] == str(None):
+        if optionDict['topographyNC'] == str(None):
             for var in topoParams:
                 input = iniItems.landSurfaceOptions[str(var)]
-                vars(self)[var] = pcr.scalar(0.0)
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                                 self.tmpDir,self.inputDir)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                if var != "slopeLength": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         else:
             topoPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'topographyNC'],
+                               optionDict['topographyNC'],
                                                 self.inputDir)
             for var in topoParams:
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                     topoPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-        self.tanslope = pcr.max(self.tanslope, 0.00001)
+                if var != "slopeLength": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
+        #~ self.tanslope = pcr.max(self.tanslope, 0.00001)              # In principle, tanslope can be zero. Zero tanslope will provide zero TCL (no interflow)
+
+        # covering slopeLength with its maximum value 
+        self.slopeLength = pcr.cover(self.slopeLength, pcr.mapmaximum(self.slopeLength))
         
         # maps of relative elevation above flood plains 
         dzRel = ['dzRel0001','dzRel0005',
                  'dzRel0010','dzRel0020','dzRel0030','dzRel0040','dzRel0050',
                  'dzRel0060','dzRel0070','dzRel0080','dzRel0090','dzRel0100']
-        if iniItems.landSurfaceOptions['topographyNC'] == str(None):
+        if optionDict['topographyNC'] == str(None):
             for i in range(0, len(dzRel)):
                 var = dzRel[i]
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
                                                 self.tmpDir,self.inputDir)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
@@ -68,33 +95,75 @@ class SoilAndTopoParameters(object):
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 if i > 0: vars(self)[var] = pcr.max(vars(self)[var], vars(self)[dzRel[i-1]])
 
-    def readSoilMapOfFAO(self,iniItems):
+    def readSoilMapOfFAO(self, iniItems, optionDict = None):
 
+        # a dictionary/section of options that will be used
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
+        
         # soil variable names given either in the ini or netCDF file:
         soilParameters = ['airEntryValue1','airEntryValue2',       
                           'poreSizeBeta1','poreSizeBeta2',        
                           'resVolWC1','resVolWC2',            
                           'satVolWC1','satVolWC2',
-                          'KSat1','KSat2',                
+                          'KSat1','KSat2',
                           'percolationImp']
-        if iniItems.landSurfaceOptions['soilPropertiesNC'] == str(None):
+        if optionDict['soilPropertiesNC'] == str(None):
             for var in soilParameters:
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 vars(self)[var] = \
                                vos.readPCRmapClone(input,self.cloneMap,\
                                              self.tmpDir,self.inputDir)
                 vars(self)[var] = pcr.scalar(vars(self)[var])
+
+                if input == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+                
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 0.75))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
         else:
             soilPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'soilPropertiesNC'],
+                               optionDict['soilPropertiesNC'],
                                                 self.inputDir)
             for var in soilParameters:
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(\
                                     soilPropertiesNC,var, \
                                     cloneMapFileName = self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
+                if var == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
+
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 0.75))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+                vars(self)[var] = pcr.cover(vars(self)[var],
+                                  pcr.windowaverage(vars(self)[var], 1.00))
+
+                vars(self)[var] = pcr.cover(vars(self)[var], 0.01)
+            
+        # make sure that resVolWC1 <= satVolWC1
+        self.resVolWC1 = pcr.min(self.resVolWC1, self.satVolWC1)
+        self.resVolWC2 = pcr.min(self.resVolWC2, self.satVolWC2)
         
         if self.numberOfLayers == 2:
             self.satVolMoistContUpp = self.satVolWC1                         # saturated volumetric moisture content (m3.m-3)
@@ -125,30 +194,59 @@ class SoilAndTopoParameters(object):
             self.kSatUpp005030            = self.KSat1         
             self.kSatLow030150            = self.KSat2
 
-        self.percolationImp = self.percolationImp                            # fractional area where percolation to groundwater store is impeded (dimensionless)
+        self.percolationImp = pcr.cover(self.percolationImp, 0.0)            # fractional area where percolation to groundwater store is impeded (dimensionless)
 
         # soil thickness and storage variable names 
         # as given either in the ini or netCDF file:
         soilStorages = ['firstStorDepth',      'secondStorDepth',      
                         'soilWaterStorageCap1','soilWaterStorageCap2'] 
-        if iniItems.landSurfaceOptions['soilPropertiesNC'] == str(None):
+        if optionDict['soilPropertiesNC'] == str(None):
             for var in soilStorages:
-                input = iniItems.landSurfaceOptions[str(var)]
+                input = optionDict[str(var)]
                 temp = str(var)+'Inp'
                 vars(self)[temp] = vos.readPCRmapClone(input,\
                                             self.cloneMap,
                                             self.tmpDir,self.inputDir)
+
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 0.75))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
+
         else:
             soilPropertiesNC = vos.getFullPath(\
-                               iniItems.landSurfaceOptions[\
-                                               'soilPropertiesNC'],
+                               optionDict['soilPropertiesNC'],
                                                 self.inputDir)
             for var in soilStorages:
                 temp = str(var)+'Inp'
                 vars(self)[temp] = vos.netcdf2PCRobjCloneWithoutTime(\
                                      soilPropertiesNC,var, \
                                      cloneMapFileName = self.cloneMap)
+                # extrapolation 
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 0.75))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
+                vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                   pcr.windowaverage(vars(self)[temp], 1.05))
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
 
         # layer thickness
@@ -169,7 +267,7 @@ class SoilAndTopoParameters(object):
             self.storCapLow = self.thickLow * \
                              (self.satVolMoistContLow - self.resVolMoistContLow)
             self.rootZoneWaterStorageCap = self.storCapUpp + \
-                                           self.storCapLow
+                                           self.storCapLow                                    # This is called as WMAX in the original pcrcalc script. 
         if self.numberOfLayers == 3:
             self.storCapUpp000005 = self.thickUpp000005 * \
                              (self.satVolMoistContUpp000005 - self.resVolMoistContUpp000005)
@@ -181,12 +279,16 @@ class SoilAndTopoParameters(object):
                                            self.storCapUpp005030 + \
                                            self.storCapLow030150
 
-    def readSoil(self,iniItems):
+    def readSoil(self, iniItems, optionDict = None):
+
+        # a dictionary/section of options that will be used
+        if optionDict == None: optionDict = iniItems.landSurfaceOptions
 
         # default values of soil parameters that are constant/uniform for the entire domain:
         self.clappAddCoeff   = pcr.scalar(3.0)        # dimensionless
         self.matricSuctionFC = pcr.scalar(1.0)        # unit: m
-        self.matricSuction50 = pcr.scalar(10./3.)     # unit: m
+        #~ self.matricSuction50 = pcr.scalar(10./3.)  # unit: m
+        self.matricSuction50 = pcr.scalar(3.33)       # unit: m
         self.matricSuctionWP = pcr.scalar(156.0)      # unit: m
         self.maxGWCapRise    = pcr.scalar(5.0)        # unit: m
         #  
@@ -203,97 +305,102 @@ class SoilAndTopoParameters(object):
                                                             self.tmpDir,self.inputDir)
         
         # read soil parameter based on the FAO soil map:
-        self.readSoilMapOfFAO(iniItems)                                 
+        self.readSoilMapOfFAO(iniItems, optionDict)                                 
        
         # assign Campbell's (1974) beta coefficient, as well as degree 
         # of saturation at field capacity and corresponding unsaturated hydraulic conductivity
         #
         if self.numberOfLayers == 2:
 
-            self.campbellBetaUpp = 2.*self.poreSizeBetaUpp + \
-                                      self.clappAddCoeff                # Campbell's (1974) coefficient ; Rens's line: BCB = 2*BCH + BCH_ADD
-            self.campbellBetaLow = 2.*self.poreSizeBetaLow + \
+            self.campbellBetaUpp = self.poreSizeBetaUpp*2.0 + \
+                                      self.clappAddCoeff                       # Campbell's (1974) coefficient ; Rens's line: BCB = 2*BCH + BCH_ADD
+            self.campbellBetaLow = self.poreSizeBetaLow*2.0 + \
                                       self.clappAddCoeff                
 
             self.effSatAtFieldCapUpp = \
                      (self.matricSuctionFC / self.airEntryValueUpp)**\
-                                        (-1 / self.poreSizeBetaUpp )    # saturation degree at field capacity ; THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
+                                        (-1.0/ self.poreSizeBetaUpp )          # saturation degree at field capacity       : THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
+            self.effSatAtFieldCapUpp = pcr.cover(self.effSatAtFieldCapUpp, 1.0)
+            
             self.effSatAtFieldCapLow = \
                      (self.matricSuctionFC / self.airEntryValueLow)**\
-                                        (-1 / self.poreSizeBetaLow )
+                                        (-1.0/ self.poreSizeBetaLow )
+            self.effSatAtFieldCapLow = pcr.cover(self.effSatAtFieldCapLow, 1.0)
 
             self.kUnsatAtFieldCapUpp = pcr.max(0., \
-             self.effSatAtFieldCapUpp ** self.poreSizeBetaUpp * self.kSatUpp)
+             (self.effSatAtFieldCapUpp ** self.campbellBetaUpp) * self.kSatUpp)  # unsaturated conductivity at field capacity: KTHEFF_FC = max(0,THEFF_FC[TYPE]**BCB*KS1)
             self.kUnsatAtFieldCapLow = pcr.max(0., \
-             self.effSatAtFieldCapLow ** self.poreSizeBetaLow * self.kSatLow)
+             (self.effSatAtFieldCapLow ** self.campbellBetaLow) * self.kSatLow)
         #
         if self.numberOfLayers == 3:
 
-            self.campbellBetaUpp000005 = 2.*self.poreSizeBetaUpp000005 + \
+            self.campbellBetaUpp000005 = self.poreSizeBetaUpp000005*2.0 + \
                                             self.clappAddCoeff
-            self.campbellBetaUpp005030 = 2.*self.poreSizeBetaUpp005030 + \
+            self.campbellBetaUpp005030 = self.poreSizeBetaUpp005030*2.0 + \
                                             self.clappAddCoeff                
-            self.campbellBetaLow030150 = 2.*self.poreSizeBetaLow030150 + \
+            self.campbellBetaLow030150 = self.poreSizeBetaLow030150*2.0 + \
                                             self.clappAddCoeff                
 
             self.effSatAtFieldCapUpp000005 = \
                      (self.matricSuctionFC / self.airEntryValueUpp000005)**\
-                                        (-1 / self.poreSizeBetaUpp000005)
+                                        (-1.0/ self.poreSizeBetaUpp000005)
             self.effSatAtFieldCapUpp005030 = \
                      (self.matricSuctionFC / self.airEntryValueUpp005030)**\
-                                        (-1 / self.poreSizeBetaUpp005030)
+                                        (-1.0/ self.poreSizeBetaUpp005030)
             self.effSatAtFieldCapLow030150 = \
                      (self.matricSuctionFC / self.airEntryValueLow030150)**\
-                                        (-1 / self.poreSizeBetaLow030150)
+                                        (-1.0/ self.poreSizeBetaLow030150)
 
             self.kUnsatAtFieldCapUpp000005 = pcr.max(0., \
-             self.effSatAtFieldCapUpp000005 ** self.poreSizeBetaUpp000005 * self.kSatUpp000005)
+             (self.effSatAtFieldCapUpp000005 ** self.campbellBetaUpp000005) * self.kSatUpp000005)
             self.kUnsatAtFieldCapUpp005030 = pcr.max(0., \
-             self.effSatAtFieldCapUpp005030 ** self.poreSizeBetaUpp005030 * self.kSatUpp005030)
+             (self.effSatAtFieldCapUpp005030 ** self.campbellBetaUpp005030) * self.kSatUpp005030)
             self.kUnsatAtFieldCapLow030150 = pcr.max(0., \
-             self.effSatAtFieldCapLow030150 ** self.poreSizeBetaLow030150 * self.kSatLow030150)
+             (self.effSatAtFieldCapLow030150 ** self.campbellBetaLow030150) * self.kSatLow030150)
 
         # calculate degree of saturation at which transpiration is halved (50) 
         # and at wilting point
         #
         if self.numberOfLayers == 2:
             self.effSatAt50Upp = (self.matricSuction50/self.airEntryValueUpp)**\
-                                                    (-1/self.poreSizeBetaUpp)
+                                                    (-1.0/self.poreSizeBetaUpp)
+            self.effSatAt50Upp = pcr.cover(self.effSatAt50Upp, 1.0)                                        
             self.effSatAt50Low = (self.matricSuction50/self.airEntryValueLow)**\
-                                                    (-1/self.poreSizeBetaLow)
-            self.effSatAtWiltPointUpp = \
+                                                    (-1.0/self.poreSizeBetaLow)
+            self.effSatAt50Low = pcr.cover(self.effSatAt50Low, 1.0)                                        
+            self.effSatAtWiltPointUpp = pcr.cover(\
                                  (self.matricSuctionWP/self.airEntryValueUpp)**\
-                                                    (-1/self.poreSizeBetaUpp)
-            self.effSatAtWiltPointLow = \
+                                                    (-1.0/self.poreSizeBetaUpp), 1.0)
+            self.effSatAtWiltPointLow = pcr.cover(\
                                  (self.matricSuctionWP/self.airEntryValueLow)**\
-                                                    (-1/self.poreSizeBetaLow)
+                                                    (-1.0/self.poreSizeBetaLow), 1.0)
         if self.numberOfLayers == 3:
             self.effSatAt50Upp000005 = (self.matricSuction50/self.airEntryValueUpp000005)**\
-                                                          (-1/self.poreSizeBetaUpp000005)
+                                                          (-1.0/self.poreSizeBetaUpp000005)
             self.effSatAt50Upp005030 = (self.matricSuction50/self.airEntryValueUpp005030)**\
-                                                          (-1/self.poreSizeBetaUpp005030)
+                                                          (-1.0/self.poreSizeBetaUpp005030)
             self.effSatAt50Low030150 = (self.matricSuction50/self.airEntryValueLow030150)**\
-                                                          (-1/self.poreSizeBetaLow030150)
+                                                          (-1.0/self.poreSizeBetaLow030150)
             self.effSatAtWiltPointUpp000005 = \
                                        (self.matricSuctionWP/self.airEntryValueUpp000005)**\
-                                                          (-1/self.poreSizeBetaUpp000005)
+                                                          (-1.0/self.poreSizeBetaUpp000005)
             self.effSatAtWiltPointUpp005030 = \
                                        (self.matricSuctionWP/self.airEntryValueUpp005030)**\
-                                                          (-1/self.poreSizeBetaUpp005030)
+                                                          (-1.0/self.poreSizeBetaUpp005030)
             self.effSatAtWiltPointLow030150 = \
                                        (self.matricSuctionWP/self.airEntryValueLow030150)**\
-                                                          (-1/self.poreSizeBetaLow030150)
+                                                          (-1.0/self.poreSizeBetaLow030150)
 
         # calculate interflow parameter (TCL): 
         #
         if self.numberOfLayers == 2:
-            self.interflowConcTime = (2.* self.kSatLow * self.tanslope) / \
+            self.interflowConcTime = (self.kSatLow * self.tanslope*2.0) / \
                      (self.slopeLength * (1.- self.effSatAtFieldCapLow) * \
                     (self.satVolMoistContLow - self.resVolMoistContLow))    # TCL = Duration*(2*KS2*TANSLOPE)/(LSLOPE*(1-THEFF2_FC)*(THETASAT2-THETARES2))
         #
         if self.numberOfLayers == 3:
-            self.interflowConcTime = (2.* self.kSatLow030150 * self.tanslope) / \
+            self.interflowConcTime = (self.kSatLow030150 * self.tanslope*2.0) / \
                      (self.slopeLength * (1.-self.effSatAtFieldCapLow030150) * \
              (self.satVolMoistContLow030150 - self.resVolMoistContLow030150))
         
-        self.interflowConcTime = pcr.cover(self.interflowConcTime, 0.0)     
+        self.interflowConcTime = pcr.max(0.0, pcr.cover(self.interflowConcTime, 0.0))     

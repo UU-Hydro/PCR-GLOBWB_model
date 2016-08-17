@@ -1,5 +1,26 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 from pcraster.framework import *
@@ -28,6 +49,11 @@ class Meteo(object):
            iniItems.globalOptions['landmask'],
            self.cloneMap,self.tmpDir,self.inputDir)	
 
+        # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
+        self.ignore_snow = False
+        if 'ignoreSnow' in iniItems.meteoOptions.keys() and iniItems.meteoOptions['ignoreSnow'] == "True":
+            self.ignore_snow = True
+
         self.preFileNC = iniItems.meteoOptions['precipitationNC']        # starting from 19 Feb 2014, we only support netcdf input files
         self.tmpFileNC = iniItems.meteoOptions['temperatureNC']
 
@@ -45,6 +71,11 @@ class Meteo(object):
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
+        # option to use netcdf files that are defined per year (one file for each year)
+        self.precipitation_set_per_year  = iniItems.meteoOptions['precipitation_set_per_year'] == "True"
+        self.temperature_set_per_year    = iniItems.meteoOptions['temperature_set_per_year'] == "True"
+        self.refETPotFileNC_set_per_year = iniItems.meteoOptions['refETPotFileNC_set_per_year'] == "True" 
+        
         self.report = True
         try:
             self.outDailyTotNC = iniItems.meteoOptions['outDailyTotNC'].split(",")
@@ -196,7 +227,7 @@ class Meteo(object):
                 self.smoothingWindowsLength = vos.readPCRmapClone(\
                    iniItems.meteoDownscalingOptions['smoothingWindowsLength'],
                    self.cloneMap,self.tmpDir,self.inputDir)
-                msg = "Forcing data are smoothed with 'windowaverage' using the window length:"+str(iniItems.meteoDownscalingOptions['smoothingWindowsLength'])
+                msg = "Forcing data will be smoothed with 'windowaverage' using the window length:"+str(iniItems.meteoDownscalingOptions['smoothingWindowsLength'])
                 logger.info(msg)   
  
     def perturb(self, name, **parameters):
@@ -285,14 +316,24 @@ class Meteo(object):
         self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
 
     def read_forcings(self,currTimeStep):
-        # reading precipitation:
-        self.precipitation = vos.netcdf2PCRobjClone(\
-                                  self.preFileNC,'precipitation',\
-                                  str(currTimeStep.fulldate), 
-                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True)
 
+        # reading precipitation:
+        if self.precipitation_set_per_year:
+            #~ print currTimeStep.year
+            nc_file_per_year = self.preFileNC %(float(currTimeStep.year), float(currTimeStep.year))
+            self.precipitation = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'precipitation',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+        else:
+            self.precipitation = vos.netcdf2PCRobjClone(\
+                                      self.preFileNC, 'precipitation',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
         precipitationCorrectionFactor = pcr.scalar(1.0)                 # Since 19 Feb 2014, Edwin removed the support for correcting precipitation. 
         self.precipitation = pcr.max(0.,self.precipitation*\
                 precipitationCorrectionFactor)
@@ -303,12 +344,21 @@ class Meteo(object):
             self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         # reading temperature
-        self.temperature = vos.netcdf2PCRobjClone(\
+        if self.temperature_set_per_year:
+            nc_file_per_year = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+            self.temperature = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'temperature',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+        else:
+            self.temperature = vos.netcdf2PCRobjClone(\
                                  self.tmpFileNC,'temperature',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True)
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True)
 
         # Downscaling precipitation and temperature
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
@@ -320,10 +370,19 @@ class Meteo(object):
                                                       currTimeStep.doy,\
                                                       self.latitudes)
         if self.refETPotMethod == 'Input': 
-            self.referencePotET = vos.netcdf2PCRobjClone(\
-                                     self.etpFileNC,'evapotranspiration',\
-                                     str(currTimeStep.fulldate), 
-                                     useDoy = None,
+            if self.refETPotFileNC_set_per_year: 
+                nc_file_per_year = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+                self.referencePotET = vos.netcdf2PCRobjClone(\
+                                      nc_file_per_year, 'evapotranspiration',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
+                                      cloneMapFileName = self.cloneMap,\
+                                      LatitudeLongitude = True)
+            else:
+                self.referencePotET = vos.netcdf2PCRobjClone(\
+                                      self.etpFileNC,'evapotranspiration',\
+                                      str(currTimeStep.fulldate), 
+                                      useDoy = None,
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True)
 
@@ -332,16 +391,25 @@ class Meteo(object):
         
         # smoothing:
         if self.forcingSmoothing == True:
-            logger.info("Forcing data are smoothed.")   
+            logger.debug("Forcing data are smoothed.")   
             self.precipitation  = pcr.windowaverage(self.precipitation , self.smoothingWindowsLength)
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
+        
+        # make sure precipitation is always positive:
+        self.precipitation = pcr.max(0.0, self.precipitation)
+
+        # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
+        self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
+        
+        # ignore snow by setting temperature to 25 deg C
+        if self.ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
         
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
- 
+
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
