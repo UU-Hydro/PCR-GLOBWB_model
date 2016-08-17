@@ -4,7 +4,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-def print_disclaimer():
+def print_disclaimer(with_logger = False):
 
     # print disclaimer
     disclaimer_message  = "\n"
@@ -21,5 +21,5 @@ def print_disclaimer():
     disclaimer_message += " See the LICENSE file for more details                                                      " + "\n"
     disclaimer_message +=                                                                                                  "\n"
     
-    logger.info(disclaimer_message)
-    #print(disclaimer_message)
+    print(disclaimer_message)
+    if with_logger: logger.info(disclaimer_message)

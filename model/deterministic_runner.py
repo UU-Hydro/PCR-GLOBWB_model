@@ -145,5 +145,5 @@ def main():
         
 if __name__ == '__main__':
     # print disclaimer
-    # disclaimer.print_disclaimer()
+    disclaimer.print_disclaimer(with_logger = True)
     sys.exit(main())
