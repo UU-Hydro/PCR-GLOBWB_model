@@ -7,7 +7,8 @@ logger = logging.getLogger(__name__)
 def print_disclaimer(with_logger = False):
 
     # disclaimer message
-    disclaimer_message  = "\n"
+    disclaimer_message  =                                                                                                  "\n"
+    disclaimer_message +=                                                                                                  "\n"
     disclaimer_message += " PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model                       " + "\n"
     disclaimer_message +=                                                                                                  "\n"
     disclaimer_message += " Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada, " + "\n"
