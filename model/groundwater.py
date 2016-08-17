@@ -210,10 +210,12 @@ class Groundwater(object):
         #####################################################################################################################################################
         # total groundwater thickness (unit: m)
         # - For PCR-GLOBWB, the estimate of total groundwater thickness is needed to estimate for the following purpose:
-        #   - productive aquifer areas (where capillary rise can occur and groundwater depletion can occur)
-        #   - and also to estimate fossil groundwater capacity (the latter is needed only for run without MODFLOW)
+        #   - to estimate fossil groundwater capacity (this is needed only for runs without MODFLOW)
+        #   - to determine productive aquifer areas (where capillary rise can occur and groundwater depletion can occur) (for runs with/without MODFLOW)
+        # - Note that for runs with MODFLOW, ideally, we want to minimize enormous drawdown in non-productive aquifer areas
         totalGroundwaterThickness = None
-        if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+        if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys() and\
+           (self.limitFossilGroundwaterAbstraction or self.useMODFLOW):
 
             totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
                                                             self.cloneMap, self.tmpDir, self.inputDir)
