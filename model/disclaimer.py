@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 def print_disclaimer(with_logger = False):
 
-    # print disclaimer
+    # disclaimer message
     disclaimer_message  = "\n"
     disclaimer_message += " PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model                       " + "\n"
     disclaimer_message +=                                                                                                  "\n"
@@ -21,5 +21,8 @@ def print_disclaimer(with_logger = False):
     disclaimer_message += " See the LICENSE file for more details                                                      " + "\n"
     disclaimer_message +=                                                                                                  "\n"
     
-    print(disclaimer_message)
-    if with_logger: logger.info(disclaimer_message)
+    # print disclaimer
+    if with_logger:
+        logger.info(disclaimer_message)
+    else:
+        print(disclaimer_message)
