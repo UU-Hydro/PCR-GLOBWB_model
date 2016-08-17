@@ -22,4 +22,4 @@ def print_disclaimer():
     disclaimer_message +=                                                                                                  "\n"
     
     logger.info(disclaimer_message)
-    #print(disclaimer_message)
+    print(disclaimer_message)
