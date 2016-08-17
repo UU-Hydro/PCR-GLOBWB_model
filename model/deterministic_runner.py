@@ -34,6 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import oldcalc_framework
+import disclaimer
 
 class DeterministicRunner(DynamicModel):
 
@@ -63,12 +64,8 @@ class DeterministicRunner(DynamicModel):
 
 def main():
 
-    # Print disclaimer
-    print "PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model"
-    print "Copyright (C) 2016 Utrecht University"
-    print "This program comes with ABSOLUTELY NO WARRANTY"
-    print "This is free software, and you are welcome to redistribute it under certain conditions"
-    print "See the LICENSE file for more details"
+    # print disclaimer
+    disclaimer.print_disclaimer()
     
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
@@ -147,4 +144,6 @@ def main():
         dynamic_framework.run()
         
 if __name__ == '__main__':
+    # print disclaimer
+    disclaimer.print_disclaimer()
     sys.exit(main())
