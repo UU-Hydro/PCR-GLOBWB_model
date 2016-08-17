@@ -182,6 +182,9 @@ class Configuration(object):
         logger.info('Logging output to %s', log_filename)
         logger.info('Debugging output to %s', dbg_filename)
         
+        # print disclaimer
+        disclaimer.print_disclaimer(with_logger = True)
+        
     def backup_configuration(self):
         
         # copy ini File to logDir:

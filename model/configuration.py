@@ -30,6 +30,8 @@ import glob
 import logging
 logger = logging.getLogger(__name__)
 
+import disclaimer
+
 class Configuration(object):
 
     def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None):
@@ -136,12 +138,15 @@ class Configuration(object):
         # file name for debug log 
         dbg_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.dbg'
 
-        #create handler, add to root logger
+        # create handler, add to root logger
         debug_handler = logging.FileHandler(dbg_filename)
         debug_handler.setFormatter(formatter)
         debug_handler.setLevel(logging.DEBUG)
         logging.getLogger().addHandler(debug_handler)
 
+        # print disclaimer
+        disclaimer.print_disclaimer(with_logger = True)
+        
         logger.info('Model run started at %s', self._timestamp)
         logger.info('Logging output to %s', log_filename)
         logger.info('Debugging output to %s', dbg_filename)
