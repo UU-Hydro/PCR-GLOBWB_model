@@ -36,6 +36,11 @@ import virtualOS as vos
 import logging
 logger = logging.getLogger(__name__)
 
+import disclaimer
+
+# print disclaimer
+disclaimer.print_disclaimer()
+
 # get the configuration/ini file given in the system argument
 iniFileName = os.path.abspath(sys.argv[1])
 

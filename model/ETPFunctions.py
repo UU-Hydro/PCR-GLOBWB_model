@@ -24,9 +24,9 @@
 
 import pcraster as pcr
 import math
+
 #  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
 # Convert all arguments to deg using * 180 / pi
-
 
 
 def HamonPotET(airT,doy,lat):

@@ -21,6 +21,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 '''
 Takes care of reporting (writing) output to netcdf files. Aggregates totals and averages for various time periods.
 @author: Edwin H. Sutanudjaja

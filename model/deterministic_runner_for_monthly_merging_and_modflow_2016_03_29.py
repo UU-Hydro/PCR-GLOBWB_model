@@ -200,6 +200,9 @@ class DeterministicRunner(DynamicModel):
 
 def main():
     
+    # print disclaimer
+    disclaimer.print_disclaimer()
+
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
     
@@ -232,5 +235,7 @@ def main():
     dynamic_framework.run()
 
 if __name__ == '__main__':
+    # print disclaimer
+    disclaimer.print_disclaimer(with_logger = True)
     sys.exit(main())
 
