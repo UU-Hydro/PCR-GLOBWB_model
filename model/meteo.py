@@ -78,7 +78,7 @@ class Meteo(object):
         # - variable names      
         self.preVarName      = 'precipitation' 
         self.tmpVarName      = 'temperature'
-        self.refETPotVarName = 'evapotranspiration''
+        self.refETPotVarName = 'evapotranspiration'
         self.read_meteo_variable_names(iniItems.meteoOptions)
 
         # daily time step
@@ -286,7 +286,7 @@ class Meteo(object):
     def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85):
         
         preSlope = 0.001 * vos.netcdf2PCRobjClone(\
-                           self.precipLapseRateNC,'precipitation',\
+                           self.precipLapseRateNC, 'precipitation',\
                            currTimeStep.month, useDoy = "Yes",\
                            cloneMapFileName=self.cloneMap,\
                            LatitudeLongitude = True)
@@ -294,7 +294,7 @@ class Meteo(object):
         preSlope = pcr.max(0.,preSlope)
         
         preCriteria = vos.netcdf2PCRobjClone(\
-                     self.precipitCorrelNC,'precipitation',\
+                     self.precipitCorrelNC, 'precipitation',\
                      currTimeStep.month, useDoy = "Yes",\
                      cloneMapFileName=self.cloneMap,\
                      LatitudeLongitude = True)
@@ -316,13 +316,13 @@ class Meteo(object):
     def downscaleTemperature(self, currTimeStep, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15):
         
         tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                           self.temperLapseRateNC,'temperature',\
+                           self.temperLapseRateNC, 'temperature',\
                            currTimeStep.month, useDoy = "Yes",\
                            cloneMapFileName=self.cloneMap,\
                            LatitudeLongitude = True)
         tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
         tmpCriteria = vos.netcdf2PCRobjClone(\
-                      self.temperatCorrelNC,'temperature',\
+                      self.temperatCorrelNC, 'temperature',\
                       currTimeStep.month, useDoy = "Yes",\
                       cloneMapFileName=self.cloneMap,\
                       LatitudeLongitude = True)
@@ -351,19 +351,25 @@ class Meteo(object):
 
     def read_forcings(self,currTimeStep):
 
+        #-----------------------------------------------------------------------
+        # NOTE: RvB 13/07/2016 hard-coded reference to the variable names
+        # preciptiation, temperature and evapotranspiration have been replaced
+        # by the variable names used in the netCDF and passed from the ini file
+        #-----------------------------------------------------------------------
+
         # reading precipitation:
         if self.precipitation_set_per_year:
             #~ print currTimeStep.year
             nc_file_per_year = self.preFileNC %(float(currTimeStep.year), float(currTimeStep.year))
             self.precipitation = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, 'precipitation',\
+                                      nc_file_per_year, self.preVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
         else:
             self.precipitation = vos.netcdf2PCRobjClone(\
-                                      self.preFileNC, 'precipitation',\
+                                      self.preFileNC, self.preVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName = self.cloneMap,\
@@ -372,6 +378,11 @@ class Meteo(object):
         self.precipitation = pcr.max(0.,self.precipitation*\
                 precipitationCorrectionFactor)
         self.precipitation = pcr.cover( self.precipitation, 0.0)
+
+        #-----------------------------------------------------------------------
+        # NOTE: RvB 13/07/2016 added to automatically update precipitation        		
+        self.precipitation  = self.preConst + self.preFactor * pcr.ifthen(self.landmask, self.precipitation)
+        #-----------------------------------------------------------------------
         
         # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
         if self.usingDailyTimeStepForcingData:
@@ -381,18 +392,25 @@ class Meteo(object):
         if self.temperature_set_per_year:
             nc_file_per_year = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
             self.temperature = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, 'temperature',\
+                                      nc_file_per_year, self.tmpVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
         else:
             self.temperature = vos.netcdf2PCRobjClone(\
-                                 self.tmpFileNC,'temperature',\
+                                 self.tmpFileNC,self.tmpVarName,\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
                                  cloneMapFileName=self.cloneMap,\
                                  LatitudeLongitude = True)
+
+        #-----------------------------------------------------------------------
+        # NOTE: RvB 13/07/2016 added to automatically update temperature
+        self.temperature    = self.tmpConst + self.tmpFactor * pcr.ifthen(self.landmask, self.temperature)
+        #-----------------------------------------------------------------------
+
+        
 
         # Downscaling precipitation and temperature
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
@@ -407,18 +425,22 @@ class Meteo(object):
             if self.refETPotFileNC_set_per_year: 
                 nc_file_per_year = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
                 self.referencePotET = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, 'evapotranspiration',\
+                                      nc_file_per_year, self.refETPotVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
             else:
                 self.referencePotET = vos.netcdf2PCRobjClone(\
-                                      self.etpFileNC, 'evapotranspiration',\
+                                      self.etpFileNC,self.refETPotVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True)
+            #-----------------------------------------------------------------------
+            # NOTE: RvB 13/07/2016 added to automatically update reference potential evapotranspiration
+            self.referencePotET = self.refETPotConst + self.refETPotFactor * pcr.ifthen(self.landmask, self.referencePotET)
+            #-----------------------------------------------------------------------
 
         # Downscaling referenceETPot (based on temperature)
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()

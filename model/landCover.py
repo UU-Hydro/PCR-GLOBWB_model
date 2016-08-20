@@ -1479,7 +1479,10 @@ class LandCover(object):
                                                self.effSatLow030150 - self.parameters.effSatAtWiltPointLow030150))*\
                                (self.parameters.satVolMoistContLow030150 -   self.parameters.resVolMoistContLow030150 )*\
                         pcr.min(self.parameters.thickLow030150,\
-                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.)) 
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.))
+                        
+        # RvB: initialize satAreaFrac        
+        self.satAreaFrac= None
 
     def calculateWaterDemand(self, nonIrrGrossDemandDict, \
                                    swAbstractionFractionDict, \
@@ -2298,6 +2301,8 @@ class LandCover(object):
         # WFRACB  = DW/WRANGE raised to the power (1/(b+1))
         # SATFRAC =	fractional saturated area
         # WACT    = actual water storage within rootzone
+
+        self.satAreaFracOld = self.satAreaFrac
         
         Pn = iniWaterStorage + \
              inputNetLqWaterToSoil                                      # Pn = W[TYPE]+Pn;
