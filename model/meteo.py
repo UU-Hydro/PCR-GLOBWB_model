@@ -63,6 +63,24 @@ class Meteo(object):
         if self.refETPotMethod == 'Input': self.etpFileNC = \
                              iniItems.meteoOptions['refETPotFileNC']              
 
+        #-----------------------------------------------------------------------			
+        # NOTE: RvB 13/07/2016 Added correction constant and factor and variable name
+        # to allow for easier use of netCDF climate inpute files
+        # EHS 20/08/2016 modified for more flexibilities.  
+        # - meteo conversion factors
+        self.preConst       = 0.0
+        self.preFactor      = 1.0
+        self.tmpConst       = 0.0
+        self.tmpFactor      = 1.0
+        self.refETPotConst  = 0.0
+        self.refETPotFactor = 1.0
+        self.read_meteo_conversion_factors(iniItems.meteoOptions)
+        # - variable names      
+        self.preVarName      = 'precipitation' 
+        self.tmpVarName      = 'temperature'
+        self.refETPotVarName = 'evapotranspiration''
+        self.read_meteo_variable_names(iniItems.meteoOptions)
+
         # daily time step
         self.usingDailyTimeStepForcingData = False
         if iniItems.timeStep == 1.0 and iniItems.timeStepUnit == "day":
@@ -155,6 +173,22 @@ class Meteo(object):
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
 
+
+    def read_meteo_conversion_factors(self, meteoOptions):
+
+        if 'precipitationConstant' in meteoOptions: self.preConst       = vos.readPCRmapClone(meteoOptions['precipitationConstant'], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'precipitationFactor'   in meteoOptions: self.preFactor      = vos.reacPCRmapClone(meteoOptions['precipitationFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'temperatureConstant'   in meteoOptions: self.tmpConst       = vos.reacPCRmapClone(meteoOptions['temperatureConstant'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'temperatureFactor'     in meteoOptions: self.tmpFactor      = vos.reacPCRmapClone(meteoOptions['temperatureFactor'    ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'referenceEPotConstant' in meteoOptions: self.refETPotConst  = vos.reacPCRmapClone(meteoOptions['referenceEPotConstant'], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'referenceEPotFactor'   in meteoOptions: self.refETPotFactor = vos.reacPCRmapClone(meteoOptions['referenceEPotFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
+
+
+    def read_meteo_variable_names(self, meteoOptions):
+
+        if 'precipitationVariableName' in meteoOptions: self.preVarName      = meteoOptions['precipitationVariableName']
+        if 'temperatureVariableName'   in meteoOptions: self.tmpVarName      = meteoOptions['temperatureVariableName'  ]
+        if 'referenceEPotVariableName' in meteoOptions: self.refETPotVarName = meteoOptions['referenceEPotVariableName']
 
     def forcingDownscalingOptions(self, iniItems):
 
@@ -380,7 +414,7 @@ class Meteo(object):
                                       LatitudeLongitude = True)
             else:
                 self.referencePotET = vos.netcdf2PCRobjClone(\
-                                      self.etpFileNC,'evapotranspiration',\
+                                      self.etpFileNC, 'evapotranspiration',\
                                       str(currTimeStep.fulldate), 
                                       useDoy = None,
                                       cloneMapFileName=self.cloneMap,\
