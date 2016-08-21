@@ -85,7 +85,7 @@ class Configuration(object):
 
         # repair key names of initial conditions
         self.repair_ini_key_names()
-        
+
         # options/settings used during debugging to PCR-GLOBWB version 1.0
         self.set_debug_to_version_one()
 
@@ -267,9 +267,8 @@ class Configuration(object):
 
     def repair_ini_key_names(self):
         """
-        Change key names for initial condition fields. 
-        This is introduced because Edwin was very stupid as once he changed some key names of initial conditions!  
-        However, it is also useful particularly for a run without 
+        If needed, change/modify some key names for initial condition fields. 
+        This is introduced because Edwin was very stupid as once he changed some key names of initial conditions! Yet, it is also useful particularly for runs without complete ini files. 
         """
 
         # temporal resolution of the model
