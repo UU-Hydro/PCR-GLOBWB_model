@@ -36,6 +36,7 @@ import math
 import sys
 import types
 import calendar
+import glob
 
 import netCDF4 as nc
 import numpy as np
@@ -54,6 +55,14 @@ smallNumber = 1E-39
 
 # tuple of netcdf file suffixes (extensions) that can be used:
 netcdf_suffixes = ('.nc4','.nc')
+
+def getFileList(inputDir, filePattern):
+	'''creates a dictionary of	files meeting the pattern specified'''
+	fileNameList = glob.glob(os.path.join(inputDir, filePattern))
+	ll= {}
+	for fileName in fileNameList:
+		ll[os.path.split(fileName)[-1]]= fileName
+	return ll
 
 def checkVariableInNC(ncFile,varName):
 
