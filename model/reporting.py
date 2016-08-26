@@ -677,7 +677,7 @@ class Reporting(object):
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
 
         # estimate of river/surface water levels (above channel/surface water bottom elevation)
-        self.surfaceWaterLevel = pcr.ifthenelse(self.dynamicFracWat > 0., self.channelStorage / \
+        self.surfaceWaterLevel = pcr.ifthenelse(self.dynamicFracWat > 0., self._model.routing.channelStorage / \
                                                                          (self.dynamicFracWat * self._model.routing.cellArea), 
                                                                           0.0)
         self.surfaceWaterLevel = pcr.max(0.0, pcr.ifthen(self._model.routing.landmask, self.surfaceWaterLevel)) 
