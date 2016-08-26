@@ -287,12 +287,14 @@ for fileName in files.keys():
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
-print
-print
-pool = Pool(processes=ncores)		# start "ncores" of worker processes
-pool.map(joinMaps,files.values())
-print
-print
+joinMaps(files[0])
+
+#~ print
+#~ print
+#~ pool = Pool(processes=ncores)		# start "ncores" of worker processes
+#~ pool.map(joinMaps,files.values())
+#~ print
+#~ print
 
 #-remove temporary file
 os.remove(tempCloneMap)
