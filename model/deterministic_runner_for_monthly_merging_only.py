@@ -188,20 +188,8 @@ def main():
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
     
-    # debug option
-    debug_mode = False
-    if len(sys.argv) > 2:
-        if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel": debug_mode = True
-    
-    # options to perform steady state calculation
-    steady_state_only = False
-    if len(sys.argv) > 3: 
-        if sys.argv[3] == "steady-state-only": steady_state_only = True
-    
     # object to handle configuration/ini file
-    configuration = Configuration(iniFileName = iniFileName, \
-                                  debug_mode = debug_mode, \
-                                  steady_state_only = steady_state_only)      
+    configuration = Configuration(iniFileName)      
 
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
