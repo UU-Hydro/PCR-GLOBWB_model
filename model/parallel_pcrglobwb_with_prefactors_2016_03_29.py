@@ -126,7 +126,7 @@ if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
     logger.warning(msg)
     logger.warning(msg)
     logger.warning(msg)
-    with_merging_or_modflow = False
+    #~ with_merging_or_modflow = False
       
 
 
