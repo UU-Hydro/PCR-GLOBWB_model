@@ -215,9 +215,9 @@ except:
 outputDir = inputDirRoot+"/global/maps/"
 try:
 	outputDir = sys.argv[3]
-	if sys.argv[3] == "default": outputDir = inputDirRoot + " /global/maps/"
-	if sys.argv[3] == "maps"   : outputDir = inputDirRoot + " /global/maps/"
-	if sys.argv[3] == "states" : outputDir = inputDirRoot + " /global/states/"
+	if sys.argv[3] == "default": outputDir = inputDirRoot + "/global/maps/"
+	if sys.argv[3] == "maps"   : outputDir = inputDirRoot + "/global/maps/"
+	if sys.argv[3] == "states" : outputDir = inputDirRoot + "/global/states/"
 except:
 	outputDir = str(sys.argv[3])
 try:
