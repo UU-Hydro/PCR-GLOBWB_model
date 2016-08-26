@@ -135,6 +135,7 @@ def joinMaps(inputTuple):
 	variableArray= np.ones((nrRows,nrCols))*MV
 	#-iterate over maps
 	for fileName in fileNames:
+		print fileName
 		attributeClone= getMapAttributesALL(fileName)
 		cellLengthClone= attributeClone['cellsize']
 		rowsClone= attributeClone['rows']
