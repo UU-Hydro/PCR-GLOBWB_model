@@ -278,12 +278,12 @@ print
 print
 
 for fileName in files.keys():
-	print fileName,
+	#~ print fileName,
 	files[fileName]= {}
 	ll= []
 	outputFileName= os.path.join(outputDir,fileName)
 	for area in areas:
-		print area
+		#~ print area
 		inputFileName= os.path.join(inputDirRoot, area, 'maps', fileName)
 		if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
 		if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
@@ -291,14 +291,15 @@ for fileName in files.keys():
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
-joinMaps(files[fileName])
+#~ # this is for testing
+#~ joinMaps(files[fileName])
 
-#~ print
-#~ print
-#~ pool = Pool(processes=ncores)		# start "ncores" of worker processes
-#~ pool.map(joinMaps,files.values())
-#~ print
-#~ print
+print
+print
+pool = Pool(processes=ncores)		# start "ncores" of worker processes
+pool.map(joinMaps,files.values())
+print
+print
 
 #-remove temporary file
 os.remove(tempCloneMap)
