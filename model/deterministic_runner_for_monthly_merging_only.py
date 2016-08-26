@@ -75,6 +75,8 @@ class DeterministicRunner(DynamicModel):
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
 
+        print self.modelTime.day
+        
         # update/calculate model and daily merging, and report ONLY at the last day of the month
         if self.modelTime.isLastDayOfMonth():
             
