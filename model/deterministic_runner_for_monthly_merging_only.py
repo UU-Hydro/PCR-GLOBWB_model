@@ -30,6 +30,8 @@ import glob
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
+import pcraster as pcr
+
 from configuration import Configuration
 from currTimeStep import ModelTime
 
