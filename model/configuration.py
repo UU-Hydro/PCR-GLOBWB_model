@@ -60,6 +60,9 @@ class Configuration(object):
         # if no_modification, set configuration directly (otherwise, the function/method  
         if no_modification: self.set_configuration(system_arguments)
 
+        # the main output directory (for runs with merging processes)
+        self.main_output_directory = self.globalOptions['outputDir']
+
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
         self.online_coupling_between_pcrglobwb_and_moflow = False
@@ -67,9 +70,6 @@ class Configuration(object):
             
             self.online_coupling_between_pcrglobwb_and_moflow = True
             self.groundwaterOptions['useMODFLOW'] = "True"
-
-            # the main output directory
-            self.main_output_directory = self.globalOptions['outputDir']
 
     def set_configuration(self, system_arguments = None):
 
