@@ -177,11 +177,6 @@ class PCRGlobWB(object):
                  timeStamp+".map",\
                  outputDirectory)
             
-            # make an empty file
-            filename = outputDirectory+"/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
-            if os.path.exists(filename): os.remove(filename)
-            open(filename, "w").close()    
-
     def resume(self):
         #restore state from disk. used when restarting
         pass
@@ -470,3 +465,9 @@ class PCRGlobWB(object):
 
             self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
                                 surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)
+
+        if self._modelTime.isLastDayOfMonth():
+            # make an empty file to indicate that the calculation for this month has done
+            filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
+            if os.path.exists(filename): os.remove(filename)
+            open(filename, "w").close()    
