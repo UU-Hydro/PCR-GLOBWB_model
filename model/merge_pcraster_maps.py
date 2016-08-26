@@ -263,9 +263,9 @@ setclone(tempCloneMap)
 
 # input files where unmerged maps are saved
 inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "default": os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "maps"   : os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "states" : os.path.join(inputDirRoot,areas[0], 'states')
+if sys.argv[3] == "default": inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
+if sys.argv[3] == "maps"   : inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
+if sys.argv[3] == "states" : inputDir = os.path.join(inputDirRoot,areas[0], 'states')
 files = getFileList(inputDir, '*%s.map' % chosenDate)
 
 
