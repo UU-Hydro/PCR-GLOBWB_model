@@ -287,7 +287,7 @@ for fileName in files.keys():
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
-joinMaps(files[0])
+joinMaps(files[fileName])
 
 #~ print
 #~ print
