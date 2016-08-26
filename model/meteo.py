@@ -177,11 +177,11 @@ class Meteo(object):
     def read_meteo_conversion_factors(self, meteoOptions):
 
         if 'precipitationConstant' in meteoOptions: self.preConst       = vos.readPCRmapClone(meteoOptions['precipitationConstant'], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'precipitationFactor'   in meteoOptions: self.preFactor      = vos.reacPCRmapClone(meteoOptions['precipitationFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'temperatureConstant'   in meteoOptions: self.tmpConst       = vos.reacPCRmapClone(meteoOptions['temperatureConstant'  ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'temperatureFactor'     in meteoOptions: self.tmpFactor      = vos.reacPCRmapClone(meteoOptions['temperatureFactor'    ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'referenceEPotConstant' in meteoOptions: self.refETPotConst  = vos.reacPCRmapClone(meteoOptions['referenceEPotConstant'], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'referenceEPotFactor'   in meteoOptions: self.refETPotFactor = vos.reacPCRmapClone(meteoOptions['referenceEPotFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'precipitationFactor'   in meteoOptions: self.preFactor      = vos.readPCRmapClone(meteoOptions['precipitationFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'temperatureConstant'   in meteoOptions: self.tmpConst       = vos.readPCRmapClone(meteoOptions['temperatureConstant'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'temperatureFactor'     in meteoOptions: self.tmpFactor      = vos.readPCRmapClone(meteoOptions['temperatureFactor'    ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'referenceEPotConstant' in meteoOptions: self.refETPotConst  = vos.readPCRmapClone(meteoOptions['referenceEPotConstant'], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'referenceEPotFactor'   in meteoOptions: self.refETPotFactor = vos.readPCRmapClone(meteoOptions['referenceEPotFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
 
 
     def read_meteo_variable_names(self, meteoOptions):
