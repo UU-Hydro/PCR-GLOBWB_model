@@ -117,13 +117,18 @@ if clone_codes[0] == "part_two":
     # the execution of merging and modflow processes are done in another node
     with_merging_or_modflow = False
 
-# TODO: command lines to run a steady state of MODFLOW (NOT FINISHED YET)
-#~ if ("globalModflowOptions" in generalConfiguration.allSections) and\
-   #~ (generalConfiguration.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True") and\
-   #~ (generalConfiguration.modflowTransientInputOptions['usingPredefinedInitialHead'] == "False"):
-    #~ logger.info('Performing a steady state groundwater model to estimate initial conditions for MODFLOW')
-    #~ cmd += "python deterministic_runner_for_monthly_merging_and_modflow.py " + iniFileName +" "+debug_option +" steady-state-only"
-    #~ vos.cmd_line(cmd, using_subprocess = False)      
+
+# for runs with spin-up, we cannot do any merging and/or combine it with modflow 
+if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
+    msg = "The run is set with some spin-ups. We can NOT combine this with merging processes and modflow calculation. "
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    with_merging_or_modflow = False
+      
+
 
 # command line(s) for PCR-GLOBWB 
 logger.info('Running transient PCR-GLOBWB with/without MODFLOW ')
