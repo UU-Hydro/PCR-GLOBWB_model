@@ -532,7 +532,6 @@ class Reporting(object):
         pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir+"/globalalpha.map")
         pcr.report(self._model.groundwater.specificYield , self.configuration.mapsDir+"/specificyield.map")
 
-        # SAMPAI DI SINI
 
     def basic_post_processing(self):
 
@@ -677,6 +676,12 @@ class Reporting(object):
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
 
+        # estimate of river/surface water levels (above channel/surface water bottom elevation)
+        self.surfaceWaterLevel = pcr.ifthenelse(self.dynamicFracWat > 0., self.channelStorage / \
+                                                                         (self.dynamicFracWat * self._model.routing.cellArea), 
+                                                                          0.0)
+        self.surfaceWaterLevel = pcr.max(0.0, pcr.ifthen(self._model.routing.landmask, self.surfaceWaterLevel)) 
+
         # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
         self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
                                           vos.getValDivZero(\
@@ -753,6 +758,7 @@ class Reporting(object):
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
 
+
 		#-----------------------------------------------------------------------
 		# NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
 		# because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
@@ -780,7 +786,6 @@ class Reporting(object):
            self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
 						          pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
-
 		#-----------------------------------------------------------------------
         
         # water withdrawal for irrigation sectors
@@ -826,7 +831,7 @@ class Reporting(object):
         ######################################################################################################################################################################
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
         # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
-        #                                                                         (self.precipitation_at_irrigation_volume + self.irrigationWaterWithdrawal)  
+        #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
         if self._model.landSurface.includeIrrigation:
             self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
             self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
