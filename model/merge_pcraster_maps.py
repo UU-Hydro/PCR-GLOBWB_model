@@ -285,6 +285,9 @@ for fileName in files.keys():
 	for area in areas:
 		print area
 		inputFileName= os.path.join(inputDirRoot,area,'maps',fileName)
+		if sys.argv[3] == "default": inputDir = os.path.join(inputDirRoot,area, 'maps')
+		if sys.argv[3] == "maps"   : inputDir = os.path.join(inputDirRoot,area, 'maps')
+		if sys.argv[3] == "states" : inputDir = os.path.join(inputDirRoot,area, 'states')
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
