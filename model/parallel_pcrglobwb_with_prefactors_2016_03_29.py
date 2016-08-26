@@ -150,6 +150,10 @@ if with_merging_or_modflow:
 cmd = cmd + "wait"       
 
 print cmd
+msg = "Call: "+str(cmd)
+logger.debug(msg)
+
 
 # execute PCR-GLOBWB and MODFLOW
 vos.cmd_line(cmd, using_subprocess = False)      
+
