@@ -427,6 +427,9 @@ if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%var for v
 if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%var for var in netcdfList]
 if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%var for var in netcdfList]
 
+if file_type == "outMonthMaxNC": netcdfList = ['%s_monthMax_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaMaxNC": netcdfList = ['%s_annuaMax_output.nc'%var for var in netcdfList]
+
 # netcdf format and zlib option:
 ncFormat   = str(sys.argv[7])
 using_zlib = str(sys.argv[8])
