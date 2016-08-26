@@ -45,6 +45,9 @@ class DeterministicRunner(DynamicModel):
     def __init__(self, configuration, modelTime):
         DynamicModel.__init__(self)
 
+        # set clone
+        pcr.setclone("/projects/0/dfguu/users/edwin/data/floodplain_05arcmin_world_final/based_on_daily_runoff/map/channel_gradient.map")
+        
         self.modelTime = modelTime        
         
         # make the configuration available for the other method/function
