@@ -284,10 +284,10 @@ for fileName in files.keys():
 	outputFileName= os.path.join(outputDir,fileName)
 	for area in areas:
 		print area
-		inputFileName= os.path.join(inputDirRoot,area,'maps',fileName)
-		if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot,area, 'maps')
-		if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot,area, 'maps')
-		if sys.argv[3] == "states" : inputFileName = os.path.join(inputDirRoot,area, 'states')
+		inputFileName= os.path.join(inputDirRoot, area, 'maps', fileName)
+		if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
+		if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
+		if sys.argv[3] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
 		ll.append(inputFileName)
 	files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
