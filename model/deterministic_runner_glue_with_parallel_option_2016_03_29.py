@@ -56,7 +56,7 @@ class DeterministicRunner(DynamicModel):
 
         # make the configuration available for the other method/function
         self.configuration = configuration
-
+        
     def adusting_parameters(self, configuration, system_argument): 
 
         # global pre-multipliers given in the argument:
@@ -266,7 +266,7 @@ class DeterministicRunner(DynamicModel):
         # do any needed reporting for this time step        
         self.reporting.report()
 
-        # at the last day of the month, stop calculation until the merging process is ready and until modflow calculation is ready (only for a run with modflow) 
+        # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
         if self.modelTime.isLastDayOfMonth(): 
 
             # for runs with modflow, wait until modflow run is done
@@ -302,8 +302,6 @@ class DeterministicRunner(DynamicModel):
         if status: self.count_check = 0            
         return status
 
-    # TODO: UNTIL THIS PART
-    
     def check_merging_status(self):
 
         status_file = str(self.configuration.main_output_directory) + "/global/maps/merged_files_for_"    + str(self.modelTime.fulldate) + "_are_ready.txt"
