@@ -267,18 +267,17 @@ class DeterministicRunner(DynamicModel):
         self.reporting.report()
 
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
-        if self.modelTime.isLastDayOfMonth(): 
-
-            # for runs with modflow, wait until modflow run is done
-            if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
-                modflow_is_ready = False
-                self.count_check = 0
-                while modflow_is_ready == False:
-                    if datetime.datetime.now().second == 14 or\
-                       datetime.datetime.now().second == 29 or\
-                       datetime.datetime.now().second == 34 or\
-                       datetime.datetime.now().second == 59:\
-                       modflow_is_ready = self.check_modflow_status()
+        if self.modelTime.isLastDayOfMonth() and self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+            
+            # wait until modflow files are ready
+            modflow_is_ready = False
+            self.count_check = 0
+            while modflow_is_ready == False:
+                if datetime.datetime.now().second == 14 or\
+                   datetime.datetime.now().second == 29 or\
+                   datetime.datetime.now().second == 34 or\
+                   datetime.datetime.now().second == 59:\
+                   modflow_is_ready = self.check_modflow_status()
                 
             # wait until merged files are ready
             merged_files_are_ready = False
