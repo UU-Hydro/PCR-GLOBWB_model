@@ -57,6 +57,12 @@ class DeterministicRunner(DynamicModel):
         # make the configuration available for the other method/function
         self.configuration = configuration
         
+        # option to include merging processes for pcraster maps and netcdf files:
+        self.with_merging = False
+        if "with_merging" in self.configuration.globalOptions.keys() and self.configuration.globalOptions["with_merging"] == "False":
+            self.with_merging == True
+        
+        
     def adusting_parameters(self, configuration, system_argument): 
 
         # global pre-multipliers given in the argument:
@@ -267,17 +273,19 @@ class DeterministicRunner(DynamicModel):
         self.reporting.report()
 
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
-        if self.modelTime.isLastDayOfMonth() and self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+        if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_moflow or\)
+                                                  self.with_merging):
             
             # wait until modflow files are ready
-            modflow_is_ready = False
-            self.count_check = 0
-            while modflow_is_ready == False:
-                if datetime.datetime.now().second == 14 or\
-                   datetime.datetime.now().second == 29 or\
-                   datetime.datetime.now().second == 34 or\
-                   datetime.datetime.now().second == 59:\
-                   modflow_is_ready = self.check_modflow_status()
+            if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+                modflow_is_ready = False
+                self.count_check = 0
+                while modflow_is_ready == False:
+                    if datetime.datetime.now().second == 14 or\
+                       datetime.datetime.now().second == 29 or\
+                       datetime.datetime.now().second == 34 or\
+                       datetime.datetime.now().second == 59:\
+                       modflow_is_ready = self.check_modflow_status()
                 
             # wait until merged files are ready
             merged_files_are_ready = False
