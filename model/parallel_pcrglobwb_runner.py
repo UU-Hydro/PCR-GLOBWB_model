@@ -97,6 +97,11 @@ for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
     shutil.copy(filename, scriptDir)
 os.chdir(scriptDir)    
 
+
+# option to include merging process:
+with_merging_or_modflow = True
+
+
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
 if clone_codes[0] == "Global": 
