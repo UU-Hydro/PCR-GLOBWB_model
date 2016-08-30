@@ -100,7 +100,8 @@ os.chdir(scriptDir)
 
 # option to include merging process:
 with_merging_or_modflow = True
-if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False": with_merging_or_modflow + False
+# - in the ini file, we can also skip merging (e.g. for runs with spin-ups): 
+if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False": with_merging_or_modflow = False
 
 # Note that for parallel runs with spin-up, we cannot do any merging and/or combine them with modflow 
 if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
@@ -153,7 +154,7 @@ for clone_code in clone_codes:
 # command line(s) for merging and MODFLOW processes:       
 if with_merging_or_modflow:
 
-   logger.info('Also with merging and MODFLOW processes ')
+   logger.info('Also with merging and/or MODFLOW processes ')
    
    cmd += "python deterministic_runner_for_monthly_modflow_and_merging.py " + iniFileName +" "+debug_option +" transient"
 
