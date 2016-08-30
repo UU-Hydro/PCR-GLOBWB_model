@@ -104,10 +104,12 @@ class Configuration(object):
                 self.globalOptions['tmp_modflow_dir'] = self.globalModflowOptions['tmp_modflow_dir']
 			
 			# water bodies file 
-            if 'waterBodyInputNC' not in self.modflowParameterOptions.keys():
+            if 'modflowParameterOptions' in self.allSections and\
+               'waterBodyInputNC' not in self.modflowParameterOptions.keys():
                 self.modflowParameterOptions['waterBodyInputNC'] = self.routingOptions['waterBodyInputNC']
 			
-            if 'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
+            if 'modflowParameterOptions' in self.allSections and\
+               'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
                 self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
 			
             # reportingOptions are taken from 'reportingForModflowOptions

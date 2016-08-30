@@ -301,6 +301,7 @@ class DeterministicRunner(DynamicModel):
 
         status_file = str(self.configuration.main_output_directory) + "/modflow/transient/maps/modflow_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
         msg = 'Waiting for the file: ' + status_file
+        if self.count_check == 1: logger.info(msg)
         if self.count_check < 7:
             logger.debug(msg)
             self.count_check += 1
@@ -313,6 +314,7 @@ class DeterministicRunner(DynamicModel):
 
         status_file = str(self.configuration.main_output_directory) + "/global/maps/merged_files_for_"    + str(self.modelTime.fulldate) + "_are_ready.txt"
         msg = 'Waiting for the file: ' + status_file
+        if self.count_check == 1: logger.info(msg)
         if self.count_check < 7:
             logger.debug(msg)
             self.count_check += 1
