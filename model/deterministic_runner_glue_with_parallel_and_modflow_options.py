@@ -57,7 +57,7 @@ class DeterministicRunner(DynamicModel):
         # option to include merging processes for pcraster maps and netcdf files:
         self.with_merging = True
         if ('with_merging' in configuration.globalOptions.keys()) and (configuration.globalOptions['with_merging'] == "False"):
-            self.with_merging == False
+            self.with_merging = False
 
         # make the configuration available for the other method/function
         self.configuration = configuration
