@@ -49,16 +49,8 @@ class DeterministicRunner(DynamicModel):
     def __init__(self, configuration, modelTime):
         DynamicModel.__init__(self)
 
+        # model time object
         self.modelTime = modelTime        
-        self.model = ModflowCoupling(configuration, modelTime)
-
-        self.reporting = Reporting(configuration, self.model, modelTime)
-        
-        # option for steady-state simulation:
-        self.steady_state_only = configuration.steady_state_only
-        
-        # make the configuration available for the other method/function
-        self.configuration = configuration
         
         # indicating whether this run includes modflow or merging processes
         # - Only the "Global" and "part_one" runs include modflow or merging processes 
@@ -78,12 +70,23 @@ class DeterministicRunner(DynamicModel):
             for nc_report_type in nc_report_list:
                 vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
         
+
+        # model and reporting objects
+        # - Note that both are still needed even 
+        if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
+            self.model     = ModflowCoupling(configuration, modelTime)
+            self.reporting = Reporting(configuration, self.model, modelTime)
+        else:
+            # somehow you need to set the clone map (as the dynamic framework needs it and the "self.model" is not made) 
+            pcr.setclone(configuration.cloneMap)
+
+        # make the configuration available for the other method/function
+        self.configuration = configuration
+
     def initial(self): 
         
         # get or prepare the initial condition for groundwater head 
         self.model.get_initial_heads()
-        
-        if self.steady_state_only: sys.exit() 
 
     def dynamic(self):
 
@@ -109,7 +112,7 @@ class DeterministicRunner(DynamicModel):
             self.merging_netcdf_files("outDailyTotNC", start_date, end_date)
             
             # for runs with modflow
-            if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+            if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
                 
                 # merging pcraster maps that are needed for MODFLOW calculation
                 msg = "Merging pcraster map files that are needed for the MODFLOW calculation."
@@ -217,6 +220,7 @@ class DeterministicRunner(DynamicModel):
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory) + "/" +str(clone_area) + "/maps/pcrglobwb_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
             msg = 'Waiting for the file: '+status_file
+            if self.count_check == 1: logger.info(msg)
             if self.count_check < 7:
                 logger.debug(msg)
                 self.count_check += 1

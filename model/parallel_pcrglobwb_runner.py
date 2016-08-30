@@ -100,12 +100,28 @@ os.chdir(scriptDir)
 
 # option to include merging process:
 with_merging_or_modflow = True
+if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False": with_merging_or_modflow + False
+
+# Note that for parallel runs with spin-up, we cannot do any merging and/or combine them with modflow 
+if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
+    msg = "The run is set with some spin-ups. We can NOT combine this with merging processes and modflow calculation. "
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    logger.warning(msg)
+    with_merging_or_modflow = False
+    sys.exit()
 
 
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
 clone_codes = list(set(generalConfiguration.globalOptions['cloneAreas'].split(",")))
+#
+# - for one global run (that should be using a fat node):
 if clone_codes[0] == "Global": 
     clone_codes = ['M%02d'%i for i in range(1,54,1)]
+#
+# - using two (thick) nodes:
 if clone_codes[0] == "part_one": 
      # the relative big ones
     clone_codes  = ["M17","M19","M26","M13","M18","M20","M05","M03","M21","M46","M27","M49","M16","M44","M52","M25","M09","M08","M11","M42","M12","M39"]
@@ -118,7 +134,6 @@ if clone_codes[0] == "part_two":
     clone_codes = ["M07","M15","M38","M48","M40","M41","M22","M14","M23","M51","M04","M06","M10","M02","M45","M35","M47","M50","M24","M01","M36","M53","M33","M43","M34","M37","M31","M32","M28"]
     # the execution of merging and modflow processes are done in another node
     with_merging_or_modflow = False
-
 
 
 # command line(s) for PCR-GLOBWB 
@@ -155,4 +170,3 @@ logger.debug(msg)
 
 # execute PCR-GLOBWB and MODFLOW
 vos.cmd_line(cmd, using_subprocess = False)      
-

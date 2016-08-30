@@ -65,10 +65,10 @@ class Configuration(object):
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
 
-        self.online_coupling_between_pcrglobwb_and_moflow = False
-        if 'globalModflowOptions' in self.allSections and self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":
+        self.online_coupling_between_pcrglobwb_and_modflow = False
+        if 'globalMergingAndModflowOptions' in self.allSections and self.globalMergingAndModflowOptions['online_coupling_between_pcrglobwb_and_modflow'] == "True":
             
-            self.online_coupling_between_pcrglobwb_and_moflow = True
+            self.online_coupling_between_pcrglobwb_and_modflow = True
             self.groundwaterOptions['useMODFLOW'] = "True"
 
     def set_configuration(self, system_arguments = None):

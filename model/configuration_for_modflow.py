@@ -83,15 +83,15 @@ class Configuration(object):
         # the default option is offline coupling procedure
         self.online_coupling_between_pcrglobwb_and_moflow = False
 
-        if 'globalModflowOptions' in self.allSections:
+        if 'globalMergingAndModflowOptions' in self.allSections:
 
-            if 'online_coupling_between_pcrglobwb_and_moflow' in self.globalModflowOptions.keys() and\
-               self.globalModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":\
+            if 'online_coupling_between_pcrglobwb_and_moflow' in self.globalMergingAndModflowOptions.keys() and\
+               self.globalMergingAndModflowOptions['online_coupling_between_pcrglobwb_and_moflow'] == "True":\
                self.online_coupling_between_pcrglobwb_and_moflow = True
 
-            # using the cloneMap and landmask as defined in the self.globalModflowOptions:
-            self.globalOptions['cloneMap'] = self.globalModflowOptions['cloneMap']
-            self.globalOptions['landmask'] = self.globalModflowOptions['landmask']
+            # using the cloneMap and landmask as defined in the self.globalMergingAndModflowOptions:
+            self.globalOptions['cloneMap'] = self.globalMergingAndModflowOptions['cloneMap']
+            self.globalOptions['landmask'] = self.globalMergingAndModflowOptions['landmask']
             
             # the main output directory
             self.main_output_directory = self.globalOptions['outputDir']
@@ -100,8 +100,8 @@ class Configuration(object):
             self.globalOptions['outputDir'] = self.main_output_directory + "/modflow/"
             
             # temporary modflow output folder
-            if 'tmp_modflow_dir' in self.globalModflowOptions.keys():
-                self.globalOptions['tmp_modflow_dir'] = self.globalModflowOptions['tmp_modflow_dir']
+            if 'tmp_modflow_dir' in self.globalMergingAndModflowOptions.keys():
+                self.globalOptions['tmp_modflow_dir'] = self.globalMergingAndModflowOptions['tmp_modflow_dir']
 			
 			# water bodies file 
             if 'modflowParameterOptions' in self.allSections and\
