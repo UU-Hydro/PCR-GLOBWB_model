@@ -722,10 +722,10 @@ class Reporting(object):
         
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
-        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, 0.0)
-        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, 0.0)
-        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, 0.0)
-        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, 0.0)
+        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
         if self._model.landSurface.includeIrrigation:
             self.precipitation_at_irrigation    = self._model.meteo.precipitation * \
                                                   self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
@@ -836,12 +836,11 @@ class Reporting(object):
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
         # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
         #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
-        if self._model.landSurface.includeIrrigation:
-            self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
-            self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
-            # - additional values (may be needed) 
-            self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
-            self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+        # - additional values (may be needed) 
+        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
         ######################################################################################################################################################################
 
 
