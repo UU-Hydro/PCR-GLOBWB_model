@@ -108,12 +108,13 @@ class Configuration(object):
                'waterBodyInputNC' not in self.modflowParameterOptions.keys():
                 self.modflowParameterOptions['waterBodyInputNC'] = self.routingOptions['waterBodyInputNC']
 			
+            # option to use only natural water bodies:
             if 'modflowParameterOptions' in self.allSections and\
                'onlyNaturalWaterBodies' not in self.modflowParameterOptions.keys():
                 self.modflowParameterOptions['onlyNaturalWaterBodies'] = self.routingOptions['onlyNaturalWaterBodies']
 			
             # reportingOptions are taken from 'reportingForModflowOptions
-            self.reportingOptions = self.reportingForModflowOptions
+            if 'reportingForModflowOptions' in self.allSections: self.reportingOptions = self.reportingForModflowOptions
 
     def set_configuration(self):
 
