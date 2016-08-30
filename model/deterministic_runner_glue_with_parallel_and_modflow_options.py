@@ -59,6 +59,7 @@ class DeterministicRunner(DynamicModel):
         
         # option to include merging processes for pcraster maps and netcdf files:
         self.with_merging = True
+        
         if "with_merging" in self.configuration.globalOptions.keys() and self.configuration.globalOptions["with_merging"] == "False":
             self.with_merging == False
         
@@ -275,6 +276,8 @@ class DeterministicRunner(DynamicModel):
         print self.modelTime.isLastDayOfMonth()
         print self.configuration.online_coupling_between_pcrglobwb_and_modflow
         print self.with_merging
+        print self.configuration.globalOptions.keys()
+        print self.configuration.globalOptions["with_merging"]
         
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
         if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_modflow or\
