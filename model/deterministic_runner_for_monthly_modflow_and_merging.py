@@ -96,7 +96,7 @@ class DeterministicRunner(DynamicModel):
             # wait until all pcrglobwb model runs are done
             pcrglobwb_is_ready = False
             self.count_check = 0
-            while pcrglobwb_is_ready == False and self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+            while pcrglobwb_is_ready == False:
                 if datetime.datetime.now().second == 14 or\
                    datetime.datetime.now().second == 29 or\
                    datetime.datetime.now().second == 34 or\
