@@ -722,6 +722,10 @@ class Reporting(object):
         
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
+        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, 0.0)
+        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, 0.0)
+        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, 0.0)
+        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, 0.0)
         if self._model.landSurface.includeIrrigation:
             self.precipitation_at_irrigation    = self._model.meteo.precipitation * \
                                                   self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
