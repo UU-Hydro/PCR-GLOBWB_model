@@ -267,11 +267,15 @@ class DeterministicRunner(DynamicModel):
         if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.model.update(report_water_balance = False)
         else:
-            self.model.update(report_water_balance=True)
+            self.model.update(report_water_balance = True)
 		
         # do any needed reporting for this time step        
         self.reporting.report()
 
+        print self.modelTime.isLastDayOfMonth()
+        print self.configuration.online_coupling_between_pcrglobwb_and_modflow
+        print self.with_merging
+        
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
         if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_modflow or\
                                                   self.with_merging):
