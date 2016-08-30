@@ -54,14 +54,13 @@ class DeterministicRunner(DynamicModel):
         # the model will set paramaters based on global pre-multipliers given in the argument:
         if system_argument != None: self.adusting_parameters(configuration, system_argument)
 
-        # make the configuration available for the other method/function
-        self.configuration = configuration
-        
         # option to include merging processes for pcraster maps and netcdf files:
         self.with_merging = True
-        
-        if ('with_merging' in self.configuration.globalOptions.keys()) and (self.configuration.globalOptions['with_merging'] == "False"):
+        if ('with_merging' in configuration.globalOptions.keys()) and (configuration.globalOptions['with_merging'] == "False"):
             self.with_merging == False
+
+        # make the configuration available for the other method/function
+        self.configuration = configuration
         
         
     def adusting_parameters(self, configuration, system_argument): 
