@@ -451,7 +451,7 @@ class PCRGlobWB(object):
             self.dumpState(self._configuration.endStateDir)
 
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
-        if self._configuration.online_coupling_between_pcrglobwb_and_moflow:
+        if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
         if (report_water_balance):

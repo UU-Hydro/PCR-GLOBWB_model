@@ -136,7 +136,7 @@ class ModflowCoupling(object):
              outputDirectory)
 
         # for a transient run with the coupled PCR-GLOBWB-MODFLOW, make an empty file to indicate that modflow files are ready
-        if self._configuration.online_coupling_between_pcrglobwb_and_moflow and \
+        if self._configuration.online_coupling_between_pcrglobwb_and_modflow and \
            self._configuration.steady_state_only == False:
             filename = outputDirectory+"/modflow_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)

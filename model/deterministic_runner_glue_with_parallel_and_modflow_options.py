@@ -264,7 +264,7 @@ class DeterministicRunner(DynamicModel):
 		
         # update model (will pick up current model time from model time object)
         # - for a run coupled to MODFLOW, water balance checks are not valid due to lateral flow. 
-        if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+        if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.model.update(report_water_balance = False)
         else:
             self.model.update(report_water_balance=True)
@@ -273,11 +273,11 @@ class DeterministicRunner(DynamicModel):
         self.reporting.report()
 
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
-        if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_moflow or\
+        if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_modflow or\
                                                   self.with_merging):
             
             # wait until modflow files are ready
-            if self.configuration.online_coupling_between_pcrglobwb_and_moflow:
+            if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
                 modflow_is_ready = False
                 self.count_check = 0
                 while modflow_is_ready == False:

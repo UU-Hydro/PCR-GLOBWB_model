@@ -389,7 +389,7 @@ class GroundwaterModflow(object):
             self.maximumTransmissivity = float(self.iniItems.modflowParameterOptions['maximumTransmissivity'])
         
         # option for online coupling purpose, we also need to know the location of pcrglobwb output
-        self.online_coupling = self.iniItems.online_coupling_between_pcrglobwb_and_moflow
+        self.online_coupling = self.iniItems.online_coupling_between_pcrglobwb_and_modflow
 
         # initiate old style reporting (this is usually used for debugging process)
         self.initiate_old_style_reporting(iniItems)
