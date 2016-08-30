@@ -101,7 +101,7 @@ os.chdir(scriptDir)
 # option to include merging process:
 with_merging_or_modflow = True
 # - in the ini file, we can also skip merging (e.g. for runs with spin-ups): 
-if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False": with_merging_or_modflow = False
+
 
 # Note that for parallel runs with spin-up, we cannot do any merging and/or combine them with modflow 
 if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
@@ -111,8 +111,12 @@ if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
     logger.warning(msg)
     logger.warning(msg)
     logger.warning(msg)
-    with_merging_or_modflow = False
-    sys.exit()
+    if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False":
+        with_merging_or_modflow = False
+    else:
+        msg = "You set this run (with spin-ups) either with modflow or merging processes. That is not possible."
+        logger.warning(msg)
+        sys.exit()
 
 
 # pcr-globwb clone areas (for pcr-globwb multiple runs)
