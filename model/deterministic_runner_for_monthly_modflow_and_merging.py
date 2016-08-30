@@ -27,6 +27,7 @@ import sys
 import datetime
 import glob
 
+import pcraster as pcr
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
