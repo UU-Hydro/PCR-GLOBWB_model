@@ -52,6 +52,9 @@ class DeterministicRunner(DynamicModel):
         # model time object
         self.modelTime = modelTime        
         
+        # make the configuration available for the other method/function
+        self.configuration = configuration
+
         # indicating whether this run includes modflow or merging processes
         # - Only the "Global" and "part_one" runs include modflow or merging processes 
         self.include_merging_or_modflow = True
@@ -79,9 +82,6 @@ class DeterministicRunner(DynamicModel):
         else:
             # somehow you need to set the clone map (as the dynamic framework needs it and the "self.model" is not made) 
             pcr.setclone(configuration.cloneMap)
-
-        # make the configuration available for the other method/function
-        self.configuration = configuration
 
     def initial(self): 
         
