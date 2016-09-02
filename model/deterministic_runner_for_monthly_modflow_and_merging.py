@@ -86,7 +86,8 @@ class DeterministicRunner(DynamicModel):
     def initial(self): 
         
         # get or prepare the initial condition for groundwater head 
-        self.model.get_initial_heads()
+        if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
+            self.model.get_initial_heads()
 
     def dynamic(self):
 
