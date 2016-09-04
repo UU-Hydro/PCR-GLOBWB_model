@@ -9,6 +9,6 @@
 
 # transient run
 cd /home/edwinhs/github/edwinkost/PCR-GLOBWB/model
-python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_accutraveltime_with_modflow/non-natural/continue_from_1950/setup_05min_cru-ts3.23_era-20C_pcrglobwb_with_modflow_4_land_covers_edwin_parameter_set_continue_from_1950_part_two.ini
+python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_accutraveltime_with_modflow/non-natural/continue_from_1963/setup_05min_cru-ts3.23_era-20C_pcrglobwb_with_modflow_4_land_covers_edwin_parameter_set_continue_from_1963_part_two.ini
 
 
