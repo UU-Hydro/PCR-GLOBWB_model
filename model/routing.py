@@ -382,7 +382,7 @@ class Routing(object):
             self.avgInflow  = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirInflowShortIni'],self.cloneMap,self.tmpDir,self.inputDir)
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
             if not isinstance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):
-                self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'],self.cloneMap,self.tmpDir,self.inputDir)
+                self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'], self.cloneMap,self.tmpDir,self.inputDir)
                 self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
             else:
                 self.waterBodyStorage = None
@@ -391,6 +391,12 @@ class Routing(object):
             self.avgInflow        = iniConditions['routing']['avgLakeReservoirInflowShort']
             self.avgOutflow       = iniConditions['routing']['avgLakeReservoirOutflowLong']
             self.waterBodyStorage = iniConditions['routing']['waterBodyStorage']
+
+        
+        self.avgInflow  = pcr.ifthen(self.landmask, pcr.cover(self.avgInflow , 0.0))
+        self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.avgOutflow, 0.0))
+        if not isinstance(self.waterBodyStorage, types.NoneType):
+            self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
 
 
     def estimateBankfullDischarge(self, bankfullWidth, factor = 4.8):
