@@ -176,12 +176,12 @@ class Meteo(object):
 
     def read_meteo_conversion_factors(self, meteoOptions):
 
-        if 'precipitationConstant' in meteoOptions: self.preConst       = vos.readPCRmapClone(meteoOptions['precipitationConstant'], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'precipitationFactor'   in meteoOptions: self.preFactor      = vos.readPCRmapClone(meteoOptions['precipitationFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'temperatureConstant'   in meteoOptions: self.tmpConst       = vos.readPCRmapClone(meteoOptions['temperatureConstant'  ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'temperatureFactor'     in meteoOptions: self.tmpFactor      = vos.readPCRmapClone(meteoOptions['temperatureFactor'    ], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'referenceEPotConstant' in meteoOptions: self.refETPotConst  = vos.readPCRmapClone(meteoOptions['referenceEPotConstant'], self.cloneMap, self.tmpDir, self.inputDir)
-        if 'referenceEPotFactor'   in meteoOptions: self.refETPotFactor = vos.readPCRmapClone(meteoOptions['referenceEPotFactor'  ], self.cloneMap, self.tmpDir, self.inputDir)
+        if 'precipitationConstant' in meteoOptions: self.preConst       = pcr.cover(vos.readPCRmapClone(meteoOptions['precipitationConstant'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+        if 'precipitationFactor'   in meteoOptions: self.preFactor      = pcr.cover(vos.readPCRmapClone(meteoOptions['precipitationFactor'  ], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
+        if 'temperatureConstant'   in meteoOptions: self.tmpConst       = pcr.cover(vos.readPCRmapClone(meteoOptions['temperatureConstant'  ], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+        if 'temperatureFactor'     in meteoOptions: self.tmpFactor      = pcr.cover(vos.readPCRmapClone(meteoOptions['temperatureFactor'    ], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
+        if 'referenceEPotConstant' in meteoOptions: self.refETPotConst  = pcr.cover(vos.readPCRmapClone(meteoOptions['referenceEPotConstant'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+        if 'referenceEPotFactor'   in meteoOptions: self.refETPotFactor = pcr.cover(vos.readPCRmapClone(meteoOptions['referenceEPotFactor'  ], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
 
 
     def read_meteo_variable_names(self, meteoOptions):
@@ -374,15 +374,15 @@ class Meteo(object):
                                       useDoy = None,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
-        precipitationCorrectionFactor = pcr.scalar(1.0)                 # Since 19 Feb 2014, Edwin removed the support for correcting precipitation. 
-        self.precipitation = pcr.max(0.,self.precipitation*\
-                precipitationCorrectionFactor)
-        self.precipitation = pcr.cover( self.precipitation, 0.0)
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update precipitation        		
         self.precipitation  = self.preConst + self.preFactor * pcr.ifthen(self.landmask, self.precipitation)
         #-----------------------------------------------------------------------
+
+        # make sure that precipitation is always positive
+        self.precipitation = pcr.max(0., self.precipitation)
+        self.precipitation = pcr.cover(  self.precipitation, 0.0)
         
         # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
         if self.usingDailyTimeStepForcingData:
@@ -452,9 +452,6 @@ class Meteo(object):
             self.temperature    = pcr.windowaverage(self.temperature   , self.smoothingWindowsLength)
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
         
-        # make sure precipitation is always positive:
-        self.precipitation = pcr.max(0.0, self.precipitation)
-
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
@@ -466,6 +463,11 @@ class Meteo(object):
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
 
+        # make sure precipitation and referencePotET are always positive:
+        self.precipitation  = pcr.max(0.0, self.precipitation)
+        self.referencePotET = pcr.max(0.0, self.referencePotET)
+
+        
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\

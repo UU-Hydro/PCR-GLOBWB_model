@@ -240,7 +240,7 @@ except:
 areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
 
 # set clone maps based on the system argument
-areas= ["M47","M48"]   ### only fot TEST CASE
+#~ areas = ["M47","M48"]   ### only fot TEST CASE
 try:
     areas = str(sys.argv[5])
     areas = list(set(areas.split(",")))
