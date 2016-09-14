@@ -94,6 +94,9 @@ class Meteo(object):
         self.temperature_set_per_year    = iniItems.meteoOptions['temperature_set_per_year'] == "True"
         self.refETPotFileNC_set_per_year = iniItems.meteoOptions['refETPotFileNC_set_per_year'] == "True" 
         
+        # make the iniItems available for the other modules:
+        self.iniItems = iniItems
+        
         self.report = True
         try:
             self.outDailyTotNC = iniItems.meteoOptions['outDailyTotNC'].split(",")
@@ -357,6 +360,15 @@ class Meteo(object):
         # by the variable names used in the netCDF and passed from the ini file
         #-----------------------------------------------------------------------
 
+        
+        # method for finding time indexes in the precipitation netdf file:
+        # - the default one
+        method_for_time_index = None
+        # - based on the ini/configuration file (if given)
+        if 'time_index_method_for_precipitation_netcdf' in self.iniItems.meteoOptions.keys() and\
+                                                           self.iniItems.meteoOptions['time_index_method_for_precipitation_netcdf'] != "None":
+            method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_precipitation_netcdf']
+        
         # reading precipitation:
         if self.precipitation_set_per_year:
             #~ print currTimeStep.year
@@ -364,14 +376,14 @@ class Meteo(object):
             self.precipitation = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, self.preVarName,\
                                       str(currTimeStep.fulldate), 
-                                      useDoy = None,
+                                      useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
         else:
             self.precipitation = vos.netcdf2PCRobjClone(\
                                       self.preFileNC, self.preVarName,\
                                       str(currTimeStep.fulldate), 
-                                      useDoy = None,
+                                      useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
 
@@ -388,20 +400,29 @@ class Meteo(object):
         if self.usingDailyTimeStepForcingData:
             self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
+        
+        # method for finding time index in the temperature netdf file:
+        # - the default one
+        method_for_time_index = None
+        # - based on the ini/configuration file (if given)
+        if 'time_index_method_for_temperature_netcdf' in self.iniItems.meteoOptions.keys() and\
+                                                         self.iniItems.meteoOptions['time_index_method_for_temperature_netcdf'] != "None":
+            method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_temperature_netcdf']
+
         # reading temperature
         if self.temperature_set_per_year:
             nc_file_per_year = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
             self.temperature = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, self.tmpVarName,\
                                       str(currTimeStep.fulldate), 
-                                      useDoy = None,
+                                      useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
         else:
             self.temperature = vos.netcdf2PCRobjClone(\
                                  self.tmpFileNC,self.tmpVarName,\
                                  str(currTimeStep.fulldate), 
-                                 useDoy = None,
+                                 useDoy = method_for_time_index,
                                  cloneMapFileName=self.cloneMap,\
                                  LatitudeLongitude = True)
 
@@ -416,25 +437,35 @@ class Meteo(object):
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
+
         # calculate or obtain referencePotET
         if self.refETPotMethod == 'Hamon': self.referencePotET = \
                                   refPotET.HamonPotET(self.temperature,\
                                                       currTimeStep.doy,\
                                                       self.latitudes)
         if self.refETPotMethod == 'Input': 
+
+            # method for finding time indexes in the precipitation netdf file:
+            # - the default one
+            method_for_time_index = None
+            # - based on the ini/configuration file (if given)
+            if 'time_index_method_for_ref_pot_et_netcdf' in self.iniItems.meteoOptions.keys() and\
+                                                            self.iniItems.meteoOptions['time_index_method_for_ref_pot_et_netcdf'] != "None":
+                method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_ref_pot_et_netcdf']
+
             if self.refETPotFileNC_set_per_year: 
                 nc_file_per_year = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
                 self.referencePotET = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, self.refETPotVarName,\
                                       str(currTimeStep.fulldate), 
-                                      useDoy = None,
+                                      useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
             else:
                 self.referencePotET = vos.netcdf2PCRobjClone(\
                                       self.etpFileNC,self.refETPotVarName,\
                                       str(currTimeStep.fulldate), 
-                                      useDoy = None,
+                                      useDoy = method_for_time_index,
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True)
             #-----------------------------------------------------------------------
@@ -445,6 +476,7 @@ class Meteo(object):
         # Downscaling referenceETPot (based on temperature)
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
         
+
         # smoothing:
         if self.forcingSmoothing == True:
             logger.debug("Forcing data are smoothed.")   
