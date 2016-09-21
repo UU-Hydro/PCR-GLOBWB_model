@@ -653,14 +653,19 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input(self):
 
+        self.transient_simulation_with_constant_input_with_monthly_stress_period()
+        self.transient_simulation_with_constant_input_with_yearly_stress_period()
+
+    def transient_simulation_with_constant_input_with_monthly_stress_period(self):
+
         time_step_length      = 30 # unit: days
 
         number_of_extra_years = 10                                                    
 
-        if "extraSpinUpYears" in self.iniItems.modflowSteadyStateInputOptions.keys() and\
-                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYears'] != "None":
+        if "extraSpinUpYearsWith30DayStressPeriod" in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                                                      self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYearsWith30DayStressPeriod'] != "None":
             number_of_extra_years = int(\
-                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYears'])
+                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYearsWith30DayStressPeriod'])
 
         number_of_extra_months = 12 * number_of_extra_years    
 
@@ -674,7 +679,7 @@ class GroundwaterModflow(object):
         if number_of_extra_months > 0:
         
             # preparing extra spin up folder/directory:
-            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_up/"
+            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_upwith_monthly_stress_period/"
             if os.path.exists(extra_spin_up_directory): shutil.rmtree(extra_spin_up_directory)
             os.makedirs(extra_spin_up_directory)
             
@@ -701,6 +706,50 @@ class GroundwaterModflow(object):
                     var_name = 'groundwaterHeadLayer' + str(i)
                     file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
                     pcr.report(groundwaterHead[var_name], file_name) 
+
+
+    def transient_simulation_with_constant_input_with_yearly_stress_period(self):
+
+        time_step_length      = 365 # unit: days
+
+        number_of_extra_years = 0                                                    
+
+        if "extraSpinUpYearsWith365DayStressPeriod" in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                                                       self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYearsWith365DayStressPeriod'] != "None":
+            number_of_extra_years = int(\
+                                 self.iniItems.modflowSteadyStateInputOptions['extraSpinUpYearsWith365DayStressPeriod'])
+
+        if number_of_extra_years > 0:
+        
+            # preparing extra spin up folder/directory:
+            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_up_with_yearly_stress_period/"
+            if os.path.exists(extra_spin_up_directory): shutil.rmtree(extra_spin_up_directory)
+            os.makedirs(extra_spin_up_directory)
+            
+            for i_year in range(1, number_of_extra_years + 1):
+            
+                msg  = "\n"
+                msg += "\n"
+                msg += "Extra steady state simulation (transient simulation with constant input and yearly stress period): " + str(i_year) + " from " + str(number_of_extra_years) 
+                msg += "\n"
+                msg += "\n"
+                logger.info(msg)
+
+                groundwaterHead = self.getState()
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length)
+            
+                # reporting the calculated head to pcraster files
+                # - extension for output file:
+                extension = "00" + str(i_year)
+                if i_year > 9: extension = "0" + str(i_year)
+                if i_year > 99: extension = str(i_year)
+                
+                for i in range(1, self.number_of_layers+1):
+
+                    var_name = 'groundwaterHeadLayer' + str(i)
+                    file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
+                    pcr.report(groundwaterHead[var_name], file_name) 
+
 
     def estimate_bottom_of_bank_storage(self):
 
