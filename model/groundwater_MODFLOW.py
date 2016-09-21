@@ -26,6 +26,7 @@ import datetime
 import subprocess
 import os
 import types
+import glob
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -393,6 +394,11 @@ class GroundwaterModflow(object):
 
         # initiate old style reporting (this is usually used for debugging process)
         self.initiate_old_style_reporting(iniItems)
+        
+        # option to make backup of modflow files
+        self.make_backup_of_modflow_files = False
+        if "make_backup_of_modflow_files" in self.iniItems.reportingForModflowOptions.keys() and\
+           self.iniItems.reportingForModflowOptions["make_backup_of_modflow_files"] == "True": self.make_backup_of_modflow_files = True
 
     def initiate_modflow(self):
 
@@ -1111,6 +1117,16 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         if self.modflow_converged: self.get_all_modflow_results(simulation_type)
         
+        # copy all modflow files
+        if self.make_backup_of_modflow_files: 
+            # target directory:
+            target_directory = self.iniItems.globalOptions['outputDir'] + "/" + "modflow_files" + "/" + str(currTimeStep.fulldate) + "/"
+            if os.path.exists(target_directory): shutil.rmtree(target_directory)
+            os.makedirs(target_directory)
+            # copying modflow files:
+            for filename in glob.glob(os.path.join(self.tmp_modflow_dir, '*')):
+                shutil.copy(filename, target_directory)
+
         # clear modflow object
         self.pcr_modflow = None
         
