@@ -679,7 +679,7 @@ class GroundwaterModflow(object):
         if number_of_extra_months > 0:
         
             # preparing extra spin up folder/directory:
-            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_upwith_monthly_stress_period/"
+            extra_spin_up_directory = self.iniItems.endStateDir + "/extra_spin_up_with_monthly_stress_period/"
             if os.path.exists(extra_spin_up_directory): shutil.rmtree(extra_spin_up_directory)
             os.makedirs(extra_spin_up_directory)
             
