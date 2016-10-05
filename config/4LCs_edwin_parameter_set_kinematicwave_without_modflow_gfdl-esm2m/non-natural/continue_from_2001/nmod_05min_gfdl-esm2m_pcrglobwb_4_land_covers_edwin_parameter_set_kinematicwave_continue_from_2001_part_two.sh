@@ -8,4 +8,4 @@
 
 # run using the account of "edwin":
 cd /home/edwin/github/edwinkost/PCR-GLOBWB/model
-python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_kinematicwave_without_modflow_gfdl-esm2m/non-natural/continue_from_2001/setup_05min_gfdl-esm2m_pcrglobwb_4_land_covers_edwin_parameter_set_kinematicwave_continue_from_2001_part_one.ini
+python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_kinematicwave_without_modflow_gfdl-esm2m/non-natural/continue_from_2001/setup_05min_gfdl-esm2m_pcrglobwb_4_land_covers_edwin_parameter_set_kinematicwave_continue_from_2001_part_two.ini
