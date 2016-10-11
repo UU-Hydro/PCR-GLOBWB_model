@@ -8,4 +8,4 @@
 
 # run using the account of "edwin":
 cd /home/edwinsut/github/edwinkost/PCR-GLOBWB/model
-python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_kinematicwave_without_modflow_miroc-esm-chem/non-natural/continue_from_1991_to_aqueduct/setup_05min_miroc-esm-chem_pcrglobwb_4_land_covers_edwin_parameter_set_kinematicwave_continue_from_1991_part_one.ini
+python parallel_pcrglobwb_runner.py ../config/4LCs_edwin_parameter_set_kinematicwave_without_modflow_miroc-esm-chem/non-natural/continue_from_1991_to_aqueduct/setup_05min_miroc-esm-chem_pcrglobwb_4_land_covers_edwin_parameter_set_kinematicwave_continue_from_1991_part_two.ini
