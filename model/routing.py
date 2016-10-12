@@ -932,7 +932,7 @@ class Routing(object):
         
         # potential evaporation from water bodies over the entire cell area (m/day)
         if definedDynamicFracWat == None: dynamicFracWat = self.dynamicFracWat
-        waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * dynamicFracWat
+        waterBodyPotEvap = pcr.max(0.0, waterBodyPotEvapOvesSurfaceWaterArea * dynamicFracWat)
         return waterBodyPotEvap
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
@@ -1429,7 +1429,7 @@ class Routing(object):
             self.waterBodyPotEvap += water_body_potential_evaporation                                 
             
             # update channelStorageForRouting after evaporation
-            water_body_evaporation_volume      = pcr.min(channelStorageForRouting, \
+            water_body_evaporation_volume      = pcr.min(pcr.max(channelStorageForRouting, 0.0), \
                                                  water_body_potential_evaporation * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_evaporation_volume
             acc_local_input_to_surface_water  -= water_body_evaporation_volume
