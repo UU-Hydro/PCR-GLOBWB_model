@@ -334,7 +334,7 @@ class PCRGlobWB(object):
                            int(self._modelTime.year),dischargeAtPitTotal/1e9,      dischargeAtPitTotal*1000/totalCellArea)
             logger.info(msg)
 
-            surfaceWaterBalance = surfaceWaterInputTotal - dischargeAtPitTotal + deltaChannelStorageOneYear 
+            surfaceWaterBalance = deltaChannelStorageOneYear - surfaceWaterInputTotal + dischargeAtPitTotal  
             msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % ("surfaceWaterBalance",int(self._modelTime.doy),\
                            int(self._modelTime.year),surfaceWaterBalance/1e9,      surfaceWaterBalance*1000/totalCellArea)
