@@ -1389,7 +1389,6 @@ class Routing(object):
          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
                                self.channelStorage)
         storageAtLakeAndReservoirs = pcr.cover(storageAtLakeAndReservoirs,0.0)
-        #
         # - move only non negative values and use rounddown values
         storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
         self.channelStorage -= storageAtLakeAndReservoirs                    # unit: m3
@@ -1406,6 +1405,7 @@ class Routing(object):
         # - waterBodyStorage (m3) after outflow:                             # values given are per water body id (not per cell)
         self.waterBodyStorage = pcr.ifthen(self.landmask,
                                 self.WaterBodies.waterBodyStorage)
+        #
         # outflow from lakes and/or reservoirs at lake/reservoir outlet cells
         waterBodyOutflow = pcr.cover(\
                            pcr.ifthen(\
@@ -1509,7 +1509,7 @@ class Routing(object):
                                        landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
                                        storage_change_in_volume/self.cellArea],\
                                       [water_body_evaporation_volume/self.cellArea],\
-                                      [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
+                                      [preStorage/self.cellArea],\
                                       [channelStorageForRouting/self.cellArea],\
                                        'channelStorageForRouting (after routing, without lakes/reservoirs)',\
                                        True,\
@@ -1522,7 +1522,7 @@ class Routing(object):
            # - at the lake/reservoir outlets, add the discharge of water body outflow
             waterBodyOutflowInM3PerSec = pcr.ifthen(\
                                          self.WaterBodies.waterBodyOut,
-                                         self.WaterBodies.waterBodyOutflow) / length_of_sub_time_step
+                                         self.WaterBodies.waterBodyOutflow) / vos.secondsPerDay()
             self.subDischarge = self.subDischarge + \
                                 pcr.cover(waterBodyOutflowInM3PerSec, 0.0)                             
             self.subDischarge = pcr.ifthen(self.landmask, self.subDischarge)
