@@ -1,5 +1,26 @@
-#!/usr/bin/ python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
+#
+# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
+# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
+# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
+# and Marc F. P. Bierkens,
+# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import types
@@ -361,7 +382,7 @@ class Routing(object):
             self.avgInflow  = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirInflowShortIni'],self.cloneMap,self.tmpDir,self.inputDir)
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
             if not isinstance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):
-                self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'],self.cloneMap,self.tmpDir,self.inputDir)
+                self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'], self.cloneMap,self.tmpDir,self.inputDir)
                 self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
             else:
                 self.waterBodyStorage = None
@@ -370,6 +391,12 @@ class Routing(object):
             self.avgInflow        = iniConditions['routing']['avgLakeReservoirInflowShort']
             self.avgOutflow       = iniConditions['routing']['avgLakeReservoirOutflowLong']
             self.waterBodyStorage = iniConditions['routing']['waterBodyStorage']
+
+        
+        self.avgInflow  = pcr.ifthen(self.landmask, pcr.cover(self.avgInflow , 0.0))
+        self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.avgOutflow, 0.0))
+        if not isinstance(self.waterBodyStorage, types.NoneType):
+            self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
 
 
     def estimateBankfullDischarge(self, bankfullWidth, factor = 4.8):
@@ -691,6 +718,8 @@ class Routing(object):
         """
 
         ##########################################################################################################################
+        
+        # TODO: REMOVE THIS METHOD AS THIS IS IRRELEVANT. 
 
         logger.info("Using the simplifiedKinematicWave method ! ")
         
@@ -903,7 +932,7 @@ class Routing(object):
         
         # potential evaporation from water bodies over the entire cell area (m/day)
         if definedDynamicFracWat == None: dynamicFracWat = self.dynamicFracWat
-        waterBodyPotEvap = waterBodyPotEvapOvesSurfaceWaterArea * dynamicFracWat
+        waterBodyPotEvap = pcr.max(0.0, waterBodyPotEvapOvesSurfaceWaterArea * dynamicFracWat)
         return waterBodyPotEvap
 
     def calculate_evaporation(self,landSurface,groundwater,currTimeStep,meteo):
@@ -1400,7 +1429,7 @@ class Routing(object):
             self.waterBodyPotEvap += water_body_potential_evaporation                                 
             
             # update channelStorageForRouting after evaporation
-            water_body_evaporation_volume      = pcr.min(channelStorageForRouting, \
+            water_body_evaporation_volume      = pcr.min(pcr.max(channelStorageForRouting, 0.0), \
                                                  water_body_potential_evaporation * self.cellArea * length_of_sub_time_step/vos.secondsPerDay())
             channelStorageForRouting          -= water_body_evaporation_volume
             acc_local_input_to_surface_water  -= water_body_evaporation_volume
@@ -1416,7 +1445,7 @@ class Routing(object):
                                        True,\
                                        currTimeStep.fulldate,threshold=5e-5)
 
-            # lakes and reservoirs
+            # the kinematic wave is implemented only for channels (not to lakes and reservoirs)
             # at cells where lakes and/or reservoirs defined, move channelStorage to waterBodyStorage
             #
             storageAtLakeAndReservoirs = \
@@ -1428,7 +1457,45 @@ class Routing(object):
             storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
             channelStorageForRouting -= storageAtLakeAndReservoirs               # unit: m3
 
-            # update waterBodyStorage (inflow, storage and outflow)
+
+            # alpha parameter and initial discharge variable needed for kinematic wave
+            alpha, dischargeInitial = \
+                   self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
+                                                                                 self.water_height, \
+                                                                                 self.innundatedFraction, self.floodDepth)
+            
+            # discharge (m3/s) based on kinematic wave approximation
+            #~ logger.debug('start pcr.kinematic')
+            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                              alpha, self.beta, \
+                                              1, length_of_sub_time_step, self.channelLength)
+            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
+            #~ logger.debug('done')
+            
+            # set discharge to zero for lakes and reservoirs:
+            self.subDischarge = pcr.cover(\
+                                pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., pcr.scalar(0.0)), self.subDischarge)
+            
+            # make sure that we do not get negative channel storage
+            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
+
+            # update channelStorage (m3)
+            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            channelStorageForRouting += storage_change_in_volume 
+            
+            if self.debugWaterBalance:\
+                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
+                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
+                                       storage_change_in_volume/self.cellArea],\
+                                      [water_body_evaporation_volume/self.cellArea],\
+                                      [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
+                                      [channelStorageForRouting/self.cellArea],\
+                                       'channelStorageForRouting (after routing, without lakes/reservoirs)',\
+                                       True,\
+                                       currTimeStep.fulldate,threshold=5e-4)
+
+            # lakes and reservoirs: update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
                                     self.timestepsToAvgDischarge,\
                                     self.maxTimestepsToAvgDischargeShort,\
@@ -1447,51 +1514,19 @@ class Routing(object):
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut,
                                self.WaterBodies.waterBodyOutflow), 0.0)          # unit: m3
-            
+
             # update channelStorage (m3) after waterBodyOutflow (m3)
-            channelStorageForRouting += waterBodyOutflow
+            channelStorageForRouting += pcr.upstream(self.lddMap, waterBodyOutflow)
             # Note that local_input_to_surface_water does not include waterBodyOutflow
 
-            # alpha parameter and initial discharge variable needed for kinematic wave
-            alpha, dischargeInitial = \
-                   self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
-                                                                                 self.water_height, \
-                                                                                 self.innundatedFraction, self.floodDepth)
-
-            # at the lake/reservoir outlets, use the discharge of water body outflow
+            # at the lake/reservoir outlets, add the discharge of water body outflow
             waterBodyOutflowInM3PerSec = pcr.ifthen(\
                                          self.WaterBodies.waterBodyOut,
                                          self.WaterBodies.waterBodyOutflow) / length_of_sub_time_step
-            dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
-            dischargeInitial = pcr.ifthen(self.landmask, dischargeInitial)
-            
-            # discharge (m3/s) based on kinematic wave approximation
-            #~ logger.debug('start pcr.kinematic')
-            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              alpha, self.beta, \
-                                              1, length_of_sub_time_step, self.channelLength)
-            self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
-            #~ logger.debug('done')
-            
-            # make sure that we do not get net negative channel storage
-            self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
-                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
-            
-            # update channelStorage (m3)
-            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
-            channelStorageForRouting += storage_change_in_volume 
-            
-            if self.debugWaterBalance:\
-                vos.waterBalanceCheck([self.runoff * length_of_sub_time_step/vos.secondsPerDay(), \
-                                       landSurface.nonIrrReturnFlow * length_of_sub_time_step/vos.secondsPerDay(),\
-                                       waterBodyOutflow/self.cellArea,\
-                                       storage_change_in_volume/self.cellArea],\
-                                      [water_body_evaporation_volume/self.cellArea],\
-                                      [preStorage/self.cellArea - storageAtLakeAndReservoirs/self.cellArea],\
-                                      [channelStorageForRouting/self.cellArea],\
-                                       'channelStorageForRouting (after routing, without lakes/reservoirs)',\
-                                       True,\
-                                       currTimeStep.fulldate,threshold=5e-4)
+            self.subDischarge = self.subDischarge + \
+                                pcr.cover(waterBodyOutflowInM3PerSec, 0.0)                             
+            self.subDischarge = pcr.ifthen(self.landmask, self.subDischarge)
+
 
             # total discharge_volume (m3) until this present i_loop
             acc_discharge_volume += self.subDischarge * length_of_sub_time_step
