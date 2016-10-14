@@ -530,7 +530,7 @@ class WaterBodies(object):
                      pcr.max(avgChannelDischarge, self.avgInflow))
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
-                     avgOutflow, pcr.upstream(self.lddMap, avgOutflow))
+                     avgOutflow, pcr.downstream(self.lddMap, avgOutflow))
         avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
         # calculate resvOutflow (m2/s) (based on reservoir storage and avgDischarge): 
