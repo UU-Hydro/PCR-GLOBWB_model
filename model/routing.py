@@ -1491,10 +1491,10 @@ class Routing(object):
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
             
-            # the kinematic wave is implemented only for channels (not to lakes and reservoirs)
-            # - set discharge to zero for lakes and reservoirs:
-            self.subDischarge = pcr.cover(\
-                                pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., pcr.scalar(0.0)), self.subDischarge)
+            #~ # the kinematic wave is implemented only for channels (not to lakes and reservoirs)
+            #~ # - set discharge to zero for lakes and reservoirs:
+            #~ self.subDischarge = pcr.cover(\
+                                #~ pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., pcr.scalar(0.0)), self.subDischarge)
             
             # make sure that we do not get negative channel storage
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \

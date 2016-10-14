@@ -511,10 +511,20 @@ class WaterBodies(object):
 
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
+        # The following is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
+        #~ # - alternative 1
+        #~ avgOutflow = pcr.ifthenelse(\
+                     #~ avgOutflow > 0.,\
+                     #~ avgOutflow,
+                     #~ pcr.max(avgChannelDischarge, self.avgInflow, 0.001))
+        # - alternative 2
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
                      avgOutflow,
-                     pcr.max(avgChannelDischarge,self.avgInflow,0.001)) # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
+                     pcr.max(avgChannelDischarge, self.avgInflow))
+        avgOutflow = pcr.ifthenelse(\
+                     avgOutflow > 0.,\
+                     avgOutflow, pcr.upstream(self.lddMap, avgOutflow))
         avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
         # calculate resvOutflow (m2/s) (based on reservoir storage and avgDischarge): 
