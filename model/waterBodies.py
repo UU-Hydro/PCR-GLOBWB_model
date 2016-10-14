@@ -45,6 +45,12 @@ class WaterBodies(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
                 
+        # local drainage direction:
+        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
+                                              self.cloneMap,self.tmpDir,self.inputDir,True)
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        self.lddMap = pcr.lddrepair(self.lddMap)
+
         # option to activate water balance check
         self.debugWaterBalance = True
         if iniItems.routingOptions['debugWaterBalance'] == "False":
