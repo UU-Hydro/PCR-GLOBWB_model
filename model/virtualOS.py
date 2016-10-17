@@ -1113,7 +1113,6 @@ def getMapTotalHighPrecisionButOnlyForPositiveValues(mapFile):
     for power_number in range(min_power_number, max_power_number + step, step):
         total += total_map_for_every_power_number[str(power_number)]
 
-    total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
     return total
 
 def get_rowColAboveThreshold(map, threshold):
