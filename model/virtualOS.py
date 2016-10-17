@@ -1083,10 +1083,10 @@ def getMapTotal(mapFile):
     total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
     return total
 
-def getMapTotalHighPrecisionButOnlyForPositiveValues(mapFile):
+def getMapTotalHighPrecisionButOnlyForPositiveValues_NEEDMORETEST(mapFile):
     ''' outputs the sum of all values in a map file '''
 
-    # STILL UNDER DEVELOPMENT
+    # STILL UNDER DEVELOPMENT - NOT FULLY TESTED
     
     # input map - note that all values must be positive
     remainingMapValue = pcr.max(0.0, mapFile)
@@ -1384,14 +1384,14 @@ def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOn
 
 
 
-def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
+def waterAbstractionAndAllocationHighPrecision_NEEDMORETEST(water_demand_volume, \
                                                available_water_volume, \
                                                allocation_zones,\
                                                zone_area = None,
                                                debug_water_balance = True,\
                                                extra_info_for_water_balance_reporting = ""):
 
-    # STILL UNDER DEVELOPMENT
+    # STILL UNDER DEVELOPMENT - NOT FULLY TESTED
     
     logger.debug("Allocation of abstraction. - using high precision option")
     

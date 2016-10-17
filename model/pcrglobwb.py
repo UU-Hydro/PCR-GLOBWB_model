@@ -291,8 +291,11 @@ class PCRGlobWB(object):
                 volume = vos.getMapVolume(\
                             self.__getattribute__(var + 'Acc'),\
                             self.routing.cellArea)
-                if var == "actSurfaceWaterAbstract" or var == "allocSurfaceWaterAbstract":
-                    volume = vos.getMapTotalHighPrecisionButOnlyForPositiveValues(self.__getattribute__(var + 'Acc') * self.routing.cellArea)
+
+                #~ # an eperiment: To test an improved version of map total - still need to be tested 
+                #~ if var == "actSurfaceWaterAbstract" or var == "allocSurfaceWaterAbstract":
+                    #~ volume = vos.getMapTotalHighPrecisionButOnlyForPositiveValues(self.__getattribute__(var + 'Acc') * self.routing.cellArea)
+
                 msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self._modelTime.doy),\
                            int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)    # TODO: Calculation does not always start from day 1.
