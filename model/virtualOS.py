@@ -1399,7 +1399,7 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
         
         # allocation water to meet water demand (unit: m3)
         cellAllocation  = getValDivZero(\
-                          cellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
+                          remainingcellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
     
         # water balance check
         if debug_water_balance and not isinstance(zone_area,types.NoneType):
