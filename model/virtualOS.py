@@ -1080,10 +1080,41 @@ def getMapAttributes(cloneMap,attribute,arcDegree=True):
 def getMapTotal(mapFile):
     ''' outputs the sum of all values in a map file '''
 
-    total, valid= pcr.cellvalue(pcr.maptotal(mapFile),1)
+    total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
     return total
 
+def getMapTotalHighPrecisionButOnlyForPositiveValues(mapFile):
+    ''' outputs the sum of all values in a map file '''
 
+    # STILL UNDER DEVELOPMENT
+    
+    remainingMapValue = pcr.max(0.0, mapFile)
+    
+    # loop from biggest values of cellAvlWater
+    min_power_number = 0
+    max_power_number = int(pcr.mapmaximum(pcr.log10(remainingMapValue))) + 1
+    step = 1
+    total_map_for_every_power_number = {}
+    for power_number in range(max_power_number, min_power_number - step, -step):
+        
+        # cell value in this loop        
+        currentCellValue = pcr.rounddown(remainingMapValue * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
+        if power_number == min_power_number: currentCellValue = remainingMapValue
+        
+        # map total in this loop
+        total_in_this_loop, valid = pcr.cellvalue(pcr.maptotal(currentCellValue), 1)
+        total_map_for_every_power_number[str(power_number)] = total_in_this_loop
+                
+        # remaining map value 
+        remainingMapValue = pcr.max(0.0, remainingMapValue - currentCellValue)
+        
+    # sum from the smallest values (minimizing numerical errors)
+    total = pcr.scalar(0.0)
+    for power_number in range(min_power_number, max_power_number + step, step):
+        total += total_map_for_every_power_number[str(power_number)]
+
+    total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
+    return total
 
 def get_rowColAboveThreshold(map, threshold):
     npMap = pcr.pcr2numpy(map, -9999)
@@ -1360,6 +1391,8 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
                                                debug_water_balance = True,\
                                                extra_info_for_water_balance_reporting = ""):
 
+    # STILL UNDER DEVELOPMENT
+    
     logger.debug("Allocation of abstraction. - using high precision option")
     
     # demand volume in each cell (unit: m3)
@@ -1370,7 +1403,7 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
 
     # loop from biggest values of cellAvlWater
     min_power_number = 0
-    max_power_number = 10
+    max_power_number = 16
     step = 1
     cell_abstrac_for_every_power_number = {}
     cell_allocat_for_every_power_number = {}
@@ -1381,7 +1414,6 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
 
         # cell available water in this loop        
         cellAvlWater = pcr.rounddown(remainingcellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
-        if power_number == max_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater - cellAvlWater)
         if power_number == min_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater)
         
         # zonal available water in this loop
