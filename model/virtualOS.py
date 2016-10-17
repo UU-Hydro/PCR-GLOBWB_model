@@ -1115,7 +1115,7 @@ def getMinMaxMean(mapFile,ignoreEmptyMap=False):
     else:
         return mn,mx,(getMapTotal(mapFile) / nrValues)
 
-def getMapVolume(mapFile,cellareaFile):
+def getMapVolume(mapFile, cellareaFile):
     ''' returns the sum of all grid cell values '''
     volume = mapFile * cellareaFile
     return (getMapTotal(volume) / 1)
