@@ -1475,11 +1475,15 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                   high_volume_treshold = 1000000.,
                                   debug_water_balance = True,\
                                   extra_info_for_water_balance_reporting = "",
+                                  landmask = None,
                                   ignore_small_values = False):
 
     logger.debug("Allocation of abstraction.")
     
     # demand volume in each cell (unit: m3)
+    cellVolDemand = pcr.max(0.0, water_demand_volume)
+    if not isinstance(landmask, types.NoneType):
+        cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellVolDemand = pcr.rounddown(pcr.max(0.0, water_demand_volume))
     else:
@@ -1489,10 +1493,13 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
     
     # total available water volume in each cell
+    cellAvlWater = pcr.max(0.0, available_water_volume)
+    if not isinstance(landmask, types.NoneType):
+        cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume))
     else:
-        cellAvlWater = pcr.max(0.00, available_water_volume)
+        cellAvlWater = pcr.max(0.0, available_water_volume)
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 

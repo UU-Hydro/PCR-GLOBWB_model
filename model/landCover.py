@@ -1643,7 +1643,7 @@ class LandCover(object):
               zone_area = self.segmentArea,\
               high_volume_treshold = 1000000.,\
               debug_water_balance = True,\
-              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), self.landmask)
         #     
             self.desalinationAbstraction = volDesalinationAbstraction / routing.cellArea
             self.desalinationAllocation  = volDesalinationAllocation  / routing.cellArea
@@ -1743,7 +1743,7 @@ class LandCover(object):
              zone_area = self.segmentArea,\
              high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), self.landmask)
         #  
             #~ # - high precision alternative - STILL UNDER DEVELOPMENT (last progress: not much improvement)
             #~ volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
@@ -1926,7 +1926,7 @@ class LandCover(object):
              zone_area = groundwater.segmentArea,\
              high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), self.landmask)
             
             # non fossil groundwater abstraction and allocation in meter
             self.nonFossilGroundwaterAbs   = volActGroundwaterAbstract  / routing.cellArea 
@@ -2150,7 +2150,7 @@ class LandCover(object):
                      zone_area = groundwater.segmentArea,\
                      high_volume_treshold = 1000000.,\
                      debug_water_balance = True,\
-                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), self.landmask)
                     
                     # fossil groundwater abstraction and allocation in meter
                     self.fossilGroundwaterAbstr = volActGroundwaterAbstract  /routing.cellArea 
