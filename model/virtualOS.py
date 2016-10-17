@@ -1092,7 +1092,7 @@ def getMapTotalHighPrecisionButOnlyForPositiveValues(mapFile):
     remainingMapValue = pcr.max(0.0, mapFile)
     
     # loop from biggest values
-    min_power_number = -3
+    min_power_number = 0
     max_power_number = int(pcr.mapmaximum(pcr.log10(remainingMapValue))) + 1
     step = 1
     total_map_for_every_power_number = {}
@@ -1402,7 +1402,7 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
     remainingCellAvlWater  = pcr.max(0.0, available_water_volume)
 
     # loop from biggest values of cellAvlWater
-    min_power_number = -3
+    min_power_number = 0
     max_power_number = int(pcr.mapmaximum(pcr.log10(remainingCellAvlWater))) + 1
     step = 1
     cell_abstrac_for_every_power_number = {}
