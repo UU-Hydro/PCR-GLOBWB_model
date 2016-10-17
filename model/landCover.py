@@ -1734,13 +1734,24 @@ class LandCover(object):
         #  
             logger.debug("Allocation of surface water abstraction.")
         #  
+            #~ # - fast alternative (introducing some rounding errors)
+            #~ volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
+             #~ vos.waterAbstractionAndAllocation(
+             #~ water_demand_volume = surface_water_demand*routing.cellArea,\
+             #~ available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
+             #~ allocation_zones = allocSegments,\
+             #~ zone_area = self.segmentArea,\
+             #~ high_volume_treshold = 1000000.,\
+             #~ debug_water_balance = True,\
+             #~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+        #  
+            # - high precision alternative:
             volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
-             vos.waterAbstractionAndAllocation(
+             vos.waterAbstractionAndAllocationHighPrecision(
              water_demand_volume = surface_water_demand*routing.cellArea,\
              available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
              allocation_zones = allocSegments,\
              zone_area = self.segmentArea,\
-             high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
         #  

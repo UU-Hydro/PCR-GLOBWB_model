@@ -1353,12 +1353,94 @@ def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOn
 
 
 
+def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
+                                               available_water_volume, \
+                                               allocation_zones,\
+                                               zone_area = None,
+                                               debug_water_balance = True,\
+                                               extra_info_for_water_balance_reporting = ""):
+
+    logger.debug("Allocation of abstraction.")
+    
+    # demand volume in each cell (unit: m3)
+    remainingcellVolDemand = pcr.max(0.0, water_demand_volume)
+    
+    # available water volume in each cell
+    remainingcellAvlWater  = pcr.max(0.0, available_water_volume)
+
+    # loop from biggest values of cellAvlWater
+    min_power_number = 0
+    max_power_number = 10
+    step = 1
+    cell_abstrac_for_every_power_number = {}
+    cell_allocat_for_every_power_number = {}
+    for power_number in range(max_power_number, min_power_number - step, -step):
+        
+        # cell available water in this loop        
+        cellAvlWater = pcr.rounddown(remainingcellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
+        if power_number == max_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater - cellAvlWater)
+        if power_number == min_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater)
+        
+        # zonal available water in this loop
+        zoneAvlWater = pcr.areatotal(cellAvlWater, allocation_zones)
+
+        # total actual water abstraction volume in each zone/segment (unit: m3)
+        # - limited to available water
+        zoneVolDemand   = pcr.areatotal(remainingcellVolDemand, allocation_zones)
+        zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
+    
+        # actual water abstraction volume in each cell (unit: m3)
+        cellAbstraction = getValDivZero(\
+                          cellAvlWater, zoneAvlWater, smallNumber) * zoneAbstraction
+        cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
+        
+        # allocation water to meet water demand (unit: m3)
+        cellAllocation  = getValDivZero(\
+                          cellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
+    
+        # water balance check
+        if debug_water_balance and not isinstance(zone_area,types.NoneType):
+            waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                              [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
+                              [pcr.scalar(0.0)],\
+                              [pcr.scalar(0.0)],\
+                              'abstraction - allocation per zone/segment (with high precision) - loop (power number): ' + str(power_number) ,\
+                               True,\
+                               extra_info_for_water_balance_reporting, threshold = 1e-5)
+
+        # actual water abstraction and allocation in this current loop (power number)
+        cell_abstrac_for_every_power_number[str(power_number)] = cellAbstraction
+        cell_allocat_for_every_power_number[str(power_number)] = cellAllocation
+                
+        # remaining cell available water and demand 
+        remainingCellAvlWater  = pcr.max(0.0, remainingcellAvlWater  - cellAbstraction)
+        remainingcellVolDemand = pcr.max(0.0, remainingcellVolDemand - cellAllocation )
+        
+    # sum from the smallest values (minimizing numerical errors)
+    sumCellAbstraction = pcr.scalar(0.0)
+    sumCellAllocation  = pcr.scalar(0.0)
+    for power_number in range(min_power_number, max_power_number + step, step):
+        sumCellAbstraction += cell_abstrac_for_every_power_number[str(power_number)]
+        sumCellAllocation  += cell_allocat_for_every_power_number[str(power_number)]
+    
+     # water balance check
+     if debug_water_balance and not isinstance(zone_area,types.NoneType):
+         waterBalanceCheck([pcr.cover(pcr.areatotal(sumCellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                           [pcr.cover(pcr.areatotal(sumCellAllocation , allocation_zones)/zone_area, 0.0)],\
+                           [pcr.scalar(0.0)],\
+                           [pcr.scalar(0.0)],\
+                           'abstraction - allocation per zone/segment (with high precision) - sum after loop' ,\
+                            True,\
+                            extra_info_for_water_balance_reporting, threshold = 1e-5)
+    
+    return sumCellAbstraction, sumCellAllocation
+
 def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,allocation_zones,\
                                   zone_area = None,
                                   high_volume_treshold = 1000000.,
                                   debug_water_balance = True,\
                                   extra_info_for_water_balance_reporting = "",
-                                  ignore_small_values = True):
+                                  ignore_small_values = False):
 
     logger.debug("Allocation of abstraction.")
     
@@ -1416,33 +1498,30 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAllocation  = getValDivZero(\
                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
     
-    #~ # extraAbstraction to minimize numerical errors:
-    #~ zoneDeficitAbstraction = pcr.max(0.0,\
-                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
-    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            #~ remainingCellAvlWater, 
-                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            #~ smallNumber)                        
-    #~ # 
-    #~ # extraAllocation to minimize numerical errors:
-    #~ zoneDeficitAllocation = pcr.max(0.0,\
-                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
-                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
-    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
-                          #~ remainingCellDemand, 
-                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
-                          #~ smallNumber)                        
+    # extraAbstraction to minimize numerical errors:
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            remainingCellAvlWater, 
+                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            smallNumber)                        
+    # 
+    # extraAllocation to minimize numerical errors:
+    zoneDeficitAllocation = pcr.max(0.0,\
+                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    pcr.areatotal(cellAllocation , allocation_zones))
+    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          remainingCellDemand, 
+                          pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          smallNumber)                        
     
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
-        zoneAbstraction = pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)
-        zoneAllocation  = pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)
-    
-        waterBalanceCheck([zoneAbstraction],\
-                          [zoneAllocation],\
+        waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                          [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
                           [pcr.scalar(0.0)],\
                           [pcr.scalar(0.0)],\
                           'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
@@ -1450,7 +1529,6 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                            extra_info_for_water_balance_reporting,threshold=1e-4)
     
     return cellAbstraction, cellAllocation
-
 
 def findLastYearInNCFile(ncFile):
 
