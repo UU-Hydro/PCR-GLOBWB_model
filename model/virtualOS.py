@@ -1360,7 +1360,7 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
                                                debug_water_balance = True,\
                                                extra_info_for_water_balance_reporting = ""):
 
-    logger.debug("Allocation of abstraction.")
+    logger.debug("Allocation of abstraction. - using high precision option")
     
     # demand volume in each cell (unit: m3)
     remainingcellVolDemand = pcr.max(0.0, water_demand_volume)
@@ -1376,6 +1376,9 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
     cell_allocat_for_every_power_number = {}
     for power_number in range(max_power_number, min_power_number - step, -step):
         
+
+        logger.debug("Allocation of abstraction. - using high precision option - loop power number: " + str(power_number))
+
         # cell available water in this loop        
         cellAvlWater = pcr.rounddown(remainingcellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
         if power_number == max_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater - cellAvlWater)
