@@ -1399,11 +1399,11 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
     remainingcellVolDemand = pcr.max(0.0, water_demand_volume)
     
     # available water volume in each cell
-    remainingcellAvlWater  = pcr.max(0.0, available_water_volume)
+    remainingCellAvlWater  = pcr.max(0.0, available_water_volume)
 
     # loop from biggest values of cellAvlWater
     min_power_number = -3
-    max_power_number = int(pcr.mapmaximum(pcr.log10(remainingMapValue))) + 1
+    max_power_number = int(pcr.mapmaximum(pcr.log10(remainingCellAvlWater))) + 1
     step = 1
     cell_abstrac_for_every_power_number = {}
     cell_allocat_for_every_power_number = {}
@@ -1413,8 +1413,8 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
         logger.debug("Allocation of abstraction. - using high precision option - loop power number: " + str(power_number))
 
         # cell available water in this loop        
-        cellAvlWater = pcr.rounddown(remainingcellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
-        if power_number == min_power_number: cellAvlWater = pcr.max(0.0, remainingcellAvlWater)
+        cellAvlWater = pcr.rounddown(remainingCellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
+        if power_number == min_power_number: cellAvlWater = pcr.max(0.0, remainingCellAvlWater)
         
         # zonal available water in this loop
         zoneAvlWater = pcr.areatotal(cellAvlWater, allocation_zones)
@@ -1448,7 +1448,7 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
         cell_allocat_for_every_power_number[str(power_number)] = cellAllocation
                 
         # remaining cell available water and demand 
-        remainingCellAvlWater  = pcr.max(0.0, remainingcellAvlWater  - cellAbstraction)
+        remainingCellAvlWater  = pcr.max(0.0, remainingCellAvlWater  - cellAbstraction)
         remainingcellVolDemand = pcr.max(0.0, remainingcellVolDemand - cellAllocation )
         
     # sum from the smallest values (minimizing numerical errors)
