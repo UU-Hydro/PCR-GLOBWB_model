@@ -1426,15 +1426,15 @@ def waterAbstractionAndAllocationHighPrecision(water_demand_volume, \
         sumCellAbstraction += cell_abstrac_for_every_power_number[str(power_number)]
         sumCellAllocation  += cell_allocat_for_every_power_number[str(power_number)]
     
-     # water balance check
-     if debug_water_balance and not isinstance(zone_area,types.NoneType):
-         waterBalanceCheck([pcr.cover(pcr.areatotal(sumCellAbstraction, allocation_zones)/zone_area, 0.0)],\
-                           [pcr.cover(pcr.areatotal(sumCellAllocation , allocation_zones)/zone_area, 0.0)],\
-                           [pcr.scalar(0.0)],\
-                           [pcr.scalar(0.0)],\
-                           'abstraction - allocation per zone/segment (with high precision) - sum after loop' ,\
-                            True,\
-                            extra_info_for_water_balance_reporting, threshold = 1e-5)
+    # water balance check
+    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+        waterBalanceCheck([pcr.cover(pcr.areatotal(sumCellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                          [pcr.cover(pcr.areatotal(sumCellAllocation , allocation_zones)/zone_area, 0.0)],\
+                          [pcr.scalar(0.0)],\
+                          [pcr.scalar(0.0)],\
+                          'abstraction - allocation per zone/segment (with high precision) - sum after loop' ,\
+                           True,\
+                           extra_info_for_water_balance_reporting, threshold = 1e-5)
     
     return sumCellAbstraction, sumCellAllocation
 
