@@ -8,4 +8,4 @@
 
 # run using the account of "edwin":
 cd /home/edwinhs/github/edwinkost/PCR-GLOBWB/model
-python parallel_pcrglobwb_runner.py ../config/05min_runs_2016_october/4LCs_ipsl-cm5a-lr/non-natural/begin_from_1951/setup_05min_ipsl-cm5a-lr_begin_from_1951_part_one.ini
+python parallel_pcrglobwb_runner.py ../config/05min_runs_2016_october/4LCs_ipsl-cm5a-lr/non-natural/begin_from_1951/setup_05min_ipsl-cm5a-lr_begin_from_1951_part_two.ini
