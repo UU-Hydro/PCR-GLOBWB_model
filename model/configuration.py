@@ -39,8 +39,11 @@ import disclaimer
 
 class Configuration(object):
 
-    def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None):
+    def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None, relative_ini_meteo_paths = False):
         object.__init__(self)
+
+        if iniFileName is None:
+            raise Exception('Error: No configuration file specified')
 
         # timestamp of this run, used in logging file names, etc
         self._timestamp = datetime.datetime.now()
@@ -50,9 +53,18 @@ class Configuration(object):
 
         # debug option
         self.debug_mode = debug_mode
+
+        # save cwd for later use, it may be changed later by some util functions
+        self._cwd = os.getcwd()
         
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
+
+        # added this option to be able to run in a sandbox with meteo files and initial conditions
+        self.using_relative_path_for_output_directory = False
+        if relative_ini_meteo_paths:
+            self.using_relative_path_for_output_directory = True
+            self.make_ini_meteo_paths_absolute()
         
         # option to define an online coupling between PCR-GLOBWB and MODFLOW
         self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
@@ -89,6 +101,26 @@ class Configuration(object):
         # options/settings used during debugging to PCR-GLOBWB version 1.0
         self.set_debug_to_version_one()
 
+    def make_ini_meteo_paths_absolute(self):
+        for section in self.allSections:
+            sec = getattr(self, section)
+
+            for key, value in sec.iteritems():
+                if key.endswith("Ini") and value is not None and value != 'None':
+                    sec[key] = os.path.abspath(value)
+
+                if key == 'precipitationNC' or key == 'temperatureNC':
+                    sec[key] = os.path.abspath(value)
+
+            for key, value in sec.iteritems():
+                if key.endswith("Ini"):
+                    if not os.path.exists(value):
+                        print key, ":", value
+
+    # make absolute to cwd when config was created
+    def make_absolute_path(self, path):
+        return os.path.normpath(os.path.join(self._cwd, path))
+
     def initialize_logging(self, log_file_location = "Default", system_arguments = None):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
@@ -115,7 +147,7 @@ class Configuration(object):
         if self.debug_mode == True: 
             log_level_console = "DEBUG"
             log_level_file    = "DEBUG"
-        
+
         console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
             raise ValueError('Invalid log level: %s', log_level_console)
@@ -173,7 +205,7 @@ class Configuration(object):
         config.read(modelFileName)
 
         # all sections provided in the configuration/ini file
-        self.allSections  = config.sections()
+        self.allSections = config.sections()
 
         # read all sections 
         for sec in self.allSections:
@@ -190,12 +222,16 @@ class Configuration(object):
 
         # Get the fullPaths of the INPUT directories/files mentioned in 
         #      a list/dictionary:         
-        dirsAndFiles = ['precipitationNC', 'temperatureNC','refETPotFileNC']
+        dirsAndFiles = ['precipitationNC', 'temperatureNC', 'refETPotFileNC']
         for item in dirsAndFiles:
             if self.meteoOptions[item] != "None":
                 self.meteoOptions[item] = vos.getFullPath(self.meteoOptions[item], self.globalOptions['inputDir'])
 
     def create_output_directories(self):
+
+        if self.using_relative_path_for_output_directory:
+            self.globalOptions['outputDir'] = self.make_absolute_path(self.globalOptions['outputDir'])
+
         # making the root/parent of OUTPUT directory:
         cleanOutputDir = False
         if cleanOutputDir:
@@ -203,7 +239,6 @@ class Configuration(object):
                 shutil.rmtree(self.globalOptions['outputDir'])
             except: 
                 pass # for new outputDir (not exist yet)
-
         try: 
             os.makedirs(self.globalOptions['outputDir'])
         except: 
@@ -276,6 +311,7 @@ class Configuration(object):
         self.timeStepUnit = "day"
         if 'timeStep' in self.globalOptions.keys() and \
            'timeStepUnit'in self.globalOptions.keys():
+
             if float(self.globalOptions['timeStep']) != 1.0 or \
                      self.globalOptions['timeStepUnit'] != "day":
                 logger.error('The model runs only on daily time step. Please check your ini/configuration file')
@@ -437,15 +473,17 @@ class Configuration(object):
         
         if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
             msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "0.0" for this option.'
+            msg += 'This run assumes "1.0" for this option.'
             logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "0.0"
+            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
         
         if 'treshold_to_minimize_fossil_groundwater_irrigation' not in self.landSurfaceOptions.keys():
             msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "0.0" for this option.'
+            msg += 'This run assumes "1.0" for this option.'
             logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "0.0"
+            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
         
         # maximum daily rate of groundwater abstraction (unit: m/day)
         if 'maximumDailyGroundwaterAbstraction' not in self.groundwaterOptions.keys():
