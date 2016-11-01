@@ -291,9 +291,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
             #
             if date.year < first_year_in_nc_file:  
                 if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(first_year_in_nc_file) == False:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,28)
+                    date = datetime.datetime(first_year_in_nc_file, date.month, 28)
                 else:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,date.day)
+                    date = datetime.datetime(first_year_in_nc_file, date.month, date.day)
                 msg  = "\n"
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(dateInput)+" is NOT available. "
@@ -302,9 +302,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 logger.warning(msg)
             if date.year > last_year_in_nc_file:  
                 if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(last_year_in_nc_file) == False:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,28)
+                    date = datetime.datetime(last_year_in_nc_file, date.month, 28)
                 else:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,date.day)
+                    date = datetime.datetime(last_year_in_nc_file, date.month, date.day)
                 msg  = "\n"
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(dateInput)+" is NOT available. "
