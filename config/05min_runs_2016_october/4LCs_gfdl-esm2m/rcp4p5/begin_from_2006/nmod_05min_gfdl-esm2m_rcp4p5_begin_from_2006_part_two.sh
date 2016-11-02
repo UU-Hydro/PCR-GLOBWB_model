@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 119:00:00 
+#SBATCH -t 119:30:00 
 #SBATCH -p normal
 
 # load a special version of pcraster
