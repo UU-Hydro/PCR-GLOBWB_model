@@ -678,7 +678,7 @@ class LandSurface(object):
 
         else:
 
-            logger.info("Water demand is satisfied by local source only.")
+            logger.info("If there is any, water demand is satisfied by local source only.")
 
 
     def scaleNaturalLandCoverFractions(self): 

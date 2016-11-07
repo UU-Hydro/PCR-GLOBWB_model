@@ -45,6 +45,12 @@ class WaterBodies(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
                 
+        # local drainage direction:
+        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
+                                              self.cloneMap,self.tmpDir,self.inputDir,True)
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        self.lddMap = pcr.lddrepair(self.lddMap)
+
         # option to activate water balance check
         self.debugWaterBalance = True
         if iniItems.routingOptions['debugWaterBalance'] == "False":
@@ -511,10 +517,20 @@ class WaterBodies(object):
 
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
+        # The following is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
+        #~ # - alternative 1
+        #~ avgOutflow = pcr.ifthenelse(\
+                     #~ avgOutflow > 0.,\
+                     #~ avgOutflow,
+                     #~ pcr.max(avgChannelDischarge, self.avgInflow, 0.001))
+        # - alternative 2
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
                      avgOutflow,
-                     pcr.max(avgChannelDischarge,self.avgInflow,0.001)) # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
+                     pcr.max(avgChannelDischarge, self.avgInflow))
+        avgOutflow = pcr.ifthenelse(\
+                     avgOutflow > 0.,\
+                     avgOutflow, pcr.downstream(self.lddMap, avgOutflow))
         avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
 
         # calculate resvOutflow (m2/s) (based on reservoir storage and avgDischarge): 

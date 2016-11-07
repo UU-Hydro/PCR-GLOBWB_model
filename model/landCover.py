@@ -1479,7 +1479,10 @@ class LandCover(object):
                                                self.effSatLow030150 - self.parameters.effSatAtWiltPointLow030150))*\
                                (self.parameters.satVolMoistContLow030150 -   self.parameters.resVolMoistContLow030150 )*\
                         pcr.min(self.parameters.thickLow030150,\
-                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.)) 
+                        pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.))
+                        
+        # RvB: initialize satAreaFrac        
+        self.satAreaFrac= None
 
     def calculateWaterDemand(self, nonIrrGrossDemandDict, \
                                    swAbstractionFractionDict, \
@@ -1640,7 +1643,7 @@ class LandCover(object):
               zone_area = self.segmentArea,\
               high_volume_treshold = 1000000.,\
               debug_water_balance = True,\
-              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), landmask = self.landmask)
         #     
             self.desalinationAbstraction = volDesalinationAbstraction / routing.cellArea
             self.desalinationAllocation  = volDesalinationAllocation  / routing.cellArea
@@ -1731,6 +1734,7 @@ class LandCover(object):
         #  
             logger.debug("Allocation of surface water abstraction.")
         #  
+            # - fast alternative (may introducing some rounding errors)
             volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
              vos.waterAbstractionAndAllocation(
              water_demand_volume = surface_water_demand*routing.cellArea,\
@@ -1739,7 +1743,17 @@ class LandCover(object):
              zone_area = self.segmentArea,\
              high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), landmask = self.landmask)
+        #  
+            #~ # - high precision alternative - STILL UNDER DEVELOPMENT (last progress: not much improvement)
+            #~ volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
+             #~ vos.waterAbstractionAndAllocationHighPrecision(
+             #~ water_demand_volume = surface_water_demand*routing.cellArea,\
+             #~ available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
+             #~ allocation_zones = allocSegments,\
+             #~ zone_area = self.segmentArea,\
+             #~ debug_water_balance = True,\
+             #~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
         #  
             self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
             self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
@@ -1912,7 +1926,7 @@ class LandCover(object):
              zone_area = groundwater.segmentArea,\
              high_volume_treshold = 1000000.,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  landmask = self.landmask)
             
             # non fossil groundwater abstraction and allocation in meter
             self.nonFossilGroundwaterAbs   = volActGroundwaterAbstract  / routing.cellArea 
@@ -2136,7 +2150,7 @@ class LandCover(object):
                      zone_area = groundwater.segmentArea,\
                      high_volume_treshold = 1000000.,\
                      debug_water_balance = True,\
-                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
+                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  landmask = self.landmask)
                     
                     # fossil groundwater abstraction and allocation in meter
                     self.fossilGroundwaterAbstr = volActGroundwaterAbstract  /routing.cellArea 
@@ -2298,6 +2312,8 @@ class LandCover(object):
         # WFRACB  = DW/WRANGE raised to the power (1/(b+1))
         # SATFRAC =	fractional saturated area
         # WACT    = actual water storage within rootzone
+
+        self.satAreaFracOld = self.satAreaFrac
         
         Pn = iniWaterStorage + \
              inputNetLqWaterToSoil                                      # Pn = W[TYPE]+Pn;

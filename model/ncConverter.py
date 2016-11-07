@@ -48,8 +48,13 @@ class PCR2netCDF():
         self.latitudes  = np.unique(pcr.pcr2numpy(pcr.ycoordinate(cloneMap), vos.MV))[::-1]
         self.longitudes = np.unique(pcr.pcr2numpy(pcr.xcoordinate(cloneMap), vos.MV))
         
-        # TODO: Let users decide what their preference regarding latitude order. 
-        #       Consult with Stefanie regarding CF convention. 
+        # Let users decide what their preference regarding latitude order. 
+        self.netcdf_y_orientation_follow_cf_convention = False
+        if 'netcdf_y_orientation_follow_cf_convention' in iniItems.reportingOptions.keys() and\
+            iniItems.reportingOptions['netcdf_y_orientation_follow_cf_convention'] == "True":
+            msg = "Latitude (y) orientation for output netcdf files start from the bottom to top."
+            self.netcdf_y_orientation_follow_cf_convention = True
+            self.latitudes  = np.unique(pcr.pcr2numpy(pcr.ycoordinate(cloneMap), vos.MV))
         
         # set the general netcdf attributes (based on the information given in the ini/configuration file) 
         self.set_general_netcdf_attributes(iniItems, specificAttributeDictionary)
@@ -60,8 +65,25 @@ class PCR2netCDF():
         if "formatNetCDF" in iniItems.reportingOptions.keys():
             self.format = str(iniItems.reportingOptions['formatNetCDF'])
         if "zlib" in iniItems.reportingOptions.keys():
-            if iniItems.reportingOptions['zlib'] == "True": self.zlib = True 
-            
+            if iniItems.reportingOptions['zlib'] == "True": self.zlib = True
+        
+
+        # if given in the ini file, use the netcdf as given in the section 'specific_attributes_for_netcdf_output_files'
+        if 'specific_attributes_for_netcdf_output_files' in iniItems.allSections:
+            for key in iniItems.specific_attributes_for_netcdf_output_files.keys():
+
+                self.attributeDictionary[key] = iniItems.specific_attributes_for_netcdf_output_files[key]
+                
+                if self.attributeDictionary[key] == "None": self.attributeDictionary[key] = ""
+
+                if key == "history" and self.attributeDictionary[key] == "Default":
+                    self.attributeDictionary[key] = \
+                                    'created on ' + datetime.datetime.today().isoformat(' ')
+                if self.attributeDictionary[key] == "Default" and\
+                  (key == "date_created" or key == "date_issued"):
+                    self.attributeDictionary[key] = datetime.datetime.today().isoformat(' ')
+ 
+                    
     def set_general_netcdf_attributes(self,iniItems,specificAttributeDictionary=None):
 
         # netCDF attributes (based on the configuration file or specificAttributeDictionary):
@@ -152,6 +174,9 @@ class PCR2netCDF():
         if posCnt == None: posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
 
+        # flip variable if necessary (to follow cf_convention)
+        if self.netcdf_y_orientation_follow_cf_convention: varField = np.flipud(varField)
+        
         rootgrp.variables[shortVarName][posCnt,:,:] = varField
 
         rootgrp.sync()
@@ -165,8 +190,14 @@ class PCR2netCDF():
         if posCnt == None: posCnt = len(date_time)
 
         for shortVarName in shortVarNameList:
+            
             date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
-            rootgrp.variables[shortVarName][posCnt,:,:] = varFieldList[shortVarName]
+            varField = varFieldList[shortVarName]
+            
+            # flip variable if necessary (to follow cf_convention)
+            if self.netcdf_y_orientation_follow_cf_convention: varField = np.flipud(varField)
+            
+            rootgrp.variables[shortVarName][posCnt,:,:] = varField
 
         rootgrp.sync()
         rootgrp.close()

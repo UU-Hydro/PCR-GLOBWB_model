@@ -149,7 +149,7 @@ class PCRGlobWB(object):
             self.variables['monthly_discharge_cubic_meter_per_second'] = pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
             self.variables['groundwater_recharge_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
             self.variables['groundwater_abstraction_meter_per_day'] = pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
-            
+        
         self.variables['monthly_discharge_cubic_meter_per_second'] += pcr.ifthen(self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody))
         self.variables['groundwater_recharge_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.gwRecharge)
         self.variables['groundwater_abstraction_meter_per_day'] += pcr.ifthen(self.routing.landmask, self.landSurface.totalGroundwaterAbstraction)
@@ -177,11 +177,6 @@ class PCRGlobWB(object):
                  timeStamp+".map",\
                  outputDirectory)
             
-            # make an empty file
-            filename = outputDirectory+"/pcrglobwb_files_for_"+str(self._modelTime.fulldate)+"_are_ready.txt"
-            if os.path.exists(filename): os.remove(filename)
-            open(filename, "w").close()    
-
     def resume(self):
         #restore state from disk. used when restarting
         pass
@@ -296,6 +291,11 @@ class PCRGlobWB(object):
                 volume = vos.getMapVolume(\
                             self.__getattribute__(var + 'Acc'),\
                             self.routing.cellArea)
+
+                #~ # an eperiment: To test an improved version of map total - still need to be tested 
+                #~ if var == "actSurfaceWaterAbstract" or var == "allocSurfaceWaterAbstract":
+                    #~ volume = vos.getMapTotalHighPrecisionButOnlyForPositiveValues(self.__getattribute__(var + 'Acc') * self.routing.cellArea)
+
                 msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % (var,int(self._modelTime.doy),\
                            int(self._modelTime.year),volume/1e9,volume*1000/totalCellArea)    # TODO: Calculation does not always start from day 1.
@@ -339,7 +339,7 @@ class PCRGlobWB(object):
                            int(self._modelTime.year),dischargeAtPitTotal/1e9,      dischargeAtPitTotal*1000/totalCellArea)
             logger.info(msg)
 
-            surfaceWaterBalance = surfaceWaterInputTotal - dischargeAtPitTotal + deltaChannelStorageOneYear 
+            surfaceWaterBalance = deltaChannelStorageOneYear - surfaceWaterInputTotal + dischargeAtPitTotal  
             msg = 'Accumulated %s days 1 to %i in %i = %e km3 = %e mm'\
                     % ("surfaceWaterBalance",int(self._modelTime.doy),\
                            int(self._modelTime.year),surfaceWaterBalance/1e9,      surfaceWaterBalance*1000/totalCellArea)
@@ -456,7 +456,7 @@ class PCRGlobWB(object):
             self.dumpState(self._configuration.endStateDir)
 
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
-        if self._configuration.online_coupling_between_pcrglobwb_and_moflow:
+        if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
         if (report_water_balance):
@@ -470,3 +470,9 @@ class PCRGlobWB(object):
 
             self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
                                 surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)
+
+        if self._modelTime.isLastDayOfMonth():
+            # make an empty file to indicate that the calculation for this month has done
+            filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
+            if os.path.exists(filename): os.remove(filename)
+            open(filename, "w").close()    

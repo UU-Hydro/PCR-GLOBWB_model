@@ -36,6 +36,7 @@ import math
 import sys
 import types
 import calendar
+import glob
 
 import netCDF4 as nc
 import numpy as np
@@ -54,6 +55,14 @@ smallNumber = 1E-39
 
 # tuple of netcdf file suffixes (extensions) that can be used:
 netcdf_suffixes = ('.nc4','.nc')
+
+def getFileList(inputDir, filePattern):
+	'''creates a dictionary of	files meeting the pattern specified'''
+	fileNameList = glob.glob(os.path.join(inputDir, filePattern))
+	ll= {}
+	for fileName in fileNameList:
+		ll[os.path.split(fileName)[-1]]= fileName
+	return ll
 
 def checkVariableInNC(ncFile,varName):
 
@@ -282,9 +291,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
             #
             if date.year < first_year_in_nc_file:  
                 if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(first_year_in_nc_file) == False:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,28)
+                    date = datetime.datetime(first_year_in_nc_file, date.month, 28)
                 else:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,date.day)
+                    date = datetime.datetime(first_year_in_nc_file, date.month, date.day)
                 msg  = "\n"
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(dateInput)+" is NOT available. "
@@ -293,9 +302,9 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
                 logger.warning(msg)
             if date.year > last_year_in_nc_file:  
                 if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(last_year_in_nc_file) == False:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,28)
+                    date = datetime.datetime(last_year_in_nc_file, date.month, 28)
                 else:
-                    date = datetime.datetime(first_year_in_nc_file,date.month,date.day)
+                    date = datetime.datetime(last_year_in_nc_file, date.month, date.day)
                 msg  = "\n"
                 msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
                 msg += "The date "+str(dateInput)+" is NOT available. "
@@ -1071,10 +1080,41 @@ def getMapAttributes(cloneMap,attribute,arcDegree=True):
 def getMapTotal(mapFile):
     ''' outputs the sum of all values in a map file '''
 
-    total, valid= pcr.cellvalue(pcr.maptotal(mapFile),1)
+    total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
     return total
 
+def getMapTotalHighPrecisionButOnlyForPositiveValues_NEEDMORETEST(mapFile):
+    ''' outputs the sum of all values in a map file '''
 
+    # STILL UNDER DEVELOPMENT - NOT FULLY TESTED
+    
+    # input map - note that all values must be positive
+    remainingMapValue = pcr.max(0.0, mapFile)
+    
+    # loop from biggest values
+    min_power_number = 0                                                      # The minimum value is zero.
+    max_power_number = int(pcr.mapmaximum(pcr.log10(remainingMapValue))) + 1
+    step = 1
+    total_map_for_every_power_number = {}
+    for power_number in range(max_power_number, min_power_number - step, -step):
+        
+        # cell value in this loop        
+        currentCellValue = pcr.rounddown(remainingMapValue * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
+        if power_number == min_power_number: currentCellValue = remainingMapValue
+        
+        # map total in this loop
+        total_in_this_loop, valid = pcr.cellvalue(pcr.maptotal(currentCellValue), 1)
+        total_map_for_every_power_number[str(power_number)] = total_in_this_loop
+                
+        # remaining map value 
+        remainingMapValue = pcr.max(0.0, remainingMapValue - currentCellValue)
+        
+    # sum from the smallest values (minimizing numerical errors)
+    total = pcr.scalar(0.0)
+    for power_number in range(min_power_number, max_power_number + step, step):
+        total += total_map_for_every_power_number[str(power_number)]
+
+    return total
 
 def get_rowColAboveThreshold(map, threshold):
     npMap = pcr.pcr2numpy(map, -9999)
@@ -1106,7 +1146,7 @@ def getMinMaxMean(mapFile,ignoreEmptyMap=False):
     else:
         return mn,mx,(getMapTotal(mapFile) / nrValues)
 
-def getMapVolume(mapFile,cellareaFile):
+def getMapVolume(mapFile, cellareaFile):
     ''' returns the sum of all grid cell values '''
     volume = mapFile * cellareaFile
     return (getMapTotal(volume) / 1)
@@ -1344,16 +1384,106 @@ def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOn
 
 
 
+def waterAbstractionAndAllocationHighPrecision_NEEDMORETEST(water_demand_volume, \
+                                               available_water_volume, \
+                                               allocation_zones,\
+                                               zone_area = None,
+                                               debug_water_balance = True,\
+                                               extra_info_for_water_balance_reporting = ""):
+
+    # STILL UNDER DEVELOPMENT - NOT FULLY TESTED
+    
+    logger.debug("Allocation of abstraction. - using high precision option")
+    
+    # demand volume in each cell (unit: m3)
+    remainingcellVolDemand = pcr.max(0.0, water_demand_volume)
+    
+    # available water volume in each cell
+    remainingCellAvlWater  = pcr.max(0.0, available_water_volume)
+
+    # loop from biggest values of cellAvlWater
+    min_power_number = 0                                                            # The minimum value is zero.
+    max_power_number = int(pcr.mapmaximum(pcr.log10(remainingCellAvlWater))) + 1
+    step = 1
+    cell_abstrac_for_every_power_number = {}
+    cell_allocat_for_every_power_number = {}
+    for power_number in range(max_power_number, min_power_number - step, -step):
+        
+
+        logger.debug("Allocation of abstraction. - using high precision option - loop power number: " + str(power_number))
+
+        # cell available water in this loop        
+        cellAvlWater = pcr.rounddown(remainingCellAvlWater * pcr.scalar(10.**(power_number))) / pcr.scalar(10.**(power_number))
+        if power_number == min_power_number: cellAvlWater = pcr.max(0.0, remainingCellAvlWater)
+        
+        # zonal available water in this loop
+        zoneAvlWater = pcr.areatotal(cellAvlWater, allocation_zones)
+
+        # total actual water abstraction volume in each zone/segment (unit: m3)
+        # - limited to available water
+        zoneVolDemand   = pcr.areatotal(remainingcellVolDemand, allocation_zones)
+        zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
+    
+        # actual water abstraction volume in each cell (unit: m3)
+        cellAbstraction = getValDivZero(\
+                          cellAvlWater, zoneAvlWater, smallNumber) * zoneAbstraction
+        cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
+        
+        # allocation water to meet water demand (unit: m3)
+        cellAllocation  = getValDivZero(\
+                          remainingcellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
+    
+        # water balance check
+        if debug_water_balance and not isinstance(zone_area,types.NoneType):
+            waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                              [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
+                              [pcr.scalar(0.0)],\
+                              [pcr.scalar(0.0)],\
+                              'abstraction - allocation per zone/segment (with high precision) - loop (power number): ' + str(power_number) ,\
+                               True,\
+                               extra_info_for_water_balance_reporting, threshold = 1e-5)
+
+        # actual water abstraction and allocation in this current loop (power number)
+        cell_abstrac_for_every_power_number[str(power_number)] = cellAbstraction
+        cell_allocat_for_every_power_number[str(power_number)] = cellAllocation
+                
+        # remaining cell available water and demand 
+        remainingCellAvlWater  = pcr.max(0.0, remainingCellAvlWater  - cellAbstraction)
+        remainingcellVolDemand = pcr.max(0.0, remainingcellVolDemand - cellAllocation )
+        
+    # sum from the smallest values (minimizing numerical errors)
+    sumCellAbstraction = pcr.scalar(0.0)
+    sumCellAllocation  = pcr.scalar(0.0)
+    for power_number in range(min_power_number, max_power_number + step, step):
+        sumCellAbstraction += cell_abstrac_for_every_power_number[str(power_number)]
+        sumCellAllocation  += cell_allocat_for_every_power_number[str(power_number)]
+    
+    # water balance check
+    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+        waterBalanceCheck([pcr.cover(pcr.areatotal(sumCellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                          [pcr.cover(pcr.areatotal(sumCellAllocation , allocation_zones)/zone_area, 0.0)],\
+                          [pcr.scalar(0.0)],\
+                          [pcr.scalar(0.0)],\
+                          'abstraction - allocation per zone/segment (with high precision) - sum after loop' ,\
+                           True,\
+                           extra_info_for_water_balance_reporting, threshold = 1e-5)
+    
+    return sumCellAbstraction, sumCellAllocation
+
 def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,allocation_zones,\
                                   zone_area = None,
                                   high_volume_treshold = 1000000.,
                                   debug_water_balance = True,\
                                   extra_info_for_water_balance_reporting = "",
-                                  ignore_small_values = True):
+                                  landmask = None,
+                                  ignore_small_values = False):
 
     logger.debug("Allocation of abstraction.")
     
     # demand volume in each cell (unit: m3)
+    cellVolDemand = pcr.max(0.0, water_demand_volume)
+    if not isinstance(landmask, types.NoneType):
+        cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellVolDemand = pcr.rounddown(pcr.max(0.0, water_demand_volume))
     else:
@@ -1363,10 +1493,13 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
     
     # total available water volume in each cell
+    cellAvlWater = pcr.max(0.0, available_water_volume)
+    if not isinstance(landmask, types.NoneType):
+        cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume))
     else:
-        cellAvlWater = pcr.max(0.00, available_water_volume)
+        cellAvlWater = pcr.max(0.0, available_water_volume)
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
@@ -1407,33 +1540,30 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAllocation  = getValDivZero(\
                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
     
-    #~ # extraAbstraction to minimize numerical errors:
-    #~ zoneDeficitAbstraction = pcr.max(0.0,\
-                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
-    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            #~ remainingCellAvlWater, 
-                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            #~ smallNumber)                        
-    #~ # 
-    #~ # extraAllocation to minimize numerical errors:
-    #~ zoneDeficitAllocation = pcr.max(0.0,\
-                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
-                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
-    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
-                          #~ remainingCellDemand, 
-                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
-                          #~ smallNumber)                        
+    # extraAbstraction to minimize numerical errors:
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            remainingCellAvlWater, 
+                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            smallNumber)                        
+    # 
+    # extraAllocation to minimize numerical errors:
+    zoneDeficitAllocation = pcr.max(0.0,\
+                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    pcr.areatotal(cellAllocation , allocation_zones))
+    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          remainingCellDemand, 
+                          pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          smallNumber)                        
     
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
-        zoneAbstraction = pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)
-        zoneAllocation  = pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)
-    
-        waterBalanceCheck([zoneAbstraction],\
-                          [zoneAllocation],\
+        waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
+                          [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
                           [pcr.scalar(0.0)],\
                           [pcr.scalar(0.0)],\
                           'abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)' ,\
@@ -1441,7 +1571,6 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                            extra_info_for_water_balance_reporting,threshold=1e-4)
     
     return cellAbstraction, cellAllocation
-
 
 def findLastYearInNCFile(ncFile):
 

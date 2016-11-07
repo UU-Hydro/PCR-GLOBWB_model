@@ -40,6 +40,8 @@ import pcraster as pcr
 
 from ncConverter import *
 
+from types import NoneType
+
 import variable_list as varDicts
 
 class Reporting(object):
@@ -530,7 +532,6 @@ class Reporting(object):
         pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir+"/globalalpha.map")
         pcr.report(self._model.groundwater.specificYield , self.configuration.mapsDir+"/specificyield.map")
 
-        # SAMPAI DI SINI
 
     def basic_post_processing(self):
 
@@ -675,6 +676,12 @@ class Reporting(object):
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
 
+        # estimate of river/surface water levels (above channel/surface water bottom elevation)
+        self.surfaceWaterLevel = pcr.ifthenelse(self.dynamicFracWat > 0., self._model.routing.channelStorage / \
+                                                                         (self.dynamicFracWat * self._model.routing.cellArea), 
+                                                                          0.0)
+        self.surfaceWaterLevel = pcr.max(0.0, pcr.ifthen(self._model.routing.landmask, self.surfaceWaterLevel)) 
+
         # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
         self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
                                           vos.getValDivZero(\
@@ -715,6 +722,10 @@ class Reporting(object):
         
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
+        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
         if self._model.landSurface.includeIrrigation:
             self.precipitation_at_irrigation    = self._model.meteo.precipitation * \
                                                   self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
@@ -751,17 +762,35 @@ class Reporting(object):
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
 
+
+		#-----------------------------------------------------------------------
+		# NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
+		# because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
+        #
         # flood innundation depth (unit: m) above the floodplain
-        if self._model.routing.floodPlain:\
-           self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
-                      pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
-                                     self._model.routing.floodDepth))
-                                
+        #~ if self._model.routing.floodPlain:\
+           #~ self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
+                      #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
+                                     #~ self._model.routing.floodDepth))
+        #                        
         # flood volume (unit: m3): excess above the channel storage capacity
-        if self._model.routing.floodPlain:\
+        #~ if self._model.routing.floodPlain:\
+           #~ self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
+                      #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
+                      #~ pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
+        #              
+        # flood innundation depth (unit: m) above the floodplain
+        if self._model.routing.floodPlain:
+           self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
+                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
+					            self._model.routing.floodDepth, 0.0))
+		#				
+        # flood volume (unit: m3): excess above the channel storage capacity
+        if self._model.routing.floodPlain:
            self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
-                      pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
-                      pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
+                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
+						          pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
+		#-----------------------------------------------------------------------
         
         # water withdrawal for irrigation sectors
         self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
@@ -806,13 +835,12 @@ class Reporting(object):
         ######################################################################################################################################################################
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
         # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
-        #                                                                         (self.precipitation_at_irrigation_volume + self.irrigationWaterWithdrawal)  
-        if self._model.landSurface.includeIrrigation:
-            self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
-            self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
-            # - additional values (may be needed) 
-            self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
-            self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
+        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+        # - additional values (may be needed) 
+        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
         ######################################################################################################################################################################
 
 

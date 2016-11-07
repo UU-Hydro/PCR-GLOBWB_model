@@ -1019,6 +1019,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flood innundation volume above the channel storage capacity. Not including flood overtopping reservoirs and lakes.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# surfaceWaterLevel
+pcrglobwb_variable_name = 'surfaceWaterLevel'
+netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_level'
+netcdf_unit[pcrglobwb_variable_name]       = 'm'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Estimate of surface/river water levels within surface water bodies (above channel bottom elevations).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # irrPaddyWaterWithdrawal
 pcrglobwb_variable_name = 'irrPaddyWaterWithdrawal'
 netcdf_short_name[pcrglobwb_variable_name] = 'paddy_irrigation_withdrawal'

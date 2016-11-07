@@ -61,9 +61,17 @@ class ModelTime(object):
         self._maxSpinUps = maxSpinUps
         self._monthIdx = 0 # monthly indexes since the simulation starts
         self._annuaIdx = 0 #  yearly indexes since the simulation starts
-        
-        
-    @property    
+
+
+    def setStartTime(self, date):
+        self._startTime = date
+        self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
+
+    def setEndTime(self, date):
+        self._endTime = date
+        self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
+
+    @property
     def spinUpStatus(self):
         return self._spinUpStatus
 
