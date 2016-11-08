@@ -74,13 +74,14 @@ class DeterministicRunner(DynamicModel):
                 vars(self)[nc_report_type] = self.configuration.mergingOutputOptions[nc_report_type]
         
 
-        # model and reporting objects for modflow 
-        self.model     = ModflowCoupling(configuration, modelTime)
-        self.reporting = Reporting(configuration, self.model, modelTime)
-
-        # set the clone map 
-        pcr.setclone(configuration.cloneMap)
-
+        # model and reporting objects
+        # - Note that both are still needed even 
+        if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
+            self.model     = ModflowCoupling(configuration, modelTime)
+            self.reporting = Reporting(configuration, self.model, modelTime)
+        else:
+            # somehow you need to set the clone map (as the dynamic framework needs it and the "self.model" is not made) 
+            pcr.setclone(configuration.cloneMap)
 
     def initial(self): 
         
