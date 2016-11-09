@@ -397,8 +397,8 @@ class GroundwaterModflow(object):
         
         # option to make backup of modflow files
         self.make_backup_of_modflow_files = False
-        if "make_backup_of_modflow_files" in self.iniItems.reportingForModflowOptions.keys() and\
-           self.iniItems.reportingForModflowOptions["make_backup_of_modflow_files"] == "True": self.make_backup_of_modflow_files = True
+        if "make_backup_of_modflow_files" in self.iniItems.reportingOptions.keys() and\
+           self.iniItems.reportingOptions["make_backup_of_modflow_files"] == "True": self.make_backup_of_modflow_files = True
 
     def initiate_modflow(self):
 
