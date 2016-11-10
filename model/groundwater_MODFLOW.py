@@ -1058,7 +1058,7 @@ class GroundwaterModflow(object):
 
         # DAMP parameters (this may help the convergence during the steady-state simulation)
         self.parameter_DAMP = [1.0] 
-        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.9, 0.8, 0.6] 
+        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.9, 0.75] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
