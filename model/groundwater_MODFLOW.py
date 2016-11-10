@@ -1074,7 +1074,7 @@ class GroundwaterModflow(object):
             RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
             
             # damping parameter
-            DAMP   = self.criteria_RCLOSE[self.iteration_DAMP]
+            DAMP = self.parameter_DAMP[self.iteration_DAMP]
             
             # set PCG solver
             self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
