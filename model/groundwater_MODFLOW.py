@@ -365,7 +365,7 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.), 100000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -916,7 +916,7 @@ class GroundwaterModflow(object):
                            PERLEN = 1.0, 
                            NSTP   = 1, \
                            MXITER = 50,\
-                           ITERI = 50,\
+                           ITERI = 30,\
                            NPCOND = 1,\
                            RELAX = 0.98,\
                            NBPOL = 2,\
@@ -1058,7 +1058,7 @@ class GroundwaterModflow(object):
 
         # DAMP parameters (this may help the convergence during the steady-state simulation)
         self.parameter_DAMP = [1.0] 
-        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.9, 0.75] 
+        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.80, 0.60] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
