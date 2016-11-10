@@ -1002,12 +1002,14 @@ class GroundwaterModflow(object):
                 # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
                 gwRecharge = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterRechargeInputNC'],\
                                                    "groundwater_recharge", str(currTimeStep.fulldate), None, self.cloneMap)
+                gwRecharge = pcr.cover(gwRecharge, 0.0)                                   
             
                 # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
                 gwAbstraction = pcr.spatial(pcr.scalar(0.0))
                 if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                            "total_groundwater_abstraction", str(currTimeStep.fulldate), None, self.cloneMap)
+                    gwAbstraction = pcr.cover(gwRecharge, 0.0)
                 
                 # - for offline coupling, the provision of channel storage (unit: m3) is only optional
                 channelStorage = None                                           
@@ -1015,6 +1017,7 @@ class GroundwaterModflow(object):
                    self.iniItems.modflowTransientInputOptions['channelStorageInputNC'][-4:] != "None": 
                     channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
                                                            "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
+                    channelStorage = pcr.cover(channelStorage, 0.0)                                       
 
 
         #####################################################################################################################################################
