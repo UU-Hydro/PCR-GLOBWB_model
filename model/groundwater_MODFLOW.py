@@ -1009,7 +1009,7 @@ class GroundwaterModflow(object):
                 if self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'][-4:] != "None": 
                     gwAbstraction = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['groundwaterAbstractionInputNC'],\
                                                            "total_groundwater_abstraction", str(currTimeStep.fulldate), None, self.cloneMap)
-                    gwAbstraction = pcr.cover(gwRecharge, 0.0)
+                    gwAbstraction = pcr.cover(gwAbstraction, 0.0)
                 
                 # - for offline coupling, the provision of channel storage (unit: m3) is only optional
                 channelStorage = None                                           
