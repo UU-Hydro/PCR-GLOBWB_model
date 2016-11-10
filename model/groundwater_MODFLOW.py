@@ -916,7 +916,7 @@ class GroundwaterModflow(object):
                            PERLEN = 1.0, 
                            NSTP   = 1, \
                            MXITER = 50,\
-                           ITERI = 30,\
+                           ITERI = 50,\
                            NPCOND = 1,\
                            RELAX = 0.98,\
                            NBPOL = 2,\
