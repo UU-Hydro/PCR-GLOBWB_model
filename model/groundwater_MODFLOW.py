@@ -918,7 +918,7 @@ class GroundwaterModflow(object):
                            NPCOND = 1,\
                            RELAX = 0.98,\
                            NBPOL = 2,\
-                           DAMP = 0.5,\
+                           DAMP = 0.1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
         # initiate pcraster modflow object including its grid/layer/elevation:
