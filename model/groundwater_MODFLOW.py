@@ -781,7 +781,7 @@ class GroundwaterModflow(object):
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length / (10*12/4))
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length / (10*30/5))
             
                 # reporting the calculated head to pcraster files
                 # - extension for output file:
