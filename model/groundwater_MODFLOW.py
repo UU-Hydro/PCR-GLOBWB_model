@@ -351,7 +351,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.5, 1.0]
-        self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        #~ self.criteria_HCLOSE = [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
+        self.criteria_HCLOSE = [0.001, 0.01, 0.1, 0.25]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.5, 1.0]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
@@ -362,8 +363,9 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10., 100., 10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(250.*250.), 10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -918,7 +920,7 @@ class GroundwaterModflow(object):
                            NPCOND = 1,\
                            RELAX = 0.98,\
                            NBPOL = 2,\
-                           DAMP = 0.9,\
+                           DAMP = 1,\
                            ITMUNI = 4, LENUNI = 2, TSMULT = 1.0):
         
         # initiate pcraster modflow object including its grid/layer/elevation:
@@ -1054,9 +1056,14 @@ class GroundwaterModflow(object):
         # TSMULT = 1.0   # multiplier for the length of the successive iterations
         # SSTR   = 1     # 0 - transient, 1 - steady state
 
+        # DAMP parameters (this may help the convergence during the steady-state simulation)
+        self.parameter_DAMP = [1.0] 
+        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.75] 
+
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
         self.iteration_RCLOSE = 0
+        self.iteration_DAMP   = 0
         self.modflow_converged = False
 
         # execute MODFLOW 
@@ -1065,6 +1072,9 @@ class GroundwaterModflow(object):
             # convergence criteria 
             HCLOSE = self.criteria_HCLOSE[self.iteration_HCLOSE]
             RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
+            
+            # damping parameter
+            DAMP   = self.criteria_RCLOSE[self.iteration_DAMP]
             
             # set PCG solver
             self.pcr_modflow.setPCG(MXITER, ITERI, NPCOND, HCLOSE, RCLOSE, RELAX, NBPOL, DAMP)
@@ -1080,7 +1090,7 @@ class GroundwaterModflow(object):
             # NBPOL  = 2                  # indicates whether the estimate of the upper bound on the maximum eigenvalue is 2.0 (but we don ot use it, since NPCOND = 1) 
             # DAMP   = 1                  # no damping (DAMP introduced in MODFLOW 2000)
 
-            msg = "Executing MODFLOW with HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)+" and MXITER = "+str(MXITER)+" and ITERI = "+str(ITERI)+" and PERLEN = "+str(PERLEN)+" and NSTP = "+str(NSTP)
+            msg = "Executing MODFLOW with DAMP = " + str(DAMP) + " and HCLOSE = "+str(HCLOSE)+" and RCLOSE = "+str(RCLOSE)+" and MXITER = "+str(MXITER)+" and ITERI = "+str(ITERI)+" and PERLEN = "+str(PERLEN)+" and NSTP = "+str(NSTP)
             logger.info(msg)
             
             try:
@@ -1121,8 +1131,13 @@ class GroundwaterModflow(object):
                         self.pcr_modflow.setInitialHead(initial_head, i)
                 ####################################################################################################################################### OPTIONAL ######
 
+                # set a new iteration index for the DAMP
+                self.iteration_DAMP   += 1
+                # reset if the index has reached the length of available criteria
+                if self.iteration_DAMP > (len(self.parameter_DAMP)-1): self.iteration_DAMP = 0     
+
                 # set a new iteration index for the RCLOSE
-                self.iteration_RCLOSE += 1 
+                if self.iteration_DAMP == 0: self.iteration_RCLOSE += 1 
                 # reset if the index has reached the length of available criteria
                 if self.iteration_RCLOSE > (len(self.criteria_RCLOSE)-1): self.iteration_RCLOSE = 0     
             
