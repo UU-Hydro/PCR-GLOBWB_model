@@ -1490,6 +1490,8 @@ class GroundwaterModflow(object):
 
         
         pcr.aguila(surface_water_elevation)
+        import time
+        time.sleep(60)
         
         # set the RIV package only to the uppermost layer
         self.pcr_modflow.setRiver(surface_water_elevation, self.surface_water_bed_elevation, bed_conductance_used, self.number_of_layers)
