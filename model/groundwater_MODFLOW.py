@@ -662,7 +662,8 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_monthly_stress_period(self):
 
-        time_step_length      = 30 # unit: days
+        time_step_length         = 30                # unit: days
+        number_of_sub_time_steps = time_step_length  # daily resolution
 
         number_of_extra_years = 10                                                    
 
@@ -697,7 +698,7 @@ class GroundwaterModflow(object):
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length)
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, number_of_sub_time_steps)
             
                 # reporting the calculated head to pcraster files
                 # - extension for output file:
@@ -714,7 +715,8 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_yearly_stress_period(self):
 
-        time_step_length      = 365 # unit: days
+        time_step_length         = 365               # unit: days
+        number_of_sub_time_steps = 52                # weekly resolution
 
         number_of_extra_years = 0                                                    
 
@@ -740,7 +742,7 @@ class GroundwaterModflow(object):
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length)
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, number_of_sub_time_steps)
             
                 # reporting the calculated head to pcraster files
                 # - extension for output file:
@@ -756,7 +758,8 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_10year_stress_period(self):
 
-        time_step_length         = 365 * 10 # unit: days
+        time_step_length         = 365 * 10           # unit: days
+        number_of_sub_time_steps =  10 * 12 * 0.5     # bi-monthly resolution
 
         number_of_extra_10_years = 0                                                    
 
@@ -782,7 +785,7 @@ class GroundwaterModflow(object):
                 logger.info(msg)
 
                 groundwaterHead = self.getState()
-                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, time_step_length / (10*30/5))
+                self.modflow_simulation("steady-state-extra", groundwaterHead, None, time_step_length, number_of_sub_time_steps)
             
                 # reporting the calculated head to pcraster files
                 # - extension for output file:
