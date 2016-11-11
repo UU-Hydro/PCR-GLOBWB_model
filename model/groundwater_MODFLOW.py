@@ -529,15 +529,27 @@ class GroundwaterModflow(object):
     def set_bcf_for_two_layer_model(self):
 
         # specification for storage coefficient (BCF package)
-        # - correction due to the usage of lat/lon coordinates
-        primary = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        primary = pcr.max(1e-20, primary)
-        #~ secondary = pcr.max(1e-5, primary * 0.001)                                                                                        # dummy values if we use layer type 00
-        secondary = pcr.cover(pcr.min(0.005, self.specificYield) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values if we use layer type 00
-        secondary = pcr.max(1e-20, secondary)
 
-        self.pcr_modflow.setStorage(primary, secondary, 1)
-        self.pcr_modflow.setStorage(primary, secondary, 2)
+        # layer 2 (upper layer) - storage coefficient
+        self.specific_yield_2 = self.specificYield
+        # - correction due to the usage of lat/lon coordinates
+        primary_2   = pcr.cover(self.specific_yield_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_2   = pcr.max(1e-20, primary_2)
+        secondary_2 = pcr.cover(pcr.min(0.005, self.specific_yield_2) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_2 = pcr.max(1e-20, secondary_2)
+
+        # layer 1 (lower layer) - storage coefficient
+        self.specific_yield_1 = self.specificYield
+        # - correction due to the usage of lat/lon coordinates
+        primary_1   = pcr.cover(self.specific_yield_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_1   = pcr.max(1e-20, primary_1)
+        secondary_1 = pcr.cover(pcr.min(0.005, self.specific_yield_1) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_1 = pcr.max(1e-20, secondary_1)
+
+        # put the storage coefficient values to the modflow model
+        self.pcr_modflow.setStorage(primary_1, secondary_1, 1)
+        self.pcr_modflow.setStorage(primary_2, secondary_2, 2)
+
 
         # specification for conductivities (BCF package)
         horizontal_conductivity = self.kSatAquifer # unit: m/day
@@ -589,14 +601,7 @@ class GroundwaterModflow(object):
                                              vertical_conductivity_layer_2, 2)              
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
-        #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
-                                             #~ vertical_conductivity_layer_1, 1)              
 
-        # make the following value(s) available for the other modules/methods:
-        self.specific_yield_1 = self.specificYield
-        self.specific_yield_2 = self.specificYield
-
-        
     def get_initial_heads(self):
 		
         if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
@@ -717,7 +722,7 @@ class GroundwaterModflow(object):
     def transient_simulation_with_constant_input_with_yearly_stress_period(self):
 
         time_step_length         = 365               # unit: days
-        number_of_sub_time_steps = 52 * 2            # semi-weekly resolution
+        number_of_sub_time_steps = 365               # daily resolution
 
         number_of_extra_years = 0                                                    
 
@@ -760,7 +765,7 @@ class GroundwaterModflow(object):
     def transient_simulation_with_constant_input_with_10year_stress_period(self):
 
         time_step_length         = 365 * 10           # unit: days
-        number_of_sub_time_steps =  10 * 12 * 2       # semi-monthly resolution
+        number_of_sub_time_steps =  10 * 52 * 2       # semi-weekly resolution
 
         number_of_extra_10_years = 0                                                    
 
