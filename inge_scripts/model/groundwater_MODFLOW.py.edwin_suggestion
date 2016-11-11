@@ -607,7 +607,7 @@ class GroundwaterModflow(object):
         #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
                                              #~ vertical_conductivity_layer_1, 1)              
 
-        # make the following value(s) available for the other modules/methods:
+        # make the following value(s) available for the other modules/methods - this is needed for calculating volume changes
         self.specific_yield_1 = self.specificYield
         self.specific_yield_2 = self.specificYield
 
