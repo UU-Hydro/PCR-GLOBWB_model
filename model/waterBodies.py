@@ -149,7 +149,7 @@ class WaterBodies(object):
         # - make sure that there is only one outlet for each water body 
         self.waterBodyOut = pcr.ifthen(\
                             pcr.areaorder(self.waterBodyOut, \
-                            self.waterBodyOut) == 1.), self.waterBodyOut)
+                            self.waterBodyOut) == 1., self.waterBodyOut)
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
