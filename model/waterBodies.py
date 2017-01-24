@@ -148,9 +148,8 @@ class WaterBodies(object):
                             self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one cells that have largest upstream areas      
         # - make sure that there is only one outlet for each water body 
         self.waterBodyOut = pcr.ifthen(\
-                            pcr.scalar(self.waterBodyOut) > 0.,\
-                            pcr.areaorder(wbCatchment, \
-                            self.waterBodyIds) == 1., self.waterBodyOut)
+                            pcr.areaorder(self.waterBodyOut, \
+                            self.waterBodyOut) == 1.), self.waterBodyOut)
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
