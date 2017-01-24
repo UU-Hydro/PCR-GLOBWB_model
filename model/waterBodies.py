@@ -150,7 +150,7 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyOut) > 0.,\
                             pcr.areaorder(wbCatchment, \
-                            self.waterBodyIds) eq 1, self.waterBodyOut)
+                            self.waterBodyIds) == 1., self.waterBodyOut)
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
