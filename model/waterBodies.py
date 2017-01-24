@@ -145,10 +145,10 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(wbCatchment ==\
                             pcr.areamaximum(wbCatchment, \
                             self.waterBodyIds),\
-                            self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one largest cells      
-        # - make sure that there is one outlet for every water bodies. 
-        self.waterBodyOut = pcr.ifthen(\    						     
-                            pcr.scalar(self.waterBodyIds) > 0.,\
+                            self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one cells that have largest upstream areas      
+        # - make sure that there is only one outlet for each water body 
+        self.waterBodyOut = pcr.ifthen(\
+                            pcr.scalar(self.waterBodyOut) > 0.,\
                             pcr.areaorder(wbCatchment, \
                             self.waterBodyIds) eq 1, self.waterBodyOut)
         self.waterBodyOut = pcr.ifthen(\
