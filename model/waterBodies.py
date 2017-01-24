@@ -153,6 +153,7 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
+        
         # TODO: Please also consider endorheic lakes!                    
 
         # correcting water body ids
