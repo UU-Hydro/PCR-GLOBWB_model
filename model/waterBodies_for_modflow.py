@@ -106,10 +106,15 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(wbCatchment ==\
                             pcr.areamaximum(wbCatchment, \
                             self.waterBodyIds),\
-                            self.waterBodyIds)     # = outlet ids   
+                            self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one cells that have largest upstream areas      
+        # - make sure that there is only one outlet for each water body 
+        self.waterBodyOut = pcr.ifthen(\
+                            pcr.areaorder(pcr.scalar(self.waterBodyOut), \
+                            self.waterBodyOut) == 1., self.waterBodyOut)
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
+        
         # TODO: Please also consider endorheic lakes!                    
 
         # correcting water body ids
