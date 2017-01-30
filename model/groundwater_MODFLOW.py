@@ -524,26 +524,26 @@ class GroundwaterModflow(object):
                                              vertical_conductivity, 1)              
 
         # make the following value(s) available for the other modules/methods:
-        self.specific_yield_1 = self.specificYield
+        self.storage_coefficient_1 = self.specificYield
         
-    def set_bcf_for_two_layer_model(self):
+    def set_bcf_for_two_layer_model_original(self):
 
         # specification for storage coefficient (BCF package)
 
         # layer 2 (upper layer) - storage coefficient
-        self.specific_yield_2 = self.specificYield
+        self.storage_coefficient_2 = self.specificYield
         # - correction due to the usage of lat/lon coordinates
-        primary_2   = pcr.cover(self.specific_yield_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_2   = pcr.cover(self.storage_coefficient_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary_2   = pcr.max(1e-20, primary_2)
-        secondary_2 = pcr.cover(pcr.min(0.005, self.specific_yield_2) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_2 = pcr.cover(pcr.min(0.005, self.storage_coefficient_2) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
         secondary_2 = pcr.max(1e-20, secondary_2)
 
         # layer 1 (lower layer) - storage coefficient
-        self.specific_yield_1 = self.specificYield
+        self.storage_coefficient_1 = self.specificYield
         # - correction due to the usage of lat/lon coordinates
-        primary_1   = pcr.cover(self.specific_yield_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary_1   = pcr.max(1e-20, primary_1)
-        secondary_1 = pcr.cover(pcr.min(0.005, self.specific_yield_1) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_1 = pcr.cover(pcr.min(0.005, self.storage_coefficient_1) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
         secondary_1 = pcr.max(1e-20, secondary_1)
 
         # put the storage coefficient values to the modflow model
@@ -601,6 +601,115 @@ class GroundwaterModflow(object):
                                              vertical_conductivity_layer_2, 2)              
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
+
+    def set_storages_for_two_layer_model(self):
+
+        # adjusting factor, minimum and maximum values of storage coefficients
+        adjust_factor = 1.00
+        minimum_storage_coefficient = 1e-10
+        maximum_storage_coefficient = 0.500
+        
+
+        msg = "Set storage coefficient for the upper layer (including lat/lon correction)."
+        logger.debug(msg)
+        # layer 2 (upper layer) - storage coefficient
+        self.storage_coefficient_2 = self.specificYield
+
+        # adjusting factor and set minimum and maximum values to keep values realistics
+        self.storage_coefficient_2  = adjust_factor * self.storage_coefficient_2
+        self.storage_coefficient_2  = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.storage_coefficient_2))
+        
+        # - correction due to the usage of lat/lon coordinates
+        primary_2   = pcr.cover(self.storage_coefficient_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_2   = pcr.max(1e-20, primary_2)
+
+        # - dummy values for the secondary term - as we use layer type 00
+        secondary_2 = primary_2
+
+
+        msg = "Set storage coefficient for the lower layer (including lat/lon correction)."
+        logger.debug(msg)
+        # layer 1 (lower layer) - storage coefficient
+        self.storage_coefficient_1 = self.specificYield
+
+        # - correction due to the usage of lat/lon coordinates
+        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_1   = pcr.max(1e-20, primary_1)
+
+        # adjusting factor and set minimum and maximum values to keep values realistics
+        self.storage_coefficient_1  = adjust_factor * self.storage_coefficient_1
+        self.storage_coefficient_1  = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.storage_coefficient_1))
+
+        # - dummy values for the secondary term - as we use layer type 00
+        secondary_1 = primary_1
+
+
+        msg = "Assign storage coefficient values to the MODFLOW (BCF package)."
+        logger.debug(msg)
+        # put the storage coefficient values to the modflow model
+        self.pcr_modflow.setStorage(primary_1, secondary_1, 1)
+        self.pcr_modflow.setStorage(primary_2, secondary_2, 2)
+
+
+    def set_conductivities_for_two_layer_model(self):
+
+        horizontal_conductivity = self.kSatAquifer # unit: m/day
+        
+        # layer 2 (upper layer) - horizontal conductivity
+        horizontal_conductivity_layer_2 = pcr.max(self.minimumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
+        horizontal_conductivity_layer_2 = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
+
+        # layer 2 (upper layer) - vertical conductivity
+        vertical_conductivity_layer_2   = self.kSatAquifer * self.cellAreaMap/\
+                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
+        
+        if self.usePreDefinedConfiningLayer:
+
+            # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity and maximumConfiningLayerResistance
+            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
+            vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
+            vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/self.maximumConfiningLayerResistance, \
+                                                     vertical_conductivity_layer_2)
+            # minimum resistance is one day
+            vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/1.0,\
+                                                     vertical_conductivity_layer_2)
+            # correcting vertical conductivity
+            vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
+        
+        # layer 1 (lower layer)
+        horizontal_conductivity_layer_1 = pcr.max(self.minimumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+        horizontal_conductivity_layer_1 = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+
+        # ignoring the vertical conductivity in the lower layer 
+        # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
+        vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
+                                        (pcr.clone().cellSize()*pcr.clone().cellSize())
+        vertical_conductivity_layer_2 *= 0.5
+        # see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
+        
+        #~ # for areas with ibound <= 0, we set very high horizontal conductivity values:             # TODO: Check this, shall we implement this?
+        #~ horizontal_conductivity_layer_2 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_2, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_2))
+        #~ horizontal_conductivity_layer_1 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_1, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_1))
+
+        # set conductivity values to MODFLOW
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
+                                             vertical_conductivity_layer_2, 2)              
+        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                             vertical_conductivity_layer_1, 1)              
+
+    def set_bcf_for_two_layer_model(self):
+
+        # specification for storage coefficient (BCF package)
+        self.set_storages_for_two_layer_model()
+
+        # specification for conductivities (BCF package)
+        self.set_conductivities_for_two_layer_model()
 
     def get_initial_heads(self):
 		
@@ -1283,13 +1392,13 @@ class GroundwaterModflow(object):
         # storGroundwater (unit: m)
         # - from the lowermost layer
         accesibleGroundwaterThickness = pcr.ifthen(self.landmask, \
-                                                       self.specific_yield_1 * \
+                                                       self.storage_coefficient_1 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_1)))
         # - from the uppermost layer                                                
         if self.number_of_layers == 2:\
            accesibleGroundwaterThickness += pcr.ifthen(self.landmask, \
-                                                       self.specific_yield_2 * \
+                                                       self.storage_coefficient_2 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_2)))
         # - TODO: Make this flexible for a model that has more than two layers. 

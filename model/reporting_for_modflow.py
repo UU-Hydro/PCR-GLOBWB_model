@@ -282,13 +282,13 @@ class Reporting(object):
         if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
             # - from the lowermost layer
             self.groundwaterThicknessEstimate = pcr.ifthen(self._model.landmask, \
-                                                           self._model.modflow.specific_yield_1 * \
+                                                           self._model.modflow.storage_coefficient_1 * \
                                                           (self.groundwaterHeadLayer1 - self._model.modflow.bottom_layer_1))
             # - from the uppermost layer
             if self._model.modflow.number_of_layers == 2:\
                self.groundwaterThicknessEstimate += \
                                                 pcr.ifthen(self._model.landmask, \
-                                                           self._model.modflow.specific_yield_2 * \
+                                                           self._model.modflow.storage_coefficient_2 * \
                                                           (self.groundwaterHeadLayer2 - self._model.modflow.bottom_layer_2))
             self.groundwaterVolumeEstimate = self.groundwaterThicknessEstimate *\
                                              self._model.modflow.cellAreaMap 
