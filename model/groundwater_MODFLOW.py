@@ -302,9 +302,10 @@ class GroundwaterModflow(object):
                                            vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerVerticalConductivity'],\
                                                                self.cloneMap, self.tmpDir, self.inputDir), 0.0)
             # confining layer resistance (unit: day)
-            self.maximumConfiningLayerResistance = pcr.cover(\
-                                                   vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'],\
-                                                                       self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+            self.maximumConfiningLayerResistance = float(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'])
+            #~ self.maximumConfiningLayerResistance = pcr.cover(\
+                                                   #~ vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'],\
+                                                                       #~ self.cloneMap, self.tmpDir, self.inputDir), 0.0)
         ##############################################################################################################################################
         
 
