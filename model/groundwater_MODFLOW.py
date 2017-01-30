@@ -692,9 +692,9 @@ class GroundwaterModflow(object):
         msg = "Constrained by minimum and maximum transmissity values."
         logger.debug(msg)
         horizontal_conductivity_layer_1 = pcr.max(minTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+                                          horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
         horizontal_conductivity_layer_1 = pcr.min(maxTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+                                          horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
                                           
         # transmissivity values for the lower layer (layer 1) - unit: m2/day
         self.transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
