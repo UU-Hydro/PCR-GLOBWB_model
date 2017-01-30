@@ -389,9 +389,11 @@ class GroundwaterModflow(object):
         # minimum and maximum transmissivity values (unit: m2/day)
         self.minimumTransmissivity = 10.0     # assumption used by Deltares
         self.maximumTransmissivity = 100000.0 # ridiculosly high (for 20 m/day with the thickness = 5 km)
-        if 'minimumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
+        if 'minimumTransmissivity' in self.iniItems.modflowParameterOptions.keys() and\
+            self.iniItems.modflowParameterOptions['minimumTransmissivity'] != "None":
             self.minimumTransmissivity = float(self.iniItems.modflowParameterOptions['minimumTransmissivity'])
-        if 'maximumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
+        if 'maximumTransmissivity' in self.iniItems.modflowParameterOptions.keys() and\
+            self.iniItems.modflowParameterOptions['maximumTransmissivity'] != "None":
             self.maximumTransmissivity = float(self.iniItems.modflowParameterOptions['maximumTransmissivity'])
         
         # option for online coupling purpose, we also need to know the location of pcrglobwb output
@@ -662,9 +664,9 @@ class GroundwaterModflow(object):
         adjust_factor_for_horizontal_conductivities = 1.00
         maxTransmissivity = adjust_factor_for_horizontal_conductivities * self.maximumTransmissivity
         minTransmissivity = self.minimumTransmissivity        # to keep it realistic, this one should not be multiplied
-        msg = 'The minimum transmissivity value is (m2/day) ' + str(minTransmissivity)  
+        msg = 'The minimum transmissivity value is limited to (m2/day) ' + str(minTransmissivity)  
         logger.debug(msg)
-        msg = 'The maximum transmissivity value is (m2/day) ' + str(maxTransmissivity)  
+        msg = 'The maximum transmissivity value is limited to (m2/day) ' + str(maxTransmissivity)  
         logger.debug(msg)
 
         
@@ -711,9 +713,9 @@ class GroundwaterModflow(object):
         # minimum and maximum resistance values (unit: days)
         minResistance = 1.0   # to keep it realistic, this one should not be multiplied
         maxResistance = adjust_factor_for_resistance_values * self.maximumConfiningLayerResistance
-        msg = 'The minimum resistance (days) between upper and lower layers (1/VCONT): ' + str(minResistance)  
+        msg = 'The minimum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(minResistance)  
         logger.debug(msg)
-        msg = 'The maximum resistance (days) between upper and lower layers (1/VCONT): ' + str(maxResistance)  
+        msg = 'The maximum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(maxResistance)  
         logger.debug(msg)
 
 
