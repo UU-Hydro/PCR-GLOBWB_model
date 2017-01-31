@@ -1779,11 +1779,6 @@ class GroundwaterModflow(object):
 
         # adjustment factor
         adjusting_factor = 1.0
-        if 'linear_multiplier_for_groundwater_recharge' in self.iniItems.modflowParameterOptions.keys():
-            linear_multiplier_for_groundwater_recharge = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_recharge'])
-            adjusting_factor                           = linear_multiplier_for_groundwater_recharge
-        
-        # adjusting recharge values
         net_recharge = net_recharge * adjusting_factor
         
         # - correcting values (considering MODFLOW lat/lon cell properties)
@@ -1801,22 +1796,17 @@ class GroundwaterModflow(object):
 
         logger.info("Set the well package.")
 
-        # adjustment factor
-        adjusting_factor = 1.0
-        if 'linear_multiplier_for_groundwater_abstraction' in self.iniItems.modflowParameterOptions.keys():
-            linear_multiplier_for_groundwater_abstraction = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_abstraction'])
-            adjusting_factor                              = linear_multiplier_for_groundwater_abstraction
-        
-        # adjusting groundwater abstraction
-        gwAbstractionUsed = gwAbstraction * adjusting_factor
-
-        if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstractionUsed)
-        if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstractionUsed)
+        if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstraction)
+        if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstraction)
 
     def set_well_package_for_one_layer_model(self, gwAbstraction):
 		
         gwAbstraction = pcr.cover(gwAbstraction, 0.0)
         gwAbstraction = pcr.max(gwAbstraction, 0.0)
+
+        # adjustment factor
+        adjusting_factor = 1.0
+        gwAbstraction = gwAbstraction * adjusting_factor
 
         # abstraction volume (negative value, unit: m3/day)
         abstraction = pcr.cover(gwAbstraction, 0.0) * self.cellAreaMap * pcr.scalar(-1.0)
@@ -1829,6 +1819,10 @@ class GroundwaterModflow(object):
         gwAbstraction = pcr.cover(gwAbstraction, 0.0)
         gwAbstraction = pcr.max(gwAbstraction, 0.0)
         
+        # adjustment factor
+        adjusting_factor = 1.0
+        gwAbstraction = gwAbstraction * adjusting_factor
+
         # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
         abstraction_layer_1 = pcr.cover(pcr.ifthen(self.productive_aquifer, gwAbstraction), 0.0)
         
