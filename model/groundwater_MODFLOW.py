@@ -1754,6 +1754,10 @@ class GroundwaterModflow(object):
         net_recharge = gwRecharge - gwAbstraction + \
                        gwAbstractionReturnFlow
 
+        # adjustment factor
+        adjusting_factor = 1.0
+        net_recharge = net_recharge * adjusting_factor
+        
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
         net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
@@ -1777,6 +1781,10 @@ class GroundwaterModflow(object):
         gwAbstraction = pcr.cover(gwAbstraction, 0.0)
         gwAbstraction = pcr.max(gwAbstraction, 0.0)
 
+        # adjustment factor
+        adjusting_factor = 1.0
+        gwAbstraction = gwAbstraction * adjusting_factor
+
         # abstraction volume (negative value, unit: m3/day)
         abstraction = pcr.cover(gwAbstraction, 0.0) * self.cellAreaMap * pcr.scalar(-1.0)
         
@@ -1788,11 +1796,17 @@ class GroundwaterModflow(object):
         gwAbstraction = pcr.cover(gwAbstraction, 0.0)
         gwAbstraction = pcr.max(gwAbstraction, 0.0)
         
+        # adjustment factor
+        adjusting_factor = 1.0
+        gwAbstraction = gwAbstraction * adjusting_factor
+
         # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
         abstraction_layer_1 = pcr.cover(pcr.ifthen(self.productive_aquifer, gwAbstraction), 0.0)
         
         # abstraction for the layer 2 (upper layer)
         abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+        
+        # TODO: Distribute gwAbstraction based on KD value of each layer
         
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
