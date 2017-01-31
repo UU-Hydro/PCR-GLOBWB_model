@@ -615,6 +615,8 @@ class GroundwaterModflow(object):
         if 'linear_multiplier_for_storage_coefficients' in self.iniItems.modflowParameterOptions.keys():
             linear_multiplier_for_storage_coefficients = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_storage_coefficients'])
             adjust_factor                              = linear_multiplier_for_storage_coefficients
+        msg = 'Adjustment factor: ' + str(adjust_factor)  
+        logger.debug(msg)
         
         # minimum and maximum values of storage coefficients
         minimum_storage_coefficient = 1e-10
@@ -675,7 +677,8 @@ class GroundwaterModflow(object):
         if 'log_10_multiplier_for_transmissivities' in self.iniItems.modflowParameterOptions.keys():
             log_10_multiplier_for_transmissivities      = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_transmissivities'])
             adjust_factor_for_horizontal_conductivities = 10.0**(log_10_multiplier_for_transmissivities)
-        
+        msg = 'Adjustment factor: ' + str(adjust_factor_for_horizontal_conductivities)  
+        logger.debug(msg)
         
         # minimum and maximum values for transmissivity
         maxTransmissivity = adjust_factor_for_horizontal_conductivities * self.maximumTransmissivity
@@ -729,6 +732,9 @@ class GroundwaterModflow(object):
         if 'log_10_multiplier_for_resistance_values' in self.iniItems.modflowParameterOptions.keys():
             log_10_multiplier_for_resistance_values  = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_resistance_values'])
             adjust_factor_for_resistance_values      = 10.0**(log_10_multiplier_for_resistance_values)
+        msg = 'Adjustment factor for resistance: ' + str(adjust_factor_for_resistance_values)  
+        logger.debug(msg)
+
         
         # minimum and maximum resistance values (unit: days)
         minResistance = 1.0   # to keep it realistic, this one should not be multiplied
@@ -1782,6 +1788,8 @@ class GroundwaterModflow(object):
         if 'linear_multiplier_for_groundwater_recharge' in self.iniItems.modflowParameterOptions.keys():
             linear_multiplier_for_groundwater_recharge = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_recharge'])
             adjusting_factor                           = linear_multiplier_for_groundwater_recharge
+        msg = 'Adjustment factor: ' + str(adjusting_factor)  
+        logger.debug(msg)
         
         # adjusting recharge values
         net_recharge = net_recharge * adjusting_factor
@@ -1806,6 +1814,8 @@ class GroundwaterModflow(object):
         if 'linear_multiplier_for_groundwater_abstraction' in self.iniItems.modflowParameterOptions.keys():
             linear_multiplier_for_groundwater_abstraction = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_abstraction'])
             adjusting_factor                              = linear_multiplier_for_groundwater_abstraction
+        msg = 'Adjustment factor: ' + str(adjusting_factor)  
+        logger.debug(msg)
         
         # adjusting groundwater abstraction
         gwAbstractionUsed = gwAbstraction * adjusting_factor
