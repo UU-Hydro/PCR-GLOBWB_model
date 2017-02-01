@@ -406,6 +406,9 @@ class GroundwaterModflow(object):
         self.make_backup_of_modflow_files = False
         if "make_backup_of_modflow_files" in self.iniItems.reportingOptions.keys() and\
            self.iniItems.reportingOptions["make_backup_of_modflow_files"] == "True": self.make_backup_of_modflow_files = True
+        
+        # a boolean status to reduce log info file
+        self.log_to_info = True   
 
     def initiate_modflow(self):
 
@@ -532,7 +535,7 @@ class GroundwaterModflow(object):
     def set_storages_for_two_layer_model(self):
 
         msg = "Set storage coefficient for the upper layer (including lat/lon correction)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
         # adjusting factor 
         adjust_factor = 1.00
@@ -540,15 +543,15 @@ class GroundwaterModflow(object):
             linear_multiplier_for_storage_coefficients = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_storage_coefficients'])
             adjust_factor                              = linear_multiplier_for_storage_coefficients
         msg = 'Adjustment factor: ' + str(adjust_factor)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         
         # minimum and maximum values of storage coefficients
         minimum_storage_coefficient = 1e-10
         maximum_storage_coefficient = 0.500
         msg = 'The minimum storage coefficient value is limited to (-) ' + str(minimum_storage_coefficient)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         msg = 'The maximum storage coefficient value is limited to (-) ' + str(maximum_storage_coefficient)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
 
         # layer 2 (upper layer) - storage coefficient
@@ -567,7 +570,7 @@ class GroundwaterModflow(object):
 
 
         msg = "Set storage coefficient for the lower layer (including lat/lon correction)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         # layer 1 (lower layer) - storage coefficient
         self.storage_coefficient_1 = self.specificYield
 
@@ -584,7 +587,7 @@ class GroundwaterModflow(object):
 
 
         msg = "Assign storage coefficient values to the MODFLOW (BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         # put the storage coefficient values to the modflow model
         self.pcr_modflow.setStorage(primary_1, secondary_1, 1)
         self.pcr_modflow.setStorage(primary_2, secondary_2, 2)
@@ -593,7 +596,7 @@ class GroundwaterModflow(object):
     def set_conductivities_for_two_layer_model(self):
 
         msg = "Preparing transmissivity values (TRAN) for the BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
         
         # adjusting factor for horizontal conductivities 
@@ -602,24 +605,24 @@ class GroundwaterModflow(object):
             log_10_multiplier_for_transmissivities      = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_transmissivities'])
             adjust_factor_for_horizontal_conductivities = 10.0**(log_10_multiplier_for_transmissivities)
         msg = 'Adjustment factor: ' + str(adjust_factor_for_horizontal_conductivities)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         
         # minimum and maximum values for transmissivity
         maxTransmissivity = adjust_factor_for_horizontal_conductivities * self.maximumTransmissivity
         minTransmissivity = self.minimumTransmissivity        # to keep it realistic, this one should not be multiplied
         msg = 'The minimum transmissivity value is limited to (m2/day) ' + str(minTransmissivity)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         msg = 'The maximum transmissivity value is limited to (m2/day) ' + str(maxTransmissivity)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
         
         msg = "Assign horizontal conductivities of the upper layer (used for calculating transmissivity (TRAN) for the BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         horizontal_conductivity_layer_2 = adjust_factor_for_horizontal_conductivities * self.kSatAquifer
         
         # layer 2 (upper layer) - horizontal conductivity
         msg = "Constrained by minimum and maximum transmissity values."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         horizontal_conductivity_layer_2 = pcr.max(minTransmissivity, \
                                           horizontal_conductivity_layer_2 * self.thickness_of_layer_2) / self.thickness_of_layer_2
         horizontal_conductivity_layer_2 = pcr.min(maxTransmissivity, \
@@ -630,13 +633,13 @@ class GroundwaterModflow(object):
         
         
         msg = "Assign horizontal conductivities of the lower layer (used for calculating transmissivity (TRAN) for the BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         horizontal_conductivity_layer_1 = adjust_factor_for_horizontal_conductivities * self.kSatAquifer
 
 
         # layer 1 (lower layer) - horizontal conductivity 
         msg = "Constrained by minimum and maximum transmissity values."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         horizontal_conductivity_layer_1 = pcr.max(minTransmissivity, \
                                           horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
         horizontal_conductivity_layer_1 = pcr.min(maxTransmissivity, \
@@ -648,7 +651,7 @@ class GroundwaterModflow(object):
 
 
         msg = "Preparing VCONT (day-1) values (1/resistance) between upper and lower layers for the BCF package (including the correction due to the lat/lon usage)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
         
         # adjusting factor for resistance values  
@@ -657,26 +660,26 @@ class GroundwaterModflow(object):
             log_10_multiplier_for_resistance_values  = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_resistance_values'])
             adjust_factor_for_resistance_values      = 10.0**(log_10_multiplier_for_resistance_values)
         msg = 'Adjustment factor for resistance: ' + str(adjust_factor_for_resistance_values)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
         
         # minimum and maximum resistance values (unit: days)
         minResistance = 1.0   # to keep it realistic, this one should not be multiplied
         maxResistance = adjust_factor_for_resistance_values * self.maximumConfiningLayerResistance
         msg = 'The minimum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(minResistance)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         msg = 'The maximum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(maxResistance)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
 
 
         msg = "Assign vertical conductivities to determine VCONT values (1/resistance) between upper and lower layers (used for calculating VCONT for the BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         vertical_conductivity_layer_2 = self.kSatAquifer
         
         if self.usePreDefinedConfiningLayer:
             
             msg = "In areas with confining layer, limit vertical conductivity to the given map/value of maximumConfiningLayerVerticalConductivity"
-            logger.debug(msg)
+            if self.log_to_info: logger.info(msg)
             # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity
             vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
             # particularly in areas with confining layer
@@ -687,7 +690,7 @@ class GroundwaterModflow(object):
         
         # vertical conductivity values are limited by minimum and maximum resistance values
         msg = "Constrained by minimum and maximum resistance values."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/maxResistance, \
                                                  vertical_conductivity_layer_2)
         vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/minResistance,\
@@ -706,14 +709,14 @@ class GroundwaterModflow(object):
         
         # correcting vertical conductivity due the lat/lon usage
         msg = "Correction due to the lat/lon usage."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
         vertical_conductivity_layer_1 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
 
         
         # set conductivity values to MODFLOW
         msg = "Assign conductivity values to the MODFLOW (BCF package)."
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
@@ -1059,7 +1062,7 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def update(self,currTimeStep):
+    def update(self, currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
@@ -1083,8 +1086,35 @@ class GroundwaterModflow(object):
                                                  PERLEN, 
                                                  NSTP)
 
+            # save some pcraster static maps
+            if self.log_to_info: self.save_some_pcraster_static_maps()
+            
+            # after the first call, we do not have to log it anymore
+            self.log_to_info = False
+            
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
+
+    def save_some_pcraster_static_maps(self):
+
+        msg = "Saving some pcraster maps (MODFLOW parameters/input files) to the folder"
+        logger.info(msg)
+
+        # - top and bottom layer elevations
+        pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), "top_uppermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), "bottom_uppermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), "bottom_lowermost_layer.map")
+        
+        # - transmissivities
+        pcr.report(self.transmissivity_layer_2, "transmissivity_uppermost_layer.map")
+        pcr.report(self.transmissivity_layer_1, "transmissivity_lowermost_layer.map")
+
+        # - resistance values
+        pcr.report(self.resistance_between_layers, "resistance_between_layers.map")
+
+        # - storage coefficients
+        pcr.report(self.storage_coefficient_layer_2, "storage_coefficient_uppermost_layer.map")
+        pcr.report(self.storage_coefficient_layer_1, "storage_coefficient_lowermost_layer.map")
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -1713,7 +1743,7 @@ class GroundwaterModflow(object):
             linear_multiplier_for_groundwater_recharge = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_recharge'])
             adjusting_factor                           = linear_multiplier_for_groundwater_recharge
         msg = 'Adjustment factor: ' + str(adjusting_factor)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         
         # adjusting recharge values
         net_recharge = net_recharge * adjusting_factor
@@ -1739,7 +1769,7 @@ class GroundwaterModflow(object):
             linear_multiplier_for_groundwater_abstraction = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_abstraction'])
             adjusting_factor                              = linear_multiplier_for_groundwater_abstraction
         msg = 'Adjustment factor: ' + str(adjusting_factor)  
-        logger.debug(msg)
+        if self.log_to_info: logger.info(msg)
         
         # adjusting groundwater abstraction
         gwAbstractionUsed = gwAbstraction * adjusting_factor
