@@ -1113,8 +1113,8 @@ class GroundwaterModflow(object):
         pcr.report(self.resistance_between_layers, "resistance_between_layers.map")
 
         # - storage coefficients
-        pcr.report(self.storage_coefficient_layer_2, "storage_coefficient_uppermost_layer.map")
-        pcr.report(self.storage_coefficient_layer_1, "storage_coefficient_lowermost_layer.map")
+        pcr.report(self.storage_coefficient_2, "storage_coefficient_uppermost_layer.map")
+        pcr.report(self.storage_coefficient_1, "storage_coefficient_lowermost_layer.map")
 
     def modflow_simulation(self,\
                            simulation_type,\
