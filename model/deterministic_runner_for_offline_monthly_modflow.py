@@ -107,7 +107,7 @@ def main():
 
     # if steady_state_only startTime = endTime
     if steady_state_only:
-       configuration.globalOptions['startTime'] = configuration.globalOptions['endTime']
+       configuration.globalOptions['endTime'] = configuration.globalOptions['startTime']
     
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
