@@ -382,7 +382,7 @@ class GroundwaterModflow(object):
 
         # the following condition is needed if we have to convert the unit of recharge and abstraction (ONLY for a transient simulation) 
         self.valuesRechargeAndAbstractionInMonthlyTotal = False
-        if self.iniItems.steady_state_only == False\
+        if self.iniItems.steady_state_only == False and\
            "modflowTransientInputOptions" in self.iniItems.allSections and\
            'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":
