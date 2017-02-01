@@ -734,7 +734,8 @@ class GroundwaterModflow(object):
 
     def get_initial_heads(self):
 		
-        if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
+        if "modflowTransientInputOptions" in self.iniItems.allSections and\
+           self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
             msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
             logger.info(msg)
