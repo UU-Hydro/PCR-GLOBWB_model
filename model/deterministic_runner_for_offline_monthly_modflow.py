@@ -100,14 +100,14 @@ def main():
     steady_state_only = False
     if len(sys.argv) > 3: 
         if sys.argv[3] == "steady-state-only": steady_state_only = True
-    
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
                                   steady_state_only = steady_state_only)      
 
     # if steady_state_only startTime = endTime
-    configuration.globalOptions['startTime'] = configuration.globalOptions['endTime']
+    if steady_state_only:
+       configuration.globalOptions['startTime'] = configuration.globalOptions['endTime']
     
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
