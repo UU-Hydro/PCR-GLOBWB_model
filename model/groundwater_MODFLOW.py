@@ -1102,20 +1102,20 @@ class GroundwaterModflow(object):
         logger.info(msg)
 
         # - top and bottom layer elevations
-        pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), "top_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), "bottom_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), "bottom_lowermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), self.iniItems.mapsDir + "/" + "top_uppermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), self.iniItems.mapsDir + "/" + "bottom_uppermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), self.iniItems.mapsDir + "/" + "bottom_lowermost_layer.map")
         
         # - transmissivities
-        pcr.report(self.transmissivity_layer_2, "transmissivity_uppermost_layer.map")
-        pcr.report(self.transmissivity_layer_1, "transmissivity_lowermost_layer.map")
+        pcr.report(self.transmissivity_layer_2, self.iniItems.mapsDir + "/" + "transmissivity_uppermost_layer.map")
+        pcr.report(self.transmissivity_layer_1, self.iniItems.mapsDir + "/" + "transmissivity_lowermost_layer.map")
 
         # - resistance values
-        pcr.report(self.resistance_between_layers, "resistance_between_layers.map")
+        pcr.report(self.resistance_between_layers, self.iniItems.mapsDir + "/" + "resistance_between_layers.map")
 
         # - storage coefficients
-        pcr.report(self.storage_coefficient_2, "storage_coefficient_uppermost_layer.map")
-        pcr.report(self.storage_coefficient_1, "storage_coefficient_lowermost_layer.map")
+        pcr.report(self.storage_coefficient_2, self.iniItems.mapsDir + "/" + "storage_coefficient_uppermost_layer.map")
+        pcr.report(self.storage_coefficient_1, self.iniItems.mapsDir + "/" + "storage_coefficient_lowermost_layer.map")
 
     def modflow_simulation(self,\
                            simulation_type,\
