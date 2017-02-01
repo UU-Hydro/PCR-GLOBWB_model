@@ -46,7 +46,7 @@ import disclaimer
 
 class DeterministicRunner(DynamicModel):
 
-    def __init__(self, configuration, modelTime):
+    def __init__(self, configuration, modelTime, system_arguments):
         DynamicModel.__init__(self)
 
         # model time object
@@ -61,6 +61,9 @@ class DeterministicRunner(DynamicModel):
         
         # set the clone map
         pcr.setclone(configuration.cloneMap)
+        
+        # TODO: pre-factors based on the system arguments
+        
 
     def initial(self): 
         
@@ -110,9 +113,9 @@ def main():
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                       configuration.globalOptions['endTime'])
     logger.info('Model run starts.')
-    deterministic_runner = DeterministicRunner(configuration, currTimeStep)
+    deterministic_runner = DeterministicRunner(configuration, currTimeStep, sys.argv)
     
-    dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+    dynamic_framework = DynamicFramework(deterministic_runner, currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
     dynamic_framework.run()
 
