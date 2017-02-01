@@ -534,7 +534,7 @@ class GroundwaterModflow(object):
 
     def set_storages_for_two_layer_model(self):
 
-        msg = "Set storage coefficient for the upper layer (including lat/lon correction)."
+        msg = "Set storage coefficients for the upper and bottom layers (including lat/lon correction)."
         if self.log_to_info: logger.info(msg)
 
         # adjusting factor 
@@ -553,7 +553,8 @@ class GroundwaterModflow(object):
         msg = 'The maximum storage coefficient value is limited to (-) ' + str(maximum_storage_coefficient)  
         if self.log_to_info: logger.info(msg)
 
-
+        msg = "Set storage coefficient for the upper layer (including lat/lon correction)."
+        if self.log_to_info: logger.info(msg)
         # layer 2 (upper layer) - storage coefficient
         self.storage_coefficient_2  = self.specificYield
 
