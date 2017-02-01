@@ -697,7 +697,7 @@ class GroundwaterModflow(object):
                                                      vertical_conductivity_layer_2)
 
         # resistance values between upper and lower layers - unit: days
-        self.resistance   = self.thickness_of_layer_2 / vertical_conductivity_layer_2
+        self.resistance_between_layers = self.thickness_of_layer_2 / vertical_conductivity_layer_2
         # VCONT values
         self.vcont_values = pcr.scalar(1.0) / self.resistance 
 
