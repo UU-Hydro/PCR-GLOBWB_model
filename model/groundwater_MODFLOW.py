@@ -1101,10 +1101,12 @@ class GroundwaterModflow(object):
         msg = "Saving some pcraster maps (MODFLOW parameters/input files) to the folder"
         logger.info(msg)
 
-        # - top and bottom layer elevations
+        # - top and bottom layer elevations, as well as thicknesses
         pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), self.iniItems.mapsDir + "/" + "top_uppermost_layer.map")
         pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), self.iniItems.mapsDir + "/" + "bottom_uppermost_layer.map")
         pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), self.iniItems.mapsDir + "/" + "bottom_lowermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.thickness_of_layer_2), self.iniItems.mapsDir + "/" + "thickness_uppermost_layer.map")
+        pcr.report(pcr.ifthen(self.landmask, self.thickness_of_layer_1), self.iniItems.mapsDir + "/" + "thickness_lowermost_layer.map")
         
         # - transmissivities
         pcr.report(self.transmissivity_layer_2, self.iniItems.mapsDir + "/" + "transmissivity_uppermost_layer.map")
