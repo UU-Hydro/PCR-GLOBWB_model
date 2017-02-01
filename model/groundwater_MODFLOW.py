@@ -380,9 +380,10 @@ class GroundwaterModflow(object):
         # initiate pcraster modflow object to None
         self.pcr_modflow = None
 
-        # the following condition is needed if we have to 
+        # the following condition is needed if we have to convert the unit of recharge and abstraction (usually for a transient simulation) 
         self.valuesRechargeAndAbstractionInMonthlyTotal = False
-        if 'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
+        if "modflowTransientInputOptions" in self.iniItems.allSections and\
+           'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
             if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
