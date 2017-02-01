@@ -474,8 +474,8 @@ class GroundwaterModflow(object):
             top_layer_2     = self.dem_average
             # - thickness of layer 2 is based on the predefined confiningLayerThickness
             bottom_layer_2       = self.dem_average - self.confiningLayerThickness
-            #~ # - thickness of layer 2 should be until 5 m below the river bed elevation # THIS IS A BUG
-            #~ bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)
+            #~ # - thickness of layer 2 should be until 5 m below the river bed elevation # THIS IS NOT NEEDED
+            #~ bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)    # THIS IS NOT NEEDED
             # - make sure that the minimum thickness of layer 2 is at least 0.1 m
             thickness_of_layer_2 = pcr.max(0.1, top_layer_2 - bottom_layer_2)
             bottom_layer_2       = top_layer_2 - thickness_of_layer_2
