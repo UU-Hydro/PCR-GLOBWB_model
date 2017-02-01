@@ -528,82 +528,6 @@ class GroundwaterModflow(object):
 
         # make the following value(s) available for the other modules/methods:
         self.storage_coefficient_1 = self.specificYield
-        
-    def set_bcf_for_two_layer_model_original(self):
-
-        # specification for storage coefficient (BCF package)
-
-        # layer 2 (upper layer) - storage coefficient
-        self.storage_coefficient_2 = self.specificYield
-        # - correction due to the usage of lat/lon coordinates
-        primary_2   = pcr.cover(self.storage_coefficient_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        primary_2   = pcr.max(1e-20, primary_2)
-        secondary_2 = pcr.cover(pcr.min(0.005, self.storage_coefficient_2) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
-        secondary_2 = pcr.max(1e-20, secondary_2)
-
-        # layer 1 (lower layer) - storage coefficient
-        self.storage_coefficient_1 = self.specificYield
-        # - correction due to the usage of lat/lon coordinates
-        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        primary_1   = pcr.max(1e-20, primary_1)
-        secondary_1 = pcr.cover(pcr.min(0.005, self.storage_coefficient_1) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
-        secondary_1 = pcr.max(1e-20, secondary_1)
-
-        # put the storage coefficient values to the modflow model
-        self.pcr_modflow.setStorage(primary_1, secondary_1, 1)
-        self.pcr_modflow.setStorage(primary_2, secondary_2, 2)
-
-
-        # specification for conductivities (BCF package)
-        horizontal_conductivity = self.kSatAquifer # unit: m/day
-        
-        # layer 2 (upper layer) - horizontal conductivity
-        horizontal_conductivity_layer_2 = pcr.max(self.minimumTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
-        horizontal_conductivity_layer_2 = pcr.min(self.maximumTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
-
-        # layer 2 (upper layer) - vertical conductivity
-        vertical_conductivity_layer_2   = self.kSatAquifer * self.cellAreaMap/\
-                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
-        
-        if self.usePreDefinedConfiningLayer:
-
-            # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity and maximumConfiningLayerResistance
-            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
-            vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
-            vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/self.maximumConfiningLayerResistance, \
-                                                     vertical_conductivity_layer_2)
-            # minimum resistance is one day
-            vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/1.0,\
-                                                     vertical_conductivity_layer_2)
-            # correcting vertical conductivity
-            vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
-        
-        # layer 1 (lower layer)
-        horizontal_conductivity_layer_1 = pcr.max(self.minimumTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
-        horizontal_conductivity_layer_1 = pcr.min(self.maximumTransmissivity, \
-                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
-
-        # ignoring the vertical conductivity in the lower layer 
-        # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
-        vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
-                                        (pcr.clone().cellSize()*pcr.clone().cellSize())
-        vertical_conductivity_layer_2 *= 0.5
-        # see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
-        
-        #~ # for areas with ibound <= 0, we set very high horizontal conductivity values:             # TODO: Check this, shall we implement this?
-        #~ horizontal_conductivity_layer_2 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_2, \
-                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_2))
-        #~ horizontal_conductivity_layer_1 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_1, \
-                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_1))
-
-        # set conductivity values to MODFLOW
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
-                                             vertical_conductivity_layer_2, 2)              
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             vertical_conductivity_layer_1, 1)              
 
     def set_storages_for_two_layer_model(self):
 
@@ -696,9 +620,9 @@ class GroundwaterModflow(object):
         # layer 2 (upper layer) - horizontal conductivity
         msg = "Constrained by minimum and maximum transmissity values."
         logger.debug(msg)
-        horizontal_conductivity_layer_2 = pcr.min(minTransmissivity, \
+        horizontal_conductivity_layer_2 = pcr.max(minTransmissivity, \
                                           horizontal_conductivity_layer_2 * self.thickness_of_layer_2) / self.thickness_of_layer_2
-        horizontal_conductivity_layer_2 = pcr.max(maxTransmissivity, \
+        horizontal_conductivity_layer_2 = pcr.min(maxTransmissivity, \
                                           horizontal_conductivity_layer_2 * self.thickness_of_layer_2) / self.thickness_of_layer_2
 
         # transmissivity values for the upper layer (layer 2) - unit: m2/day
