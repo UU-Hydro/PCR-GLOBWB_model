@@ -380,11 +380,14 @@ class GroundwaterModflow(object):
         # initiate pcraster modflow object to None
         self.pcr_modflow = None
 
-        # the following condition is needed if we have to convert the unit of recharge and abstraction (usually for a transient simulation) 
+        # the following condition is needed if we have to convert the unit of recharge and abstraction (ONLY for a transient simulation) 
         self.valuesRechargeAndAbstractionInMonthlyTotal = False
-        if "modflowTransientInputOptions" in self.iniItems.allSections and\
+        if self.iniItems.steady_state_only == False\
+           "modflowTransientInputOptions" in self.iniItems.allSections and\
            'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
-            if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
+            if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":
+               msg = "Recharge and abstraction values in monthly total and must be converted to daily values."
+               logger.info(msg)
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
         # minimum and maximum transmissivity values (unit: m2/day)
@@ -734,7 +737,7 @@ class GroundwaterModflow(object):
 
     def get_initial_heads(self):
 		
-        if "modflowTransientInputOptions" in self.iniItems.allSections and\
+        if self.iniItems.steady_state_only == False and\
            self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
             msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
