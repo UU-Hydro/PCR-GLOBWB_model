@@ -106,6 +106,9 @@ def main():
                                   debug_mode = debug_mode, \
                                   steady_state_only = steady_state_only)      
 
+    # if steady_state_only startTime = endTime
+    configuration.globalOptions['startTime'] = configuration.globalOptions['endTime']
+    
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
     
