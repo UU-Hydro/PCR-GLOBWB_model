@@ -1249,8 +1249,8 @@ class GroundwaterModflow(object):
         # ignore capillary rise if needed:
         if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
 
-        # convert the values of abstraction and recharge to daily average
-        if self.valuesRechargeAndAbstractionInMonthlyTotal: 
+        # convert the values of abstraction and recharge to daily average (ONLY for a transient simulation)
+        if self.valuesRechargeAndAbstractionInMonthlyTotal and simulation_type == "transient": 
             gwAbstraction = gwAbstraction/currTimeStep.day
             gwRecharge    = gwRecharge/currTimeStep.day
 
