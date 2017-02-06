@@ -132,11 +132,10 @@ class GroundwaterModflow(object):
         self.channelLength    = ((horizontalSizeInMeter)**(2)+\
                                  (verticalSizeInMeter)**(2))**(0.5)
         
-        # option for lakes and reservoir
+        # option for lakes and reservoir - default option
         self.onlyNaturalWaterBodies = False
         if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
 
-        
         
         ######################################################################################
         # a netcdf file containing the groundwater properties 
@@ -368,7 +367,8 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.), 100000.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.)]
+        #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [1000., 1000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -1273,7 +1273,9 @@ class GroundwaterModflow(object):
 
         # DAMP parameters (this may help the convergence during the steady-state simulation)
         self.parameter_DAMP = [1.0] 
-        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.80, 0.60] 
+        if simulation_type == "steady-state":
+            #~ self.parameter_DAMP = [1.0, 0.80, 0.60] 
+            self.parameter_DAMP = [1.0, 0.80] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
@@ -1542,6 +1544,9 @@ class GroundwaterModflow(object):
         # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
         # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
         if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
+            onlyNaturalWaterBodies = self.onlyNaturalWaterBodies
+            if 'onlyNaturalWaterBodiesDuringSteadyStateSimulation' in self.iniItems.modflowSteadyStateInputOptions.keys(): 
+                onlyNaturalWaterBodies == self.iniItems.modflowSteadyStateInputOptions['onlyNaturalWaterBodiesDuringSteadyStateSimulation'] == "True"
             self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
                                                        self.landmask,\
                                                        self.onlyNaturalWaterBodies)
@@ -1805,7 +1810,12 @@ class GroundwaterModflow(object):
         abstraction_layer_1 = pcr.cover(pcr.ifthen(self.productive_aquifer, gwAbstraction), 0.0)
         
         # abstraction for the layer 2 (upper layer)
-        abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+        abstraction_layer_2 = pcr.spatial(pcr.scalar(0.0))
+        # for an online coupling, to make sure water balance is closed, put the remainder of abstraction to the second layer: 
+        # - this should be limited by average groundwater recharge (see landCover.py)
+        if self.iniItems.online_coupling_between_pcrglobwb_and_modflow:    
+            # for an online coupling, to make sure water balance is closed, put the remainder of abstraction to the second layer: 
+            abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
         
         # TODO: Distribute gwAbstraction based on KD value of each layer
         

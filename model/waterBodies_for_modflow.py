@@ -36,7 +36,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self,iniItems,landmask,onlyNaturalWaterBodies=False):
+    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
