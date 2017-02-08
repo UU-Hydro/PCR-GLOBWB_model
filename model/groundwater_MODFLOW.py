@@ -356,6 +356,7 @@ class GroundwaterModflow(object):
         self.criteria_HCLOSE = [0.001, 0.01, 0.1]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.5, 1.0]
+        self.criteria_HCLOSE = [0.001]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -369,6 +370,7 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.), 100000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = [1000., 1000.* cell_area_assumption/(25.*25.)]
+        self.criteria_RCLOSE = [1000.]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -1275,7 +1277,8 @@ class GroundwaterModflow(object):
         self.parameter_DAMP = [1.0] 
         if simulation_type == "steady-state":
             #~ self.parameter_DAMP = [1.0, 0.80, 0.60] 
-            self.parameter_DAMP = [1.0, 0.80] 
+            #~ self.parameter_DAMP = [1.0, 0.80] 
+            self.parameter_DAMP = [0.80] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
