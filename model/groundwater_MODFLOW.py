@@ -1838,7 +1838,7 @@ class GroundwaterModflow(object):
                                   [],\
                                   'partitioning groundwater abstraction to both layers',\
                                   True,\
-                                  currTimeStep.fulldate,threshold=5e-4)
+                                  '-', threshold=5e-4)
         
         # TODO: Distribute remaining_abstraction based on 'effective' KD value (based on saturated thickness) of each layer
         
