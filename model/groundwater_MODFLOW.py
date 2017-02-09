@@ -444,6 +444,12 @@ class GroundwaterModflow(object):
 
         # TODO: defining/incorporating anisotrophy values
 
+        # save some pcraster static maps
+        if self.log_to_info:
+            self.save_some_pcraster_static_maps()
+            # after the first call, we do not have to log it anymore
+            self.log_to_info = False
+
     def set_grid_for_one_layer_model(self):
 
         # grid specification - one layer model
@@ -1094,12 +1100,6 @@ class GroundwaterModflow(object):
                                                  PERLEN, 
                                                  NSTP)
 
-            # save some pcraster static maps
-            if self.log_to_info: self.save_some_pcraster_static_maps()
-            
-            # after the first call, we do not have to log it anymore
-            self.log_to_info = False
-            
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
 
@@ -1125,6 +1125,8 @@ class GroundwaterModflow(object):
         # - storage coefficients
         pcr.report(self.storage_coefficient_2, self.iniItems.mapsDir + "/" + "storage_coefficient_uppermost_layer.map")
         pcr.report(self.storage_coefficient_1, self.iniItems.mapsDir + "/" + "storage_coefficient_lowermost_layer.map")
+        
+        # TODO: Implement this for one layer model.
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -1277,7 +1279,7 @@ class GroundwaterModflow(object):
         self.parameter_DAMP = [1.0] 
         if simulation_type == "steady-state":
             #~ self.parameter_DAMP = [1.0, 0.80, 0.60] 
-            self.parameter_DAMP = [1.0, 0.80] 
+            self.parameter_DAMP = [1.0, 0.75] 
             #~ self.parameter_DAMP = [0.80] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
