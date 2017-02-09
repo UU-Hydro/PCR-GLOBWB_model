@@ -1824,7 +1824,7 @@ class GroundwaterModflow(object):
         remaining_abstraction = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
         # remaining abstraction will be distributed as follows:
         # - first, to the upper layer, but limited to groundwater recharge
-        abstraction_layer_2 = pcr.min(pcr.max(0.0, self.net_recharge), remaining_abstraction)
+        abstraction_layer_2 = pcr.min(pcr.max(0.0, pcr.cover(self.net_recharge, 0.0)), remaining_abstraction)
         remaining_abstraction = pcr.max(0.0, remaining_abstraction - abstraction_layer_2)
         # - then, distribute the remaining based on transmissivities
         abstraction_layer_1 += remaining_abstraction * pcr.cover(vos.getValDivZero(self.transmissivity_layer_1, \
