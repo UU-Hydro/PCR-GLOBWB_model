@@ -1827,8 +1827,8 @@ class GroundwaterModflow(object):
         abstraction_layer_2 = pcr.min(pcr.max(0.0, self.net_recharge), remaining_abstraction)
         remaining_abstraction = pcr.max(0.0, remaining_abstraction - abstraction_layer_2)
         # - then, distribute the remaining based on transmissivities
-        abstraction_layer_1 += remaining_abstraction * vos.getValDivZero(self.transmissivity_layer_1, \
-                                                                        (self.transmissivity_layer_1 + self.transmissivity_layer_2))
+        abstraction_layer_1 += remaining_abstraction * pcr.cover(vos.getValDivZero(self.transmissivity_layer_1, \
+                                                                        (self.transmissivity_layer_1 + self.transmissivity_layer_2)), 0.0)
         abstraction_layer_2  = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
         # - water balance check                                                                 
         if self.debugWaterBalance:
