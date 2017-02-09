@@ -1840,7 +1840,7 @@ class GroundwaterModflow(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=5e-4)
         
-        # TODO: Distribute gwAbstraction based on 'effective' KD value (based on saturated thickness) of each layer
+        # TODO: Distribute remaining_abstraction based on 'effective' KD value (based on saturated thickness) of each layer
         
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
