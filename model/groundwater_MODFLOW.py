@@ -416,6 +416,9 @@ class GroundwaterModflow(object):
         # a boolean status to reduce log info file
         self.log_to_info = True   
 
+        # option to activate water balance check
+        self.debugWaterBalance = True
+
     def initiate_modflow(self):
 
         logger.info("Initializing pcraster modflow.")
@@ -1764,11 +1767,11 @@ class GroundwaterModflow(object):
         if self.log_to_info: logger.info(msg)
         
         # adjusting recharge values
-        net_recharge = net_recharge * adjusting_factor
+        self.net_recharge = net_recharge * adjusting_factor
         
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
-        net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        net_RCH = pcr.cover(self.net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         # put the recharge to the top grid/layer
@@ -1814,15 +1817,30 @@ class GroundwaterModflow(object):
         # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
         abstraction_layer_1 = pcr.cover(pcr.ifthen(self.productive_aquifer, gwAbstraction), 0.0)
         
-        # abstraction for the layer 2 (upper layer)
-        abstraction_layer_2 = pcr.spatial(pcr.scalar(0.0))
-        # for an online coupling, to make sure water balance is closed, put the remainder of abstraction to the second layer: 
-        # - this should be limited by average groundwater recharge (see landCover.py)
-        if self.iniItems.online_coupling_between_pcrglobwb_and_modflow:    
-            # for an online coupling, to make sure water balance is closed, put the remainder of abstraction to the second layer: 
-            abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+        #~ # abstraction for the layer 2 (upper layer)          # DON'T DO THIS
+        #~ abstraction_layer_2 = pcr.spatial(pcr.scalar(0.0))
+
+        # remaining abstraction
+        remaining_abstraction = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+        # remaining abstraction will be distributed as follows:
+        # - first, to the upper layer, but limited to groundwater recharge
+        abstraction_layer_2 = pcr.min(pcr.max(0.0, self.net_recharge), remaining_abstraction)
+        remaining_abstraction = pcr.max(0.0, remaining_abstraction - abstraction_layer_2)
+        # - then, distribute the remaining based on transmissivities
+        abstraction_layer_1 += remaining_abstraction * vos.getValDivZero(self.transmissivity_layer_1, \
+                                                                        (self.transmissivity_layer_1 + self.transmissivity_layer_2))
+        abstraction_layer_2  = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
+        # - water balance check                                                                 
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([gwAbstraction],\
+                                  [abstraction_layer_1, abstraction_layer_1],\
+                                  [],\
+                                  [],\
+                                  'partitioning groundwater abstraction to both layers',\
+                                  True,\
+                                  currTimeStep.fulldate,threshold=5e-4)
         
-        # TODO: Distribute gwAbstraction based on KD value of each layer
+        # TODO: Distribute gwAbstraction based on 'effective' KD value (based on saturated thickness) of each layer
         
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
