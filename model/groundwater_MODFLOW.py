@@ -1833,7 +1833,7 @@ class GroundwaterModflow(object):
         # - water balance check                                                                 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([gwAbstraction],\
-                                  [abstraction_layer_1, abstraction_layer_1],\
+                                  [abstraction_layer_1, abstraction_layer_2],\
                                   [],\
                                   [],\
                                   'partitioning groundwater abstraction to both layers',\
