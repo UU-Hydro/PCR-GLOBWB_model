@@ -421,7 +421,7 @@ class GroundwaterModflow(object):
         
         # option to read channelStorageInput (m3) based on surfaceWaterStorageInput (m)
         self.usingSurfaceWaterStorageInput = False        
-        if 'modflowTransientInputOptions' in self.iniItems.self.iniItems.allSections and\
+        if 'modflowTransientInputOptions' in self.iniItems.allSections and\
            'surfaceWaterStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
            'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
            self.iniItems.modflowTransientInputOptions['channelStorageInputNC'] == "surfaceWaterStorageInputNC":
