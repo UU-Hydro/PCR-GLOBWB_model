@@ -418,6 +418,16 @@ class GroundwaterModflow(object):
 
         # option to activate water balance check
         self.debugWaterBalance = True
+        
+        # option to read channelStorageInput (m3) based on surfaceWaterStorageInput (m)
+        self.usingSurfaceWaterStorageInput = False        
+        if 'modflowTransientInputOptions' in self.iniItems.self.iniItems.allSections and\
+           'surfaceWaterStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
+           'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
+           self.iniItems.modflowTransientInputOptions['channelStorageInputNC'] == "surfaceWaterStorageInputNC":
+            msg = "The channel storage input (for transient simulation) will be based on surfaceWaterStorageInputNC (multiplied by cellArea)."
+            logger.info(msg)
+            self.usingSurfaceWaterStorageInput = True
 
     def initiate_modflow(self):
 
@@ -1239,9 +1249,17 @@ class GroundwaterModflow(object):
                 channelStorage = None                                           
                 if 'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
                    self.iniItems.modflowTransientInputOptions['channelStorageInputNC'][-4:] != "None": 
-                    channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
-                                                           "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
-                    channelStorage = pcr.cover(channelStorage, 0.0)                                       
+                    if self.usingSurfaceWaterStorageInput:
+                       msg = "Using "
+                       logger.debug(msg)
+                       surfaceWaterStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
+                                                                    "surface_water_storage", str(currTimeStep.fulldate), None, self.cloneMap)
+                       channelStorage = pcr.cover(channelStorage * self.cellAreaMap, 0.0)                                       
+                    else:
+                       channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
+                                                              "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
+                       channelStorage = pcr.cover(channelStorage, 0.0)
+                    channelStorage = pcr.max(0.0, channelStorage)                                          
 
 
         #####################################################################################################################################################
