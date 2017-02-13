@@ -1252,7 +1252,7 @@ class GroundwaterModflow(object):
                     if self.usingSurfaceWaterStorageInput:
                        msg = "Using "
                        logger.debug(msg)
-                       surfaceWaterStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
+                       surfaceWaterStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['surfaceWaterStorageInputNC'],\
                                                                     "surface_water_storage", str(currTimeStep.fulldate), None, self.cloneMap)
                        channelStorage = pcr.cover(channelStorage * self.cellAreaMap, 0.0)                                       
                     else:
