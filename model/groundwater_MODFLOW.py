@@ -434,7 +434,7 @@ class GroundwaterModflow(object):
         self.using_built_up_area_correction_for_recharge = False
         if 'nc_file_for_built_up_area_correction_for_recharge' in self.iniItems.groundwaterOptions.keys() and\
            self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'] != "None":
-            msg = "Incorporating built-up area fractions for correcting recharge."
+            msg = "Using built-up area fractions for correcting recharge."
             logger.info(msg)
             self.using_built_up_area_correction_for_recharge = True
         
@@ -1291,7 +1291,7 @@ class GroundwaterModflow(object):
 
         # built-up area fractions for limitting groundwater recharge 
         if self.using_built_up_area_correction_for_recharge:
-            msg = 'Incorporating built-up area fractions to limit groundwater recharge.'
+            msg = 'Reading built-up area fractions to limit groundwater recharge.'
             logger.info(msg)
             # read input files 
             if simulation_type == "transient":
@@ -2008,7 +2008,7 @@ class GroundwaterModflow(object):
         # built-up area fractions for limitting groundwater recharge 
         if self.using_built_up_area_correction_for_recharge:
             msg = 'Incorporating built-up area fractions to limit groundwater recharge.'
-            logger.debug(msg)
+            logger.info(msg)
             net_recharge = net_recharge * pcr.min(1.0, pcr.max(0.0, 1.0 - self.built_up_area_correction_for_recharge))
 
         # adjustment factor
