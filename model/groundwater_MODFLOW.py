@@ -1298,7 +1298,7 @@ class GroundwaterModflow(object):
                 date_used = currTimeStep.fulldate
             else:
                 # for a steady-state simulation, we use the year of the starting date
-                date_used = '%04i-%02i-%02i' %(self.iniItems.globalOptions['startTime'][0:4], 1, 1)
+                date_used = '%04i-%02i-%02i' %(self.iniItems.globalOptions['startTime'][0:4], "1", "1")
             self.built_up_area_correction_for_recharge = pcr.cover(
                                                          vos.netcdf2PCRobjClone(self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'],
                                                                                 "vegetation_fraction", 
