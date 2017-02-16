@@ -1295,10 +1295,10 @@ class GroundwaterModflow(object):
             logger.info(msg)
             # read input files 
             if simulation_type == "transient":
-                date_used = currTimeStep.startTime
+                date_used = currTimeStep.fulldate
             else:
                 # for a steady-state simulation, we use the year of the starting date
-                date_used = currTimeStep.fulldate
+                date_used = currTimeStep.startTime
             self.built_up_area_correction_for_recharge = pcr.cover(
                                                          vos.netcdf2PCRobjClone(self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'],
                                                                                 "vegetation_fraction", 
