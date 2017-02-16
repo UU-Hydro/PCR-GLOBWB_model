@@ -429,6 +429,16 @@ class GroundwaterModflow(object):
             logger.info(msg)
             self.usingSurfaceWaterStorageInput = True
 
+        # option to correcting recharge with built-up area
+        # - basic principle
+        self.using_built_up_area_correction_for_recharge = False
+        if 'nc_file_for_built_up_area_correction_for_recharge' in self.iniItems.groundwaterOptions.keys() and\
+           self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'] != "None":
+            msg = "Incorporating built-up area fractions for correcting recharge."
+            logger.info(msg)
+            self.using_built_up_area_correction_for_recharge = True
+        
+
     def initiate_modflow(self):
 
         logger.info("Initializing pcraster modflow.")
@@ -1279,6 +1289,24 @@ class GroundwaterModflow(object):
             gwAbstraction = gwAbstraction/currTimeStep.day
             gwRecharge    = gwRecharge/currTimeStep.day
 
+        # built-up area fractions for limitting groundwater recharge 
+        if self.using_built_up_area_correction_for_recharge:
+            msg = 'Incorporating built-up area fractions to limit groundwater recharge.'
+            logger.info(msg)
+            # read input files 
+            if simulation_type == "transient":
+                date_used = currTimeStep.startTime
+            else:
+                # for a steady-state simulation, we use the year of the starting date
+                date_used = currTimeStep.fulldate
+            self.built_up_area_correction_for_recharge = pcr.cover(
+                                                         vos.netcdf2PCRobjClone(self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'],
+                                                                                "vegetation_fraction", 
+                                                                                currTimeStep.fulldate, 'yearly',\
+                                                                                self.cloneMap), 0.0)
+            self.built_up_area_correction_for_recharge = pcr.max(0.0, self.built_up_area_correction_for_recharge)
+            self.built_up_area_correction_for_recharge = pcr.min(1.0, self.built_up_area_correction_for_recharge)   
+        
         # set recharge, river, well and drain packages
         self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type)
         self.set_recharge_package(gwRecharge)
@@ -1976,6 +2004,12 @@ class GroundwaterModflow(object):
         # + return flow of groundwater abstraction (unit: m/day) from PCR-GLOBWB 
         net_recharge = gwRecharge - gwAbstraction + \
                        gwAbstractionReturnFlow
+
+        # built-up area fractions for limitting groundwater recharge 
+        if self.using_built_up_area_correction_for_recharge:
+            msg = 'Incorporating built-up area fractions to limit groundwater recharge.'
+            logger.debug(msg)
+            net_recharge = net_recharge * pcr.min(1.0, pcr.max(0.0, 1.0 - self.built_up_area_correction_for_recharge))
 
         # adjustment factor
         adjusting_factor = 1.0
