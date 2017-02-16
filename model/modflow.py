@@ -155,7 +155,12 @@ class ModflowCoupling(object):
         return result
 
     def update(self):
+        
+        msg  = "" + "\n\n"
+        logger.info(msg)
         logger.info("Updating model for time %s", self._modelTime)
+        msg  = "" + "\n\n"
+        logger.info(msg)
         
         self.modflow.update(self._modelTime)
 
