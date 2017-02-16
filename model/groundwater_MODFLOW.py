@@ -1302,7 +1302,7 @@ class GroundwaterModflow(object):
             self.built_up_area_correction_for_recharge = pcr.cover(
                                                          vos.netcdf2PCRobjClone(self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'],
                                                                                 "vegetation_fraction", 
-                                                                                currTimeStep.fulldate, 'yearly',\
+                                                                                date_used, 'yearly',\
                                                                                 self.cloneMap), 0.0)
             self.built_up_area_correction_for_recharge = pcr.max(0.0, self.built_up_area_correction_for_recharge)
             self.built_up_area_correction_for_recharge = pcr.min(1.0, self.built_up_area_correction_for_recharge)   
