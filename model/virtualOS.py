@@ -1485,6 +1485,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     available_water_volume = pcr.ifthenelse(available_water_volume > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))
     
     high_volume_treshold = None
+    allocation_zones = pcr.ifthen(landmask, allocation_zones)
     
     logger.debug("Allocation of abstraction.")
     
