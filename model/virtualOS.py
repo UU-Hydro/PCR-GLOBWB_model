@@ -1560,6 +1560,16 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                           pcr.areatotal(remainingCellDemand, allocation_zones), 
                           smallNumber)                        
     
+    # another extraAbstraction to minimize numerical errors:
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            remainingCellAvlWater, 
+                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            smallNumber)                        
+
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
@@ -1622,3 +1632,4 @@ def plot_variable(pcr_variable, filename = "test.map"):
     os.system(cmd)
     
     
+-
