@@ -1630,6 +1630,3 @@ def plot_variable(pcr_variable, filename = "test.map"):
     pcr.report(pcr_variable, filename)
     cmd = 'aguila '+str(filename)
     os.system(cmd)
-    
-    
--
