@@ -1559,17 +1559,17 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                             remainingCellAvlWater, 
                             pcr.areatotal(remainingCellAvlWater, allocation_zones), 
                             smallNumber)                        
-    #~ # 
-    #~ # extraAllocation to minimize numerical errors:
-    #~ zoneDeficitAllocation = pcr.max(0.0,\
-                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
-                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
-    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
-                          #~ remainingCellDemand, 
-                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
-                          #~ smallNumber)                        
-    #~ cellAllocation  = pcr.min(cellAllocation, cellVolDemand)
+    # 
+    # extraAllocation to minimize numerical errors:
+    zoneDeficitAllocation = pcr.max(0.0,\
+                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    pcr.areatotal(cellAllocation , allocation_zones))
+    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          remainingCellDemand, 
+                          pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          smallNumber)                        
+    cellAllocation  = pcr.min(cellAllocation, cellVolDemand)
     #~ 
     #~ # another extraAbstraction to minimize numerical errors:
     #~ zoneDeficitAbstraction = pcr.max(0.0,\
