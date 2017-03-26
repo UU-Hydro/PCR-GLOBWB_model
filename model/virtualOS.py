@@ -1484,6 +1484,8 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     water_demand_volume    = pcr.ifthenelse(water_demand_volume > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))    
     available_water_volume = pcr.ifthenelse(available_water_volume > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))
     
+    high_volume_treshold = None
+    
     logger.debug("Allocation of abstraction.")
     
     # demand volume in each cell (unit: m3)
