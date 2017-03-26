@@ -1478,6 +1478,10 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                   landmask = None,
                                   ignore_small_values = False):
 
+    # for debugging
+    water_demand_volume    = prc.min(water_demand_volume, 1.0)    
+    available_water_volume = prc.min(available_water_volume, 1.0)
+    
     logger.debug("Allocation of abstraction.")
     
     # demand volume in each cell (unit: m3)
