@@ -1481,8 +1481,8 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # for debugging
     water_demand_volume    = pcr.min(water_demand_volume, 1.0)    
     available_water_volume = pcr.min(available_water_volume, 1.0)
-    water_demand_volume    = pcr.scalar(1.0)    
-    available_water_volume = pcr.scalar(1.0)
+    water_demand_volume    = pcr.ifthenelse(water_demand_volume > 0.0, 1.0, 0.0)    
+    available_water_volume = pcr.ifthenelse(available_water_volume > 0.0, 1.0, 0.0)
     
     logger.debug("Allocation of abstraction.")
     
