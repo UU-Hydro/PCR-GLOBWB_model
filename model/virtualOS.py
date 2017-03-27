@@ -1673,6 +1673,9 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # total demand volume in each zone/segment (unit: m3)
     zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
     
+    # avoid very high values of available water
+    cellAvlWater  = pcr.min(cellAvlWater, zoneVolDemand)
+
     # total available water volume in each cell
     cellAvlWater = pcr.max(0.0, cellAvlWater)
     if not isinstance(landmask, types.NoneType):
@@ -1736,6 +1739,32 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                             smallNumber)                        
     # 
     # extraAllocation to minimize numerical errors:
+    zoneDeficitAllocation = pcr.max(0.0,\
+                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    pcr.areatotal(cellAllocation , allocation_zones))
+    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          remainingCellDemand, 
+                          pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          smallNumber)                        
+    
+    # the remaining abstraction deficit will be fulfiled
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    areaorderCellAvlWater = pcr.areaorder(areaorderCellAvlWater, allocation_zones) * -1.0
+    for areaorder in range(1, 8, 1): 
+        additionalAbstraction = pcr.ifthen(areaorderCellAvlWater == pcr.scalar(areaorder*-1.), remainingCellAvlWater)
+        additionalAbstraction = pcr.areamaximum(remainingCellAvlWater, allocation_zones)
+        additionalAbstraction = pcr.min(additionalAbstraction, zoneDeficitAbstraction)
+        cellAbstraction += pcr.ifthenelse(areaorderCellAvlWater == pcr.scalar(areaorder*-1.),  additionalAbstraction)
+        # remaining abstraction deficit
+        zoneDeficitAbstraction = pcr.max(0.0,\
+                                         pcr.areatotal(cellAllocation , allocation_zones) -\
+                                         pcr.areatotal(cellAbstraction, allocation_zones))
+    
+    # extraAllocation to compensate the latest abstraction
     zoneDeficitAllocation = pcr.max(0.0,\
                                     pcr.areatotal(cellAbstraction, allocation_zones) -\
                                     pcr.areatotal(cellAllocation , allocation_zones))
