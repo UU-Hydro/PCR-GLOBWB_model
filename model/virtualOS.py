@@ -1532,6 +1532,8 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     else:
         zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
     
+    zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
+    
     # total actual water abstraction volume in each zone/segment (unit: m3)
     # - limited to available water
     zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
