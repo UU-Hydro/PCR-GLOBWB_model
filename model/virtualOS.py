@@ -1588,7 +1588,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                             #~ smallNumber)                        
 
     zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
-                             pcr.areatotal(cellAbstraction, allocation_zones))
+                             pcr.areatotal(cellAbstraction, allocation_zones)
     pcr.report(zoneDeficitAbstraction, "test.map")
     os.system('aguila test.map')
 
