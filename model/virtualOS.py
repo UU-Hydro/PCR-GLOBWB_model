@@ -1572,6 +1572,12 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                             pcr.areatotal(remainingCellAvlWater, allocation_zones), 
                             smallNumber)                        
 
+    # local abstraction to minimize numerical errors
+    additionalLocalAbstraction = pcr.max(0.0,\
+                                         pcr.areaaverage(cellAllocation , allocation_zones) -\
+                                         pcr.areaaverage(cellAbstraction, allocation_zones))
+    cellAbstraction      += additionalLocalAbstraction
+    
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
