@@ -1621,6 +1621,9 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                   landmask = None,
                                   ignore_small_values = False):
 
+    # discactivate the following
+    high_volume_treshold = None
+    
     logger.debug("Allocation of abstraction.")
     
     if not isinstance(landmask, types.NoneType):
