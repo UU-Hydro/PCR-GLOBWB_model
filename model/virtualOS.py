@@ -1596,7 +1596,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
 
     zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
                              pcr.areatotal(cellAbstraction, allocation_zones)
-    pcr.report(zoneDeficitAbstraction, "test.map")
+    pcr.report(pcr.max(0.0, zoneDeficitAbstraction), "test.map")
     os.system('aguila test.map')
 
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
