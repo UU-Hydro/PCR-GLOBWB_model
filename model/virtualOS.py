@@ -1534,6 +1534,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # allocation water to meet water demand (unit: m3)
     factor = getValDivZero(\
              cellVolDemand, zoneVolDemand, smallNumber)
+    factor = pcr.min(0.99, factor)
     factor = pcr.rounddown(factor * 100.) / 100.
     cellAllocation += factor * zoneAbstraction 
 
