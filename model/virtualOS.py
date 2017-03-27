@@ -1652,14 +1652,14 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
         cellAvlWater = pcr.max(0.0, cellAvlWater)
     
     # first, satisfy demand with local source
-    cellAllocation  = pcr.min(cellVolDemand, cellAvlWater)
-    cellAbstraction = cellAllocation * 1.0
+    localAllocation  = pcr.min(cellVolDemand, cellAvlWater)
+    localAbstraction = localAllocation * 1.0
 
     logger.debug("Allocation of abstraction - then, satisfy demand with neighbour sources.")
 
     # the remaining demand and available water
-    cellVolDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    cellAvlWater  = pcr.max(0.0, cellAvlWater  - cellAbstraction)
+    cellVolDemand = pcr.max(0.0, cellVolDemand - localAllocation ) 
+    cellAvlWater  = pcr.max(0.0, cellAvlWater  - localAbstraction)
 
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, cellVolDemand)
@@ -1720,6 +1720,10 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # allocation water to meet water demand (unit: m3)
     cellAllocation  = getValDivZero(\
                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
+    
+    # adding local abstraction and local allocation
+    cellAbstraction = cellAbstraction + localAbstraction
+    cellAllocation  = cellAllocation  + localAllocation
     
     # extraAbstraction to minimize numerical errors:
     zoneDeficitAbstraction = pcr.max(0.0,\
