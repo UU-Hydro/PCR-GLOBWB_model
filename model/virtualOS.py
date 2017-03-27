@@ -1532,10 +1532,10 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
     
     # actual water abstraction volume in each cell (unit: m3)
-    factor = pcr.min(1.0, 
-             getValDivZero(\
-             cellAvlWater, zoneAvlWater  , smallNumber))
-    factor = pcr.rounddown(factor * 100.) / 100.
+    #~ factor = pcr.min(1.0, 
+             #~ getValDivZero(\
+             #~ cellAvlWater, zoneAvlWater  , smallNumber))
+    #~ factor = pcr.rounddown(factor * 100.) / 100.
     cellAbstraction += factor * zoneAbstraction
                        
     # correcting zonal abstraction
@@ -1587,10 +1587,10 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                             #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
                             #~ smallNumber)                        
 
-    zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
-                             pcr.areatotal(cellAbstraction, allocation_zones)
-    pcr.report(zoneDeficitAbstraction, "test.map")
-    os.system('aguila test.map')
+    #~ zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
+                             #~ pcr.areatotal(cellAbstraction, allocation_zones)
+    #~ pcr.report(zoneDeficitAbstraction, "test.map")
+    #~ os.system('aguila test.map')
 
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
