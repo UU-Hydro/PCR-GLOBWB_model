@@ -1765,15 +1765,15 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                          pcr.areatotal(cellAllocation , allocation_zones) -\
                                          pcr.areatotal(cellAbstraction, allocation_zones))
     
-    # extraAllocation to compensate the latest abstraction
-    zoneDeficitAllocation = pcr.max(0.0,\
-                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
-                                    pcr.areatotal(cellAllocation , allocation_zones))
-    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
-                          remainingCellDemand, 
-                          pcr.areatotal(remainingCellDemand, allocation_zones), 
-                          smallNumber)                        
+    #~ # extraAllocation to compensate the latest abstraction (this is not needed, I guess)
+    #~ zoneDeficitAllocation = pcr.max(0.0,\
+                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
+    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          #~ remainingCellDemand, 
+                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          #~ smallNumber)                        
     
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
