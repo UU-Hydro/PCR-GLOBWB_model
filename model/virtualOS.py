@@ -1759,7 +1759,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
         additionalAbstraction = pcr.ifthen(areaorderCellAvlWater == pcr.scalar(areaorder), remainingCellAvlWater)
         additionalAbstraction = pcr.areamaximum(remainingCellAvlWater, allocation_zones)
         additionalAbstraction = pcr.min(additionalAbstraction, zoneDeficitAbstraction)
-        cellAbstraction += pcr.ifthenelse(areaorderCellAvlWater == pcr.scalar(areaorder*-1.),  additionalAbstraction, 0.0)
+        cellAbstraction  += pcr.ifthenelse(areaorderCellAvlWater == pcr.scalar(areaorder),  additionalAbstraction, 0.0)
         # remaining abstraction deficit
         zoneDeficitAbstraction = pcr.max(0.0,\
                                          pcr.areatotal(cellAllocation , allocation_zones) -\
