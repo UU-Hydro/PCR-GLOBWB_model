@@ -1517,7 +1517,9 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAvlWater  = pcr.min(cellAvlWater, zoneVolDemand)
     
     # avoid small values
-    cellAvlWater  = pcr.ifthenelse(cellAvlWater > pcr.areaaverage(pcr.ifthen(cellAvlWater > 0.0, cellAvlWater), allocation_zones), cellAvlWater, 0.0)
+    cellAvlWater  = pcr.cover(
+                    pcr.ifthenelse(cellAvlWater > pcr.areaaverage(pcr.ifthen(cellAvlWater > 0.0, cellAvlWater), allocation_zones), cellAvlWater, 0.0), 0.0)
+    cellAvlWater  = pcr.ifthen(landmask, cellAvlWater)                
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
