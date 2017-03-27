@@ -1501,7 +1501,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     else:
         cellAvlWater = pcr.max(0.0, cellAvlWater)
     
-    cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater/1000.)) * 1000.
+    cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater/10.)) * 10.
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
