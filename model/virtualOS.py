@@ -1531,19 +1531,18 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # - limited to available water
     zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
     
-    # actual water abstraction volume in each cell (unit: m3)
-    #~ factor = pcr.min(1.0, 
-             #~ getValDivZero(\
-             #~ cellAvlWater, zoneAvlWater  , smallNumber))
-    #~ factor = pcr.rounddown(factor * 100.) / 100.
-    cellAbstraction += factor * zoneAbstraction
-                       
-    # correcting zonal abstraction
-    zoneAbstraction = pcr.areatotal(factor * zoneAbstraction, allocation_zones)
-
     # allocation water to meet water demand (unit: m3)
     cellAllocation  += getValDivZero(\
                        cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
+
+    # correcting zonal abstraction
+    zoneAbstraction = pcr.areatotal(cellAllocation, allocation_zones)
+
+    # actual water abstraction volume in each cell (unit: m3)
+    factor = getValDivZero(\
+             cellAvlWater, zoneAvlWater, smallNumber)
+    #~ factor = pcr.rounddown(factor * 100.) / 100.
+    cellAbstraction += factor * zoneAbstraction
     
     #~ # local abstraction to minimize numerical errors
     #~ additionalLocalAbstraction = pcr.max(0.0,\
