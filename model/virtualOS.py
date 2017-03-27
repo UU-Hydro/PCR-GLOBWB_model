@@ -1553,9 +1553,9 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     zoneDeficitAbstraction = pcr.max(0.0,\
                                      pcr.areatotal(cellAllocation , allocation_zones) -\
                                      pcr.areatotal(cellAbstraction, allocation_zones))
-    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    pcr.report(remainingCellAvlWater, "test.map")
+    pcr.report(zoneDeficitAbstraction, "test.map")
     os.system('aguila test.map')
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
     cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
                             remainingCellAvlWater, 
                             pcr.areatotal(remainingCellAvlWater, allocation_zones), 
