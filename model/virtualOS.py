@@ -1502,39 +1502,39 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAllocation  = pcr.min(cellVolDemand, cellAvlWater)
     cellAbstraction = cellAllocation
 
-    logger.debug("Allocation of abstraction - then, satisfy demand with neighbour source.")
-    
-    # the remaining demand and available water
-    cellVolDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    cellAvlWater  = pcr.max(0.0, cellAvlWater  - cellAbstraction)
-
-    # total demand volume in each zone/segment (unit: m3)
-    zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
-    
-    # total available water volume in each zone/segment (unit: m3)
-    # - to minimize numerical errors, separating cellAvlWater 
-    if not isinstance(high_volume_treshold,types.NoneType):
-        # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
-        mask = pcr.cover(\
-               pcr.ifthen(cellAvlWater > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
-        zoneAvlWater  = pcr.areatotal(
-                        pcr.ifthenelse(mask, 0.0, cellAvlWater), allocation_zones)
-        zoneAvlWater += pcr.areatotal(                
-                        pcr.ifthenelse(mask, cellAvlWater, 0.0), allocation_zones)
-    else:
-        zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
-    
-    # total actual water abstraction volume in each zone/segment (unit: m3)
-    # - limited to available water
-    zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
-    
-    # actual water abstraction volume in each cell (unit: m3)
-    cellAbstraction += getValDivZero(\
-                       cellAvlWater, zoneAvlWater, smallNumber)*zoneAbstraction
-
-    # allocation water to meet water demand (unit: m3)
-    cellAllocation  += getValDivZero(\
-                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
+    #~ logger.debug("Allocation of abstraction - then, satisfy demand with neighbour sources.")
+    #~ 
+    #~ # the remaining demand and available water
+    #~ cellVolDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    #~ cellAvlWater  = pcr.max(0.0, cellAvlWater  - cellAbstraction)
+#~ 
+    #~ # total demand volume in each zone/segment (unit: m3)
+    #~ zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
+    #~ 
+    #~ # total available water volume in each zone/segment (unit: m3)
+    #~ # - to minimize numerical errors, separating cellAvlWater 
+    #~ if not isinstance(high_volume_treshold,types.NoneType):
+        #~ # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
+        #~ mask = pcr.cover(\
+               #~ pcr.ifthen(cellAvlWater > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
+        #~ zoneAvlWater  = pcr.areatotal(
+                        #~ pcr.ifthenelse(mask, 0.0, cellAvlWater), allocation_zones)
+        #~ zoneAvlWater += pcr.areatotal(                
+                        #~ pcr.ifthenelse(mask, cellAvlWater, 0.0), allocation_zones)
+    #~ else:
+        #~ zoneAvlWater  = pcr.areatotal(cellAvlWater, allocation_zones)
+    #~ 
+    #~ # total actual water abstraction volume in each zone/segment (unit: m3)
+    #~ # - limited to available water
+    #~ zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
+    #~ 
+    #~ # actual water abstraction volume in each cell (unit: m3)
+    #~ cellAbstraction += getValDivZero(\
+                       #~ cellAvlWater, zoneAvlWater, smallNumber)*zoneAbstraction
+#~ 
+    #~ # allocation water to meet water demand (unit: m3)
+    #~ cellAllocation  += getValDivZero(\
+                       #~ cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
     
     #~ # local abstraction to minimize numerical errors
     #~ additionalLocalAbstraction = pcr.max(0.0,\
