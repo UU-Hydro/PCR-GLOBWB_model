@@ -1485,9 +1485,9 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     if not isinstance(landmask, types.NoneType):
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
-        cellVolDemand = pcr.rounddown(pcr.max(0.0, water_demand_volume))
+        cellVolDemand = pcr.rounddown(pcr.max(0.0, cellVolDemand))
     else:
-        cellVolDemand = pcr.max(0.0, water_demand_volume)
+        cellVolDemand = pcr.max(0.0, cellVolDemand)
     
     # total demand volume in each zone/segment (unit: m3)
     zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
@@ -1497,11 +1497,11 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     if not isinstance(landmask, types.NoneType):
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
-        cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume))
+        cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater))
     else:
-        cellAvlWater = pcr.max(0.0, available_water_volume)
+        cellAvlWater = pcr.max(0.0, cellAvlWater)
     
-    cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume/1000.)) * 1000.
+    cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater/1000.)) * 1000.
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
