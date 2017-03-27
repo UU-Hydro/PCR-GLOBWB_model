@@ -1539,7 +1539,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     cellAbstraction += factor * zoneAbstraction
                        
     # correcting zonal abstraction
-    zoneAbstraction = pcr.areatotal(cellAbstraction, zoneVolDemand)
+    zoneAbstraction = pcr.areatotal(factor * zoneAbstraction, zoneVolDemand)
 
     # allocation water to meet water demand (unit: m3)
     cellAllocation  += getValDivZero(\
