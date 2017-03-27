@@ -1555,52 +1555,52 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
              cellAvlWater, zoneAvlWater, smallNumber)
     cellAbstraction += factor * zoneAbstraction
     
-    #~ # local abstraction to minimize numerical errors
-    #~ additionalLocalAbstraction = pcr.max(0.0,\
-                                         #~ pcr.areaaverage(cellAllocation , allocation_zones) -\
-                                         #~ pcr.areaaverage(cellAbstraction, allocation_zones))
-    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    #~ additionalLocalAbstraction = pcr.min(additionalLocalAbstraction, \
-                                         #~ remainingCellAvlWater)
-    #~ cellAbstraction      += additionalLocalAbstraction
+    # local abstraction to minimize numerical errors
+    additionalLocalAbstraction = pcr.max(0.0,\
+                                         pcr.areaaverage(cellAllocation , allocation_zones) -\
+                                         pcr.areaaverage(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    additionalLocalAbstraction = pcr.min(additionalLocalAbstraction, \
+                                         remainingCellAvlWater)
+    cellAbstraction      += additionalLocalAbstraction
 
-    # extraAbstraction to minimize numerical errors:
-    #~ zoneDeficitAbstraction = pcr.max(0.0,\
-                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
-    #~ pcr.report(zoneDeficitAbstraction, "test.map")
-    #~ os.system('aguila test.map')
-    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            #~ remainingCellAvlWater, 
-                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            #~ smallNumber)                        
-    #~ # 
-    #~ # extraAllocation to minimize numerical errors:
-    #~ zoneDeficitAllocation = pcr.max(0.0,\
-                                    #~ pcr.areatotal(cellAbstraction, allocation_zones) -\
-                                    #~ pcr.areatotal(cellAllocation , allocation_zones))
-    #~ remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
-    #~ cellAllocation     += zoneDeficitAllocation * getValDivZero(\
-                          #~ remainingCellDemand, 
-                          #~ pcr.areatotal(remainingCellDemand, allocation_zones), 
-                          #~ smallNumber)                        
-    #~ cellAllocation  = pcr.min(cellAllocation, cellVolDemand)
-    #~ 
-    #~ # another extraAbstraction to minimize numerical errors:
-    #~ zoneDeficitAbstraction = pcr.max(0.0,\
-                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
-    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            #~ remainingCellAvlWater, 
-                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            #~ smallNumber)                        
+    #~ # extraAbstraction to minimize numerical errors:
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    pcr.report(zoneDeficitAbstraction, "test.map")
+    os.system('aguila test.map')
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            remainingCellAvlWater, 
+                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            smallNumber)                        
+    # 
+    # extraAllocation to minimize numerical errors:
+    zoneDeficitAllocation = pcr.max(0.0,\
+                                    pcr.areatotal(cellAbstraction, allocation_zones) -\
+                                    pcr.areatotal(cellAllocation , allocation_zones))
+    remainingCellDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAllocation     += zoneDeficitAllocation * getValDivZero(\
+                          remainingCellDemand, 
+                          pcr.areatotal(remainingCellDemand, allocation_zones), 
+                          smallNumber)                        
+    cellAllocation  = pcr.min(cellAllocation, cellVolDemand)
+    
+    # another extraAbstraction to minimize numerical errors:
+    zoneDeficitAbstraction = pcr.max(0.0,\
+                                     pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     pcr.areatotal(cellAbstraction, allocation_zones))
+    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            remainingCellAvlWater, 
+                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            smallNumber)                        
 
-    #~ zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
-                             #~ pcr.areatotal(cellAbstraction, allocation_zones)
-    #~ pcr.report(zoneDeficitAbstraction, "test.map")
-    #~ os.system('aguila test.map')
+    zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
+                             pcr.areatotal(cellAbstraction, allocation_zones)
+    pcr.report(zoneDeficitAbstraction, "test.map")
+    os.system('aguila test.map')
 
     if debug_water_balance and not isinstance(zone_area,types.NoneType):
 
