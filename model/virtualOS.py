@@ -1613,7 +1613,7 @@ def waterAbstractionAndAllocationFAILED(water_demand_volume,available_water_volu
     
     return cellAbstraction, cellAllocation
 
-def waterAbstractionAndAllocationNEW(water_demand_volume,available_water_volume,allocation_zones,\
+def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,allocation_zones,\
                                   zone_area = None,
                                   high_volume_treshold = 1000000.,
                                   debug_water_balance = True,\
@@ -1757,7 +1757,7 @@ def waterAbstractionAndAllocationNEW(water_demand_volume,available_water_volume,
     
     return cellAbstraction, cellAllocation
 
-def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,allocation_zones,\
+def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,allocation_zones,\
                                   zone_area = None,
                                   high_volume_treshold = 1000000.,
                                   debug_water_balance = True,\
