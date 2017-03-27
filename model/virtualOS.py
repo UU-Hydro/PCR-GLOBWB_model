@@ -1584,15 +1584,15 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                           pcr.areatotal(remainingCellDemand, allocation_zones), 
                           smallNumber)                        
     
-    # another extraAbstraction to minimize numerical errors:
-    zoneDeficitAbstraction = pcr.max(0.0,\
-                                     pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     pcr.areatotal(cellAbstraction, allocation_zones))
-    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            remainingCellAvlWater, 
-                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            smallNumber)                        
+    #~ # another extraAbstraction to minimize numerical errors:
+    #~ zoneDeficitAbstraction = pcr.max(0.0,\
+                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
+    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            #~ remainingCellAvlWater, 
+                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            #~ smallNumber)                        
 
     zoneDeficitAbstraction = pcr.areatotal(cellAllocation , allocation_zones) -\
                              pcr.areatotal(cellAbstraction, allocation_zones)
