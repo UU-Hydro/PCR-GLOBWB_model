@@ -1500,7 +1500,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     
     # first, satisfy demand with local source
     cellAllocation  = pcr.min(cellVolDemand, cellAvlWater)
-    cellAbstraction = cellAllocation
+    cellAbstraction = cellAllocation * 1.0
 
     logger.debug("Allocation of abstraction - then, satisfy demand with neighbour sources.")
     
