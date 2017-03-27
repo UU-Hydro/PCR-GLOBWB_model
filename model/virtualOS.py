@@ -1478,7 +1478,7 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
                                   landmask = None,
                                   ignore_small_values = False):
 
-    logger.debug("Allocation of abstraction.")
+    logger.debug("Allocation of abstraction - first, satisfy demand with local source.")
     
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, water_demand_volume)
@@ -1489,9 +1489,6 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     else:
         cellVolDemand = pcr.max(0.0, cellVolDemand)
     
-    # total demand volume in each zone/segment (unit: m3)
-    zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
-    
     # total available water volume in each cell
     cellAvlWater = pcr.max(0.0, available_water_volume)
     if not isinstance(landmask, types.NoneType):
@@ -1501,7 +1498,18 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     else:
         cellAvlWater = pcr.max(0.0, cellAvlWater)
     
-    cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater/10.)) * 10.
+    # first, satisfy demand with local source
+    cellAllocation  = pcr.min(cellVolDemand, cellAvlWater)
+    cellAbstraction = cellAllocation
+
+    logger.debug("Allocation of abstraction - then, satisfy demand with neighbour source.")
+    
+    # the remaining demand and available water
+    cellVolDemand = pcr.max(0.0, cellVolDemand - cellAllocation)
+    cellAvlWater  = pcr.max(0.0, cellAvlWater  - cellAbstraction)
+
+    # total demand volume in each zone/segment (unit: m3)
+    zoneVolDemand = pcr.areatotal(cellVolDemand, allocation_zones)
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
@@ -1521,46 +1529,31 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     zoneAbstraction = pcr.min(zoneAvlWater, zoneVolDemand)
     
     # actual water abstraction volume in each cell (unit: m3)
-    cellAbstraction = getValDivZero(\
-                      cellAvlWater, zoneAvlWater, smallNumber)*zoneAbstraction
-    cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
-    if ignore_small_values: # ignore small values to avoid runding error
-        cellAbstraction = pcr.rounddown(pcr.max(0.00, cellAbstraction))
-    # to minimize numerical errors, separating cellAbstraction 
-    if not isinstance(high_volume_treshold,types.NoneType):
-        # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
-        mask = pcr.cover(\
-               pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
-        zoneAbstraction  = pcr.areatotal(
-                           pcr.ifthenelse(mask, 0.0, cellAbstraction), allocation_zones)
-        zoneAbstraction += pcr.areatotal(                
-                           pcr.ifthenelse(mask, cellAbstraction, 0.0), allocation_zones)
-    else:
-        zoneAbstraction  = pcr.areatotal(cellAbstraction, allocation_zones)    
-    
-    # allocation water to meet water demand (unit: m3)
-    cellAllocation  = getValDivZero(\
-                      cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
-    cellAllocation  = pcr.min(cellAllocation, cellVolDemand)
-    
-    # local abstraction to minimize numerical errors
-    additionalLocalAbstraction = pcr.max(0.0,\
-                                         pcr.areaaverage(cellAllocation , allocation_zones) -\
-                                         pcr.areaaverage(cellAbstraction, allocation_zones))
-    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    additionalLocalAbstraction = pcr.min(additionalLocalAbstraction, \
-                                         remainingCellAvlWater)
-    cellAbstraction      += additionalLocalAbstraction
+    cellAbstraction += getValDivZero(\
+                       cellAvlWater, zoneAvlWater, smallNumber)*zoneAbstraction
 
-    # extraAbstraction to minimize numerical errors:
-    zoneDeficitAbstraction = pcr.max(0.0,\
-                                     pcr.areatotal(cellAllocation , allocation_zones) -\
-                                     pcr.areatotal(cellAbstraction, allocation_zones))
-    remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
-    cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
-                            remainingCellAvlWater, 
-                            pcr.areatotal(remainingCellAvlWater, allocation_zones), 
-                            smallNumber)                        
+    # allocation water to meet water demand (unit: m3)
+    cellAllocation  += getValDivZero(\
+                       cellVolDemand, zoneVolDemand, smallNumber)*zoneAbstraction 
+    
+    #~ # local abstraction to minimize numerical errors
+    #~ additionalLocalAbstraction = pcr.max(0.0,\
+                                         #~ pcr.areaaverage(cellAllocation , allocation_zones) -\
+                                         #~ pcr.areaaverage(cellAbstraction, allocation_zones))
+    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    #~ additionalLocalAbstraction = pcr.min(additionalLocalAbstraction, \
+                                         #~ remainingCellAvlWater)
+    #~ cellAbstraction      += additionalLocalAbstraction
+
+    #~ # extraAbstraction to minimize numerical errors:
+    #~ zoneDeficitAbstraction = pcr.max(0.0,\
+                                     #~ pcr.areatotal(cellAllocation , allocation_zones) -\
+                                     #~ pcr.areatotal(cellAbstraction, allocation_zones))
+    #~ remainingCellAvlWater = pcr.max(0.0, cellAvlWater - cellAbstraction)
+    #~ cellAbstraction      += zoneDeficitAbstraction * getValDivZero(\
+                            #~ remainingCellAvlWater, 
+                            #~ pcr.areatotal(remainingCellAvlWater, allocation_zones), 
+                            #~ smallNumber)                        
     #~ # 
     #~ # extraAllocation to minimize numerical errors:
     #~ zoneDeficitAllocation = pcr.max(0.0,\
