@@ -1665,8 +1665,8 @@ def waterAbstractionAndAllocation(water_demand_volume,available_water_volume,all
     # avoid very high values of available water
     cellAvlWater  = pcr.min(cellAvlWater, zoneVolDemand)
 
-    #~ # avoid very small values of available water
-    #~ cellAvlWater  = pcr.rounddown(cellAvlWater)
+    # avoid very small values of available water
+    cellAvlWater  = pcr.rounddown(cellAvlWater)
     
     # total available water volume in each cell
     cellAvlWater  = pcr.max(0.0, cellAvlWater)
