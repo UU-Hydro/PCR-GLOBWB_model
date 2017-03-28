@@ -321,6 +321,7 @@ class Groundwater(object):
              groundwaterAllocationSegments,
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            self.allocSegments = pcr.clump(self.allocSegments)
 
             # extrapolate it 
             self.allocSegments = pcr.cover(self.allocSegments, \
