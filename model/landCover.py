@@ -201,13 +201,26 @@ class LandCover(object):
               self.cloneMap, self.tmpDir, self.inputDir)
             cellArea = pcr.ifthen(self.landmask, cellArea)                  
 
+            # reading the allocation zone file
             self.allocSegments = vos.readPCRmapClone(\
              iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            self.allocSegments = pcr.clump(self.allocSegments)
         
-            #~ self.allocSegments = pcr.clump(self.allocSegments)       # According to Menno, "clump" is NOT recommended.
+            # extrapolate it 
+            self.allocSegments = pcr.cover(self.allocSegments, \
+                                           pcr.windowmajority(self.allocSegments, 0.5))
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # clump it and cover the rests with cell ids 
+            self.allocSegments = pcr.clump(self.allocSegments)
+            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            self.allocSegments = pcr.clump(self.allocSegments)
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
         
+            # zonal/segment areas (unit: m2)
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 

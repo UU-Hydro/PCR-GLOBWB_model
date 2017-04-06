@@ -21,5 +21,5 @@ Some git reference cards:
 - http://devcheatsheet.com/tag/git/
 
 A cookbook about how to run PCR-GLOBWB and contribute to its development: 
-- http://goo.gl/8d9frs (created on May 2014).
+- https://goo.gl/medqhJ (created on May 2014).
 - Examples of model input files can be obtained from git@github.com:UU-Hydro/PCR-GLOBWB_input_example.git (including ini files). 
