@@ -716,7 +716,7 @@ class GroundwaterModflow(object):
             
             msg = "In areas with confining layer, limit vertical conductivity to the given map/value of maximumConfiningLayerVerticalConductivity"
             if self.log_to_info: logger.info(msg)
-            # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity
+            # vertical conductivity values are limited by the predefined maximumConfiningLayerVerticalConductivity
             vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
             # particularly in areas with confining layer
             vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
@@ -1455,8 +1455,8 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         if self.modflow_converged: self.get_all_modflow_results(simulation_type)
         
-        # copy all modflow files
-        if self.make_backup_of_modflow_files: 
+        # copy all modflow files (only for transient simulation)
+        if self.make_backup_of_modflow_files and simulation_type == "transient": 
             # target directory:
             target_directory = self.iniItems.globalOptions['outputDir'] + "/" + "modflow_files" + "/" + str(currTimeStep.fulldate) + "/"
             if os.path.exists(target_directory): shutil.rmtree(target_directory)
