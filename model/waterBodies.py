@@ -398,14 +398,16 @@ class WaterBodies(object):
         # incoming volume (m3)
         self.inflow = newStorageAtLakeAndReservoirs - self.waterBodyStorage
         
-        # inflowInM3PerSec (m3/s)
-        inflowInM3PerSec = self.inflow / length_of_time_step
+        # TODO: Please check whether this inflow term includes evaporation loss?
+        
+        # inflowInM3PerSec (m3/s)                                       
+        self.inflowInM3PerSec = self.inflow / length_of_time_step
 
         # updating (short term) average inflow (m3/s) ; 
         # - needed to constrain lake outflow:
         #
         temp = pcr.max(1.0, pcr.min(maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge - 1.0 + length_of_time_step / vos.secondsPerDay()))
-        deltaInflow = inflowInM3PerSec - self.avgInflow  
+        deltaInflow = self.inflowInM3PerSec - self.avgInflow  
         R = deltaInflow * ( length_of_time_step / vos.secondsPerDay() ) / temp
         self.avgInflow = self.avgInflow + R                
         self.avgInflow = pcr.max(0.0, self.avgInflow)

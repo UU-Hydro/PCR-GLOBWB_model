@@ -318,6 +318,11 @@ class Reporting(object):
             self.report_forcing_for_debugging()
             self.report_vegetation_phenology_for_debugging()
         
+        # saving some model paramaters 
+        if self._modelTime.timeStepPCR == 1:
+            # recession coefficient (day-1)
+            pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir + "/globalalpha.map")
+
     def report_forcing_for_debugging(self):
 
         # prepare forcing directory
@@ -842,6 +847,10 @@ class Reporting(object):
         self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
         self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
         ######################################################################################################################################################################
+
+
+        # fluxes from water bodies (lakes and reservoirs) - unit: m3/s
+        self.lake_and_reservoir_inflow = self._model.routing.WaterBodies.inflowInM3PerSec
 
 
     def report(self):
