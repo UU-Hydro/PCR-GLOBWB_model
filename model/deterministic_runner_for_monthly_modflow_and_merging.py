@@ -33,9 +33,16 @@ from pcraster.framework import DynamicFramework
 
 from configuration_for_modflow import Configuration
 from currTimeStep import ModelTime
-from reporting_for_modflow import Reporting
 
-from modflow import ModflowCoupling
+try:
+    from reporting_for_modflow import Reporting
+except:
+    pass
+
+try:
+    from modflow import ModflowCoupling
+except:
+    pass
 
 import virtualOS as vos
 

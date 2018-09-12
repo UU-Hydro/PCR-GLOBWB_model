@@ -1786,10 +1786,11 @@ class GroundwaterModflow(object):
         
         # set the RIV package only to the uppermost layer
         self.pcr_modflow.setRiver(surface_water_elevation, self.surface_water_bed_elevation, bed_conductance_used, self.number_of_layers)
-        
-        pcr.report(pcr.ifthen(self.landmask, surface_water_elevation), "riv_head_surface_water_elevation.map")
-        pcr.report(pcr.ifthen(self.landmask, self.surface_water_bed_elevation), "riv_bottom_surface_water_bed_elevation.map")
-        pcr.report(pcr.ifthen(self.landmask, bed_conductance_used), "riv_bed_conductance.map")
+
+        #~ # reporting river bed elevation and conductance
+        #~ pcr.report(pcr.ifthen(self.landmask, surface_water_elevation), "riv_head_surface_water_elevation.map")
+        #~ pcr.report(pcr.ifthen(self.landmask, self.surface_water_bed_elevation), "riv_bottom_surface_water_bed_elevation.map")
+        #~ pcr.report(pcr.ifthen(self.landmask, bed_conductance_used), "riv_bed_conductance.map")
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
 

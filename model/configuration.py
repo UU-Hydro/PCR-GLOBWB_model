@@ -560,6 +560,13 @@ class Configuration(object):
         if 'temperature_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['temperature_set_per_year'] = "False"
         if 'refETPotFileNC_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
 
+        # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
+        if 'prioritizeLocalSourceToMeetWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
+            logger.warning(msg)
+            self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
+        
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
 
     def set_debug_to_version_one(self):
