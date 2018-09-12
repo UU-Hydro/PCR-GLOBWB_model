@@ -82,8 +82,19 @@ class WaterBodies(object):
 
         # lower and upper limits at which reservoir release is terminated and 
         #                        at which reservoir release is equal to long-term average outflow
+        # - default values
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
+        # - from the ini file
+        if "minResvrFrac" in iniItems.routingOptions.keys():
+            minResvrFrac = iniItems.routingOptions['minResvrFrac']
+            self.minResvrFrac = vos.readPCRmapClone(minResvrFrac,
+                                                    self.cloneMap, self.tmpDir, self.inputDir)
+        if "maxResvrFrac" in iniItems.routingOptions.keys():
+            maxResvrFrac = iniItems.routingOptions['maxResvrFrac']
+            self.maxResvrFrac = vos.readPCRmapClone(maxResvrFrac,
+                                                    self.cloneMap, self.tmpDir, self.inputDir)
+
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
                                initial_condition_dictionary = None):
