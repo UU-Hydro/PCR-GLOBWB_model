@@ -93,11 +93,11 @@ class PCR2netCDF():
             self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
             self.attributeDictionary['description'] = iniItems.globalOptions['description']
         else:
-            self.attributeDictionary['institution'] = specificAttributeDictionary['institution']
-            self.attributeDictionary['title'      ] = specificAttributeDictionary['title'      ]
-            self.attributeDictionary['description'] = specificAttributeDictionary['description']
+            for ncAttributeKey, ncAttribute in specificAttributeDictionary.iteritems():
+                print ncAttributeKey, ncAttribute
+                self.attributeDictionary[ncAttributeKey]= ncAttribute
 
-    def createNetCDF(self, ncFileName, varName, varUnits, longName = None):
+    def createNetCDF(self, ncFileName, varName, varUnits, longName = None, standardName= None):
 
         rootgrp = nc.Dataset(ncFileName,'w',format= self.format)
 
@@ -128,10 +128,12 @@ class PCR2netCDF():
 
         shortVarName = varName
         longVarName  = varName
+        standardVarName = varName
         if longName != None: longVarName = longName
+        if standardName != None: standardVarName = standardName
 
         var = rootgrp.createVariable(shortVarName,'f4',('time','lat','lon',) ,fill_value=vos.MV,zlib=self.zlib)
-        var.standard_name = varName
+        var.standard_name = standardVarName
         var.long_name = longVarName
         var.units = varUnits
 
