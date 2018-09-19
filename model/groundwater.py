@@ -25,6 +25,7 @@
 import math
 import subprocess
 import os
+import types
 
 from pcraster.framework import *
 import pcraster as pcr
