@@ -157,7 +157,7 @@ class Groundwater(object):
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
-        if isinstance(self.recessionCoeff,types.NoneType) and\
+        if isinstance(self.recessionCoeff.types.NoneType) and\
                           'recessionCoeff' not in iniItems.groundwaterOptions.keys():
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
