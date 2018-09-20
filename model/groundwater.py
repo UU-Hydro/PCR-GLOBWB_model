@@ -144,6 +144,8 @@ class Groundwater(object):
         #####################################################################################################################################################
         # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC
         try:
+            msg = "The 'recessionCoeff' will be obtained from the file: "+groundwaterPropertiesNC
+            logger.info(msg)
             self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
                                   groundwaterPropertiesNC,'recessionCoeff',\
                                   cloneMapFileName = self.cloneMap)
@@ -158,7 +160,7 @@ class Groundwater(object):
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
-        if isinstance(self.recessionCoeff,types.NoneType) and\
+        if isinstance(self.recessionCoeff, types.NoneType) and\
                           'recessionCoeff' not in iniItems.groundwaterOptions.keys():
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
