@@ -1324,7 +1324,7 @@ class LandSurface(object):
 		#- RvB: irrigation water efficiency
 		# added here are the lines required to read in the water efficiency
 		# irrigation water efficiency is updated at the start of the year and 
-        if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.PCR == 1):
+        if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
 					logger.info("Setting irrigation water efficiency")
 					for coverType in self.coverTypes:
 						self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
