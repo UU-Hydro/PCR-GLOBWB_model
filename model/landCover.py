@@ -316,34 +316,44 @@ class LandCover(object):
         # this reads in the irrigation water efficiency from the configuration file
         # at the start of each calendar year - it can optionally handle netCDF files,
         # PCRaster maps or values
-        var= 'irrigationWaterEfficiency'
-        if self.iniItemsLC['name'].startswith('irr'):
-            #-irrigated
-            input = self.iniItemsLC[var]
-            try:
-							#-static input
-							vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                            self.tmpDir,self.inputDir)
-            except:
-							#-dynamic input
-							if 'nc' in os.path.splitext(input)[1]:
-								#-netCDF file
-								ncFileIn = vos.getFullPath(input,self.inputDir)
-								vars(self)[var] = vos.netcdf2PCRobjClone(ncFileIn,var, \
-                           currTimeStep, useDoy = 'yearly',\
-                           cloneMapFileName = self.cloneMap)
-							else:
-								#-assumed PCRaster file, add year and '.map' extension
-								input= input + '%04d.map' % currTimeStep.year
-								vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                            self.tmpDir,self.inputDir)
-        else:
-					  #-not irrigated
-					  vars(self)[var] = pcr.scalar(1.0)
-				#-patch any missing values
-        vars(self)[var] = pcr.cover(vars(self)[var],1.0)
- 			
 
+        var = 'irrigationWaterEfficiency'
+
+        if var in self.iniItemsLC.keys() or 'irrigationEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
+
+            msg = "Irrigation efficiency is set based on the file defined in the landCoverOptions."
+            
+            if 'irrigationEfficiency' in self.iniItemsLC.keys():
+                self.iniItemsLC[var] = self.iniItemsLC[irrigationEfficiency]
+
+                input = self.iniItemsLC[var]
+
+                try:
+            					# static input
+            					vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                                self.tmpDir,self.inputDir)
+                except:
+            					# dynamic input
+            					if 'nc' in os.path.splitext(input)[1]:
+            						#-netCDF file
+            						ncFileIn = vos.getFullPath(input,self.inputDir)
+            						vars(self)[var] = vos.netcdf2PCRobjClone(ncFileIn,var, \
+                               currTimeStep, useDoy = 'yearly',\
+                               cloneMapFileName = self.cloneMap)
+            					else:
+            						#-assumed PCRaster file, add year and '.map' extension
+            						input= input + '%04d.map' % currTimeStep.year
+            						vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                                self.tmpDir,self.inputDir)
+            
+            # patch any missing values
+            vars(self)[var] = pcr.cover(vars(self)[var],1.0)
+        
+        else:
+
+            msg = "Irrigation efficiency is set based on the file defined in the landSurfaceOptions (for irrigated land cover types only)."
+        
+        logger.info(msg)    
 
 
     def get_land_cover_parameters(self, date_in_string = None, get_only_fracVegCover = False):
