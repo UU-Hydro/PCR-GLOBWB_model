@@ -317,38 +317,58 @@ class LandCover(object):
         # at the start of each calendar year - it can optionally handle netCDF files,
         # PCRaster maps or values
 
-        var = 'irrigationWaterEfficiency'
+        var = 'irrigationEfficiency'
 
-        if var in self.iniItemsLC.keys() or 'irrigationEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
+        if var in self.iniItemsLC.keys() or 'irrigationWaterEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
 
             msg = "Irrigation efficiency is set based on the file defined in the landCoverOptions."
             
-            if 'irrigationEfficiency' in self.iniItemsLC.keys():
-                self.iniItemsLC[var] = self.iniItemsLC[irrigationEfficiency]
+            if 'irrigationWaterEfficiency' in self.iniItemsLC.keys():
+                self.iniItemsLC[var] = self.iniItemsLC['irrigationWaterEfficiency']
 
-                input = self.iniItemsLC[var]
+            input = self.iniItemsLC[var]
 
-                try:
-            					# static input
+            try:
+            				# static input
+            				vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                            self.tmpDir,self.inputDir)
+            except:
+            				# dynamic input
+            				if 'nc' in os.path.splitext(input)[1]:
+            					#-netCDF file
+            					ncFileIn = vos.getFullPath(input,self.inputDir)
+            					vars(self)[var] = vos.netcdf2PCRobjClone(ncFileIn,var, \
+                           currTimeStep, useDoy = 'yearly',\
+                           cloneMapFileName = self.cloneMap)
+            				else:
+            					#-assumed PCRaster file, add year and '.map' extension
+            					input= input + '%04d.map' % currTimeStep.year
             					vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                                self.tmpDir,self.inputDir)
-                except:
-            					# dynamic input
-            					if 'nc' in os.path.splitext(input)[1]:
-            						#-netCDF file
-            						ncFileIn = vos.getFullPath(input,self.inputDir)
-            						vars(self)[var] = vos.netcdf2PCRobjClone(ncFileIn,var, \
-                               currTimeStep, useDoy = 'yearly',\
-                               cloneMapFileName = self.cloneMap)
-            					else:
-            						#-assumed PCRaster file, add year and '.map' extension
-            						input= input + '%04d.map' % currTimeStep.year
-            						vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
-                                                self.tmpDir,self.inputDir)
+                                            self.tmpDir,self.inputDir)
             
+            # extrapolate efficiency map:                                                # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
+            window_size = 1.25 * pcr.clone().cellSize()
+            window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
+            try:
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
+            except:                                                 
+                pass
+
             # patch any missing values
             vars(self)[var] = pcr.cover(vars(self)[var],1.0)
-        
+
+            #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+            self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
+            self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
+            self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+
         else:
 
             msg = "Irrigation efficiency is set based on the file defined in the landSurfaceOptions (for irrigated land cover types only)."
