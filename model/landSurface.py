@@ -251,17 +251,25 @@ class LandSurface(object):
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
         # - if not defined (default), set it to the maximum 
         self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
-        # - based on the map of McDonald et al. (2014)
         if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys():
             if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
                iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
 
-                logger.info('Using/incorporating the predefined surface water source of McDonald et al. (2014) for satisfying domestic and industrial demand.')
+                logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
                 self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
                                                                                pcr.cover(\
                                                                                vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
                                                                                                    self.cloneMap,self.tmpDir,self.inputDir), 1.0))
 
+        # pre-defined surface water source fraction for satisfying industrial and domestic water demand
+        self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
+        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\:
+           (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
+            iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
+            logger.info('Set the predefined surface water source for satisfying domestic and industrial demand.')
+            
+            s
+        
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
         self.treshold_to_maximize_irrigation_surface_water = \
          vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],\
