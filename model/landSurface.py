@@ -261,6 +261,8 @@ class LandSurface(object):
                                                                                vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
                                                                                                    self.cloneMap,self.tmpDir,self.inputDir), 1.0))
 
+        UNTIL THIS PART
+        
         # pre-defined surface water source fraction for satisfying industrial and domestic water demand
         self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
         if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\:
