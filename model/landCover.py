@@ -1788,6 +1788,9 @@ class LandCover(object):
         # - for industrial and domestic
         swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
                                                             swAbstractionFractionDict['estimate'])
+        if not isinstance(swAbstractionFractionDict['non_irrigation'], types.NoneType):
+            swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
+
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
