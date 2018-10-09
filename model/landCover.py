@@ -361,10 +361,6 @@ class LandCover(object):
             except:                                                 
                 pass
 
-            # patch any missing values
-            vars(self)[var] = pcr.cover(vars(self)[var],1.0)
-
-            #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
             self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
             self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
             self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
