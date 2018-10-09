@@ -317,9 +317,9 @@ class LandCover(object):
         # at the start of each calendar year - it can optionally handle netCDF files,
         # PCRaster maps or values
 
-        var = 'irrigationEfficiency'
+        var = 'irrigationWaterEfficiency'
 
-        if var in self.iniItemsLC.keys() or 'irrigationWaterEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
+        if var in self.iniItemsLC.keys() or 'irrigationEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
 
             msg = "Irrigation efficiency is set based on the file defined in the landCoverOptions."
             
@@ -330,20 +330,20 @@ class LandCover(object):
 
             try:
             				# static input
-            				vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+            				self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
             except:
             				# dynamic input
             				if 'nc' in os.path.splitext(input)[1]:
             					#-netCDF file
             					ncFileIn = vos.getFullPath(input,self.inputDir)
-            					vars(self)[var] = vos.netcdf2PCRobjClone(ncFileIn,var, \
+            					self.irrigationEfficiency = vos.netcdf2PCRobjClone(ncFileIn,var, \
                            currTimeStep, useDoy = 'yearly',\
                            cloneMapFileName = self.cloneMap)
             				else:
             					#-assumed PCRaster file, add year and '.map' extension
             					input= input + '%04d.map' % currTimeStep.year
-            					vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+            					self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
             
             # extrapolate efficiency map:                                                # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
