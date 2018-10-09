@@ -263,8 +263,8 @@ class LandSurface(object):
 
         # pre-defined surface water source fraction for satisfying industrial and domestic water demand
         self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
-        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\:
-           (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
+        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and \
+           (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
             iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
             
             logger.info('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
