@@ -1,0 +1,8 @@
+cdo -L setmisstoc,0.001 -setvrange,0.001,1000 -max -abs storGroundwater_annuaAvg_output_2099-12-31_to_2099-12-31.nc -abs storGroundwater_annuaAvg_output_2100-12-31_to_2100-12-31.nc divider.nc
+cdo -L setunit,1 -div -sub storGroundwater_annuaAvg_output_2100-12-31_to_2100-12-31.nc storGroundwater_annuaAvg_output_2099-12-31_to_2099-12-31.nc divider.nc relative_difference.nc
+
+cdo -L setmisstoc,0.001 -setvrange,0.001,1000 -max -abs totalWaterStorageThickness_annuaAvg_output_2099-12-31_to_2099-12-31.nc -abs totalWaterStorageThickness_annuaAvg_output_2100-12-31_to_2100-12-31.nc divider_TWS.nc
+cdo -L setunit,1 -div -sub totalWaterStorageThickness_annuaAvg_output_2100-12-31_to_2100-12-31.nc totalWaterStorageThickness_annuaAvg_output_2099-12-31_to_2099-12-31.nc divider_TWS.nc relative_difference_TWS.nc
+
+cdo -L setmisstoc,0.001 -setvrange,0.001,1000 -max -abs totalActiveStorageThickness_monthEnd_output_2099-01-31_to_2099-12-31.nc -abs totalActiveStorageThickness_monthEnd_output_2100-01-31_to_2100-12-31.nc divider_TAS.nc
+cdo -L setunit,1 -div -sub totalActiveStorageThickness_monthEnd_output_2100-01-31_to_2100-12-31.nc totalActiveStorageThickness_monthEnd_output_2099-01-31_to_2099-12-31.nc divider_TAS.nc relative_difference_TAS.nc
