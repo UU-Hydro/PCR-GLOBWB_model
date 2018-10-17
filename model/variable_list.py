@@ -991,6 +991,18 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# surfaceWaterInf
+pcrglobwb_variable_name = 'surfaceWaterInf'
+netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_infiltration'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = 'surface_water_infiltration_to_groundwater'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+
 # irrigationTranspiration
 pcrglobwb_variable_name = 'irrigationTranspiration'
 netcdf_short_name[pcrglobwb_variable_name] = 'transpiration_from_irrigation'

@@ -807,9 +807,16 @@ class Reporting(object):
         # total potential water demand - not considering water availability
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
+
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
+        # - For PCR-GLOBWB run without MODFLOW, this value will be zero if there are no groundwater abstraction.
+        # - For PCR-GLOBWB run with MODFLOW, the name "groundwaterAbsReturnFlow" is NOT valid, as there will be also exchange from groundwater to surface water even if there is no groundwater abstraction
+        
+        # surface water infiltration (to groundwater) (unit: m/day)
+        self.surfaceWaterInf = self._model.routing.riverbedExchange / self._model.routing.cellArea
+        # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow 
 
 
 		#-----------------------------------------------------------------------
