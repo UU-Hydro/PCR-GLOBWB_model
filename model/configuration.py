@@ -95,8 +95,8 @@ class Configuration(object):
         # copy ini file
         self.backup_configuration()
 
-        # repair key names of initial conditions
-        self.repair_ini_key_names()
+        # auto correction/filling to ini file
+        self.auto_correcting_ini_file()
 
         # options/settings used during debugging to PCR-GLOBWB version 1.0
         self.set_debug_to_version_one()
@@ -300,12 +300,25 @@ class Configuration(object):
         os.chdir(self.mapsDir)
 
 
-    def repair_ini_key_names(self):
+
+
+    def auto_correcting_ini_file(self):
         """
-        If needed, change/modify some key names for initial condition fields. 
-        This is introduced because Edwin was very stupid as once he changed some key names of initial conditions! Yet, it is also useful particularly for runs without complete ini files. 
+        This was initially introduced because Edwin was very stupid as once he changed some key names of initial conditions.
+        Yet, this function also become useful for runs that do not have complete ini files. 
         """
 
+        self.repairGlobalOptions()
+        self.repairMeteoOptions()
+        self.repairLandSurfaceOptions()
+        self.repairGroundwaterOptions()
+        self.repairRoutingOptions()
+
+        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
+
+        
+    def repairGlobalOptions(self):
+        
         # temporal resolution of the model
         self.timeStep = 1.0
         self.timeStepUnit = "day"
@@ -318,28 +331,123 @@ class Configuration(object):
                 self.timeStep     = None
                 self.timeStepUnit = None
         
+
+    def repairMeteoOptions(self):
+
+        # adjustments for the options to read different forcing files for different years (one file for each year):
+        if 'precipitation_set_per_year'  not in self.meteoOptions.keys(): self.meteoOptions['precipitation_set_per_year']  = "False"
+        if 'temperature_set_per_year'    not in self.meteoOptions.keys(): self.meteoOptions['temperature_set_per_year']    = "False"
+        if 'refETPotFileNC_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
+
+
+    def repairLandSurfaceOptions(self):
+
+        # option to include irrigation
+        if 'includeIrrigation' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "False" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeIrrigation'] = "False"
+
+        # adjustment for the option 'historicalIrrigationArea'
+        if 'historicalIrrigationArea' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "None" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['historicalIrrigationArea'] = "None"
+
+
+        # adjustment for the option 'includeDomesticWaterDemand'
+        if 'includeDomesticWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Domestic water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeDomesticWaterDemand'] = "False"
+
+        # adjustment for the option 'domesticWaterDemandFile'
+        if (self.landSurfaceOptions['includeDomesticWaterDemand'] == "False") and ('domesticWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "domesticWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Domestic water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['domesticWaterDemandFile'] = "None"
+
+        # adjustment for the option 'includeIndustryWaterDemand'
+        if 'includeIndustryWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Industry water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeIndustryWaterDemand'] = "False"
+
+        # adjustment for the option 'industryWaterDemandFile'
+        if (self.landSurfaceOptions['includeIndustryWaterDemand'] == "False") and ('industryWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "industryWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Industry water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['industryWaterDemandFile'] = "None"
+
+        # adjustment for the option 'includeLivestockWaterDemand'
+        if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
+
+        # adjustment for the option 'livestockWaterDemandFile'
+        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in self.landSurfaceOptions.keys()):
+            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
+            logger.warning(msg)
+            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
+
+
         # adjustment for limitAbstraction (to use only renewable water)
         if 'limitAbstraction' not in self.landSurfaceOptions.keys():
+            logger.warning('The "limitAbstraction" option is not defined in the configuration file. This run assumes False for this option.')
             self.landSurfaceOptions['limitAbstraction'] = False
 
-        # irrigation efficiency map 
-        if 'irrigationEfficiency' not in self.landSurfaceOptions.keys() or\
-            self.landSurfaceOptions['irrigationEfficiency'] == "False" or\
-            self.landSurfaceOptions['irrigationEfficiency'] == "None":
-            logger.warning('The "irrigationEfficiency" map is not defined in the configuration file. This run assumes 100% efficiency.')
-            self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
-        
+
         # adjustment for desalinationWater
         if 'desalinationWater' not in self.landSurfaceOptions.keys():
             msg  = 'The option "desalinationWater" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Desalination water use is NOT included in the calculation.'
+            msg += 'We assume "None" for this option. Desalinated water source is NOT included/considered during the simulation.'
             logger.warning(msg)
             self.landSurfaceOptions['desalinationWater'] = "None"
 
-        # adjustment for routingOptions
-        if 'routingMethod' not in self.routingOptions.keys():
-            logger.warning('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
-            iniItems.routingOptions['routingMethod'] = "accuTravelTime"
+        # adjustment for option 'allocationSegmentsForGroundSurfaceWater'
+        if 'allocationSegmentsForGroundSurfaceWater' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'We assume "None" for this option. Here, water demand will be satisfied by local source only. '
+            logger.warning(msg)
+            self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
+
+
+        # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
+        if 'prioritizeLocalSourceToMeetWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
+            logger.warning(msg)
+            self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
+
+
+        if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "1.0" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
+        
+        if 'treshold_to_minimize_fossil_groundwater_irrigation' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'This run assumes "1.0" for this option.'
+            logger.warning(msg)
+            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
+            # The default value is 1.0 such that this threshold value is not used. 
+
+
+
+
+
+    def repairGroundwaterOptions(self):
 
         # adjustment for option 'limitRegionalAnnualGroundwaterAbstraction'
         if 'pumpingCapacityNC' not in self.groundwaterOptions.keys():
@@ -349,27 +457,177 @@ class Configuration(object):
             msg += 'It may result too high groundwater abstraction.'
             logger.warning(msg)
             self.groundwaterOptions['pumpingCapacityNC'] = "None"
-        
-        # adjustment for option 'allocationSegmentsForGroundSurfaceWater'
-        if 'allocationSegmentsForGroundSurfaceWater' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "allocationSegmentsForGroundSurfaceWater" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Here, water demand will be satisfied by local source only. '
-            logger.warning(msg)
-            self.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] = "None"
-        
-        # adjustment for option 'dynamicFloodPlain'
-        if 'dynamicFloodPlain' not in self.routingOptions.keys():
-            msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
-            logger.warning(msg)
-            self.routingOptions['dynamicFloodPlain'] = "False"
-        
+
         # adjustment for option 'useMODFLOW'
         if 'useMODFLOW' not in self.groundwaterOptions.keys():
             msg  = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume "False" for this option.'
             logger.warning(msg)
-            self.groundwaterOptions['useMODFLOW'] = "False"
+            if "coupleToDailyMODFLOW" in self.groundwaterOptions.keys() and self.groundwaterOptions['coupleToDailyMODFLOW'] == "True":
+                self.groundwaterOptions['useMODFLOW'] = "True"
+                msg = 'We assume "useMODFLOW = True" for this run as the option "coupleToDailyMODFLOW = True" is introduced.'
+            else:
+                self.groundwaterOptions['useMODFLOW'] = "False"
+                msg = 'We assume "useMODFLOW = False" for this run.'
+            logger.warning(msg)    
+
+        if 'storGroundwaterFossilIni' not in self.groundwaterOptions.keys():
+            msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
+            # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
+
+        if 'avgTotalGroundwaterAbstractionIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
+
+        if 'avgTotalGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgTotalGroundwaterAllocationLongIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAllocationLongIni'] = "0.0"
+
+        if 'avgTotalGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgTotalGroundwaterAllocationShortIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgTotalGroundwaterAllocationShortIni'] = "0.0"
+
+        if 'avgNonFossilGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "
+            msg += 'Zero initial condition is assumed here. '
+            logger.warning(msg)
+            self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'] = "0.0"
+
+        if 'avgNonFossilGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
+            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationShortIni' is not defined, "
+            msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
+            logger.warning(msg)
+            self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
+        
+        if 'relativeGroundwaterHeadIni' not in self.groundwaterOptions.keys():
+            msg  = 'The initial condition "relativeGroundwaterHeadIni" is not defined. "None" is assumed here. '
+            msg += 'Note that the "relativeGroundwaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
+            logger.warning(msg)
+            self.groundwaterOptions['relativeGroundwaterHeadIni'] = "None"
+
+        if 'baseflowIni' not in self.groundwaterOptions.keys():
+            msg  = 'The initial condition "relativeGroundWaterIni" is not defined. "0.0" is assumed here. '
+            msg += 'Note that the "baseflowIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
+            logger.warning(msg)
+            self.groundwaterOptions['baseflowIni'] = "0.0"
+
+
+        if 'minSpecificYield' not in self.groundwaterOptions.keys():
+            msg  = 'The option "minSpecificYield" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.01" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['minSpecificYield'] = "0.01"
+
+        if 'minAquiferSatConductivity' not in self.groundwaterOptions.keys():
+            msg  = 'The option "minAquiferSatConductivity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.01" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['minAquiferSatConductivity'] = "0.01"
+
+        if 'minRecessionCoeff' not in self.groundwaterOptions.keys():
+            msg  = 'The option "minRecessionCoeff" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "1.0e-4" for this option (as used in Van Beek et al., 2011).'
+            logger.warning(msg)
+            self.groundwaterOptions['minRecessionCoeff'] = "1.0e-4"
+
+
+        if 'riverBedConductivity' not in self.groundwaterOptions.keys():
+            msg  = 'The option "riverBedConductivity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "Default" for this option. It means that the "kSatAaquifer" value will be used.'
+            logger.warning(msg)
+            self.groundwaterOptions['riverBedConductivity'] = "Default"
+
+        if 'maximumRiverBedConductivity' not in self.groundwaterOptions.keys():
+            msg  = 'The option "maximumRiverBedConductivity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.1" (m/day) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['maximumRiverBedConductivity'] = "0.1"
+
+        if 'riverBedThickness' not in self.groundwaterOptions.keys():
+            msg  = 'The option "riverBedThickness" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.1" (meter) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['riverBedThickness'] = "0.1"
+
+        if 'minimumBedResistance' not in self.groundwaterOptions.keys():
+            msg  = 'The option "minimumBedResistance" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "1.0" (day) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['minimumBedResistance'] = "1.0"
+
+        if 'limitFossilGroundWaterAbstraction' not in self.groundwaterOptions.keys():
+            msg  = 'The option "limitFossilGroundWaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "False" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['limitFossilGroundWaterAbstraction'] = "False"
+
+        # maximum daily rate of groundwater abstraction (unit: m/day)
+        if 'maximumDailyGroundwaterAbstraction' not in self.groundwaterOptions.keys():
+            msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.050" (m/day) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
+
+        # maximum daily rate of fossil groundwater abstraction (unit: m/day)
+        if 'maximumDailyFossilGroundwaterAbstraction' not in self.groundwaterOptions.keys():
+            msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.020 m/day (2 cm/day)" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
+
+        # estimateOfRenewableGroundwaterCapacity (m)
+        if 'estimateOfRenewableGroundwaterCapacity' not in self.groundwaterOptions.keys():
+            msg  = 'The option "estimateOfRenewableGroundwaterCapacity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.0" (m) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'] = "0.0"
+
+        # estimateOfTotalGroundwaterThickness
+        if 'estimateOfTotalGroundwaterThickness' not in self.groundwaterOptions.keys():
+            msg  = 'The option "estimateOfTotalGroundwaterThickness" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.0" (m) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'] = "0.0"
+
+        # minimumTotalGroundwaterThickness
+        if 'minimumTotalGroundwaterThickness' not in self.groundwaterOptions.keys():
+            msg  = 'The option "minimumTotalGroundwaterThickness" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.0" (m) for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['minimumTotalGroundwaterThickness'] = "0.0"
+
+        # maximumTotalGroundwaterThickness
+        if 'maximumTotalGroundwaterThickness' not in self.groundwaterOptions.keys():
+            msg  = 'The option "maximumTotalGroundwaterThickness" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "None" for this option.'
+            logger.warning(msg)
+            self.groundwaterOptions['maximumTotalGroundwaterThickness'] = "None"
+
+
+    def repairRoutingOptions(self):
+
+
+        # adjustment for routingOptions
+        if 'routingMethod' not in self.routingOptions.keys():
+            logger.warning('The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.')
+            iniItems.routingOptions['routingMethod'] = "accuTravelTime"
+
+
+        # adjustment for option 'dynamicFloodPlain'
+        if 'dynamicFloodPlain' not in self.routingOptions.keys():
+            msg  = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
+            msg += 'We assume "False" for this option. Hence, flood/inundated water extent on flood plain is not considered during the simulation.'
+            logger.warning(msg)
+            self.routingOptions['dynamicFloodPlain'] = "False"
+
 
         # adjustment for initial conditions in the routingOptions
         #
@@ -416,158 +674,8 @@ class Configuration(object):
             logger.warning(msg)
             self.routingOptions['subDischargeIni'] = self.routingOptions['avgDischargeShortIni']
 
-        if 'storGroundwaterFossilIni' not in self.groundwaterOptions.keys():
-            msg  = 'The initial condition "storGroundwaterFossilIni" is not defined. '
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['storGroundwaterFossilIni'] = "0.0"
-            # Note for Edwin: Zero initial condition cannot be used for the run with IWMI project.
-             
-        if 'avgTotalGroundwaterAbstractionIni' not in self.groundwaterOptions.keys():
-            msg  = "The initial condition 'avgTotalGroundwaterAbstractionIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAbstractionIni'] = "0.0"
 
-        if 'avgTotalGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
-            msg  = "The initial condition 'avgTotalGroundwaterAllocationLongIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAllocationLongIni'] = "0.0"
 
-        if 'avgTotalGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
-            msg  = "The initial condition 'avgTotalGroundwaterAllocationShortIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgTotalGroundwaterAllocationShortIni'] = "0.0"
-
-        if 'avgNonFossilGroundwaterAllocationLongIni' not in self.groundwaterOptions.keys():
-            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationLongIni' is not defined, "
-            msg += 'Zero initial condition is assumed here. '
-            logger.warning(msg)
-            self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni'] = "0.0"
-
-        if 'avgNonFossilGroundwaterAllocationShortIni' not in self.groundwaterOptions.keys():
-            msg  = "The initial condition 'avgNonFossilGroundwaterAllocationShortIni' is not defined, "
-            msg += "'avgNonFossilGroundwaterAllocationLongIni' is used here."
-            logger.warning(msg)
-            self.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'] = self.groundwaterOptions['avgNonFossilGroundwaterAllocationLongIni']
-        
-        if 'relativeGroundwaterHeadIni' not in self.groundwaterOptions.keys():
-            msg  = 'The initial condition "relativeGroundwaterHeadIni" is not defined. "None" is assumed here. '
-            msg += 'Note that the "relativeGroundwaterIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
-            logger.warning(msg)
-            self.groundwaterOptions['relativeGroundwaterHeadIni'] = "None"
-
-        if 'baseflowIni' not in self.groundwaterOptions.keys():
-            msg  = 'The initial condition "relativeGroundWaterIni" is not defined. "0.0" is assumed here. '
-            msg += 'Note that the "baseflowIni" is only relevant for the run that couples PCR-GLOBWB and MODFLOW.'
-            logger.warning(msg)
-            self.groundwaterOptions['baseflowIni'] = "0.0"
-
-        if 'limitFossilGroundWaterAbstraction' not in self.groundwaterOptions.keys():
-            msg  = 'The option "limitFossilGroundWaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "False" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['limitFossilGroundWaterAbstraction'] = "False"
-        
-        if 'treshold_to_maximize_irrigation_surface_water' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "treshold_to_maximize_irrigation_surface_water" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'] = "1.0"
-            # The default value is 1.0 such that this threshold value is not used. 
-        
-        if 'treshold_to_minimize_fossil_groundwater_irrigation' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "treshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'] = "1.0"
-            # The default value is 1.0 such that this threshold value is not used. 
-        
-        # maximum daily rate of groundwater abstraction (unit: m/day)
-        if 'maximumDailyGroundwaterAbstraction' not in self.groundwaterOptions.keys():
-            msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.050 m/day" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
-        
-        # maximum daily rate of fossil groundwater abstraction (unit: m/day)
-        if 'maximumDailyFossilGroundwaterAbstraction' not in self.groundwaterOptions.keys():
-            msg  = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.020 m/day" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'] = "0.020"
-
-        # option to include irrigation
-        if 'includeIrrigation' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "includeIrrigation" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "False" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeIrrigation'] = "False"
-
-        # adjustment for the option 'historicalIrrigationArea'
-        if 'historicalIrrigationArea' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "None" for this option.'
-            logger.warning(msg)
-            self.landSurfaceOptions['historicalIrrigationArea'] = "None"
-
-        # adjustment for the option 'includeDomesticWaterDemand'
-        if 'includeDomesticWaterDemand' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Domestic water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeDomesticWaterDemand'] = "False"
-
-        # adjustment for the option 'domesticWaterDemandFile'
-        if (self.landSurfaceOptions['includeDomesticWaterDemand'] == "False") and ('domesticWaterDemandFile' not in self.landSurfaceOptions.keys()):
-            msg  = 'The option "domesticWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Domestic water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['domesticWaterDemandFile'] = "None"
-
-        # adjustment for the option 'includeIndustryWaterDemand'
-        if 'includeIndustryWaterDemand' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "includeDommesticWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Industry water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeIndustryWaterDemand'] = "False"
-
-        # adjustment for the option 'industryWaterDemandFile'
-        if (self.landSurfaceOptions['includeIndustryWaterDemand'] == "False") and ('industryWaterDemandFile' not in self.landSurfaceOptions.keys()):
-            msg  = 'The option "industryWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Industry water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['industryWaterDemandFile'] = "None"
-
-        # adjustment for the option 'includeLivestockWaterDemand'
-        if 'includeLivestockWaterDemand' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "includeLivestockWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['includeLivestockWaterDemand'] = "False"
-
-        # adjustment for the option 'livestockWaterDemandFile'
-        if (self.landSurfaceOptions['includeLivestockWaterDemand'] == "False") and ('livestockWaterDemandFile' not in self.landSurfaceOptions.keys()):
-            msg  = 'The option "livestockWaterDemandFile" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "None" for this option. Livestock water demand is NOT included in the calculation.'
-            logger.warning(msg)
-            self.landSurfaceOptions['livestockWaterDemandFile'] = "None"
-
-        # adjustments for the options to read different forcing files for different years (one file for each year):
-        if 'precipitation_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['precipitation_set_per_year'] = "False"
-        if 'temperature_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['temperature_set_per_year'] = "False"
-        if 'refETPotFileNC_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
-
-        # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
-        if 'prioritizeLocalSourceToMeetWaterDemand' not in self.landSurfaceOptions.keys():
-            msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
-            logger.warning(msg)
-            self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
-        
-        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
 
     def set_debug_to_version_one(self):
          
