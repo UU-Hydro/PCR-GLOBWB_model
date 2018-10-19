@@ -36,7 +36,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False):
+    def __init__(self,iniItems,landmask):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
@@ -57,7 +57,7 @@ class WaterBodies(object):
             self.debugWaterBalance = False
 
         # option to perform a run with only natural lakes (without reservoirs)
-        self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
+        self.onlyNaturalWaterBodies = False
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
             logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.onlyNaturalWaterBodies  = True
@@ -82,19 +82,8 @@ class WaterBodies(object):
 
         # lower and upper limits at which reservoir release is terminated and 
         #                        at which reservoir release is equal to long-term average outflow
-        # - default values
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
-        # - from the ini file
-        if "minResvrFrac" in iniItems.routingOptions.keys():
-            minResvrFrac = iniItems.routingOptions['minResvrFrac']
-            self.minResvrFrac = vos.readPCRmapClone(minResvrFrac,
-                                                    self.cloneMap, self.tmpDir, self.inputDir)
-        if "maxResvrFrac" in iniItems.routingOptions.keys():
-            maxResvrFrac = iniItems.routingOptions['maxResvrFrac']
-            self.maxResvrFrac = vos.readPCRmapClone(maxResvrFrac,
-                                                    self.cloneMap, self.tmpDir, self.inputDir)
-
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
                                initial_condition_dictionary = None):
@@ -307,7 +296,7 @@ class WaterBodies(object):
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
         #
-        if currTimeStep.timeStepPCR == 1 and initial_condition_dictionary != None:
+        if currTimeStep.timeStepPCR == 1:
             self.getICs(initial_condition_dictionary)
         
         # For each new reservoir (introduced at the beginning of the year)
@@ -409,16 +398,14 @@ class WaterBodies(object):
         # incoming volume (m3)
         self.inflow = newStorageAtLakeAndReservoirs - self.waterBodyStorage
         
-        # TODO: Please check whether this inflow term includes evaporation loss?
-        
-        # inflowInM3PerSec (m3/s)                                       
-        self.inflowInM3PerSec = self.inflow / length_of_time_step
+        # inflowInM3PerSec (m3/s)
+        inflowInM3PerSec = self.inflow / length_of_time_step
 
         # updating (short term) average inflow (m3/s) ; 
         # - needed to constrain lake outflow:
         #
         temp = pcr.max(1.0, pcr.min(maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge - 1.0 + length_of_time_step / vos.secondsPerDay()))
-        deltaInflow = self.inflowInM3PerSec - self.avgInflow  
+        deltaInflow = inflowInM3PerSec - self.avgInflow  
         R = deltaInflow * ( length_of_time_step / vos.secondsPerDay() ) / temp
         self.avgInflow = self.avgInflow + R                
         self.avgInflow = pcr.max(0.0, self.avgInflow)

@@ -48,7 +48,7 @@ class Groundwater(object):
         result['avgNonFossilGroundwaterAllocationLong']  = self.avgNonFossilAllocation         # unit: m/day
         result['avgNonFossilGroundwaterAllocationShort'] = self.avgNonFossilAllocationShort    # unit: m/day
 
-        # states that needed for the coupling between PCR-GLOBWB and MODFLOW:
+        # states needed for the coupling between PCR-GLOBWB and MODFLOW:
         result['relativeGroundwaterHead'] = self.relativeGroundwaterHead                       # unit: m
         result['baseflow']                = self.baseflow                                      # unit: m/day
 

@@ -34,11 +34,7 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-import groundwater
-
-#~ import waterBodies_for_modflow as waterBodies
-import waterBodies as waterBodies
-# Since 22 Nov 2017, I have started to remove "waterBodies_for_modflow.py".
+import waterBodies_for_modflow as waterBodies
 
 import virtualOS as vos
 from ncConverter import *
@@ -79,89 +75,55 @@ class GroundwaterModflow(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
         
+        # cloneMap, temporary directory for the resample process, temporary directory for the modflow process, absolute path for input directory, landmask
+        self.cloneMap        = iniItems.cloneMap
+        self.tmpDir          = iniItems.tmpDir
+        self.tmp_modflow_dir = iniItems.tmp_modflow_dir
+        self.inputDir        = iniItems.globalOptions['inputDir']
+        self.landmask        = landmask
+        
         # configuration from the ini file
         self.iniItems = iniItems
-
-        self.landmask = landmask
-        self.cloneMap = self.iniItems.cloneMap
-        self.tmpDir   = self.iniItems.tmpDir
-        self.inputDir = self.iniItems.globalOptions['inputDir']
                 
         # number of modflow layers:
         self.number_of_layers = int(iniItems.modflowParameterOptions['number_of_layers'])
-
         
-
-        # topography properties: read several variables from a netcdf file
-        if 'topographyNC' not in self.iniItems.modflowParameterOptions.keys() or\
-            self.iniItems.modflowParameterOptions['topographyNC'] == "Default":
-            msg = "Topography properties (e.g. DEM) are taken from the 'landSurfaceOptions' of the ini/configuration file."
-            logger.info(msg)
-            self.iniItems.modflowParameterOptions['topographyNC'] = self.iniItems.landSurfaceOptions['topographyNC']
-        for var in ['dem_minimum', 'dem_average']:
+        # topography properties: read several variables from the netcdf file
+        for var in ['dem_minimum','dem_maximum','dem_average','dem_standard_deviation',\
+                    'slopeLength','orographyBeta','tanslope',\
+                    'dzRel0000','dzRel0001','dzRel0005',\
+                    'dzRel0010','dzRel0020','dzRel0030','dzRel0040','dzRel0050',\
+                    'dzRel0060','dzRel0070','dzRel0080','dzRel0090','dzRel0100']:
             vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['topographyNC'], \
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-
-        # channel properties
-        if 'channelNC' in self.iniItems.modflowParameterOptions.keys(): 
-
-            # channel properties: read several variables from the netcdf file
-            for var in ['cellAreaMap', 'lddMap', 'gradient', 'bankfull_width',
-                        'bankfull_depth', 'dem_floodplain', 'dem_riverbed']:
-                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
-                                                                    var, self.cloneMap)
-                vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-                vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
+        # channel properties: read several variables from the netcdf file
+        for var in ['lddMap','cellAreaMap','gradient','bankfull_width',
+                    'bankfull_depth','dem_floodplain','dem_riverbed']:
+            vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
+                                                                var, self.cloneMap)
+            vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
         
-        minimumChannelWidth = 0.0
-        if 'minimumChannelWidth' in self.iniItems.modflowParameterOptions.keys():
-            minimumChannelWidth = float(self.iniItems.modflowParameterOptions['minimumChannelWidth'])
-        elif 'routingOptions' in self.iniItems.allSections and 'minimumChannelWidth' in self.iniItems.routingOptions.keys():
-            msg = 'The minimumChannelWidth is taken from the "routingOptions" of the ini/configuration file.'
-            logger.info(msg)
-            minimumChannelWidth = float(self.iniItems.routingOptions['minimumChannelWidth'])
-        self.bankfull_width = pcr.max(minimumChannelWidth, self.bankfull_width)
+        # minimum channel width
+        minimum_channel_width = 5.0                                                # TODO: Define this one in the configuration file
+        self.bankfull_width = pcr.max(minimum_channel_width, self.bankfull_width)
         
-        if 'minimumChannelGradient' in self.iniItems.modflowParameterOptions.keys():
-            minimumChannelGradient = float(self.iniItems.modflowParameterOptions['minimumChannelGradient'])
-        elif 'routingOptions' in self.iniItems.allSections and 'minimumChannelGradient' in self.iniItems.routingOptions.keys():
-            msg = 'The minimumChannelGradient is taken from the "routingOptions" of the ini/configuration file.'
-            logger.info(msg)
-            minimumChannelGradient = float(self.iniItems.routingOptions['minimumChannelGradient'])
-        else:
-            msg  = 'The minimumChannelGradient is not defined in the ini/configuration file. '
-            msg += 'This value is set to 0.00005'
-            logger.info(msg)
-            minimumChannelGradient = 0.00005
-        self.gradient = pcr.ifthen(self.landmask, \
-                        pcr.max(minimumChannelGradient, pcr.cover(self.gradient, minimumChannelGradient)))
-
+        #~ # cell fraction if channel water reaching the flood plain               # NOT USED YET 
+        #~ self.flood_plain_fraction = self.return_innundation_fraction(pcr.max(0.0, self.dem_floodplain - self.dem_minimum))
+        
         # coefficient of Manning
-        if 'manningsN' not in self.iniItems.modflowParameterOptions.keys():
-            msg = 'The manning coefficient used to convert discharge to water level is taken from the "routingOptions" of the ini/configuration file.'
-            logger.info(msg)
-            self.iniItems.modflowParameterOptions['manningsN'] = self.iniItems.routingOptions['manningsN']
         self.manningsN = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['manningsN'],\
                                              self.cloneMap,self.tmpDir,self.inputDir)
-                
-        if 'routingOptions' in self.iniItems.allSections: 
-            
-            # cell area (unit: m2)
-            self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
-                                                   self.cloneMap, self.tmpDir, self.inputDir)
-            #~ self.cellAreaMap = pcr.ifthen(self.landmask, self.cellAreaMap)
-            
-            # ldd
-            self.lddMap = vos.readPCRmapClone(self.iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
-
+        
+        # minimum channel gradient
+        minGradient   = 0.00005                                                                                     # TODO: Define this one in the configuration file
+        minGradient   = 0.000005   # 24 March 2016: I lower this so that we don't have too deep water table.        # TODO: Define this one in the configuration file
+        self.gradient = pcr.max(minGradient, pcr.cover(self.gradient, minGradient))
 
         # correcting lddMap
         self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) > 0.0, self.lddMap)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-        self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
         
         # channelLength = approximation of channel length (unit: m)  # This is approximated by cell diagonal. 
         cellSizeInArcMin      = np.round(pcr.clone().cellSize()*60.)               # FIXME: This one will not work if you use the resolution: 0.5, 1.5, 2.5 arc-min
@@ -170,10 +132,11 @@ class GroundwaterModflow(object):
         self.channelLength    = ((horizontalSizeInMeter)**(2)+\
                                  (verticalSizeInMeter)**(2))**(0.5)
         
-        # option for lakes and reservoir - default option
+        # option for lakes and reservoir
         self.onlyNaturalWaterBodies = False
         if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
 
+        
         
         ######################################################################################
         # a netcdf file containing the groundwater properties 
@@ -339,16 +302,15 @@ class GroundwaterModflow(object):
                                            vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerVerticalConductivity'],\
                                                                self.cloneMap, self.tmpDir, self.inputDir), 0.0)
             # confining layer resistance (unit: day)
-            self.maximumConfiningLayerResistance = float(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'])
-            #~ self.maximumConfiningLayerResistance = pcr.cover(\
-                                                   #~ vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'],\
-                                                                       #~ self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+            self.maximumConfiningLayerResistance = pcr.cover(\
+                                                   vos.readPCRmapClone(self.iniItems.modflowParameterOptions['maximumConfiningLayerResistance'],\
+                                                                       self.cloneMap, self.tmpDir, self.inputDir), 0.0)
         ##############################################################################################################################################
         
 
         #####################################################################################################################################################
         # extent of the productive aquifer (a boolean map)
-        # - Principle: In non-productive aquifer areas, capillary rise and groundwater abstraction should not exceed recharge
+        # - Principle: In non-productive aquifer areas, no capillary rise and groundwater abstraction should not exceed recharge
         # 
         self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))        
         excludeUnproductiveAquifer = True
@@ -394,7 +356,6 @@ class GroundwaterModflow(object):
         self.criteria_HCLOSE = [0.001, 0.01, 0.1]
         #~ self.criteria_HCLOSE = [0.01, 0.1, 0.15, 0.2, 0.5, 1.0]
         #~ self.criteria_HCLOSE = [0.5, 1.0]
-        #~ self.criteria_HCLOSE = [0.001]
         self.criteria_HCLOSE = sorted(self.criteria_HCLOSE)
         
         # list of the convergence criteria for RCLOSE (unit: m3)
@@ -406,9 +367,7 @@ class GroundwaterModflow(object):
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 100.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [10.* cell_area_assumption/(25.*25.), 10000.* cell_area_assumption/(25.*25.)]
         #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.), 100000.* cell_area_assumption/(25.*25.)]
-        #~ self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.)]
-        self.criteria_RCLOSE = [1000., 1000.* cell_area_assumption/(25.*25.)]
-        #~ self.criteria_RCLOSE = [1000.]
+        self.criteria_RCLOSE = [1000., 10.* cell_area_assumption/(25.*25.), 1000.* cell_area_assumption/(25.*25.)]
         self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
         # initiate somes variables/objects/classes to None
@@ -420,24 +379,18 @@ class GroundwaterModflow(object):
         # initiate pcraster modflow object to None
         self.pcr_modflow = None
 
-        # the following condition is needed if we have to convert the unit of recharge and abstraction (ONLY for a transient simulation) 
+        # the following condition is needed if we have to 
         self.valuesRechargeAndAbstractionInMonthlyTotal = False
-        if self.iniItems.steady_state_only == False and\
-           "modflowTransientInputOptions" in self.iniItems.allSections and\
-           'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
-            if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":
-               msg = "Recharge and abstraction values in monthly total and must be converted to daily values."
-               logger.info(msg)
+        if 'valuesRechargeAndAbstractionInMonthlyTotal' in self.iniItems.modflowTransientInputOptions.keys():
+            if self.iniItems.modflowTransientInputOptions['valuesRechargeAndAbstractionInMonthlyTotal'] == "True":\
                self.valuesRechargeAndAbstractionInMonthlyTotal = True
         
         # minimum and maximum transmissivity values (unit: m2/day)
         self.minimumTransmissivity = 10.0     # assumption used by Deltares
         self.maximumTransmissivity = 100000.0 # ridiculosly high (for 20 m/day with the thickness = 5 km)
-        if 'minimumTransmissivity' in self.iniItems.modflowParameterOptions.keys() and\
-            self.iniItems.modflowParameterOptions['minimumTransmissivity'] != "None":
+        if 'minimumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
             self.minimumTransmissivity = float(self.iniItems.modflowParameterOptions['minimumTransmissivity'])
-        if 'maximumTransmissivity' in self.iniItems.modflowParameterOptions.keys() and\
-            self.iniItems.modflowParameterOptions['maximumTransmissivity'] != "None":
+        if 'maximumTransmissivity' in self.iniItems.modflowParameterOptions.keys():
             self.maximumTransmissivity = float(self.iniItems.modflowParameterOptions['maximumTransmissivity'])
         
         # option for online coupling purpose, we also need to know the location of pcrglobwb output
@@ -450,32 +403,6 @@ class GroundwaterModflow(object):
         self.make_backup_of_modflow_files = False
         if "make_backup_of_modflow_files" in self.iniItems.reportingOptions.keys() and\
            self.iniItems.reportingOptions["make_backup_of_modflow_files"] == "True": self.make_backup_of_modflow_files = True
-        
-        # a boolean status to reduce log info file
-        self.log_to_info = True   
-
-        # option to activate water balance check
-        self.debugWaterBalance = True
-        
-        # option to read channelStorageInput (m3) based on surfaceWaterStorageInput (m)
-        self.usingSurfaceWaterStorageInput = False        
-        if 'modflowTransientInputOptions' in self.iniItems.allSections and\
-           'surfaceWaterStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
-           'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
-           self.iniItems.modflowTransientInputOptions['channelStorageInputNC'] == "surfaceWaterStorageInputNC":
-            msg = "The channel storage input (for transient simulation) will be based on surfaceWaterStorageInputNC (multiplied by cellArea)."
-            logger.info(msg)
-            self.usingSurfaceWaterStorageInput = True
-
-        # option to correcting recharge with built-up area
-        # - basic principle
-        self.using_built_up_area_correction_for_recharge = False
-        if 'nc_file_for_built_up_area_correction_for_recharge' in self.iniItems.groundwaterOptions.keys() and\
-           self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'] != "None":
-            msg = "Using built-up area fractions for correcting recharge."
-            logger.info(msg)
-            self.using_built_up_area_correction_for_recharge = True
-        
 
     def initiate_modflow(self):
 
@@ -504,12 +431,6 @@ class GroundwaterModflow(object):
         if self.number_of_layers == 2: self.set_bcf_for_two_layer_model()
 
         # TODO: defining/incorporating anisotrophy values
-
-        # save some pcraster static maps
-        if self.log_to_info:
-            self.save_some_pcraster_static_maps()
-            # after the first call, we do not have to log it anymore
-            self.log_to_info = False
 
     def set_grid_for_one_layer_model(self):
 
@@ -547,8 +468,8 @@ class GroundwaterModflow(object):
             top_layer_2     = self.dem_average
             # - thickness of layer 2 is based on the predefined confiningLayerThickness
             bottom_layer_2       = self.dem_average - self.confiningLayerThickness
-            #~ # - thickness of layer 2 should be until 5 m below the river bed elevation # THIS IS NOT NEEDED
-            #~ bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)    # THIS IS NOT NEEDED
+            # - thickness of layer 2 should be until 5 m below the river bed elevation
+            bottom_layer_2       = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)
             # - make sure that the minimum thickness of layer 2 is at least 0.1 m
             thickness_of_layer_2 = pcr.max(0.1, top_layer_2 - bottom_layer_2)
             bottom_layer_2       = top_layer_2 - thickness_of_layer_2
@@ -603,211 +524,87 @@ class GroundwaterModflow(object):
                                              vertical_conductivity, 1)              
 
         # make the following value(s) available for the other modules/methods:
-        self.storage_coefficient_1 = self.specificYield
-
-    def set_storages_for_two_layer_model(self):
-
-        msg = "Set storage coefficients for the upper and bottom layers (including lat/lon correction)."
-        if self.log_to_info: logger.info(msg)
-
-        # adjusting factor 
-        adjust_factor = 1.00
-        if 'linear_multiplier_for_storage_coefficients' in self.iniItems.modflowParameterOptions.keys():
-            linear_multiplier_for_storage_coefficients = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_storage_coefficients'])
-            adjust_factor                              = linear_multiplier_for_storage_coefficients
-        msg = 'Adjustment factor: ' + str(adjust_factor)  
-        if self.log_to_info: logger.info(msg)
+        self.specific_yield_1 = self.specificYield
         
-        # minimum and maximum values of storage coefficients
-        minimum_storage_coefficient = 1e-10
-        maximum_storage_coefficient = 0.500
-        msg = 'The minimum storage coefficient value is limited to (-) ' + str(minimum_storage_coefficient)  
-        if self.log_to_info: logger.info(msg)
-        msg = 'The maximum storage coefficient value is limited to (-) ' + str(maximum_storage_coefficient)  
-        if self.log_to_info: logger.info(msg)
+    def set_bcf_for_two_layer_model(self):
 
-        msg = "Set storage coefficient for the upper layer (including lat/lon correction)."
-        if self.log_to_info: logger.info(msg)
+        # specification for storage coefficient (BCF package)
+
         # layer 2 (upper layer) - storage coefficient
-        self.storage_coefficient_2  = self.specificYield
-
-        # adjusting factor and set minimum and maximum values to keep values realistics
-        self.storage_coefficient_2  = adjust_factor * self.storage_coefficient_2
-        self.storage_coefficient_2  = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.storage_coefficient_2))
-        
+        self.specific_yield_2 = self.specificYield
         # - correction due to the usage of lat/lon coordinates
-        primary_2   = pcr.cover(self.storage_coefficient_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_2   = pcr.cover(self.specific_yield_2 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary_2   = pcr.max(1e-20, primary_2)
+        secondary_2 = pcr.cover(pcr.min(0.005, self.specific_yield_2) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_2 = pcr.max(1e-20, secondary_2)
 
-        # - dummy values for the secondary term - as we use layer type 00
-        secondary_2 = primary_2
-
-
-        msg = "Set storage coefficient for the lower layer (including lat/lon correction)."
-        if self.log_to_info: logger.info(msg)
         # layer 1 (lower layer) - storage coefficient
-        self.storage_coefficient_1 = self.specificYield
-
+        self.specific_yield_1 = self.specificYield
         # - correction due to the usage of lat/lon coordinates
-        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_1   = pcr.cover(self.specific_yield_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         primary_1   = pcr.max(1e-20, primary_1)
+        secondary_1 = pcr.cover(pcr.min(0.005, self.specific_yield_1) * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)    # dummy values as we use layer type 00
+        secondary_1 = pcr.max(1e-20, secondary_1)
 
-        # adjusting factor and set minimum and maximum values to keep values realistics
-        self.storage_coefficient_1  = adjust_factor * self.storage_coefficient_1
-        self.storage_coefficient_1  = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.storage_coefficient_1))
-
-        # - dummy values for the secondary term - as we use layer type 00
-        secondary_1 = primary_1
-
-
-        msg = "Assign storage coefficient values to the MODFLOW (BCF package)."
-        if self.log_to_info: logger.info(msg)
         # put the storage coefficient values to the modflow model
         self.pcr_modflow.setStorage(primary_1, secondary_1, 1)
         self.pcr_modflow.setStorage(primary_2, secondary_2, 2)
 
 
-    def set_conductivities_for_two_layer_model(self):
-
-        msg = "Preparing transmissivity values (TRAN) for the BCF package)."
-        if self.log_to_info: logger.info(msg)
-
-        
-        # adjusting factor for horizontal conductivities 
-        adjust_factor_for_horizontal_conductivities = 1.00
-        if 'log_10_multiplier_for_transmissivities' in self.iniItems.modflowParameterOptions.keys():
-            log_10_multiplier_for_transmissivities      = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_transmissivities'])
-            adjust_factor_for_horizontal_conductivities = 10.0**(log_10_multiplier_for_transmissivities)
-        msg = 'Adjustment factor: ' + str(adjust_factor_for_horizontal_conductivities)  
-        if self.log_to_info: logger.info(msg)
-        
-        # minimum and maximum values for transmissivity
-        maxTransmissivity = adjust_factor_for_horizontal_conductivities * self.maximumTransmissivity
-        minTransmissivity = self.minimumTransmissivity        # to keep it realistic, this one should not be multiplied
-        msg = 'The minimum transmissivity value is limited to (m2/day) ' + str(minTransmissivity)  
-        if self.log_to_info: logger.info(msg)
-        msg = 'The maximum transmissivity value is limited to (m2/day) ' + str(maxTransmissivity)  
-        if self.log_to_info: logger.info(msg)
-
-        
-        msg = "Assign horizontal conductivities of the upper layer (used for calculating transmissivity (TRAN) for the BCF package)."
-        if self.log_to_info: logger.info(msg)
-        horizontal_conductivity_layer_2 = adjust_factor_for_horizontal_conductivities * self.kSatAquifer
+        # specification for conductivities (BCF package)
+        horizontal_conductivity = self.kSatAquifer # unit: m/day
         
         # layer 2 (upper layer) - horizontal conductivity
-        msg = "Constrained by minimum and maximum transmissity values."
-        if self.log_to_info: logger.info(msg)
-        horizontal_conductivity_layer_2 = pcr.max(minTransmissivity, \
-                                          horizontal_conductivity_layer_2 * self.thickness_of_layer_2) / self.thickness_of_layer_2
-        horizontal_conductivity_layer_2 = pcr.min(maxTransmissivity, \
-                                          horizontal_conductivity_layer_2 * self.thickness_of_layer_2) / self.thickness_of_layer_2
+        horizontal_conductivity_layer_2 = pcr.max(self.minimumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
+        horizontal_conductivity_layer_2 = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_2) / self.thickness_of_layer_2
 
-        # transmissivity values for the upper layer (layer 2) - unit: m2/day
-        self.transmissivity_layer_2 = horizontal_conductivity_layer_2 * self.thickness_of_layer_2
-        
-        
-        msg = "Assign horizontal conductivities of the lower layer (used for calculating transmissivity (TRAN) for the BCF package)."
-        if self.log_to_info: logger.info(msg)
-        horizontal_conductivity_layer_1 = adjust_factor_for_horizontal_conductivities * self.kSatAquifer
-
-
-        # layer 1 (lower layer) - horizontal conductivity 
-        msg = "Constrained by minimum and maximum transmissity values."
-        if self.log_to_info: logger.info(msg)
-        horizontal_conductivity_layer_1 = pcr.max(minTransmissivity, \
-                                          horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
-        horizontal_conductivity_layer_1 = pcr.min(maxTransmissivity, \
-                                          horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
-                                          
-        # transmissivity values for the lower layer (layer 1) - unit: m2/day
-        self.transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
-
-
-
-        msg = "Preparing VCONT (day-1) values (1/resistance) between upper and lower layers for the BCF package (including the correction due to the lat/lon usage)."
-        if self.log_to_info: logger.info(msg)
-
-        
-        # adjusting factor for resistance values  
-        adjust_factor_for_resistance_values = 1.00
-        if 'log_10_multiplier_for_resistance_values' in self.iniItems.modflowParameterOptions.keys():
-            log_10_multiplier_for_resistance_values  = float(self.iniItems.modflowParameterOptions['log_10_multiplier_for_resistance_values'])
-            adjust_factor_for_resistance_values      = 10.0**(log_10_multiplier_for_resistance_values)
-        msg = 'Adjustment factor for resistance: ' + str(adjust_factor_for_resistance_values)  
-        if self.log_to_info: logger.info(msg)
-
-        
-        # minimum and maximum resistance values (unit: days)
-        minResistance = 1.0   # to keep it realistic, this one should not be multiplied
-        maxResistance = adjust_factor_for_resistance_values * self.maximumConfiningLayerResistance
-        msg = 'The minimum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(minResistance)  
-        if self.log_to_info: logger.info(msg)
-        msg = 'The maximum resistance (days) between upper and lower layers (1/VCONT) is limited to ' + str(maxResistance)  
-        if self.log_to_info: logger.info(msg)
-
-
-        msg = "Assign vertical conductivities to determine VCONT values (1/resistance) between upper and lower layers (used for calculating VCONT for the BCF package)."
-        if self.log_to_info: logger.info(msg)
-        vertical_conductivity_layer_2 = self.kSatAquifer
+        # layer 2 (upper layer) - vertical conductivity
+        vertical_conductivity_layer_2   = self.kSatAquifer * self.cellAreaMap/\
+                                          (pcr.clone().cellSize()*pcr.clone().cellSize())
         
         if self.usePreDefinedConfiningLayer:
-            
-            msg = "In areas with confining layer, limit vertical conductivity to the given map/value of maximumConfiningLayerVerticalConductivity"
-            if self.log_to_info: logger.info(msg)
-            # vertical conductivity values are limited by the predefined maximumConfiningLayerVerticalConductivity
-            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
-            # particularly in areas with confining layer
-            vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
-        
-        # adjusment according to "adjust_factor_for_resistance_values":
-        vertical_conductivity_layer_2 = (1.0/adjust_factor_for_resistance_values) * vertical_conductivity_layer_2
-        
-        # vertical conductivity values are limited by minimum and maximum resistance values
-        msg = "Constrained by minimum and maximum resistance values."
-        if self.log_to_info: logger.info(msg)
-        vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/maxResistance, \
-                                                 vertical_conductivity_layer_2)
-        vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/minResistance,\
-                                                     vertical_conductivity_layer_2)
 
-        # resistance values between upper and lower layers - unit: days
-        self.resistance_between_layers = self.thickness_of_layer_2 / vertical_conductivity_layer_2
-        # VCONT values
-        self.vcont_values = pcr.scalar(1.0) / self.resistance_between_layers
+            # vertical conductivity values are limited by the predefined minimumConfiningLayerVerticalConductivity and maximumConfiningLayerResistance
+            vertical_conductivity_layer_2  = pcr.min(self.kSatAquifer, self.maximumConfiningLayerVerticalConductivity)
+            vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, vertical_conductivity_layer_2, self.kSatAquifer)
+            vertical_conductivity_layer_2  = pcr.max(self.thickness_of_layer_2/self.maximumConfiningLayerResistance, \
+                                                     vertical_conductivity_layer_2)
+            # minimum resistance is one day
+            vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/1.0,\
+                                                     vertical_conductivity_layer_2)
+            # correcting vertical conductivity
+            vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
+        
+        # layer 1 (lower layer)
+        horizontal_conductivity_layer_1 = pcr.max(self.minimumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
+        horizontal_conductivity_layer_1 = pcr.min(self.maximumTransmissivity, \
+                                          horizontal_conductivity * self.thickness_of_layer_1) / self.thickness_of_layer_1
 
         # ignoring the vertical conductivity in the lower layer 
         # such that the values of resistance (1/vcont) depend only on vertical_conductivity_layer_2 
-        vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99))
+        vertical_conductivity_layer_1  = pcr.spatial(pcr.scalar(1e99)) * self.cellAreaMap/\
+                                        (pcr.clone().cellSize()*pcr.clone().cellSize())
         vertical_conductivity_layer_2 *= 0.5
         # see: http://inside.mines.edu/~epoeter/583/08/discussion/vcont/modflow_vcont.htm
         
-        # correcting vertical conductivity due the lat/lon usage
-        msg = "Correction due to the lat/lon usage."
-        if self.log_to_info: logger.info(msg)
-        vertical_conductivity_layer_2 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
-        vertical_conductivity_layer_1 *= self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize())
+        #~ # for areas with ibound <= 0, we set very high horizontal conductivity values:             # TODO: Check this, shall we implement this?
+        #~ horizontal_conductivity_layer_2 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_2, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_2))
+        #~ horizontal_conductivity_layer_1 = pcr.ifthenelse(self.ibound > 0, horizontal_conductivity_layer_1, \
+                                                           #~ pcr.mapmaximum(horizontal_conductivity_layer_1))
 
-        
         # set conductivity values to MODFLOW
-        msg = "Assign conductivity values to the MODFLOW (BCF package)."
-        if self.log_to_info: logger.info(msg)
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
                                              vertical_conductivity_layer_1, 1)              
 
-    def set_bcf_for_two_layer_model(self):
-
-        # specification for storage coefficient (BCF package)
-        self.set_storages_for_two_layer_model()
-
-        # specification for conductivities (BCF package)
-        self.set_conductivities_for_two_layer_model()
-
     def get_initial_heads(self):
 		
-        if self.iniItems.steady_state_only == False and\
-           self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
+        if self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
         
             msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
             logger.info(msg)
@@ -1137,7 +934,7 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def update(self, currTimeStep):
+    def update(self,currTimeStep):
 
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
         if currTimeStep.isLastDayOfMonth():
@@ -1151,9 +948,7 @@ class GroundwaterModflow(object):
                 PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
             
             # number of time step within a stress period
-            NSTP = PERLEN * 4
-            # - Rule of thumb to estimate NSTP: delta_t = storage_coefficient * cell_area / (4 * transmissivity)
-            # - see also: www.geology.wisc.edu/courses/g724/week10a.ppt
+            NSTP = PERLEN * 3
             
             self.PERLEN = PERLEN   # number of days within a stress period
             self.NSTP   = NSTP     # number of time steps within a stress period
@@ -1165,31 +960,6 @@ class GroundwaterModflow(object):
 
             # old-style reporting (this is usually used for debugging process)                            
             self.old_style_reporting(currTimeStep)
-
-    def save_some_pcraster_static_maps(self):
-
-        msg = "Saving some pcraster maps (MODFLOW parameters/input files) to the folder"
-        logger.info(msg)
-
-        # - top and bottom layer elevations, as well as thicknesses
-        pcr.report(pcr.ifthen(self.landmask, self.top_layer_2), self.iniItems.mapsDir + "/" + "top_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_2), self.iniItems.mapsDir + "/" + "bottom_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.bottom_layer_1), self.iniItems.mapsDir + "/" + "bottom_lowermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.thickness_of_layer_2), self.iniItems.mapsDir + "/" + "thickness_uppermost_layer.map")
-        pcr.report(pcr.ifthen(self.landmask, self.thickness_of_layer_1), self.iniItems.mapsDir + "/" + "thickness_lowermost_layer.map")
-        
-        # - transmissivities
-        pcr.report(self.transmissivity_layer_2, self.iniItems.mapsDir + "/" + "transmissivity_uppermost_layer.map")
-        pcr.report(self.transmissivity_layer_1, self.iniItems.mapsDir + "/" + "transmissivity_lowermost_layer.map")
-
-        # - resistance values
-        pcr.report(self.resistance_between_layers, self.iniItems.mapsDir + "/" + "resistance_between_layers.map")
-
-        # - storage coefficients
-        pcr.report(self.storage_coefficient_2, self.iniItems.mapsDir + "/" + "storage_coefficient_uppermost_layer.map")
-        pcr.report(self.storage_coefficient_1, self.iniItems.mapsDir + "/" + "storage_coefficient_lowermost_layer.map")
-        
-        # TODO: Implement this for one layer model.
 
     def modflow_simulation(self,\
                            simulation_type,\
@@ -1299,17 +1069,9 @@ class GroundwaterModflow(object):
                 channelStorage = None                                           
                 if 'channelStorageInputNC' in self.iniItems.modflowTransientInputOptions.keys() and\
                    self.iniItems.modflowTransientInputOptions['channelStorageInputNC'][-4:] != "None": 
-                    if self.usingSurfaceWaterStorageInput:
-                       msg = "Using surfaceWaterStorageInputNC (multiplied by cellAreaMap) to estimate channelStorage."
-                       logger.debug(msg)
-                       surfaceWaterStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['surfaceWaterStorageInputNC'],\
-                                                                    "surface_water_storage", str(currTimeStep.fulldate), None, self.cloneMap)
-                       channelStorage = pcr.cover(surfaceWaterStorage * self.cellAreaMap, 0.0)                                       
-                    else:
-                       channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
-                                                              "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
-                       channelStorage = pcr.cover(channelStorage, 0.0)
-                    channelStorage = pcr.max(0.0, channelStorage)                                          
+                    channelStorage = vos.netcdf2PCRobjClone(self.iniItems.modflowTransientInputOptions['channelStorageInputNC'],\
+                                                           "channel_storage", str(currTimeStep.fulldate), None, self.cloneMap)
+                    channelStorage = pcr.cover(channelStorage, 0.0)                                       
 
 
         #####################################################################################################################################################
@@ -1324,29 +1086,11 @@ class GroundwaterModflow(object):
         # ignore capillary rise if needed:
         if self.ignoreCapRise: gwRecharge = pcr.max(0.0, gwRecharge) 
 
-        # convert the values of abstraction and recharge to daily average (ONLY for a transient simulation)
-        if self.valuesRechargeAndAbstractionInMonthlyTotal and simulation_type == "transient": 
+        # convert the values of abstraction and recharge to daily average
+        if self.valuesRechargeAndAbstractionInMonthlyTotal: 
             gwAbstraction = gwAbstraction/currTimeStep.day
             gwRecharge    = gwRecharge/currTimeStep.day
 
-        # built-up area fractions for limitting groundwater recharge 
-        if self.using_built_up_area_correction_for_recharge:
-            msg = 'Reading built-up area fractions to limit groundwater recharge.'
-            logger.info(msg)
-            # read input files 
-            if simulation_type == "transient":
-                date_used = currTimeStep.fulldate
-            else:
-                # for a steady-state simulation, we use the year of the starting date
-                date_used = '%04i-%02i-%02i' %(int(self.iniItems.globalOptions['startTime'][0:4]), 1, 1)
-            self.built_up_area_correction_for_recharge = pcr.cover(
-                                                         vos.netcdf2PCRobjClone(self.iniItems.groundwaterOptions['nc_file_for_built_up_area_correction_for_recharge'],
-                                                                                "vegetation_fraction", 
-                                                                                date_used, 'yearly',\
-                                                                                self.cloneMap), 0.0)
-            self.built_up_area_correction_for_recharge = pcr.max(0.0, self.built_up_area_correction_for_recharge)
-            self.built_up_area_correction_for_recharge = pcr.min(1.0, self.built_up_area_correction_for_recharge)   
-        
         # set recharge, river, well and drain packages
         self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type)
         self.set_recharge_package(gwRecharge)
@@ -1366,10 +1110,7 @@ class GroundwaterModflow(object):
 
         # DAMP parameters (this may help the convergence during the steady-state simulation)
         self.parameter_DAMP = [1.0] 
-        if simulation_type == "steady-state":
-            #~ self.parameter_DAMP = [1.0, 0.80, 0.60] 
-            self.parameter_DAMP = [1.0, 0.75] 
-            #~ self.parameter_DAMP = [0.80] 
+        if simulation_type == "steady-state": self.parameter_DAMP = [1.0, 0.80, 0.60] 
 
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
@@ -1495,8 +1236,8 @@ class GroundwaterModflow(object):
         # obtaining the results from modflow simulation
         if self.modflow_converged: self.get_all_modflow_results(simulation_type)
         
-        # copy all modflow files (only for transient simulation)
-        if self.make_backup_of_modflow_files and simulation_type == "transient": 
+        # copy all modflow files
+        if self.make_backup_of_modflow_files: 
             # target directory:
             target_directory = self.iniItems.globalOptions['outputDir'] + "/" + "modflow_files" + "/" + str(currTimeStep.fulldate) + "/"
             if os.path.exists(target_directory): shutil.rmtree(target_directory)
@@ -1542,13 +1283,13 @@ class GroundwaterModflow(object):
         # storGroundwater (unit: m)
         # - from the lowermost layer
         accesibleGroundwaterThickness = pcr.ifthen(self.landmask, \
-                                                       self.storage_coefficient_1 * \
+                                                       self.specific_yield_1 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer1 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_1)))
         # - from the uppermost layer                                                
         if self.number_of_layers == 2:\
            accesibleGroundwaterThickness += pcr.ifthen(self.landmask, \
-                                                       self.storage_coefficient_2 * \
+                                                       self.specific_yield_2 * \
                                                        pcr.max(0.0, self.groundwaterHeadLayer2 - pcr.max(self.max_accesible_elevation, \
                                                                                                          self.bottom_layer_2)))
         # - TODO: Make this flexible for a model that has more than two layers. 
@@ -1631,7 +1372,6 @@ class GroundwaterModflow(object):
         
         return modflow_converged    
 
-
     def set_drain_and_river_package(self, discharge, channel_storage, currTimeStep, simulation_type):
 
         logger.info("Set the river package.")
@@ -1639,9 +1379,6 @@ class GroundwaterModflow(object):
         # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
         # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
         if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
-            onlyNaturalWaterBodies = self.onlyNaturalWaterBodies
-            if 'onlyNaturalWaterBodiesDuringSteadyStateSimulation' in self.iniItems.modflowSteadyStateInputOptions.keys(): 
-                onlyNaturalWaterBodies == self.iniItems.modflowSteadyStateInputOptions['onlyNaturalWaterBodiesDuringSteadyStateSimulation'] == "True"
             self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
                                                        self.landmask,\
                                                        self.onlyNaturalWaterBodies)
@@ -1688,7 +1425,7 @@ class GroundwaterModflow(object):
             #~ surface_water_bed_elevation = self.dem_riverbed # This is an alternative, if we do not want to introduce very deep bottom elevations of lakes and/or reservoirs.   
             
             # rounding values for surface_water_bed_elevation
-            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
+            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 100.)/100.
 
 
             logger.info("Estimating surface water bed conductance.")
@@ -1785,26 +1522,24 @@ class GroundwaterModflow(object):
         # - make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
         surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
         
-        # - surface water be elevation that will be used in the river package
-        surface_water_bed_elevation_used = self.surface_water_bed_elevation
 
         # - to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
         minimum_water_height  = 0.50
-        surface_water_bed_elevation_used = pcr.ifthenelse((surface_water_elevation - self.surface_water_bed_elevation) > minimum_water_height, surface_water_bed_elevation_used, \
-                                                                                                                                               surface_water_elevation)
+        surface_water_elevation = pcr.ifthenelse((surface_water_elevation - self.surface_water_bed_elevation) > minimum_water_height, surface_water_elevation, \
+                                                                                                                                      self.surface_water_bed_elevation)
         # - to minimize negative channel storage, ignore river infiltration with low channel storage
         if not isinstance(channel_storage, types.NoneType):
-            minimum_channel_storage          = pcr.max(0.0, 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
-            surface_water_bed_elevation_used = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_bed_elevation_used, surface_water_elevation)
+            minimum_channel_storage = pcr.max(0.0, 0.10 * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
+            surface_water_elevation = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_elevation, self.surface_water_bed_elevation)
 
         # - also ignore river infiltration in the mountainous region
         mountainous_extent  = pcr.cover(\
                               pcr.ifthen((self.dem_average - self.dem_floodplain) > 50.0, pcr.boolean(1.0)), pcr.boolean(0.0))
-        surface_water_bed_elevation_used = pcr.ifthenelse(mountainous_extent, surface_water_bed_elevation_used, surface_water_elevation)
+        surface_water_elevation = pcr.ifthenelse(mountainous_extent, self.surface_water_bed_elevation, surface_water_elevation)
 
         # make sure that HRIV >= RBOT ; no infiltration if HRIV = RBOT (and h < RBOT)  
         surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
-        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
+        surface_water_elevation = pcr.max(surface_water_elevation, self.surface_water_bed_elevation)
 
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
@@ -1826,17 +1561,13 @@ class GroundwaterModflow(object):
         
         # set the RIV package only to the uppermost layer
         self.pcr_modflow.setRiver(surface_water_elevation, self.surface_water_bed_elevation, bed_conductance_used, self.number_of_layers)
-
-        #~ # reporting river bed elevation and conductance
-        #~ pcr.report(pcr.ifthen(self.landmask, surface_water_elevation), "riv_head_surface_water_elevation.map")
-        #~ pcr.report(pcr.ifthen(self.landmask, self.surface_water_bed_elevation), "riv_bottom_surface_water_bed_elevation.map")
-        #~ pcr.report(pcr.ifthen(self.landmask, bed_conductance_used), "riv_bed_conductance.map")
         
         # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
 
         # set drain package
         self.set_drain_package()                                         
-
+        
+        
     def set_recharge_package(self, \
                              gwRecharge, gwAbstraction = 0.0, 
                              gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well.
@@ -1851,26 +1582,9 @@ class GroundwaterModflow(object):
         net_recharge = gwRecharge - gwAbstraction + \
                        gwAbstractionReturnFlow
 
-        # built-up area fractions for limitting groundwater recharge 
-        if self.using_built_up_area_correction_for_recharge:
-            msg = 'Incorporating built-up area fractions to limit groundwater recharge.'
-            logger.info(msg)
-            net_recharge = net_recharge * pcr.min(1.0, pcr.max(0.0, 1.0 - self.built_up_area_correction_for_recharge))
-
-        # adjustment factor
-        adjusting_factor = 1.0
-        if 'linear_multiplier_for_groundwater_recharge' in self.iniItems.modflowParameterOptions.keys():
-            linear_multiplier_for_groundwater_recharge = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_recharge'])
-            adjusting_factor                           = linear_multiplier_for_groundwater_recharge
-        msg = 'Adjustment factor: ' + str(adjusting_factor)  
-        if self.log_to_info: logger.info(msg)
-        
-        # adjusting recharge values
-        self.net_recharge = net_recharge * adjusting_factor
-        
         # - correcting values (considering MODFLOW lat/lon cell properties)
         #   and pass them to the RCH package   
-        net_RCH = pcr.cover(self.net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        net_RCH = pcr.cover(net_recharge * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
         net_RCH = pcr.cover(pcr.ifthenelse(pcr.abs(net_RCH) < 1e-20, 0.0, net_RCH), 0.0)
         
         # put the recharge to the top grid/layer
@@ -1883,19 +1597,8 @@ class GroundwaterModflow(object):
 
         logger.info("Set the well package.")
 
-        # adjustment factor
-        adjusting_factor = 1.0
-        if 'linear_multiplier_for_groundwater_abstraction' in self.iniItems.modflowParameterOptions.keys():
-            linear_multiplier_for_groundwater_abstraction = float(self.iniItems.modflowParameterOptions['linear_multiplier_for_groundwater_abstraction'])
-            adjusting_factor                              = linear_multiplier_for_groundwater_abstraction
-        msg = 'Adjustment factor: ' + str(adjusting_factor)  
-        if self.log_to_info: logger.info(msg)
-        
-        # adjusting groundwater abstraction
-        gwAbstractionUsed = gwAbstraction * adjusting_factor
-
-        if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstractionUsed)
-        if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstractionUsed)
+        if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstraction)
+        if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstraction)
 
     def set_well_package_for_one_layer_model(self, gwAbstraction):
 		
@@ -1916,30 +1619,8 @@ class GroundwaterModflow(object):
         # abstraction for the layer 1 (lower layer) is limited only in productive aquifer
         abstraction_layer_1 = pcr.cover(pcr.ifthen(self.productive_aquifer, gwAbstraction), 0.0)
         
-        #~ # abstraction for the layer 2 (upper layer)          # DON'T DO THIS
-        #~ abstraction_layer_2 = pcr.spatial(pcr.scalar(0.0))
-
-        # remaining abstraction
-        remaining_abstraction = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
-        # remaining abstraction will be distributed as follows:
-        # - first, to the upper layer, but limited to groundwater recharge
-        abstraction_layer_2 = pcr.min(pcr.max(0.0, pcr.cover(self.net_recharge, 0.0)), remaining_abstraction)
-        remaining_abstraction = pcr.max(0.0, remaining_abstraction - abstraction_layer_2)
-        # - then, distribute the remaining based on transmissivities
-        abstraction_layer_1 += remaining_abstraction * pcr.cover(vos.getValDivZero(self.transmissivity_layer_1, \
-                                                                        (self.transmissivity_layer_1 + self.transmissivity_layer_2)), 0.0)
-        abstraction_layer_2  = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
-        # - water balance check                                                                 
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([gwAbstraction],\
-                                  [abstraction_layer_1, abstraction_layer_2],\
-                                  [],\
-                                  [],\
-                                  'partitioning groundwater abstraction to both layers',\
-                                  True,\
-                                  '-', threshold=5e-4)
-        
-        # TODO: Distribute remaining_abstraction based on 'effective' KD value (based on saturated thickness) of each layer
+        # abstraction for the layer 2 (upper layer)
+        abstraction_layer_2 = pcr.max(0.0, gwAbstraction - abstraction_layer_1)
         
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
@@ -1948,6 +1629,28 @@ class GroundwaterModflow(object):
         # set the well package
         self.pcr_modflow.setWell(abstraction_layer_1, 1)
         self.pcr_modflow.setWell(abstraction_layer_2, 2)
+
+    def set_well_package_OLD(self, gwAbstraction):
+        
+        logger.info("Set the well package.")
+        
+        # reducing the size of table by ignoring cells with zero abstraction
+        gwAbstraction = pcr.ifthen(gwAbstraction > 0.0, gwAbstraction)
+        
+        # abstraction only in productive aquifer
+        gwAbstraction = pcr.ifthen(self.productive_aquifer, gwAbstraction)
+        
+        # abstraction volume (negative value, unit: m3/day)
+        abstraction = gwAbstraction * self.cellAreaMap * pcr.scalar(-1.0)
+        
+        # FIXME: The following cover operations should not be necessary (Oliver should fix this).
+        abstraction = pcr.cover(abstraction, 0.0) 
+        
+        # set the well based on number of layers
+        if self.number_of_layers == 1: self.pcr_modflow.setWell(abstraction, 1)
+        if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
+        
+        #~ print('test')
 
     def set_drain_package(self):
 

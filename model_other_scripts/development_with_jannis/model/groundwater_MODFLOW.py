@@ -86,7 +86,9 @@ class GroundwaterModflow(object):
         self.cloneMap = self.iniItems.cloneMap
         self.tmpDir   = self.iniItems.tmpDir
         self.inputDir = self.iniItems.globalOptions['inputDir']
-        
+
+        # number of modflow layers:
+        self.number_of_layers = int(iniItems.modflowParameterOptions['number_of_layers'])
 
         # making temporary directory for modflow calculation and make sure that the directory is empty
         self.tmp_modflow_dir = "tmp_modflow/"
@@ -248,8 +250,6 @@ class GroundwaterModflow(object):
         self.totalGroundwaterThickness = groundwater_pcrglobwb.totalGroundwaterThickness
 
         
-        # number of modflow layers:
-        self.number_of_layers = int(iniItems.modflowParameterOptions['number_of_layers'])
 
 
         ##############################################################################################################################################
