@@ -405,6 +405,12 @@ class Configuration(object):
             logger.warning('The "limitAbstraction" option is not defined in the configuration file. This run assumes False for this option.')
             self.landSurfaceOptions['limitAbstraction'] = False
 
+        # irrigation efficiency map 
+        if 'irrigationEfficiency' not in self.landSurfaceOptions.keys() or\
+            self.landSurfaceOptions['irrigationEfficiency'] == "False" or\
+            self.landSurfaceOptions['irrigationEfficiency'] == "None":
+            logger.warning('The "irrigationEfficiency" map is not defined in the landSurfaceOption of the ini file. We set this to "1.00". Yet, you might also define specific efficiency values in your landCoverOptions. ')
+            self.landSurfaceOptions['irrigationEfficiency'] = "1.00"
 
         # adjustment for desalinationWater
         if 'desalinationWater' not in self.landSurfaceOptions.keys():
