@@ -572,7 +572,7 @@ class Configuration(object):
         # maximum daily rate of groundwater abstraction (unit: m/day)
         if 'maximumDailyGroundwaterAbstraction' not in self.groundwaterOptions.keys():
             msg  = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.050" (m/day) for this option.'
+            msg += 'This run assumes "0.050 m/day (5 cm/day) for this option.'
             logger.warning(msg)
             self.groundwaterOptions['maximumDailyGroundwaterAbstraction'] = "0.050"
 
