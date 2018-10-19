@@ -205,7 +205,9 @@ class Groundwater(object):
         self.riverBedConductivity = self.kSatAquifer
         # - assign riverBedConductivity coefficient based on the given pcraster file
         if 'riverBedConductivity' in iniItems.groundwaterOptions.keys():
-            if iniItems.groundwaterOptions['riverBedConductivity'] != "Default":
+            if iniItems.groundwaterOptions['riverBedConductivity'] == "Default" or iniItems.groundwaterOptions['riverBedConductivity'] == "None" :
+                self.riverBedConductivity = self.kSatAquifer
+            else:
                 self.riverBedConductivity = vos.readPCRmapClone(iniItems.groundwaterOptions['riverBedConductivity'],self.cloneMap,self.tmpDir,self.inputDir)
         #####################################################################################################################################################
 
