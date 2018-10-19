@@ -1,7 +1,10 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -t 119:59:00 
-#SBATCH -p normal
+
+#~ #SBATCH -p normal
+#SBATCH -p fat
+# NOTE USING A FAT NODE (at this time, all normal nodes were booked)
 
 # go to the PCR-GLOBWB model folder
 cd /home/edwinhs/github/edwinkost/PCR-GLOBWB/model/
