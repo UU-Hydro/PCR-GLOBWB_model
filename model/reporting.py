@@ -677,6 +677,14 @@ class Reporting(object):
         # reporting water balance from the land surface part (excluding surface water bodies)
         if "land_surface_water_balance" in self.variables_for_report: self.land_surface_water_balance = self._model.waterBalance
 
+        # accumulated directRunoff (m3/s) along the drainage network
+        if "accuDirectRunoff" in self.variables_for_report:
+            self.accuDirectRunoff = pcr.catchmenttotal(self.directRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
+        # accumulated interflowTotal (m3/s) along the drainage network
+        if "accuInterflowTotal" in self.variables_for_report:
+            self.accuInterflowTotal = pcr.catchmenttotal(self.interflowTotal * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
         # accumulated baseflow (m3/s) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
             self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
