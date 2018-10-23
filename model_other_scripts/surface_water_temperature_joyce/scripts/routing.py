@@ -749,6 +749,9 @@ class Routing(object):
         
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
+        
+        # make sure that waterBodyStorage is only in the landmask region
+        self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
 
     def calculate_potential_evaporation(self,landSurface,currTimeStep,meteo):
 
