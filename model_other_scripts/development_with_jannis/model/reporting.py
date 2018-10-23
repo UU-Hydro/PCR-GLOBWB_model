@@ -28,6 +28,10 @@ Takes care of reporting (writing) output to netcdf files. Aggregates totals and 
 
 Created on Jul 28, 2014. 
 This "reporting.py" module is not the same as the one module initiated by Niels Drost.
+
+@editors: Ruud van der Ent, Rens van Beek 2017
+Added reporting of variables within the eartH2Observe project
+
 '''
 
 import os
@@ -68,7 +72,14 @@ class Reporting(object):
         self.outNCDir  = str(self.configuration.outNCDir)
 
         # object for reporting:
-        self.netcdfObj = PCR2netCDF(self.configuration)
+        #RvB 23/02/2017: specific attributes included to allow for multiple netcdfAttributes
+        if 'netcdfAttributesOptions' in vars(self.configuration).keys():
+            logger.info("Passing specific netcdf attributes to the output files created")
+            specificAttributeDictionary= self.configuration.netcdfAttributesOptions
+        else:
+            specificAttributeDictionary= None
+        #-initialize netcdfObj    
+        self.netcdfObj = PCR2netCDF(self.configuration, specificAttributeDictionary)
 
         # initiating netcdf files for reporting
         #
@@ -87,13 +98,16 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_dailyTot_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
         #
         # - MONTHly output in netCDF files:
         # -- cummulative
@@ -113,13 +127,16 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_monthly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_monthTot_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
         #
         # -- average
         self.outMonthAvgNC = ["None"]
@@ -142,13 +159,17 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_monthAvg_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
+
         #
         # -- last day of the month
         self.outMonthEndNC = ["None"]
@@ -165,13 +186,16 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_monthEnd_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
         #
         # -- maximum of the month
         self.outMonthMaxNC = ["None"]
@@ -188,13 +212,17 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_monthMax_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
+
         #
         # - YEARly output in netCDF files:
         # -- cummulative
@@ -215,13 +243,16 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_yearly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_annuaTot_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
         #
         # -- average
         self.outAnnuaAvgNC = ["None"]
@@ -244,13 +275,16 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_annuaAvg_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
         #
         # -- last day of the year
         self.outAnnuaEndNC = ["None"]
@@ -267,13 +301,17 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_annuaEnd_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
+
         # -- maximum of the year
         self.outAnnuaMaxNC = ["None"]
         try:
@@ -289,13 +327,17 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
-                if long_name == None: long_name = short_name  
-
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in varDicts.netcdf_standard_name.keys():
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
                 # creating netCDF files:
                 self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_annuaMax_output.nc",\
-                                            short_name,unit,long_name)
+                                            short_name,unit,long_name,standard_name)
+
         
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\
@@ -312,7 +354,9 @@ class Reporting(object):
 
         self.basic_post_processing() 
         self.additional_post_processing()
-        
+        #-RvB 23/02/2017: post-processing for the eartH2Observe project
+        self.e2o_post_processing()
+                
         if self.debug_to_version_one:
             if self._modelTime.timeStepPCR == 1: self.report_static_maps_for_debugging()
             self.report_forcing_for_debugging()
@@ -633,9 +677,21 @@ class Reporting(object):
         # reporting water balance from the land surface part (excluding surface water bodies)
         if "land_surface_water_balance" in self.variables_for_report: self.land_surface_water_balance = self._model.waterBalance
 
+        # accumulated directRunoff (m3/s) along the drainage network
+        if "accuDirectRunoff" in self.variables_for_report:
+            self.accuDirectRunoff = pcr.catchmenttotal(self.directRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
+        # accumulated interflowTotal (m3/s) along the drainage network
+        if "accuInterflowTotal" in self.variables_for_report:
+            self.accuInterflowTotal = pcr.catchmenttotal(self.interflowTotal * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
         # accumulated baseflow (m3/s) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
             self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
+        # accumulated runoff along the drainage network
+        if "accuRunoff" in self.variables_for_report:
+            self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
         # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
         self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
@@ -720,7 +776,11 @@ class Reporting(object):
         # - snowMelt (m)
         self.snowMelt = self._model.landSurface.snowMelt
 
-
+        # channel storage (unit: m3)
+        self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
+                              pcr.cover(self._model.routing.channelStorage, 0.0)) 
+        
+        
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
         self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
@@ -759,16 +819,23 @@ class Reporting(object):
         # total potential water demand - not considering water availability
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
+
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
+        # - For PCR-GLOBWB run without MODFLOW, this value will be zero if there are no groundwater abstraction.
+        # - For PCR-GLOBWB run with MODFLOW, the name "groundwaterAbsReturnFlow" is NOT valid, as there will be also exchange from groundwater to surface water even if there is no groundwater abstraction
+        
+        # surface water infiltration (to groundwater) (unit: m/day)
+        self.surfaceWaterInf = self._model.routing.riverbedExchange / self._model.routing.cellArea
+        # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow 
 
 
-		#~ #-----------------------------------------------------------------------
-		#~ # NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
-		#~ # because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
-        #~ #
-        #~ # flood innundation depth (unit: m) above the floodplain
+		#-----------------------------------------------------------------------
+		# NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
+		# because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
+        #
+        # flood innundation depth (unit: m) above the floodplain
         #~ if self._model.routing.floodPlain:\
            #~ self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
                       #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
@@ -779,19 +846,19 @@ class Reporting(object):
            #~ self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
                       #~ pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
-        #~ #              
-        #~ # flood innundation depth (unit: m) above the floodplain
-        #~ if self._model.routing.floodPlain:
-           #~ self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
-                      #~ pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
-					            #~ self._model.routing.floodDepth, 0.0))
-		#~ #				
-        #~ # flood volume (unit: m3): excess above the channel storage capacity
-        #~ if self._model.routing.floodPlain:
-           #~ self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
-                      #~ pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
-						          #~ pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
-		#~ #-----------------------------------------------------------------------
+        #              
+        # flood innundation depth (unit: m) above the floodplain
+        if self._model.routing.floodPlain:
+           self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
+                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
+					            self._model.routing.floodDepth, 0.0))
+		#				
+        # flood volume (unit: m3): excess above the channel storage capacity
+        if self._model.routing.floodPlain:
+           self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
+                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
+						          pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
+		#-----------------------------------------------------------------------
         
 
         # channel storage (unit: m3)
@@ -803,8 +870,6 @@ class Reporting(object):
         self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                            pcr.cover(self._model.routing.floodInundationVolume, 0.0))
         
-        # evaporation from inundated water on paddy fields and from fluvial floods. 
-                                                 
 
 
         # water withdrawal for irrigation sectors
@@ -1076,3 +1141,37 @@ class Reporting(object):
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaMax'),\
                        vos.MV),timeStamp)
        
+    def e2o_post_processing(self):
+
+        # RvB 23/02/2017: post-processing of earth2observe variables
+        
+        # fluxes (/86.4 to go from "m day-1" to "kg m-2 s-1")
+        self.Precip     =   self._model.meteo.precipitation / 86.4 # report in kg m-2 s-1
+        self.Evap       = - (self._model.landSurface.actualET + 
+                            self._model.routing.waterBodyEvaporation) / 86.4 # report in kg m-2 s-1
+        self.Runoff     = - self._model.routing.runoff / 86.4 # report in kg m-2 s-1
+        self.Qs         = - (self._model.landSurface.directRunoff + 
+                            self._model.landSurface.interflowTotal) / 86.4  # report in kg m-2 s-1
+        self.Qsb        = - self._model.groundwater.baseflow / 86.4 # report in kg m-2 s-1
+        self.Qsm        =   self._model.landSurface.snowMelt / 86.4 # report in kg m-2 s-1
+        self.PotEvap    = - self._model.meteo.referencePotET / 86.4 # report in kg m-2 s-1
+        self.ECanop     = - self._model.landSurface.interceptEvap / 86.4 # report in kg m-2 s-1
+        self.TVeg       = - self._model.landSurface.actTranspiTotal / 86.4 # report in kg m-2 s-1
+        self.ESoil      = - self._model.landSurface.actBareSoilEvap / 86.4 # report in kg m-2 s-1
+        self.EWater     = - self._model.routing.waterBodyEvaporation / 86.4 # report in kg m-2 s-1
+        self.RivOut     =   self._model.routing.disChanWaterBody # report in m3/s
+        
+        # state variables (*1000 to go from "m" to "kg m-2")
+        self.SWE        =   self._model.landSurface.snowCoverSWE * 1000 # report in kg m-2
+        self.CanopInt   =   self._model.landSurface.interceptStor * 1000 # report in kg m-2
+        self.SurfStor   =   ( self._model.landSurface.topWaterLayer 
+                            + (self._model.routing.channelStorage/self._model.routing.cellArea) 
+                            + pcr.ifthen(self._model.routing.landmask, 
+                            pcr.ifthen(
+                            pcr.scalar(self._model.routing.WaterBodies.waterBodyIds) > 0.,
+                                       self._model.routing.WaterBodies.waterBodyStorage)) ) * 1000  # report in kg m-2
+        self.SurfMoist  =   self._model.landSurface.storUppTotal * 1000 # report in kg m-2 (water in SurfLayerThick)
+        self.RootMoist  =   ( self._model.landSurface.storUppTotal + 
+                            self._model.landSurface.storLowTotal ) * 1000 # report in kg m-2 (water in RootLayerThick)
+        self.TotMoist   =   self.RootMoist # equals RootMoist...
+        self.GroundMoist    = self._model.groundwater.storGroundwater * 1000  # self._model.groundwater. # report in kg m-2
