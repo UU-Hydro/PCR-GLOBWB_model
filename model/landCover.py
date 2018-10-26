@@ -1909,8 +1909,8 @@ class LandCover(object):
         irrigationLivestockGroundwaterDemand = pcr.min(remainingIrrigationLivestock, \
                                                pcr.max(0.0, \
                                                (1.0 - swAbstractionFractionDict['irrigation'])*totalIrrigationLivestockDemand))
-        pcr.aguila(swAbstractionFractionDict['irrigation'])
-        raw_input("Press Enter to continue...")
+        #~ pcr.aguila(swAbstractionFractionDict['irrigation'])
+        #~ raw_input("Press Enter to continue...")
         groundwater_demand_estimate += irrigationLivestockGroundwaterDemand
 
 
