@@ -2313,6 +2313,10 @@ class LandCover(object):
                 satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromFossilGroundwater * vos.getValDivZero(remainingIndustry, \
                                                                                                                  remainingIndustrialDomestic)             
 
+        
+        # TODO: Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining non irrigation demand
+        
+        
         # water demand limited to available/allocated water
         self.totalPotentialGrossDemand = self.fossilGroundwaterAlloc +\
                                          self.allocNonFossilGroundwater +\
