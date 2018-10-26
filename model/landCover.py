@@ -1787,6 +1787,10 @@ class LandCover(object):
         if not isinstance(swAbstractionFractionDict['non_irrigation'], types.NoneType):
             logger.debug('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
             swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
+            
+            pcr.aguila(swAbstractionFraction_industrial_domestic)
+            raw_input("Press Enter to continue...")
+            
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
