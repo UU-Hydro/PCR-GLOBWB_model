@@ -1974,7 +1974,7 @@ class LandCover(object):
 
             # always try to fulfil industrial and domestic demand
             if 'doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity' in self.iniItems.groundwaterOptions.keys() and\
-                self.iniItems.groundwaterOptions.keys['doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity'] == "True":
+                self.iniItems.groundwaterOptions['doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity'] == "True":
                 logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic and industrial demand.')
                 self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
 
@@ -2128,9 +2128,10 @@ class LandCover(object):
 
             # always try to fulfil industrial and domestic demand
             if 'doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity' in self.iniItems.groundwaterOptions.keys() and\
-                self.iniItems.groundwaterOptions.keys['doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity'] == "True":
+                self.iniItems.groundwaterOptions['doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity'] == "True":
                 logger.debug('Groundwater pumping capacity should not limit (fossil) groundwater abstraction to meet domestic and industrial demand.')
                 self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
+
 
         if self.limitAbstraction == False:                              # TODO: For runs without any water use, we can exclude this. 
 
