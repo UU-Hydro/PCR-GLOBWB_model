@@ -1788,6 +1788,7 @@ class LandCover(object):
             logger.debug('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
             swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
             
+            pcr.aguila(swAbstractionFractionDict['non_irrigation'])
             pcr.aguila(swAbstractionFraction_industrial_domestic)
             raw_input("Press Enter to continue...")
             
