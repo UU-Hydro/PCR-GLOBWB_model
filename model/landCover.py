@@ -1700,8 +1700,6 @@ class LandCover(object):
         # total irrigation and livestock demand (not limited by available water)
         totalIrrigationLivestockDemand = self.irrGrossDemand + nonIrrGrossDemandDict['potential_demand']['livestock']
         
-        STARTING FROM THIS PART (try to prioritize domestic and industrial)
-        
         # totalGrossDemand (m): irrigation and non irrigation (not limited by available water) - these values will not be reduced
         self.totalPotentialMaximumGrossDemand        = self.irrGrossDemand + self.nonIrrGrossDemand
         # - irrigation (excluding livestock)
@@ -1718,8 +1716,32 @@ class LandCover(object):
         self.totalPotentialMaximumDomesticIndustrial = self.totalPotentialMaximumDomestic + self.totalPotentialMaximumIndustry
         
         # the following value will be reduced by available/accesible water
-        self.totalPotentialGrossDemand           = self.totalPotentialMaximumGrossDemand         
+        self.totalPotentialGrossDemand = self.totalPotentialMaximumGrossDemand         
 
+        
+        # remaining demand values 
+        remainingDomestic   = 
+        remainingIndustrial =
+        remainingLivestock  =
+        remainingIrrigation          =
+        remainingIrrigationLivestock = 
+            # - for domestic                                                                 
+            satisfiedDomesticDemand = satisfiedIndustrialDomesticDemand * vos.getValDivZero(remainingDomestic, \
+                                                                                            remainingIndustrialDomestic)
+            # - for industry
+            satisfiedIndustryDemand = satisfiedIndustrialDomesticDemand * vos.getValDivZero(remainingIndustry, \
+                                                                                            remainingIndustrialDomestic)             
+            # - for irrigation and livestock demand
+            satisfiedIrrigationLivestockDemandFromFossilGroundwater = pcr.max(0.0, self.fossilGroundwaterAlloc - \
+                                                                                   satisfiedIndustrialDomesticDemandFromFossilGroundwater)
+            # - for irrigation
+            satisfiedIrrigationDemand += satisfiedIrrigationLivestockDemandFromFossilGroundwater * vos.getValDivZero(remainingIrrigation, \
+                                                                                                            remainingIrrigationLivestock)
+            # - for livestock
+            satisfiedLivestockDemand  += satisfiedIrrigationLivestockDemandFromFossilGroundwater * vos.getValDivZero(remainingLivestock, \
+                                                                                                                remainingIrrigationLivestock)
+        
+        
         # Abstraction and Allocation of DESALINATED WATER
         # ##################################################################################################################
         # - desalination water to satisfy water demand
