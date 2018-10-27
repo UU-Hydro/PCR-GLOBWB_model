@@ -1700,12 +1700,22 @@ class LandCover(object):
         # total irrigation and livestock demand (not limited by available water)
         totalIrrigationLivestockDemand = self.irrGrossDemand + nonIrrGrossDemandDict['potential_demand']['livestock']
         
+        STARTING FROM THIS PART (try to prioritize domestic and industrial)
+        
         # totalGrossDemand (m): irrigation and non irrigation (not limited by available water) - these values will not be reduced
-        self.totalPotentialMaximumGrossDemand       = self.irrGrossDemand + self.nonIrrGrossDemand
+        self.totalPotentialMaximumGrossDemand        = self.irrGrossDemand + self.nonIrrGrossDemand
         # - irrigation (excluding livestock)
-        self.totalPotentialMaximumIrrGrossDemand    = self.irrGrossDemand                         
+        self.totalPotentialMaximumIrrGrossDemand     = self.irrGrossDemand                         
         # - non irrigation (including livestock)
-        self.totalPotentialMaximumNonIrrGrossDemand = self.nonIrrGrossDemand
+        self.totalPotentialMaximumNonIrrGrossDemand  = self.nonIrrGrossDemand
+        # - domestic
+        self.totalPotentialMaximumDomestic           = nonIrrGrossDemandDict['potential_demand']['domestic']
+        # - industry
+        self.totalPotentialMaximumIndustry           = nonIrrGrossDemandDict['potential_demand']['industry']
+        # - livestock
+        self.totalPotentialMaximumLivesctock         = nonIrrGrossDemandDict['potential_demand']['livestock']
+        # - non irrigation (excluding livestock)      
+        self.totalPotentialMaximumDomesticIndustrial = self.totalPotentialMaximumDomestic + self.totalPotentialMaximumIndustry
         
         # the following value will be reduced by available/accesible water
         self.totalPotentialGrossDemand           = self.totalPotentialMaximumGrossDemand         
@@ -1747,18 +1757,41 @@ class LandCover(object):
 
         # water demand that have been satisfied (unit: m/day) - after desalination
         ################################################################################################################################
-        # - for irrigation (excluding livestock)
-        satisfiedIrrigationDemand = vos.getValDivZero(self.irrGrossDemand, self.totalPotentialGrossDemand) * self.desalinationAllocation
-        # - for domestic, industry and livestock
-        satisfiedNonIrrDemand     = pcr.max(0.00, self.desalinationAllocation - satisfiedIrrigationDemand)
-        # - for domestic
-        satisfiedDomesticDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['domestic'], 
-                                                                              self.totalPotentialMaximumNonIrrGrossDemand)  
-        # - for industry
-        satisfiedIndustryDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['industry'], 
-                                                                              self.totalPotentialMaximumNonIrrGrossDemand)
-        # - for livestock                                                                      
-        satisfiedLivestockDemand  = pcr.max(0.0, satisfiedNonIrrDemand - satisfiedDomesticDemand - satisfiedIndustryDemand)
+        if prioritizeDomesticIndutrial:
+            
+            # - first priority: for industrial and domestic demand (excluding livestock)
+            satisfiedIndustrialDomesticDemand = pcr.min(self.desalinationAllocation, \
+                                                        self.totalPotentialMaximumDomesticIndustrial)
+            # - for domestic                                                                 
+            satisfiedDomesticDemand = satisfiedIndustrialDomesticDemand * vos.getValDivZero(remainingDomestic, \
+                                                                                            remainingIndustrialDomestic)
+            # - for industry
+            satisfiedIndustryDemand = satisfiedIndustrialDomesticDemand * vos.getValDivZero(remainingIndustry, \
+                                                                                            remainingIndustrialDomestic)             
+            # - for irrigation and livestock demand
+            satisfiedIrrigationLivestockDemandFromFossilGroundwater = pcr.max(0.0, self.fossilGroundwaterAlloc - \
+                                                                                   satisfiedIndustrialDomesticDemandFromFossilGroundwater)
+            # - for irrigation
+            satisfiedIrrigationDemand += satisfiedIrrigationLivestockDemandFromFossilGroundwater * vos.getValDivZero(remainingIrrigation, \
+                                                                                                            remainingIrrigationLivestock)
+            # - for livestock
+            satisfiedLivestockDemand  += satisfiedIrrigationLivestockDemandFromFossilGroundwater * vos.getValDivZero(remainingLivestock, \
+                                                                                                                remainingIrrigationLivestock)
+
+        else:
+
+            # - for irrigation (excluding livestock)
+            satisfiedIrrigationDemand = vos.getValDivZero(self.irrGrossDemand, self.totalPotentialGrossDemand) * self.desalinationAllocation
+            # - for domestic, industry and livestock
+            satisfiedNonIrrDemand     = pcr.max(0.00, self.desalinationAllocation - satisfiedIrrigationDemand)
+            # - for domestic
+            satisfiedDomesticDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['domestic'], 
+                                                                                  self.totalPotentialMaximumNonIrrGrossDemand)  
+            # - for industry
+            satisfiedIndustryDemand   = satisfiedNonIrrDemand * vos.getValDivZero(nonIrrGrossDemandDict['potential_demand']['industry'], 
+                                                                                  self.totalPotentialMaximumNonIrrGrossDemand)
+            # - for livestock                                                                      
+            satisfiedLivestockDemand  = pcr.max(0.0, satisfiedNonIrrDemand - satisfiedDomesticDemand - satisfiedIndustryDemand)
 
 
         # total remaining gross demand (m/day) after desalination
