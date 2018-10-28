@@ -1786,11 +1786,12 @@ class LandCover(object):
             # - 3rd priority: livestock 
             satisfiedLivestockDemand  = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand, \
                                                              remainingLivestock)
-            # - 4th priority: aggriculture/irrigation 
+            # - 4th priority: aggriculture/irrigation (excluding livestock)
             satisfiedIrrigationDemand = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand, \
                                                              remainingIrrigation)
             
-            # TODO : Add a water balance check to make sure that desalinationAllocation = satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand + satisfiedIrrigation
+            UNTIL THIS PART
+            
             if self.debugWaterBalance:
                 vos.waterBalanceCheck([satisfiedDomesticDemand, \
                                        satisfiedIndustryDemand, \
@@ -1801,11 +1802,6 @@ class LandCover(object):
                                       [pcr.scalar(0.0)] ,\
                                       'desalinatedWaterAllocationForAllSectors',True,\
                                        currTimeStep.fulldate,threshold=1e-4)
-
-
-            
-            UNTIL THIS PART                                                 
-
         else:
 
             # - for irrigation (excluding livestock)
