@@ -242,15 +242,14 @@ class LandCover(object):
             msg = "Priority order in satisfying sectoral water demands: 1) Domestic; 2) Industry; 3) Livestock; 4) Aggriculture/Irrigation"
             logger.info(msg)
         
+        self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity = False
+        if 'doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity' in self.iniItems.groundwaterOptions.keys() and\
+            self.iniItems.groundwaterOptions['doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity'] == "True":
+            logger.info('Groundwater pumping capacity should not limit (fossil) groundwater abstraction to meet domestic, industrial and livestock water demand.')
+
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
 
-        #~ # get the names of interceptCap and coverFraction files:
-        #~ if not self.iniItemsLC['name'].startswith("irr"):
-            #~ self.interceptCapNC = vos.getFullPath(\
-                       #~ self.iniItemsLC['interceptCapNC'], self.inputDir)
-            #~ self.coverFractionNC = vos.getFullPath(\
-                      #~ self.iniItemsLC['coverFractionNC'], self.inputDir)
         
         # get the file names of interceptCap and coverFraction files:
         if 'interceptCapNC' in self.iniItemsLC.keys() and 'coverFractionNC' in self.iniItemsLC.keys():
@@ -1777,20 +1776,21 @@ class LandCover(object):
         ################################################################################################################################
         if self.prioritizeDomesticThenIndutrialThenLivestock:
             
+            logger.debug("Desalinated water is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
+            
             # - 1st priority: domestic 
             satisfiedDomesticDemand   = pcr.min(self.desalinationAllocation, \
                                                remainingDomestic)
             # - 2nd priority: industry 
-            satisfiedIndustryDemand   = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand, \
+            satisfiedIndustryDemand   = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand), \
                                                              remainingIndustry)
             # - 3rd priority: livestock 
-            satisfiedLivestockDemand  = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand, \
+            satisfiedLivestockDemand  = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand), \
                                                              remainingLivestock)
             # - 4th priority: aggriculture/irrigation (excluding livestock)
-            satisfiedIrrigationDemand = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand, \
+            satisfiedIrrigationDemand = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand), \
                                                              remainingIrrigation)
             
-            # - for domestic, industry and livestock
             satisfiedNonIrrDemand     = satisfiedDomesticDemand + satisfiedIndustryDemand + satisfiedLivestockDemand
             
         else:
@@ -1912,29 +1912,61 @@ class LandCover(object):
         
         # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
         ################################################################################################################################
-        # - for irrigation and livestock water demand 
-        satisfiedIrrigationLivestockDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
-               vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedSurfaceWaterDemandEstimate)
-        # - for irrigation water demand, but not including livestock 
-        satisfiedIrrigationDemandFromSurfaceWater = satisfiedIrrigationLivestockDemandFromSurfaceWater * \
-               vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
-        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
-        # - for non irrigation water demand: livestock, domestic and industry 
-        satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
-        satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
-        # - for livestock                                                                      
-        satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
-                                                 satisfiedIrrigationDemandFromSurfaceWater)
-        # - for industrial and domestic demand (excluding livestock)
-        satisfiedIndustrialDomesticDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract -\
-                                                                         satisfiedIrrigationLivestockDemandFromSurfaceWater)
-        # - for domestic                                                                 
-        satisfiedDomesticDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingDomestic, \
-                                                                                                         remainingIndustrialDomestic)
-        # - for industry
-        satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingIndustry, \
-                                                                                                         remainingIndustrialDomestic)             
+        if self.prioritizeDomesticThenIndutrialThenLivestock:
+            
+            logger.debug("Surface water is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
 
+            # - 1st priority: domestic 
+            satisfiedDomesticDemandFromSurfaceWater   = pcr.min(self.allocSurfaceWaterAbstract, \
+                                                                remainingDomestic)
+            # - 2nd priority: industry 
+            satisfiedIndustryDemandFromSurfaceWater   = pcr.min(pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedDomesticDemandFromSurfaceWater), \
+                                                                remainingIndustry)
+            # - 3rd priority: livestock 
+            satisfiedLivestockDemandFromSurfaceWater  = pcr.min(pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedDomesticDemandFromSurfaceWater -\
+                                                                                                              satisfiedIndustryDemandFromSurfaceWater), \
+                                                                remainingLivestock)
+            # - 4th priority: aggriculture/irrigation (excluding livestock)
+            satisfiedIrrigationDemandFromSurfaceWater = pcr.min(pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedDomesticDemandFromSurfaceWater -\
+                                                                                                              satisfiedIndustryDemandFromSurfaceWater -\
+                                                                                                              satisfiedLivestockDemandFromSurfaceWater),
+                                                                remainingIrrigation)
+            
+            
+            satisfiedIrrigationLivestockDemandFromSurfaceWater = satisfiedIrrigationDemandFromSurfaceWater + \
+                                                                 satisfiedLivestockDemandFromSurfaceWater
+            
+            satisfiedNonIrrDemandFromSurfaceWater = satisfiedDomesticDemandFromSurfaceWater + satisfiedIndustryDemandFromSurfaceWater + satisfiedLivestockDemandFromSurfaceWater
+
+        else:
+
+            # - for irrigation and livestock water demand 
+            satisfiedIrrigationLivestockDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
+                   vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedSurfaceWaterDemandEstimate)
+            # - for irrigation water demand, but not including livestock 
+            satisfiedIrrigationDemandFromSurfaceWater = satisfiedIrrigationLivestockDemandFromSurfaceWater * \
+                   vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
+            # - for non irrigation water demand: livestock, domestic and industry 
+            satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
+            # - for livestock                                                                      
+            satisfiedLivestockDemandFromSurfaceWater = pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
+                                                                    satisfiedIrrigationDemandFromSurfaceWater)
+            # - for industrial and domestic demand (excluding livestock)
+            satisfiedIndustrialDomesticDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract -\
+                                                                             satisfiedIrrigationLivestockDemandFromSurfaceWater)
+            # - for domestic                                                                 
+            satisfiedDomesticDemandFromSurfaceWater = satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingDomestic, \
+                                                                                                                            remainingIndustrialDomestic)
+            # - for industry
+            satisfiedIndustryDemandFromSurfaceWater = satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingIndustry, \
+                                                                                                                            remainingIndustrialDomestic)             
+
+        # update satistfied demand after surface water allocaction 
+        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
+        satisfiedLivestockDemand  += satisfiedLivestockDemandFromSurfaceWater
+        satisfiedDomesticDemand   += satisfiedDomesticDemandFromSurfaceWater
+        satisfiedIndustryDemand   += satisfiedIndustryDemandFromSurfaceWater
+        satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromSurfaceWater
 
 
         ######################################################################################################################
@@ -2030,13 +2062,15 @@ class LandCover(object):
 
 
 
-            # always try to fulfil industrial and domestic demand
-            if 'doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity' in self.iniItems.groundwaterOptions.keys() and\
-                self.iniItems.groundwaterOptions['doNotLimitGroundwaterDomesticIndustrialDemandWithPumpingCapacity'] == "True":
-                logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic and industrial demand.')
-                self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic, self.potGroundwaterAbstract)
+            # always try to fulfil industrial, domestic, and livestock demands:
+            if self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity:
+                logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic. industrial and livestock water demands.')
+                self.potGroundwaterAbstract = pcr.max(remainingIndustrialDomestic + remainingLivestock, self.potGroundwaterAbstract)
+             
+            UNTIL THIS PART    
 
         else:
+
             logger.debug('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
         
 
@@ -2099,27 +2133,60 @@ class LandCover(object):
         
         # water demand that have been satisfied (unit: m/day) - after desalination, surface water and non-fossil groundwater supply 
         ################################################################################################################################
-        # - for irrigation and livestock water demand 
-        satisfiedIrrigationLivestockDemandFromNonFossilGroundwater = self.allocNonFossilGroundwater * \
-               vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_demand_estimate)
-        # - for irrigation water demand, but not including livestock 
-        satisfiedIrrigationDemandFromNonFossilGroundwater = satisfiedIrrigationLivestockDemandFromNonFossilGroundwater * \
-               vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
-        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromNonFossilGroundwater
-         # - for non irrigation water demand: livestock, domestic and industry 
-        satisfiedNonIrrDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedIrrigationLivestockDemandFromNonFossilGroundwater)
-        satisfiedNonIrrDemand += satisfiedNonIrrDemandFromNonFossilGroundwater
-        # - for livestock                                                                      
-        satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromNonFossilGroundwater - \
-                                                 satisfiedIrrigationDemandFromNonFossilGroundwater)
-        # - for industrial and domestic demand (excluding livestock)
-        satisfiedIndustrialDomesticDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater -\
-                                                                                 satisfiedIrrigationLivestockDemandFromNonFossilGroundwater)
-        # - for domestic                                                                 
-        satisfiedDomesticDemand += satisfiedIndustrialDomesticDemandFromNonFossilGroundwater * vos.getValDivZero(remainingDomestic, remainingIndustrialDomestic)
-        # - for industry
-        satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromNonFossilGroundwater * vos.getValDivZero(remainingIndustry, remainingIndustrialDomestic)             
+        if self.prioritizeDomesticThenIndutrialThenLivestock:
+            
+            logger.debug("Groundwater is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
+            
+            # - 1st priority: domestic 
+            satisfiedDomesticDemandFromNonFossilGroundwater   = pcr.min(self.allocNonFossilGroundwater, \
+                                                                        remainingDomestic)
+            # - 2nd priority: industry 
+            satisfiedIndustryDemandFromNonFossilGroundwater   = pcr.min(pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedDomesticDemandFromNonFossilGroundwater), \
+                                                                        remainingIndustry)
+            # - 3rd priority: livestock 
+            satisfiedLivestockDemandFromNonFossilGroundwater  = pcr.min(pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedDomesticDemandFromNonFossilGroundwater -\
+                                                                                                                      satisfiedIndustryDemandFromNonFossilGroundwater), \
+                                                                        remainingLivestock)
+            # - 4th priority: aggriculture/irrigation (excluding livestock)
+            satisfiedIrrigationDemandFromNonFossilGroundwater = pcr.min(pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedDomesticDemandFromSurfaceWater -\
+                                                                                                                      satisfiedIndustryDemandFromSurfaceWater -\
+                                                                                                                      satisfiedLivestockDemandFromSurfaceWater), \
+                                                                        remainingIrrigation)
+            
+            
+            satisfiedIrrigationLivestockDemandFromNonFossilGroundwater = satisfiedIrrigationDemandFromNonFossilGroundwater + \
+                                                                         satisfiedLivestockDemandFromNonFossilGroundwater
+            
+            satisfiedNonIrrDemandFromNonFossilGroundwater = satisfiedDomesticDemandFromNonFossilGroundwater + satisfiedIndustryDemandFromNonFossilGroundwater +\
+                                                            satisfiedLivestockDemandFromNonFossilGroundwater
 
+        else:
+
+            # - for irrigation and livestock water demand 
+            satisfiedIrrigationLivestockDemandFromNonFossilGroundwater = self.allocNonFossilGroundwater * \
+                   vos.getValDivZero(irrigationLivestockGroundwaterDemand, groundwater_demand_estimate)
+            # - for irrigation water demand, but not including livestock 
+            satisfiedIrrigationDemandFromNonFossilGroundwater = satisfiedIrrigationLivestockDemandFromNonFossilGroundwater * \
+                   vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
+             # - for non irrigation water demand: livestock, domestic and industry 
+            satisfiedNonIrrDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedIrrigationLivestockDemandFromNonFossilGroundwater)
+            # - for livestock                                                                      
+            satisfiedLivestockDemandFromNonFossilGroundwater = pcr.max(0.0, satisfiedIrrigationLivestockDemandFromNonFossilGroundwater - \
+                                                     satisfiedIrrigationDemandFromNonFossilGroundwater)
+            # - for industrial and domestic demand (excluding livestock)
+            satisfiedIndustrialDomesticDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater -\
+                                                                                     satisfiedIrrigationLivestockDemandFromNonFossilGroundwater)
+            # - for domestic                                                                 
+            satisfiedDomesticDemandFromNonFossilGroundwater = satisfiedIndustrialDomesticDemandFromNonFossilGroundwater * vos.getValDivZero(remainingDomestic, remainingIndustrialDomestic)
+            # - for industry
+            satisfiedIndustryDemandFromNonFossilGroundwater = satisfiedIndustrialDomesticDemandFromNonFossilGroundwater * vos.getValDivZero(remainingIndustry, remainingIndustrialDomestic)             
+
+        # update satistfied demand after non fossil groundwater allocation
+        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromNonFossilGroundwater
+        satisfiedLivestockDemand  += satisfiedLivestockDemandFromNonFossilGroundwater
+        satisfiedDomesticDemand   += satisfiedDomesticDemandFromNonFossilGroundwater
+        satisfiedIndustryDemand   += satisfiedIndustryDemandNonFossilGroundwater
+        satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromNonFossilGroundwater
 
 
         ######################################################################################################################
