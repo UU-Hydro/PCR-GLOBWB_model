@@ -1790,18 +1790,9 @@ class LandCover(object):
             satisfiedIrrigationDemand = pcr.min(pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand, \
                                                              remainingIrrigation)
             
-            UNTIL THIS PART
+            # - for domestic, industry and livestock
+            satisfiedNonIrrDemand     = satisfiedDomesticDemand + satisfiedIndustryDemand + satisfiedLivestockDemand
             
-            if self.debugWaterBalance:
-                vos.waterBalanceCheck([satisfiedDomesticDemand, \
-                                       satisfiedIndustryDemand, \
-                                       satisfiedLivestockDemand, \
-                                       satisfiedIrrigationDemand],\
-                                      [self.desalinationAllocation],\
-                                      [pcr.scalar(0.0)],\
-                                      [pcr.scalar(0.0)] ,\
-                                      'desalinatedWaterAllocationForAllSectors',True,\
-                                       currTimeStep.fulldate,threshold=1e-4)
         else:
 
             # - for irrigation (excluding livestock)
@@ -1817,6 +1808,16 @@ class LandCover(object):
             # - for livestock                                                                      
             satisfiedLivestockDemand  = pcr.max(0.0, satisfiedNonIrrDemand - satisfiedDomesticDemand - satisfiedIndustryDemand)
 
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([satisfiedDomesticDemand, \
+                                   satisfiedIndustryDemand, \
+                                   satisfiedLivestockDemand, \
+                                   satisfiedIrrigationDemand],\
+                                  [self.desalinationAllocation],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)] ,\
+                                  'desalinatedWaterAllocationForAllSectors',True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
 
         # total remaining gross demand (m/day) after desalination
         ################################################################################################################################
