@@ -2074,10 +2074,10 @@ class LandCover(object):
 
 
 
-            #~ # always try to fulfil industrial, domestic, and livestock demands:
-            #~ if self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity:
-                #~ logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic. industrial and livestock water demands.')
-                #~ self.potGroundwaterAbstract = pcr.max(remainingIndustryDomestic + remainingLivestock, self.potGroundwaterAbstract)
+            # always try to fulfil industrial, domestic, and livestock demands:
+            if self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity:
+                logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic. industrial and livestock water demands.')
+                self.potGroundwaterAbstract = pcr.max(remainingIndustryDomestic + remainingLivestock, self.potGroundwaterAbstract)
              
         else:
 
