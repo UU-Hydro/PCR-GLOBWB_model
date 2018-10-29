@@ -1968,6 +1968,7 @@ class LandCover(object):
         satisfiedIndustryDemand   += satisfiedIndustryDemandFromSurfaceWater
         satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromSurfaceWater
 
+
         if self.debugWaterBalance:
             vos.waterBalanceCheck([satisfiedDomesticDemand, \
                                    satisfiedIndustryDemand, \
@@ -2506,6 +2507,18 @@ class LandCover(object):
         satisfiedDomesticDemand   += satisfiedDomesticDemandFromFossilGroundwater
         satisfiedIndustryDemand   += satisfiedIndustryDemandFromFossilGroundwater
         satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromFossilGroundwater
+
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([satisfiedDomesticDemand, \
+                                   satisfiedIndustryDemand, \
+                                   satisfiedLivestockDemand, \
+                                   satisfiedIrrigationDemand],\
+                                  [self.desalinationAllocation, self.allocSurfaceWaterAbstract, self.allocNonFossilGroundwater, self.fossilGroundwaterAlloc],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)] ,\
+                                  'desalinatedWaterAllocationForAllSectors and surfaceWaterAllocationForAllSectors and groundwaterAllocationForAllSectors', True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
 
 
         # TODO: Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining non irrigation demand
