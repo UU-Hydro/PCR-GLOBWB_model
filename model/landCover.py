@@ -237,7 +237,7 @@ class LandCover(object):
             msg += "This run assumes False."
             logger.info(msg)
             iniItems.landSurfaceOptions['prioritizeDomesticThenIndutrialThenLivestock'] = "False"
-        self.prioritizeDomesticThenIndutrialThenLivestock = iniItems.landSurfaceOptions['prioritizeDomesticThenIndutrialThenLivestock'] = "True"
+        self.prioritizeDomesticThenIndutrialThenLivestock = iniItems.landSurfaceOptions['prioritizeDomesticThenIndutrialThenLivestock'] == "True"
         if self.prioritizeDomesticThenIndutrialThenLivestock:
             msg = "Priority order in satisfying sectoral water demands: 1) Domestic; 2) Industry; 3) Livestock; 4) Aggriculture/Irrigation"
             logger.info(msg)
