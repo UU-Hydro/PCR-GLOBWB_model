@@ -1816,7 +1816,7 @@ class LandCover(object):
                                   [self.desalinationAllocation],\
                                   [pcr.scalar(0.0)],\
                                   [pcr.scalar(0.0)] ,\
-                                  'desalinatedWaterAllocationForAllSectors',True,\
+                                  'desalinatedWaterAllocationForAllSectors', True,\
                                    currTimeStep.fulldate,threshold=1e-4)
 
         # total remaining gross demand (m/day) after desalination
@@ -2447,13 +2447,13 @@ class LandCover(object):
                 satisfiedIndustryDemandFromFossilGroundwater   = pcr.min(pcr.max(0.0, self.fossilGroundwaterAlloc - satisfiedDomesticDemandFromFossilGroundwater), \
                                                                          correctedRemainingIndustry)
                 # - 3rd priority: livestock 
-                satisfiedLivestockDemandFromFossilGroundwater  = pcr.min(pcr.max(0.0, self.self.fossilGroundwaterAlloc - satisfiedDomesticDemandFromFossilGroundwater -\
-                                                                                                                         satisfiedIndustryDemandFromFossilGroundwater), \
+                satisfiedLivestockDemandFromFossilGroundwater  = pcr.min(pcr.max(0.0, self.fossilGroundwaterAlloc - satisfiedDomesticDemandFromFossilGroundwater -\
+                                                                                                                    satisfiedIndustryDemandFromFossilGroundwater), \
                                                                          correctedRemainingLivestock)
                 # - 4th priority: aggriculture/irrigation (excluding livestock)
-                satisfiedIrrigationDemandFromFossilGroundwater = pcr.min(pcr.max(0.0, self.self.fossilGroundwaterAlloc - satisfiedDomesticDemandFossilGroundwater -\
-                                                                                                                         satisfiedIndustryDemandFossilGroundwater -\
-                                                                                                                         satisfiedLivestockDemandFossilGroundwater), \
+                satisfiedIrrigationDemandFromFossilGroundwater = pcr.min(pcr.max(0.0, self.fossilGroundwaterAlloc - satisfiedDomesticDemandFossilGroundwater -\
+                                                                                                                    satisfiedIndustryDemandFossilGroundwater -\
+                                                                                                                    satisfiedLivestockDemandFossilGroundwater), \
                                                                          correctedRemainingIrrigation)
                 
                 satisfiedIrrigationLivestockDemandFromFossilGroundwater = satisfiedIrrigationDemandFromFossilGroundwater + \
