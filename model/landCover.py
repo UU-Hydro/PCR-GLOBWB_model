@@ -2016,6 +2016,8 @@ class LandCover(object):
         #~ raw_input("Press Enter to continue...")
         groundwater_demand_estimate += irrigationLivestockGroundwaterDemand
 
+        if self.prioritizeDomesticThenIndutrialThenLivestock:
+            groundwater_demand_estimate = pcr.max(remainingDomestic + remainingIndustry + remainingLivestock, groundwater_demand_estimate)
 
 
         #####################################################################################################
