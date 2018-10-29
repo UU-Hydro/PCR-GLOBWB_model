@@ -2161,7 +2161,7 @@ class LandCover(object):
                                                                                                                       satisfiedIndustryDemandFromNonFossilGroundwater), \
                                                                         remainingLivestock)
             # - 4th priority: aggriculture/irrigation (excluding livestock)
-            satisfiedIrrigationDemandFromNonFossilGroundwater = pcr.min(pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedDomesticDemandFromNonFossilGroundwater -\
+            satisfiedIrrigationDemandFromNonFossilGroundwater = pcr.min(pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedDomesticDemandFromNonFossilGroundwater -\
                                                                                                                       satisfiedIndustryDemandFromNonFossilGroundwater -\
                                                                                                                       satisfiedLivestockDemandFromNonFossilGroundwater), \
                                                                         remainingIrrigation)
