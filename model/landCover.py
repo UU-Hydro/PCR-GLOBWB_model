@@ -2534,7 +2534,7 @@ class LandCover(object):
                                    currTimeStep.fulldate,threshold=1e-4)
 
 
-        UNTIL THIS PART
+        #~ UNTIL THIS PART
         
         # TODO: Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining non irrigation demand
         extraSurfaceWaterAbstraction = 0.0
