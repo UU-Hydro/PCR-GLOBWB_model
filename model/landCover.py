@@ -245,8 +245,15 @@ class LandCover(object):
         self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity = False
         if 'doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity' in self.iniItems.groundwaterOptions.keys() and\
             self.iniItems.groundwaterOptions['doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity'] == "True":
-            logger.info('Groundwater pumping capacity should not limit (fossil) groundwater abstraction to meet domestic, industrial and livestock water demand.')
+            logger.info('Groundwater pumping capacity should not limit groundwater abstraction to meet domestic, industrial and livestock water demand.')
+            self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity = True
 
+        self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme = False
+        if 'optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme' in self.iniItems.landSurfaceOptions.keys() and\
+            self.iniItems.landSurfaceOptions['optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme'] == "True":
+            logger.info('Surface water use will be optimized based on ratio of baseflow and discharge allocation scheme.')
+            self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme = True
+        
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
 
