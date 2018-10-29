@@ -2504,7 +2504,7 @@ class LandCover(object):
         satisfiedIrrigationDemand += satisfiedIrrigationDemandFromFossilGroundwater
         satisfiedLivestockDemand  += satisfiedLivestockDemandFromFossilGroundwater
         satisfiedDomesticDemand   += satisfiedDomesticDemandFromFossilGroundwater
-        satisfiedIndustryDemand   += satisfiedIndustryDemandFossilGroundwater
+        satisfiedIndustryDemand   += satisfiedIndustryDemandFromFossilGroundwater
         satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromFossilGroundwater
 
 
