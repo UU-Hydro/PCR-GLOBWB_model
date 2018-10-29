@@ -2074,10 +2074,10 @@ class LandCover(object):
 
 
 
-            # always try to fulfil industrial, domestic, and livestock demands:
-            if self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity:
-                logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic. industrial and livestock water demands.')
-                self.potGroundwaterAbstract = pcr.max(remainingIndustryDomestic + remainingLivestock, self.potGroundwaterAbstract)
+            #~ # always try to fulfil industrial, domestic, and livestock demands:
+            #~ if self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity:
+                #~ logger.debug('Groundwater pumping capacity should not limit (non-fossil) groundwater abstraction to meet domestic. industrial and livestock water demands.')
+                #~ self.potGroundwaterAbstract = pcr.max(remainingIndustryDomestic + remainingLivestock, self.potGroundwaterAbstract)
              
         else:
 
@@ -2090,12 +2090,13 @@ class LandCover(object):
         readAvlStorGroundwater = pcr.cover(pcr.max(0.00, groundwater.storGroundwater), 0.0)
         # - considering maximum daily groundwater abstraction
         readAvlStorGroundwater = pcr.min(readAvlStorGroundwater, groundwater.maximumDailyGroundwaterAbstraction)
-        # - ignore groundwater storage in non-productive aquifer 
-        readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
-        
-        # for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
-        readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, \
-                                                readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0)))
+
+        # limit available storGroundwater in non-productive aquifer
+        #~ # - alternative 1: ignore groundwater storage in non-productive aquifer 
+        #~ readAvlStorGroundwater = pcr.ifthenelse(groundwater.productive_aquifer, readAvlStorGroundwater, 0.0)
+        # - alternative 2: for non-productive aquifer, reduce readAvlStorGroundwater to the current recharge/baseflow rate
+        readAvlStorGroundwater    = pcr.ifthenelse(groundwater.productive_aquifer, \
+                                                   readAvlStorGroundwater, pcr.min(readAvlStorGroundwater, pcr.max(routing.avgBaseflow, 0.0)))
         
         # avoid the condition that the entire groundwater volume abstracted instantaneously
         readAvlStorGroundwater *= 0.75
