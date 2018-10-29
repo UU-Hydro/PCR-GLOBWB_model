@@ -2199,6 +2199,18 @@ class LandCover(object):
         satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromNonFossilGroundwater
 
 
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([satisfiedDomesticDemand, \
+                                   satisfiedIndustryDemand, \
+                                   satisfiedLivestockDemand, \
+                                   satisfiedIrrigationDemand],\
+                                  [self.desalinationAllocation, self.allocSurfaceWaterAbstract, self.allocNonFossilGroundwater],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)] ,\
+                                  'desalinatedWaterAllocationForAllSectors and surfaceWaterAllocationForAllSectors and (nonFossil) groundwaterAllocationForAllSectors', True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+
+
         ######################################################################################################################
         ######################################################################################################################
         # water demand that must be satisfied by fossil groundwater abstraction (unit: m, not limited to available water)
@@ -2517,11 +2529,18 @@ class LandCover(object):
                                   [self.desalinationAllocation, self.allocSurfaceWaterAbstract, self.allocNonFossilGroundwater, self.fossilGroundwaterAlloc],\
                                   [pcr.scalar(0.0)],\
                                   [pcr.scalar(0.0)] ,\
-                                  'desalinatedWaterAllocationForAllSectors and surfaceWaterAllocationForAllSectors and groundwaterAllocationForAllSectors', True,\
+                                  'desalinatedWaterAllocationForAllSectors and surfaceWaterAllocationForAllSectors and ALL groundwaterAllocationForAllSectors', True,\
                                    currTimeStep.fulldate,threshold=1e-4)
 
 
         # TODO: Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining non irrigation demand
+        extraSurfaceWaterAbstraction = 0.0
+        extraSurfacWaterAllocation   = 0.0
+        self.optimizeSurfaceWaterBasedOnAllocationScheme = False
+        if self.optimizeSurfaceWaterBasedOnAllocationScheme: 
+            pass
+        self.actSurfaceWaterAbstract   = self.actSurfaceWaterAbstract   + extraSurfaceWaterAbstraction
+        self.allocSurfaceWaterAbstract = self.allocSurfaceWaterAbstract + extraSurfacWaterAllocation
         
         
         # water demand limited to available/allocated water
