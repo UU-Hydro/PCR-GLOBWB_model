@@ -95,8 +95,8 @@ class LandCover(object):
             self.minInterceptCap = vos.readPCRmapClone(self.iniItemsLC['minInterceptCap'], self.cloneMap,
                                                        self.tmpDir, self.inputDir)
         
-        # option to assume surface water as the first priority/alternative for water source (not used)
-        self.surfaceWaterPiority = False
+        #~ # option to assume surface water as the first priority/alternative for water source - STILL NOT USED
+        #~ self.surfaceWaterPriority = False
         
         # option to activate water balance check
         self.debugWaterBalance = True
@@ -1882,8 +1882,8 @@ class LandCover(object):
         correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustryDomestic
         surface_water_demand = correctedSurfaceWaterDemandEstimate
         #
-        # if surface water abstraction as the first priority
-        if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
+        #~ # if surface water abstraction as the first priority
+        #~ if self.surfaceWaterPriority: surface_water_demand = self.totalGrossDemandAfterDesalination
         #
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
         #  
@@ -2543,14 +2543,165 @@ class LandCover(object):
                                    currTimeStep.fulldate,threshold=1e-4)
 
 
-        # Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining non irrigation demand
+        # Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining demand
         extraSurfaceWaterAbstraction = 0.0
         extraSurfacWaterAllocation   = 0.0
         if self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme: 
-            pass
+
+            # remaining water demand per sector 
+            # - for domestic 
+            remainingDomestic   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['domestic']  - satisfiedDomesticDemand)
+            # - for industry 
+            remainingIndustry   = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['industry']  - satisfiedIndustryDemand)
+            # - for livestock 
+            remainingLivestock  = pcr.max(0.0, nonIrrGrossDemandDict['potential_demand']['livestock'] - satisfiedLivestockDemand)
+            # - for irrigation (excluding livestock)
+            remainingIrrigation = pcr.max(0.0, self.irrGrossDemand - satisfiedIrrigationDemand) 
+            # - remaining total demand
+            remainingTotalDemand = remainingDomestic + remainingIndustry + remainingLivestock +\
+                                   remainingIrrigation
+
+            # Abstraction and Allocation of SURFACE WATER EXTRA
+            ##############################################################################################################################
+            
+            # calculate the remaining surface water demand (m) - limited by swAbstractionFractionDict['estimate'] = ratio of discharge and baseflow
+            remaining_surface_water_demand = pcr.min(remainingTotalDemand,\
+                                                     swAbstractionFractionDict['estimate'] * self.totalPotentialMaximumGrossDemand)                                           
+            # - remaining water demand per sector - limited by swAbstractionFractionDict['estimate'] 
+            if self.prioritizeDomesticThenIndutrialThenLivestock:
+                
+                logger.debug("Extra surface water is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
+                
+                remainingDomestic   = pcr.min(remainingDomestic,   remaining_surface_water_demand)
+                remainingIndustry   = pcr.min(remainingIndustry,   pcr.max(0.0, remaining_surface_water_demand - remainingDomestic))
+                remainingLivestock  = pcr.min(remainingLivestock,  pcr.max(0.0, remaining_surface_water_demand - remainingDomestic - remainingIndustry))
+                remainingIrrigation = pcr.min(remainingIrrigation, pcr.max(0.0, remaining_surface_water_demand - remainingDomestic - remainingIndustry - \
+                                                                                                                                     remainingLivestock))
+
+            else:
+
+                remainingDomestic   = remaining_surface_water_demand * vos.getValDivZero(remainingDomestic , remainingTotalDemand)
+                remainingIndustry   = remaining_surface_water_demand * vos.getValDivZero(remainingIndustry , remainingTotalDemand)
+                remainingLivestock  = remaining_surface_water_demand * vos.getValDivZero(remainingLivestock, remainingTotalDemand)
+                remainingIrrigation = pcr.max(0.0, remaining_surface_water_demand - remainingDomestic -\ 
+                                                                                    remainingIndustry -\
+                                                                                    remainingLivestock)
+
+            # - total for livestock and irrigation - limited by swAbstractionFractionDict['estimate']
+            remainingIrrigationLivestock = remainingIrrigation + remainingLivestock
+            # - total for industrial and domestic (excluding livestock) - limited by swAbstractionFractionDict['estimate']
+            remainingIndustryDomestic    = remainingIndustry + remainingDomestic
+            # - total for all sectors - limited by swAbstractionFractionDict['estimate'] - this is the same as remaining_surface_water_demand
+            remainingTotalDemand = remainingDomestic + remainingIndustry + remainingLivestock +\
+                                   remainingIrrigation
+
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([remainingTotalDemand],\
+                                  [remaining_surface_water_demand],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)] ,\
+                                  'partitioning remaining surface water demand', True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
+
+            # calculate remaining available surface water (m3)
+            remaining_available_surface_water_volume = pcr.max(0.0, routing.readAvlChannelStorage - volActSurfaceWaterAbstract * routing.cellArea)
+            
+            if self.usingAllocSegments:      # using zone/segment at which supply network is defined
+            #  
+                logger.debug("Allocation of extra surface water abstraction.")
+            #  
+                volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
+                 vos.waterAbstractionAndAllocation(
+                 water_demand_volume = remaining_surface_water_demand * routing.cellArea,\
+                 available_water_volume = pcr.max(0.00, remaining_available_surface_water_volume),\
+                 allocation_zones = allocSegments,\
+                 zone_area = self.segmentArea,\
+                 high_volume_treshold = None,\
+                 debug_water_balance = True,\
+                 extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
+                 landmask = self.landmask,
+                 ignore_small_values = False,
+                 prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
+    
+                extraSurfaceWaterAbstraction = volActSurfaceWaterAbstract / routing.cellArea
+                extraSurfacWaterAllocation   = volAllocSurfaceWaterAbstract / routing.cellArea
+            #  
+            else: 
+                logger.debug("Extra surface water abstraction is only to satisfy local demand (no surface water network).")
+                extraSurfaceWaterAbstraction   = pcr.min(remaining_available_surface_water_volume/routing.cellArea,\
+                                                         remaining_surface_water_demand)                              # unit: m
+                extraSurfacWaterAllocation     = extraSurfaceWaterAbstraction                                         # unit: m   
+            #  
+            extraSurfaceWaterAbstraction = pcr.ifthen(self.landmask, extraSurfaceWaterAbstraction)  
+            extraSurfacWaterAllocation   = pcr.ifthen(self.landmask, extraSurfacWaterAllocation  )
+            ################################################################################################################################
+            # - end of Abstraction and Allocation of EXTRA SURFACE WATER
+    
+            # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
+            ################################################################################################################################
+            if self.prioritizeDomesticThenIndutrialThenLivestock:
+                
+                logger.debug("Extra surface water is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
+    
+                # - 1st priority: domestic 
+                satisfiedDomesticDemandFromExtraSurfaceWater   = pcr.min(extraSurfacWaterAllocation, \
+                                                                         remainingDomestic)
+                # - 2nd priority: industry 
+                satisfiedIndustryDemandFromExtraSurfaceWater   = pcr.min(pcr.max(0.0, extraSurfacWaterAllocation - satisfiedDomesticDemandFromExtraSurfaceWater), \
+                                                                         remainingIndustry)
+                # - 3rd priority: livestock 
+                satisfiedLivestockDemandFromExtraSurfaceWater  = pcr.min(pcr.max(0.0, extraSurfacWaterAllocation - satisfiedDomesticDemandFromExtraSurfaceWater -\
+                                                                                                                   satisfiedIndustryDemandFromExtraSurfaceWater), \
+                                                                         remainingLivestock)
+                # - 4th priority: aggriculture/irrigation (excluding livestock)
+                satisfiedIrrigationDemandFromExtraSurfaceWater = pcr.min(pcr.max(0.0, extraSurfacWaterAllocation - satisfiedDomesticDemandFromExtraSurfaceWater -\
+                                                                                                                   satisfiedIndustryDemandFromExtraSurfaceWater -\
+                                                                                                                   satisfiedLivestockDemandFromExtraSurfaceWater),
+                                                                         remainingIrrigation)
+                
+                satisfiedIrrigationLivestockDemandFromExtraSurfaceWater = satisfiedIrrigationDemandFromExtraSurfaceWater + \
+                                                                          satisfiedLivestockDemandFromExtraSurfaceWater
+                
+                satisfiedNonIrrDemandFromExtraSurfaceWater = satisfiedDomesticDemandFromExtraSurfaceWater + satisfiedIndustryDemandFromExtraSurfaceWater + \
+                                                             satisfiedLivestockDemandFromExtraSurfaceWater
+    
+            else:
+    
+                # - for domestic:
+                satisfiedDomesticDemandFromExtraSurfaceWater   = extraSurfacWaterAllocation * vos.getValDivZero(remainingDomestic,  remainingTotalDemand)
+                # - for industry:
+                satisfiedIndustryDemandFromExtraSurfaceWater   = extraSurfacWaterAllocation * vos.getValDivZero(remainingIndustry,  remainingTotalDemand)
+                # - for livestock:
+                satisfiedLivestockDemandFromExtraSurfaceWater  = extraSurfacWaterAllocation * vos.getValDivZero(remainingLivestock, remainingTotalDemand)
+                # - for irrigation (excluding livesock)
+                satisfiedIrrigationDemandFromExtraSurfaceWater = pcr.max(0.0, extraSurfacWaterAllocation - (satisfiedDomesticDemandFromExtraSurfaceWater +\
+                                                                                                           satisfiedIndustryDemandFromExtraSurfaceWater +\
+                                                                                                           satisfiedLivestockDemandFromExtraSurfaceWater))
+                # - for irrigation and livestock water demand 
+                satisfiedIrrigationLivestockDemandFromExtraSurfaceWater = satisfiedLivestockDemandFromExtraSurfaceWater + satisfiedIrrigationDemandFromExtraSurfaceWater
+                # - for industrial and domestic demand (excluding livestock)
+                satisfiedIndustrialDomesticDemandFromExtraSurfaceWater  = satisfiedIndustryDemandFromExtraSurfaceWater + satisfiedDomesticDemandFromExtraSurfaceWater
+    
+            # update satistfied demand after surface water allocaction 
+            satisfiedIrrigationDemand += satisfiedIrrigationDemandFromExtraSurfaceWater
+            satisfiedLivestockDemand  += satisfiedLivestockDemandFromExtraSurfaceWater
+            satisfiedDomesticDemand   += satisfiedDomesticDemandFromExtraSurfaceWater
+            satisfiedIndustryDemand   += satisfiedIndustryDemandFromExtraSurfaceWater
+            satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromExtraSurfaceWater
+    
         self.actSurfaceWaterAbstract   = self.actSurfaceWaterAbstract   + extraSurfaceWaterAbstraction
         self.allocSurfaceWaterAbstract = self.allocSurfaceWaterAbstract + extraSurfacWaterAllocation
         
+        if self.debugWaterBalance:
+            vos.waterBalanceCheck([satisfiedDomesticDemand, \
+                                   satisfiedIndustryDemand, \
+                                   satisfiedLivestockDemand, \
+                                   satisfiedIrrigationDemand],\
+                                  [self.desalinationAllocation, self.allocSurfaceWaterAbstract, self.allocNonFossilGroundwater, self.fossilGroundwaterAlloc],\
+                                  [pcr.scalar(0.0)],\
+                                  [pcr.scalar(0.0)] ,\
+                                  'desalinatedWaterAllocationForAllSectors and surfaceWaterAllocationForAllSectors (including extraSurfacWaterAllocation) and ALL groundwaterAllocationForAllSectors', True,\
+                                   currTimeStep.fulldate,threshold=1e-4)
         
         # water demand limited to available/allocated water
         self.totalPotentialGrossDemand = self.fossilGroundwaterAlloc +\
