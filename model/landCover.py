@@ -1735,7 +1735,7 @@ class LandCover(object):
         # the following value will be reduced by available/accesible water
         self.totalPotentialGrossDemand = self.totalPotentialMaximumGrossDemand         
         
-        # remaining demand values 
+        # remaining demand values (m/day)
         remainingDomestic            = self.totalPotentialMaximumDomestic
         remainingIndustry            = self.totalPotentialMaximumIndustry
         remainingDomesticIndustrial  = remainingDomestic + remainingIndustry
@@ -1854,9 +1854,22 @@ class LandCover(object):
         if not isinstance(swAbstractionFractionDict['non_irrigation'], types.NoneType):
             logger.debug('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
             swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
+        #
         #~ pcr.aguila(swAbstractionFraction_industrial_domestic)
         #~ raw_input("Press Enter to continue...")
-        surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustryDomestic
+        #
+        # -- domestic and industrial surface water demands - limited by swAbstractionFractionDict
+        surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * (remainingIndustry + remainingDomestic)
+        
+        if self.prioritizeDomesticThenIndutrialThenLivestock:
+            remainingDomestic = pcr.min(surface_water_demand_estimate, remainingDomestic)
+        else:
+            remainingDomestic = surface_water_demand_estimate * vos.getValDivZero(remainingDomestic, remainingIndustry + remainingDomestic)
+        remainingIndustry = pcr.max(0.0, surface_water_demand_estimate - remainingDomestic)
+        
+
+
+        
         #
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
@@ -1877,7 +1890,7 @@ class LandCover(object):
                (1.0 - swAbstractionFractionDict['irrigation']) * totalIrrigationLivestockDemand -\
                (1.0 - swAbstractionFraction_industrial_domestic) * (self.totalPotentialMaximumGrossDemand - totalIrrigationLivestockDemand))
         #
-        # total demand (unit: m/day) that should be allocated from surface water - limited by the remaining demand (and corrected/limited by swAbstractionFractionDict)
+        # total demand (unit: m/day) that should be allocated from surface water - limited by the remaining demand (and estimated with swAbstractionFractionDict)
         surface_water_demand_estimate         = pcr.min(self.totalGrossDemandAfterDesalination, surface_water_demand_estimate)
         
         UNTIL THIS PART
