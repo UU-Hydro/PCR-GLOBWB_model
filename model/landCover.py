@@ -1847,6 +1847,7 @@ class LandCover(object):
         # Abstraction and Allocation of SURFACE WATER
         ##############################################################################################################################
         # calculate the estimate of surface water demand (considering by swAbstractionFractionDict)
+        #
         # - for industrial and domestic
         swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
                                                             swAbstractionFractionDict['estimate'])
@@ -1856,6 +1857,7 @@ class LandCover(object):
         #~ pcr.aguila(swAbstractionFraction_industrial_domestic)
         #~ raw_input("Press Enter to continue...")
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustryDomestic
+        #
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
         # - surface water source as priority if groundwater irrigation fraction is relatively low  
@@ -1864,25 +1866,31 @@ class LandCover(object):
            remainingIrrigationLivestock, surface_water_irrigation_demand_estimate)
         # - update estimate of surface water demand withdrawal (unit: m/day)
         surface_water_demand_estimate += surface_water_irrigation_demand_estimate
+        #
         # - prioritize surface water use in non productive aquifers that have limited groundwater supply
         surface_water_demand_estimate = pcr.ifthenelse(groundwater.productive_aquifer, surface_water_demand_estimate,\
                                                        pcr.max(0.0, remainingIrrigationLivestock - \
                                                        pcr.min(groundwater.avgAllocationShort, groundwater.avgAllocation)))
+        #
         # - maximize/optimize surface water use in areas with the overestimation of groundwater supply 
         surface_water_demand_estimate += pcr.max(0.0, pcr.max(groundwater.avgAllocationShort, groundwater.avgAllocation) -\
                (1.0 - swAbstractionFractionDict['irrigation']) * totalIrrigationLivestockDemand -\
                (1.0 - swAbstractionFraction_industrial_domestic) * (self.totalPotentialMaximumGrossDemand - totalIrrigationLivestockDemand))
         #
-        # total demand (unit: m/day) that should be allocated from surface water 
-        # (corrected/limited by swAbstractionFractionDict and limited by the remaining demand)
+        # total demand (unit: m/day) that should be allocated from surface water - limited by the remaining demand (and corrected/limited by swAbstractionFractionDict)
         surface_water_demand_estimate         = pcr.min(self.totalGrossDemandAfterDesalination, surface_water_demand_estimate)
+        
+        UNTIL THIS PART
+        
         correctedRemainingIrrigationLivestock = pcr.min(surface_water_demand_estimate, remainingIrrigationLivestock)
         correctedRemainingIndustryDomestic    = pcr.min(remainingIndustryDomestic,\
                                                 pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock))
         correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustryDomestic
+        # - total 
         surface_water_demand = correctedSurfaceWaterDemandEstimate
+        # PS: After this line, do not use "surface_water_demand_estimate"
         #
-        #~ # if surface water abstraction as the first priority
+        #~ # if surface water abstraction as the first priority - STILL NOT USED
         #~ if self.surfaceWaterPriority: surface_water_demand = self.totalGrossDemandAfterDesalination
         #
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
