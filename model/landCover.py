@@ -2583,7 +2583,7 @@ class LandCover(object):
                 remainingDomestic   = remaining_surface_water_demand * vos.getValDivZero(remainingDomestic , remainingTotalDemand)
                 remainingIndustry   = remaining_surface_water_demand * vos.getValDivZero(remainingIndustry , remainingTotalDemand)
                 remainingLivestock  = remaining_surface_water_demand * vos.getValDivZero(remainingLivestock, remainingTotalDemand)
-                remainingIrrigation = pcr.max(0.0, remaining_surface_water_demand - remainingDomestic -\ 
+                remainingIrrigation = pcr.max(0.0, remaining_surface_water_demand - remainingDomestic -\
                                                                                     remainingIndustry -\
                                                                                     remainingLivestock)
 
