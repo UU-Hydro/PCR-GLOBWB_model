@@ -1861,11 +1861,15 @@ class LandCover(object):
         # -- domestic and industrial surface water demands - limited by swAbstractionFractionDict
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * (remainingIndustry + remainingDomestic)
         
+        UNTIL THIS
+        
         if self.prioritizeDomesticThenIndutrialThenLivestock:
             remainingDomestic = pcr.min(surface_water_demand_estimate, remainingDomestic)
         else:
             remainingDomestic = surface_water_demand_estimate * vos.getValDivZero(remainingDomestic, remainingIndustry + remainingDomestic)
         remainingIndustry = pcr.max(0.0, surface_water_demand_estimate - remainingDomestic)
+        
+        
         
 
 
