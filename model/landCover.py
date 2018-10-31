@@ -1723,7 +1723,6 @@ class LandCover(object):
         self.totalPotentialMaximumGrossDemand      = self.irrGrossDemand + self.totalPotentialMaximumDomesticDemand +\
                                                                            self.totalPotentialMaximumIndustryDemand +\
                                                                            self.totalPotentialMaximumLivestockDemand
-      
         
         # Abstraction and Allocation of DESALINATED WATER
         # ##################################################################################################################
@@ -2311,7 +2310,7 @@ class LandCover(object):
                                                              correctedRemainingIrrigationLivestock) 
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
-             pcr.max(0.0, totalIrrigationLivestockDemand) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
+             pcr.max(0.0, (self.totalPotentialMaximumIrrGrossDemand + self.totalPotentialMaximumLivestockDemand)) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
             
             # ignore fossil groundwater abstraction in irrigation areas dominated by swAbstractionFractionDict['irrigation']
             correctedRemainingIrrigationLivestock = pcr.ifthenelse(\
