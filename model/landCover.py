@@ -2669,8 +2669,7 @@ class LandCover(object):
             satisfiedLivestockDemand  += satisfiedLivestockDemandFromExtraSurfaceWater
             satisfiedDomesticDemand   += satisfiedDomesticDemandFromExtraSurfaceWater
             satisfiedIndustryDemand   += satisfiedIndustryDemandFromExtraSurfaceWater
-            satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromExtraSurfaceWater
-    
+
         self.actSurfaceWaterAbstract   = self.actSurfaceWaterAbstract   + extraSurfaceWaterAbstraction
         self.allocSurfaceWaterAbstract = self.allocSurfaceWaterAbstract + extraSurfacWaterAllocation
         
