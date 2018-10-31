@@ -771,6 +771,62 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# accuNetGroundwaterDischarge
+pcrglobwb_variable_name = 'accuNetGroundwaterDischarge'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_net_groundwater_discharge'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'accumulated_net_groundwater_discharge_along_the_drainage_network'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "Positive values indicating fluxes leaving groundwater bodies. Including (negative) surface water infiltration to groundwater."
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# accuSurfaceWaterAbstraction
+pcrglobwb_variable_name = 'accuSurfaceWaterAbstraction'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_surface_water_abstraction'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# accuWaterBodyActEvaporation
+pcrglobwb_variable_name = 'accuWaterBodyActEvaporation'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_water_body_actual_evaporation'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# accuNonIrrReturnFlow                  
+pcrglobwb_variable_name = 'accuNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_return_flow_from_non_irrigation_demand_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# accuStorGroundwaterTotalVolume
+pcrglobwb_variable_name = 'accuStorGroundwaterTotalVolume'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_total_groundwater_storage_volume'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Total groundwater storage volume.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+
 # discharge
 pcrglobwb_variable_name = 'discharge'
 netcdf_short_name[pcrglobwb_variable_name] = 'discharge'
@@ -1024,6 +1080,16 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# netGroundwaterDischarge
+pcrglobwb_variable_name = 'netGroundwaterDischarge'
+netcdf_short_name[pcrglobwb_variable_name] = 'net_groundwater_discharge'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = 'net_groundwater_discharge'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "Positive values indicating fluxes leaving groundwater bodies. Including (negative) surface water infiltration to groundwater."
+latex_symbol[pcrglobwb_variable_name]      = None
 
 # irrigationTranspiration
 pcrglobwb_variable_name = 'irrigationTranspiration'
