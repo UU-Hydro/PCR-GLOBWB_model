@@ -697,10 +697,6 @@ class Reporting(object):
         if "accuSurfaceWaterAbstraction" in self.variables_for_report:
             self.accuSurfaceWaterAbstraction = pcr.catchmenttotal(self.surfaceWaterAbstraction * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
         
-        # accumulated total groundwater storage along the drainage network (m3):
-        if "accuStorGroundwaterTotalVolume" in self.variables_for_report: 
-            self.accuStorGroundwaterTotalVolume = pcr.catchmenttotal(self.storGroundwaterTotal * self._model.routing.cellArea, self._model.routing.lddMap)
-        
         # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
         self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
         
@@ -729,6 +725,10 @@ class Reporting(object):
         self.storGroundwaterTotal  = self._model.groundwater.storGroundwater + \
                                      self._model.groundwater.storGroundwaterFossil
         
+        # accumulated total groundwater storage along the drainage network (m3):
+        if "accuStorGroundwaterTotalVolume" in self.variables_for_report: 
+            self.accuStorGroundwaterTotalVolume = pcr.catchmenttotal(self.storGroundwaterTotal * self._model.routing.cellArea, self._model.routing.lddMap)
+
         # total active storage thickness (m) for the entire water column - not including fossil groundwater
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
