@@ -1725,11 +1725,10 @@ class LandCover(object):
                                                                            self.totalPotentialMaximumLivestockDemand
 
         # non irrigation water demand, including the livestock (not limited by available water)
-        self.nonIrrGrossDemand = nonIrrGrossDemandDict['potential_demand']['domestic'] +\
+        self.totalPotentialMaximumNonIrrGrossDemand = \
+                                 nonIrrGrossDemandDict['potential_demand']['domestic'] +\
                                  nonIrrGrossDemandDict['potential_demand']['industry'] +\
                                  nonIrrGrossDemandDict['potential_demand']['livestock']
-        self.totalPotentialMaximumNonIrrGrossDemand = self.nonIrrGrossDemand
-                                                      
                                                       
         
         # Abstraction and Allocation of DESALINATED WATER
