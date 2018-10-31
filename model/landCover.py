@@ -1767,13 +1767,13 @@ class LandCover(object):
             logger.debug("Desalinated water is prioritized to satisfy sectoral water demands with the following order: domestic, indutry, livestock and agriculture/irrigation.")
             
             # - 1st priority: domestic 
-            satisfiedDomesticDemand   = pcr.min(self.totalPotentialMaximumDomestic, \
+            satisfiedDomesticDemand   = pcr.min(self.totalPotentialMaximumDomesticDemand, \
                                                 self.desalinationAllocation)
             # - 2nd priority: industry 
-            satisfiedIndustryDemand   = pcr.min(self.totalPotentialMaximumIndustry, \
+            satisfiedIndustryDemand   = pcr.min(self.totalPotentialMaximumIndustryDemand, \
                                                 pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand))
             # - 3rd priority: livestock 
-            satisfiedLivestockDemand  = pcr.min(self.totalPotentialMaximumLivestock, \
+            satisfiedLivestockDemand  = pcr.min(self.totalPotentialMaximumLivestockDemand, \
                                                 pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand))
             
         else:
@@ -1781,9 +1781,9 @@ class LandCover(object):
             logger.debug("Desalinated water is distributed proportionally based on sectoral water demand values.")
             
             # - domestic, industry and livestock
-            satisfiedDomesticDemand   = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumDomestic,  self.totalPotentialMaximumGrossDemand)
-            satisfiedIndustryDemand   = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumIndustry,  self.totalPotentialMaximumGrossDemand)
-            satisfiedLivestockDemand  = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumLivestock, self.totalPotentialMaximumGrossDemand)
+            satisfiedDomesticDemand   = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumDomesticDemand,  self.totalPotentialMaximumGrossDemand)
+            satisfiedIndustryDemand   = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumIndustryDemand,  self.totalPotentialMaximumGrossDemand)
+            satisfiedLivestockDemand  = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumLivestockDemand, self.totalPotentialMaximumGrossDemand)
         
         # - aggriculture/irrigation (excluding livestock)
         satisfiedIrrigationDemand = pcr.min(self.totalPotentialMaximumIrrigation, \
