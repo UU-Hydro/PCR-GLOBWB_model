@@ -2314,8 +2314,13 @@ class LandCover(object):
 
             # constrain the irrigation groundwater demand with groundwater source fraction
             # - this is to constrain that groundwater abstraction should (more less) follow (1 - swAbstractionFractionDict['irrigation']) 
-            correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
-                                                             correctedRemainingIrrigationLivestock) 
+            #~ # -- alternative 1: OLD method:
+            #~ correctedRemainingIrrigationLivestock = pcr.min((1.0 - swAbstractionFractionDict['irrigation']) * remainingIrrigationLivestock,\
+                                                             #~ correctedRemainingIrrigationLivestock) 
+            #~ correctedRemainingIrrigationLivestock = pcr.max(0.0,\
+             #~ pcr.min(correctedRemainingIrrigationLivestock,\
+             #~ pcr.max(0.0, (self.totalPotentialMaximumIrrGrossDemand + self.totalPotentialMaximumLivestockDemand)) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
+            # -- alternative 2: NEW method, simplification as follows (only the second command of the alternative 1 is used)
             correctedRemainingIrrigationLivestock = pcr.max(0.0,\
              pcr.min(correctedRemainingIrrigationLivestock,\
              pcr.max(0.0, (self.totalPotentialMaximumIrrGrossDemand + self.totalPotentialMaximumLivestockDemand)) * (1.0 - swAbstractionFractionDict['irrigation']) - satisfiedIrrigationDemandFromNonFossilGroundwater))
@@ -2722,9 +2727,9 @@ class LandCover(object):
         self.nonIrrReturnFlow = nonIrrGrossDemandDict['return_flow_fraction']['domestic'] * self.domesticWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['industry'] * self.industryWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['livestock']* self.livestockWaterWithdrawal
-        # - ignore very small return flow (less than 0.1 mm)
-        self.nonIrrReturnFlow = pcr.rounddown(self.nonIrrReturnFlow * 10000.)/10000.
-        self.nonIrrReturnFlow = pcr.min(self.nonIrrReturnFlow, self.nonIrrGrossDemand)                        
+        #~ # - ignore very small return flow (less than 0.1 mm)
+        #~ self.nonIrrReturnFlow = pcr.rounddown(self.nonIrrReturnFlow * 10000.)/10000.
+        #~ self.nonIrrReturnFlow = pcr.min(self.nonIrrReturnFlow, self.nonIrrGrossDemand)                        
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.irrGrossDemand,\
