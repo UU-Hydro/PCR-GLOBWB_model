@@ -1817,8 +1817,8 @@ class LandCover(object):
         correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
         surface_water_demand = correctedSurfaceWaterDemandEstimate
         #
-        # if surface water abstraction as the first priority
-        if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
+        #~ # if surface water abstraction as the first priority
+        #~ if self.surfaceWaterPriority: surface_water_demand = self.totalGrossDemandAfterDesalination
         #
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
         #  
