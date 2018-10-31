@@ -1786,7 +1786,7 @@ class LandCover(object):
             satisfiedLivestockDemand  = self.desalinationAllocation * vos.getValDivZero(self.totalPotentialMaximumLivestockDemand, self.totalPotentialMaximumGrossDemand)
         
         # - aggriculture/irrigation (excluding livestock)
-        satisfiedIrrigationDemand = pcr.min(self.totalPotentialMaximumIrrigation, \
+        satisfiedIrrigationDemand = pcr.min(self.totalPotentialMaximumIrrGrossDemand, \
                                             pcr.max(0.0, self.desalinationAllocation - satisfiedDomesticDemand - satisfiedIndustryDemand - satisfiedLivestockDemand))
 
         if self.debugWaterBalance:
