@@ -2309,13 +2309,6 @@ class LandCover(object):
                                                                                                                  remainingIndustrialDomestic)             
 
         
-        # update satistfied demand fossil groundwater allocation
-        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromFossilGroundwater
-        satisfiedLivestockDemand  += satisfiedLivestockDemandFromFossilGroundwater
-        satisfiedDomesticDemand   += satisfiedDomesticDemandFromFossilGroundwater
-        satisfiedIndustryDemand   += satisfiedIndustryDemandFromFossilGroundwater
-
-
         if self.debugWaterBalance:
             vos.waterBalanceCheck([satisfiedDomesticDemand, \
                                    satisfiedIndustryDemand, \
