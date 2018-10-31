@@ -2190,7 +2190,6 @@ class LandCover(object):
         satisfiedLivestockDemand  += satisfiedLivestockDemandFromNonFossilGroundwater
         satisfiedDomesticDemand   += satisfiedDomesticDemandFromNonFossilGroundwater
         satisfiedIndustryDemand   += satisfiedIndustryDemandFromNonFossilGroundwater
-        satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromNonFossilGroundwater
 
 
         if self.debugWaterBalance:
@@ -2513,7 +2512,6 @@ class LandCover(object):
         satisfiedLivestockDemand  += satisfiedLivestockDemandFromFossilGroundwater
         satisfiedDomesticDemand   += satisfiedDomesticDemandFromFossilGroundwater
         satisfiedIndustryDemand   += satisfiedIndustryDemandFromFossilGroundwater
-        satisfiedNonIrrDemand     += satisfiedNonIrrDemandFromFossilGroundwater
 
 
         if self.debugWaterBalance:
