@@ -2183,7 +2183,7 @@ class LandCover(object):
         satisfiedIrrigationDemandFromNonFossilGroundwater = pcr.min(remainingIrrigation, \
                                                                     pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedDomesticDemandFromNonFossilGroundwater -\
                                                                                                                   satisfiedIndustryDemandFromNonFossilGroundwater -\
-                                                                                                                  satisfiedLivestockDemandFromNonFossilGroundwater)))
+                                                                                                                  satisfiedLivestockDemandFromNonFossilGroundwater))
 
         # update satistfied demand after non fossil groundwater allocation
         satisfiedIrrigationDemand += satisfiedIrrigationDemandFromNonFossilGroundwater
