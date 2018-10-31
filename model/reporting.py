@@ -697,10 +697,6 @@ class Reporting(object):
         if "accuSurfaceWaterAbstraction" in self.variables_for_report:
             self.accuSurfaceWaterAbstraction = pcr.catchmenttotal(self.surfaceWaterAbstraction * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
         
-        # accumulated water body actual evaporation along the drainage network (m3/s)
-        if "accuWaterBodyActEvaporation" in self.variables_for_report: 
-            self.accuWaterBodyActEvaporation = pcr.catchmenttotal(self.waterBodyActEvaporation * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-        
         # accumulated total groundwater storage along the drainage network (m3):
         if "accuStorGroundwaterTotalVolume" in self.variables_for_report: 
             self.accuStorGroundwaterTotalVolume = pcr.catchmenttotal(self.storGroundwaterTotal * self._model.routing.cellArea, self._model.routing.lddMap)
@@ -718,6 +714,10 @@ class Reporting(object):
         self.fractionWaterBodyEvaporation = vos.getValDivZero(self.waterBodyActEvaporation,\
                                                               self.waterBodyPotEvaporation,\
                                                               vos.smallNumber)
+
+        # accumulated water body actual evaporation along the drainage network (m3/s)
+        if "accuWaterBodyActEvaporation" in self.variables_for_report: 
+            self.accuWaterBodyActEvaporation = pcr.catchmenttotal(self.waterBodyActEvaporation * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
         # land surface evaporation (m)
         self.actualET = self._model.landSurface.actualET
