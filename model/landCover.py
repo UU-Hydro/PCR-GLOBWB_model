@@ -1860,7 +1860,7 @@ class LandCover(object):
             estimatedRemainingLivestock = pcr.min(surface_water_irrigation_and_livestock_demand_estimate, surface_water_fraction_for_irrigation_and_livestock * remainingLivestock)
         else:
             estimatedRemainingLivestock = surface_water_irrigation_and_livestock_demand_estimate * vos.getValDivZero(remainingLivestock, remainingIrrigationLivestock)
-        estimatedRemainingIrrigation = pcr.max(0.0, surface_water_demand_estimate - estimatedRemainingLivestock)
+        estimatedRemainingIrrigation = pcr.max(0.0, surface_water_irrigation_and_livestock_demand_estimate - estimatedRemainingLivestock)
         #
         # --- update estimate of surface water demand withdrawal (unit: m/day)
         surface_water_demand_estimate += surface_water_irrigation_and_livestock_demand_estimate
