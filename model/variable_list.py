@@ -826,7 +826,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Total groundwater storage volume.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-
 # discharge
 pcrglobwb_variable_name = 'discharge'
 netcdf_short_name[pcrglobwb_variable_name] = 'discharge'

@@ -697,10 +697,6 @@ class Reporting(object):
         if "accuSurfaceWaterAbstraction" in self.variables_for_report:
             self.accuSurfaceWaterAbstraction = pcr.catchmenttotal(self.surfaceWaterAbstraction * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
         
-        # accumulated non irrigation return flow along the drainage network (m3/s)
-        if "accuNonIrrReturnFlow" in self.variables_for_report:
-            self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
         # accumulated water body actual evaporation along the drainage network (m3/s)
         if "accuWaterBodyActEvaporation" in self.variables_for_report: 
             self.accuWaterBodyActEvaporation = pcr.catchmenttotal(self.waterBodyActEvaporation * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
@@ -832,6 +828,10 @@ class Reporting(object):
         self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
         self.nonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlow
         
+        # accumulated non irrigation return flow along the drainage network (m3/s)
+        if "accuNonIrrReturnFlow" in self.variables_for_report:
+            self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
+
         # total potential water demand - not considering water availability
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
