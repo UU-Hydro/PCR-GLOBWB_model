@@ -2168,7 +2168,7 @@ class LandCover(object):
         else:
 
             # - for industrial and domestic demand (excluding livestock)
-            satisfiedIndustryDomesticDemandFromNonFossilGroundwater    = self.allocNonFossilGroundwater * vos.getValDivZero(remainingIndustryDomestic, groundwater_demand_estimate))
+            satisfiedIndustryDomesticDemandFromNonFossilGroundwater = self.allocNonFossilGroundwater * vos.getValDivZero(remainingIndustryDomestic, groundwater_demand_estimate)
             # - for domestic                                                                 
             satisfiedDomesticDemandFromNonFossilGroundwater  = satisfiedIndustryDomesticDemandFromNonFossilGroundwater * vos.getValDivZero(remainingDomestic, remainingIndustryDomestic)
             # - for industry
