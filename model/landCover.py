@@ -1854,11 +1854,11 @@ class LandCover(object):
         # --- surface water source as priority if groundwater irrigation fraction is relatively low  
         surface_water_fraction_for_irrigation_and_livestock = \
            pcr.ifthenelse(swAbstractionFractionDict['irrigation'] >= swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'],\
-           swAbstractionFractionDict['treshold_to_maximize_irrigation_surface_water'], swAbstractionFractionDict['irrigation'])
+           1.0, swAbstractionFractionDict['irrigation'])
         surface_water_irrigation_and_livestock_demand_estimate = surface_water_fraction_for_irrigation_and_livestock * remainingIrrigationLivestock
         #
         if self.prioritizeDomesticThenIndutrialThenLivestock:
-            estimatedRemainingLivestock = pcr.min(surface_water_irrigation_and_livestock_demand_estimate, surface_water_fraction_for_irrigation_and_livestock * remainingIndustry)
+            estimatedRemainingLivestock = pcr.min(surface_water_irrigation_and_livestock_demand_estimate, surface_water_fraction_for_irrigation_and_livestock * remainingLivestock)
         else:
             estimatedRemainingLivestock = surface_water_irrigation_and_livestock_demand_estimate * vos.getValDivZero(remainingLivestock, remainingIrrigationLivestock)
         estimatedRemainingIrrigation = pcr.max(0.0, surface_water_demand_estimate - estimatedRemainingLivestock)
