@@ -1470,6 +1470,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "Note that the calculated values are until a certain aquifer/layer bottom elevation. Please check the assumption. Values can be negative."
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# accuGroundwaterVolumeEstimate
+pcrglobwb_variable_name = 'accuGroundwaterVolumeEstimate'
+netcdf_short_name[pcrglobwb_variable_name] = 'accumulated_total_groundwater_storage_volume'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'accumulated_total_groundwater_storage_volume_based_on_modflow'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Total groundwater storage volume (based on MODFLOW).'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # groundwaterThicknessEstimate
 pcrglobwb_variable_name = 'groundwaterThicknessEstimate'
 netcdf_short_name[pcrglobwb_variable_name] = 'groundwater_thickness_estimate'
