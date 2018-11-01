@@ -2535,7 +2535,7 @@ class LandCover(object):
             #~ # - alternative 1: using PCR-GLOBWB allocations scheme - Note: This seems provide too low surface water abstraction. 
             #~ remaining_surface_water_demand = pcr.min(remainingTotalDemand,\
                                                      #~ swAbstractionFractionDict['estimate'] * self.totalPotentialMaximumGrossDemand)                                           
-            # - alternative 2: using PCR-GLOBWB allocations scheme:
+            # - alternative 2: try to fulfill the remaining demand
             remaining_surface_water_demand = pcr.min(remainingTotalDemand, self.totalPotentialMaximumGrossDemand)
             # - remaining water demand per sector - limited by swAbstractionFractionDict['estimate'] 
             if self.prioritizeDomesticThenIndutrialThenLivestock:
