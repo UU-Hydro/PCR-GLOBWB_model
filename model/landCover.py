@@ -239,7 +239,7 @@ class LandCover(object):
             iniItems.landSurfaceOptions['prioritizeDomesticThenIndutrialThenLivestock'] = "False"
         self.prioritizeDomesticThenIndutrialThenLivestock = iniItems.landSurfaceOptions['prioritizeDomesticThenIndutrialThenLivestock'] == "True"
         if self.prioritizeDomesticThenIndutrialThenLivestock:
-            msg = "Priority order in satisfying sectoral water demands: 1) Domestic; 2) Industry; 3) Livestock; 4) Aggriculture/Irrigation"
+            msg = "Priority order in satisfying sectoral water demands: 1) Domestic; 2) Industry; 3) Livestock; 4) Agriculture/Irrigation"
             logger.info(msg)
         
         self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity = False
