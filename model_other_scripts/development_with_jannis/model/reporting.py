@@ -963,7 +963,7 @@ class Reporting(object):
                                                            self._model.groundwater.gw_modflow.storage_coefficient_1 * \
                                                           (self._model.groundwater.groundwaterHeadLayer1 - self._model.groundwater.gw_modflow.bottom_layer_1))
             # - from the uppermost layer
-            if self._model.modflow.number_of_layers == 2:\
+            if self._model.groundwater.gw_modflow.number_of_layers == 2:\
                self.groundwaterThicknessEstimate += \
                                                 pcr.ifthen(self._model.routing.landmask, \
                                                            self._model.groundwater.gw_modflow.storage_coefficient_2 * \
