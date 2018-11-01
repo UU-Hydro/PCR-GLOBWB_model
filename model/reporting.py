@@ -834,7 +834,8 @@ class Reporting(object):
 
         # total potential water demand - not considering water availability
         self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
-        
+        # - irrigation (excluding livestock) - not considering water availability 
+        self.totalPotentialMaximumIrrGrossDemand = self._model.landSurface.totalPotentialMaximumIrrGrossDemand
 
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea

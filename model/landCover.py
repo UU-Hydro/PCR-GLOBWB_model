@@ -1953,8 +1953,6 @@ class LandCover(object):
             satisfiedLivestockDemand  += satisfiedLivestockDemandFromSurfaceWater
             satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
             
-            satisfiedNonIrrDemand = satisfiedDomesticDemandFromSurfaceWater + satisfiedIndustryDemandFromSurfaceWater + satisfiedLivestockDemandFromSurfaceWater
-
         else:
 
             logger.debug("Surface water is distributed proportionally based on sectoral water demand values.")
@@ -1968,7 +1966,6 @@ class LandCover(object):
             satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
             # - for non irrigation water demand: livestock, domestic and industry 
             satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
-            satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
             # - for livestock                                                                      
             satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
                                                      satisfiedIrrigationDemandFromSurfaceWater)
@@ -2183,8 +2180,6 @@ class LandCover(object):
             satisfiedDomesticDemand   += satisfiedDomesticDemandFromNonFossilGroundwater
             satisfiedIndustryDemand   += satisfiedIndustryDemandFromNonFossilGroundwater
             
-            satisfiedNonIrrDemand = satisfiedDomesticDemand + satisfiedIndustryDemand + satisfiedLivestockDemand
-
         else:
 
             # - for irrigation and livestock water demand 
@@ -2196,7 +2191,6 @@ class LandCover(object):
             satisfiedIrrigationDemand += satisfiedIrrigationDemandFromNonFossilGroundwater
              # - for non irrigation water demand: livestock, domestic and industry 
             satisfiedNonIrrDemandFromNonFossilGroundwater = pcr.max(0.0, self.allocNonFossilGroundwater - satisfiedIrrigationLivestockDemandFromNonFossilGroundwater)
-            satisfiedNonIrrDemand += satisfiedNonIrrDemandFromNonFossilGroundwater
             # - for livestock                                                                      
             satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromNonFossilGroundwater - \
                                                      satisfiedIrrigationDemandFromNonFossilGroundwater)
@@ -2490,7 +2484,6 @@ class LandCover(object):
                 satisfiedIrrigationDemand += satisfiedIrrigationDemandFromFossilGroundwater
                 # - for non irrigation water demand: livestock, domestic and industry 
                 satisfiedNonIrrDemandFromFossilGroundwater = pcr.max(0.0, self.fossilGroundwaterAlloc - satisfiedIrrigationDemandFromFossilGroundwater)
-                satisfiedNonIrrDemand += satisfiedNonIrrDemandFromFossilGroundwater
                 # - for livestock                                                                      
                 satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromFossilGroundwater - \
                                                          satisfiedIrrigationDemandFromFossilGroundwater)
