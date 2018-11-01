@@ -248,11 +248,11 @@ class LandCover(object):
             logger.info('Groundwater pumping capacity should not limit groundwater abstraction to meet domestic, industrial and livestock water demand.')
             self.doNotLimitGroundwaterDomesticIndustrialLivestockDemandWithPumpingCapacity = True
 
-        self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme = False
-        if 'optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme' in self.iniItems.landSurfaceOptions.keys() and\
-            self.iniItems.landSurfaceOptions['optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme'] == "True":
-            logger.info('Surface water use will be optimized based on ratio of baseflow and discharge allocation scheme.')
-            self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme = True
+        self.optimizeSurfaceWaterSource = False
+        if 'optimizeSurfaceWaterSource' in self.iniItems.landSurfaceOptions.keys() and\
+            self.iniItems.landSurfaceOptions['optimizeSurfaceWaterSource'] == "True":
+            logger.info('Surface water source will be optimized/maximized to satisfy water demands.')
+            self.optimizeSurfaceWaterSource = True
         
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
@@ -2513,7 +2513,7 @@ class LandCover(object):
         # Use the default PCR-GLOBWB allocation scheme to use surface water for fulfiling the remaining demand
         extraSurfaceWaterAbstraction = 0.0
         extraSurfacWaterAllocation   = 0.0
-        if self.optimizeSurfaceWaterBasedOnRatioOfBaseflowDischargeAllocationScheme: 
+        if self.optimizeSurfaceWaterSource: 
 
             # remaining water demand per sector 
             # - for domestic 
@@ -2532,8 +2532,11 @@ class LandCover(object):
             ##############################################################################################################################
             
             # calculate the remaining surface water demand (m) - limited by swAbstractionFractionDict['estimate'] = ratio of discharge and baseflow
-            remaining_surface_water_demand = pcr.min(remainingTotalDemand,\
-                                                     swAbstractionFractionDict['estimate'] * self.totalPotentialMaximumGrossDemand)                                           
+            #~ # - alternative 1: using PCR-GLOBWB allocations scheme - Note: This seems provide too low surface water abstraction. 
+            #~ remaining_surface_water_demand = pcr.min(remainingTotalDemand,\
+                                                     #~ swAbstractionFractionDict['estimate'] * self.totalPotentialMaximumGrossDemand)                                           
+            # - alternative 2: using PCR-GLOBWB allocations scheme:
+            remaining_surface_water_demand = pcr.min(remainingTotalDemand, self.totalPotentialMaximumGrossDemand)
             # - remaining water demand per sector - limited by swAbstractionFractionDict['estimate'] 
             if self.prioritizeDomesticThenIndutrialThenLivestock:
                 
