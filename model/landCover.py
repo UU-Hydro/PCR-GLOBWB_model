@@ -1860,9 +1860,9 @@ class LandCover(object):
             surplus = pcr.max(0.0, surface_water_demand_estimate - correctedRemainingIndustrialDomestic - correctedRemainingIrrigationLivestock)
             # distribute surplus to industrial and domestic demands
             correctedRemainingIndustrialDomestic  = pcr.min(remainingIndustrialDomestic, correctedRemainingIndustrialDomestic  + surplus)
-            correctedRemainingDomestic = pcr.min(remainingDomestic
+            correctedRemainingDomestic = pcr.min(remainingDomestic,
                                                  correctedRemainingIndustrialDomestic * vos.getValDivZero(remainingDomestic, remainingIndustrialDomestic))
-            correctedRemainingIndustry = pcr.min(remainingIndustry
+            correctedRemainingIndustry = pcr.min(remainingIndustry,
                                                  pcr.max(0.0, correctedRemainingIndustrialDomestic - correctedRemainingDomestic))
             correctedRemainingIndustrialDomestic = correctedRemainingDomestic +\
                                                    correctedRemainingIndustry                                     
@@ -1870,9 +1870,9 @@ class LandCover(object):
             surplus = pcr.max(0.0, surface_water_demand_estimate - correctedRemainingIndustrialDomestic - correctedRemainingIrrigationLivestock)
             # distribute surplus to livestock and irrigation demands
             correctedRemainingIrrigationLivestock = pcr.min(remainingIrrigationLivestock, correctedRemainingIrrigationLivestock + surplus)
-            correctedRemainingLivestock  = pcr.min(remainingLivestock
+            correctedRemainingLivestock  = pcr.min(remainingLivestock,
                                                    correctedRemainingIrrigationLivestock * vos.getValDivZero(remainingLivestock, remainingIrrigationLivestock))
-            correctedRemainingIrrigation = pcr.min(remainingIrrigation
+            correctedRemainingIrrigation = pcr.min(remainingIrrigation,
                                                    pcr.max(0.0, correctedRemainingIrrigationLivestock - correctedRemainingLivestock))
             correctedRemainingIrrigationLivestock = correctedRemainingIrrigation +\
                                                     correctedRemainingLivestock                                     
