@@ -2562,13 +2562,13 @@ class LandCover(object):
             remainingTotalDemand = remainingDomestic + remainingIndustry + remainingLivestock +\
                                    remainingIrrigation
 
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([remainingTotalDemand],\
-                                  [remaining_surface_water_demand],\
-                                  [pcr.scalar(0.0)],\
-                                  [pcr.scalar(0.0)] ,\
-                                  'partitioning remaining surface water demand', True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
+            if self.debugWaterBalance:
+                vos.waterBalanceCheck([remainingTotalDemand],\
+                                      [remaining_surface_water_demand],\
+                                      [pcr.scalar(0.0)],\
+                                      [pcr.scalar(0.0)] ,\
+                                      'partitioning remaining surface water demand', True,\
+                                       currTimeStep.fulldate,threshold=1e-4)
 
             # calculate remaining available surface water (m3)
             remaining_available_surface_water_volume = pcr.max(0.0, routing.readAvlChannelStorage - volActSurfaceWaterAbstract * routing.cellArea)
