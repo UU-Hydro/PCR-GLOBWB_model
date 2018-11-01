@@ -954,6 +954,27 @@ class Reporting(object):
         self.lake_and_reservoir_inflow = self._model.routing.WaterBodies.inflowInM3PerSec
 
 
+        # an estimate of total groundwater storage (m3) and thickness (m) 
+        # - these values can be negative
+        if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
+            # - from the lowermost layer
+            self.groundwaterThicknessEstimate = \
+                                                pcr.ifthen(self._model.routing.landmask, \
+                                                           self._model.groundwater.gw_modflow.storage_coefficient_1 * \
+                                                          (self.groundwater.groundwaterHeadLayer1 - self._model.groundwater.gw_modflow.bottom_layer_1))
+            # - from the uppermost layer
+            if self._model.modflow.number_of_layers == 2:\
+               self.groundwaterThicknessEstimate += \
+                                                pcr.ifthen(self._model.routing.landmask, \
+                                                           self._model.groundwater.gw_modflow.storage_coefficient_2 * \
+                                                          (self.groundwater.groundwaterHeadLayer1 - self._model.groundwater.gw_modflow.bottom_layer_2))
+            self.groundwaterVolumeEstimate = self.groundwaterThicknessEstimate *\
+                                             self._model.routing.cellArea 
+            
+            self.accuGroundwaterVolumeEstimate = pcr.catchmenttotal(self.groundwaterVolumeEstimate, self._model.routing.lddMap)
+            
+
+
     def report(self):
 
         # recap all variables
