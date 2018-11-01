@@ -1724,6 +1724,10 @@ class LandCover(object):
         # - non irrigation (including livestock)
         self.totalPotentialMaximumNonIrrGrossDemand = self.nonIrrGrossDemand
         
+        self.totalPotentialMaximumDomesticDemand  = nonIrrGrossDemandDict['potential_demand']['domestic'] 
+        self.totalPotentialMaximumIndustryDemand  = nonIrrGrossDemandDict['potential_demand']['industry'] 
+        self.totalPotentialMaximumLivestockDemand = nonIrrGrossDemandDict['potential_demand']['livestock']
+        
         # the following value will be reduced by available/accesible water
         self.totalPotentialGrossDemand           = self.totalPotentialMaximumGrossDemand         
 
