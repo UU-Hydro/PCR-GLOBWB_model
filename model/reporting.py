@@ -833,9 +833,9 @@ class Reporting(object):
             self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
         # total potential water demand - not considering water availability
-        self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
+        self.totalPotentialMaximumGrossDemand = pcr.ifthen(self.landmask, self._model.landSurface.totalPotentialMaximumGrossDemand)
         # - irrigation (excluding livestock) - not considering water availability 
-        self.totalPotentialMaximumIrrGrossDemand = self._model.landSurface.totalPotentialMaximumIrrGrossDemand
+        self.totalPotentialMaximumIrrGrossDemand = pcr.ifthen(self.landmask, self._model.landSurface.totalPotentialMaximumIrrGrossDemand)
 
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
