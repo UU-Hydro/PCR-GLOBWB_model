@@ -2702,9 +2702,9 @@ class LandCover(object):
         self.nonIrrReturnFlow = nonIrrGrossDemandDict['return_flow_fraction']['domestic'] * self.domesticWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['industry'] * self.industryWaterWithdrawal +\
                                 nonIrrGrossDemandDict['return_flow_fraction']['livestock']* self.livestockWaterWithdrawal
-        #~ # - ignore very small return flow (less than 0.1 mm)
-        #~ self.nonIrrReturnFlow = pcr.rounddown(self.nonIrrReturnFlow * 10000.)/10000.
-        #~ self.nonIrrReturnFlow = pcr.min(self.nonIrrReturnFlow, self.nonIrrGrossDemand)                        
+        # - ignore very small return flow (less than 0.1 mm)
+        self.nonIrrReturnFlow = pcr.rounddown(self.nonIrrReturnFlow * 10000.)/10000.
+        self.nonIrrReturnFlow = pcr.min(self.nonIrrReturnFlow, self.nonIrrGrossDemand)                        
 
         if self.debugWaterBalance:
             vos.waterBalanceCheck([self.irrGrossDemand,\
