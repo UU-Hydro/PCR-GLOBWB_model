@@ -502,6 +502,14 @@ class LandSurface(object):
         #
         #################################################################################################################################
 
+        # For DEBUGing using 20percent land cover fraction
+        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] == "True":
+            msg = 'DEBUG MODE: Set fracVegCover to 0.2 for all land cover types (Note that five land cover classes must be used in this debugging test run).'
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
         #
@@ -539,6 +547,14 @@ class LandSurface(object):
             
             consider_previous_year_land_cover_fraction = True
 
+        # For DEBUGing using 20percent land cover fraction
+        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] == "True":
+            msg = 'DEBUG MODE: Set fracVegCover to 0.2 for all land cover types (Note that five land cover classes must be used in this debugging test run).'
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
         #
@@ -570,7 +586,14 @@ class LandSurface(object):
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions                                                                                                   
             ####################################################################################################################################################################
         
-        
+        # For DEBUGing using 20percent land cover fraction
+        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] == "True":
+            msg = 'DEBUG MODE: Set fracVegCover to 0.2 for all land cover types (Note that five land cover classes must be used in this debugging test run).'
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
         for var in self.mainStates: vars(self)[var] = pcr.scalar(0.0)
