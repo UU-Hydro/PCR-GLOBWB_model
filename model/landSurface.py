@@ -1286,7 +1286,7 @@ class LandSurface(object):
 
 
         # For DEBUGing using 20percent land cover fraction for 
-        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] = 0.2
+        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] == "True":
             msg = 'DEBUG MODE: Set fracVegCover to 0.2'
             logger.warning(msg)
             for coverType in self.coverTypes:
