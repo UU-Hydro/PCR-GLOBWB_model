@@ -109,6 +109,7 @@ class LandSurface(object):
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
+        self.iniItems = iniItems
 
         # cellArea (unit: m2)
         self.cellArea = vos.readPCRmapClone(iniItems.routingOptions['cellAreaMap'], \
@@ -1284,6 +1285,14 @@ class LandSurface(object):
             ####################################################################################################################################################################
 
 
+        # For DEBUGing using 20percent land cover fraction for 
+        if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] = 0.2
+            msg = 'DEBUG MODE: Set fracVegCover to 0.2'
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].fracVegCover = pcr.scalar(0.2)                                                                                                   
+                self.landCoverObj[coverType].previousFracVegCover = pcr.scalar(0.2)                                                                                                   
+        
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
         # - done at yearly basis, at the beginning of each year
