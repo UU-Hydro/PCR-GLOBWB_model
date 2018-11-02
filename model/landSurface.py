@@ -1285,13 +1285,13 @@ class LandSurface(object):
             ####################################################################################################################################################################
 
 
-        # For DEBUGing using 20percent land cover fraction for 
+        # For DEBUGing using 20percent land cover fraction
         if "debugUsing20PercentFraction" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["debugUsing20PercentFraction"] == "True":
             msg = 'DEBUG MODE: Set fracVegCover to 0.2 for all land cover types (Note that five land cover classes must be used in this debugging test run).'
             logger.warning(msg)
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = pcr.scalar(0.2)                                                                                                   
-                self.landCoverObj[coverType].previousFracVegCover = pcr.scalar(0.2)                                                                                                   
+                self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
         
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
