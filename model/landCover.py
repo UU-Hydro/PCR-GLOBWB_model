@@ -568,7 +568,7 @@ class LandCover(object):
                    pcr.ifthen(self.landmask, rootZoneWaterStorageRange), \
                    pcr.ifthen(self.landmask, maxRootDepth), \
                    pcr.ifthen(self.landmask, adjRootFrUpp), \
-                   pcr.ifthen(self.landmask, adjRootFrLow) \
+                   pcr.ifthen(self.landmask, adjRootFrLow)
 
         if self.numberOfLayers == 3 and get_only_fracVegCover == False: 
                 
@@ -584,7 +584,7 @@ class LandCover(object):
                    pcr.ifthen(self.landmask, maxRootDepth), \
                    pcr.ifthen(self.landmask, adjRootFrUpp000005), \
                    pcr.ifthen(self.landmask, adjRootFrUpp005030), \
-                   pcr.ifthen(self.landmask, adjRootFrLow030150) \
+                   pcr.ifthen(self.landmask, adjRootFrLow030150)
 
 
     def estimate_paddy_infiltration_loss(self, iniPaddyOptions):
