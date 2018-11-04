@@ -265,11 +265,11 @@ class LandCover(object):
             self.coverFractionNC = vos.getFullPath(\
                       self.iniItemsLC['coverFractionNC'], self.inputDir)
         else:
-			msg = 'The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: ' + self.name + '\n'
-			msg = 'This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.' + '\n'
-			logger.warning(msg)
-			self.coverFractionNC = None               
-			self.interceptCapNC  = None
+            msg = 'The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: ' + self.name + '\n'
+            msg = 'This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.' + '\n'
+            logger.warning(msg)
+            self.coverFractionNC = None               
+            self.interceptCapNC  = None
 
         # for reporting: output in netCDF files:
         self.report = True
@@ -1246,7 +1246,7 @@ class LandCover(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-4)
 
-    def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
+    #~ def interceptionUpdateOriginalVersion(self,meteo,currTimeStep):
         
         # TODO: Rewrite this method as defined by Rens. 
         
@@ -1347,7 +1347,7 @@ class LandCover(object):
                                   #~ True,\
                                   #~ currTimeStep.fulldate,threshold=1e-4)
 
-        pass
+        #~ pass
 
     def snowMeltHBVSimple(self,meteo,currTimeStep):
 

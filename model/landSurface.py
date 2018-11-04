@@ -509,6 +509,16 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
                 self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+        if "debugUsingFixedFraction" in self.iniItems.landSurfaceOptions.keys():
+            msg = 'DEBUG MODE: Set fixed fracVegCovers to the pcraster maps defined in: ' + self.iniItems.landSurfaceOptions['debugUsingFixedFraction']
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                file_name = self.iniItems.landSurfaceOptions['debugUsingFixedFraction'] + "/fraction_" + str(coverType) + "_historical_1995.map" 
+                self.landCoverObj[coverType].fracVegCover = vos.readPCRmapClone(file_name, self.cloneMap, 	
+                                                                                self.tmpDir, self.inputDir)
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.cover(self.landCoverObj[coverType].fracVegCover, 0.0))
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover                 
+
 
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
@@ -554,6 +564,15 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
                 self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+        if "debugUsingFixedFraction" in self.iniItems.landSurfaceOptions.keys():
+            msg = 'DEBUG MODE: Set fixed fracVegCovers to the pcraster maps defined in: ' + self.iniItems.landSurfaceOptions['debugUsingFixedFraction']
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                file_name = self.iniItems.landSurfaceOptions['debugUsingFixedFraction'] + "/fraction_" + str(coverType) + "_historical_1995.map" 
+                self.landCoverObj[coverType].fracVegCover = vos.readPCRmapClone(file_name, self.cloneMap, 	
+                                                                                self.tmpDir, self.inputDir)
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.cover(self.landCoverObj[coverType].fracVegCover, 0.0))
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover                 
 
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
@@ -593,6 +612,15 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
                 self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+        if "debugUsingFixedFraction" in self.iniItems.landSurfaceOptions.keys():
+            msg = 'DEBUG MODE: Set fixed fracVegCovers to the pcraster maps defined in: ' + self.iniItems.landSurfaceOptions['debugUsingFixedFraction']
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                file_name = self.iniItems.landSurfaceOptions['debugUsingFixedFraction'] + "/fraction_" + str(coverType) + "_historical_1995.map" 
+                self.landCoverObj[coverType].fracVegCover = vos.readPCRmapClone(file_name, self.cloneMap, 	
+                                                                                self.tmpDir, self.inputDir)
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.cover(self.landCoverObj[coverType].fracVegCover, 0.0))
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover                 
 
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
@@ -1315,6 +1343,15 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
                 self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.scalar(0.2))                                                                                                   
+        if "debugUsingFixedFraction" in self.iniItems.landSurfaceOptions.keys():
+            msg = 'DEBUG MODE: Set fixed fracVegCovers to the pcraster maps defined in: ' + self.iniItems.landSurfaceOptions['debugUsingFixedFraction']
+            logger.warning(msg)
+            for coverType in self.coverTypes:
+                file_name = self.iniItems.landSurfaceOptions['debugUsingFixedFraction'] + "/fraction_" + str(coverType) + "_historical_1995.map" 
+                self.landCoverObj[coverType].fracVegCover = vos.readPCRmapClone(file_name, self.cloneMap, 	
+                                                                                self.tmpDir, self.inputDir)
+                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask, pcr.cover(self.landCoverObj[coverType].fracVegCover, 0.0))
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover                 
         
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
