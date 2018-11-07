@@ -1144,7 +1144,7 @@ class Routing(object):
                                     pcr.min(pcr.max(0.0,self.channelStorage),\
                                     pcr.ifthenelse(groundwater.baseflow > 0.0, \
                                     pcr.ifthenelse(total_groundwater_abstraction > groundwater.baseflow, \
-                                    groundwater.riverbedConductivity * self.dynamicFracWat * self.cellArea, \
+                                    groundwater.riverBedConductivity * self.dynamicFracWat * self.cellArea, \
                                     0.0), 0.0)))
         
         # to avoid/reduce the flip flop problem
