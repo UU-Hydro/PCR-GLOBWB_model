@@ -957,7 +957,7 @@ class Reporting(object):
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
         if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
-            if self._model.groundwater.gw_modflow.useMODFLOW:
+            if self._model.groundwater.useMODFLOW:
                 # - from the lowermost layer
                 self.groundwaterThicknessEstimate = \
                                                     pcr.ifthen(self._model.routing.landmask, \
