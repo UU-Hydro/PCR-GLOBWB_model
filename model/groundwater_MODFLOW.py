@@ -377,9 +377,10 @@ class GroundwaterModflow(object):
 
 
         # initiate somes variables/objects/classes to None
-        # - lakes and reservoir objects (they will be constant for the entrie year, only change at the beginning of the year)
-        self.WaterBodies     = None
-        # - surface water bed conductance (also only change at the beginning of the year)
+        # - lakes and reservoirs (they will be constant for the entire year, and they will change at the beginning (first day) of the year)
+        self.WaterBodies = None
+        # - surface water bed conductance and elevation (they also change at the beginning of the year only)
+        self.surface_water_bed_elevation = None
         self.bed_conductance = None
 
 
@@ -856,64 +857,75 @@ class GroundwaterModflow(object):
         self.set_storages_for_two_layer_model()
 
 
-    def get_initial_heads(self):
+    def get_initial_heads(self, initialHeadsFromSpinUp = None):
+
 		
-        if self.iniItems.steady_state_only == False and\
-           self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
+        if initialHeadsFromSpinUp != None:
+           
+           msg = "Using initial groundwater head(s) resulted from the spin-up process."
+           logger.info(msg)
+
+           for i in range(1, self.number_of_layers+1):
+               var_name = 'groundwaterHeadLayer'+str(i)
+               vars(self)[var_name] = initialHeadsFromSpinUp['groundwater'][var_name]
         
-            msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
-            logger.info(msg)
-            
-            # using pre-defined groundwater head(s) described in the ini/configuration file
-            for i in range(1, self.number_of_layers+1):
-                var_name = 'groundwaterHeadLayer'+str(i)
-                vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowTransientInputOptions[var_name+'Ini'],\
-                                                           self.cloneMap, self.tmpDir, self.inputDir)
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
-
-        else:    
-
-            msg = "Estimating initial conditions based on the steady state simulation using the input as defined in the ini/configuration file."
-            logger.info(msg)
-
-            # using the digital elevation model as the initial heads 
-            for i in range(1, self.number_of_layers+1):
-                var_name = 'groundwaterHeadLayer'+str(i)
-                vars(self)[var_name] = self.dem_average
-
-            # using initial head estimate given in the configuration file
-            if 'usingInitialHeadEstimate' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
-                self.iniItems.modflowSteadyStateInputOptions['usingInitialHeadEstimate'] == "True":
-                for i in range(1, self.number_of_layers+1):
-                    var_name = 'groundwaterHeadLayer'+str(i)
-                    vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions[var_name+'Estimate'],\
-                                                               self.cloneMap, self.tmpDir, self.inputDir)
-                    vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
-            
-            # calculate/simulate a steady state condition (until the modflow converges)
-            # get the current state(s) of groundwater head and put them in a dictionary
-            groundwaterHead = self.getState()
-            self.modflow_simulation("steady-state", groundwaterHead, None, 1, 1)
-            
-            # An extra steady state simulation using transient simulation with constant input
-            self.transient_simulation_with_constant_input()
-
-            # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
-            # 
-            # - the calculate groundwater head within the landmask region
-            for i in range(1, self.number_of_layers+1):
-                var_name = 'groundwaterHeadLayer'+str(i)
-                vars(self)[var_name] = pcr.ifthen(self.landmask, vars(self)[var_name])
-                # keep the ocean values (dem <= 0.0) - this is in order to maintain the 'behaviors' of sub marine groundwater discharge
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.ifthen(self.dem_average <= 0.0, self.dem_average))
-                # extrapolation  
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 3.*pcr.clone().cellSize()))
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 5.*pcr.clone().cellSize()))
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 7.*pcr.clone().cellSize()))
-                vars(self)[var_name] = pcr.cover(vars(self)[var_name], self.dem_average)
-                # TODO: Define the window sizes as part of the configuration file. Also consider to use the inverse distance method. 
-            
-            # TODO: Also please consider to use Deltares's trick to remove isolated cells.
+        else:
+        
+           if self.steady_state_only == False and\
+              self.iniItems.modflowTransientInputOptions['usingPredefinedInitialHead'] == "True": 
+           
+               msg = "Using pre-defined groundwater head(s) given in the ini/configuration file."
+               logger.info(msg)
+               
+               for i in range(1, self.number_of_layers+1):
+                   var_name = 'groundwaterHeadLayer'+str(i)
+                   vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowTransientInputOptions[var_name+'Ini'],\
+                                                              self.cloneMap, self.tmpDir, self.inputDir)
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
+           
+           else:    
+           
+               msg = "Estimating initial conditions based on the steady state simulation using the input as defined in the ini/configuration file."
+               logger.info(msg)
+           
+               # using the digital elevation model as the initial heads 
+               for i in range(1, self.number_of_layers+1):
+                   var_name = 'groundwaterHeadLayer'+str(i)
+                   vars(self)[var_name] = self.dem_average
+           
+               # using initial head estimate given in the configuration file
+               if 'usingInitialHeadEstimate' in self.iniItems.modflowSteadyStateInputOptions.keys() and\
+                   self.iniItems.modflowSteadyStateInputOptions['usingInitialHeadEstimate'] == "True":
+                   for i in range(1, self.number_of_layers+1):
+                       var_name = 'groundwaterHeadLayer'+str(i)
+                       vars(self)[var_name] = vos.readPCRmapClone(self.iniItems.modflowSteadyStateInputOptions[var_name+'Estimate'],\
+                                                                  self.cloneMap, self.tmpDir, self.inputDir)
+                       vars(self)[var_name] = pcr.cover(vars(self)[var_name], 0.0)                                           
+               
+               # calculate/simulate a steady state condition (until the modflow converges)
+               # get the current state(s) of groundwater head and put them in a dictionary
+               groundwaterHead = self.getState()
+               self.modflow_simulation("steady-state", groundwaterHead, None, 1, 1)
+               
+               # An extra steady state simulation using transient simulation with constant input
+               self.transient_simulation_with_constant_input()
+           
+               # extrapolating the calculated heads for areas/cells outside the landmask (to remove isolated cells) 
+               # 
+               # - the calculate groundwater head within the landmask region
+               for i in range(1, self.number_of_layers+1):
+                   var_name = 'groundwaterHeadLayer'+str(i)
+                   vars(self)[var_name] = pcr.ifthen(self.landmask, vars(self)[var_name])
+                   # keep the ocean values (dem <= 0.0) - this is in order to maintain the 'behaviors' of sub marine groundwater discharge
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.ifthen(self.dem_average <= 0.0, self.dem_average))
+                   # extrapolation  
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 3.*pcr.clone().cellSize()))
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 5.*pcr.clone().cellSize()))
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], pcr.windowaverage(vars(self)[var_name], 7.*pcr.clone().cellSize()))
+                   vars(self)[var_name] = pcr.cover(vars(self)[var_name], self.dem_average)
+                   # TODO: Define the window sizes as part of the configuration file. Also consider to use the inverse distance method. 
+               
+               # TODO: Also please consider to use Deltares's trick to remove isolated cells.
 
     def transient_simulation_with_constant_input(self):
 
