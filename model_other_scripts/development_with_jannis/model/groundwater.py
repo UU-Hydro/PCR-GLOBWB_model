@@ -191,11 +191,10 @@ class Groundwater(object):
             logger.warning(msg)
 
         # assign the reccession coefficient based on the given pcraster file
-        if 'recessionCoeff' in iniItems.groundwaterOptions.keys():
-            if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
-               msg = "The 'recessionCoeff' is be obtained from the file: " + iniItems.groundwaterOptions['recessionCoeff']
-               logger.info(msg)
-               self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
+        if 'recessionCoeff' in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['recessionCoeff'] != "None":
+            msg = "The 'recessionCoeff' is be obtained from the file: " + iniItems.groundwaterOptions['recessionCoeff']
+            logger.info(msg)
+            self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'], self.cloneMap, self.tmpDir, self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
         if isinstance(self.recessionCoeff, types.NoneType) and\
