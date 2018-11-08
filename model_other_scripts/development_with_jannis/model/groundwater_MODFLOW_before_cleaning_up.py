@@ -1071,6 +1071,50 @@ class GroundwaterModflow(object):
                     file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
                     pcr.report(groundwaterHead[var_name], file_name) 
 
+    def estimate_bottom_of_bank_storage_OLD(self):
+
+        # influence zone depth (m)  # TODO: Define this one as part of the configuration file
+        #~ influence_zone_depth = 5.0
+        influence_zone_depth    = 0.0
+        
+        # bottom_elevation = flood_plain elevation - influence zone
+        bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
+
+        #~ # reducing noise (so we will not introduce unrealistic sinks)      # TODO: Define the window size as part of the configuration/ini file
+        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 #~ pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+
+        # bottom_elevation > river bed
+        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        
+        #~ # reducing noise by comparing to its downstream value (so we will not introduce unrealistic sinks)
+        #~ bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
+                                        #~ (bottom_of_bank_storage +
+                                         #~ pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))/2.)
+
+        #~ # bottom_elevation >= 0.0 (must be higher than sea level)
+        #~ bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
+         
+        # bottom_elevation <= dem_average (this is to drain overland flow)
+        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
+        bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
+
+        # for the mountainous region, the bottom of bank storage equal to its lowest point
+        # - sub_catchment classes
+        sub_catchment_class = pcr.ifthen(self.mountainous_extent, \
+                              pcr.subcatchment(self.lddMap, pcr.nominal(pcr.uniqueid(self.mountainous_extent))))
+        # - bottom of bank storage
+        bottom_of_bank_storage = pcr.cover(pcr.areaminimum(bottom_of_bank_storage, sub_catchment_class), bottom_of_bank_storage)  
+
+        # rounding down
+        bottom_of_bank_storage = pcr.rounddown(bottom_of_bank_storage * 1000.)/1000.
+        
+
+        # TODO: We should improve this concept.
+        
+        return bottom_of_bank_storage
+
+
     def estimate_bottom_of_bank_storage(self):
 
         # 20 March 2018, Edwin simplifies the concept as follows:
@@ -1818,6 +1862,51 @@ class GroundwaterModflow(object):
         ############################################################################################################################################
 
 
+    def estimate_surface_water_bed_properties_OLD(self):
+
+        logger.info("(Re-)Estimating surface water bed elevation.")
+        
+        # - for lakes and resevoirs, estimate bed elevation from DEM only
+        #                            This is to avoid that groundwater heads fall too far below DEM
+        #                            This will also smooth groundwater heads.     
+        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
+        #
+        # TODO: Need further investigation for lake and reservoir bed elevations. 
+        
+        # 
+        surface_water_bed_elevation = self.lake_and_reservoir_fraction * surface_water_bed_elevation + self.river_fraction * self.dem_riverbed
+
+        # rounding values for surface_water_bed_elevation
+        self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
+
+        logger.info("Estimating surface water bed conductance.")
+
+        ############################################################################################################################################
+        # lake and reservoir resistance (day)
+        lake_and_reservoir_resistance = self.bed_resistance
+
+        # lake and reservoir conductance (m2/day)
+        lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * self.lake_and_reservoir_fraction * \
+                                              self.cellAreaMap
+        # river conductance (m2/day)
+        river_conductance = (1.0/self.bed_resistance) * self.river_fraction *\
+                                                        self.cellAreaMap
+        # assume all cells have minimum river width
+        # - this is to drain groundwater flood over the surface
+        minimum_width = 2.0   # Sutanudjaja et al. (2011)
+        minimum_conductance = (1.0/self.bed_resistance) * \
+                              pcr.max(minimum_width, self.bankfull_width) * self.channelLength
+        river_conductance   = pcr.max(minimum_conductance, river_conductance)
+
+        # surface water bed condutance (unit: m2/day)
+        bed_conductance = pcr.cover(lake_and_reservoir_conductance, 0.0) + pcr.cover(river_conductance, 0.0)
+        self.bed_conductance = pcr.cover(bed_conductance, 0.0)
+        ############################################################################################################################################
+
+
+
+
     def set_drain_and_river_package(self, discharge, channel_storage, currTimeStep, simulation_type, stress_period = "monthly", \
                                                                                                      estimate_river_water_level_from_discharge = True, \
                                                                                                      dynamicFracWat = None, \
@@ -1993,6 +2082,508 @@ class GroundwaterModflow(object):
 
 
 
+    def set_drain_and_river_package_also_OLD(self, discharge, channel_storage, currTimeStep, simulation_type, stress_period = "monthly", \
+                                                                                              estimate_river_water_level_from_discharge = True, \
+                                                                                              dynamicFracWat = None, \
+                                                                                              bankfullDepth = None, \
+                                                                                              floodDepth = None):
+
+        logger.info("Set the river package.")
+        
+        # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
+        # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
+        if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
+            onlyNaturalWaterBodies = self.onlyNaturalWaterBodies
+            if 'onlyNaturalWaterBodiesDuringSteadyStateSimulation' in self.iniItems.modflowSteadyStateInputOptions.keys(): 
+                onlyNaturalWaterBodies == self.iniItems.modflowSteadyStateInputOptions['onlyNaturalWaterBodiesDuringSteadyStateSimulation'] == "True"
+            self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                       self.landmask,\
+                                                       self.onlyNaturalWaterBodies)
+            self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
+                                               cellArea = self.cellAreaMap, \
+                                               ldd = self.lddMap)
+        if simulation_type == "transient":
+            if self.WaterBodies == None:
+                self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                           self.landmask,\
+                                                           self.onlyNaturalWaterBodies)
+                self.WaterBodies.getParameterFiles(currTimeStep,\
+                                                   self.cellAreaMap,\
+                                                   self.lddMap)        
+            if currTimeStep.month == 1 and stress_period == "monthly":
+                self.WaterBodies.getParameterFiles(currTimeStep,\
+                                                   self.cellAreaMap,\
+                                                   self.lddMap)        
+            if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily":
+                self.WaterBodies.getParameterFiles(currTimeStep,\
+                                                   self.cellAreaMap,\
+                                                   self.lddMap)        
+
+        # reset bed conductance (due to possibility of inclusion of new lakes/reservoirs)
+        if currTimeStep == None: self.bed_conductance = None
+        if currTimeStep.month == 1 and stress_period == "monthly": self.bed_conductance = None
+        if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily": self.bed_conductance = None
+        
+        
+        
+        if isinstance(self.bed_conductance, types.NoneType):
+
+            logger.info("Estimating surface water bed elevation.")
+        
+            #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? NOTE: This will provide unrealistic groundwater depth. Need further investigations (consider to use US). 
+            #~ additional_depth = 1500.
+            #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     #~ self.dem_riverbed - additional_depth)
+            #
+            #~ # - for lakes and resevoirs, alternative 2: estimate bed elevation from dem and bankfull depth
+            #~ surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            #~ surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+            #~ surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+            
+            # - for lakes and resevoirs, alternative 3: estimate bed elevation from DEM only
+            #                                           This is to avoid that groundwater heads fall too far below DEM
+            #                                           This will also smooth groundwater heads.     
+            surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
+            
+            # TODO: Need further investigation for lake and reservoir bed elevations. 
+            
+            # surface water bed elevation for rivers, lakes and reservoirs
+            #
+            #~ # - simple approach (NOT USED)
+            #~ surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+            #
+            # - distribued based on river and lake/reservoir fractions:
+            lake_and_reservoir_fraction = pcr.cover(self.WaterBodies.fracWat, 0.0)
+            if not isinstance(dynamicFracWat, types.NoneType):
+                river_fraction          = pcr.max(0.0, lake_and_reservoir_fraction - dynamicFracWat)
+            else:
+                river_fraction          = (self.bankfull_width * self.channelLength) / self.cellAreaMap
+            #
+            self.lake_and_reservoir_fraction = pcr.min(1.0, \
+                                               vos.getValDivZero(lake_and_reservoir_fraction, lake_and_reservoir_fraction + river_fraction, 0.0))
+            self.river_fraction              = pcr.max(0.0, \
+                                               1.0 - self.lake_and_reservoir_fraction)
+            # 
+            surface_water_bed_elevation = self.lake_and_reservoir_fraction * surface_water_bed_elevation + self.river_fraction * self.dem_riverbed
+
+
+            # rounding values for surface_water_bed_elevation
+            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
+
+
+            logger.info("Estimating surface water bed conductance.")
+
+            ############################################################################################################################################
+            # lake and reservoir resistance (day)
+            lake_and_reservoir_resistance = self.bed_resistance
+
+            #~ # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.001 m/day and thickness 0.50 m)
+            #~ lake_and_reservoir_resistance  = pcr.max(0.50 / 0.001, self.bed_resistance)
+
+            # lake and reservoir conductance (m2/day)
+            lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * self.lake_and_reservoir_fraction * \
+                                                  self.cellAreaMap
+            # river conductance (m2/day)
+            river_conductance = (1.0/self.bed_resistance) * self.river_fraction *\
+                                                            self.cellAreaMap
+            # - assume all cells have minimum river width
+            minimum_width = 2.0   # Sutanudjaja et al. (2011)
+            minimum_conductance = (1.0/self.bed_resistance) * \
+                                  pcr.max(minimum_width, self.bankfull_width) * self.channelLength
+            river_conductance   = pcr.max(minimum_conductance, river_conductance)
+
+
+            # surface water bed condutance (unit: m2/day)
+            bed_conductance = pcr.cover(lake_and_reservoir_conductance, 0.0) + pcr.cover(river_conductance, 0.0)
+            self.bed_conductance = pcr.cover(bed_conductance, 0.0)
+            ############################################################################################################################################
+            
+            logger.info("Estimating outlet widths of lakes and/or reservoirs.")
+            # - 'channel width' for lakes and reservoirs 
+            channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
+            self.channel_width = pcr.cover(channel_width, self.bankfull_width)
+
+
+        logger.info("Estimating surface water elevation.")
+        
+        if estimate_river_water_level_from_discharge == False:
+
+            logger.info('Estimating river water levels based on PCR-GLOBWB surface water level output')
+
+            river_water_elevation = self.estimate_river_water_elevations_based_on_pcrglobwb_river_water_levels(channel_storage, \
+                                                                                                               dynamicFracWat, bankfullDepth, floodDepth)
+        else:
+
+            logger.info('River water levels based on PCR-GLOBWB discharge output')
+
+            # - convert discharge value to surface water elevation (m)
+            #
+            river_water_height = (self.channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
+            river_water_elevation = self.dem_riverbed + river_water_height
+            #
+            # - calculating water level (unit: m) above the flood plain - estimated from discharge only 
+            #----------------------------------------------------------
+            water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)   # unit: m, water level above the floodplain (not distributed)
+            water_above_fpl *= self.bankfull_depth * self.channel_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
+            # TODO: Improve this concept using Rens's latest scheme
+            #
+            # - corrected surface water elevation
+            river_water_elevation = pcr.ifthenelse(river_water_elevation > self.dem_floodplain, self.dem_floodplain + water_above_fpl, \
+                                                                                                river_water_elevation)
+
+
+        # - surface water elevation for lakes and reservoirs:
+        #
+        #~ # - alternative 1:
+        #~ lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.min(river_water_elevation, self.dem_floodplain)) #
+        #
+        #~ # - alternative 2:
+        #~ lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.min(river_water_elevation, self.dem_average))    #
+        #
+        #~ # - alternative 3:
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.max(river_water_elevation, self.dem_average))    #
+        #~ #
+        #~ # - maximum and minimum values for lake_reservoir_water_elevation
+        #~ lake_reservoir_water_elevation    = pcr.min(pcr.max(self.dem_floodplain, self.dem_average), lake_reservoir_water_elevation)
+        #~ lake_reservoir_water_elevation    = pcr.max(self.surface_water_bed_elevation, lake_reservoir_water_elevation)
+        #~ #
+        #~ lake_reservoir_water_elevation    = pcr.areamaximum(lake_reservoir_water_elevation, self.WaterBodies.waterBodyIds)
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+        #
+        # - alternative 4:
+        lake_reservoir_water_elevation = pcr.areamaximum(river_water_elevation, self.WaterBodies.waterBodyIds)
+        lake_reservoir_water_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+
+
+        # merge lake and reservoir water elevation
+        #
+        #~ # - simple approach
+        #~ surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
+        #
+        # - based on fractions
+        surface_water_elevation    = pcr.cover(lake_reservoir_water_elevation, self.dem_average) * self.lake_and_reservoir_fraction + \
+                                     pcr.cover(river_water_elevation, self.dem_average) * self.river_fraction
+
+        # surface water bed elevation that will be supplied to RIV package
+        surface_water_bed_elevation_used = self.surface_water_bed_elevation
+        
+        # - rounding
+        surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
+        surface_water_bed_elevation_used = pcr.rounddown(surface_water_bed_elevation_used * 1000.)/1000.
+
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
+
+        # - to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
+        minimum_water_height  = 0.50
+        surface_water_bed_elevation_used = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > minimum_water_height, surface_water_bed_elevation_used, \
+                                                                                                                                               surface_water_elevation)
+
+        # - to minimize negative channel storage, ignore river infiltration with low channel storage
+        if not isinstance(channel_storage, types.NoneType):
+            minimum_fraction_used  =  0.25
+            minimum_channel_storage           = pcr.max(0.0, minimum_fraction_used * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
+            surface_water_bed_elevation_used  = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_bed_elevation_used, surface_water_elevation)
+            
+
+        # - also ignore river infiltration in the mountainous region
+        surface_water_bed_elevation_used = pcr.ifthenelse(self.mountainous_extent, surface_water_elevation, surface_water_bed_elevation_used)
+
+
+        #~ # - to minimize negative channel storage, ignore river infiltration in smaller rivers  
+        #~ minimum_channel_width = 5.0
+        #~ surface_water_bed_elevation_used = pcr.ifthenelse(self.channel_width > minimum_channel_width, surface_water_bed_elevation_used, surface_water_elevation)
+
+
+        # - covering missing values
+        surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
+        surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
+        
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
+
+        
+        # reducing the size of table by ignoring cells outside the landmask region 
+        bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
+        bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+        
+
+        #~ # - to minimize negative channel storage, limit conductance to available water
+        #~ if not isinstance(channel_storage, types.NoneType):
+            #~ # - limit conductance
+            #~ previous_gw_head = self.previousGroundwaterHead['groundwaterHeadLayer'+str(self.number_of_layers)]
+            #~ maximum_drop = 0.250 * pcr.max(0.001, surface_water_elevation - pcr.max(previous_gw_head, surface_water_bed_elevation_used))
+            #~ bed_conductance_used = pcr.ifthenelse(surface_water_elevation > previous_gw_head, pcr.min(bed_conductance_used, channel_storage/maximum_drop), bed_conductance_used)
+
+
+        # reducing the size of table by ignoring cells outside the landmask region 
+        bed_conductance_used = pcr.ifthen(self.landmask, pcr.max(bed_conductance_used, 0.0))
+        bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+
+        # set the RIV package only to the uppermost layer
+        #~ self.pcr_modflow.setRiver(surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used, self.number_of_layers)
+        self.pcr_modflow.setRiver(surface_water_elevation, surface_water_elevation, bed_conductance_used, self.number_of_layers)
+
+        # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
+
+        # set drain package
+        self.set_drain_package()                                         
+
+
+
+
+
+    def set_drain_and_river_package_OLD(self, discharge, channel_storage, currTimeStep, simulation_type, stress_period = "monthly", \
+                                                                                                         estimate_river_water_level_from_discharge = True, \
+                                                                                                         dynamicFracWat = None, \
+                                                                                                         bankfullDepth = None, \
+                                                                                                         floodDepth = None):
+
+        logger.info("Set the river package.")
+        
+        # set WaterBodies class to define the extent of lakes and reservoirs (constant for the entie year, annual resolution)
+        # and also set drain package (constant for the entire year, unless there are changes in the WaterBodies class)
+        if simulation_type == "steady-state" or simulation_type == "steady-state-extra":
+            onlyNaturalWaterBodies = self.onlyNaturalWaterBodies
+            if 'onlyNaturalWaterBodiesDuringSteadyStateSimulation' in self.iniItems.modflowSteadyStateInputOptions.keys(): 
+                onlyNaturalWaterBodies == self.iniItems.modflowSteadyStateInputOptions['onlyNaturalWaterBodiesDuringSteadyStateSimulation'] == "True"
+            self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                       self.landmask,\
+                                                       self.onlyNaturalWaterBodies)
+            self.WaterBodies.getParameterFiles(date_given = self.iniItems.globalOptions['startTime'],\
+                                               cellArea = self.cellAreaMap, \
+                                               ldd = self.lddMap)
+        if simulation_type == "transient":
+            if self.WaterBodies == None:
+                self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
+                                                           self.landmask,\
+                                                           self.onlyNaturalWaterBodies)
+                self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
+                                                   cellArea = self.cellAreaMap, \
+                                                   ldd = self.lddMap)        
+            if currTimeStep.month == 1 and stress_period == "monthly":
+                self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
+                                                   cellArea = self.cellAreaMap, \
+                                                   ldd = self.lddMap)        
+            if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily":
+                self.WaterBodies.getParameterFiles(date_given = str(currTimeStep.fulldate),\
+                                                   cellArea = self.cellAreaMap, \
+                                                   ldd = self.lddMap)        
+
+        # reset bed conductance (due to possibility of new inclusion of lakes/reservoirs)
+        if currTimeStep == None: self.bed_conductance = None
+        if currTimeStep.month == 1 and stress_period == "monthly": self.bed_conductance = None
+        if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily": self.bed_conductance = None
+        
+        
+        
+        if isinstance(self.bed_conductance, types.NoneType):
+
+            logger.info("Estimating surface water bed elevation.")
+        
+            #~ # - for lakes and resevoirs, alternative 1: make the bottom elevation deep --- Shall we do this? NOTE: This will provide unrealistic groundwater depth. Need further investigations (consider to use US). 
+            #~ additional_depth = 1500.
+            #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, \
+                                                     #~ self.dem_riverbed - additional_depth)
+            #
+            #~ # - for lakes and resevoirs, alternative 2: estimate bed elevation from dem and bankfull depth
+            #~ surface_water_bed_elevation  = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            #~ surface_water_bed_elevation  = pcr.areaaverage(surface_water_bed_elevation, self.WaterBodies.waterBodyIds)
+            #~ surface_water_bed_elevation -= pcr.areamaximum(self.bankfull_depth, self.WaterBodies.waterBodyIds) 
+            
+            # - for lakes and resevoirs, alternative 3: estimate bed elevation from DEM only
+            #                                           This is to avoid that groundwater heads fall too far below DEM
+            #                                           This will also smooth groundwater heads.     
+            surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+            surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
+            
+            # TODO: Need further investigation for lake and reservoir bed elevations. 
+            
+            # surface water bed elevation for rivers, lakes and reservoirs
+            #
+            #~ # - simple approach (NOT USED)
+            #~ surface_water_bed_elevation  = pcr.cover(surface_water_bed_elevation, self.dem_riverbed)
+            #
+            # - distribued based on river and lake/reservoir fractions:
+            lake_and_reservoir_fraction = pcr.cover(self.WaterBodies.fracWat, 0.0)
+            if not isinstance(dynamicFracWat, types.NoneType):
+                river_fraction          = pcr.max(0.0, lake_and_reservoir_fraction - dynamicFracWat)
+            else:
+                river_fraction          = (self.bankfull_width * self.channelLength) / self.cellAreaMap
+            #
+            self.lake_and_reservoir_fraction = pcr.min(1.0, \
+                                               vos.getValDivZero(lake_and_reservoir_fraction, lake_and_reservoir_fraction + river_fraction, 0.0))
+            self.river_fraction              = pcr.max(0.0, \
+                                               1.0 - self.lake_and_reservoir_fraction)
+            # 
+            surface_water_bed_elevation = self.lake_and_reservoir_fraction * surface_water_bed_elevation + self.river_fraction * self.dem_riverbed
+
+
+            # rounding values for surface_water_bed_elevation
+            self.surface_water_bed_elevation = pcr.rounddown(surface_water_bed_elevation * 1000.)/1000.
+
+
+            logger.info("Estimating surface water bed conductance.")
+
+            ############################################################################################################################################
+            # lake and reservoir resistance (day)
+            lake_and_reservoir_resistance = self.bed_resistance
+
+            #~ # - assuming a minimum resistance (due to the sedimentation, conductivity: 0.001 m/day and thickness 0.50 m)
+            #~ lake_and_reservoir_resistance  = pcr.max(0.50 / 0.001, self.bed_resistance)
+
+            # lake and reservoir conductance (m2/day)
+            lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * self.lake_and_reservoir_fraction * \
+                                                  self.cellAreaMap
+            # river conductance (m2/day)
+            river_conductance = (1.0/self.bed_resistance) * self.river_fraction *\
+                                                            self.cellAreaMap
+            # - assume all cells have minimum river width
+            minimum_width = 2.0   # Sutanudjaja et al. (2011)
+            minimum_conductance = (1.0/self.bed_resistance) * \
+                                  pcr.max(minimum_width, self.bankfull_width) * self.channelLength
+            river_conductance   = pcr.max(minimum_conductance, river_conductance)
+
+
+            # surface water bed condutance (unit: m2/day)
+            bed_conductance = pcr.cover(lake_and_reservoir_conductance, 0.0) + pcr.cover(river_conductance, 0.0)
+            self.bed_conductance = pcr.cover(bed_conductance, 0.0)
+            ############################################################################################################################################
+            
+            logger.info("Estimating outlet widths of lakes and/or reservoirs.")
+            # - 'channel width' for lakes and reservoirs 
+            channel_width = pcr.areamaximum(self.bankfull_width, self.WaterBodies.waterBodyIds)
+            self.channel_width = pcr.cover(channel_width, self.bankfull_width)
+
+
+        logger.info("Estimating surface water elevation.")
+        
+        if estimate_river_water_level_from_discharge == False:
+
+            logger.info('Estimating river water levels based on PCR-GLOBWB surface water level output')
+
+            river_water_elevation = self.estimate_river_water_elevations_based_on_pcrglobwb_river_water_levels(channel_storage, \
+                                                                                                               dynamicFracWat, bankfullDepth, floodDepth)
+        else:
+
+            logger.info('River water levels based on PCR-GLOBWB discharge output')
+
+            # - convert discharge value to surface water elevation (m)
+            #
+            river_water_height = (self.channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
+            river_water_elevation = self.dem_riverbed + river_water_height
+            #
+            # - calculating water level (unit: m) above the flood plain - estimated from discharge only 
+            #----------------------------------------------------------
+            water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)   # unit: m, water level above the floodplain (not distributed)
+            water_above_fpl *= self.bankfull_depth * self.channel_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
+            # TODO: Improve this concept using Rens's latest scheme
+            #
+            # - corrected surface water elevation
+            river_water_elevation = pcr.ifthenelse(river_water_elevation > self.dem_floodplain, self.dem_floodplain + water_above_fpl, \
+                                                                                                river_water_elevation)
+
+
+        # - surface water elevation for lakes and reservoirs:
+        #
+        #~ # - alternative 1:
+        #~ lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.min(river_water_elevation, self.dem_floodplain)) #
+        #
+        #~ # - alternative 2:
+        #~ lake_reservoir_water_elevation = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.min(river_water_elevation, self.dem_average))    #
+        #
+        #~ # - alternative 3:
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(self.WaterBodies.waterBodyOut, pcr.max(river_water_elevation, self.dem_average))    #
+        #~ #
+        #~ # - maximum and minimum values for lake_reservoir_water_elevation
+        #~ lake_reservoir_water_elevation    = pcr.min(pcr.max(self.dem_floodplain, self.dem_average), lake_reservoir_water_elevation)
+        #~ lake_reservoir_water_elevation    = pcr.max(self.surface_water_bed_elevation, lake_reservoir_water_elevation)
+        #~ #
+        #~ lake_reservoir_water_elevation    = pcr.areamaximum(lake_reservoir_water_elevation, self.WaterBodies.waterBodyIds)
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+        #
+        # - alternative 4:
+        lake_reservoir_water_elevation = pcr.areamaximum(river_water_elevation, self.WaterBodies.waterBodyIds)
+        lake_reservoir_water_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+
+
+        # merge lake and reservoir water elevation
+        #
+        #~ # - simple approach
+        #~ surface_water_elevation = pcr.cover(lake_reservoir_water_elevation, surface_water_elevation)
+        #
+        # - based on fractions
+        surface_water_elevation    = pcr.cover(lake_reservoir_water_elevation, self.dem_average) * self.lake_and_reservoir_fraction + \
+                                     pcr.cover(river_water_elevation, self.dem_average) * self.river_fraction
+
+        # surface water bed elevation that will be supplied to RIV package
+        surface_water_bed_elevation_used = self.surface_water_bed_elevation
+        
+        # - rounding
+        surface_water_elevation = pcr.rounddown(surface_water_elevation * 1000.)/1000.
+        surface_water_bed_elevation_used = pcr.rounddown(surface_water_bed_elevation_used * 1000.)/1000.
+
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
+
+        # - to minimize negative channel storage, ignore river infiltration with low surface_water_elevation
+        minimum_water_height  = 0.50
+        surface_water_bed_elevation_used = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > minimum_water_height, surface_water_bed_elevation_used, \
+                                                                                                                                               surface_water_elevation)
+
+        # - to minimize negative channel storage, ignore river infiltration with low channel storage
+        if not isinstance(channel_storage, types.NoneType):
+            minimum_fraction_used  =  0.25
+            minimum_channel_storage           = pcr.max(0.0, minimum_fraction_used * self.bankfull_depth * self.bankfull_width * self.channelLength)   # unit: m3
+            surface_water_bed_elevation_used  = pcr.ifthenelse(channel_storage > minimum_channel_storage, surface_water_bed_elevation_used, surface_water_elevation)
+            
+
+        # - also ignore river infiltration in the mountainous region
+        surface_water_bed_elevation_used = pcr.ifthenelse(self.mountainous_extent, surface_water_elevation, surface_water_bed_elevation_used)
+
+
+        #~ # - to minimize negative channel storage, ignore river infiltration in smaller rivers  
+        #~ minimum_channel_width = 5.0
+        #~ surface_water_bed_elevation_used = pcr.ifthenelse(self.channel_width > minimum_channel_width, surface_water_bed_elevation_used, surface_water_elevation)
+
+
+        # - covering missing values
+        surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
+        surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
+        
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
+
+        
+        # reducing the size of table by ignoring cells outside the landmask region 
+        bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
+        bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+        
+
+        #~ # - to minimize negative channel storage, limit conductance to available water
+        #~ if not isinstance(channel_storage, types.NoneType):
+            #~ # - limit conductance
+            #~ previous_gw_head = self.previousGroundwaterHead['groundwaterHeadLayer'+str(self.number_of_layers)]
+            #~ maximum_drop = 0.250 * pcr.max(0.001, surface_water_elevation - pcr.max(previous_gw_head, surface_water_bed_elevation_used))
+            #~ bed_conductance_used = pcr.ifthenelse(surface_water_elevation > previous_gw_head, pcr.min(bed_conductance_used, channel_storage/maximum_drop), bed_conductance_used)
+
+
+        # reducing the size of table by ignoring cells outside the landmask region 
+        bed_conductance_used = pcr.ifthen(self.landmask, pcr.max(bed_conductance_used, 0.0))
+        bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+
+        # set the RIV package only to the uppermost layer
+        self.pcr_modflow.setRiver(surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used, self.number_of_layers)
+        #~ self.pcr_modflow.setRiver(surface_water_elevation, surface_water_elevation, bed_conductance_used, self.number_of_layers)
+
+        # TODO: Improve the concept of RIV package, particularly while calculating surface water elevation in lakes and reservoirs
+
+        # set drain package
+        self.set_drain_package()                                         
+
+
+
     def set_recharge_package(self, \
                              gwRecharge, gwAbstraction = 0.0, 
                              gwAbstractionReturnFlow = 0.0):            # Note: We ignored the latter as MODFLOW should capture this part as well.
@@ -2105,6 +2696,29 @@ class GroundwaterModflow(object):
         self.pcr_modflow.setWell(abstraction_layer_1, 1)
         self.pcr_modflow.setWell(abstraction_layer_2, 2)
 
+    def set_well_package_OLD(self, gwAbstraction):
+        
+        logger.info("Set the well package.")
+        
+        # reducing the size of table by ignoring cells with zero abstraction
+        gwAbstraction = pcr.ifthen(gwAbstraction > 0.0, gwAbstraction)
+        
+        # abstraction only in productive aquifer
+        gwAbstraction = pcr.ifthen(self.productive_aquifer, gwAbstraction)
+        
+        # abstraction volume (negative value, unit: m3/day)
+        abstraction = gwAbstraction * self.cellAreaMap * pcr.scalar(-1.0)
+        
+        # FIXME: The following cover operations should not be necessary (Oliver should fix this).
+        abstraction = pcr.cover(abstraction, 0.0) 
+        
+        # set the well based on number of layers
+        if self.number_of_layers == 1: self.pcr_modflow.setWell(abstraction, 1)
+        if self.number_of_layers == 2: self.pcr_modflow.setWell(abstraction, 1) # at the bottom layer
+        
+        #~ print('test')
+
+
     def set_drain_package(self):
 
         logger.info("Set the drain package (for the release of over bank storage).")
@@ -2147,6 +2761,51 @@ class GroundwaterModflow(object):
         # TODO: Shall we link the specificYield used to the BCF package ??
         
         #~ pcr.aguila(pcr.ifthen(self.landmask, self.recessionCoeff))
+
+
+    def set_drain_package_OLD(self):
+
+        logger.info("Set the drain package (for the release of over bank storage).")
+
+        # specify the drain package the drain package is used to simulate the drainage of bank storage 
+
+        # - estimate bottom of bank storage for flood plain areas
+        drain_elevation = self.estimate_bottom_of_bank_storage()                               # unit: m
+        
+        #~ # - for lakes and/or reservoirs, ignore the drainage
+        #~ drain_conductance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, pcr.scalar(0.0))
+        #~ # - drainage conductance is a linear reservoir coefficient
+        #~ drain_conductance = pcr.cover(drain_conductance, \
+                            #~ self.recessionCoeff * self.specificYield * self.cellAreaMap)    # unit: m2/day
+
+        # - drainage conductance is a linear reservoir coefficient
+        drain_conductance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
+
+
+        #~ drain_conductance = pcr.ifthenelse(drain_conductance < 1e-20, 0.0, \
+                                           #~ drain_conductance) 
+        #~ drain_conductance = pcr.rounddown(drain_conductance*10000.)/10000.                  # It is not a good idea to round the values down (water can be trapped).  
+
+        # reducing the size of table by ignoring cells outside landmask region
+        drain_conductance = pcr.ifthen(self.landmask, drain_conductance)
+        drain_conductance = pcr.cover(drain_conductance, 0.0)
+        
+        # set the DRN package only to the uppermost layer
+        self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
+
+        #~ # set the DRN package only to both layers 
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
+
+        #~ # set the DRN package only to the lowermost layer
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
+        #~ self.pcr_modflow.setDrain(pcr.spatial(pcr.scalar(0.0)),pcr.spatial(pcr.scalar(0.0)), 2)
+        
+        # TODO: Check where we should put the drain layer ?? Perform some sensivity analysis for this ? Is there a better way to conceptualize this?
+        # TODO: Shall we link the specificYield used to the BCF package ??
+        
+        #~ pcr.aguila(pcr.ifthen(self.landmask, self.recessionCoeff))
+
 
     def old_style_reporting(self,currTimeStep):
 

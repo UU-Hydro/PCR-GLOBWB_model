@@ -25,6 +25,7 @@
 import math
 import subprocess
 import os
+import types
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -32,7 +33,10 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-import groundwater_MODFLOW as gw_modflow
+try:
+    import groundwater_MODFLOW as gw_modflow
+except:
+    pass
 
 import virtualOS as vos
 from ncConverter import *
@@ -171,7 +175,7 @@ class Groundwater(object):
         self.kSatAquifer = pcr.max(minAquiferSatConductivity, self.kSatAquifer)              
         #~ pcr.aguila(self.kSatAquifer)
         #####################################################################################################################################################
-        
+
 
         #####################################################################################################################################################
         # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC
@@ -179,7 +183,8 @@ class Groundwater(object):
             self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
                                   groundwaterPropertiesNC,'recessionCoeff',\
                                   cloneMapFileName = self.cloneMap)
-            #~ pcr.aguila(self.recessionCoeff)
+            msg = "The 'recessionCoeff' is be obtained from the file: " + groundwaterPropertiesNC
+            logger.info(msg)
         except:
             self.recessionCoeff = None
             msg = "The 'recessionCoeff' cannot be read from the file: "+groundwaterPropertiesNC
@@ -188,10 +193,12 @@ class Groundwater(object):
         # assign the reccession coefficient based on the given pcraster file
         if 'recessionCoeff' in iniItems.groundwaterOptions.keys():
             if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
+               msg = "The 'recessionCoeff' is be obtained from the file: " + iniItems.groundwaterOptions['recessionCoeff']
+               logger.info(msg)
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
-        if isinstance(self.recessionCoeff,types.NoneType) and\
+        if isinstance(self.recessionCoeff, types.NoneType) and\
                           'recessionCoeff' not in iniItems.groundwaterOptions.keys():
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
@@ -295,8 +302,6 @@ class Groundwater(object):
             # extrapolation of totalGroundwaterThickness
             # - TODO: Make a general extrapolation option as a function in the virtualOS.py
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 0.50))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 0.75))
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                         pcr.windowaverage(totalGroundwaterThickness, 0.75))
@@ -336,7 +341,7 @@ class Groundwater(object):
         if excludeUnproductiveAquifer:
             if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
                                                              (iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] not in ["None", "False"]):
-                msg = "Defining areas of productive aquifer based on transmissivity criteria defined in the field 'minimumTransmissivityForProductiveAquifer'.of 'groundwaterOptions'."
+                msg = "Defining areas of productive aquifer based on transmissivity criteria defined in the field 'minimumTransmissivityForProductiveAquifer' of 'groundwaterOptions'."
                 logger.info(msg)      
                 minimumTransmissivityForProductiveAquifer = \
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
@@ -726,7 +731,6 @@ class Groundwater(object):
                                   'fossil groundwater abstraction must be zero (if online coupled to MODFLOW)',\
                                   True,\
                                   currTimeStep.fulldate,threshold=5e-4)
-
         
         # groundwater allocation
         self.allocNonFossilGroundwater = landSurface.allocNonFossilGroundwater
@@ -745,19 +749,54 @@ class Groundwater(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=5e-4)
 
-        # surface water infiltration (unit: m/day), from surface water bodies to groundwater bodies, taken from the previous time step 
-        self.surfaceWaterInf = routing.riverbedExchange / routing.cellArea
-        # - Ideally, this should be accomodated in the river (RIV) package of MODFLOW. 
-        # - Yet, the RIV package often results negative channel storage (too much infiltration).
-        # - Hence, this flux is calculated in the routing.py module (by following the principle of MODFLOW river package).
-        # - See the function/method "calculate_exchange_to_groundwater" in the routing.py. 
-
+        # for monthly coupling (and still for global runs only)
+        if self.coupleToDailyMODFLOW == False:
         
+            logger.info("Updating groundwater based on the MODFLOW output.")
+            
+            # relativeGroundwaterHead, storGroundwater and baseflow fields are assumed to be constant
+            self.relativeGroundwaterHead = self.relativeGroundwaterHead
+            self.storGroundwater = self.storGroundwater
+            self.baseflow = self.baseflow
+            
+            if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1:
+            
+                # for online coupling, we will read files from pcraster maps, using the previous day values
+                directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
+                yesterday = str(currTimeStep.yesterday())
+            
+                # - relative groundwater head from MODFLOW
+                filename = directory + "relativeGroundwaterHead_" + str(yesterday) + ".map"
+                self.relativeGroundwaterHead = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
+            
+                # - storGroundwater from MODFLOW
+                filename = directory + "storGroundwater_" + str(yesterday) + ".map"
+                self.storGroundwater = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
+            
+                # - baseflow from MODFLOW
+                filename = directory + "baseflow_" + str(yesterday) + ".map"
+                self.baseflow = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
+
+        # by default, river bed exchange has been accomodated in baseflow (via MODFLOW, river and drain packages)
+        self.surfaceWaterInf = pcr.scalar(0.0)
+
+        # Note: The following variable (unmetDemand) is a bad name and used in the past.
+        #       Its definition is actually as follows: (the amount of demand that is satisfied/allocated from fossil groundwater)
+        #
+        self.unmetDemand = self.fossilGroundwaterAlloc
+
         # for daily coupling
         if self.coupleToDailyMODFLOW:
 
             logger.info("Updating groundwater based on the DAILY MODFLOW simulation.")
             
+            # surface water infiltration (unit: m/day), from surface water bodies to groundwater bodies, taken from the previous time step 
+            self.surfaceWaterInf = routing.riverbedExchange / routing.cellArea
+            # - Ideally, this should be accomodated in the river (RIV) package of MODFLOW. 
+            # - Yet, the RIV package often results negative channel storage (too much infiltration).
+            # - Hence, this flux is calculated in the routing.py module (by following the principle of MODFLOW river package).
+            # - See the function/method "calculate_exchange_to_groundwater" in the routing.py. 
+
             # groundwater recharge (unit: m/day)
             groundwater_recharge = landSurface.gwRecharge 
             # - add river infiltration
@@ -816,33 +855,6 @@ class Groundwater(object):
 
 
 
-        # for monthly coupling (and still for global runs only)
-        else:
-        
-            logger.info("Updating groundwater based on the MODFLOW output.")
-            
-            # relativeGroundwaterHead, storGroundwater and baseflow fields are assumed to be constant
-            self.relativeGroundwaterHead = self.relativeGroundwaterHead
-            self.storGroundwater = self.storGroundwater
-            self.baseflow = self.baseflow
-            
-            if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1:
-            
-                # for online coupling, we will read files from pcraster maps, using the previous day values
-                directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
-                yesterday = str(currTimeStep.yesterday())
-            
-                # - relative groundwater head from MODFLOW
-                filename = directory + "relativeGroundwaterHead_" + str(yesterday) + ".map"
-                self.relativeGroundwaterHead = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
-            
-                # - storGroundwater from MODFLOW
-                filename = directory + "storGroundwater_" + str(yesterday) + ".map"
-                self.storGroundwater = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
-            
-                # - baseflow from MODFLOW
-                filename = directory + "baseflow_" + str(yesterday) + ".map"
-                self.baseflow = pcr.ifthen(self.landmask, pcr.cover(vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0))
             
     def update_without_MODFLOW(self,landSurface,routing,currTimeStep):
 
