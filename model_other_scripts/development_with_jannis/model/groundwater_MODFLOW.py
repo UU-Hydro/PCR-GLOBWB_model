@@ -514,7 +514,7 @@ class GroundwaterModflow(object):
         top_layer_2          = self.dem_average
         # - thickness of layer 2 is at least 10% of totalGroundwaterThickness
         bottom_layer_2       = self.dem_average - 0.10 * self.totalGroundwaterThickness
-        #~ # - thickness of layer 2 should be until 5 m below the river bed
+        #~ # - thickness of layer 2 should be until 5 m below the river bed - NOT NEEDED (this creates artefacts in low resolution models, e.g. >= 5 arcmin resolution)
         #~ bottom_layer_2    = pcr.min(self.dem_riverbed - 5.0, bottom_layer_2)
         # - make sure that the minimum thickness of layer 2 is at least 0.1 m
         thickness_of_layer_2 = pcr.max(0.1, top_layer_2 - bottom_layer_2)
