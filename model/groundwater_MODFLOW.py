@@ -935,8 +935,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_monthly_stress_period(self):
 
-        time_step_length         = 30                # unit: days
-        number_of_sub_time_steps = time_step_length  # daily resolution
+        time_step_length            = 30                # unit: days
+        number_of_sub_time_steps    = time_step_length  # daily resolution
+        #~ number_of_sub_time_steps = time_step_length * 4
 
         number_of_extra_years = 10                                                    
 
@@ -988,8 +989,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_yearly_stress_period(self):
 
-        time_step_length         = 365               # unit: days
-        number_of_sub_time_steps = 365               # daily resolution
+        time_step_length            = 365                     # unit: days
+        number_of_sub_time_steps    = 365                     # daily resolution
+        #~ number_of_sub_time_steps = time_step_length * 4
 
         number_of_extra_years = 0                                                    
 
@@ -1072,9 +1074,9 @@ class GroundwaterModflow(object):
                     file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
                     pcr.report(groundwaterHead[var_name], file_name) 
 
-    def estimate_bottom_of_bank_storage(self):
+    def estimate_bottom_of_bank_storage_OLD_method(self):
 
-        # influence zone depth (m)  # TODO: Define this one as part of 
+        # influence zone depth (m)  # TODO: Define this one as part of the configuration file. 
         influence_zone_depth = 5.0
         
         # bottom_elevation = flood_plain elevation - influence zone
@@ -1120,14 +1122,17 @@ class GroundwaterModflow(object):
         return bottom_of_bank_storage
 
 
-    def estimate_bottom_of_bank_storage_NEW(self):
+    def estimate_bottom_of_bank_storage(self):
 
         # 20 March 2018, Edwin simplifies the concept as follows:
         # - Groundwater above floodplain is drained based on the linear reservoir concept (using the DRN package). 
         # - Below floodplain, it is drained based on the RIV package conceptualization.  
         
-        # bottom_elevation of drain
-        bottom_of_bank_storage = self.dem_floodplain
+        # influence zone depth (m)  # TODO: Define this one as part of the configuration file. 
+        influence_zone_depth = 0.0
+
+        # bottom_elevation = flood_plain elevation - influence zone
+        bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
@@ -1234,10 +1239,48 @@ class GroundwaterModflow(object):
                                                     var,"undefined")
 
 
-    def update(self, currTimeStep):
+    def update(self, currTimeStep, groundwater_recharge = None, \
+                                   groundwater_abstraction = None, \
+                                   surface_water_discharge = None, \
+                                   surface_water_volume = None, \
+                                   surface_water_fraction = None, \
+                                   surface_water_bankfull_depth = None, \
+                                   surface_water_flood_depth = None):
+									   
+        # for daily time step MODFLOW
+        if self.online_daily_coupling_between_pcrglobwb_and_modflow:
 
+            # get the previous state
+            self.previousGroundwaterHead = self.getState()
+            
+            # length of a stress period = 1 day (daily)
+            PERLEN = 1 
+            # number of time step within a stress period
+            NSTP = PERLEN
+            
+            self.PERLEN = PERLEN   # number of days within a stress period
+            self.NSTP   = NSTP     # number of time steps within a stress period
+            
+            self.groundwater_recharge    = groundwater_recharge   
+            self.groundwater_abstraction = groundwater_abstraction
+            self.surface_water_discharge = surface_water_discharge
+            self.surface_water_storage   = surface_water_volume
+            self.dynamicFracWat          = surface_water_fraction
+            self.bankfullDepth           = surface_water_bankfull_depth 
+            self.floodDepth              = surface_water_flood_depth
+               
+            #~ pcr.aguila( self.groundwater_recharge)
+            
+            self.modflow_simulation("transient", self.previousGroundwaterHead, \
+                                                 currTimeStep, PERLEN, NSTP) 
+
+            # old-style reporting (this is usually used for debugging process)                            
+            self.old_style_reporting(currTimeStep)
+
+
+        # for monthly time step MODFLOW
         # at the end of the month, calculate/simulate a steady state condition and obtain its calculated head values
-        if currTimeStep.isLastDayOfMonth():
+        if currTimeStep.isLastDayOfMonth() and self.online_daily_coupling_between_pcrglobwb_and_modflow == False:
 
             # get the previous state
             groundwaterHead = self.getState()
@@ -1350,26 +1393,36 @@ class GroundwaterModflow(object):
             
             if self.online_coupling:
 
-                # for online coupling, we will read files from pcraster maps
-                directory = self.iniItems.main_output_directory + "/global/maps/"
-                
-                # - discharge (m3/s) from PCR-GLOBWB
-                discharge_file_name = directory + "monthly_discharge_cubic_meter_per_second_" + str(currTimeStep.fulldate) + ".map" 
-                discharge = pcr.cover(vos.readPCRmapClone(discharge_file_name, self.cloneMap, self.tmpDir), 0.0)
-                
-                # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
-                gwRecharge_file_name = directory + "groundwater_recharge_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
-                gwRecharge = pcr.cover(vos.readPCRmapClone(gwRecharge_file_name, self.cloneMap, self.tmpDir), 0.0)
+                if self.online_daily_coupling_between_pcrglobwb_and_modflow:
 
-                # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
-                gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
-                gwAbstraction = pcr.cover(vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir), 0.0)
-            
-                # - channel storage (unit: m/day) 
-                channel_storage_file_name = directory + "channel_storage_cubic_meter_" + str(currTimeStep.fulldate) + ".map"
-                channelStorage = pcr.cover(vos.readPCRmapClone(channel_storage_file_name, self.cloneMap, self.tmpDir), 0.0)
+                    discharge      = pcr.cover(self.surface_water_discharge, 0.0)
+                    channelStorage = pcr.cover(self.surface_water_storage, 0.0)
+                    
+                    gwRecharge     = pcr.cover(self.groundwater_recharge, 0.0)
+                    gwAbstraction  = pcr.cover(self.groundwater_abstraction, 0.0)
                 
-                # TODO: Try to read from netcdf files, avoid reading from pcraster maps (avoid resampling using gdal) 
+                else:
+                
+                    # for non daily online coupling, we will read files from pcraster maps
+                    directory = self.iniItems.main_output_directory + "/global/maps/"
+                    
+                    # - discharge (m3/s) from PCR-GLOBWB
+                    discharge_file_name = directory + "monthly_discharge_cubic_meter_per_second_" + str(currTimeStep.fulldate) + ".map" 
+                    discharge = pcr.cover(vos.readPCRmapClone(discharge_file_name, self.cloneMap, self.tmpDir), 0.0)
+                    
+                    # - recharge/capillary rise (unit: m/day) from PCR-GLOBWB 
+                    gwRecharge_file_name = directory + "groundwater_recharge_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
+                    gwRecharge = pcr.cover(vos.readPCRmapClone(gwRecharge_file_name, self.cloneMap, self.tmpDir), 0.0)
+                    
+                    # - groundwater abstraction (unit: m/day) from PCR-GLOBWB 
+                    gwAbstraction_file_name = directory + "groundwater_abstraction_meter_per_day_" + str(currTimeStep.fulldate) + ".map"
+                    gwAbstraction = pcr.cover(vos.readPCRmapClone(gwAbstraction_file_name, self.cloneMap, self.tmpDir), 0.0)
+                    
+                    # - channel storage (unit: m/day) 
+                    channel_storage_file_name = directory + "channel_storage_cubic_meter_" + str(currTimeStep.fulldate) + ".map"
+                    channelStorage = pcr.cover(vos.readPCRmapClone(channel_storage_file_name, self.cloneMap, self.tmpDir), 0.0)
+                    
+                    # TODO: Try to read from netcdf files, avoid reading from pcraster maps (avoid resampling using gdal) 
 
             else:
             
@@ -1442,8 +1495,18 @@ class GroundwaterModflow(object):
             self.built_up_area_correction_for_recharge = pcr.max(0.0, self.built_up_area_correction_for_recharge)
             self.built_up_area_correction_for_recharge = pcr.min(1.0, self.built_up_area_correction_for_recharge)   
         
-        # set recharge, river, well and drain packages
-        self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type)
+ 
+ 
+        if self.online_daily_coupling_between_pcrglobwb_and_modflow:
+            self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type, "daily", \
+                                                                                                       False, \
+                                                                                                       self.dynamicFracWat,\
+                                                                                                       self.bankfullDepth,\
+                                                                                                       self.floodDepth)
+        else:
+            self.set_drain_and_river_package(discharge, channelStorage, currTimeStep, simulation_type)
+        
+        # set recharge and well packages
         self.set_recharge_package(gwRecharge)
         self.set_well_package(gwAbstraction)
 
@@ -1459,18 +1522,24 @@ class GroundwaterModflow(object):
         # TSMULT = 1.0   # multiplier for the length of the successive iterations
         # SSTR   = 1     # 0 - transient, 1 - steady state
 
-        # DAMP parameters (this may help the convergence during the steady-state simulation)
-        self.parameter_DAMP = [1.0] 
+        # DAMP parameters (this may help the convergence)
+        self.parameter_DAMP = self.parameter_DAMP_default
+        # TODO: Set DAMP in the configuration/ini file (as a list, see also below)
         if simulation_type == "steady-state":
             #~ self.parameter_DAMP = [1.0, 0.80, 0.60] 
-            self.parameter_DAMP = [1.0, 0.75] 
+            #~ self.parameter_DAMP = [1.0, 0.75] 
             #~ self.parameter_DAMP = [0.80] 
-
+            #~ self.parameter_DAMP = [0.75]
+            #~ self.parameter_DAMP = [0.75, 0.60]
+            # PS: Starting from 25 September 2017, I decided to reduce DAMP values. It seems that doing this ease the convergence.      
+            self.parameter_DAMP    = self.parameter_DAMP_steady_state_default
+            
         # initiate the index for HCLOSE and RCLOSE for the interation until modflow_converged
         self.iteration_HCLOSE = 0
         self.iteration_RCLOSE = 0
         self.iteration_DAMP   = 0
         self.modflow_converged = False
+
 
         # execute MODFLOW 
         while self.modflow_converged == False:
@@ -1730,6 +1799,23 @@ class GroundwaterModflow(object):
         print modflow_converged
         
         return modflow_converged    
+
+
+    def estimate_river_water_elevations_based_on_pcrglobwb_river_water_levels(self, channelStorage, dynamicFracWat, bankfullDepth, floodDepth):
+
+        # water levels in channels  
+        river_water_levels = pcr.ifthenelse(dynamicFracWat > 0., pcr.max(0.0, channelStorage) / (dynamicFracWat * self.cellAreaMap), 
+                                                                 0.0)
+        river_water_levels = pcr.ifthenelse(floodDepth > 0., bankfullDepth + floodDepth, pcr.min(bankfullDepth, river_water_levels))
+        # - elevation
+        river_water_elevation = river_water_levels + self.dem_riverbed 
+        
+        # surface water elevation (m) is limited by flood plain elevation (m)
+        # - water above the flood plain will be drained based on the linear reservoir concept
+        river_water_elevation = pcr.min(river_water_elevation, self.dem_floodplain) 
+        
+        return river_water_elevation
+
 
 
     def set_drain_and_river_package(self, discharge, channel_storage, currTimeStep, simulation_type):

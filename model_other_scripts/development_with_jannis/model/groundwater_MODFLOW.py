@@ -856,6 +856,7 @@ class GroundwaterModflow(object):
         # specification for storage coefficient (BCF package)
         self.set_storages_for_two_layer_model()
 
+
     def get_initial_heads(self, initialHeadsFromSpinUp = None):
 
 		
@@ -934,8 +935,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_monthly_stress_period(self):
 
-        time_step_length         = 30                   # unit: days
-        number_of_sub_time_steps = time_step_length * 4
+        time_step_length            = 30                # unit: days
+        number_of_sub_time_steps    = time_step_length  # daily resolution
+        #~ number_of_sub_time_steps = time_step_length * 4
 
         number_of_extra_years = 10                                                    
 
@@ -987,8 +989,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_yearly_stress_period(self):
 
-        time_step_length         = 365                  # unit: days
-        number_of_sub_time_steps = time_step_length * 2
+        time_step_length            = 365                     # unit: days
+        number_of_sub_time_steps    = 365                     # daily resolution
+        #~ number_of_sub_time_steps = time_step_length * 4
 
         number_of_extra_years = 0                                                    
 
@@ -1071,14 +1074,65 @@ class GroundwaterModflow(object):
                     file_name = extra_spin_up_directory + "/gwhead" + str(i) + "_." + extension
                     pcr.report(groundwaterHead[var_name], file_name) 
 
+    def estimate_bottom_of_bank_storage_OLD_method(self):
+
+        # influence zone depth (m)  # TODO: Define this one as part of the configuration file. 
+        influence_zone_depth = 5.0
+        
+        # bottom_elevation = flood_plain elevation - influence zone
+        bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
+
+        # reducing noise (so we will not introduce unrealistic sinks)      # TODO: Define the window size as part of the configuration/ini file
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage,\
+                                 pcr.windowaverage(bottom_of_bank_storage, 3.0 * pcr.clone().cellSize()))
+
+        # bottom_elevation > river bed
+        bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
+        
+        # reducing noise by comparing to its downstream value (so we will not introduce unrealistic sinks)
+        bottom_of_bank_storage = pcr.max(bottom_of_bank_storage, \
+                                        (bottom_of_bank_storage +
+                                         pcr.cover(pcr.downstream(self.lddMap, bottom_of_bank_storage), bottom_of_bank_storage))/2.)
+
+        # bottom_elevation >= 0.0 (must be higher than sea level)
+        bottom_of_bank_storage = pcr.max(0.0, bottom_of_bank_storage)
+         
+        # bottom_elevation <= dem_average (this is to drain overland flow)
+        bottom_of_bank_storage = pcr.min(bottom_of_bank_storage, self.dem_average)
+        bottom_of_bank_storage = pcr.cover(bottom_of_bank_storage, self.dem_average)
+
+        # for the mountainous region, the bottom of bank storage equal to its lowest point
+        # - extent of mountainous region
+        mountainous_extent  = pcr.ifthen((self.dem_average - self.dem_floodplain) > 50.0, pcr.boolean(1.0))
+        # - sub_catchment classes
+        sub_catchment_class = pcr.ifthen(mountainous_extent, \
+                              pcr.subcatchment(self.lddMap, pcr.nominal(pcr.uniqueid(mountainous_extent))))
+        # - bottom of bak storage
+        bottom_of_bank_storage = pcr.cover(pcr.areaminimum(bottom_of_bank_storage, sub_catchment_class), \
+                                           bottom_of_bank_storage)  
+
+        # rounding down
+        bottom_of_bank_storage = pcr.rounddown(bottom_of_bank_storage * 1000.)/1000.
+        
+        # TODO: We may want to improve this concept - by incorporating the following:
+        # - smooth bottom_elevation
+        # - upstream areas in the mountainous regions and above perrenial stream starting points may also be drained (otherwise water will be accumulated and trapped there) 
+        # - bottom_elevation > minimum elevation that is estimated from the maximum of S3 from the PCR-GLOBWB simulation
+        
+        return bottom_of_bank_storage
+
+
     def estimate_bottom_of_bank_storage(self):
 
         # 20 March 2018, Edwin simplifies the concept as follows:
         # - Groundwater above floodplain is drained based on the linear reservoir concept (using the DRN package). 
         # - Below floodplain, it is drained based on the RIV package conceptualization.  
         
-        # bottom_elevation of drain
-        bottom_of_bank_storage = self.dem_floodplain
+        # influence zone depth (m)  # TODO: Define this one as part of the configuration file. 
+        influence_zone_depth = 0.0
+
+        # bottom_elevation = flood_plain elevation - influence zone
+        bottom_of_bank_storage = self.dem_floodplain - influence_zone_depth
 
         # bottom_elevation > river bed
         bottom_of_bank_storage = pcr.max(self.dem_riverbed, bottom_of_bank_storage)
