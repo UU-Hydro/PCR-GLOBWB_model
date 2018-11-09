@@ -2168,15 +2168,10 @@ class GroundwaterModflow(object):
         # - estimate bottom of bank storage for flood plain areas
         drain_elevation = self.estimate_bottom_of_bank_storage()                               # unit: m
         
-        #~ # - for lakes and/or reservoirs, ignore the drainage
-        #~ drain_conductance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, pcr.scalar(0.0))
-        #~ # - drainage conductance is a linear reservoir coefficient
-        #~ drain_conductance = pcr.cover(drain_conductance, \
-                            #~ self.recessionCoeff * self.specificYield * self.cellAreaMap)    # unit: m2/day
-
         # - drainage conductance is a linear reservoir coefficient
         drain_conductance = self.recessionCoeff * self.specificYield * self.cellAreaMap        # unit: m2/day
-
+        # - for lakes and/or reservoirs, ignore the drainage
+        drain_conductance *= pcr.cover(pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, pcr.scalar(self.WaterBodies.fracWat)), 1.0)
 
         #~ drain_conductance = pcr.ifthenelse(drain_conductance < 1e-20, 0.0, \
                                            #~ drain_conductance) 
@@ -2186,10 +2181,10 @@ class GroundwaterModflow(object):
         drain_conductance = pcr.ifthen(self.landmask, drain_conductance)
         drain_conductance = pcr.cover(drain_conductance, 0.0)
         
-        # set the DRN package only to the uppermost layer
-        self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
+        #~ # set the DRN package only to the uppermost layer
+        #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, self.number_of_layers)
 
-        #~ # set the DRN package only to both layers 
+        #~ # set the DRN package only to both layers ------ 4 January 2016: I think that we should use this as we want all recharge will be released as baseflow.
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 2)
 
@@ -2197,7 +2192,12 @@ class GroundwaterModflow(object):
         #~ self.pcr_modflow.setDrain(drain_elevation, drain_conductance, 1)
         #~ self.pcr_modflow.setDrain(pcr.spatial(pcr.scalar(0.0)),pcr.spatial(pcr.scalar(0.0)), 2)
         
-        # TODO: Check where we should put the drain layer ?? Perform some sensivity analysis for this ? Is there a better way to conceptualize this?
+        # a new idea 9 Nov 2018:
+        drain_elevation_lowermost_layer = pcr.max(drain_elevation, self.bottom_layer_1)
+        self.pcr_modflow.setDrain(drain_elevation_lowermost_layer, drain_conductance, 1)
+        drain_elevation_uppermost_layer = pcr.max(drain_elevation, self.bottom_layer_2)
+        self.pcr_modflow.setDrain(drain_elevation_uppermost_layer, drain_conductance, 2)
+
         # TODO: Shall we link the specificYield used to the BCF package ??
         
         #~ pcr.aguila(pcr.ifthen(self.landmask, self.recessionCoeff))
