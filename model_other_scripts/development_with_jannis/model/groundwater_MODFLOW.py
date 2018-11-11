@@ -1846,7 +1846,7 @@ class GroundwaterModflow(object):
         #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
         #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
         # --- alternative 2: using average DEM
-        surface_water_bed_elevation = pcr.areaverage(self.dem_average, self.WaterBodies.waterBodyIds)
+        surface_water_bed_elevation = pcr.areaaverage(self.dem_average, self.WaterBodies.waterBodyIds)
         surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, surface_water_bed_elevation)
         surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_average)
         #
