@@ -119,6 +119,10 @@ class GroundwaterModflow(object):
         else:
             self.online_coupling = self.globalMergingAndModflowOptions['online_coupling_between_pcrglobwb_and_modflow'] == "True"
 
+        # option to exclude surface water (river) infiltration (to groundwater bodies)
+        self.exclude_river_infiltration = False
+        # - for daily online coupling, we exclude river infiltration as it will be calculated within the routing module
+        if self.online_daily_coupling_between_pcrglobwb_and_modflow: self.exclude_river_infiltration = True
 
         # topography properties: read several variables from a netcdf file
         if 'topographyNC' not in self.iniItems.modflowParameterOptions.keys() or\
@@ -1823,21 +1827,28 @@ class GroundwaterModflow(object):
         logger.info("(Re-)Estimating surface water bed elevation.")
         
         # estimate of lake and reservoir fraction and estimate of river fraction:
-        lake_and_reservoir_fraction = pcr.cover(self.WaterBodies.fracWat, 0.0)
-        river_fraction = pcr.cover((self.bankfull_width * self.channelLength) / self.cellAreaMap, 0.0)
+        lake_and_reservoir_fraction_per_entire_cell = pcr.cover(self.WaterBodies.fracWat, 0.0)
+        river_fraction_per_entire_cell = pcr.cover((self.bankfull_width * self.channelLength) / self.cellAreaMap, 0.0)
         # - per surface water area only
         self.lake_and_reservoir_fraction = pcr.min(1.0, \
-                                           vos.getValDivZero(lake_and_reservoir_fraction, lake_and_reservoir_fraction + river_fraction, 0.0))
+                                           vos.getValDivZero(lake_and_reservoir_fraction_per_entire_cell, lake_and_reservoir_fraction_per_entire_cell + river_fraction_per_entire_cell, 0.0))
         self.river_fraction              = pcr.max(0.0, \
                                            1.0 - self.lake_and_reservoir_fraction)
+        self.lake_and_reservoir_fraction = pcr.ifthenelse(lake_and_reservoir_fraction_per_entire_cell + river_fraction_per_entire_cell > 0.0, self.lake_and_reservoir_fraction, 0.0)
+        self.river_fraction = pcr.ifthenelse(lake_and_reservoir_fraction_per_entire_cell + river_fraction_per_entire_cell > 0.0, self.river_fraction, 0.0)
         # PS: One of the ideas of these fraction values is to accomodate if one wants to use different bed conductance values.                                    
         
 
         # - for lakes and resevoirs, estimate bed elevation from DEM only
         #                            This is to avoid that groundwater heads fall too far below DEM
         #                            This will also smooth groundwater heads.     
-        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
-        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
+        #~ # --- alternative 1: using just DEM
+        #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
+        #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
+        # --- alternative 2: using average DEM
+        surface_water_bed_elevation = pcr.areaverage(self.dem_average, self.WaterBodies.waterBodyIds)
+        surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, surface_water_bed_elevation)
+        surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_average)
         #
         # TODO: Need further investigation for lake and reservoir bed elevations. 
         
@@ -1854,14 +1865,14 @@ class GroundwaterModflow(object):
         lake_and_reservoir_resistance = self.bed_resistance
 
         # lake and reservoir conductance (m2/day)
-        lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * self.lake_and_reservoir_fraction * \
+        lake_and_reservoir_conductance = (1.0/lake_and_reservoir_resistance) * lake_and_reservoir_fraction_per_entire_cell * \
                                               self.cellAreaMap
         # river conductance (m2/day)
-        river_conductance = (1.0/self.bed_resistance) * self.river_fraction *\
+        river_conductance = (1.0/self.bed_resistance) * river_fraction_per_entire_cell *\
                                                         self.cellAreaMap
         # assume all cells have minimum river width
         # - this is to drain groundwater flood over the surface
-        minimum_width = 2.0   # Sutanudjaja et al. (2011)
+        minimum_width = 2.0   # TODO: Set this in the configuration file
         minimum_conductance = (1.0/self.bed_resistance) * \
                               pcr.max(minimum_width, self.bankfull_width) * self.channelLength
         river_conductance   = pcr.max(minimum_conductance, river_conductance)
@@ -1883,7 +1894,7 @@ class GroundwaterModflow(object):
                                channel_storage = channel_storage, \
                                currTimeStep = currTimeStep, \
                                simulation_type = simulation_type, \
-                               exclude_river_infiltration = True, \
+                               exclude_river_infiltration = self.exclude_river_infiltration, \
                                stress_period = stress_period, \
                                estimate_river_water_level_from_discharge = estimate_river_water_level_from_discharge, \
                                dynamicFracWat = dynamicFracWat, \
@@ -2023,17 +2034,23 @@ class GroundwaterModflow(object):
             msg = 'Set the river bed elevations to water level elevation (RIV behaves as DRN).'
             logger.info(msg)
             surface_water_bed_elevation_used = surface_water_elevation
-        
+        else:
+            # - exclude infiltration for small rivers
+            minimum_width_of_river_with_infiltration = 10.0     # TODO: Define this in the configuration file
+            surface_water_bed_elevation_used = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
 
         # - covering missing values
         surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
 
 
+        # TODO: limit the condutance using channel storage
+
+
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
-
+        
 
         # set the RIV package only to the uppermost layer
         if set_the_modflow_river_package:
@@ -2201,6 +2218,30 @@ class GroundwaterModflow(object):
         # TODO: Shall we link the specificYield used to the BCF package ??
         
         #~ pcr.aguila(pcr.ifthen(self.landmask, self.recessionCoeff))
+
+    def return_innundation_fraction(self,relative_water_height):
+
+        # - fractions of flooded area (in percentage) based on the relative_water_height (above the minimum dem)
+        DZRIV = relative_water_height
+        
+        CRFRAC_RIV =                         pcr.min(1.0,1.00-(self.dzRel0100-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0100-self.dzRel0090)       	 )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0090,0.90-(self.dzRel0090-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0090-self.dzRel0080),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0080,0.80-(self.dzRel0080-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0080-self.dzRel0070),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0070,0.70-(self.dzRel0070-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0070-self.dzRel0060),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0060,0.60-(self.dzRel0060-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0060-self.dzRel0050),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0050,0.50-(self.dzRel0050-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0050-self.dzRel0040),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0040,0.40-(self.dzRel0040-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0040-self.dzRel0030),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0030,0.30-(self.dzRel0030-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0030-self.dzRel0020),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0020,0.20-(self.dzRel0020-DZRIV)*0.10/pcr.max(1e-3,self.dzRel0020-self.dzRel0010),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0010,0.10-(self.dzRel0010-DZRIV)*0.05/pcr.max(1e-3,self.dzRel0010-self.dzRel0005),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0005,0.05-(self.dzRel0005-DZRIV)*0.04/pcr.max(1e-3,self.dzRel0005-self.dzRel0001),CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<self.dzRel0001,0.01-(self.dzRel0001-DZRIV)*0.01/pcr.max(1e-3,self.dzRel0001)               ,CRFRAC_RIV )
+        CRFRAC_RIV = pcr.ifthenelse(DZRIV<=0,0, CRFRAC_RIV)
+        
+        # - minimum value of innundation fraction is river/channel area
+        CRFRAC_RIV = pcr.cover(pcr.max(0.0,pcr.min(1.0,pcr.max(CRFRAC_RIV,(self.bankfull_depth*self.bankfull_width/self.cellAreaMap)))),scalar(0))		;
+
+        # TODO: Improve this concept using Rens's latest scheme
 
     def old_style_reporting(self,currTimeStep):
 
