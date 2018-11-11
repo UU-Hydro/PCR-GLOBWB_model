@@ -2043,7 +2043,8 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
 
-
+        UNTIL THIS PART
+        
         # TODO: limit the condutance using channel storage
 
 
