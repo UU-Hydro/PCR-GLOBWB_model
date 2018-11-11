@@ -1846,7 +1846,7 @@ class GroundwaterModflow(object):
         #~ surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, self.dem_average)
         #~ surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, 0.0)
         # --- alternative 2: using average DEM
-        surface_water_bed_elevation = pcr.areaverage(self.dem_average, self.WaterBodies.waterBodyIds)
+        surface_water_bed_elevation = pcr.areaaverage(self.dem_average, self.WaterBodies.waterBodyIds)
         surface_water_bed_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, surface_water_bed_elevation)
         surface_water_bed_elevation = pcr.cover(surface_water_bed_elevation, self.dem_average)
         #
@@ -2011,12 +2011,16 @@ class GroundwaterModflow(object):
         #~ # -- alternative 1: based on maximum water levels within the lake
         #~ lake_reservoir_water_elevation = pcr.areamaximum(river_water_elevation, self.WaterBodies.waterBodyIds)
         #
-        # -- alternative 2: just using the constant value based on the digital elevation model 
-        lake_reservoir_water_elevation    = self.dem_average
+        #~ # -- alternative 2: just using the constant value based on the digital elevation model 
+        #~ lake_reservoir_water_elevation    = self.dem_average
+        #~ #
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
         #
-        lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
-        #
-        #
+        # --- alternative 3: using average DEM
+        lake_reservoir_water_elevation = pcr.areaaverage(river_water_elevation, self.WaterBodies.waterBodyIds)
+        lake_reservoir_water_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+        lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, river_water_elevation)
+        lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, self.dem_average)
         #
         # - surface water elevation for rivers, lakes and reservoirs
         #
@@ -2037,20 +2041,28 @@ class GroundwaterModflow(object):
         else:
             # - exclude infiltration for small rivers
             minimum_width_of_river_with_infiltration = 10.0     # TODO: Define this in the configuration file
-            surface_water_bed_elevation_used = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
+            river_bed_elevation = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
+            # - maintain bed elevation defined for lakes and reservoir
+            surface_water_bed_elevation_used = self.lake_and_reservoir_fraction * surface_water_bed_elevation_used +\
+                                               self.river_fraction * river_bed_elevation
 
         # - covering missing values
         surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
 
-        UNTIL THIS PART
-        
-        # TODO: limit the condutance using channel storage
-
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
 
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+
+        #~ # - limit the condutance using channel storage
+        #~ maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
+                                  #~ (available_channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
+                                  #~ (bed_conductance_used))
+        #~ bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
+        #~ # TODO: CHECK AND COMPLETE ABOVE                          
         
 
         # set the RIV package only to the uppermost layer

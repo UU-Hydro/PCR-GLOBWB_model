@@ -2041,19 +2041,28 @@ class GroundwaterModflow(object):
         else:
             # - exclude infiltration for small rivers
             minimum_width_of_river_with_infiltration = 10.0     # TODO: Define this in the configuration file
-            surface_water_bed_elevation_used = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
+            river_bed_elevation = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
+            # - maintain bed elevation defined for lakes and reservoir
+            surface_water_bed_elevation_used = self.lake_and_reservoir_fraction * surface_water_bed_elevation_used +\
+                                               self.river_fraction * river_bed_elevation
 
         # - covering missing values
         surface_water_elevation = pcr.cover(surface_water_elevation, self.dem_average)
         surface_water_bed_elevation_used = pcr.cover(surface_water_bed_elevation_used, self.dem_average)
 
-
-        # TODO: limit the condutance using channel storage
-
+        # - make sure that HRIV >= RBOT
+        surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
 
         # reducing the size of table by ignoring cells outside the landmask region 
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
+
+        #~ # - limit the condutance using channel storage
+        #~ maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
+                                  #~ (available_channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
+                                  #~ (bed_conductance_used))
+        #~ bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
+        #~ # TODO: CHECK AND COMPLETE ABOVE                          
         
 
         # set the RIV package only to the uppermost layer
