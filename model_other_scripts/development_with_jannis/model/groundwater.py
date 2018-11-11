@@ -33,7 +33,10 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-import groundwater_MODFLOW as gw_modflow
+try:
+    import groundwater_MODFLOW as gw_modflow
+except:
+    pass
 
 import virtualOS as vos
 from ncConverter import *
