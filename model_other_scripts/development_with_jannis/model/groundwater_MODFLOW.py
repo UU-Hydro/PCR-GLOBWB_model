@@ -2011,12 +2011,16 @@ class GroundwaterModflow(object):
         #~ # -- alternative 1: based on maximum water levels within the lake
         #~ lake_reservoir_water_elevation = pcr.areamaximum(river_water_elevation, self.WaterBodies.waterBodyIds)
         #
-        # -- alternative 2: just using the constant value based on the digital elevation model 
-        lake_reservoir_water_elevation    = self.dem_average
+        #~ # -- alternative 2: just using the constant value based on the digital elevation model 
+        #~ lake_reservoir_water_elevation    = self.dem_average
+        #~ #
+        #~ lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
         #
-        lake_reservoir_water_elevation    = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
-        #
-        #
+        # --- alternative 3: using average DEM
+        lake_reservoir_water_elevation = pcr.areaaverage(river_water_elevation, self.WaterBodies.waterBodyIds)
+        lake_reservoir_water_elevation = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0, lake_reservoir_water_elevation)
+        lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, river_water_elevation)
+        lake_reservoir_water_elevation = pcr.cover(lake_reservoir_water_elevation, self.dem_average)
         #
         # - surface water elevation for rivers, lakes and reservoirs
         #
