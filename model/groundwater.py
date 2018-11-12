@@ -365,6 +365,7 @@ class Groundwater(object):
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
                 print minimumTransmissivityForProductiveAquifer
+                print self.kSatAquifer
                 self.productive_aquifer = pcr.cover(\
                  pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(0.0))
                 #~ pcr.aguila(self.productive_aquifer) 
