@@ -1581,6 +1581,7 @@ class LandCover(object):
             
             # debugging
             self.irrGrossDemand = 0.001
+            dummy
 
         # irrigation efficiency, minimum demand for start irrigating and maximum value to cap excessive demand 
         if self.includeIrrigation:
