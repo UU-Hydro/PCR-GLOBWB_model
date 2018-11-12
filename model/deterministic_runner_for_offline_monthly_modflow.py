@@ -36,11 +36,10 @@ from currTimeStep import ModelTime
 from reporting_for_modflow import Reporting
 
 import modflow
-
-try:
-    import modflow
-except:
-    pass
+#~ try:
+    #~ import modflow
+#~ except:
+    #~ pass
 
 import virtualOS as vos
 

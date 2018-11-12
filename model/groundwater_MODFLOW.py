@@ -682,8 +682,9 @@ class GroundwaterModflow(object):
 
         # secondary storage coefficient for aquifer layer (optional)
         if "aquiferLayerSecondaryStorageCoefficient" in self.iniItems.modflowParameterOptions.keys() and\
-            self.secondary_storage_coefficient_1 = self.specificYield
             self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] not in ["None", "False"]:
+            # - default value
+            self.secondary_storage_coefficient_1 = self.specificYield
             msg = "Using the layer type (LAYCON) 2. Storage coefficient values may alter from their primary to the secondary ones (and vice versa)"
             logger.info(msg)
             if self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] != "Default":
