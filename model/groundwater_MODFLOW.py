@@ -878,10 +878,11 @@ class GroundwaterModflow(object):
         # set conductivity values to MODFLOW
         msg = "Assign conductivity values to the MODFLOW (BCF package)."
         if self.log_to_info: logger.info(msg)
+        pcr.aguila(horizontal_conductivity_layer_2)
+        pcr.aguila(vertical_conductivity_layer_2)
+        raw_input("Press Enter to continue...")
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
-        pcr.aguila(horizontal_conductivity_layer_2)
-        #~ dummy
         if "aquiferLayerSecondaryStorageCoefficient" in self.iniItems.modflowParameterOptions.keys() and\
             self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] not in ["None", "False"]:
             msg = "Using the layer type (LAYCON) 2 for the aquifer layer."
