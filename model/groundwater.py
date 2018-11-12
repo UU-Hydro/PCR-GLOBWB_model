@@ -87,7 +87,7 @@ class Groundwater(object):
 
         # MODFLOW option
         self.useMODFLOW = False
-        if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
+        if 'useMODFLOW' in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
         
         # option for daily coupling to MODFLOW
         self.coupleToDailyMODFLOW = False
