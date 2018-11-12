@@ -106,11 +106,12 @@ class Groundwater(object):
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
-        #~ if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        if 'limitAbstraction' in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
         self.limitFossilGroundwaterAbstraction = False
-        #~ if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": self.limitFossilGroundwaterAbstraction = True
+        if 'limitFossilGroundWaterAbstraction' in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True":
+            self.limitFossilGroundwaterAbstraction = True
 
         # if using MODFLOW, limitAbstraction must be True: the abstraction cannot exceed storGroundwater (consequently, the concept of fossil groundwater is abandoned):
         if self.useMODFLOW:
@@ -119,14 +120,15 @@ class Groundwater(object):
             # TODO: Please check! It seems that the latter is not necessary.   
 
         # option for limitting regional groundwater abstractions
-        if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
-            logger.info('Limit for annual regional groundwater abstraction (groundwater pumping capacity) is used.')
-            self.limitRegionalAnnualGroundwaterAbstraction = True
-            self.pumpingCapacityNC = vos.getFullPath(\
-                                     iniItems.groundwaterOptions['pumpingCapacityNC'], self.inputDir, False)
-        else:
-            logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
-            self.limitRegionalAnnualGroundwaterAbstraction = False
+        if 'pumpingCapacityNC' in iniItems.groundwaterOptions.keys():
+            if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
+                logger.info('Limit for annual regional groundwater abstraction (groundwater pumping capacity) is used.')
+                self.limitRegionalAnnualGroundwaterAbstraction = True
+                self.pumpingCapacityNC = vos.getFullPath(\
+                                         iniItems.groundwaterOptions['pumpingCapacityNC'], self.inputDir, False)
+            else:
+                logger.warning('NO LIMIT for regional groundwater (annual) pumping. It may result too high groundwater abstraction.')
+                self.limitRegionalAnnualGroundwaterAbstraction = False
         #####################################################################################################################################################
 
 
