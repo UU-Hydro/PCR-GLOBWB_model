@@ -402,8 +402,7 @@ class Groundwater(object):
                                   pcr.max(0.0,\
                                   totalGroundwaterThickness*self.specificYield - storGroundwaterCap))
         else:                         
-
-            logger.info('Fossil groundwater capacity is NOT defined.')
+            if self.modflowOfflineCoupling == False: logger.info('Fossil groundwater capacity is NOT defined.')
         #####################################################################################################################################################
 
 
