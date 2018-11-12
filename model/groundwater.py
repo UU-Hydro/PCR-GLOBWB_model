@@ -263,6 +263,11 @@ class Groundwater(object):
 
 
         # maximum surface water bed conductivity (unit: m.day-1)
+        if 'maximumRiverBedConductivity' not in iniItems.groundwaterOptions.keys():
+            msg  = 'The option "maximumRiverBedConductivity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.1" (m/day) for this option.'
+            logger.warning(msg)
+            iniItems.groundwaterOptions['maximumRiverBedConductivity'] = "0.1"
         maximumRiverBedConductivity = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumRiverBedConductivity'], self.cloneMap, self.tmpDir, self.inputDir)
         maximumRiverBedConductivity = pcr.ifthen(maximumRiverBedConductivity > 0.0, maximumRiverBedConductivity)
         maximumRiverBedConductivity = pcr.cover(maximumRiverBedConductivity, pcr.mapminimum(maximumRiverBedConductivity))
