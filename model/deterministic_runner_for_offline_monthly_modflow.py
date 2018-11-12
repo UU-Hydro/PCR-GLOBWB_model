@@ -35,6 +35,8 @@ from configuration_for_modflow import Configuration
 from currTimeStep import ModelTime
 from reporting_for_modflow import Reporting
 
+import modflow
+
 try:
     import modflow
 except:
