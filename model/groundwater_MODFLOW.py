@@ -627,6 +627,7 @@ class GroundwaterModflow(object):
                                                                           self.cloneMap, self.tmpDir, self.inputDir)
             # - only for cells identified as the confining layer
             confiningLayerPrimaryStorageCoefficient = pcr.ifthen(self.confiningLayerThickness > 0.0, confiningLayerPrimaryStorageCoefficient)
+            #
             # - cover the rest, using the default value
             self.storage_coefficient_2 = pcr.cover(confiningLayerPrimaryStorageCoefficient, self.storage_coefficient_2)
             
@@ -641,7 +642,7 @@ class GroundwaterModflow(object):
 
         # - dummy values for the secondary term - as we use layer type 00
         secondary_2 = primary_2
-        # TODO: Define confiningLayerSecondaryStorageCoefficient so that we can use the layer type (LAYCON) 3. Note that for this layer type, storage coefficient values may alter from their primary to the secondary ones (and vice versa) and transmissivities vary depending on saturation thicknesses. A cell may be desaturated and even dry if its saturation thickness is zero.
+        # For the confining layer, we simplify that storage coefficient values (and transmissivities) are constant. 
 
 
         msg = "Set storage coefficient for the lower layer (including lat/lon correction)."
@@ -656,26 +657,55 @@ class GroundwaterModflow(object):
             if self.log_to_info: logger.info(msg)
             aquiferLayerPrimaryStorageCoefficient = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['aquiferLayerPrimaryStorageCoefficient'], \
                                                                         self.cloneMap, self.tmpDir, self.inputDir)
+            msg = "Note that this is for the confined aquifer layer only (aquifer covered by the confining layer)'."
+            if self.log_to_info: logger.info(msg)
             # - only for cells below the confining layer
             aquiferLayerPrimaryStorageCoefficient = pcr.ifthen(self.confiningLayerThickness > 0.0, aquiferLayerPrimaryStorageCoefficient)
+            #
+            # - TODO: Perform interpolation in transition areas between cells with and without confining layer. 
+            #
             # - cover the rest, using the default value
             self.storage_coefficient_1 = pcr.cover(aquiferLayerPrimaryStorageCoefficient, self.storage_coefficient_1)
-
-        # - correction due to the usage of lat/lon coordinates
-        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        primary_1   = pcr.max(1e-20, primary_1)
 
         # adjusting factor and set minimum and maximum values to keep values realistics
         self.storage_coefficient_1  = adjust_factor * self.storage_coefficient_1
         self.storage_coefficient_1  = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.storage_coefficient_1))
 
-        # - dummy values for the secondary term - as we use layer type 00
-        secondary_1 = primary_1
-        # TODO: Define confiningLayerSecondaryStorageCoefficient so that we can use the layer type (LAYCON) 2. Note that for this layer type, storage coefficient values may alter from their primary to the secondary ones (and vice versa), but transmissivities constantly based on the layer thickness. 
-        #~ secondary_1 = pcr.cover(self.specificYield * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
-        #~ secondary_1 = pcr.max(1e-20, secondary_1)
-        #~ secondary_1 = pcr.max(primary_1, secondary_1)
+        # - correction due to the usage of lat/lon coordinates
+        primary_1   = pcr.cover(self.storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        primary_1   = pcr.max(1e-20, primary_1)
 
+        # - dummy values for the secondary term (layer type 00)
+        secondary_1 = primary_1
+        self.secondary_storage_coefficient_1 = secondary_1
+        
+
+        # secondary storage coefficient for aquifer layer (optional)
+        if "aquiferLayerSecondaryStorageCoefficient" in self.iniItems.modflowParameterOptions.keys() and\
+            self.secondary_storage_coefficient_1 = self.specificYield
+            self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] not in ["None", "False"]:
+            msg = "Using the layer type (LAYCON) 2. Storage coefficient values may alter from their primary to the secondary ones (and vice versa)"
+            logger.info(msg)
+            if self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] != "Default":
+                msg = "Set the secondary storage coefficient for the aquifer layer based on the input in 'aquiferLayerSecondaryStorageCoefficient'."
+                if self.log_to_info: logger.info(msg)
+                aquiferLayerSecondaryStorageCoefficient = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'], \
+                                                                              self.cloneMap, self.tmpDir, self.inputDir)
+            else:
+                msg = "Set the secondary storage coefficient for the aquifer layer to the specific yield.'."
+                if self.log_to_info: logger.info(msg)
+                aquiferLayerSecondaryStorageCoefficient = self.specificYield
+            # - cover the rest, using the default value
+            self.secondary_storage_coefficient_1 = pcr.cover(aquiferLayerPrimaryStorageCoefficient, self.secondary_storage_coefficient_1)
+        
+        # - the value should be bigger or equal compared to its primary
+        self.secondary_storage_coefficient_1 = pcr.max(self.secondary_storage_coefficient_1, self.storage_coefficient_1)
+        
+        # - correction due to the usage of lat/lon coordinates
+        secondary_1 = pcr.cover(self.secondary_storage_coefficient_1 * self.cellAreaMap/(pcr.clone().cellSize()*pcr.clone().cellSize()), 0.0)
+        secondary_1 = pcr.max(1e-20, secondary_1)
+        secondary_1 = pcr.max(1e-20, primary_1)
+        
 
         msg = "Assign storage coefficient values to the MODFLOW (BCF package)."
         if self.log_to_info: logger.info(msg)
@@ -844,12 +874,16 @@ class GroundwaterModflow(object):
         if self.log_to_info: logger.info(msg)
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
-        self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
-                                             vertical_conductivity_layer_1, 1)              
-        #
-        # TODO: Define confiningLayerSecondaryStorageCoefficient so that we can use the layer type (LAYCON) 2. Note that for this layer type, storage coefficient values may alter from their primary to the secondary ones (and vice versa), but transmissivities constantly based on the layer thickness. 
-        #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
-                                             #~ vertical_conductivity_layer_1, 1)              
+        if "aquiferLayerSecondaryStorageCoefficient" in self.iniItems.modflowParameterOptions.keys() and\
+            self.secondary_storage_coefficient_1 = self.specificYield
+            self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] not in ["None", "False"]:
+            msg = "Using the layer type (LAYCON) 2 for the aquifer layer."
+            logger.debug(msg)
+            self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+                                                 vertical_conductivity_layer_1, 1)              
+        else:
+            self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                                 vertical_conductivity_layer_1, 1)              
 
 
     def set_bcf_for_two_layer_model(self):
