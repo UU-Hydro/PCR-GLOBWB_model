@@ -1514,7 +1514,8 @@ class LandCover(object):
                                        'irr_non_paddy_crops', \
                                        'irrSugarCane', \
                                        'irrigatedNonPaddy']  
-        if self.name in temp_fix_irrigated_classes and self.includeIrrigation:
+        #~ if self.name in temp_fix_irrigated_classes and self.includeIrrigation:
+        if self.name == "irrigatednonpaddy" and self.includeIrrigation:
 
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
