@@ -826,8 +826,6 @@ class GroundwaterModflow(object):
         if self.log_to_info: logger.info(msg)
         # - default values
         vertical_conductivity_layer_2 = self.kSatAquifer
-        pcr.aguila(vertical_conductivity_layer_2)
-        raw_input("Press Enter to continue...")
         # - if specifically defined in the configuration/ini file
         if "confiningLayerVerticalConductivity" in self.iniItems.modflowParameterOptions.keys() and\
             self.iniItems.modflowParameterOptions['confiningLayerHorizontalConductivity'] != "Default":
@@ -847,6 +845,8 @@ class GroundwaterModflow(object):
             maximumConfiningLayerVerticalConductivity = pcr.min(vertical_conductivity_layer_2, self.maximumConfiningLayerVerticalConductivity)
             # particularly in areas with confining layer
             vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, maximumConfiningLayerVerticalConductivity, vertical_conductivity_layer_2)
+        pcr.aguila(vertical_conductivity_layer_2)
+        raw_input("Press Enter to continue...")
         #
         # adjusment according to "adjust_factor_for_resistance_values":
         vertical_conductivity_layer_2 = (1.0/adjust_factor_for_resistance_values) * vertical_conductivity_layer_2
