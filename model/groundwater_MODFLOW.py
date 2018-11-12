@@ -112,6 +112,7 @@ class GroundwaterModflow(object):
             self.online_daily_coupling_between_pcrglobwb_and_modflow = groundwater_pcrglobwb.coupleToDailyMODFLOW
         # - if True, the stress period of MODFLOW is daily.    
         # - if False, the (default) MODFLOW stress period is monthly. This setting is also used for an offline MODFLOW run. 
+        #
         # TODO: We should introduce a possibility to run an offline daily stress period of MODFLOW.     
 
 
