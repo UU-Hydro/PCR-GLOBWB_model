@@ -180,6 +180,11 @@ class Groundwater(object):
         self.kSatAquifer = pcr.cover(self.kSatAquifer, 0.0)
         if 'minAquiferSatConductivity' in iniItems.groundwaterOptions.keys():
             minAquiferSatConductivity = float(iniItems.groundwaterOptions['minAquiferSatConductivity'])
+        else:
+            msg  = 'The option "minAquiferSatConductivity" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes 0.01 for this option.'
+            logger.warning(msg)
+            minAquiferSatConductivity = 0.01
         # - the minimum value may be automatically set in the configuration.py 
         self.kSatAquifer = pcr.max(minAquiferSatConductivity, self.kSatAquifer)              
         #~ pcr.aguila(self.kSatAquifer)
