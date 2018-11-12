@@ -383,7 +383,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # estimate of fossil groundwater capacity (based on the aquifer thickness and specific yield)
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False:
+        if self.modflowOfflineCoupling == False and iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True" and self.limitAbstraction == False:
 
             logger.info('Fossil groundwater abstractions are allowed with LIMIT.')
             logger.info('Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.')
