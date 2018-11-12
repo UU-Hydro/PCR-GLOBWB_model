@@ -121,7 +121,8 @@ class GroundwaterModflow(object):
         if self.online_daily_coupling_between_pcrglobwb_and_modflow:
             self.online_coupling = True
         else:
-            self.online_coupling = self.globalMergingAndModflowOptions['online_coupling_between_pcrglobwb_and_modflow'] == "True"
+            if 'globalMergingAndModflowOptions' in self.iniItems.allSections:
+                self.online_coupling = self.iniItems.globalMergingAndModflowOptions['online_coupling_between_pcrglobwb_and_modflow'] == "True"
 
         # option to exclude surface water (river) infiltration (to groundwater bodies)
         self.exclude_river_infiltration = False
