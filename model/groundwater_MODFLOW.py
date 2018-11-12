@@ -2037,7 +2037,7 @@ class GroundwaterModflow(object):
             #
             # - calculating water level (unit: m) above the flood plain - estimated from discharge only 
             #------------------------------------------------------------------------------------------
-            water_above_fpl  = pcr.max(0.0, river_water_elevation - self.dem_floodplain)   # unit: m, water level above the floodplain (not distributed)
+            water_above_fpl  = pcr.max(0.0, river_water_elevation - self.dem_floodplain)      # unit: m, water level above the floodplain (not distributed)
             water_above_fpl *= self.bankfull_depth * self.bankfull_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
             #
             # - corrected surface water elevation
