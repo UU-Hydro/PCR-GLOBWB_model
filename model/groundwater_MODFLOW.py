@@ -142,7 +142,7 @@ class GroundwaterModflow(object):
 
 
         # channel properties
-        if 'channelNC' in self.iniItems.modflowParameterOptions.keys(): 
+        if 'channelNC' in self.iniItems.routingOptions.keys(): 
 
             # channel properties: read several variables from the netcdf file
             for var in ['cellAreaMap', 'lddMap', 'gradient', 'bankfull_width',
