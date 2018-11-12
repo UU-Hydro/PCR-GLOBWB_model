@@ -464,16 +464,17 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # maximumDailyGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
-                                                                      self.cloneMap,self.tmpDir,self.inputDir)
+        if self.modflowOfflineCoupling == False:
+            self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
+                                                                          self.cloneMap,self.tmpDir,self.inputDir)
         #~ pcr.aguila(self.maximumDailyGroundwaterAbstraction)
         #####################################################################################################################################################
 
 
         #####################################################################################################################################################
         # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'],
-                                                                      self.cloneMap,self.tmpDir,self.inputDir)
+        if self.modflowOfflineCoupling == False:
+            self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'], self.cloneMap,self.tmpDir,self.inputDir)
         #~ pcr.aguila(self.maximumDailyFossilGroundwaterAbstraction)
         #####################################################################################################################################################
 
