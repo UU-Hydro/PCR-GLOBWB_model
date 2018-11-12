@@ -2032,13 +2032,13 @@ class GroundwaterModflow(object):
             logger.info("River water levels based on PCR-GLOBWB discharge output (converted to water levels using Manning's equation)")
 
             # - convert discharge value to surface water elevation (m)
-            river_water_height = (self.channel_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
+            river_water_height = (self.bankfull_width**(-3/5)) * (discharge**(3/5)) * ((self.gradient)**(-3/10)) *(self.manningsN**(3/5))
             river_water_elevation = self.dem_riverbed + river_water_height
             #
             # - calculating water level (unit: m) above the flood plain - estimated from discharge only 
             #------------------------------------------------------------------------------------------
             water_above_fpl  = pcr.max(0.0, surface_water_elevation - self.dem_floodplain)   # unit: m, water level above the floodplain (not distributed)
-            water_above_fpl *= self.bankfull_depth * self.channel_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
+            water_above_fpl *= self.bankfull_depth * self.bankfull_width / self.cellAreaMap   # unit: m, water level above the floodplain (distributed within the cell)
             #
             # - corrected surface water elevation
             river_water_elevation = pcr.ifthenelse(river_water_elevation > self.dem_floodplain, self.dem_floodplain + water_above_fpl, \
