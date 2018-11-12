@@ -697,7 +697,7 @@ class GroundwaterModflow(object):
                 if self.log_to_info: logger.info(msg)
                 aquiferLayerSecondaryStorageCoefficient = self.specificYield
             # - cover the rest, using the default value
-            self.secondary_storage_coefficient_1 = pcr.cover(aquiferLayerPrimaryStorageCoefficient, self.secondary_storage_coefficient_1)
+            self.secondary_storage_coefficient_1 = pcr.cover(aquiferLayerSecondaryStorageCoefficient, self.secondary_storage_coefficient_1)
         
         # - the value should be bigger or equal compared to its primary
         self.secondary_storage_coefficient_1 = pcr.max(self.secondary_storage_coefficient_1, self.storage_coefficient_1)
