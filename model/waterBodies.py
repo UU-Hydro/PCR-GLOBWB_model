@@ -321,6 +321,9 @@ class WaterBodies(object):
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
             self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
             self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+            self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
+            self.avgInflow        = pcr.ifthen(self.landmask, self.avgInflow       )
+            self.avgOutflow       = pcr.ifthen(self.landmask, self.avgOutflow      )
         except:
             # PS: FOR OFFLINE MODFLOW RUN!
             pass
@@ -332,9 +335,6 @@ class WaterBodies(object):
         self.waterBodyArea     = pcr.ifthen(self.landmask, self.waterBodyArea   )
         self.waterBodyTyp      = pcr.ifthen(self.landmask, self.waterBodyTyp    )  
         self.waterBodyCap      = pcr.ifthen(self.landmask, self.waterBodyCap    )
-        self.waterBodyStorage  = pcr.ifthen(self.landmask, self.waterBodyStorage)
-        self.avgInflow         = pcr.ifthen(self.landmask, self.avgInflow       )
-        self.avgOutflow        = pcr.ifthen(self.landmask, self.avgOutflow      )
 
     def getICs(self,initial_condition):
 
