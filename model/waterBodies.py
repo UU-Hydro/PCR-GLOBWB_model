@@ -36,7 +36,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False):
+    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False, lddMap = None):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
@@ -46,10 +46,13 @@ class WaterBodies(object):
         self.landmask = landmask
                 
         # local drainage direction:
-        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
-        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-        self.lddMap = pcr.lddrepair(self.lddMap)
+        if isinstance(lddMap, types.NoneType):
+            self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
+                                                  self.cloneMap,self.tmpDir,self.inputDir,True)
+            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+            self.lddMap = pcr.lddrepair(self.lddMap)
+        else:    
+            self.lddMap = lddMap
 
         # option to activate water balance check
         self.debugWaterBalance = True

@@ -1986,7 +1986,8 @@ class GroundwaterModflow(object):
             if self.WaterBodies == None:
                 self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
                                                            self.landmask,\
-                                                           self.onlyNaturalWaterBodies)
+                                                           self.onlyNaturalWaterBodies,\
+                                                           self.lddMap)
                 self.WaterBodies.getParameterFiles(currTimeStep,\
                                                    self.cellAreaMap, \
                                                    self.lddMap)        
