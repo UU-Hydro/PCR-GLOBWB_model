@@ -1513,9 +1513,11 @@ class LandCover(object):
                                        'irr_non_paddy', \
                                        'irr_non_paddy_crops', \
                                        'irrSugarCane', \
-                                       'irrigatedNonPaddy']  
-        #~ if self.name in temp_fix_irrigated_classes and self.includeIrrigation:
-        if self.name == "irrigatednonpaddy" and self.includeIrrigation:
+                                       'irrigatedNonPaddy',\
+                                       'irrigatednonpaddy',\
+                                       'irrigatedsugarcane']  
+        if self.name in temp_fix_irrigated_classes and self.includeIrrigation:
+        #~ if self.name == "irrigatednonpaddy" and self.includeIrrigation:
 
             #~ adjDeplFactor = \
                      #~ pcr.max(0.1,\
@@ -1580,9 +1582,8 @@ class LandCover(object):
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp000005)
             
-            # debugging
-            self.irrGrossDemand = 0.001
-            dummy
+            #~ # debugging
+            #~ self.irrGrossDemand = 0.001
 
         # irrigation efficiency, minimum demand for start irrigating and maximum value to cap excessive demand 
         if self.includeIrrigation:
