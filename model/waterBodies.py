@@ -315,10 +315,15 @@ class WaterBodies(object):
         
         # For each new reservoir (introduced at the beginning of the year)
         # initiating storage, average inflow and outflow
+        # PS: THIS IS NOT NEEDED FOR OFFLINE MODFLOW RUN! 
         #
-        self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
-        self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
-        self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+        try:
+            self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
+            self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
+            self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+        except:
+            # PS: FOR OFFLINE MODFLOW RUN!
+            pass
 
         # cropping only in the landmask region:
         self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
