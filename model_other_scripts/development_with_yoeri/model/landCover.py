@@ -1578,6 +1578,9 @@ class LandCover(object):
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp000005)
+            
+            # debugging
+            self.irrGrossDemand = 0.001
 
         # irrigation efficiency, minimum demand for start irrigating and maximum value to cap excessive demand 
         if self.includeIrrigation:
