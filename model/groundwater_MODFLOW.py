@@ -845,8 +845,6 @@ class GroundwaterModflow(object):
             maximumConfiningLayerVerticalConductivity = pcr.min(vertical_conductivity_layer_2, self.maximumConfiningLayerVerticalConductivity)
             # particularly in areas with confining layer
             vertical_conductivity_layer_2  = pcr.ifthenelse(self.confiningLayerThickness > 0.0, maximumConfiningLayerVerticalConductivity, vertical_conductivity_layer_2)
-        pcr.aguila(vertical_conductivity_layer_2)
-        raw_input("Press Enter to continue...")
         #
         # adjusment according to "adjust_factor_for_resistance_values":
         vertical_conductivity_layer_2 = (1.0/adjust_factor_for_resistance_values) * vertical_conductivity_layer_2
@@ -858,6 +856,10 @@ class GroundwaterModflow(object):
                                                  vertical_conductivity_layer_2)
         vertical_conductivity_layer_2  = pcr.min(self.thickness_of_layer_2/minResistance,\
                                                      vertical_conductivity_layer_2)
+
+        pcr.aguila(vertical_conductivity_layer_2)
+        raw_input("Press Enter to continue...")
+
 
         # resistance values between upper and lower layers - unit: days
         self.resistance_between_layers = self.thickness_of_layer_2 / vertical_conductivity_layer_2
