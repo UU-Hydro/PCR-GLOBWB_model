@@ -826,6 +826,8 @@ class GroundwaterModflow(object):
         if self.log_to_info: logger.info(msg)
         # - default values
         vertical_conductivity_layer_2 = self.kSatAquifer
+        pcr.aguila(vertical_conductivity_layer_2)
+        raw_input("Press Enter to continue...")
         # - if specifically defined in the configuration/ini file
         if "confiningLayerVerticalConductivity" in self.iniItems.modflowParameterOptions.keys() and\
             self.iniItems.modflowParameterOptions['confiningLayerHorizontalConductivity'] != "Default":
@@ -880,8 +882,8 @@ class GroundwaterModflow(object):
         if self.log_to_info: logger.info(msg)
         #~ pcr.aguila(self.kSatAquifer)
         #~ pcr.aguila(horizontal_conductivity_layer_2)
-        pcr.aguila(vertical_conductivity_layer_2)
-        raw_input("Press Enter to continue...")
+        #~ pcr.aguila(vertical_conductivity_layer_2)
+        #~ raw_input("Press Enter to continue...")
         self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_2, \
                                              vertical_conductivity_layer_2, 2)              
         if "aquiferLayerSecondaryStorageCoefficient" in self.iniItems.modflowParameterOptions.keys() and\
