@@ -147,7 +147,7 @@ class GroundwaterModflow(object):
             # channel properties: read several variables from the netcdf file
             for var in ['cellAreaMap', 'lddMap', 'gradient', 'bankfull_width',
                         'bankfull_depth', 'dem_floodplain', 'dem_riverbed']:
-                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
+                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.routingOptions['channelNC'], \
                                                                     var, self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 # - do not mask out cell area (modflow input must be defined for all cells)
