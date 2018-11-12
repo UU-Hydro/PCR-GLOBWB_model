@@ -109,6 +109,7 @@ class Groundwater(object):
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
+        print self.modflowOfflineCoupling
         if self.modflowOfflineCoupling == False and 'limitAbstraction' in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
