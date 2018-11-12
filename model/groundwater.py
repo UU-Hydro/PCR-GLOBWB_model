@@ -103,13 +103,12 @@ class Groundwater(object):
 
         # option/setting for offline MODFLOW coupling (running MODFLOW based on a set of predefined PCR-GLOBWB output files)
         self.modflowOfflineCoupling = False
-        if "modflowOfflineCoupling" in self.iniItems.globalOptions['modflowOfflineCoupling'] and\
+        if "modflowOfflineCoupling" in self.iniItems.globalOptions.keys() and\
             self.iniItems.globalOptions['modflowOfflineCoupling'] == "True":
             self.modflowOfflineCoupling = True	 
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
-        print self.modflowOfflineCoupling
         if self.modflowOfflineCoupling == False and 'limitAbstraction' in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
