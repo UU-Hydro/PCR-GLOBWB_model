@@ -95,22 +95,25 @@ class Groundwater(object):
             self.useMODFLOW = True
             self.coupleToDailyMODFLOW = True
         
-        
         if self.useMODFLOW: logger.info("Coupling to MODFLOW is activated.")
         if self.coupleToDailyMODFLOW:
             logger.info("MODFLOW stress period is daily.")    
         if self.coupleToDailyMODFLOW == False and self.useMODFLOW:
             logger.info("MODFLOW stress period is monthly.")    
 
-
+        # option/setting for offline MODFLOW coupling (running MODFLOW based on a set of predefined PCR-GLOBWB output files)
+        self.modflowOfflineCoupling = False
+        if "modflowOfflineCoupling" in self.iniItems.globalOptions['modflowOfflineCoupling'] and\
+            self.iniItems.globalOptions['modflowOfflineCoupling'] == "True":
+            self.modflowOfflineCoupling = True	 
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
-        if 'landSurfaceOptions' in iniItems.allSections and 'limitAbstraction' in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        if self.modflowOfflineCoupling == False and 'limitAbstraction' in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
         self.limitFossilGroundwaterAbstraction = False
-        if 'limitFossilGroundWaterAbstraction' in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True":
+        if self.modflowOfflineCoupling == False and iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True":
             self.limitFossilGroundwaterAbstraction = True
 
         # if using MODFLOW, limitAbstraction must be True: the abstraction cannot exceed storGroundwater (consequently, the concept of fossil groundwater is abandoned):
@@ -120,7 +123,7 @@ class Groundwater(object):
             # TODO: Please check! It seems that the latter is not necessary.   
 
         # option for limitting regional groundwater abstractions
-        if 'pumpingCapacityNC' in iniItems.groundwaterOptions.keys():
+        if self.modflowOfflineCoupling == False and 'pumpingCapacityNC' in iniItems.groundwaterOptions.keys():
             if iniItems.groundwaterOptions['pumpingCapacityNC'] != "None":
                 logger.info('Limit for annual regional groundwater abstraction (groundwater pumping capacity) is used.')
                 self.limitRegionalAnnualGroundwaterAbstraction = True
@@ -155,7 +158,7 @@ class Groundwater(object):
             minSpecificYield = float(iniItems.groundwaterOptions['minSpecificYield'])
         else:
             msg  = 'The option "minSpecificYield" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'This run assumes "0.01" for this option.'
+            msg += 'This run assumes 0.01 for this option.'
             logger.warning(msg)
             minSpecificYield = 0.01
         # - the minimum value may be automatically set in the configuration.py 
