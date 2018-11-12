@@ -110,7 +110,7 @@ class Groundwater(object):
 
         # option for limitting fossil groundwater abstractions:
         self.limitFossilGroundwaterAbstraction = False
-        if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": self.limitFossilGroundwaterAbstraction = True
+        #~ if iniItems.groundwaterOptions['limitFossilGroundWaterAbstraction'] == "True": self.limitFossilGroundwaterAbstraction = True
 
         # if using MODFLOW, limitAbstraction must be True: the abstraction cannot exceed storGroundwater (consequently, the concept of fossil groundwater is abandoned):
         if self.useMODFLOW:
