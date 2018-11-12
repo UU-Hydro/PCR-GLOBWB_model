@@ -878,6 +878,7 @@ class GroundwaterModflow(object):
         # set conductivity values to MODFLOW
         msg = "Assign conductivity values to the MODFLOW (BCF package)."
         if self.log_to_info: logger.info(msg)
+        pcr.aguila(self.kSatAquifer)
         pcr.aguila(horizontal_conductivity_layer_2)
         pcr.aguila(vertical_conductivity_layer_2)
         raw_input("Press Enter to continue...")
