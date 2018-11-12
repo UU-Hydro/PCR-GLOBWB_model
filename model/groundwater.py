@@ -306,13 +306,16 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # total groundwater thickness (unit: m)
+        totalGroundwaterThickness = None
+        groundwaterThicknessIsNeeded = False
         # - For PCR-GLOBWB, the estimate of total groundwater thickness is needed to estimate for the following purpose:
         #   - to estimate fossil groundwater capacity (this is needed only for runs without MODFLOW)
         #   - to determine productive aquifer areas (where capillary rise can occur and groundwater depletion can occur) (for runs with/without MODFLOW)
-        # - Note that for runs with MODFLOW, ideally, we want to minimize enormous drawdown in non-productive aquifer areas
-        totalGroundwaterThickness = None
         if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys() and\
-           (self.limitFossilGroundwaterAbstraction or self.useMODFLOW):
+           (self.limitFossilGroundwaterAbstraction or self.useMODFLOW): groundwaterThicknessIsNeeded = True
+        # - Note that for runs with MODFLOW, ideally, we want to minimize enormous drawdown in non-productive aquifer areas
+        if self.modflowOfflineCoupling: groundwaterThicknessIsNeeded = True  
+        if groundwaterThicknessIsNeeded:
 
             totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
                                                             self.cloneMap, self.tmpDir, self.inputDir)
@@ -364,9 +367,9 @@ class Groundwater(object):
                 minimumTransmissivityForProductiveAquifer = \
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
-                print minimumTransmissivityForProductiveAquifer
-                print self.kSatAquifer
-                print totalGroundwaterThickness
+                #~ print minimumTransmissivityForProductiveAquifer
+                #~ print self.kSatAquifer
+                #~ print totalGroundwaterThickness
                 self.productive_aquifer = pcr.cover(\
                  pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(0.0))
                 #~ pcr.aguila(self.productive_aquifer) 
