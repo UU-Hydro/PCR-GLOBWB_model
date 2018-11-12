@@ -36,7 +36,7 @@ from currTimeStep import ModelTime
 from reporting_for_modflow import Reporting
 
 try:
-    from modflow import ModflowCoupling
+    import modflow
 except:
     pass
 
@@ -59,7 +59,7 @@ class DeterministicRunner(DynamicModel):
         self.configuration = configuration
 
         # model and reporting objects
-        self.model     = ModflowCoupling(configuration, modelTime)
+        self.model     = modflow.ModflowCoupling(configuration, modelTime)
         self.reporting = Reporting(configuration, self.model, modelTime)
         
         # set the clone map
