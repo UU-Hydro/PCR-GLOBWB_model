@@ -106,7 +106,7 @@ class Groundwater(object):
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
-        if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        #~ if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
         self.limitFossilGroundwaterAbstraction = False
