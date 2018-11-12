@@ -153,6 +153,11 @@ class Groundwater(object):
         self.specificYield = pcr.min(1.0000, self.specificYield)
         if 'minSpecificYield' in iniItems.groundwaterOptions.keys():
             minSpecificYield = float(iniItems.groundwaterOptions['minSpecificYield'])
+        else:
+            msg  = 'The option "minSpecificYield" is not defined in the "groundwaterOptions" of the configuration file. '
+            msg += 'This run assumes "0.01" for this option.'
+            logger.warning(msg)
+            minSpecificYield = "0.01"
         # - the minimum value may be automatically set in the configuration.py 
         self.specificYield = pcr.max(minSpecificYield, self.specificYield)
         #~ pcr.aguila(self.specificYield)
