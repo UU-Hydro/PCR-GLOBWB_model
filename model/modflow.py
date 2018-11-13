@@ -48,11 +48,11 @@ class ModflowCoupling(object):
         
         pcr.setclone(configuration.cloneMap)
 
-        # read the ldd map
-        self.lddMap = vos.netcdf2PCRobjCloneWithoutTime(configuration.routingOptions['channelNC'],'lddMap',\
-                                                        configuration.cloneMap)
-        # ensure ldd map is correct, and actually of type "ldd"
-        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        #~ # read the ldd map
+        #~ self.lddMap = vos.netcdf2PCRobjCloneWithoutTime(configuration.routingOptions['channelNC'],'lddMap',\
+                                                        #~ configuration.cloneMap)
+        #~ # ensure ldd map is correct, and actually of type "ldd"
+        #~ self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         # defining the landmask map
         if configuration.globalOptions['landmask'] != "None":
@@ -60,7 +60,7 @@ class ModflowCoupling(object):
             configuration.globalOptions['landmask'],
             configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
         else:
-            self.landmask = pcr.defined(self.lddMap)
+            self.landmask = pcr.boolean(1.0)
         
         # preparing the sub-model(s)         - Currently, there is only one sub-model. 
         self.createSubmodels()
