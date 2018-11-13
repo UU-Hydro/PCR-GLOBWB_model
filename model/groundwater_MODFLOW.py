@@ -188,6 +188,7 @@ class GroundwaterModflow(object):
 
         # cellAreaMap and lddMap 
         if 'routingOptions' not in self.iniItems.allSections: 
+            self.iniItems.routingOptions = {}
             self.iniItems.routingOptions['lddMap'] = self.iniItems.modflowParameterOptions['lddMap']
             self.iniItems.routingOptions['cellAreaMap'] = self.iniItems.modflowParameterOptions['cellAreaMap']
             
