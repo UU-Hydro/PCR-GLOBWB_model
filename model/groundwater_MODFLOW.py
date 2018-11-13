@@ -2108,7 +2108,7 @@ class GroundwaterModflow(object):
 
         # - limit the condutance using channel storage
         if not isinstance(channel_storage, types.NoneType):
-            logger.debug('Limit river bed conductance with channel storage.')
+            logger.info('Limit river bed conductance with channel storage.')
             maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
                                       (channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
                                       (bed_conductance_used))
