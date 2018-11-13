@@ -48,11 +48,11 @@ class ModflowCoupling(object):
         
         pcr.setclone(configuration.cloneMap)
 
-        #~ # read the ldd map
-        #~ self.lddMap = vos.netcdf2PCRobjCloneWithoutTime(configuration.routingOptions['channelNC'],'lddMap',\
-                                                        #~ configuration.cloneMap)
-        #~ # ensure ldd map is correct, and actually of type "ldd"
-        #~ self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        # read the ldd map
+        self.lddMap = vos.netcdf2PCRobjCloneWithoutTime(configuration.modflowParameterOptions['channelNC'], 'lddMap',\
+                                                        configuration.cloneMap)
+        # ensure ldd map is correct, and actually of type "ldd"
+        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         # defining the landmask map
         if configuration.globalOptions['landmask'] != "None":

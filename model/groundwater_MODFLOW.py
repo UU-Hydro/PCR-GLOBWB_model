@@ -196,6 +196,7 @@ class GroundwaterModflow(object):
             # cell area (unit: m2)
             self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
                                                    self.cloneMap, self.tmpDir, self.inputDir)
+            self.cellAreaMap = pcr.cover(self.cellAreaMap, 0.0)
             #~ self.cellAreaMap = pcr.ifthen(self.landmask, self.cellAreaMap)
             # NOTE: For MODFLOW, DO NOT MASK OUT
 
@@ -226,7 +227,17 @@ class GroundwaterModflow(object):
         if self.iniItems.modflowParameterOptions['onlyNaturalWaterBodies'] == "True": self.onlyNaturalWaterBodies = True
         #
         # PS: WaterBodies will be initiated within the method "modflow_simulation".
-
+        
+        
+        # option to exclude river infiltration
+        self.minimumWidthOfRiversWithInfiltration = 0.0
+        if 'minimumWidthOfRiversWithInfiltration' in self.iniItems.modflowParameterOptions.keys():
+            msg = 'Exclude river infiltration (RIV behaves as DRN) for rivers with widths smaller than: ' + self.iniItems.modflowParameterOptions['minimumWidthOfRiversWithInfiltration']
+            logger.info(msg)
+            self.minimumWidthOfRiversWithInfiltration = pcr.cover(
+                                                        vos.readPCRmapClone(self.iniItems.modflowParameterOptions['minimumWidthOfRiversWithInfiltration'],
+                                                                            self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+                                                                            
 
         # TODO: Refactor the configuration file, particularly to merge some double fields defined in the "routingOptions" and "modflowParameterOptions"
         # - One of the ideas is to keep all channel properties in the routingOptions (so that ini files for offline modflow runs will still need them). 
@@ -2097,7 +2108,7 @@ class GroundwaterModflow(object):
             surface_water_bed_elevation_used = surface_water_elevation
         else:
             # - exclude infiltration for small rivers
-            minimum_width_of_river_with_infiltration = 10.0     # TODO: Define this in the configuration file
+            minimum_width_of_river_with_infiltration = self.minimumWidthOfRiversWithInfiltration
             river_bed_elevation = pcr.ifthenelse(self.bankfull_width >= minimum_width_of_river_with_infiltration, surface_water_bed_elevation_used, surface_water_elevation)
             # - maintain bed elevation defined for lakes and reservoir
             surface_water_bed_elevation_used = self.lake_and_reservoir_fraction * surface_water_bed_elevation_used +\
