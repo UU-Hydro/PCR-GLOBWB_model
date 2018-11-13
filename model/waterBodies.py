@@ -44,6 +44,8 @@ class WaterBodies(object):
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
+        
+        self.iniItems = iniItems
                 
         # local drainage direction:
         if isinstance(lddMap, types.NoneType):
@@ -323,7 +325,7 @@ class WaterBodies(object):
         # initiating storage, average inflow and outflow
         # PS: THIS IS NOT NEEDED FOR OFFLINE MODFLOW RUN! 
         #
-        if not ('modflowOfflineCoupling' in iniItems.globalOptions.keys() and iniItems.globalOptions['modflowOfflineCoupling'] == "True"):
+        if not ('modflowOfflineCoupling' in self.iniItems.globalOptions.keys() and self.iniItems.globalOptions['modflowOfflineCoupling'] == "True"):
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
             self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
             self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
