@@ -54,11 +54,16 @@ class WaterBodies(object):
         else:    
             self.lddMap = lddMap
 
+        # the following is needed for a modflowOfflineCoupling run
+        if 'modflowOfflineCoupling' in iniItems.globalOptions.keys() and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
+            iniItems.routingOptions = iniItems.modflowParameterOptions
+
+
         # option to activate water balance check
         self.debugWaterBalance = True
-        if 'routingOptions' in iniItems.allSections and 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
+        if 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
-
+        
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
