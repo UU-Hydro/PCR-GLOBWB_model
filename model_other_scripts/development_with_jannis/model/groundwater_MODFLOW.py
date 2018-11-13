@@ -705,6 +705,10 @@ class GroundwaterModflow(object):
             # - cover the rest, using the default value
             self.secondary_storage_coefficient_1 = pcr.cover(aquiferLayerSecondaryStorageCoefficient, self.secondary_storage_coefficient_1)
         
+        # adjusting factor and set minimum and maximum values to keep values realistics
+        self.secondary_storage_coefficient_1 = adjust_factor * self.secondary_storage_coefficient_1
+        self.secondary_storage_coefficient_1 = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.secondary_storage_coefficient_1))
+
         # - the value should be bigger or equal compared to its primary
         self.secondary_storage_coefficient_1 = pcr.max(self.secondary_storage_coefficient_1, self.storage_coefficient_1)
         
@@ -2106,12 +2110,14 @@ class GroundwaterModflow(object):
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
 
-        #~ # - limit the condutance using channel storage
-        #~ maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
-                                  #~ (available_channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
-                                  #~ (bed_conductance_used))
-        #~ bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
-        #~ # TODO: CHECK AND COMPLETE ABOVE                          
+        # - limit the condutance using channel storage
+        if not isinstance(channel_storage, types.NoneType):
+            logger.info('Limit river bed conductance with channel storage.')
+            maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
+                                      (channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
+                                      (bed_conductance_used))
+            maximum_bed_conductance = pcr.max(0.0, pcr.ifthenelse(channel_storage > 0.0, maximum_bed_conductance, 0.0))
+            bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
         
 
         # set the RIV package only to the uppermost layer

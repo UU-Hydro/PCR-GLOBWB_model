@@ -140,18 +140,19 @@ class GroundwaterModflow(object):
                                                                 var, self.cloneMap)
             vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-
-        # channel properties
-        if 'channelNC' in self.iniItems.routingOptions.keys(): 
-
-            # channel properties: read several variables from the netcdf file
+        # channel properties: read several variables from the netcdf file
+        if 'channelNC' in self.iniItems.modflowParameterOptions.keys():
             for var in ['cellAreaMap', 'lddMap', 'gradient', 'bankfull_width',
                         'bankfull_depth', 'dem_floodplain', 'dem_riverbed']:
-                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.routingOptions['channelNC'], \
+                vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
                                                                     var, self.cloneMap)
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
-                # - do not mask out cell area (modflow input must be defined for all cells)
-                if var != "cellAreaMap": vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
+        else:
+            msg = 'The "channelNC" file is NOT defined in the "modflowParameterOptions" of the configuration file.'
+            logger.info(msg)
+            logger.warning(msg)
+            pass
+            
         
         minimumChannelWidth = 0.0
         if 'minimumChannelWidth' in self.iniItems.modflowParameterOptions.keys():
@@ -184,16 +185,19 @@ class GroundwaterModflow(object):
         self.manningsN = vos.readPCRmapClone(self.iniItems.modflowParameterOptions['manningsN'],\
                                              self.cloneMap,self.tmpDir,self.inputDir)
                 
+
+        # if defined, use cellAreaMap and lddMap from 
         if 'routingOptions' in self.iniItems.allSections: 
-            
-            # cell area (unit: m2)
-            self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
-                                                   self.cloneMap, self.tmpDir, self.inputDir)
-            #~ self.cellAreaMap = pcr.ifthen(self.landmask, self.cellAreaMap)
             
             # ldd
             self.lddMap = vos.readPCRmapClone(self.iniItems.routingOptions['lddMap'],
                                               self.cloneMap,self.tmpDir,self.inputDir,True)
+
+            # cell area (unit: m2)
+            self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
+                                                   self.cloneMap, self.tmpDir, self.inputDir)
+            #~ self.cellAreaMap = pcr.ifthen(self.landmask, self.cellAreaMap)
+            # NOTE: For MODFLOW, DO NOT MASK OUT
 
 
         # correcting lddMap
@@ -705,6 +709,10 @@ class GroundwaterModflow(object):
             # - cover the rest, using the default value
             self.secondary_storage_coefficient_1 = pcr.cover(aquiferLayerSecondaryStorageCoefficient, self.secondary_storage_coefficient_1)
         
+        # adjusting factor and set minimum and maximum values to keep values realistics
+        self.secondary_storage_coefficient_1 = adjust_factor * self.secondary_storage_coefficient_1
+        self.secondary_storage_coefficient_1 = pcr.min(maximum_storage_coefficient, pcr.max(minimum_storage_coefficient, self.secondary_storage_coefficient_1))
+
         # - the value should be bigger or equal compared to its primary
         self.secondary_storage_coefficient_1 = pcr.max(self.secondary_storage_coefficient_1, self.storage_coefficient_1)
         
