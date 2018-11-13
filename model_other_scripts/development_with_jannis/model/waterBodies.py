@@ -36,7 +36,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False):
+    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False, lddMap = None):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
@@ -46,14 +46,17 @@ class WaterBodies(object):
         self.landmask = landmask
                 
         # local drainage direction:
-        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
-        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-        self.lddMap = pcr.lddrepair(self.lddMap)
+        if isinstance(lddMap, types.NoneType):
+            self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
+                                                  self.cloneMap,self.tmpDir,self.inputDir,True)
+            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+            self.lddMap = pcr.lddrepair(self.lddMap)
+        else:    
+            self.lddMap = lddMap
 
         # option to activate water balance check
         self.debugWaterBalance = True
-        if iniItems.routingOptions['debugWaterBalance'] == "False":
+        if 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
 
         # option to perform a run with only natural lakes (without reservoirs)
@@ -82,8 +85,19 @@ class WaterBodies(object):
 
         # lower and upper limits at which reservoir release is terminated and 
         #                        at which reservoir release is equal to long-term average outflow
+        # - default values
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
+        # - from the ini file
+        if "minResvrFrac" in iniItems.routingOptions.keys():
+            minResvrFrac = iniItems.routingOptions['minResvrFrac']
+            self.minResvrFrac = vos.readPCRmapClone(minResvrFrac,
+                                                    self.cloneMap, self.tmpDir, self.inputDir)
+        if "maxResvrFrac" in iniItems.routingOptions.keys():
+            maxResvrFrac = iniItems.routingOptions['maxResvrFrac']
+            self.maxResvrFrac = vos.readPCRmapClone(maxResvrFrac,
+                                                    self.cloneMap, self.tmpDir, self.inputDir)
+
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
                                initial_condition_dictionary = None):
@@ -299,23 +313,28 @@ class WaterBodies(object):
         if currTimeStep.timeStepPCR == 1 and initial_condition_dictionary != None:
             self.getICs(initial_condition_dictionary)
         
-            # For each new reservoir (introduced at the beginning of the year)
-            # initiating storage, average inflow and outflow
-            #
+        # For each new reservoir (introduced at the beginning of the year)
+        # initiating storage, average inflow and outflow
+        # PS: THIS IS NOT NEEDED FOR OFFLINE MODFLOW RUN! 
+        #
+        try:
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
             self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
             self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
-            
-            # cropping only in the landmask region:
-            self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
-            self.waterBodyIds      = pcr.ifthen(self.landmask, self.waterBodyIds    ) 
-            self.waterBodyOut      = pcr.ifthen(self.landmask, self.waterBodyOut    )
-            self.waterBodyArea     = pcr.ifthen(self.landmask, self.waterBodyArea   )
-            self.waterBodyTyp      = pcr.ifthen(self.landmask, self.waterBodyTyp    )  
-            self.waterBodyCap      = pcr.ifthen(self.landmask, self.waterBodyCap    )
-            self.waterBodyStorage  = pcr.ifthen(self.landmask, self.waterBodyStorage)
-            self.avgInflow         = pcr.ifthen(self.landmask, self.avgInflow       )
-            self.avgOutflow        = pcr.ifthen(self.landmask, self.avgOutflow      )
+            self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
+            self.avgInflow        = pcr.ifthen(self.landmask, self.avgInflow       )
+            self.avgOutflow       = pcr.ifthen(self.landmask, self.avgOutflow      )
+        except:
+            # PS: FOR OFFLINE MODFLOW RUN!
+            pass
+
+        # cropping only in the landmask region:
+        self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
+        self.waterBodyIds      = pcr.ifthen(self.landmask, self.waterBodyIds    ) 
+        self.waterBodyOut      = pcr.ifthen(self.landmask, self.waterBodyOut    )
+        self.waterBodyArea     = pcr.ifthen(self.landmask, self.waterBodyArea   )
+        self.waterBodyTyp      = pcr.ifthen(self.landmask, self.waterBodyTyp    )  
+        self.waterBodyCap      = pcr.ifthen(self.landmask, self.waterBodyCap    )
 
     def getICs(self,initial_condition):
 

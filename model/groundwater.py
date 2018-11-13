@@ -95,6 +95,7 @@ class Groundwater(object):
             self.useMODFLOW = True
             self.coupleToDailyMODFLOW = True
         
+        
         if self.useMODFLOW: logger.info("Coupling to MODFLOW is activated.")
         if self.coupleToDailyMODFLOW:
             logger.info("MODFLOW stress period is daily.")    
@@ -367,9 +368,6 @@ class Groundwater(object):
                 minimumTransmissivityForProductiveAquifer = \
                                           vos.readPCRmapClone(iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'],\
                                                               self.cloneMap, self.tmpDir, self.inputDir)
-                #~ print minimumTransmissivityForProductiveAquifer
-                #~ print self.kSatAquifer
-                #~ print totalGroundwaterThickness
                 self.productive_aquifer = pcr.cover(\
                  pcr.ifthen(self.kSatAquifer * totalGroundwaterThickness > minimumTransmissivityForProductiveAquifer, pcr.boolean(1.0)), pcr.boolean(0.0))
                 #~ pcr.aguila(self.productive_aquifer) 
