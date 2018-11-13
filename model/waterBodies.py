@@ -56,7 +56,7 @@ class WaterBodies(object):
 
         # option to activate water balance check
         self.debugWaterBalance = True
-        if 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
+        if 'routingOptions' in iniItems.allSections and 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
 
         # option to perform a run with only natural lakes (without reservoirs)
