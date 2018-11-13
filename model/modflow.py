@@ -66,7 +66,7 @@ class ModflowCoupling(object):
             configuration.globalOptions['landmask'],
             configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
         else:
-            self.landmask = pcr.spatial(pcr.boolean(1.0))
+            self.landmask = pcr.defined(self.lddMap)
         
         # preparing the sub-model(s)         - Currently, there is only one sub-model. 
         self.createSubmodels()
