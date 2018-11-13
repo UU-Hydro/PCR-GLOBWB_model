@@ -142,7 +142,7 @@ class GroundwaterModflow(object):
 
         # channel properties: read several variables from the netcdf file
         if 'channelNC' in self.iniItems.modflowParameterOptions.keys():
-            for var in ['cellAreaMap', 'lddMap', 'gradient', 'bankfull_width',
+            for var in ['gradient', 'bankfull_width',
                         'bankfull_depth', 'dem_floodplain', 'dem_riverbed']:
                 vars(self)[var] = vos.netcdf2PCRobjCloneWithoutTime(self.iniItems.modflowParameterOptions['channelNC'], \
                                                                     var, self.cloneMap)
@@ -186,20 +186,19 @@ class GroundwaterModflow(object):
                                              self.cloneMap,self.tmpDir,self.inputDir)
                 
 
-        # if defined, use cellAreaMap and lddMap from 
-        if 'routingOptions' in self.iniItems.allSections: 
+        # cellAreaMap and lddMap 
+        if 'routingOptions' not in self.iniItems.allSections: 
+            self.iniItems.routingOptions['lddMap'] = self.iniItems.modflowParameterOptions['lddMap']
+            self.iniItems.routingOptions['cellAreaMap'] = self.iniItems.modflowParameterOptions['cellAreaMap']
             
-            # ldd
-            self.lddMap = vos.readPCRmapClone(self.iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
+        # cell area (unit: m2)
+        self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
+                                               self.cloneMap, self.tmpDir, self.inputDir)
+        self.cellAreaMap = pcr.cover(self.cellAreaMap, 0.0)
 
-            # cell area (unit: m2)
-            self.cellAreaMap = vos.readPCRmapClone(self.iniItems.routingOptions['cellAreaMap'],
-                                                   self.cloneMap, self.tmpDir, self.inputDir)
-            self.cellAreaMap = pcr.cover(self.cellAreaMap, 0.0)
-            #~ self.cellAreaMap = pcr.ifthen(self.landmask, self.cellAreaMap)
-            # NOTE: For MODFLOW, DO NOT MASK OUT
-
+        # ldd
+        self.lddMap = vos.readPCRmapClone(self.iniItems.routingOptions['lddMap'],
+                                          self.cloneMap,self.tmpDir,self.inputDir,True)
 
         # correcting lddMap
         self.lddMap = pcr.ifthen(pcr.scalar(self.lddMap) > 0.0, self.lddMap)
