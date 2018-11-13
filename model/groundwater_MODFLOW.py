@@ -2112,7 +2112,7 @@ class GroundwaterModflow(object):
             maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
                                       (channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
                                       (bed_conductance_used))
-            maximum_bed_conductance = pcr.ifthenelse(channel_storage > 0.0, maximum_bed_conductance, 0.0)
+            maximum_bed_conductance = pcr.max(0.0, pcr.ifthenelse(channel_storage > 0.0, maximum_bed_conductance, 0.0))
             bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
         
 
