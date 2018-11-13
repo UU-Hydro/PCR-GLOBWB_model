@@ -2083,6 +2083,7 @@ class GroundwaterModflow(object):
         surface_water_elevation = pcr.max(surface_water_elevation, surface_water_bed_elevation_used)
 
         # to avoid negative channel storage, river infiltration will be excluded from the river package
+        exclude_river_infiltration = False
         if exclude_river_infiltration:
             msg = 'Set the river bed elevations to water level elevation (RIV behaves as DRN).'
             logger.info(msg)
