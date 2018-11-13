@@ -2106,12 +2106,14 @@ class GroundwaterModflow(object):
         bed_conductance_used = pcr.ifthen(self.landmask, self.bed_conductance)
         bed_conductance_used = pcr.cover(bed_conductance_used, 0.0)
 
-        #~ # - limit the condutance using channel storage
-        #~ maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
-                                  #~ (available_channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
-                                  #~ (bed_conductance_used))
-        #~ bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
-        #~ # TODO: CHECK AND COMPLETE ABOVE                          
+        # - limit the condutance using channel storage
+        if not isinstance(channel_storage, types.NoneType):
+            logger.debug('Limit river bed conductance with channel storage.')
+            maximum_bed_conductance = pcr.ifthenelse((surface_water_elevation - surface_water_bed_elevation_used) > 0.00, \
+                                      (channel_storage / (surface_water_elevation - surface_water_bed_elevation_used)) / self.PERLEN, \
+                                      (bed_conductance_used))
+            maximum_bed_conductance = pcr.ifthenelse(channel_storage > 0.0, maximum_bed_conductance, 0.0)
+            bed_conductance_used = pcr.min(maximum_bed_conductance, bed_conductance_used)
         
 
         # set the RIV package only to the uppermost layer
