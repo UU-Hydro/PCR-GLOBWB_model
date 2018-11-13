@@ -51,8 +51,11 @@ class ModflowCoupling(object):
         # read the ldd map
         #~ self.lddMap = vos.netcdf2PCRobjCloneWithoutTime(configuration.modflowParameterOptions['channelNC'], 'lddMap',\
                                                         #~ configuration.cloneMap)
+        if 'routingOptions' not in configuration.allSections: 
+            configuration.routingOptions = {}
+            configuration.routingOptions['lddMap'] = configuration.modflowParameterOptions['lddMap']
         self.lddMap = vos.readPCRmapClone(\
-                  configuration.modflowParameterOptions['lddMap'],
+                  configuration.routingOptions['lddMap'],
                   configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'],True)
         # ensure ldd map is correct, and actually of type "ldd"
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
