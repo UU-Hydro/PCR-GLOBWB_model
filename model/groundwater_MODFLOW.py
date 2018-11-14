@@ -283,10 +283,14 @@ class GroundwaterModflow(object):
                     'bed_resistance',\
                     ]:
             vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
-            vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowmaximum(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
+            vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowaverage(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
             #~ pcr.aguila(vars(self)[var])
             #~ raw_input("Press Enter to continue...")
 
+        # remove isolated cells
+        unproductive_aquifer = pcr.ifthenelse(self.productive_aquifer, 0.0, 1.0)
+        unproductive_aquifer = pcr.windowmaximum(unproductive_aquifer, 0.5)
+        self.productive_aquifer = pcr.ifthenelse(unproductive_aquifer > 0., pcr.boolean(0.0), pcr.boolean(1.0))
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
         self.usePreDefinedConfiningLayer = False
