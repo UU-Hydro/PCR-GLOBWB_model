@@ -323,7 +323,7 @@ class WaterBodies(object):
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
         #
-        if currTimeStep.timeStepPCR == 1 and initial_condition_dictionary != None:
+        if initial_condition_dictionary != None and currTimeStep.timeStepPCR == 1:
             self.getICs(initial_condition_dictionary)
         
         # For each new reservoir (introduced at the beginning of the year)
