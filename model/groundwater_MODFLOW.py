@@ -278,10 +278,13 @@ class GroundwaterModflow(object):
         #~ raw_input("Press Enter to continue...")
         # - need extrapolation
         
-        pcr.aguila(self.specificYield)
+        #~ pcr.aguila(self.specificYield)
+        #~ raw_input("Press Enter to continue...")
+        # - need extrapolation
+        
+        pcr.aguila(self.recessionCoeff)
         raw_input("Press Enter to continue...")
         #~ # - need extrapolation
-        
 
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
