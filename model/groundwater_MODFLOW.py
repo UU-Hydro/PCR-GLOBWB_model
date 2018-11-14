@@ -287,7 +287,7 @@ class GroundwaterModflow(object):
         # remove isolated cells - a productive aquifer cell must be surrounded by at least a minimum number of cells 
         pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
         raw_input("Press Enter to continue...")
-        minimum_surrounding_cells = 3.0
+        minimum_surrounding_cells = 2.0
         self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
         self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
         pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
