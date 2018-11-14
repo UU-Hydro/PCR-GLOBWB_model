@@ -291,7 +291,7 @@ class GroundwaterModflow(object):
         minimum_surrounding_cells = 2.0
         self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
         #~ self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
-        pcr.aguila(self.productive_aquifer))
+        pcr.aguila(self.productive_aquifer)
         raw_input("Press Enter to continue...")
         self.productive_aquifer = pcr.cover(self.productive_aquifer, pcr.boolean(0.0))
         ##############################################################################################################################################
