@@ -278,9 +278,9 @@ class GroundwaterModflow(object):
         #~ raw_input("Press Enter to continue...")
         # - need extrapolation
         
-        #~ pcr.aguila(self.specificYield)
-        #~ raw_input("Press Enter to continue...")
-        # - need extrapolation
+        pcr.aguila(self.specificYield)
+        raw_input("Press Enter to continue...")
+        #~ # - need extrapolation
         
 
         ##############################################################################################################################################
