@@ -273,21 +273,18 @@ class GroundwaterModflow(object):
         self.riverBedThickness         = groundwater_pcrglobwb.riverBedThickness   
         self.bed_resistance            = groundwater_pcrglobwb.bed_resistance
 
-        # Perform extrapolation for the following variables: # TODO: Check whether we really have to do the following
+        # Perform extrapolation for the following variables:
         for var in ['kSatAquifer',\
                     'specificYield',\
                     'recessionCoeff',\
                     'totalGroundwaterThickness',\
-                    'riverBedConductivity',\
-                    'riverBedThickness',\
-                    'bed_resistance',\
                     ]:
             vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
             vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowaverage(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
             #~ pcr.aguila(vars(self)[var])
             #~ raw_input("Press Enter to continue...")
 
-        #~ # remove isolated cells - DO NOT USE
+        #~ # remove isolated cells - DO NOT USE - # TODO: REMOVE THIS 
         #~ pcr.aguila(self.productive_aquifer)
         #~ raw_input("Press Enter to continue...")
         #~ unproductive_aquifer = pcr.ifthenelse(pcr.scalar(self.productive_aquifer) > 0.0, pcr.scalar(0.0), pcr.scalar(1.0))
@@ -295,7 +292,6 @@ class GroundwaterModflow(object):
         #~ self.productive_aquifer = pcr.ifthenelse(unproductive_aquifer > 0.0, pcr.boolean(0.0), pcr.boolean(1.0))
         #~ pcr.aguila(self.productive_aquifer)
         #~ raw_input("Press Enter to continue...")
-
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
         self.usePreDefinedConfiningLayer = False
@@ -2232,7 +2228,7 @@ class GroundwaterModflow(object):
         if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstractionUsed)
         
         # for debugging
-        self.gwAbstractionUsed = gwAbstractionUsed
+        self.gwAbstractionUsed = pcr.ifthen(self.landmask, gwAbstractionUsed)
 
     def set_well_package_for_one_layer_model(self, gwAbstraction):
 		
