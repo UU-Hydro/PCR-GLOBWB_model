@@ -2026,7 +2026,8 @@ class GroundwaterModflow(object):
             startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
             self.WaterBodies.getParameterFiles(startTime,\
                                                self.cellAreaMap, \
-                                               self.lddMap)
+                                               self.lddMap,
+                                               None, True)
 
         if simulation_type == "transient":
 
