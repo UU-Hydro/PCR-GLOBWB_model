@@ -2230,6 +2230,9 @@ class GroundwaterModflow(object):
 
         if self.number_of_layers == 1: self.set_well_package_for_one_layer_model(gwAbstractionUsed)
         if self.number_of_layers == 2: self.set_well_package_for_two_layer_model(gwAbstractionUsed)
+        
+        # for debugging
+        self.gwAbstractionUsed = gwAbstractionUsed
 
     def set_well_package_for_one_layer_model(self, gwAbstraction):
 		
