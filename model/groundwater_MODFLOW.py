@@ -285,15 +285,13 @@ class GroundwaterModflow(object):
             #~ raw_input("Press Enter to continue...")
 
         # remove isolated cells - a productive aquifer cell must be surrounded by at least a minimum number of cells 
-        self.productive_aquifer = pcr.ifthen(self.landmask, self.productive_aquifer)
-        pcr.aguila(self.productive_aquifer)
+        pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
         raw_input("Press Enter to continue...")
         minimum_surrounding_cells = 2.0
         self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
         #~ self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
-        pcr.aguila(self.productive_aquifer)
+        pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
         raw_input("Press Enter to continue...")
-        self.productive_aquifer = pcr.cover(self.productive_aquifer, pcr.boolean(0.0))
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
         self.usePreDefinedConfiningLayer = False
