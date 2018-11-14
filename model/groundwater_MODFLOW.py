@@ -1381,7 +1381,8 @@ class GroundwaterModflow(object):
                 PERLEN = currTimeStep.day - currTimeStep.startTime.day + 1 
             
             # number of time step within a stress period
-            NSTP = PERLEN * 4
+            #~ NSTP = PERLEN * 4
+            NSTP = 1
             # - Rule of thumb to estimate NSTP: delta_t = storage_coefficient * cell_area / (4 * transmissivity)
             # - see also: www.geology.wisc.edu/courses/g724/week10a.ppt
             
