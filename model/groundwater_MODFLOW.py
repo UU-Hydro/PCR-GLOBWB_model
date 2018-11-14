@@ -283,7 +283,7 @@ class GroundwaterModflow(object):
                     'bed_resistance',\
                     ]:
             vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
-            vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowaverage(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
+            vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowmaximum(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
             #~ pcr.aguila(vars(self)[var])
             #~ raw_input("Press Enter to continue...")
 
