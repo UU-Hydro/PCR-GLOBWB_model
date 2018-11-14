@@ -285,15 +285,16 @@ class GroundwaterModflow(object):
             #~ raw_input("Press Enter to continue...")
 
         
-        # remove isolated cells - a productive aquifer cell must be surrounded by at least a minimum number of cells 
-        if "minimizeIsolatedAquiferCellsUnderGroundwaterAbstraction" in iniItems.modflowParameterOptions.keys() and iniItems.modflowParameterOptions['minimizeIsolatedAquiferCellsUnderGroundwaterAbstraction'] == "True": 
-            pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
-            raw_input("Press Enter to continue...")
-            minimum_surrounding_cells = 3.0
-            self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
-            self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
-            pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
-            raw_input("Press Enter to continue...")
+        #~ # remove isolated cells - a productive aquifer cell must be surrounded by at least a minimum number of cells - OPTIONAL (NOT RECOMMENDED) # TODO: Find a better method that this one. 
+        #~ if "minimizeIsolatedAquiferCellsUnderGroundwaterAbstraction" in iniItems.modflowParameterOptions.keys() and iniItems.modflowParameterOptions['minimizeIsolatedAquiferCellsUnderGroundwaterAbstraction'] == "True": 
+            #~ pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
+            #~ raw_input("Press Enter to continue...")
+            #~ minimum_surrounding_cells = 3.0
+            #~ self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
+            #~ self.productive_aquifer = pcr.ifthenelse(pcr.window4total(pcr.scalar(self.productive_aquifer)) >= minimum_surrounding_cells, self.productive_aquifer, pcr.boolean(0.0))
+            #~ pcr.aguila(pcr.ifthen(self.landmask, self.productive_aquifer))
+            #~ raw_input("Press Enter to continue...")
+
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
         self.usePreDefinedConfiningLayer = False
@@ -2165,8 +2166,9 @@ class GroundwaterModflow(object):
         else:
             return surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used
 
-
-
+        # set also the RIV package to the lower layer
+        bed_conductance_lower_layer = pcr.ifthenelse(surface_water_bed_elevation_used < self.bottom_layer_2, bed_conductance_used, 0.0)
+        self.pcr_modflow.setRiver(surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used, 1)
 
 
 
