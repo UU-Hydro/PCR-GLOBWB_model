@@ -2021,7 +2021,7 @@ class GroundwaterModflow(object):
             self.WaterBodies = waterBodies.WaterBodies(self.iniItems,\
                                                        self.landmask,\
                                                        self.onlyNaturalWaterBodies)
-            self.WaterBodies.getParameterFiles(self.iniItems.globalOptions['startTime'],\
+            self.WaterBodies.getParameterFiles(currTimeStep,\
                                                self.cellAreaMap, \
                                                self.lddMap)
 
