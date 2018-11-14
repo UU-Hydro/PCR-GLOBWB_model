@@ -431,7 +431,7 @@ class GroundwaterModflow(object):
         self.pcr_modflow = None
 
         # option to perform only steady state MODFLOW simulation (offline approach only)
-        self.steady_state_only = False
+        self.steady_state_only = iniItems.steady_state_only
         # TODO: FIX THIS, put this option in the ini/configuration file.
         
 
