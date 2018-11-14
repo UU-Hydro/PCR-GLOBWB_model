@@ -832,7 +832,7 @@ class GroundwaterModflow(object):
                                           
         # transmissivity values for the lower layer (layer 1) - unit: m2/day
         self.transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
-        self.transmissivity_layer_1_landmask_only = pcr.ifthen(self.landmask, self.transmissivity_layer_1_landmask_only)
+        self.transmissivity_layer_1_landmask_only = pcr.ifthen(self.landmask, self.transmissivity_layer_1)
 
 
 
