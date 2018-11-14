@@ -2166,7 +2166,8 @@ class GroundwaterModflow(object):
         else:
             return surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used
 
-        #~ # set also the RIV package to the lower layer # TODO: Still experimental. Need further checks/tests !!
+
+        #~ # set also the RIV package to the lowermost layer # TODO: Still experimental. Need further checks/tests !!
         #~ bed_conductance_lower_layer = pcr.ifthenelse(surface_water_bed_elevation_used < self.bottom_layer_2, bed_conductance_used, 0.0)
         #~ self.pcr_modflow.setRiver(surface_water_elevation, surface_water_bed_elevation_used, bed_conductance_used, 1)
 
