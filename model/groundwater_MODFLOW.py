@@ -805,7 +805,7 @@ class GroundwaterModflow(object):
 
         # transmissivity values for the upper layer (layer 2) - unit: m2/day
         self.transmissivity_layer_2 = horizontal_conductivity_layer_2 * self.thickness_of_layer_2
-        
+        self.transmissivity_layer_2_landmask_only = pcr.ifthen(self.landmask, self.transmissivity_layer_2)
         
         msg = "Assign horizontal conductivities of the lower layer (used for calculating transmissivity (TRAN) for the BCF package)."
         if self.log_to_info: logger.info(msg)
