@@ -381,7 +381,7 @@ class GroundwaterModflow(object):
         if "RCLOSE" in self.iniItems.modflowParameterOptions.keys():
             self.criteria_RCLOSE = list(set(self.iniItems.modflowParameterOptions['RCLOSE'].split(",")))
         #
-        self.criteria_RCLOSE = sorted(self.criteria_HCLOSE)
+        self.criteria_RCLOSE = sorted(self.criteria_RCLOSE)
 
 
         # DAMP parameter for PCG solver
