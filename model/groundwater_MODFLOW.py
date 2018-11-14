@@ -272,19 +272,19 @@ class GroundwaterModflow(object):
         self.riverBedConductivity      = groundwater_pcrglobwb.riverBedConductivity
         self.riverBedThickness         = groundwater_pcrglobwb.riverBedThickness   
         self.bed_resistance            = groundwater_pcrglobwb.bed_resistance
-        self.totalGroundwaterThickness = groundwater_pcrglobwb.totalGroundwaterThickness
 
-        #~ pcr.aguila(self.kSatAquifer)
-        #~ raw_input("Press Enter to continue...")
-        # - need extrapolation
-        
-        #~ pcr.aguila(self.specificYield)
-        #~ raw_input("Press Enter to continue...")
-        # - need extrapolation
-        
-        pcr.aguila(self.recessionCoeff)
-        raw_input("Press Enter to continue...")
-        #~ # - need extrapolation
+        # Perform extrapolation for the following variables:
+        for var in ['kSatAquifer',\
+                    'specificYield',\
+                    'recessionCoeff',\
+                    'totalGroundwaterThickness',\
+                    'riverBedConductivity',\
+                    'riverBedThickness',\
+                    'bed_resistance',\
+                    ]:
+            vars(self)[var] = pcr.cover(pcr.cover(pcr.ifthen(self.landmask, vars(self)[var]), pcr.windowaverage(vars(self)[var], 0.5)), vars(self)[var])
+            pcr.aguila(vars(self)[var])
+            raw_input("Press Enter to continue...")
 
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
