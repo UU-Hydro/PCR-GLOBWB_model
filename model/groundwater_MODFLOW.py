@@ -1378,8 +1378,8 @@ class GroundwaterModflow(object):
             self.old_style_reporting(currTimeStep)
             
             # for debugging
-            pcr.aguila(self.transmissivity_layer_1)
-            raw_input("Press Enter to continue...")
+            #~ pcr.aguila(self.transmissivity_layer_1)
+            #~ raw_input("Press Enter to continue...")
 
 
     def save_some_pcraster_static_maps(self):
