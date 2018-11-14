@@ -282,9 +282,11 @@ class GroundwaterModflow(object):
                     'riverBedThickness',\
                     'bed_resistance',\
                     ]:
-            vars(self)[var] = pcr.cover(pcr.cover(pcr.ifthen(self.landmask, vars(self)[var]), pcr.windowaverage(vars(self)[var], 0.5)), vars(self)[var])
-            pcr.aguila(vars(self)[var])
-            raw_input("Press Enter to continue...")
+            #~ vars(self)[var] = pcr.cover(pcr.cover(pcr.ifthen(self.landmask, vars(self)[var]), pcr.windowaverage(vars(self)[var], 0.5)), vars(self)[var])
+            vars(self)[var] = pcr.ifthen(self.landmask, vars(self)[var])
+            vars(self)[var] = pcr.cover(pcr.cover(vars(self)[var], pcr.windowaverage(vars(self)[var], 0.5)), vars(groundwater_pcrglobwb)[var])
+            #~ pcr.aguila(vars(self)[var])
+            #~ raw_input("Press Enter to continue...")
 
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
