@@ -291,7 +291,7 @@ class GroundwaterModflow(object):
         pcr.aguila(self.productive_aquifer)
         raw_input("Press Enter to continue...")
         unproductive_aquifer = pcr.ifthenelse(pcr.scalar(self.productive_aquifer) > 0.0, pcr.scalar(0.0), pcr.scalar(1.0))
-        #~ unproductive_aquifer = pcr.windowmaximum(unproductive_aquifer, 0.5)
+        unproductive_aquifer = pcr.windowmaximum(unproductive_aquifer, 0.1)
         self.productive_aquifer = pcr.ifthenelse(unproductive_aquifer > 0.0, pcr.boolean(0.0), pcr.boolean(1.0))
         pcr.aguila(self.productive_aquifer)
         raw_input("Press Enter to continue...")
