@@ -2278,6 +2278,10 @@ class GroundwaterModflow(object):
         
         # TODO: Distribute remaining_abstraction based on 'effective' KD value (based on saturated thickness) of each layer
         
+        # for reporting/debugging
+        self.abstraction_layer_1 = pcr.ifthen(self.landmask, abstraction_layer_1)
+        self.abstraction_layer_2 = pcr.ifthen(self.landmask, abstraction_layer_2)
+        
         # abstraction volume (negative value, unit: m3/day)
         abstraction_layer_1 = abstraction_layer_1 * self.cellAreaMap * pcr.scalar(-1.0)
         abstraction_layer_2 = abstraction_layer_2 * self.cellAreaMap * pcr.scalar(-1.0)
