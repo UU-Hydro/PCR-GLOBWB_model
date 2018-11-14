@@ -273,7 +273,7 @@ class GroundwaterModflow(object):
         self.riverBedThickness         = groundwater_pcrglobwb.riverBedThickness   
         self.bed_resistance            = groundwater_pcrglobwb.bed_resistance
 
-        # Perform extrapolation for the following variables:
+        # Perform extrapolation for the following variables: # TODO: Check whether we really have to do the following
         for var in ['kSatAquifer',\
                     'specificYield',\
                     'recessionCoeff',\
