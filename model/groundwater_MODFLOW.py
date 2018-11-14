@@ -2051,9 +2051,11 @@ class GroundwaterModflow(object):
 
         # reset bed conductance and bed elevation (due to possibility of new inclusion of lakes/reservoirs)
         new_lakes_reservoirs_introduced = False
-        if currTimeStep == None: new_lakes_reservoirs_introduced = True
-        if currTimeStep.month == 1 and stress_period == "monthly": new_lakes_reservoirs_introduced = True
-        if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily": new_lakes_reservoirs_introduced = True
+        if currTimeStep == None:
+            new_lakes_reservoirs_introduced = True
+        else:
+            if currTimeStep.month == 1 and stress_period == "monthly": new_lakes_reservoirs_introduced = True
+            if currTimeStep.day == 1 and currTimeStep.month == 1 and stress_period == "daily": new_lakes_reservoirs_introduced = True
         #
         if new_lakes_reservoirs_introduced:
             self.surface_water_bed_elevation = None
