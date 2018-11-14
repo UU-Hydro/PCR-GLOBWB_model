@@ -932,10 +932,14 @@ class GroundwaterModflow(object):
             self.iniItems.modflowParameterOptions['aquiferLayerSecondaryStorageCoefficient'] not in ["None", "False"]:
             msg = "Using the layer type (LAYCON) 2 for the aquifer layer."
             logger.debug(msg)
-            self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+            #~ self.pcr_modflow.setConductivity(02, horizontal_conductivity_layer_1, \
+                                                 #~ vertical_conductivity_layer_1, 1)              
+            self.pcr_modflow.setConductivity(22, horizontal_conductivity_layer_1, \
                                                  vertical_conductivity_layer_1, 1)              
         else:
-            self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+            #~ self.pcr_modflow.setConductivity(00, horizontal_conductivity_layer_1, \
+                                                 #~ vertical_conductivity_layer_1, 1)              
+            self.pcr_modflow.setConductivity(20, horizontal_conductivity_layer_1, \
                                                  vertical_conductivity_layer_1, 1)              
 
 
