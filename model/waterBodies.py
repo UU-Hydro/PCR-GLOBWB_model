@@ -108,7 +108,8 @@ class WaterBodies(object):
 
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
-                               initial_condition_dictionary = None):
+                               initial_condition_dictionary = None,\
+                               currTimeStepInDateTimeFormat = False):
 
         # parameters for Water Bodies: fracWat              
         #                              waterBodyIds
@@ -122,8 +123,12 @@ class WaterBodies(object):
         ldd = pcr.ifthen(self.landmask, ldd)
         
         # date used for accessing/extracting water body information
-        date_used = currTimeStep.fulldate
-        year_used = currTimeStep.year
+        if currTimeStepInDateTimeFormat:
+            date_used = currTimeStep
+            year_used = currTimeStep.year
+        else:
+            date_used = currTimeStep.fulldate
+            year_used = currTimeStep.year
         if self.onlyNaturalWaterBodies == True:
             date_used = self.dateForNaturalCondition
             year_used = self.dateForNaturalCondition[0:4] 
