@@ -274,8 +274,9 @@ class GroundwaterModflow(object):
         self.bed_resistance            = groundwater_pcrglobwb.bed_resistance
         self.totalGroundwaterThickness = groundwater_pcrglobwb.totalGroundwaterThickness
 
-        
-
+        # for debugging
+        pcr.aguila(self.kSatAquifer)
+        raw_input("Press Enter to continue...")
 
         ##############################################################################################################################################
         # confining layer thickness (for more than one layer)
