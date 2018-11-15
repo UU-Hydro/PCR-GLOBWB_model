@@ -834,6 +834,13 @@ class GroundwaterModflow(object):
         horizontal_conductivity_layer_1 = pcr.min(maxTransmissivity, \
                                           horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
                                           
+        # smoothing TRAN surrounding productive aquifer
+        transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
+        transmissivity_layer_1 = pcr.ifthenelse(self.productive_aquifer, transmissivity_layer_1,
+                                                                         pcr.windowaverage(transmissivity_layer_1, 0.5))
+        horizontal_conductivity_layer_1 = pcr.max(horizontal_conductivity_layer_1, \
+                                                  transmissivity_layer_1/self.thickness_of_layer_1)                                                                  
+        
         # transmissivity values for the lower layer (layer 1) - unit: m2/day
         self.transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
         self.transmissivity_layer_1_landmask_only = pcr.ifthen(self.landmask, self.transmissivity_layer_1)
