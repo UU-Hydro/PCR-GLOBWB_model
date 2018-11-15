@@ -1024,9 +1024,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input(self):
 
-        self.transient_simulation_with_constant_input_with_monthly_stress_period()
-        self.transient_simulation_with_constant_input_with_yearly_stress_period()
         self.transient_simulation_with_constant_input_with_10year_stress_period()
+        self.transient_simulation_with_constant_input_with_yearly_stress_period()
+        self.transient_simulation_with_constant_input_with_monthly_stress_period()
 
     def transient_simulation_with_constant_input_with_monthly_stress_period(self):
 
