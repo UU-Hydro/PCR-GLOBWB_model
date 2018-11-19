@@ -835,7 +835,7 @@ class GroundwaterModflow(object):
                                           horizontal_conductivity_layer_1 * self.thickness_of_layer_1) / self.thickness_of_layer_1
                                           
 
-        #~ # smoothing TRAN surrounding productive aquifer - EXPERIMENTAL
+        #~ # smoothing TRAN surrounding productive aquifer - EXPERIMENTAL # TODO: Check this!
         #~ transmissivity_layer_1 = horizontal_conductivity_layer_1 * self.thickness_of_layer_1
         #~ transmissivity_layer_1 = pcr.cover(
                                  #~ pcr.cover(
