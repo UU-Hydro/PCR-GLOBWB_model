@@ -9,6 +9,7 @@ import numpy as np
 import pcraster as pcr
 
 p = psutil.Process(os.getpid())
+print p
 log_file = file("memory.col", "w")
 
 
