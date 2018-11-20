@@ -3,23 +3,23 @@
 
 import os
 import sys
-import psutil
+
 #~ import netCDF4
 import numpy as np
 import pcraster as pcr
 
-p = psutil.Process(os.getpid())
-print p
-log_file = file("memory.col", "w")
-
 
 def print_memory_usage():
+    import psutil
+    p = psutil.Process(os.getpid())
+    print p  
     nr_mbytes = p.get_memory_info()[0] / 1048576.0
     log_file.write("{}\n".format(nr_mbytes))
     sys.stdout.write("{}\n".format(nr_mbytes))
     sys.stdout.flush()
 
 
+log_file = file("memory.col", "w")
 
 print_memory_usage()
 
