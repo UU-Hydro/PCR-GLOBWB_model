@@ -20,7 +20,7 @@ def print_memory_usage():
 
 
 
-print_memory_usage()
+#~ print_memory_usage()
 
 # Use variable in expression.
 for i in xrange(100):
