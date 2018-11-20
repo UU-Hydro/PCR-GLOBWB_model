@@ -23,7 +23,7 @@ def print_memory_usage():
 print_memory_usage()
 
 counter = 0
-for i in xrange(100):
+for i in xrange(500):
 #~ while True: 
     counter = counter + 1
     print counter
