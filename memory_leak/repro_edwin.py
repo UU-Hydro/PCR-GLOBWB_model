@@ -28,7 +28,7 @@ while True:
     counter = counter + 1
     print counter
     test_map = pcr.readmap("dummy.map")
-    test_num = pcr.pcr2numpy(test_map, 0)
+    test_num = pcr.pcr2numpy(test_map, 0)[:]
     #~ print_memory_usage()
 
 log_file.close()
