@@ -2,9 +2,9 @@
 import os
 import sys
 import psutil
-import netCDF4
-import numpy
-
+#~ import netCDF4
+import numpy as np
+import pcraster as pcr
 
 process = psutil.Process(os.getpid())
 log_file = file("memory.col", "w")
@@ -17,24 +17,14 @@ def print_memory_usage():
     sys.stdout.flush()
 
 
-# Attach to netcdf file.
-filename = "http://motherlode.ucar.edu:8080/thredds/dodsC/" \
-    "grib/FNMOC/NAVGEM/Global_0p5deg/best"
-dataset = netCDF4.Dataset(filename)
-
-# Get variable.
-# variable is a netCDF4.Variable instance.
-variable = dataset.variables["lon"]
-
-# # variable is a numpy.ndarray instance.
-# variable = dataset.variables["lon"][:]
 
 print_memory_usage()
 
 # Use variable in expression.
 for i in xrange(100):
+    test_map = pcr.readmap("dummy.map")
+    test_num = pcr.pcr2numpy(test_map, 0)
     result = variable * numpy.ones_like(variable)
     print_memory_usage()
 
-dataset.close()
 log_file.close()
