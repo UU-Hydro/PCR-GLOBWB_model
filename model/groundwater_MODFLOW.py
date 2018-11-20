@@ -1659,8 +1659,8 @@ class GroundwaterModflow(object):
         while self.modflow_converged == False:
             
             # convergence criteria 
-            HCLOSE = self.criteria_HCLOSE[self.iteration_HCLOSE]
-            RCLOSE = self.criteria_RCLOSE[self.iteration_RCLOSE]
+            HCLOSE = float(self.criteria_HCLOSE[self.iteration_HCLOSE])
+            RCLOSE = float(self.criteria_RCLOSE[self.iteration_RCLOSE])
             
             # damping parameter
             DAMP = float(self.parameter_DAMP[self.iteration_DAMP])
