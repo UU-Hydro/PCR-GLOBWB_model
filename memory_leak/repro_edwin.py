@@ -22,8 +22,10 @@ def print_memory_usage():
 
 #~ print_memory_usage()
 
-# Use variable in expression.
-for i in xrange(100):
+counter = 0
+#~ for i in xrange(100):
+while True: 
+    print counter = counter + 1
     test_map = pcr.readmap("dummy.map")
     test_num = pcr.pcr2numpy(test_map, 0)
     #~ print_memory_usage()
