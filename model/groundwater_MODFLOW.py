@@ -1139,8 +1139,9 @@ class GroundwaterModflow(object):
 
     def transient_simulation_with_constant_input_with_10year_stress_period(self):
 
-        time_step_length         = 365 * 10           # unit: days
-        number_of_sub_time_steps =  10 * 52 * 2       # semi-weekly resolution
+        time_step_length            = 365 * 10        # unit: days
+        #~ number_of_sub_time_steps =  10 * 52 * 2    # semi-weekly resolution
+        number_of_sub_time_steps    =  10 * 52        # weekly resolution
 
         number_of_extra_10_years = 0                                                    
 
