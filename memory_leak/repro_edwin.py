@@ -8,12 +8,12 @@ import psutil
 import numpy as np
 import pcraster as pcr
 
-process = psutil.Process(os.getpid())
+p = psutil.Process(os.getpid())
 log_file = file("memory.col", "w")
 
 
 def print_memory_usage():
-    nr_mbytes = process.checked_memory_info()[0] / 1048576.0
+    nr_mbytes = p.checked_memory_info()[0] / 1048576.0
     log_file.write("{}\n".format(nr_mbytes))
     sys.stdout.write("{}\n".format(nr_mbytes))
     sys.stdout.flush()
