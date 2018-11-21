@@ -1399,8 +1399,9 @@ class GroundwaterModflow(object):
             
             # number of time step within a stress period
             #~ NSTP = 1
-            NSTP = PERLEN * 4   # VERY IDEAL FOR CONVERGENCE
             #~ NSTP = PERLEN
+            NSTP    = PERLEN * 2
+            #~ NSTP = PERLEN * 4   # VERY IDEAL FOR CONVERGENCE
             # - Rule of thumb to estimate NSTP: delta_t = storage_coefficient * cell_area / (4 * transmissivity)
             # - see also: www.geology.wisc.edu/courses/g724/week10a.ppt
             
