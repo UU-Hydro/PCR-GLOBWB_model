@@ -294,6 +294,8 @@ class Reporting(object):
             self.groundwaterVolumeEstimate = self.groundwaterThicknessEstimate *\
                                              self._model.modflow.cellAreaMap 
             
+            self.accuGroundwaterVolumeEstimate = pcr.catchmenttotal(self.groundwaterVolumeEstimate, self._model.routing.lddMap)
+            
             # TODO: Make this reporting more flexible for multiple layers
 
         # baseflow (unit: m/day)
