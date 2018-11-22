@@ -462,7 +462,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # maximumDailyGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        if self.modflowOfflineCoupling == False:
+        if self.modflowOfflineCoupling == False and 'maximumDailyGroundwaterAbstraction' in iniItems.groundwaterOptions.keys():
             self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyGroundwaterAbstraction'],
                                                                           self.cloneMap,self.tmpDir,self.inputDir)
         #~ pcr.aguila(self.maximumDailyGroundwaterAbstraction)
@@ -471,7 +471,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # maximumDailyFossilGroundwaterAbstraction (unit: m/day) - in order to avoid over-abstraction of groundwater source
-        if self.modflowOfflineCoupling == False:
+        if self.modflowOfflineCoupling == False and 'maximumDailyFossilGroundwaterAbstraction' in iniItems.groundwaterOptions.keys():
             self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(iniItems.groundwaterOptions['maximumDailyFossilGroundwaterAbstraction'], self.cloneMap,self.tmpDir,self.inputDir)
         #~ pcr.aguila(self.maximumDailyFossilGroundwaterAbstraction)
         #####################################################################################################################################################
