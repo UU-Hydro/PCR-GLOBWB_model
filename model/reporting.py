@@ -945,8 +945,10 @@ class Reporting(object):
 
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
-        if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
-            if self._model.groundwater.useMODFLOW and self._model.groundwater.coupleToDailyMODFLOW:    # TODO: This works only for daily modflow coupling.
+        if ("groundwaterVolumeEstimate" in self.variables_for_report) or ("groundwaterThicknessEstimate" in self.variables_for_report):
+            if self._model.groundwater.useMODFLOW and \
+               self._model.groundwater.coupleToDailyMODFLOW:    
+				# TODO: This works only for daily modflow coupling. You have to make it work for monthly modflow as well.
                 # - from the lowermost layer
                 aquifer_storage_coefficient = pcr.ifthenelse(self._model.groundwater.gw_modflow.groundwaterHeadLayer1 > self._model.groundwater.gw_modflow.bottom_layer_2, self._model.groundwater.gw_modflow.secondary_storage_coefficient_1,  self._model.groundwater.gw_modflow.storage_coefficient_1)
                 self.groundwaterThicknessEstimate = \

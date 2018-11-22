@@ -279,7 +279,7 @@ class Reporting(object):
 
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
-        if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
+        if ("groundwaterVolumeEstimate" in self.variables_for_report) or ("groundwaterThicknessEstimate" in self.variables_for_report):
             aquifer_storage_coefficient = pcr.ifthenelse(self.groundwaterHeadLayer1 > self._model.modflow.bottom_layer_2, self._model.modflow.secondary_storage_coefficient_1,  self._model.modflow.storage_coefficient_1)
             # - from the lowermost layer
             self.groundwaterThicknessEstimate = pcr.ifthen(self._model.landmask, \
