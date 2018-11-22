@@ -340,6 +340,7 @@ class WaterBodies(object):
         except:
             # PS: FOR OFFLINE MODFLOW RUN!
             pass
+        # TODO: Remove try and except    
 
         # cropping only in the landmask region:
         self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
