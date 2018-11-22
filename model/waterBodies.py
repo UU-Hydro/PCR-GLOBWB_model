@@ -330,13 +330,16 @@ class WaterBodies(object):
         # initiating storage, average inflow and outflow
         # PS: THIS IS NOT NEEDED FOR OFFLINE MODFLOW RUN! 
         #
-        if not ('modflowOfflineCoupling' in self.iniItems.globalOptions.keys() and self.iniItems.globalOptions['modflowOfflineCoupling'] == "True"):
+        try:
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
             self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
             self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
             self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
             self.avgInflow        = pcr.ifthen(self.landmask, self.avgInflow       )
             self.avgOutflow       = pcr.ifthen(self.landmask, self.avgOutflow      )
+        except:
+            # PS: FOR OFFLINE MODFLOW RUN!
+            pass
 
         # cropping only in the landmask region:
         self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
