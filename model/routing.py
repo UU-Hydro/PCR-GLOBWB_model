@@ -1314,9 +1314,9 @@ class Routing(object):
             floodDepth  = pcr.ifthenelse(inundatedFraction > 0., \
                           excessVolume/(pcr.max(self.min_fracwat_for_water_height, inundatedFraction)*self.cellArea),0.)  # unit: m
             
-            # - maximum flood depth - # TODO: Define this in the configuration file
-            max_flood_depth = 25.0
-            floodDepth  = pcr.max(0.0, pcr.min(max_flood_depth, floodDepth))
+            #~ # - maximum flood depth - # TODO: Define this in the configuration file
+            #~ max_flood_depth = 25.0
+            #~ floodDepth  = pcr.max(0.0, pcr.min(max_flood_depth, floodDepth))
             
         return inundatedFraction, floodDepth
 
