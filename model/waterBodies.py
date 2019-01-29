@@ -36,7 +36,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self,iniItems,landmask):
+    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False, lddMap = None):
         object.__init__(self)
 
         # clone map file names, temporary directory and global/absolute path of input directory
@@ -44,20 +44,31 @@ class WaterBodies(object):
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
+        
+        self.iniItems = iniItems
                 
         # local drainage direction:
-        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
-        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-        self.lddMap = pcr.lddrepair(self.lddMap)
+        if isinstance(lddMap, types.NoneType):
+            self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
+                                                  self.cloneMap,self.tmpDir,self.inputDir,True)
+            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+            self.lddMap = pcr.lddrepair(self.lddMap)
+        else:    
+            self.lddMap = lddMap
+
+        # the following is needed for a modflowOfflineCoupling run
+        if 'modflowOfflineCoupling' in iniItems.globalOptions.keys() and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
+            logger.info("The 'routingOptions' are not defined in the configuration ini file. We will adopt them from the 'modflowParameterOptions'.")
+            iniItems.routingOptions = iniItems.modflowParameterOptions
+
 
         # option to activate water balance check
         self.debugWaterBalance = True
-        if iniItems.routingOptions['debugWaterBalance'] == "False":
+        if 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
-
+        
         # option to perform a run with only natural lakes (without reservoirs)
-        self.onlyNaturalWaterBodies = False
+        self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
         if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
             logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.onlyNaturalWaterBodies  = True
@@ -97,7 +108,8 @@ class WaterBodies(object):
 
 
     def getParameterFiles(self,currTimeStep,cellArea,ldd,\
-                               initial_condition_dictionary = None):
+                               initial_condition_dictionary = None,\
+                               currTimeStepInDateTimeFormat = False):
 
         # parameters for Water Bodies: fracWat              
         #                              waterBodyIds
@@ -111,8 +123,12 @@ class WaterBodies(object):
         ldd = pcr.ifthen(self.landmask, ldd)
         
         # date used for accessing/extracting water body information
-        date_used = currTimeStep.fulldate
-        year_used = currTimeStep.year
+        if currTimeStepInDateTimeFormat:
+            date_used = currTimeStep
+            year_used = currTimeStep.year
+        else:
+            date_used = currTimeStep.fulldate
+            year_used = currTimeStep.year
         if self.onlyNaturalWaterBodies == True:
             date_used = self.dateForNaturalCondition
             year_used = self.dateForNaturalCondition[0:4] 
@@ -307,15 +323,24 @@ class WaterBodies(object):
         # at the beginning of simulation period (timeStepPCR = 1)
         # - we have to define/get the initial conditions 
         #
-        if currTimeStep.timeStepPCR == 1:
+        if initial_condition_dictionary != None and currTimeStep.timeStepPCR == 1:
             self.getICs(initial_condition_dictionary)
         
         # For each new reservoir (introduced at the beginning of the year)
         # initiating storage, average inflow and outflow
+        # PS: THIS IS NOT NEEDED FOR OFFLINE MODFLOW RUN! 
         #
-        self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
-        self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
-        self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+        try:
+            self.waterBodyStorage = pcr.cover(self.waterBodyStorage,0.0)
+            self.avgInflow        = pcr.cover(self.avgInflow ,0.0)
+            self.avgOutflow       = pcr.cover(self.avgOutflow,0.0)
+            self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
+            self.avgInflow        = pcr.ifthen(self.landmask, self.avgInflow       )
+            self.avgOutflow       = pcr.ifthen(self.landmask, self.avgOutflow      )
+        except:
+            # PS: FOR OFFLINE MODFLOW RUN!
+            pass
+        # TODO: Remove try and except    
 
         # cropping only in the landmask region:
         self.fracWat           = pcr.ifthen(self.landmask, self.fracWat         )
@@ -324,9 +349,6 @@ class WaterBodies(object):
         self.waterBodyArea     = pcr.ifthen(self.landmask, self.waterBodyArea   )
         self.waterBodyTyp      = pcr.ifthen(self.landmask, self.waterBodyTyp    )  
         self.waterBodyCap      = pcr.ifthen(self.landmask, self.waterBodyCap    )
-        self.waterBodyStorage  = pcr.ifthen(self.landmask, self.waterBodyStorage)
-        self.avgInflow         = pcr.ifthen(self.landmask, self.avgInflow       )
-        self.avgOutflow        = pcr.ifthen(self.landmask, self.avgOutflow      )
 
     def getICs(self,initial_condition):
 
