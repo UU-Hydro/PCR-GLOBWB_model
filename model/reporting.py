@@ -677,26 +677,10 @@ class Reporting(object):
         # reporting water balance from the land surface part (excluding surface water bodies)
         if "land_surface_water_balance" in self.variables_for_report: self.land_surface_water_balance = self._model.waterBalance
 
-        # accumulated directRunoff (m3/s) along the drainage network
-        if "accuDirectRunoff" in self.variables_for_report:
-            self.accuDirectRunoff = pcr.catchmenttotal(self.directRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
-        # accumulated interflowTotal (m3/s) along the drainage network
-        if "accuInterflowTotal" in self.variables_for_report:
-            self.accuInterflowTotal = pcr.catchmenttotal(self.interflowTotal * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
         # accumulated baseflow (m3/s) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
             self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
-        # accumulated runoff (m3/s) along the drainage network
-        if "accuRunoff" in self.variables_for_report:
-            self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
-        # accumulated surface water abstraction along the drainage network (m3/s)
-        if "accuSurfaceWaterAbstraction" in self.variables_for_report:
-            self.accuSurfaceWaterAbstraction = pcr.catchmenttotal(self.surfaceWaterAbstraction * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-        
         # local changes in water bodies (i.e. abstraction, return flow, evaporation, bed exchange), excluding runoff
         self.local_water_body_flux = self._model.routing.local_input_to_surface_water / self._model.routing.cellArea - self.runoff
         
@@ -711,10 +695,6 @@ class Reporting(object):
                                                               self.waterBodyPotEvaporation,\
                                                               vos.smallNumber)
 
-        # accumulated water body actual evaporation along the drainage network (m3/s)
-        if "accuWaterBodyActEvaporation" in self.variables_for_report: 
-            self.accuWaterBodyActEvaporation = pcr.catchmenttotal(self.waterBodyActEvaporation * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
         # land surface evaporation (m)
         self.actualET = self._model.landSurface.actualET
 
@@ -725,10 +705,6 @@ class Reporting(object):
         self.storGroundwaterTotal  = self._model.groundwater.storGroundwater + \
                                      self._model.groundwater.storGroundwaterFossil
         
-        # accumulated total groundwater storage along the drainage network (m3):
-        if "accuStorGroundwaterTotalVolume" in self.variables_for_report: 
-            self.accuStorGroundwaterTotalVolume = pcr.catchmenttotal(self.storGroundwaterTotal * self._model.routing.cellArea, self._model.routing.lddMap)
-
         # total active storage thickness (m) for the entire water column - not including fossil groundwater
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
@@ -828,14 +804,9 @@ class Reporting(object):
         self.nonIrrWaterConsumption = self._model.routing.nonIrrWaterConsumption
         self.nonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlow
         
-        # accumulated non irrigation return flow along the drainage network (m3/s)
-        if "accuNonIrrReturnFlow" in self.variables_for_report:
-            self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
         # total potential water demand - not considering water availability
-        self.totalPotentialMaximumGrossDemand = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.totalPotentialMaximumGrossDemand)
-        # - irrigation (excluding livestock) - not considering water availability 
-        self.totalPotentialMaximumIrrGrossDemand = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.totalPotentialMaximumIrrGrossDemand)
+        self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
+        
 
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
@@ -847,16 +818,6 @@ class Reporting(object):
         self.surfaceWaterInf = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow 
 
-        # accumulated surface water infiltration along the drainage network (m3/s)
-        if "accuSurfaceWaterInf" in self.variables_for_report:
-            self.accuSurfaceWaterInf = pcr.catchmenttotal(self.surfaceWaterInf * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
-        # net groundwater discharge (m/day)
-        self.netGroundwaterDischarge = self.baseflow - self.surfaceWaterInf
-
-        # accumulated net groundwater discharge along the drainage network (m3/s)
-        if "accuNetGroundwaterDischarge" in self.variables_for_report:
-            self.accuNetGroundwaterDischarge = pcr.catchmenttotal(self.netGroundwaterDischarge * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
 
 		#-----------------------------------------------------------------------
 		# NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
@@ -941,34 +902,6 @@ class Reporting(object):
 
         # fluxes from water bodies (lakes and reservoirs) - unit: m3/s
         self.lake_and_reservoir_inflow = self._model.routing.WaterBodies.inflowInM3PerSec
-
-
-        # an estimate of total groundwater storage (m3) and thickness (m) 
-        # - these values can be negative
-        if ("groundwaterVolumeEstimate" in self.variables_for_report) or ("groundwaterThicknessEstimate" in self.variables_for_report):
-            if self._model.groundwater.useMODFLOW and \
-               self._model.groundwater.coupleToDailyMODFLOW:    
-				# TODO: This works only for daily modflow coupling. You have to make it work for monthly modflow as well.
-                # - from the lowermost layer
-                aquifer_storage_coefficient = pcr.ifthenelse(self._model.groundwater.gw_modflow.groundwaterHeadLayer1 > self._model.groundwater.gw_modflow.bottom_layer_2, self._model.groundwater.gw_modflow.secondary_storage_coefficient_1,  self._model.groundwater.gw_modflow.storage_coefficient_1)
-                self.groundwaterThicknessEstimate = \
-                                                    pcr.ifthen(self._model.routing.landmask, \
-                                                               aquifer_storage_coefficient * \
-                                                              (self._model.groundwater.groundwaterHeadLayer1 - self._model.groundwater.gw_modflow.bottom_layer_1))
-                # - from the uppermost layer
-                if self._model.groundwater.gw_modflow.number_of_layers == 2:\
-                   self.groundwaterThicknessEstimate += \
-                                                    pcr.ifthen(self._model.routing.landmask, \
-                                                               self._model.groundwater.gw_modflow.storage_coefficient_2 * \
-                                                              (self._model.groundwater.groundwaterHeadLayer2 - self._model.groundwater.gw_modflow.bottom_layer_2))
-            else:
-                self.groundwaterThicknessEstimate = self.storGroundwater + self.storGroundwaterFossil
-            
-            self.groundwaterVolumeEstimate = self.groundwaterThicknessEstimate *\
-                                             self._model.routing.cellArea 
-            
-            self.accuGroundwaterVolumeEstimate = pcr.catchmenttotal(self.groundwaterVolumeEstimate, self._model.routing.lddMap)
-            
 
 
     def report(self):
