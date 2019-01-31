@@ -652,6 +652,9 @@ class Reporting(object):
                                         self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap,\
                                         vos.smallNumber)
 
+        # total potential evaporation (m). from land and water fractions
+        self.totalPotentialEvaporation = self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap
+        
         # runoff (m) from land surface - not including local changes in water bodies
         self.runoff = self._model.routing.runoff
         

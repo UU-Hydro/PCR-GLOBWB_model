@@ -704,6 +704,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Including from water bodies.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# totalPotentialEvaporation
+pcrglobwb_variable_name = 'totalPotentialEvaporation'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_potential_evaporation'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Including from water bodies.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # fractionTotalEvaporation
 pcrglobwb_variable_name = 'fractionTotalEvaporation'
 netcdf_short_name[pcrglobwb_variable_name] = 'total_evaporation_fraction'
