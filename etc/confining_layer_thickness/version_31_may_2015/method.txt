@@ -1,5 +1,0 @@
-pcrcalc confining_layer_extent.map = "path(lddsound_05min.map, if(groundwaterDepth_average_1958_2010.map <= 5.0, boolean(1.0)))"
-pcrcalc confining_layer_thickness.map = "if(confining_layer_extent.map, min(2000.0, thickness_05min.map)*0.020)"
-pcrcalc confining_layer_thickness.map = "cover(confining_layer_thickness.map, windowaverage(cover(confining_layer_thickness.map, 0.0), 0.5))"
-
-
