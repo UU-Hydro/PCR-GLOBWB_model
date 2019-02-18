@@ -313,8 +313,8 @@ class Routing(object):
         if iniItems.debug_to_version_one: self.zeroFracWatAllAndAlways = True
         
         # option to limit flood depth (to get rid of unrealistic flood depth)
-        self.maxFlooDepth = None
-        if 'maxFlooDepth' in iniItems.routingOptions.keys():
+        self.maxFloodDepth = None
+        if 'maxFloodDepth' in iniItems.routingOptions.keys():
             self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
         
         # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 
