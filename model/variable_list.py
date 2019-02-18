@@ -369,7 +369,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1'
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
 netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "negative values indicating (net) capillary rise from groundater store"
+comment[pcrglobwb_variable_name]           = "negative values indicating (net) capillary rise from groundater store ; not including infiltration from surface water bodies"
 latex_symbol[pcrglobwb_variable_name]      = None
 pcr_short_name[pcrglobwb_variable_name]    = "rch"
 
@@ -383,6 +383,18 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "values (positive) indicating (net) capillary rise from groundater store; only positive values given to the field."
 latex_symbol[pcrglobwb_variable_name]      = None
+
+# totalGroundwaterRecharge                      
+pcrglobwb_variable_name = 'totalGroundwaterRecharge'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_groundwater_recharge'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "nncluding "
+latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = None
 
 # irrGrossDemand                  
 pcrglobwb_variable_name = 'irrGrossDemand'

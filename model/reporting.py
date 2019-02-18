@@ -819,9 +819,8 @@ class Reporting(object):
         
         # surface water infiltration (to groundwater) (unit: m/day)
         self.surfaceWaterInf = self._model.routing.riverbedExchange / self._model.routing.cellArea
-        # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow 
-
-
+        # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow
+        
 		#-----------------------------------------------------------------------
 		# NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
 		# because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
