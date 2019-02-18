@@ -312,6 +312,11 @@ class Routing(object):
         self.zeroFracWatAllAndAlways = False
         if iniItems.debug_to_version_one: self.zeroFracWatAllAndAlways = True
         
+        # option to limit flood depth (to get rid of unrealistic flood depth)
+        self.maxFlooDepth = None
+        if 'maxFlooDepth' in self.iniItems.routingOptions.keys():
+            self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
+        
         # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 
         self.initiate_old_style_routing_reporting(iniItems)
 
@@ -1314,9 +1319,9 @@ class Routing(object):
             floodDepth  = pcr.ifthenelse(inundatedFraction > 0., \
                           excessVolume/(pcr.max(self.min_fracwat_for_water_height, inundatedFraction)*self.cellArea),0.)  # unit: m
             
-            #~ # - maximum flood depth - # TODO: Define this in the configuration file
-            #~ max_flood_depth = 25.0
-            #~ floodDepth  = pcr.max(0.0, pcr.min(max_flood_depth, floodDepth))
+            # - maximum flood depth
+            if not isinstance(self.maxFloodDepth, types.NoneType):
+                floodDepth = pcr.max(0.0, pcr.min(self.maxFloodDepth, floodDepth))
             
         return inundatedFraction, floodDepth
 
