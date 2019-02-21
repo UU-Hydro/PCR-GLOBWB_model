@@ -3,7 +3,7 @@
 #SBATCH -t 119:59:00 
 #SBATCH -p normal
 #SBATCH --constraint=haswell
-#SBATCH -J non-natural_kinematic-wave_continue_from_1961_part_two
+#SBATCH -J non-natural_kinematic-wave_continue_from_1961_part_one
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
