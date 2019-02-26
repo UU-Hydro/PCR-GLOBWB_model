@@ -908,6 +908,9 @@ class Routing(object):
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
         
+        # water body balance check
+        self.waterBodyBalance = self.waterBodies.waterBodyBalance
+        
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 

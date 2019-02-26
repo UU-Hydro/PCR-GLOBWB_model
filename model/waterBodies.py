@@ -416,6 +416,10 @@ class WaterBodies(object):
                                    'WaterBodyStorage (unit: m)',\
                                   True,\
                                   currTimeStep.fulldate,threshold=5e-3)
+        
+        self.waterBodyBalance = (pcr.cover(self.inflow/self.waterBodyArea, 0.0) - pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)) -\
+                                (pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0) - pcr.cover(preStorage/self.waterBodyArea,0.0))
+                                  
 
     def moveFromChannelToWaterBody(self,\
                                    newStorageAtLakeAndReservoirs,\
