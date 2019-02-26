@@ -909,7 +909,7 @@ class Routing(object):
         self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
         
         # water body balance check
-        self.waterBodyBalance = self.waterBodies.waterBodyBalance
+        self.waterBodyBalance = self.WaterBodies.waterBodyBalance
         
         # old-style reporting                             
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
