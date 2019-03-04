@@ -3,7 +3,7 @@
 #SBATCH -t 119:59:00 
 #SBATCH -p normal
 #SBATCH --constraint=haswell
-#SBATCH -J 05min_non-natural_accutraveltime_part_one_using_a_consistent_pcraster_as_used_in_gmd_paper
+#SBATCH -J 05min_non-natural_accutraveltime_part_two_using_a_consistent_pcraster_as_used_in_gmd_paper
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
@@ -21,7 +21,7 @@ pcrcalc; mapattr
 cd ~/github/edwinkost/PCR-GLOBWB/model/
 
 # then execute your PCR-GLOBWB model run
-python parallel_pcrglobwb_runner.py ../config/gmd_paper/05min/rerun/non-natural/begin_from_1958/setup_05min_non-natural_parallel_part_one.ini
+python parallel_pcrglobwb_runner.py ../config/gmd_paper/05min/rerun_using_consistent_pcraster/non-natural/begin_from_1958/setup_05min_non-natural_parallel_part_two.ini
 
 # check pcraster version
 pcrcalc; mapattr
