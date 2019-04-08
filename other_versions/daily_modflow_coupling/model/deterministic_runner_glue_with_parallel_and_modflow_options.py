@@ -332,7 +332,7 @@ def main():
     # debug option
     debug_mode = False
     if len(sys.argv) > 2: 
-        if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel": debug_mode = True
+        if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel" or sys.argv[2] == "debug-parallel": debug_mode = True
     
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
@@ -342,7 +342,7 @@ def main():
     # parallel option
     this_run_is_part_of_a_set_of_parallel_run = False    
     if len(sys.argv) > 2: 
-        if sys.argv[2] == "parallel" or sys.argv[2] == "debug_parallel": this_run_is_part_of_a_set_of_parallel_run = True
+        if sys.argv[2] == "parallel" or sys.argv[2] == "debug_parallel" or sys.argv[2] == "debug-parallel": this_run_is_part_of_a_set_of_parallel_run = True
     
     # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
     if this_run_is_part_of_a_set_of_parallel_run == False:
