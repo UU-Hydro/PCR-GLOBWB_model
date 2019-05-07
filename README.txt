@@ -2,10 +2,10 @@ PCR-GLOBWB git repository.
 
 PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 
-Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-and Marc F. P. Bierkens,
+Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 
 PCR-GLOBWB is released under the GPL license, version 3
@@ -16,10 +16,5 @@ See the "LICENSE" file for more information.
 
 For questions, please contact Edwin Sutanudjaja (e-mail: E.H.Sutanudjaja@uu.nl).
 
-Some git reference cards:
-- https://help.github.com/articles/git-cheatsheet
-- http://devcheatsheet.com/tag/git/
+Main reference/paper: Sutanudjaja, E. H., van Beek, R., Wanders, N., Wada, Y., Bosmans, J. H. C., Drost, N., van der Ent, R. J., de Graaf, I. E. M., Hoch, J. M., de Jong, K., Karssenberg, D., López López, P., Peßenteiner, S., Schmitz, O., Straatsma, M. W., Vannametee, E., Wisser, D., and Bierkens, M. F. P.: PCR-GLOBWB 2: a 5 arcmin global hydrological and water resources model, Geosci. Model Dev., 11, 2429-2453, https://doi.org/10.5194/gmd-11-2429-2018, 2018.
 
-A cookbook about how to run PCR-GLOBWB and contribute to its development: 
-- https://goo.gl/medqhJ (created on May 2014).
-- Examples of model input files can be obtained from git@github.com:UU-Hydro/PCR-GLOBWB_input_example.git (including ini files). 
