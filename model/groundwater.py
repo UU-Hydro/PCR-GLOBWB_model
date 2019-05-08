@@ -3,10 +3,10 @@
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
-# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-# and Marc F. P. Bierkens,
+# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 # Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 #
 # This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 import math
 import subprocess
 import os
+import types
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -143,6 +144,8 @@ class Groundwater(object):
         #####################################################################################################################################################
         # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC
         try:
+            msg = "The 'recessionCoeff' will be obtained from the file: "+groundwaterPropertiesNC
+            logger.info(msg)
             self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
                                   groundwaterPropertiesNC,'recessionCoeff',\
                                   cloneMapFileName = self.cloneMap)
@@ -157,7 +160,7 @@ class Groundwater(object):
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
-        if isinstance(self.recessionCoeff,types.NoneType) and\
+        if isinstance(self.recessionCoeff, types.NoneType) and\
                           'recessionCoeff' not in iniItems.groundwaterOptions.keys():
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
@@ -316,16 +319,32 @@ class Groundwater(object):
         # incorporating groundwater distribution network:
         if self.usingAllocSegments:
 
+            # reading the allocation zone file
             self.allocSegments = vos.readPCRmapClone(\
              groundwaterAllocationSegments,
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            self.allocSegments = pcr.clump(self.allocSegments)
 
+            # extrapolate it 
+            self.allocSegments = pcr.cover(self.allocSegments, \
+                                           pcr.windowmajority(self.allocSegments, 0.5))
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # clump it and cover the rests with cell ids 
+            self.allocSegments = pcr.clump(self.allocSegments)
+            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            self.allocSegments = pcr.clump(self.allocSegments)
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # cell area (unit: m2)
             cellArea = vos.readPCRmapClone(\
               iniItems.routingOptions['cellAreaMap'],
               self.cloneMap,self.tmpDir,self.inputDir)
             cellArea = pcr.ifthen(self.landmask, cellArea)              # TODO: integrate this one with the one coming from the routing module
 
+            # zonal/segment area (unit: m2)
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
         #####################################################################################################################################################

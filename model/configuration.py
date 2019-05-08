@@ -3,10 +3,10 @@
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
-# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-# and Marc F. P. Bierkens,
+# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 # Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 #
 # This program is free software: you can redistribute it and/or modify
@@ -560,6 +560,13 @@ class Configuration(object):
         if 'temperature_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['temperature_set_per_year'] = "False"
         if 'refETPotFileNC_set_per_year' not in self.meteoOptions.keys(): self.meteoOptions['refETPotFileNC_set_per_year'] = "False"
 
+        # adjustment for the option 'prioritizeLocalSourceToMeetWaterDemand':
+        if 'prioritizeLocalSourceToMeetWaterDemand' not in self.landSurfaceOptions.keys():
+            msg  = 'The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. '
+            msg += 'We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.'
+            logger.warning(msg)
+            self.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] = "True"
+        
         # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
 
     def set_debug_to_version_one(self):

@@ -3,10 +3,10 @@
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
-# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-# and Marc F. P. Bierkens,
+# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 # Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,12 +28,17 @@ List of variables.
 Created on July 7, 2014
 
 @author: Edwin H. Sutanudjaja
+
+eartH2Observe variables added
+@editors: Ruud van der Ent, Rens van Beek
+
 '''
 
 netcdf_short_name = {}
 netcdf_unit       = {}
 netcdf_monthly_total_unit = {} 
 netcdf_yearly_total_unit  = {}
+netcdf_standard_name= {}
 netcdf_long_name  = {}
 description       = {}
 comment           = {}
@@ -364,7 +369,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1'
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
 netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = "negative values indicating (net) capillary rise from groundater store"
+comment[pcrglobwb_variable_name]           = "negative values indicating (net) capillary rise from groundater store ; not including infiltration from surface water bodies"
 latex_symbol[pcrglobwb_variable_name]      = None
 pcr_short_name[pcrglobwb_variable_name]    = "rch"
 
@@ -378,6 +383,18 @@ netcdf_long_name[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = "values (positive) indicating (net) capillary rise from groundater store; only positive values given to the field."
 latex_symbol[pcrglobwb_variable_name]      = None
+
+# totalGroundwaterRecharge                      
+pcrglobwb_variable_name = 'totalGroundwaterRecharge'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_groundwater_recharge'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = "nncluding "
+latex_symbol[pcrglobwb_variable_name]      = None
+pcr_short_name[pcrglobwb_variable_name]    = None
 
 # irrGrossDemand                  
 pcrglobwb_variable_name = 'irrGrossDemand'
@@ -699,6 +716,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Including from water bodies.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# totalPotentialEvaporation
+pcrglobwb_variable_name = 'totalPotentialEvaporation'
+netcdf_short_name[pcrglobwb_variable_name] = 'total_potential_evaporation'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Including from water bodies.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # fractionTotalEvaporation
 pcrglobwb_variable_name = 'fractionTotalEvaporation'
 netcdf_short_name[pcrglobwb_variable_name] = 'total_evaporation_fraction'
@@ -986,6 +1014,18 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# surfaceWaterInf
+pcrglobwb_variable_name = 'surfaceWaterInf'
+netcdf_short_name[pcrglobwb_variable_name] = 'surface_water_infiltration'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = 'surface_water_infiltration_to_groundwater'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+
 # irrigationTranspiration
 pcrglobwb_variable_name = 'irrigationTranspiration'
 netcdf_short_name[pcrglobwb_variable_name] = 'transpiration_from_irrigation'
@@ -1261,6 +1301,17 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# lake_and_reservoir_inflow (m3/s)
+pcrglobwb_variable_name = 'lake_and_reservoir_inflow'
+netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
+netcdf_unit[pcrglobwb_variable_name]       = 'm3.s'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 
 
 #############################################################################################################
@@ -1410,6 +1461,247 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+
+#############################################################################################################
+# eartH2Observe
+#############################################################################################################
+# RvB 23/02/2017 : start of edits 
+# eartH2Observe variables added
+#%% E2O - EartH2Oserve variables
+
+#%% Water balance components
+
+# Precip
+pcrglobwb_variable_name = 'Precip'
+netcdf_short_name[pcrglobwb_variable_name] = 'Precip'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'precipitation_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'total precipitation'
+description[pcrglobwb_variable_name]       = 'Average of total precipitation (Rainf+Snowf), positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# Evap
+pcrglobwb_variable_name = 'Evap'
+netcdf_short_name[pcrglobwb_variable_name] = 'Evap'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'water_evaporation_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'total evatranpiration'
+description[pcrglobwb_variable_name]       = 'Sum of all evaporation sources, averaged over a grid cell, positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# Runoff
+pcrglobwb_variable_name = 'Runoff'
+netcdf_short_name[pcrglobwb_variable_name] = 'Runoff'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'runoff_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Total runoff'
+description[pcrglobwb_variable_name]       = 'Average total liquid water draining from land'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# Qs
+pcrglobwb_variable_name = 'Qs'
+netcdf_short_name[pcrglobwb_variable_name] = 'Qs'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'surface_runoff_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'surface runoff'
+description[pcrglobwb_variable_name]       = 'Runoff from the land surface and/or subsurface stormflow'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# Qsb
+pcrglobwb_variable_name = 'Qsb'
+netcdf_short_name[pcrglobwb_variable_name] = 'Qsb'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'subsurface_runoff_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Subsurface runoff'
+description[pcrglobwb_variable_name]       = 'Gravity drainage and/or slow response lateral flow.'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# Qsm
+pcrglobwb_variable_name = 'Qsm'
+netcdf_short_name[pcrglobwb_variable_name] = 'Qsm'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'surface_snow_melt_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'snowmelt'
+description[pcrglobwb_variable_name]       = 'Average liquid water generated from solid to liquid phase change in the snow'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#PotEvap
+pcrglobwb_variable_name = 'PotEvap'
+netcdf_short_name[pcrglobwb_variable_name] = 'PotEvap'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'water_potential_evaporation_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'potential evapotranspiration'
+description[pcrglobwb_variable_name]       = 'The flux as computed for evapotranspiration but will all resistances set to zero, except the aerodynamic resistance, positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#ECanop
+pcrglobwb_variable_name = 'ECanop'
+netcdf_short_name[pcrglobwb_variable_name] = 'ECanop'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'water_evaporation_flux_from_canopy'
+netcdf_long_name[pcrglobwb_variable_name]  = 'interception evaporation'
+description[pcrglobwb_variable_name]       = 'Evaporation from canopy interception, averaged over all vegetation types within a grid cell, positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#TVeg
+pcrglobwb_variable_name = 'TVeg'
+netcdf_short_name[pcrglobwb_variable_name] = 'TVeg'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'transpiration_flux'
+netcdf_long_name[pcrglobwb_variable_name]  = 'vegetation transpiration'
+description[pcrglobwb_variable_name]       = 'Vegetation transpiration, averaged over all vegetation types within a grid cell, positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#ESoil
+pcrglobwb_variable_name = 'ESoil'
+netcdf_short_name[pcrglobwb_variable_name] = 'ESoil'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'water_evaporation_flux_from_soil'
+netcdf_long_name[pcrglobwb_variable_name]  = 'bare soil evaporation'
+description[pcrglobwb_variable_name]       = 'Evaporation from bare soil, positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#EWater
+pcrglobwb_variable_name = 'EWater'
+netcdf_short_name[pcrglobwb_variable_name] = 'EWater'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Open water evaporation'
+description[pcrglobwb_variable_name]       = 'Evaporation from surface water storage (lakes, river Chanel, floodplains, etc.), positive downwards'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#RivOut
+pcrglobwb_variable_name = 'RivOut'
+netcdf_short_name[pcrglobwb_variable_name] = 'RivOut'
+netcdf_unit[pcrglobwb_variable_name]       = 'm3 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'river discharge'
+description[pcrglobwb_variable_name]       = 'Water volume leaving the cell, positive downstream'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#%% State variables
+
+#SWE
+pcrglobwb_variable_name = 'SWE'
+netcdf_short_name[pcrglobwb_variable_name] = 'SWE'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'liquid_water_content_of_surface_snow'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Snow water equivalent'
+description[pcrglobwb_variable_name]       = 'Total water mass of the snowpack (liquid or frozen), averaged over a grid cell'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#CanopInt
+pcrglobwb_variable_name = 'CanopInt'
+netcdf_short_name[pcrglobwb_variable_name] = 'SWE'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Total canopy water storage'
+description[pcrglobwb_variable_name]       = 'Total canopy interception, averaged over all vegetation types within a grid cell (included both solid and liquid)'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#SurfStor
+pcrglobwb_variable_name = 'SurfStor'
+netcdf_short_name[pcrglobwb_variable_name] = 'SurfStor'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Surface Water Storage'
+description[pcrglobwb_variable_name]       = 'Total liquid water storage, other than soil, snow or interception storage (i.e. lakes, river channel or depression storage).'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#SurfMoist
+pcrglobwb_variable_name = 'SurfMoist'
+netcdf_short_name[pcrglobwb_variable_name] = 'SurfMoist'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Surface soil moisture'
+description[pcrglobwb_variable_name]       = 'first model layer (SurfLayerThick)'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#RootMoist
+pcrglobwb_variable_name = 'RootMoist'
+netcdf_short_name[pcrglobwb_variable_name] = 'RootMoist'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Root zone soil moisture'
+description[pcrglobwb_variable_name]       = 'Total soil moisture available for evapotranspiration (RootLayerThick)'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#GroundMoist
+pcrglobwb_variable_name = 'GroundMoist'
+netcdf_short_name[pcrglobwb_variable_name] = 'GroundMoist'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'groundwater'
+description[pcrglobwb_variable_name]       = 'groundwater not directly available for evapotranspiration'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#TotMoist
+pcrglobwb_variable_name = 'TotMoist'
+netcdf_short_name[pcrglobwb_variable_name] = 'TotMoist'
+netcdf_unit[pcrglobwb_variable_name]       = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'N.A.'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Total soil moisture'
+description[pcrglobwb_variable_name]       = 'Vertically integrated total soil moisture (RootLayerThick)'
+comment[pcrglobwb_variable_name]           = 'equals RootMoist'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# RvB 23/02/2017: end of edit
 
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None

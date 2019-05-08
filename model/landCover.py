@@ -3,10 +3,10 @@
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
-# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-# and Marc F. P. Bierkens,
+# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 # Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 #
 # This program is free software: you can redistribute it and/or modify
@@ -201,16 +201,36 @@ class LandCover(object):
               self.cloneMap, self.tmpDir, self.inputDir)
             cellArea = pcr.ifthen(self.landmask, cellArea)                  
 
+            # reading the allocation zone file
             self.allocSegments = vos.readPCRmapClone(\
              iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            self.allocSegments = pcr.clump(self.allocSegments)
         
-            #~ self.allocSegments = pcr.clump(self.allocSegments)       # According to Menno, "clump" is NOT recommended.
+            # extrapolate it 
+            self.allocSegments = pcr.cover(self.allocSegments, \
+                                           pcr.windowmajority(self.allocSegments, 0.5))
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # clump it and cover the rests with cell ids 
+            self.allocSegments = pcr.clump(self.allocSegments)
+            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            self.allocSegments = pcr.clump(self.allocSegments)
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
         
+            # zonal/segment areas (unit: m2)
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
+        # option to prioritize local sources before abstracting water from neighboring cells
+        self.prioritizeLocalSourceToMeetWaterDemand = iniItems.landSurfaceOptions['prioritizeLocalSourceToMeetWaterDemand'] == "True"
+        if self.prioritizeLocalSourceToMeetWaterDemand:
+            msg = "Local water sources are first used before abstracting water from neighboring cells"
+            logger.info(msg)
+        
+        
         # get the names of cropCoefficient files:
         self.cropCoefficientNC = vos.getFullPath(self.iniItemsLC['cropCoefficientNC'], self.inputDir)
 
@@ -289,6 +309,67 @@ class LandCover(object):
                                      str(self.iniItemsLC['name']) + "_" + \
                                                 "monthEnd.nc",\
                                                     var,"undefined")
+
+
+    def updateIrrigationWaterEfficiency(self,currTimeStep):
+        #-RvB: irrigation water efficiency
+        # this reads in the irrigation water efficiency from the configuration file
+        # at the start of each calendar year - it can optionally handle netCDF files,
+        # PCRaster maps or values
+
+        var = 'irrigationWaterEfficiency'
+
+        if var in self.iniItemsLC.keys() or 'irrigationEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
+
+            msg = "Irrigation efficiency is set based on the file defined in the landCoverOptions."
+            
+            if 'irrigationWaterEfficiency' in self.iniItemsLC.keys():
+                self.iniItemsLC[var] = self.iniItemsLC['irrigationWaterEfficiency']
+
+            input = self.iniItemsLC[var]
+
+            try:
+            				# static input
+            				self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
+                                            self.tmpDir,self.inputDir)
+            except:
+            				# dynamic input
+            				if 'nc' in os.path.splitext(input)[1]:
+            					#-netCDF file
+            					ncFileIn = vos.getFullPath(input,self.inputDir)
+            					self.irrigationEfficiency = vos.netcdf2PCRobjClone(ncFileIn,var, \
+                           currTimeStep, useDoy = 'yearly',\
+                           cloneMapFileName = self.cloneMap)
+            				else:
+            					#-assumed PCRaster file, add year and '.map' extension
+            					input= input + '%04d.map' % currTimeStep.year
+            					self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
+                                            self.tmpDir,self.inputDir)
+            
+            # extrapolate efficiency map:                                                # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
+            window_size = 1.25 * pcr.clone().cellSize()
+            window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
+            try:
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, window_size))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
+                self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
+            except:                                                 
+                pass
+
+            self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
+            self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
+            self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
+
+        else:
+
+            msg = "Irrigation efficiency is set based on the file defined in the landSurfaceOptions (for irrigated land cover types only)."
+        
+        logger.info(msg)    
 
 
     def get_land_cover_parameters(self, date_in_string = None, get_only_fracVegCover = False):
@@ -1641,9 +1722,12 @@ class LandCover(object):
               available_water_volume = pcr.max(0.00, desalinationWaterUse*routing.cellArea),\
               allocation_zones = allocSegments,\
               zone_area = self.segmentArea,\
-              high_volume_treshold = 1000000.,\
+              high_volume_treshold = None,\
               debug_water_balance = True,\
-              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), landmask = self.landmask)
+              extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
+              landmask = self.landmask,
+              ignore_small_values = False,
+              prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
         #     
             self.desalinationAbstraction = volDesalinationAbstraction / routing.cellArea
             self.desalinationAllocation  = volDesalinationAllocation  / routing.cellArea
@@ -1700,6 +1784,9 @@ class LandCover(object):
         # - for industrial and domestic
         swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
                                                             swAbstractionFractionDict['estimate'])
+        if not isinstance(swAbstractionFractionDict['non_irrigation'], types.NoneType):
+            swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
+
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
         # - for irrigation and livestock 
         surface_water_irrigation_demand_estimate = swAbstractionFractionDict['irrigation'] * remainingIrrigationLivestock
@@ -1734,27 +1821,19 @@ class LandCover(object):
         #  
             logger.debug("Allocation of surface water abstraction.")
         #  
-            # - fast alternative (may introducing some rounding errors)
             volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
              vos.waterAbstractionAndAllocation(
              water_demand_volume = surface_water_demand*routing.cellArea,\
              available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
              allocation_zones = allocSegments,\
              zone_area = self.segmentArea,\
-             high_volume_treshold = 1000000.,\
+             high_volume_treshold = None,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), landmask = self.landmask)
-        #  
-            #~ # - high precision alternative - STILL UNDER DEVELOPMENT (last progress: not much improvement)
-            #~ volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
-             #~ vos.waterAbstractionAndAllocationHighPrecision(
-             #~ water_demand_volume = surface_water_demand*routing.cellArea,\
-             #~ available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
-             #~ allocation_zones = allocSegments,\
-             #~ zone_area = self.segmentArea,\
-             #~ debug_water_balance = True,\
-             #~ extra_info_for_water_balance_reporting = str(currTimeStep.fulldate))
-        #  
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
+             landmask = self.landmask,
+             ignore_small_values = False,
+             prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
+
             self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
             self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
         #  
@@ -1924,9 +2003,12 @@ class LandCover(object):
              available_water_volume = pcr.max(0.00, readAvlStorGroundwater*routing.cellArea),\
              allocation_zones = groundwater.allocSegments,\
              zone_area = groundwater.segmentArea,\
-             high_volume_treshold = 1000000.,\
+             high_volume_treshold = None,\
              debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  landmask = self.landmask)
+             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
+             landmask = self.landmask,
+             ignore_small_values = False,
+             prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
             
             # non fossil groundwater abstraction and allocation in meter
             self.nonFossilGroundwaterAbs   = volActGroundwaterAbstract  / routing.cellArea 
@@ -2143,14 +2225,17 @@ class LandCover(object):
 
                     # fossil groundwater abstraction and allocation in volume (unit: m3)
                     volActGroundwaterAbstract, volAllocGroundwaterAbstract = \
-                     vos.waterAbstractionAndAllocation(
-                     water_demand_volume = self.potFossilGroundwaterAbstract*routing.cellArea,\
-                     available_water_volume = pcr.max(0.00, readAvlFossilGroundwater*routing.cellArea),\
-                     allocation_zones = groundwater.allocSegments,\
-                     zone_area = groundwater.segmentArea,\
-                     high_volume_treshold = 1000000.,\
-                     debug_water_balance = True,\
-                     extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  landmask = self.landmask)
+                       vos.waterAbstractionAndAllocation(
+                       water_demand_volume = self.potFossilGroundwaterAbstract*routing.cellArea,\
+                       available_water_volume = pcr.max(0.00, readAvlFossilGroundwater*routing.cellArea),\
+                       allocation_zones = groundwater.allocSegments,\
+                       zone_area = groundwater.segmentArea,\
+                       high_volume_treshold = None,\
+                       debug_water_balance = True,\
+                       extra_info_for_water_balance_reporting = str(currTimeStep.fulldate),  
+                       landmask = self.landmask,
+                       ignore_small_values = False,
+                       prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
                     
                     # fossil groundwater abstraction and allocation in meter
                     self.fossilGroundwaterAbstr = volActGroundwaterAbstract  /routing.cellArea 

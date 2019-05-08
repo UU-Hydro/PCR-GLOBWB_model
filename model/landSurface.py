@@ -3,10 +3,10 @@
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
-# Copyright (C) 2016, Ludovicus P. H. (Rens) van Beek, Edwin H. Sutanudjaja, Yoshihide Wada,
-# Joyce H. C. Bosmans, Niels Drost, Inge E. M. de Graaf, Kor de Jong, Patricia Lopez Lopez,
-# Stefanie Pessenteiner, Oliver Schmitz, Menno W. Straatsma, Niko Wanders, Dominik Wisser,
-# and Marc F. P. Bierkens,
+# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
+# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
+# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
+# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
 # Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
 #
 # This program is free software: you can redistribute it and/or modify
@@ -251,17 +251,31 @@ class LandSurface(object):
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
         # - if not defined (default), set it to the maximum 
         self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
-        # - based on the map of McDonald et al. (2014)
         if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys():
             if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
                iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
 
-                logger.info('Using/incorporating the predefined surface water source of McDonald et al. (2014) for satisfying domestic and industrial demand.')
+                logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
                 self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
                                                                                pcr.cover(\
                                                                                vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
                                                                                                    self.cloneMap,self.tmpDir,self.inputDir), 1.0))
 
+        # pre-defined surface water source fraction for satisfying industrial and domestic water demand
+        self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
+        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and \
+           (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
+            iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
+            
+            logger.info('Set the predefined fraction of surface water source for satisfying domestic and industrial demand.')
+            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
+                                                                              pcr.cover(\
+                                                                              vos.readPCRmapClone(iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'],\
+                                                                                                  self.cloneMap,self.tmpDir,self.inputDir), 1.0))
+            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.max(0.0, \
+                       pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
+                            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
+        
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
         self.treshold_to_maximize_irrigation_surface_water = \
          vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_maximize_irrigation_surface_water'],\
@@ -667,12 +681,27 @@ class LandSurface(object):
              iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
              self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            self.allocSegments = pcr.clump(self.allocSegments)
             
+            # extrapolate it 
+            self.allocSegments = pcr.cover(self.allocSegments, \
+                                           pcr.windowmajority(self.allocSegments, 0.5))
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+            
+            # clump it and cover the rests with cell ids 
+            self.allocSegments = pcr.clump(self.allocSegments)
+            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            self.allocSegments = pcr.clump(self.allocSegments)
+            self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
+
+            # cell area (unit: m2)
             cellArea = vos.readPCRmapClone(\
               iniItems.routingOptions['cellAreaMap'],
               self.cloneMap,self.tmpDir,self.inputDir)
             cellArea = pcr.ifthen(self.landmask, cellArea)
 
+            # zonal/segment area (unit: m2)
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
 
@@ -1057,7 +1086,11 @@ class LandSurface(object):
         #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this treshold will not extract fossil groundwater.
         swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'] = self.treshold_to_minimize_fossil_groundwater_irrigation
         
-        # if defined, incorporating the pre-defined fraction of surface water sources (e.g. based on Siebert et al., 2014 and McDonald et al., 2014)  
+
+        # the default value of surface water source fraction is None or not defined (in this case, this value will be the 'estimate' and limited with 'max_for_non_irrigation')
+        swAbstractionFractionDict['non_irrigation'] = None       
+
+        # incorporating the pre-defined fraction of surface water sources (e.g. based on Siebert et al., 2014 and McDonald et al., 2014)  
         if not isinstance(self.swAbstractionFractionData, types.NoneType):
             
             logger.debug('Using/incorporating the predefined fractions of surface water source.')
@@ -1067,7 +1100,16 @@ class LandSurface(object):
                                                                                                              self.swAbstractionFractionDataQuality)
             swAbstractionFractionDict['max_for_non_irrigation'] = self.maximumNonIrrigationSurfaceWaterAbstractionFractionData
             
+            if not isinstance(self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, types.NoneType):
+                swAbstractionFractionDict['non_irrigation'] = pcr.cover(
+                                                              self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, \
+                                                              swAbstractionFractionDict['estimate'])
+                swAbstractionFractionDict['non_irrigation'] = pcr.min(\
+                                  swAbstractionFractionDict['non_irrigation'], \
+                                  swAbstractionFractionDict['max_for_non_irrigation'])                                              
+
         else:    
+
             logger.debug('NOT using/incorporating the predefined fractions of surface water source.')
 
         return swAbstractionFractionDict
@@ -1305,7 +1347,15 @@ class LandSurface(object):
             # save the current state of fracVegCover
             for coverType in self.coverTypes:\
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
-
+				
+		#- RvB: irrigation water efficiency
+		# added here are the lines required to read in the water efficiency
+		# irrigation water efficiency is updated at the start of the year and 
+        if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
+					logger.info("Setting irrigation water efficiency")
+					for coverType in self.coverTypes:
+						self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
+				
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
             
