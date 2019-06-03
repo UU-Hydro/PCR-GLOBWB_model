@@ -107,14 +107,14 @@ class Configuration(object):
         for section in self.allSections:
             sec = getattr(self, section)
 
-            for key, value in sec.items():
+            for key, value in list(sec.items()):
                 if key.endswith("Ini") and value is not None and value != 'None':
                     sec[key] = os.path.abspath(value)
 
                 if key == 'precipitationNC' or key == 'temperatureNC':
                     sec[key] = os.path.abspath(value)
 
-            for key, value in sec.items():
+            for key, value in list(sec.items()):
                 if key.endswith("Ini"):
                     if not os.path.exists(value):
                         print(key, ":", value)

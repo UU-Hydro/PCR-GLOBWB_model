@@ -285,7 +285,7 @@ def mergeNetCDF(inputTuple):
 	date_time=rootgrp.createDimension('time',len(uniqueTimes))
 	#~ date_time=rootgrp.createDimension('time', None)
 	date_time= rootgrp.createVariable('time','f8',('time',))
-	for attr,value in calendar_used.items():
+	for attr,value in list(calendar_used.items()):
 		setattr(date_time,attr,str(value))
 	date_time[:]= uniqueTimes
 
@@ -304,7 +304,7 @@ def mergeNetCDF(inputTuple):
 				setattr(variable,name,str(getattr(variables[index][variableName],name)))
 			except:
 				pass
-		for attr,value in attributes[index].items():
+		for attr,value in list(attributes[index].items()):
 			setattr(rootgrp,attr,str(value)) 
 	
 	#-write to file

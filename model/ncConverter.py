@@ -95,7 +95,7 @@ class PCR2netCDF():
             self.attributeDictionary['title'      ] = iniItems.globalOptions['title'      ]
             self.attributeDictionary['description'] = iniItems.globalOptions['description']
         else:
-            for ncAttributeKey, ncAttribute in specificAttributeDictionary.items():
+            for ncAttributeKey, ncAttribute in list(specificAttributeDictionary.items()):
                 print(ncAttributeKey, ncAttribute)
                 self.attributeDictionary[ncAttributeKey]= ncAttribute
 

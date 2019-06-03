@@ -114,8 +114,8 @@ class PCRGlobWB(object):
         
         landSurfaceState = state['landSurface']
         
-        for coverType, coverTypeState in landSurfaceState.items():
-            for variable, map in coverTypeState.items():
+        for coverType, coverTypeState in list(landSurfaceState.items()):
+            for variable, map in list(coverTypeState.items()):
                 vos.writePCRmapToDir(\
                 map,\
                  str(variable)+"_"+coverType+"_"+
@@ -123,7 +123,7 @@ class PCRGlobWB(object):
                  outputDirectory)
                 
         groundWaterState = state['groundwater']
-        for variable, map in groundWaterState.items():
+        for variable, map in list(groundWaterState.items()):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
@@ -131,7 +131,7 @@ class PCRGlobWB(object):
              outputDirectory)
 
         routingState = state['routing']
-        for variable, map in routingState.items():
+        for variable, map in list(routingState.items()):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
@@ -170,7 +170,7 @@ class PCRGlobWB(object):
             
             logger.info('Dumping some monthly variables for the MODFLOW input.')
 
-            for variable, map in self.variables.items():
+            for variable, map in list(self.variables.items()):
                 vos.writePCRmapToDir(\
                  map,\
                  str(variable)+"_"+
