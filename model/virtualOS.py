@@ -73,7 +73,7 @@ def checkVariableInNC(ncFile,varName):
 
     logger.debug('Check whether the variable: '+str(varName)+' is defined in the file: '+str(ncFile))
     
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
         #~ print "Cached: ", ncFile
     else:
@@ -83,7 +83,7 @@ def checkVariableInNC(ncFile,varName):
     
     varName = str(varName)
     
-    return varName in f.variables.keys()
+    return varName in list(f.variables.keys())
 
 
 def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
@@ -102,7 +102,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     #     Only works if cells are 'square'.
     #     Only works if cellsizeClone <= cellsizeInput
     # Get netCDF file and variable name:
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
         #~ print "Cached: ", ncFile
     else:
@@ -197,7 +197,7 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
         #~ print "Cached: ", ncFile
     else:
@@ -438,7 +438,7 @@ def netcdf2PCRobjCloneBeforeRensCorrection(
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
         #~ print "Cached: ", ncFile
     else:
@@ -663,7 +663,7 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
         #~ print "Cached: ", ncFile
     else:
@@ -2162,7 +2162,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
 def findLastYearInNCFile(ncFile):
 
     # open a netcdf file:
-    if ncFile in filecache.keys():
+    if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
     else:
         f = nc.Dataset(ncFile)

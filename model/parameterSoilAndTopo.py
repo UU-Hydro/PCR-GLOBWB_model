@@ -299,7 +299,7 @@ class SoilAndTopoParameters(object):
                                   'matricSuctionWP',      
                                   'maxGWCapRise']
         for var in soilParameterConstants:
-            if var in iniItems.landSurfaceOptions.keys():
+            if var in list(iniItems.landSurfaceOptions.keys()):
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,\
                                                             self.tmpDir,self.inputDir)

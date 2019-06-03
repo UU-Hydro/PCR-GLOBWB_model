@@ -57,19 +57,19 @@ class WaterBodies(object):
             self.lddMap = lddMap
 
         # the following is needed for a modflowOfflineCoupling run
-        if 'modflowOfflineCoupling' in iniItems.globalOptions.keys() and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
+        if 'modflowOfflineCoupling' in list(iniItems.globalOptions.keys()) and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
             logger.info("The 'routingOptions' are not defined in the configuration ini file. We will adopt them from the 'modflowParameterOptions'.")
             iniItems.routingOptions = iniItems.modflowParameterOptions
 
 
         # option to activate water balance check
         self.debugWaterBalance = True
-        if 'debugWaterBalance' in iniItems.routingOptions.keys() and iniItems.routingOptions['debugWaterBalance'] == "False":
+        if 'debugWaterBalance' in list(iniItems.routingOptions.keys()) and iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
         
         # option to perform a run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
-        if "onlyNaturalWaterBodies" in iniItems.routingOptions.keys() and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
+        if "onlyNaturalWaterBodies" in list(iniItems.routingOptions.keys()) and iniItems.routingOptions['onlyNaturalWaterBodies'] == "True":
             logger.info("Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes.")
             self.onlyNaturalWaterBodies  = True
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
@@ -97,11 +97,11 @@ class WaterBodies(object):
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
         # - from the ini file
-        if "minResvrFrac" in iniItems.routingOptions.keys():
+        if "minResvrFrac" in list(iniItems.routingOptions.keys()):
             minResvrFrac = iniItems.routingOptions['minResvrFrac']
             self.minResvrFrac = vos.readPCRmapClone(minResvrFrac,
                                                     self.cloneMap, self.tmpDir, self.inputDir)
-        if "maxResvrFrac" in iniItems.routingOptions.keys():
+        if "maxResvrFrac" in list(iniItems.routingOptions.keys()):
             maxResvrFrac = iniItems.routingOptions['maxResvrFrac']
             self.maxResvrFrac = vos.readPCRmapClone(maxResvrFrac,
                                                     self.cloneMap, self.tmpDir, self.inputDir)

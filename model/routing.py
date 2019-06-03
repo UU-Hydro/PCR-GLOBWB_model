@@ -92,7 +92,7 @@ class Routing(object):
 
         # option to include lakes and reservoirs                    
         self.includeWaterBodies = True
-        if 'includeWaterBodies' in iniItems.routingOptions.keys(): 
+        if 'includeWaterBodies' in list(iniItems.routingOptions.keys()): 
             if iniItems.routingOptions['includeWaterBodies'] == "False" or\
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
@@ -145,7 +145,7 @@ class Routing(object):
 
         # option to use minimum channel width (m)
         self.minChannelWidth = pcr.scalar(0.0)
-        if "minimumChannelWidth" in iniItems.routingOptions.keys():
+        if "minimumChannelWidth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['minimumChannelWidth'] != "None":\
                self.minChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                       iniItems.routingOptions['minimumChannelWidth'],
@@ -153,7 +153,7 @@ class Routing(object):
         
         # option to use constant/pre-defined channel width (m)
         self.predefinedChannelWidth = None
-        if "constantChannelWidth" in iniItems.routingOptions.keys():
+        if "constantChannelWidth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['constantChannelWidth'] != "None":\
                self.predefinedChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelWidth'],
@@ -161,7 +161,7 @@ class Routing(object):
 
         # option to use constant/pre-defined channel depth (m)
         self.predefinedChannelDepth = None
-        if "constantChannelDepth" in iniItems.routingOptions.keys():
+        if "constantChannelDepth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['constantChannelDepth'] != "None":\
                self.predefinedChannelDepth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelDepth'],
@@ -181,7 +181,7 @@ class Routing(object):
         self.channelLength = self.cellLengthFD
         # 
         # channel length (unit: m) 
-        if "channelLength" in iniItems.routingOptions.keys():
+        if "channelLength" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['channelLength'] != "None":\
                self.channelLength = pcr.cover(
                                     vos.readPCRmapClone(\
@@ -232,7 +232,7 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps) 
                 
         # minimum number of a sub time step based on the configuration/ini file:  
-        if 'maxiumLengthOfSubTimeStep' in iniItems.routingOptions.keys():
+        if 'maxiumLengthOfSubTimeStep' in list(iniItems.routingOptions.keys()):
             maxiumLengthOfSubTimeStep = float(iniItems.routingOptions['maxiumLengthOfSubTimeStep'])
             minimum_number_of_sub_time_step  = np.ceil(
                                                vos.secondsPerDay() / maxiumLengthOfSubTimeStep )
@@ -250,7 +250,7 @@ class Routing(object):
         
         # assumption for minimum crop coefficient for surface water bodies 
         self.minCropWaterKC = 0.00
-        if 'minCropWaterKC' in iniItems.routingOptions.keys():
+        if 'minCropWaterKC' in list(iniItems.routingOptions.keys()):
             self.minCropWaterKC = float(iniItems.routingOptions['minCropWaterKC'])
         
         # get the initialConditions
@@ -270,10 +270,10 @@ class Routing(object):
 
             # reduction parameter of smoothing interval and error threshold
             self.reductionKK = 0.5
-            if 'reductionKK' in iniItems.routingOptions.keys():
+            if 'reductionKK' in list(iniItems.routingOptions.keys()):
                self.reductionKK= float(iniItems.routingOptions['reductionKK'])
             self.criterionKK = 40.0
-            if 'criterionKK' in iniItems.routingOptions.keys():
+            if 'criterionKK' in list(iniItems.routingOptions.keys()):
                self.criterionKK= float(iniItems.routingOptions['criterionKK'])
 
             # get relative elevation (above floodplain) profile per grid cell (including smoothing parameters)
@@ -314,7 +314,7 @@ class Routing(object):
         
         # option to limit flood depth (to get rid of unrealistic flood depth)
         self.maxFloodDepth = None
-        if 'maxFloodDepth' in iniItems.routingOptions.keys():
+        if 'maxFloodDepth' in list(iniItems.routingOptions.keys()):
             self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
         
         # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 

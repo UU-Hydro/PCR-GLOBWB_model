@@ -59,7 +59,7 @@ class LandCover(object):
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
         
         # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater)
-        if "useMODFLOW" in iniItems.groundwaterOptions.keys():
+        if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions["useMODFLOW"] == "True": self.limitAbstraction = True
         
         # includeIrrigation
@@ -73,7 +73,7 @@ class LandCover(object):
         # - "Original" is principally the same as defined in van Beek et al., 2014 (default)
         # - "Modified" is with a modification by Edwin Sutanudjaja: extending interception definition, using totalPotET for the available energy  
         self.interceptionModuleType = "Original"
-        if "interceptionModuleType" in self.iniItemsLC.keys():
+        if "interceptionModuleType" in list(self.iniItemsLC.keys()):
             if self.iniItemsLC['interceptionModuleType'] == "Modified":
                 msg = 'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
                 logger.info(msg)
@@ -87,7 +87,7 @@ class LandCover(object):
         
         # minimum interception capacity (only used if interceptionModuleType == "Modified", extended interception definition)
         self.minInterceptCap = 0.0
-        if self.interceptionModuleType == "Original" and "minInterceptCap" in self.iniItemsLC.keys():
+        if self.interceptionModuleType == "Original" and "minInterceptCap" in list(self.iniItemsLC.keys()):
             msg = 'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
             logger.warning(msg)
         if self.interceptionModuleType == "Modified":
@@ -105,14 +105,14 @@ class LandCover(object):
         # - In the "Original" work of van Beek et al., 2011 there is no "directRunoff reduction"
         # - However, later (20 April 2011), Rens van Beek introduce this reduction, particularly to maintain soil saturation. This is currently the "Default" method. 
         self.improvedArnoSchemeMethod = "Default"
-        if "improvedArnoSchemeMethod" in iniItems.landSurfaceOptions.keys():
+        if "improvedArnoSchemeMethod" in list(iniItems.landSurfaceOptions.keys()):
             self.improvedArnoSchemeMethod = iniItems.landSurfaceOptions['improvedArnoSchemeMethod']
             if self.improvedArnoSchemeMethod == "Original": logger.warning("Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff.")
 
         # In the original oldcalc script of Rens (2 layer model), the percolation percUpp (P1) can be negative
         # - To avoid this, Edwin changed few lines (see the method updateSoilStates)
         self.allowNegativePercolation = False
-        if 'allowNegativePercolation' in self.iniItemsLC.keys() and self.iniItemsLC['allowNegativePercolation'] == "True":
+        if 'allowNegativePercolation' in list(self.iniItemsLC.keys()) and self.iniItemsLC['allowNegativePercolation'] == "True":
             msg  = 'Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n'
             msg += 'Note that this option is only relevant for the two layer soil model.'
             logger.warning(msg)
@@ -121,7 +121,7 @@ class LandCover(object):
         # In the original oldcalc script of Rens, there is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s) 
         # - To avoid this, Edwin changed few lines (see the methods 'scaleRootFractionsFromTwoLayerSoilParameters' and 'estimateTranspirationAndBareSoilEvap')
         self.usingOriginalOldCalcRootTranspirationPartitioningMethod = False
-        if 'usingOriginalOldCalcRootTranspirationPartitioningMethod' in self.iniItemsLC.keys() and self.iniItemsLC['usingOriginalOldCalcRootTranspirationPartitioningMethod'] == "True":
+        if 'usingOriginalOldCalcRootTranspirationPartitioningMethod' in list(self.iniItemsLC.keys()) and self.iniItemsLC['usingOriginalOldCalcRootTranspirationPartitioningMethod'] == "True":
             msg  = 'Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n'
             msg += 'There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s).'
             logger.warning(msg)
@@ -153,7 +153,7 @@ class LandCover(object):
 
         # an option to introduce changes of land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if 'annualChangesInLandCoverParameters' in iniItems.landSurfaceOptions.keys():
+        if 'annualChangesInLandCoverParameters' in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions['annualChangesInLandCoverParameters'] == "True": self.noAnnualChangesInLandCoverParameter = False
         
         # get land cover parameters that are fixed for the entire simulation
@@ -242,7 +242,7 @@ class LandCover(object):
                       #~ self.iniItemsLC['coverFractionNC'], self.inputDir)
         
         # get the file names of interceptCap and coverFraction files:
-        if 'interceptCapNC' in self.iniItemsLC.keys() and 'coverFractionNC' in self.iniItemsLC.keys():
+        if 'interceptCapNC' in list(self.iniItemsLC.keys()) and 'coverFractionNC' in list(self.iniItemsLC.keys()):
             self.interceptCapNC = vos.getFullPath(\
                        self.iniItemsLC['interceptCapNC'], self.inputDir)
             self.coverFractionNC = vos.getFullPath(\
@@ -319,11 +319,11 @@ class LandCover(object):
 
         var = 'irrigationWaterEfficiency'
 
-        if var in self.iniItemsLC.keys() or 'irrigationEfficiency' in self.iniItemsLC.keys() and (self.iniItemsLC['name'].startswith('irr')):
+        if var in list(self.iniItemsLC.keys()) or 'irrigationEfficiency' in list(self.iniItemsLC.keys()) and (self.iniItemsLC['name'].startswith('irr')):
 
             msg = "Irrigation efficiency is set based on the file defined in the landCoverOptions."
             
-            if 'irrigationWaterEfficiency' in self.iniItemsLC.keys():
+            if 'irrigationWaterEfficiency' in list(self.iniItemsLC.keys()):
                 self.iniItemsLC[var] = self.iniItemsLC['irrigationWaterEfficiency']
 
             input = self.iniItemsLC[var]
@@ -422,7 +422,7 @@ class LandCover(object):
             #   3. approximated from the minSoilDepthFrac and maxSoilDepthFrac
 
             lc_parameters['arnoBeta'] = None
-            if 'arnoBeta' not in self.iniItemsLC.keys() and get_only_fracVegCover == False: self.iniItemsLC['arnoBeta'] = "None" 
+            if 'arnoBeta' not in list(self.iniItemsLC.keys()) and get_only_fracVegCover == False: self.iniItemsLC['arnoBeta'] = "None" 
 
             # - option one (top priority): using a pcraster file
             if self.iniItemsLC['arnoBeta'] != "None" and get_only_fracVegCover == False: 
@@ -584,10 +584,10 @@ class LandCover(object):
         min_percolation_loss = 0.006
         max_percolation_loss = 0.008 
         # - Minimum and maximum percolation loss values given in the ini or configuration file:
-        if 'minPercolationLoss' in iniPaddyOptions.keys() and iniPaddyOptions['minPercolationLoss'] != "None":
+        if 'minPercolationLoss' in list(iniPaddyOptions.keys()) and iniPaddyOptions['minPercolationLoss'] != "None":
             min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['minPercolationLoss'], self.cloneMap, 	
                                                        self.tmpDir, self.inputDir)
-        if 'maxPercolationLoss' in iniPaddyOptions.keys() and iniPaddyOptions['maxPercolationLoss'] != "None":
+        if 'maxPercolationLoss' in list(iniPaddyOptions.keys()) and iniPaddyOptions['maxPercolationLoss'] != "None":
             min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['maxPercolationLoss'], self.cloneMap, 	
                                                        self.tmpDir, self.inputDir)
         # - percolation loss at paddy fields (m/day)

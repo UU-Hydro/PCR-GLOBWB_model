@@ -137,10 +137,10 @@ def mergeNetCDF(inputTuple):
 		ed = str(endDate).split('-')
 		endTime   = datetime.datetime(int(ed[0]), int(ed[1]), int(ed[2]), 0)
 		
-		print(netCDFInput.values()[0])
+		print(list(netCDFInput.values())[0])
 		
 		# open the first netcdf file to get time units and time calendar
-		ncFile = netCDFInput.values()[0]
+		ncFile = list(netCDFInput.values())[0]
 		print(ncFile)
 		f = nc.Dataset(ncFile)
 		time_units    = f.variables['time'].units
@@ -190,10 +190,10 @@ def mergeNetCDF(inputTuple):
 		print(datetime_range)
 		print(uniqueTimes)
 	
-	for ncFile in netCDFInput.values():
+	for ncFile in list(netCDFInput.values()):
 
 		# open netCDF file
-		if ncFile in filecache.keys():
+		if ncFile in list(filecache.keys()):
 			rootgrp = filecache[ncFile]
 			print("Cached: ", ncFile)
 		else:
@@ -202,7 +202,7 @@ def mergeNetCDF(inputTuple):
 			print("New: ", ncFile)
 
 		# and get index
-		index = netCDFInput.keys()[netCDFInput.values().index(ncFile)]
+		index = list(netCDFInput.keys())[list(netCDFInput.values()).index(ncFile)]
 
 		# retrieve dimensions,  atributes, variables, and missing value
 		dimensions[index]= rootgrp.dimensions.copy()
@@ -210,7 +210,7 @@ def mergeNetCDF(inputTuple):
 		attributes[index]= rootgrp.__dict__.copy()
 	
 		#-set new values
-		for key in dimensions[index].keys():
+		for key in list(dimensions[index].keys()):
 			if 'lat' in key.lower():
 				latVar= key
 			if 'lon' in key.lower():
@@ -221,9 +221,9 @@ def mergeNetCDF(inputTuple):
 		lonMax= getMax(lonMax,variables[index][lonVar][:])
 	
 		#-assign calendar (used)
-		if 'time' in  variables[index].keys():
+		if 'time' in  list(variables[index].keys()):
 			for name in variables[index]['time'].ncattrs():
-				if name not in calendar_used.keys():
+				if name not in list(calendar_used.keys()):
 					calendar_used[name]= getattr(variables[index]['time'],name)
 				else:
 					if getattr(variables[index]['time'],name) != calendar_used[name]:
@@ -235,8 +235,8 @@ def mergeNetCDF(inputTuple):
 			#~ else:
 				#~ uniqueTimes= np.unique(np.c_[uniqueTimes[:],variables[index]['time'][:]])
 			uniqueTimes.sort()
-		keys= variables[index].keys()
-		for key in dimensions[index].keys():
+		keys= list(variables[index].keys())
+		for key in list(dimensions[index].keys()):
 			if key in keys:
 				keys.remove(key)
 		key= keys[0]
@@ -285,7 +285,7 @@ def mergeNetCDF(inputTuple):
 	date_time=rootgrp.createDimension('time',len(uniqueTimes))
 	#~ date_time=rootgrp.createDimension('time', None)
 	date_time= rootgrp.createVariable('time','f8',('time',))
-	for attr,value in calendar_used.iteritems():
+	for attr,value in calendar_used.items():
 		setattr(date_time,attr,str(value))
 	date_time[:]= uniqueTimes
 
@@ -298,13 +298,13 @@ def mergeNetCDF(inputTuple):
 	variable = rootgrp.createVariable(variableName, 'f4', varStructure, fill_value = MV, zlib = using_zlib)
 
 	# - set variable attributes and overall values
-	for index in attributes.keys():
+	for index in list(attributes.keys()):
 		for name in variables[index][variableName].ncattrs():
 			try:
 				setattr(variable,name,str(getattr(variables[index][variableName],name)))
 			except:
 				pass
-		for attr,value in attributes[index].iteritems():
+		for attr,value in attributes[index].items():
 			setattr(rootgrp,attr,str(value)) 
 	
 	#-write to file
@@ -329,13 +329,13 @@ def mergeNetCDF(inputTuple):
 		variableArray= np.ones((len(latitudes),len(longitudes)))*MV
 		
 		#-iterate over input netCDFs
-		for ncFile in netCDFInput.values():
+		for ncFile in list(netCDFInput.values()):
 			#-open netCDF file and get dictionary index
 			rootgrp= nc.Dataset(ncFile,'r',format= ncFormat)
-			index= netCDFInput.keys()[netCDFInput.values().index(ncFile)]
+			index= list(netCDFInput.keys())[list(netCDFInput.values()).index(ncFile)]
 			#-retrieve posCnt and process
 			#-get row and column indices from lats and lons
-			for key in dimensions[index].keys():
+			for key in list(dimensions[index].keys()):
 				if 'lat' in key.lower():
 					latVar= key
 				if 'lon' in key.lower():

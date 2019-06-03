@@ -279,7 +279,7 @@ print('Using %d cores to process' % ncores, end=' ')
 print()
 print()
 
-for fileName in files.keys():
+for fileName in list(files.keys()):
 	#~ print fileName,
 	files[fileName]= {}
 	ll= []
@@ -299,7 +299,7 @@ for fileName in files.keys():
 print()
 print()
 pool = Pool(processes=ncores)		# start "ncores" of worker processes
-pool.map(joinMaps,files.values())
+pool.map(joinMaps,list(files.values()))
 print()
 print()
 

@@ -73,7 +73,7 @@ class Reporting(object):
 
         # object for reporting:
         #RvB 23/02/2017: specific attributes included to allow for multiple netcdfAttributes
-        if 'netcdfAttributesOptions' in vars(self.configuration).keys():
+        if 'netcdfAttributesOptions' in list(vars(self.configuration).keys()):
             logger.info("Passing specific netcdf attributes to the output files created")
             specificAttributeDictionary= self.configuration.netcdfAttributesOptions
         else:
@@ -100,7 +100,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -129,7 +129,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -161,7 +161,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -188,7 +188,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -214,7 +214,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -245,7 +245,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -277,7 +277,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -303,7 +303,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
@@ -329,7 +329,7 @@ class Reporting(object):
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name
                 standard_name= short_name
-                if var in varDicts.netcdf_standard_name.keys():
+                if var in list(varDicts.netcdf_standard_name.keys()):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
