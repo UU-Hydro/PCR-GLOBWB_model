@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -847,10 +849,10 @@ def netcdf2PCRobjCloneJOYCE(ncFile,varName,dateInput,\
 
         cropData = cropData[::-1,:]
         
-        print type(cropData)
+        print(type(cropData))
 
-        print "Test test tet"
-        print id(cropData)
+        print("Test test tet")
+        print(id(cropData))
         #~ print id(original)
 
         #~ cropData = cropData[::-1,:].copy()
@@ -1281,7 +1283,7 @@ def getMapAttributesALL(cloneMap,arcDegree=True):
     cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
 
     if err !=None or cOut == []:
-        print "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
+        print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
         sys.exit()
     cellsize = float(cOut.split()[7])
     if arcDegree == True: cellsize = round(cellsize * 360000.)/360000.
@@ -1299,7 +1301,7 @@ def getMapAttributes(cloneMap,attribute,arcDegree=True):
     cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
     #print cOut
     if err !=None or cOut == []:
-        print "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
+        print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
         sys.exit()
     #print cOut.split()
     co = None; err = None
@@ -1577,7 +1579,7 @@ def waterBalance(  fluxesIn,  fluxesOut,  deltaStorages,  processName,   PrintOn
     # if abs(a) > 1e-5 or abs(b) > 1e-5:
     # if abs(a) > 1e-4 or abs(b) > 1e-4:
     if abs(a) > threshold or abs(b) > threshold:
-        print "WBError %s Min %f Max %f Mean %f" %(processName,a,b,c)
+        print("WBError %s Min %f Max %f Mean %f" %(processName,a,b,c))
     #    if abs(inflow + deltaS - outflow) > 1e-5:
     #        print "Water balance Error for %s on %s: in = %f\tout=%f\tdeltaS=%f\tBalance=%f" \
     #        %(processName,dateStr,inflow,outflow,deltaS,inflow + deltaS - outflow)

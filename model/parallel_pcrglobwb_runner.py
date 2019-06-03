@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -179,7 +181,7 @@ if with_merging_or_modflow:
 # don't foget to add the following line
 cmd = cmd + "wait"       
 
-print cmd
+print(cmd)
 msg = "Call: "+str(cmd)
 logger.debug(msg)
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -94,7 +96,7 @@ class PCR2netCDF():
             self.attributeDictionary['description'] = iniItems.globalOptions['description']
         else:
             for ncAttributeKey, ncAttribute in specificAttributeDictionary.iteritems():
-                print ncAttributeKey, ncAttribute
+                print(ncAttributeKey, ncAttribute)
                 self.attributeDictionary[ncAttributeKey]= ncAttribute
 
     def createNetCDF(self, ncFileName, varName, varUnits, longName = None, standardName= None):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -66,7 +68,7 @@ def getMapAttributesALL(cloneMap):
 		co= ['mapattr -p %s ' %(cloneMap)]
 		cOut,err= subprocess.Popen(co, stdout=subprocess.PIPE,stderr=open('/dev/null'),shell=True).communicate()
 		if err !=None or cOut == []:
-				print "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
+				print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
 				sys.exit()
 		mapAttr = {'cellsize': float(cOut.split()[7]) ,\
 							 'rows'		: float(cOut.split()[3]) ,\
@@ -90,7 +92,7 @@ def checkResolution(c1,c2):
 		nd= 0
 	c1= round(c1,nd)
 	c2= round(c2,nd)
-	if c1 <> c2: print 'resolutions %s, %s differ' % (s1,s2)
+	if c1 <> c2: print('resolutions %s, %s differ' % (s1,s2))
 	return c1 == c2, nd
 	
 def getPosition(x,values,nd):
@@ -123,19 +125,19 @@ def joinMaps(inputTuple):
 	fileNames= inputTuple[7]
 	cloneFileName= inputTuple[8]
 	#-echo to screen
-	print 'combining files for %s' % outputFileName,
+	print('combining files for %s' % outputFileName, end=' ')
 	#-get extent
 	xMax= xMin+nrCols*cellLength
 	yMin= yMax-nrRows*cellLength
 	xCoordinates= xMin+np.arange(nrCols+1)*cellLength
 	yCoordinates= yMin+np.arange(nrRows+1)*cellLength
 	yCoordinates= np.flipud(yCoordinates)
-	print 'between %.2f, %.2f and %.2f, %.2f' % (xMin,yMin,xMax,yMax)
+	print('between %.2f, %.2f and %.2f, %.2f' % (xMin,yMin,xMax,yMax))
 	#-set output array
 	variableArray= np.ones((nrRows,nrCols))*MV
 	#-iterate over maps
 	for fileName in fileNames:
-		print fileName
+		print(fileName)
 		attributeClone= getMapAttributesALL(fileName)
 		cellLengthClone= attributeClone['cellsize']
 		rowsClone= attributeClone['rows']
@@ -175,12 +177,12 @@ def joinMaps(inputTuple):
 			mask= (variableArray[variableRow0:variableRow1,variableCol0:variableCol1] == MV) &\
 				(sampleArray[sampleRow0:sampleRow1,sampleCol0:sampleCol1] <> MV)
 			#-add values
-			print ' adding values in %d, %d rows, columns from (x, y) %.3f, %.3f and %.3f, %.3f to position (row, col) %d, %d and %d, %d' %\
-				(sampleNrRows, sampleNrCols,sampleXMin,sampleYMin,sampleXMax,sampleYMax,variableRow0,variableCol0,variableRow1,variableCol1)
+			print(' adding values in %d, %d rows, columns from (x, y) %.3f, %.3f and %.3f, %.3f to position (row, col) %d, %d and %d, %d' %\
+				(sampleNrRows, sampleNrCols,sampleXMin,sampleYMin,sampleXMax,sampleYMax,variableRow0,variableCol0,variableRow1,variableCol1))
 			variableArray[variableRow0:variableRow1,variableCol0:variableCol1][mask]= \
 				sampleArray[sampleRow0:sampleRow1,sampleCol0:sampleCol1][mask]
 		else:
-			print '%s does not match resolution and is not processed' % fileName
+			print('%s does not match resolution and is not processed' % fileName)
 	#-report output map
 	setclone(cloneFileName)
 	report(numpy2pcr(Scalar,variableArray,MV),outputFileName)
@@ -271,11 +273,11 @@ files = getFileList(inputDir, '*%s.map' % chosenDate)
 
 
 ncores = min(len(files), ncores)
-print
-print
-print 'Using %d cores to process' % ncores,
-print
-print
+print()
+print()
+print('Using %d cores to process' % ncores, end=' ')
+print()
+print()
 
 for fileName in files.keys():
 	#~ print fileName,
@@ -294,15 +296,15 @@ for fileName in files.keys():
 #~ # this is for testing
 #~ joinMaps(files[fileName])
 
-print
-print
+print()
+print()
 pool = Pool(processes=ncores)		# start "ncores" of worker processes
 pool.map(joinMaps,files.values())
-print
-print
+print()
+print()
 
 #-remove temporary file
 os.remove(tempCloneMap)
-print ' all done'
-print
-print
+print(' all done')
+print()
+print()

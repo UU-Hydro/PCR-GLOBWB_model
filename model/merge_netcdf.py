@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -67,8 +69,8 @@ def getMin(x,a):
 def netcdfList(inputDir):
 	'''creates a dictionary of netcdf files'''
 	netcdfList = glob.glob(os.path.join(inputDir, '*.nc'))
-	print inputDir
-	print os.path.join(inputDir, '*.nc')
+	print(inputDir)
+	print(os.path.join(inputDir, '*.nc'))
 	ll=[]
 	for ncFile in netcdfList:
 		ll.append(ncFile.split('/')[-1])
@@ -95,7 +97,7 @@ def mergeNetCDF(inputTuple):
 	startDate    = inputTuple[7]
 	endDate      = inputTuple[8] 
 	
-	print 'combining files for %s'%ncName
+	print('combining files for %s'%ncName)
 	scriptStartTime = tm.time()
 	
 	# - dictionary holding netCDFInput
@@ -104,7 +106,7 @@ def mergeNetCDF(inputTuple):
 	# - netDCF output file name
 	netCDFOutput = outputDir + "/" + ncName.split(".")[0] + "_" + startDate + "_to_" + endDate + ".nc"
 	
-	print netCDFOutput
+	print(netCDFOutput)
 	
 	#~ ncFormat = 'NETCDF3_CLASSIC'
 	#~ ncFormat = 'NETCDF4'
@@ -135,11 +137,11 @@ def mergeNetCDF(inputTuple):
 		ed = str(endDate).split('-')
 		endTime   = datetime.datetime(int(ed[0]), int(ed[1]), int(ed[2]), 0)
 		
-		print netCDFInput.values()[0]
+		print(netCDFInput.values()[0])
 		
 		# open the first netcdf file to get time units and time calendar
 		ncFile = netCDFInput.values()[0]
-		print ncFile
+		print(ncFile)
 		f = nc.Dataset(ncFile)
 		time_units    = f.variables['time'].units
 		time_calendar = f.variables['time'].calendar
@@ -184,20 +186,20 @@ def mergeNetCDF(inputTuple):
 		# time variables that will be used (using numerical values)
 		uniqueTimes = nc.date2num(datetime_range, time_units, time_calendar)
 		
-		print timeStepType
-		print datetime_range
-		print uniqueTimes
+		print(timeStepType)
+		print(datetime_range)
+		print(uniqueTimes)
 	
 	for ncFile in netCDFInput.values():
 
 		# open netCDF file
 		if ncFile in filecache.keys():
 			rootgrp = filecache[ncFile]
-			print "Cached: ", ncFile
+			print("Cached: ", ncFile)
 		else:
 			rootgrp = nc.Dataset(ncFile)
 			filecache[ncFile] = rootgrp
-			print "New: ", ncFile
+			print("New: ", ncFile)
 
 		# and get index
 		index = netCDFInput.keys()[netCDFInput.values().index(ncFile)]
@@ -312,7 +314,7 @@ def mergeNetCDF(inputTuple):
 	#NOTE: this assumes it is a timed variable!
 	#-iterate over time steps and retrieve values
 	
-	print 'nr of time steps = %s, nr of files = %s ' % (len(uniqueTimes), len(netCDFInput))
+	print('nr of time steps = %s, nr of files = %s ' % (len(uniqueTimes), len(netCDFInput)))
 	i_time = 0
 	for time in uniqueTimes[:]:
 
@@ -321,7 +323,7 @@ def mergeNetCDF(inputTuple):
 		#~ print 'processing %s for time %.0d' %(ncName, time)
 
 		i_time = i_time + 1
-		print 'processing %s %i from %i' %(ncName, i_time, len(uniqueTimes))
+		print('processing %s %i from %i' %(ncName, i_time, len(uniqueTimes)))
 		
 		#-create empty field to fill
 		variableArray= np.ones((len(latitudes),len(longitudes)))*MV
@@ -363,13 +365,13 @@ def mergeNetCDF(inputTuple):
 				variableArray[row0:row1,col0:col1][variableArray[row0:row1,col0:col1] == MV]= \
 					sampleArray[variableArray[row0:row1,col0:col1] == MV]
 
-				print 'time is present :' + str(date_value)
+				print('time is present :' + str(date_value))
 
 			except:
 				if posCnt == None:
-					print 'time not present'
+					print('time not present')
 				else:
-					print 'error  in resampled'
+					print('error  in resampled')
 			#-close
 			rootgrp.close()
 	
@@ -382,7 +384,7 @@ def mergeNetCDF(inputTuple):
 		rootgrp.close()
 	
 	secs = int(tm.time() - scriptStartTime)
-	print "Processing %s took %s hh:mm:ss\n" % (ncName, str(datetime.timedelta(seconds=secs)))
+	print("Processing %s took %s hh:mm:ss\n" % (ncName, str(datetime.timedelta(seconds=secs))))
 
 
 ##################################
@@ -417,7 +419,7 @@ endDate    = str(sys.argv[5])
 
 # list of netcdf files that will be merged:
 netcdfList = str(sys.argv[6])
-print netcdfList
+print(netcdfList)
 netcdfList = list(set(netcdfList.split(",")))
 if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%var for var in netcdfList]
 if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%var for var in netcdfList]

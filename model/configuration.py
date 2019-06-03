@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -115,7 +117,7 @@ class Configuration(object):
             for key, value in sec.iteritems():
                 if key.endswith("Ini"):
                     if not os.path.exists(value):
-                        print key, ":", value
+                        print(key, ":", value)
 
     # make absolute to cwd when config was created
     def make_absolute_path(self, path):
