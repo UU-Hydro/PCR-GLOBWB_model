@@ -46,6 +46,9 @@ import numpy.ma as ma
 import pcraster as pcr
 
 import logging
+
+from six.moves import range
+
 logger = logging.getLogger(__name__)
 
 # file cache to minimize/reduce opening/closing files.  
@@ -1424,7 +1427,7 @@ def retrieveMapValue(pcrX,coordinates):
     nrRows= coordinates.shape[0]
     x= np.ones((nrRows))* MV
     tmpIDArray= pcr.pcr2numpy(pcrX,MV)
-    for iCnt in xrange(nrRows):
+    for iCnt in range(nrRows):
       row,col= coordinates[iCnt,:]
       if row != MV and col != MV:
         x[iCnt]= tmpIDArray[row,col]
@@ -1439,7 +1442,7 @@ def returnMapValue(pcrX,x,coord):
     #print tempIDArray
     temporary= tempIDArray
     nrRows= coord.shape[0]
-    for iCnt in xrange(nrRows):
+    for iCnt in range(nrRows):
       row,col= coord[iCnt,:]
       if row != MV and col != MV:
         tempIDArray[row,col]= (x[iCnt])
