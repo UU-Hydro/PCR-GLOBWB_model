@@ -243,7 +243,7 @@ def mergeNetCDF(inputTuple):
 		if variableName == None:
 			variableName= key
 		else:
-			if key <> variableName:
+			if key != variableName:
 				rootgrp.close()
 				sys.exit('variables are incompatible')
 		#-Missing Value

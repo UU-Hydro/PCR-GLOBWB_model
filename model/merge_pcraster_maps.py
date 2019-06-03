@@ -86,13 +86,13 @@ def checkResolution(c1,c2):
 	else:
 		s= s2
 	p= s.find('.')
-	if p <> -1:
+	if p != -1:
 		nd= len(s)-(p+1)
 	else:
 		nd= 0
 	c1= round(c1,nd)
 	c2= round(c2,nd)
-	if c1 <> c2: print('resolutions %s, %s differ' % (s1,s2))
+	if c1 != c2: print('resolutions %s, %s differ' % (s1,s2))
 	return c1 == c2, nd
 	
 def getPosition(x,values,nd):
@@ -175,7 +175,7 @@ def joinMaps(inputTuple):
 			sampleNrRows, sampleNrCols= sampleArray.shape
 			#-create mask
 			mask= (variableArray[variableRow0:variableRow1,variableCol0:variableCol1] == MV) &\
-				(sampleArray[sampleRow0:sampleRow1,sampleCol0:sampleCol1] <> MV)
+				(sampleArray[sampleRow0:sampleRow1,sampleCol0:sampleCol1] != MV)
 			#-add values
 			print(' adding values in %d, %d rows, columns from (x, y) %.3f, %.3f and %.3f, %.3f to position (row, col) %d, %d and %d, %d' %\
 				(sampleNrRows, sampleNrCols,sampleXMin,sampleYMin,sampleXMax,sampleYMax,variableRow0,variableCol0,variableRow1,variableCol1))
