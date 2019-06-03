@@ -24,7 +24,6 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import ConfigParser
 import optparse
 import os
 import sys
@@ -36,6 +35,8 @@ import glob
 
 import logging
 logger = logging.getLogger(__name__)
+
+from six.moves.configparser import ConfigParser
 
 import disclaimer
 
