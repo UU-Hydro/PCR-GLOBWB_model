@@ -432,7 +432,11 @@ class LandCover(object):
                                                                 self.tmpDir, self.inputDir)
 
             # - option two: included in the netcdf file
-            if isinstance(lc_parameters['arnoBeta'], types.NoneType) and landCoverPropertiesNC != None and get_only_fracVegCover == False:   
+            if (
+                lc_parameters['arnoBeta'] is None
+                and landCoverPropertiesNC is not None
+                and not get_only_fracVegCover
+            ):   
                                     
                 if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
                     
@@ -440,7 +444,7 @@ class LandCover(object):
                     lc_parameters['arnoBeta'] = vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, 'arnoBeta', self.cloneMap)
                                         
             # - option three: approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if isinstance(lc_parameters['arnoBeta'], types.NoneType) and get_only_fracVegCover == False:
+            if lc_parameters['arnoBeta'] is None and not get_only_fracVegCover:
    
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
                 
@@ -490,8 +494,7 @@ class LandCover(object):
                                                                  self.tmpDir, self.inputDir)
 
             # if not defined, arnoBeta would be approximated from the minSoilDepthFrac and maxSoilDepthFrac
-            if get_only_fracVegCover == False and\
-               isinstance(lc_parameters['arnoBeta'], types.NoneType):
+            if not get_only_fracVegCover and lc_parameters['arnoBeta'] is None:
 
                 logger.debug("The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.")
 
@@ -1784,7 +1787,7 @@ class LandCover(object):
         # - for industrial and domestic
         swAbstractionFraction_industrial_domestic = pcr.min(swAbstractionFractionDict['max_for_non_irrigation'],\
                                                             swAbstractionFractionDict['estimate'])
-        if not isinstance(swAbstractionFractionDict['non_irrigation'], types.NoneType):
+        if swAbstractionFractionDict['non_irrigation'] is not None:
             swAbstractionFraction_industrial_domestic = swAbstractionFractionDict['non_irrigation']
 
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic

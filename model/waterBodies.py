@@ -48,7 +48,7 @@ class WaterBodies(object):
         self.iniItems = iniItems
                 
         # local drainage direction:
-        if isinstance(lddMap, types.NoneType):
+        if lddMap is None:
             self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
                                                   self.cloneMap,self.tmpDir,self.inputDir,True)
             self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
@@ -354,8 +354,8 @@ class WaterBodies(object):
 
         avgInflow  = initial_condition['avgLakeReservoirInflowShort']  
         avgOutflow = initial_condition['avgLakeReservoirOutflowLong'] 
-        #
-        if not isinstance(initial_condition['waterBodyStorage'],types.NoneType):
+
+        if initial_condition['waterBodyStorage'] is not None:
             # read directly 
             waterBodyStorage = initial_condition['waterBodyStorage']
         else:
@@ -464,7 +464,8 @@ class WaterBodies(object):
         lakeOutflow = self.getLakeOutflow(avgChannelDischarge,length_of_time_step)  
              
         # outflow in volume from water bodies with reservoir type (m3): 
-        if isinstance(downstreamDemand, types.NoneType): downstreamDemand = pcr.scalar(0.0)
+        if downstreamDemand is None:
+            downstreamDemand = pcr.scalar(0.0)
         reservoirOutflow = self.getReservoirOutflow(avgChannelDischarge,length_of_time_step,downstreamDemand)  
 
         # outgoing/release volume from lakes and/or reservoirs

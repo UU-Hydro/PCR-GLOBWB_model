@@ -291,13 +291,12 @@ class Routing(object):
             else:  
                 msg = "The bankfull channel storage capacity is NOT defined in the configuration file. "
             
-                if isinstance(self.predefinedChannelWidth, types.NoneType) or\
-                   isinstance(self.predefinedChannelDepth, types.NoneType):
-            
+                if (
+                    self.predefinedChannelWidth is None
+                    or self.predefinedChannelDepth is None
+                ):
                     msg += "The bankfull capacity is estimated from average discharge (5 year long term average)."
-
                 else:
-
                     msg += "The bankfull capacity is estimated from the given channel depth and channel width."
                     self.usingFixedBankfullCapacity = True
                     self.predefinedBankfullCapacity = self.estimateBankfullCapacity(self.predefinedChannelWidth,\
@@ -386,7 +385,7 @@ class Routing(object):
             # read initial conditions from pcraster maps listed in the ini file (for the first time step of the model; when the model just starts)
             self.avgInflow  = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirInflowShortIni'],self.cloneMap,self.tmpDir,self.inputDir)
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
-            if not isinstance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):
+            if iniItems.routingOptions['waterBodyStorageIni'] is not None:
                 self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'], self.cloneMap,self.tmpDir,self.inputDir)
                 self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
             else:
@@ -400,7 +399,7 @@ class Routing(object):
         
         self.avgInflow  = pcr.ifthen(self.landmask, pcr.cover(self.avgInflow , 0.0))
         self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.avgOutflow, 0.0))
-        if not isinstance(self.waterBodyStorage, types.NoneType):
+        if self.waterBodyStorage is not None:
             self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
 
 
@@ -553,7 +552,7 @@ class Routing(object):
         yMean = pcr.cover(yMean,0.01)
         
         # option to use constant channel width (m)
-        if not isinstance(self.predefinedChannelWidth,types.NoneType):\
+        if self.predefinedChannelWidth is not None:
            wMean = pcr.cover(self.predefinedChannelWidth, wMean)
         #
         # minimum channel width (m)
@@ -857,8 +856,8 @@ class Routing(object):
         self.channelDepth = pcr.max(0.0, self.yMean)
         #
         # option to use constant channel depth (m)
-        if not isinstance(self.predefinedChannelDepth, types.NoneType):\
-           self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
+        if self.predefinedChannelDepth is not None:
+            self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
 
         # channel bankfull capacity (unit: m3)
         if self.floodPlain: 
@@ -1338,7 +1337,7 @@ class Routing(object):
                           excessVolume/(pcr.max(self.min_fracwat_for_water_height, inundatedFraction)*self.cellArea),0.)  # unit: m
             
             # - maximum flood depth
-            if not isinstance(self.maxFloodDepth, types.NoneType):
+            if self.maxFloodDepth is not None:
                 floodDepth = pcr.max(0.0, pcr.min(self.maxFloodDepth, floodDepth))
             
         return inundatedFraction, floodDepth

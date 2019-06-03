@@ -582,7 +582,7 @@ class LandSurface(object):
             # summarize/aggregate the initial states/storages (using the initial land cover fractions: previousFracVegCover)
             for var in self.mainStates:
                 # - initial land cover fractions (dimensionless) 
-                if isinstance(self.landCoverObj[coverType].previousFracVegCover, types.NoneType):
+                if self.landCoverObj[coverType].previousFracVegCover is None:
                     self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
                 land_cover_fraction = self.landCoverObj[coverType].previousFracVegCover
                 # - initial land cover states (unit: m)
@@ -1091,7 +1091,7 @@ class LandSurface(object):
         swAbstractionFractionDict['non_irrigation'] = None       
 
         # incorporating the pre-defined fraction of surface water sources (e.g. based on Siebert et al., 2014 and McDonald et al., 2014)  
-        if not isinstance(self.swAbstractionFractionData, types.NoneType):
+        if self.swAbstractionFractionData is not None:
             
             logger.debug('Using/incorporating the predefined fractions of surface water source.')
             swAbstractionFractionDict['estimate']   = swAbstractionFraction
@@ -1100,7 +1100,7 @@ class LandSurface(object):
                                                                                                              self.swAbstractionFractionDataQuality)
             swAbstractionFractionDict['max_for_non_irrigation'] = self.maximumNonIrrigationSurfaceWaterAbstractionFractionData
             
-            if not isinstance(self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, types.NoneType):
+            if self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData is not None:
                 swAbstractionFractionDict['non_irrigation'] = pcr.cover(
                                                               self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, \
                                                               swAbstractionFractionDict['estimate'])

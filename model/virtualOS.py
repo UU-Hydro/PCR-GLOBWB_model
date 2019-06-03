@@ -1682,7 +1682,7 @@ def waterAbstractionAndAllocationHighPrecision_NEEDMORETEST(water_demand_volume,
                           remainingcellVolDemand, zoneVolDemand, smallNumber) * zoneAbstraction 
     
         # water balance check
-        if debug_water_balance and not isinstance(zone_area,types.NoneType):
+        if debug_water_balance and zone_area is not None:
             waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
                               [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
                               [pcr.scalar(0.0)],\
@@ -1707,7 +1707,7 @@ def waterAbstractionAndAllocationHighPrecision_NEEDMORETEST(water_demand_volume,
         sumCellAllocation  += cell_allocat_for_every_power_number[str(power_number)]
     
     # water balance check
-    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+    if debug_water_balance and zone_area is not None:
         waterBalanceCheck([pcr.cover(pcr.areatotal(sumCellAbstraction, allocation_zones)/zone_area, 0.0)],\
                           [pcr.cover(pcr.areatotal(sumCellAllocation , allocation_zones)/zone_area, 0.0)],\
                           [pcr.scalar(0.0)],\
@@ -1730,7 +1730,7 @@ def waterAbstractionAndAllocationFAILED(water_demand_volume,available_water_volu
     
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, water_demand_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellVolDemand = pcr.rounddown(pcr.max(0.0, cellVolDemand))
@@ -1739,7 +1739,7 @@ def waterAbstractionAndAllocationFAILED(water_demand_volume,available_water_volu
     
     # total available water volume in each cell
     cellAvlWater = pcr.max(0.0, available_water_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellAvlWater = pcr.rounddown(pcr.max(0.00, cellAvlWater))
@@ -1771,7 +1771,7 @@ def waterAbstractionAndAllocationFAILED(water_demand_volume,available_water_volu
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
-    if not isinstance(high_volume_treshold,types.NoneType):
+    if high_volume_treshold is not None:
         # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
         mask = pcr.cover(\
                pcr.ifthen(cellAvlWater > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
@@ -1849,7 +1849,7 @@ def waterAbstractionAndAllocationFAILED(water_demand_volume,available_water_volu
     pcr.report(pcr.max(0.0, zoneDeficitAbstraction), "test.map")
     os.system('aguila test.map')
 
-    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+    if debug_water_balance and zone_area is not None:
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
                           [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
@@ -1874,7 +1874,7 @@ def waterAbstractionAndAllocation(water_demand_volume,
 
     logger.debug("Allocation of abstraction.")
     
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         water_demand_volume = pcr.ifthen(landmask, pcr.cover(water_demand_volume, 0.0))
         available_water_volume = pcr.ifthen(landmask, pcr.cover(available_water_volume, 0.0))
         allocation_zones = pcr.ifthen(landmask, allocation_zones)
@@ -1888,11 +1888,11 @@ def waterAbstractionAndAllocation(water_demand_volume,
         logger.debug("Allocation of abstraction - first, satisfy demand with local source.")
     
         # demand volume in each cell (unit: m3)
-        if not isinstance(landmask, types.NoneType):
+        if landmask is not None:
             cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
         
         # total available water volume in each cell
-        if not isinstance(landmask, types.NoneType):
+        if landmask is not None:
             cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
         
         # first, satisfy demand with local source
@@ -1910,7 +1910,7 @@ def waterAbstractionAndAllocation(water_demand_volume,
 
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, cellVolDemand)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     
     # total demand volume in each zone/segment (unit: m3)
@@ -1921,7 +1921,7 @@ def waterAbstractionAndAllocation(water_demand_volume,
 
     # total available water volume in each cell
     cellAvlWater  = pcr.max(0.0, cellAvlWater)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     
     # total available water volume in each zone/segment (unit: m3)
@@ -1937,7 +1937,7 @@ def waterAbstractionAndAllocation(water_demand_volume,
     cellAbstraction = pcr.min(cellAbstraction, cellAvlWater)                                                                   
     
     # to minimize numerical errors
-    if not isinstance(high_volume_treshold,types.NoneType):
+    if high_volume_treshold is not None:
         # mask: 0 for small volumes ; 1 for large volumes (e.g. lakes and reservoirs)
         mask = pcr.cover(\
                pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
@@ -1955,7 +1955,7 @@ def waterAbstractionAndAllocation(water_demand_volume,
     cellAbstraction = cellAbstraction + localAbstraction
     cellAllocation  = cellAllocation  + localAllocation
     
-    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+    if debug_water_balance and zone_area is not None:
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
                           [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
@@ -1981,7 +1981,7 @@ def waterAbstractionAndAllocationBeforeRefactoringFinalizing(water_demand_volume
     
     logger.debug("Allocation of abstraction.")
     
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         water_demand_volume = pcr.ifthen(landmask, pcr.cover(water_demand_volume, 0.0))
         available_water_volume = pcr.ifthen(landmask, pcr.cover(available_water_volume, 0.0))
         allocation_zones = pcr.ifthen(landmask, allocation_zones)
@@ -1990,12 +1990,12 @@ def waterAbstractionAndAllocationBeforeRefactoringFinalizing(water_demand_volume
     
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, water_demand_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     
     # total available water volume in each cell
     cellAvlWater = pcr.max(0.0, available_water_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     
     # first, satisfy demand with local source
@@ -2010,7 +2010,7 @@ def waterAbstractionAndAllocationBeforeRefactoringFinalizing(water_demand_volume
 
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, cellVolDemand)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     
     # total demand volume in each zone/segment (unit: m3)
@@ -2021,7 +2021,7 @@ def waterAbstractionAndAllocationBeforeRefactoringFinalizing(water_demand_volume
 
     # total available water volume in each cell
     cellAvlWater  = pcr.max(0.0, cellAvlWater)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     
     # total available water volume in each zone/segment (unit: m3)
@@ -2045,7 +2045,7 @@ def waterAbstractionAndAllocationBeforeRefactoringFinalizing(water_demand_volume
     cellAbstraction = cellAbstraction + localAbstraction
     cellAllocation  = cellAllocation  + localAllocation
     
-    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+    if debug_water_balance and zone_area is not None:
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
                           [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
@@ -2069,7 +2069,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
     
     # demand volume in each cell (unit: m3)
     cellVolDemand = pcr.max(0.0, water_demand_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellVolDemand = pcr.ifthen(landmask, pcr.cover(cellVolDemand, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellVolDemand = pcr.rounddown(pcr.max(0.0, water_demand_volume))
@@ -2081,7 +2081,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
     
     # total available water volume in each cell
     cellAvlWater = pcr.max(0.0, available_water_volume)
-    if not isinstance(landmask, types.NoneType):
+    if landmask is not None:
         cellAvlWater = pcr.ifthen(landmask, pcr.cover(cellAvlWater, 0.0))
     if ignore_small_values: # ignore small values to avoid runding error
         cellAvlWater = pcr.rounddown(pcr.max(0.00, available_water_volume))
@@ -2090,7 +2090,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
     
     # total available water volume in each zone/segment (unit: m3)
     # - to minimize numerical errors, separating cellAvlWater 
-    if not isinstance(high_volume_treshold,types.NoneType):
+    if high_volume_treshold is not None:
         # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
         mask = pcr.cover(\
                pcr.ifthen(cellAvlWater > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
@@ -2112,7 +2112,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
     if ignore_small_values: # ignore small values to avoid runding error
         cellAbstraction = pcr.rounddown(pcr.max(0.00, cellAbstraction))
     # to minimize numerical errors, separating cellAbstraction 
-    if not isinstance(high_volume_treshold,types.NoneType):
+    if high_volume_treshold is not None:
         # mask: 0 for small volumes ; 1 for large volumes (e.g. in lakes and reservoirs)
         mask = pcr.cover(\
                pcr.ifthen(cellAbstraction > high_volume_treshold, pcr.boolean(1)), pcr.boolean(0))
@@ -2147,7 +2147,7 @@ def waterAbstractionAndAllocationOLD(water_demand_volume,available_water_volume,
                           pcr.areatotal(remainingCellDemand, allocation_zones), 
                           smallNumber)                        
     
-    if debug_water_balance and not isinstance(zone_area,types.NoneType):
+    if debug_water_balance and zone_area is not None:
 
         waterBalanceCheck([pcr.cover(pcr.areatotal(cellAbstraction, allocation_zones)/zone_area, 0.0)],\
                           [pcr.cover(pcr.areatotal(cellAllocation , allocation_zones)/zone_area, 0.0)],\
