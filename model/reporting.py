@@ -44,8 +44,6 @@ import pcraster as pcr
 
 from ncConverter import *
 
-from types import NoneType
-
 import variable_list as varDicts
 
 class Reporting(object):
