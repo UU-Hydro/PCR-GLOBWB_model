@@ -21,12 +21,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from future_builtins import map
-
 import os
 import types
 import math
 import types
+
+from six.moves import map
 
 from pcraster.framework import *
 import pcraster as pcr
