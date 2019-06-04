@@ -47,7 +47,7 @@ class Meteo(object):
         if iniItems.globalOptions['landmask'] != "None":
            self.landmask = vos.readPCRmapClone(\
            iniItems.globalOptions['landmask'],
-           self.cloneMap,self.tmpDir,self.inputDir)	
+           self.cloneMap,self.tmpDir,self.inputDir) 
 
         # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
         self.ignore_snow = False
@@ -63,7 +63,7 @@ class Meteo(object):
         if self.refETPotMethod == 'Input': self.etpFileNC = \
                              iniItems.meteoOptions['refETPotFileNC']              
 
-        #-----------------------------------------------------------------------			
+        #-----------------------------------------------------------------------            
         # NOTE: RvB 13/07/2016 Added correction constant and factor and variable name
         # to allow for easier use of netCDF climate inpute files
         # EHS 20/08/2016 modified for more flexibilities.  
@@ -388,7 +388,7 @@ class Meteo(object):
                                       LatitudeLongitude = True)
 
         #-----------------------------------------------------------------------
-        # NOTE: RvB 13/07/2016 added to automatically update precipitation        		
+        # NOTE: RvB 13/07/2016 added to automatically update precipitation              
         self.precipitation  = self.preConst + self.preFactor * pcr.ifthen(self.landmask, self.precipitation)
         #-----------------------------------------------------------------------
 

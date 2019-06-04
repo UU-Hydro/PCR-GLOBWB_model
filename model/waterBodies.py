@@ -529,7 +529,7 @@ class WaterBodies(object):
                      avgOutflow > 0.,\
                      avgOutflow,
                      pcr.max(avgChannelDischarge,self.avgInflow,0.001))            # This is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
-        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
+        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)              
         #
         bankfullWidth = pcr.cover(\
                         pcr.scalar(4.8) * \
@@ -576,7 +576,7 @@ class WaterBodies(object):
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
                      avgOutflow, pcr.downstream(self.lddMap, avgOutflow))
-        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)             	
+        avgOutflow = pcr.areamaximum(avgOutflow,self.waterBodyIds)              
 
         # calculate resvOutflow (m2/s) (based on reservoir storage and avgDischarge): 
         # - using reductionFactor in such a way that:

@@ -62,12 +62,12 @@ smallNumber = 1E-39
 netcdf_suffixes = ('.nc4','.nc')
 
 def getFileList(inputDir, filePattern):
-	'''creates a dictionary of	files meeting the pattern specified'''
-	fileNameList = glob.glob(os.path.join(inputDir, filePattern))
-	ll= {}
-	for fileName in fileNameList:
-		ll[os.path.split(fileName)[-1]]= fileName
-	return ll
+    '''creates a dictionary of  files meeting the pattern specified'''
+    fileNameList = glob.glob(os.path.join(inputDir, filePattern))
+    ll= {}
+    for fileName in fileNameList:
+        ll[os.path.split(fileName)[-1]]= fileName
+    return ll
 
 def checkVariableInNC(ncFile,varName):
 
@@ -1075,9 +1075,9 @@ def writePCRmapToDir(v,outFileName,outDir):
     pcr.report(v,fullFileName)
 
 def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
-	# v: inputMapFileName or floating values
-	# cloneMapFileName: If the inputMap and cloneMap have different clones,
-	#                   resampling will be done.   
+    # v: inputMapFileName or floating values
+    # cloneMapFileName: If the inputMap and cloneMap have different clones,
+    #                   resampling will be done.   
     logger.debug('read file/values: '+str(v))
     if v == "None":
         #~ PCRmap = str("None")
@@ -1112,7 +1112,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
     return PCRmap    
 
 def readPCRmap(v):
-	# v : fileName or floating values
+    # v : fileName or floating values
     if not re.match(r"[0-9.-]*$", v):
         PCRmap = pcr.readmap(v)
     else:
@@ -1211,16 +1211,16 @@ def getFullPath(inputPath,absolutePath,completeFileName = True):
         if absolutePath.endswith('/'): 
             absolutePath = str(absolutePath)
         else:
-			absolutePath = str(absolutePath)+'/'    
+            absolutePath = str(absolutePath)+'/'    
         fullPath = str(absolutePath)+str(inputPath)
     
     if completeFileName:
         if fullPath.endswith(suffix): 
             fullPath = str(fullPath)
-    	else:
+        else:
             fullPath = str(fullPath)+'/'    
 
-    return fullPath    		
+    return fullPath         
 
 def findISIFileName(year,model,rcp,prefix,var):
     histYears = [1951,1961,1971,1981,1991,2001]

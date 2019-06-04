@@ -248,11 +248,11 @@ class LandCover(object):
             self.coverFractionNC = vos.getFullPath(\
                       self.iniItemsLC['coverFractionNC'], self.inputDir)
         else:
-			msg = 'The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: ' + self.name + '\n'
-			msg = 'This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.' + '\n'
-			logger.warning(msg)
-			self.coverFractionNC = None               
-			self.interceptCapNC  = None
+            msg = 'The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: ' + self.name + '\n'
+            msg = 'This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.' + '\n'
+            logger.warning(msg)
+            self.coverFractionNC = None               
+            self.interceptCapNC  = None
 
         # for reporting: output in netCDF files:
         self.report = True
@@ -329,21 +329,21 @@ class LandCover(object):
             input = self.iniItemsLC[var]
 
             try:
-            				# static input
-            				self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
+                            # static input
+                            self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
             except:
-            				# dynamic input
-            				if 'nc' in os.path.splitext(input)[1]:
-            					#-netCDF file
-            					ncFileIn = vos.getFullPath(input,self.inputDir)
-            					self.irrigationEfficiency = vos.netcdf2PCRobjClone(ncFileIn,var, \
+                            # dynamic input
+                            if 'nc' in os.path.splitext(input)[1]:
+                                #-netCDF file
+                                ncFileIn = vos.getFullPath(input,self.inputDir)
+                                self.irrigationEfficiency = vos.netcdf2PCRobjClone(ncFileIn,var, \
                            currTimeStep, useDoy = 'yearly',\
                            cloneMapFileName = self.cloneMap)
-            				else:
-            					#-assumed PCRaster file, add year and '.map' extension
-            					input= input + '%04d.map' % currTimeStep.year
-            					self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
+                            else:
+                                #-assumed PCRaster file, add year and '.map' extension
+                                input= input + '%04d.map' % currTimeStep.year
+                                self.irrigationEfficiency = vos.readPCRmapClone(input,self.cloneMap,
                                             self.tmpDir,self.inputDir)
             
             # extrapolate efficiency map:                                                # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
@@ -588,10 +588,10 @@ class LandCover(object):
         max_percolation_loss = 0.008 
         # - Minimum and maximum percolation loss values given in the ini or configuration file:
         if 'minPercolationLoss' in list(iniPaddyOptions.keys()) and iniPaddyOptions['minPercolationLoss'] != "None":
-            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['minPercolationLoss'], self.cloneMap, 	
+            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['minPercolationLoss'], self.cloneMap,    
                                                        self.tmpDir, self.inputDir)
         if 'maxPercolationLoss' in list(iniPaddyOptions.keys()) and iniPaddyOptions['maxPercolationLoss'] != "None":
-            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['maxPercolationLoss'], self.cloneMap, 	
+            min_percolation_loss = vos.readPCRmapClone(iniPaddyOptions['maxPercolationLoss'], self.cloneMap,    
                                                        self.tmpDir, self.inputDir)
         # - percolation loss at paddy fields (m/day)
         design_percolation_loss = pcr.max(min_percolation_loss, \
@@ -682,9 +682,9 @@ class LandCover(object):
                                                                                 
                                                                                 # original Rens's line: # weighed root fractions
                                                                                 #                        RFW1[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0,
-                                                                                #                        	min(1.0,RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
+                                                                                #                           min(1.0,RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
                                                                                 #                        RFW2[TYPE]= if(RFRAC1[TYPE]+RFRAC2[TYPE] > 0.0,
-                                                                                #                        	min(1.0,RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
+                                                                                #                           min(1.0,RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])),0.0);
 
         if self.numberOfLayers == 3: 
             # root fractions
@@ -949,7 +949,7 @@ class LandCover(object):
         self.getPotET(meteo,currTimeStep) 
         
         # calculate interception evaporation flux (m/day) and update interception storage (m)
-        self.interceptionUpdate(meteo, currTimeStep)    	 
+        self.interceptionUpdate(meteo, currTimeStep)         
 
         # calculate snow melt (or refreezing)
         if self.snowModuleType  == "Simple": self.snowMeltHBVSimple(meteo,currTimeStep)
@@ -2393,12 +2393,12 @@ class LandCover(object):
         # 
         # WMIN = root zone water storage capacity, minimum values
         # WMAX = root zone water storage capacity, area-averaged values
-        # W	   = actual water storage in root zone
+        # W    = actual water storage in root zone
         # WRANGE  = WMAX - WMIN
         # DW      = WMAX-W 
         # WFRAC   = DW/WRANGE ; WFRAC capped at 1
         # WFRACB  = DW/WRANGE raised to the power (1/(b+1))
-        # SATFRAC =	fractional saturated area
+        # SATFRAC = fractional saturated area
         # WACT    = actual water storage within rootzone
 
         self.satAreaFracOld = self.satAreaFrac
@@ -3447,7 +3447,7 @@ class LandCover(object):
             #
             # any excess above storCapUpp is handed to topWaterLayer
             self.satExcess = pcr.max(0.,self.storUpp - \
-                               self.parameters.storCapUpp)									
+                               self.parameters.storCapUpp)                                  
             self.topWaterLayer =  self.topWaterLayer + self.satExcess
         
             # any excess above minTopWaterLayer is released as directRunoff                               
@@ -3583,7 +3583,7 @@ class LandCover(object):
             #
             # any excess above storCapUpp is handed to topWaterLayer
             self.satExcess     = pcr.max(0.,self.storUpp000005 - \
-                                   self.parameters.storCapUpp000005)									
+                                   self.parameters.storCapUpp000005)                                    
             self.topWaterLayer = self.topWaterLayer + self.satExcess
         
             # any excess above minTopWaterLayer is released as directRunoff                               

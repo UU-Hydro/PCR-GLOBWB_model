@@ -41,7 +41,7 @@ import virtualOS as vos
 class PCR2netCDF():
     
     def __init__(self,iniItems,specificAttributeDictionary=None):
-        		
+                
         # cloneMap
         pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)

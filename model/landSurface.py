@@ -1347,15 +1347,15 @@ class LandSurface(object):
             # save the current state of fracVegCover
             for coverType in self.coverTypes:\
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
-				
-		#- RvB: irrigation water efficiency
-		# added here are the lines required to read in the water efficiency
-		# irrigation water efficiency is updated at the start of the year and 
+                
+        #- RvB: irrigation water efficiency
+        # added here are the lines required to read in the water efficiency
+        # irrigation water efficiency is updated at the start of the year and 
         if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
-					logger.info("Setting irrigation water efficiency")
-					for coverType in self.coverTypes:
-						self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
-				
+                    logger.info("Setting irrigation water efficiency")
+                    for coverType in self.coverTypes:
+                        self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
+                
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
             

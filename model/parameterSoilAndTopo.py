@@ -42,7 +42,7 @@ class SoilAndTopoParameters(object):
         self.numberOfLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
 
     def read(self, iniItems, optionDict = None):
-		
+        
         self.readTopo(iniItems, optionDict)
         self.readSoil(iniItems, optionDict)
 

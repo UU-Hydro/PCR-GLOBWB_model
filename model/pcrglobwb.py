@@ -413,19 +413,19 @@ class PCRGlobWB(object):
         return pcr.ifthen(self.landmask, self.routing.channelStorage)
 
     def checkLandSurfaceWaterBalance(self, storesAtBeginning, storesAtEnd):
-		
-		# for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
-		# 
+        
+        # for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
+        # 
         # - incoming fluxes (unit: m)
         precipitation   = pcr.ifthen(self.landmask, self.meteo.precipitation)
         irrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.irrGrossDemand)
         surfaceWaterInf = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
-		# 
+        # 
         # - outgoing fluxes (unit: m)
         actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET)
         runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
         nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
-		# 
+        # 
         vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
                               [actualET,runoff,nonFossilGroundwaterAbs],\
                               [storesAtBeginning],\

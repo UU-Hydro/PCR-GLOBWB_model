@@ -109,7 +109,7 @@ class Routing(object):
            self.landmask = vos.readPCRmapClone(\
            iniItems.globalOptions['landmask'],
            self.cloneMap,self.tmpDir,self.inputDir)
-        else:   	
+        else:       
            self.landmask = pcr.defined(self.lddMap)
         self.landmask = pcr.ifthen(pcr.defined(self.lddMap), self.landmask)
         self.landmask = pcr.cover(self.landmask, pcr.boolean(0))   
@@ -244,7 +244,7 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
         # critical water height (m) used to select stable length of sub time step in kinematic wave methods/approaches
-        self.critical_water_height = 0.25;	# used in Van Beek et al. (2011)
+        self.critical_water_height = 0.25;  # used in Van Beek et al. (2011)
 
         # assumption for the minimum fracwat value used for calculating water height
         self.min_fracwat_for_water_height = 0.001 # dimensionless
@@ -638,7 +638,7 @@ class Routing(object):
         return characteristicDistance
 
     def accuTravelTime(self):
-        		
+                
         # accuTravelTime ROUTING OPERATIONS
         ##############n############################################################################################################
 
@@ -919,7 +919,7 @@ class Routing(object):
         #
         #~ pcr.aguila(self.floodInundationVolume)
         
-        			                  
+                                      
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
         
@@ -1150,8 +1150,8 @@ class Routing(object):
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
         #
-        if self.method == "accuTravelTime":          self.accuTravelTime() 		
-        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave() 		
+        if self.method == "accuTravelTime":          self.accuTravelTime()      
+        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave()         
         #
         #
         # channel discharge (m3/s): for current time step
