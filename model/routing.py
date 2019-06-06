@@ -905,21 +905,31 @@ class Routing(object):
                                        pcr.ifthen(self.lddMap == pcr.ldd(5), self.Q), 0.0))
         # TODO: accumulate water in endorheic basins that are considered as lakes/reservoirs
 
-                
-        # riverine flood volume (m3)
-        # - assume/simplify that lakes/reservoir cells never flooded 
-        self.floodInundationVolume = pcr.ifthenelse(pcr.cover(self.WaterBodies.waterBodyIds, 0) == 0,\
-                                                    pcr.max(0.0, self.channelStorage - self.channelStorageCapacity), 0.0)
-        #
-        # - ignore small floods with small or not significant inundation fractions:
-        self.floodInundationVolume = pcr.ifthenelse(self.dynamicFracWat > self.min_fracwat_for_water_height, self.floodInundationVolume, 0.0) 
-        self.floodInundationVolume = pcr.cover(self.floodInundationVolume, 0.0)
-        self.floodInundationVolume = pcr.max(0.0, pcr.min(self.channelStorage, self.floodInundationVolume))
-        self.floodInundationVolume = pcr.ifthen(self.landmask, self.floodInundationVolume)
-        #
-        #~ pcr.aguila(self.floodInundationVolume)
-        
-        			                  
+        if self.floodPlain:
+            # riverine flood volume (m3)
+            # - assume/simplify that lakes/reservoir cells never flooded
+            self.floodInundationVolume = pcr.ifthenelse(
+                pcr.cover(self.WaterBodies.waterBodyIds, 0) == 0,
+                pcr.max(0.0, self.channelStorage - self.channelStorageCapacity),
+                0.0,
+            )
+            #
+            # - ignore small floods with small or not significant inundation fractions:
+            self.floodInundationVolume = pcr.ifthenelse(
+                self.dynamicFracWat > self.min_fracwat_for_water_height,
+                self.floodInundationVolume,
+                0.0,
+            )
+            self.floodInundationVolume = pcr.cover(self.floodInundationVolume, 0.0)
+            self.floodInundationVolume = pcr.max(
+                0.0, pcr.min(self.channelStorage, self.floodInundationVolume)
+            )
+            self.floodInundationVolume = pcr.ifthen(
+                self.landmask, self.floodInundationVolume
+            )
+            #
+            #~ pcr.aguila(self.floodInundationVolume)
+
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
         
