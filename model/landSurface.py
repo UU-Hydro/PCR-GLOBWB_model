@@ -217,7 +217,7 @@ class LandSurface(object):
             logger.info("Irrigation is NOT included/considered in this run.")
             
         # if user define their land cover types: 
-        if 'landCoverTypes' in iniItems.landSurfaceOptions.keys(): 
+        if 'landCoverTypes' in list(iniItems.landSurfaceOptions.keys()): 
             self.coverTypes = iniItems.landSurfaceOptions['landCoverTypes'].split(",")
 
         # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
@@ -228,8 +228,8 @@ class LandSurface(object):
         # pre-defined surface water source fraction for satisfying irrigation and livestock water demand
         self.swAbstractionFractionData = None
         self.swAbstractionFractionDataQuality = None
-        if 'irrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and\
-           'irrigationSurfaceWaterAbstractionFractionDataQuality' in iniItems.landSurfaceOptions.keys():
+        if 'irrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and\
+           'irrigationSurfaceWaterAbstractionFractionDataQuality' in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionData'] not in ["None", "False"] or\
                iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'] not in ["None", "False"]:
                 
@@ -251,7 +251,7 @@ class LandSurface(object):
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
         # - if not defined (default), set it to the maximum 
         self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
-        if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys():
+        if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
                iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
 
@@ -263,7 +263,7 @@ class LandSurface(object):
 
         # pre-defined surface water source fraction for satisfying industrial and domestic water demand
         self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
-        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in iniItems.landSurfaceOptions.keys() and \
+        if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and \
            (iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or \
             iniItems.landSurfaceOptions['predefinedNonIrrigationSurfaceWaterAbstractionFractionData'] != "False"):
             
@@ -294,7 +294,7 @@ class LandSurface(object):
             name_of_section_given_in_ini_file = str(coverType)+'Options'
             dictionary_of_land_cover_settings = iniItems.__getattribute__(name_of_section_given_in_ini_file)
             
-            if 'usingSpecificSoilTopo' not in dictionary_of_land_cover_settings.keys(): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
+            if 'usingSpecificSoilTopo' not in list(dictionary_of_land_cover_settings.keys()): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
             if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":            
                 
                 msg  = "Using a specific set of soil and topo parameters "
@@ -324,7 +324,7 @@ class LandSurface(object):
         # rescale landCover Fractions
         # - by default, the land cover fraction will always be corrected (to ensure the total of all fractions = 1.0)
         self.noLandCoverFractionCorrection = False
-        if "noLandCoverFractionCorrection" in iniItems.landSurfaceOptions.keys():
+        if "noLandCoverFractionCorrection" in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True": self.noLandCoverFractionCorrection = True
         # - rescaling land cover fractions
         if self.noLandCoverFractionCorrection == False:
@@ -333,7 +333,7 @@ class LandSurface(object):
         
         # an option to introduce changes of land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if 'annualChangesInLandCoverParameters' in iniItems.landSurfaceOptions.keys():
+        if 'annualChangesInLandCoverParameters' in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions['annualChangesInLandCoverParameters'] == "True": self.noAnnualChangesInLandCoverParameter = False
 
         # Note that "dynamicIrrigationArea" CANNOT be combined with "noLandCoverFractionCorrection"
@@ -522,10 +522,10 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
-            if 'grassland' in self.landCoverObj.keys():
+            if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
-            if 'short_natural' in self.landCoverObj.keys():
+            if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
 
             total_fractions = pcr.scalar(0.0)
@@ -555,10 +555,10 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
 
-            if 'grassland' in self.landCoverObj.keys():
+            if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
-            if 'short_natural' in self.landCoverObj.keys():
+            if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
 
             total_fractions = pcr.scalar(0.0)
@@ -582,7 +582,7 @@ class LandSurface(object):
             # summarize/aggregate the initial states/storages (using the initial land cover fractions: previousFracVegCover)
             for var in self.mainStates:
                 # - initial land cover fractions (dimensionless) 
-                if isinstance(self.landCoverObj[coverType].previousFracVegCover, types.NoneType):
+                if self.landCoverObj[coverType].previousFracVegCover is None:
                     self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
                 land_cover_fraction = self.landCoverObj[coverType].previousFracVegCover
                 # - initial land cover states (unit: m)
@@ -1091,7 +1091,7 @@ class LandSurface(object):
         swAbstractionFractionDict['non_irrigation'] = None       
 
         # incorporating the pre-defined fraction of surface water sources (e.g. based on Siebert et al., 2014 and McDonald et al., 2014)  
-        if not isinstance(self.swAbstractionFractionData, types.NoneType):
+        if self.swAbstractionFractionData is not None:
             
             logger.debug('Using/incorporating the predefined fractions of surface water source.')
             swAbstractionFractionDict['estimate']   = swAbstractionFraction
@@ -1100,7 +1100,7 @@ class LandSurface(object):
                                                                                                              self.swAbstractionFractionDataQuality)
             swAbstractionFractionDict['max_for_non_irrigation'] = self.maximumNonIrrigationSurfaceWaterAbstractionFractionData
             
-            if not isinstance(self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, types.NoneType):
+            if self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData is not None:
                 swAbstractionFractionDict['non_irrigation'] = pcr.cover(
                                                               self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData, \
                                                               swAbstractionFractionDict['estimate'])
@@ -1238,10 +1238,10 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
-            if 'grassland' in self.landCoverObj.keys():
+            if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
             
-            if 'short_natural' in self.landCoverObj.keys():
+            if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
             
             total_fractions = pcr.scalar(0.0)
@@ -1269,10 +1269,10 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
             
-            if 'grassland' in self.landCoverObj.keys():
+            if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
             
-            if 'short_natural' in self.landCoverObj.keys():
+            if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].fracVegCover, 1.0)
             
             total_fractions = pcr.scalar(0.0)
@@ -1347,15 +1347,15 @@ class LandSurface(object):
             # save the current state of fracVegCover
             for coverType in self.coverTypes:\
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
-				
-		#- RvB: irrigation water efficiency
-		# added here are the lines required to read in the water efficiency
-		# irrigation water efficiency is updated at the start of the year and 
+                
+        #- RvB: irrigation water efficiency
+        # added here are the lines required to read in the water efficiency
+        # irrigation water efficiency is updated at the start of the year and 
         if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
-					logger.info("Setting irrigation water efficiency")
-					for coverType in self.coverTypes:
-						self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
-				
+                    logger.info("Setting irrigation water efficiency")
+                    for coverType in self.coverTypes:
+                        self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
+                
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
             

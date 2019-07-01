@@ -42,7 +42,7 @@ class SoilAndTopoParameters(object):
         self.numberOfLayers = int(iniItems.landSurfaceOptions['numberOfUpperSoilLayers'])
 
     def read(self, iniItems, optionDict = None):
-		
+        
         self.readTopo(iniItems, optionDict)
         self.readSoil(iniItems, optionDict)
 
@@ -299,7 +299,7 @@ class SoilAndTopoParameters(object):
                                   'matricSuctionWP',      
                                   'maxGWCapRise']
         for var in soilParameterConstants:
-            if var in iniItems.landSurfaceOptions.keys():
+            if var in list(iniItems.landSurfaceOptions.keys()):
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,\
                                                             self.tmpDir,self.inputDir)

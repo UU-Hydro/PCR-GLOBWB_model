@@ -21,11 +21,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import os
 import types
 import math
 import types
+
+from six.moves import map
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -92,7 +93,7 @@ class Routing(object):
 
         # option to include lakes and reservoirs                    
         self.includeWaterBodies = True
-        if 'includeWaterBodies' in iniItems.routingOptions.keys(): 
+        if 'includeWaterBodies' in list(iniItems.routingOptions.keys()): 
             if iniItems.routingOptions['includeWaterBodies'] == "False" or\
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
@@ -108,7 +109,7 @@ class Routing(object):
            self.landmask = vos.readPCRmapClone(\
            iniItems.globalOptions['landmask'],
            self.cloneMap,self.tmpDir,self.inputDir)
-        else:   	
+        else:       
            self.landmask = pcr.defined(self.lddMap)
         self.landmask = pcr.ifthen(pcr.defined(self.lddMap), self.landmask)
         self.landmask = pcr.cover(self.landmask, pcr.boolean(0))   
@@ -145,7 +146,7 @@ class Routing(object):
 
         # option to use minimum channel width (m)
         self.minChannelWidth = pcr.scalar(0.0)
-        if "minimumChannelWidth" in iniItems.routingOptions.keys():
+        if "minimumChannelWidth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['minimumChannelWidth'] != "None":\
                self.minChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                       iniItems.routingOptions['minimumChannelWidth'],
@@ -153,7 +154,7 @@ class Routing(object):
         
         # option to use constant/pre-defined channel width (m)
         self.predefinedChannelWidth = None
-        if "constantChannelWidth" in iniItems.routingOptions.keys():
+        if "constantChannelWidth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['constantChannelWidth'] != "None":\
                self.predefinedChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelWidth'],
@@ -161,7 +162,7 @@ class Routing(object):
 
         # option to use constant/pre-defined channel depth (m)
         self.predefinedChannelDepth = None
-        if "constantChannelDepth" in iniItems.routingOptions.keys():
+        if "constantChannelDepth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['constantChannelDepth'] != "None":\
                self.predefinedChannelDepth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelDepth'],
@@ -181,7 +182,7 @@ class Routing(object):
         self.channelLength = self.cellLengthFD
         # 
         # channel length (unit: m) 
-        if "channelLength" in iniItems.routingOptions.keys():
+        if "channelLength" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['channelLength'] != "None":\
                self.channelLength = pcr.cover(
                                     vos.readPCRmapClone(\
@@ -232,7 +233,7 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps) 
                 
         # minimum number of a sub time step based on the configuration/ini file:  
-        if 'maxiumLengthOfSubTimeStep' in iniItems.routingOptions.keys():
+        if 'maxiumLengthOfSubTimeStep' in list(iniItems.routingOptions.keys()):
             maxiumLengthOfSubTimeStep = float(iniItems.routingOptions['maxiumLengthOfSubTimeStep'])
             minimum_number_of_sub_time_step  = np.ceil(
                                                vos.secondsPerDay() / maxiumLengthOfSubTimeStep )
@@ -243,14 +244,14 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
         
         # critical water height (m) used to select stable length of sub time step in kinematic wave methods/approaches
-        self.critical_water_height = 0.25;	# used in Van Beek et al. (2011)
+        self.critical_water_height = 0.25;  # used in Van Beek et al. (2011)
 
         # assumption for the minimum fracwat value used for calculating water height
         self.min_fracwat_for_water_height = 0.001 # dimensionless
         
         # assumption for minimum crop coefficient for surface water bodies 
         self.minCropWaterKC = 0.00
-        if 'minCropWaterKC' in iniItems.routingOptions.keys():
+        if 'minCropWaterKC' in list(iniItems.routingOptions.keys()):
             self.minCropWaterKC = float(iniItems.routingOptions['minCropWaterKC'])
         
         # get the initialConditions
@@ -270,10 +271,10 @@ class Routing(object):
 
             # reduction parameter of smoothing interval and error threshold
             self.reductionKK = 0.5
-            if 'reductionKK' in iniItems.routingOptions.keys():
+            if 'reductionKK' in list(iniItems.routingOptions.keys()):
                self.reductionKK= float(iniItems.routingOptions['reductionKK'])
             self.criterionKK = 40.0
-            if 'criterionKK' in iniItems.routingOptions.keys():
+            if 'criterionKK' in list(iniItems.routingOptions.keys()):
                self.criterionKK= float(iniItems.routingOptions['criterionKK'])
 
             # get relative elevation (above floodplain) profile per grid cell (including smoothing parameters)
@@ -291,13 +292,12 @@ class Routing(object):
             else:  
                 msg = "The bankfull channel storage capacity is NOT defined in the configuration file. "
             
-                if isinstance(self.predefinedChannelWidth, types.NoneType) or\
-                   isinstance(self.predefinedChannelDepth, types.NoneType):
-            
+                if (
+                    self.predefinedChannelWidth is None
+                    or self.predefinedChannelDepth is None
+                ):
                     msg += "The bankfull capacity is estimated from average discharge (5 year long term average)."
-
                 else:
-
                     msg += "The bankfull capacity is estimated from the given channel depth and channel width."
                     self.usingFixedBankfullCapacity = True
                     self.predefinedBankfullCapacity = self.estimateBankfullCapacity(self.predefinedChannelWidth,\
@@ -314,7 +314,7 @@ class Routing(object):
         
         # option to limit flood depth (to get rid of unrealistic flood depth)
         self.maxFloodDepth = None
-        if 'maxFloodDepth' in iniItems.routingOptions.keys():
+        if 'maxFloodDepth' in list(iniItems.routingOptions.keys()):
             self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
         
         # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 
@@ -386,7 +386,7 @@ class Routing(object):
             # read initial conditions from pcraster maps listed in the ini file (for the first time step of the model; when the model just starts)
             self.avgInflow  = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirInflowShortIni'],self.cloneMap,self.tmpDir,self.inputDir)
             self.avgOutflow = vos.readPCRmapClone(iniItems.routingOptions['avgLakeReservoirOutflowLongIni'],self.cloneMap,self.tmpDir,self.inputDir)
-            if not isinstance(iniItems.routingOptions['waterBodyStorageIni'],types.NoneType):
+            if iniItems.routingOptions['waterBodyStorageIni'] is not None:
                 self.waterBodyStorage = vos.readPCRmapClone(iniItems.routingOptions['waterBodyStorageIni'], self.cloneMap,self.tmpDir,self.inputDir)
                 self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
             else:
@@ -400,7 +400,7 @@ class Routing(object):
         
         self.avgInflow  = pcr.ifthen(self.landmask, pcr.cover(self.avgInflow , 0.0))
         self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.avgOutflow, 0.0))
-        if not isinstance(self.waterBodyStorage, types.NoneType):
+        if self.waterBodyStorage is not None:
             self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
 
 
@@ -553,7 +553,7 @@ class Routing(object):
         yMean = pcr.cover(yMean,0.01)
         
         # option to use constant channel width (m)
-        if not isinstance(self.predefinedChannelWidth,types.NoneType):\
+        if self.predefinedChannelWidth is not None:
            wMean = pcr.cover(self.predefinedChannelWidth, wMean)
         #
         # minimum channel width (m)
@@ -638,7 +638,7 @@ class Routing(object):
         return characteristicDistance
 
     def accuTravelTime(self):
-        		
+                
         # accuTravelTime ROUTING OPERATIONS
         ##############n############################################################################################################
 
@@ -857,8 +857,8 @@ class Routing(object):
         self.channelDepth = pcr.max(0.0, self.yMean)
         #
         # option to use constant channel depth (m)
-        if not isinstance(self.predefinedChannelDepth, types.NoneType):\
-           self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
+        if self.predefinedChannelDepth is not None:
+            self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
 
         # channel bankfull capacity (unit: m3)
         if self.floodPlain: 
@@ -1160,8 +1160,8 @@ class Routing(object):
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
         #
-        if self.method == "accuTravelTime":          self.accuTravelTime() 		
-        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave() 		
+        if self.method == "accuTravelTime":          self.accuTravelTime()      
+        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave()         
         #
         #
         # channel discharge (m3/s): for current time step
@@ -1348,7 +1348,7 @@ class Routing(object):
                           excessVolume/(pcr.max(self.min_fracwat_for_water_height, inundatedFraction)*self.cellArea),0.)  # unit: m
             
             # - maximum flood depth
-            if not isinstance(self.maxFloodDepth, types.NoneType):
+            if self.maxFloodDepth is not None:
                 floodDepth = pcr.max(0.0, pcr.min(self.maxFloodDepth, floodDepth))
             
         return inundatedFraction, floodDepth

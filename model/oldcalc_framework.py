@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -151,7 +153,7 @@ class PCRGlobWBVersionOne(DynamicModel):
         os.chdir(self.configuration.globalOptions['outputDir'])
         # - execute the script
         cmd = 'oldcalc -f '+str(os.path.basename(self.oldcalc_script_file))+" "+monthly_end_times
-        print cmd
+        print(cmd)
         vos.cmd_line(cmd)
         
     def dynamic(self):

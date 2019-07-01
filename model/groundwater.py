@@ -116,7 +116,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # assign aquifer specific yield (dimensionless)
-        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'specificYield' in iniItems.groundwaterOptions.keys():
+        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'specificYield' in list(iniItems.groundwaterOptions.keys()):
             self.specificYield  = vos.readPCRmapClone(\
                iniItems.groundwaterOptions['specificYield'],self.cloneMap,self.tmpDir,self.inputDir)
         else:
@@ -130,7 +130,7 @@ class Groundwater(object):
 
         #####################################################################################################################################################
         # assign aquifer hydraulic conductivity (unit: m/day)
-        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'kSatAquifer' in iniItems.groundwaterOptions.keys():
+        if iniItems.groundwaterOptions['groundwaterPropertiesNC'] == "None" or 'kSatAquifer' in list(iniItems.groundwaterOptions.keys()):
             self.kSatAquifer = vos.readPCRmapClone(\
                iniItems.groundwaterOptions['kSatAquifer'],self.cloneMap,self.tmpDir,self.inputDir)
         else:
@@ -155,13 +155,15 @@ class Groundwater(object):
             logger.warning(msg)
 
         # assign the reccession coefficient based on the given pcraster file
-        if 'recessionCoeff' in iniItems.groundwaterOptions.keys():
+        if 'recessionCoeff' in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # calculate the reccession coefficient based on the given parameters
-        if isinstance(self.recessionCoeff, types.NoneType) and\
-                          'recessionCoeff' not in iniItems.groundwaterOptions.keys():
+        if (
+            self.recessionCoeff is None
+            and 'recessionCoeff' not in iniItems.groundwaterOptions
+        ):
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
             logger.info(msg)
@@ -184,14 +186,14 @@ class Groundwater(object):
                                   (4.*self.specificYield*(aquiferWidth**2.))
 
         # assign the reccession coefficient based on the given pcraster file
-        if 'recessionCoeff' in iniItems.groundwaterOptions.keys():
+        if 'recessionCoeff' in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions['recessionCoeff'] != "None":\
                self.recessionCoeff = vos.readPCRmapClone(iniItems.groundwaterOptions['recessionCoeff'],self.cloneMap,self.tmpDir,self.inputDir)
 
         # minimum and maximum values for groundwater recession coefficient (day-1)
         self.recessionCoeff = pcr.cover(self.recessionCoeff,0.00)
         self.recessionCoeff = pcr.min(0.9999,self.recessionCoeff)
-        if 'minRecessionCoeff' in iniItems.groundwaterOptions.keys():
+        if 'minRecessionCoeff' in list(iniItems.groundwaterOptions.keys()):
             minRecessionCoeff = float(iniItems.groundwaterOptions['minRecessionCoeff'])
         else:
             minRecessionCoeff = 1.0e-4                                               # This is the minimum value used in Van Beek et al. (2011).
@@ -204,7 +206,7 @@ class Groundwater(object):
         # - the default value is equal to kSatAquifer
         self.riverBedConductivity = self.kSatAquifer
         # - assign riverBedConductivity coefficient based on the given pcraster file
-        if 'riverBedConductivity' in iniItems.groundwaterOptions.keys():
+        if 'riverBedConductivity' in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions['riverBedConductivity'] != "None":\
                self.riverBedConductivity = vos.readPCRmapClone(iniItems.groundwaterOptions['riverBedConductivity'],self.cloneMap,self.tmpDir,self.inputDir)
         #####################################################################################################################################################
@@ -217,7 +219,7 @@ class Groundwater(object):
         #   - to determine productive aquifer areas (where capillary rise can occur and groundwater depletion can occur) (for runs with/without MODFLOW)
         # - Note that for runs with MODFLOW, ideally, we want to minimize enormous drawdown in non-productive aquifer areas
         totalGroundwaterThickness = None
-        if 'estimateOfTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys() and\
+        if 'estimateOfTotalGroundwaterThickness' in list(iniItems.groundwaterOptions.keys()) and\
            (self.limitFossilGroundwaterAbstraction or self.useMODFLOW):
 
             totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
@@ -236,13 +238,13 @@ class Groundwater(object):
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
 
             # set minimum thickness
-            if 'minimumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys():
+            if 'minimumTotalGroundwaterThickness' in list(iniItems.groundwaterOptions.keys()):
                 minimumThickness = pcr.scalar(float(\
                                    iniItems.groundwaterOptions['minimumTotalGroundwaterThickness']))
                 totalGroundwaterThickness = pcr.max(minimumThickness, totalGroundwaterThickness)
 
             # set maximum thickness
-            if 'maximumTotalGroundwaterThickness' in iniItems.groundwaterOptions.keys() and\
+            if 'maximumTotalGroundwaterThickness' in list(iniItems.groundwaterOptions.keys()) and\
                                                     (iniItems.groundwaterOptions['maximumTotalGroundwaterThickness'] != "None"):
                 maximumThickness = float(iniItems.groundwaterOptions['maximumTotalGroundwaterThickness'])
                 totalGroundwaterThickness = pcr.min(maximumThickness, totalGroundwaterThickness)
@@ -259,7 +261,7 @@ class Groundwater(object):
         self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))
         excludeUnproductiveAquifer = True
         if excludeUnproductiveAquifer:
-            if 'minimumTransmissivityForProductiveAquifer' in iniItems.groundwaterOptions.keys() and\
+            if 'minimumTransmissivityForProductiveAquifer' in list(iniItems.groundwaterOptions.keys()) and\
                                                              (iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "None" or\
                                                               iniItems.groundwaterOptions['minimumTransmissivityForProductiveAquifer'] != "False"):
                 minimumTransmissivityForProductiveAquifer = \
@@ -283,7 +285,7 @@ class Groundwater(object):
 
             # estimate of capacity (unit: m) of renewable groundwater (to correct the initial estimate of fossil groundwater capacity)
             # - this value is NOT relevant, but requested in the IWMI project
-            if 'estimateOfRenewableGroundwaterCapacity' not in iniItems.groundwaterOptions.keys():\
+            if 'estimateOfRenewableGroundwaterCapacity' not in list(iniItems.groundwaterOptions.keys()):\
                 iniItems.groundwaterOptions['estimateOfRenewableGroundwaterCapacity'] = 0.0
             storGroundwaterCap =  pcr.cover(
                                   vos.readPCRmapClone(\
@@ -304,7 +306,7 @@ class Groundwater(object):
             self.usingAllocSegments = True
             groundwaterAllocationSegments = iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']
         # - yet, we can also define a specific one for groundwater
-        if "allocationSegmentsForGroundwater" in iniItems.groundwaterOptions.keys():
+        if "allocationSegmentsForGroundwater" in list(iniItems.groundwaterOptions.keys()):
             if iniItems.groundwaterOptions['allocationSegmentsForGroundwater'] not in ["None", "False"]:
                 self.usingAllocSegments = True
                 groundwaterAllocationSegments = iniItems.groundwaterOptions['allocationSegmentsForGroundwater']
