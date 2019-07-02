@@ -191,9 +191,9 @@ class Routing(object):
         
         # dist2celllength in m/arcDegree (needed in the accuTravelTime function): 
         nrCellsDownstream  = pcr.ldddist(self.lddMap,\
-                                         self.lddMap == 5,1.)
+                                         pcr.nominal(self.lddMap) == 5, 1.)
         distanceDownstream = pcr.ldddist(self.lddMap,\
-                                         self.lddMap == 5,\
+                                         pcr.nominal(self.lddMap) == 5,\
                                          self.channelLength)
         channelLengthDownstream = \
                 (self.channelLength + distanceDownstream)/\
