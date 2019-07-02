@@ -36,7 +36,7 @@ import glob
 import logging
 logger = logging.getLogger(__name__)
 
-from six.moves.configparser import ConfigParser
+from six.moves.configparser import RawConfigParser as ConfigParser
 
 import disclaimer
 
