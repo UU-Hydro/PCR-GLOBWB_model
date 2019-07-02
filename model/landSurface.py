@@ -995,7 +995,7 @@ class LandSurface(object):
 
         # approximate cell fraction under influence of capillary rise
 
-        FRACWAT = pcr.scalar(0.0);
+        FRACWAT = pcr.spatial(pcr.scalar(0.0));
         if currTimeStep.timeStepPCR > 1: 
             FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 
         else:
