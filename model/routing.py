@@ -459,7 +459,7 @@ class Routing(object):
                                            iniItems.globalOptions['inputDir'])
 
             # a dictionary contains areaFractions (dimensionless): fractions of flooded/innundated areas  
-            areaFractions = map(float, iniItems.routingOptions['relativeElevationLevels'].split(','))
+            areaFractions = map(float, str(iniItems.routingOptions['relativeElevationLevels']).split(','))
             # number of levels/intervals
             nrZLevels     = len(areaFractions)
             # - TODO: Read areaFractions and nrZLevels automatically. 
