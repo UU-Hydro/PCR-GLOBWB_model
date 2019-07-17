@@ -145,7 +145,10 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
 
-    cropData = f.variables[varName][:,:]       # still original data
+    try:
+        cropData = f.variables[varName][:,:]       # still original data
+    except:
+        cropData = f.variables[varName][0,:,:]       # still original data
     factor = 1                                 # needed in regridData2FinerGrid
     if sameClone == False:
         # crop to cloneMap:
