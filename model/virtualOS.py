@@ -1204,7 +1204,7 @@ def getFullPath(inputPath,absolutePath,completeFileName = True):
     absolutePath = str(absolutePath).replace("\\", "/")
     
     # tuple of suffixes (extensions) that can be used:
-    suffix = ('/','_','.nc4','.map','.nc','.dat','.txt','.asc','.ldd','.tbl',\
+    suffix = ('/','_','.nc4','.map','.nc','.dat','.txt','.asc','.ldd','.tbl','.nc3',\
               '.001','.002','.003','.004','.005','.006',\
               '.007','.008','.009','.010','.011','.012')
     
