@@ -2176,6 +2176,7 @@ def findLastYearInNCFile(ncFile):
 def findLastYearInNCTime(ncTimeVariable):
 
     # last datetime
+    print(ncTimeVariable)
     print(len(ncTimeVariable))
     last_datetime = nc.num2date(ncTimeVariable[len(ncTimeVariable) - 1],\
                                 ncTimeVariable.units,\
