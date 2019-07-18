@@ -114,8 +114,8 @@ class PCRGlobWB(object):
         
         landSurfaceState = state['landSurface']
         
-        for coverType, coverTypeState in landSurfaceState.iteritems():
-            for variable, map in coverTypeState.iteritems():
+        for coverType, coverTypeState in list(landSurfaceState.items()):
+            for variable, map in list(coverTypeState.items()):
                 vos.writePCRmapToDir(\
                 map,\
                  str(variable)+"_"+coverType+"_"+
@@ -123,7 +123,7 @@ class PCRGlobWB(object):
                  outputDirectory)
                 
         groundWaterState = state['groundwater']
-        for variable, map in groundWaterState.iteritems():
+        for variable, map in list(groundWaterState.items()):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
@@ -131,7 +131,7 @@ class PCRGlobWB(object):
              outputDirectory)
 
         routingState = state['routing']
-        for variable, map in routingState.iteritems():
+        for variable, map in list(routingState.items()):
             vos.writePCRmapToDir(\
              map,\
              str(variable)+"_"+
@@ -170,7 +170,7 @@ class PCRGlobWB(object):
             
             logger.info('Dumping some monthly variables for the MODFLOW input.')
 
-            for variable, map in self.variables.iteritems():
+            for variable, map in list(self.variables.items()):
                 vos.writePCRmapToDir(\
                  map,\
                  str(variable)+"_"+
@@ -413,19 +413,19 @@ class PCRGlobWB(object):
         return pcr.ifthen(self.landmask, self.routing.channelStorage)
 
     def checkLandSurfaceWaterBalance(self, storesAtBeginning, storesAtEnd):
-		
-		# for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
-		# 
+        
+        # for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
+        # 
         # - incoming fluxes (unit: m)
         precipitation   = pcr.ifthen(self.landmask, self.meteo.precipitation)
         irrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.irrGrossDemand)
         surfaceWaterInf = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
-		# 
+        # 
         # - outgoing fluxes (unit: m)
         actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET)
         runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
         nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
-		# 
+        # 
         vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
                               [actualET,runoff,nonFossilGroundwaterAbs],\
                               [storesAtBeginning],\

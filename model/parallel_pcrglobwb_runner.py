@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 #
 # PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
 #
@@ -111,7 +113,7 @@ if float(generalConfiguration.globalOptions['maxSpinUpsInYears']) > 0:
     logger.warning(msg)
     logger.warning(msg)
     logger.warning(msg)
-    if "with_merging" in generalConfiguration.globalOptions.keys() and generalConfiguration.globalOptions["with_merging"] == "False":
+    if "with_merging" in list(generalConfiguration.globalOptions.keys()) and generalConfiguration.globalOptions["with_merging"] == "False":
         with_merging_or_modflow = False
     else:
         msg = "You set this run (with spin-ups) either with modflow or merging processes. That is not possible."
@@ -179,7 +181,7 @@ if with_merging_or_modflow:
 # don't foget to add the following line
 cmd = cmd + "wait"       
 
-print cmd
+print(cmd)
 msg = "Call: "+str(cmd)
 logger.debug(msg)
 

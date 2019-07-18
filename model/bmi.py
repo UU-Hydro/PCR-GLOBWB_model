@@ -11,6 +11,8 @@ information from http://csdms.colorado.edu/wiki/BMI_Description and common sense
 
 from abc import ABCMeta, abstractmethod
 
+import six
+
 
 class BmiGridType(object):
     """
@@ -24,12 +26,11 @@ class BmiGridType(object):
     UNSTRUCTURED = 4
 
 
+@six.add_metaclass(ABCMeta)
 class Bmi(object):
     """
     Interface (abstract base class) for a model that implements the CSDMS BMI (Basic Model Interface).
     """
-
-    __metaclass__ = ABCMeta
 
     """
     Model Control Functions
