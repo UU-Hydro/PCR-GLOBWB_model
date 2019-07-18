@@ -2169,7 +2169,7 @@ def findLastYearInNCFile(ncFile):
         filecache[ncFile] = f
 
     # last datetime
-    last_datetime_year = findLastYearInNCTime(f.variables['time'][:]) 
+    last_datetime_year = findLastYearInNCTime(array(f.variables['time'])) 
     
     return last_datetime_year
     
