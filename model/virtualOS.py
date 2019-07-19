@@ -1205,7 +1205,7 @@ def getFullPath(inputPath,absolutePath,completeFileName = True):
               '.001','.002','.003','.004','.005','.006',\
               '.007','.008','.009','.010','.011','.012')
     
-    if inputPath.startswith('/') or str(inputPath)[1] == ":":
+    if inputPath.startswith('/') or str(inputPath)[1] == ":" or inputPath.startswith('http'):
         fullPath = str(inputPath)
     else:
         if absolutePath.endswith('/'): 
