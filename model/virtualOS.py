@@ -2177,6 +2177,7 @@ def findLastYearInNCTime(ncTimeVariable):
 
     # last datetime
     print(ncTimeVariable)
+    print(ncTimeVariable[:])
     print(ncTimeVariable[0])
     print(ncTimeVariable[1])
     print(ncTimeVariable[2])
