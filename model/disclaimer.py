@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# encoding=utf8
+import sys
+sys.setdefaultencoding('utf8')
+
 import logging
 logger = logging.getLogger(__name__)
 
