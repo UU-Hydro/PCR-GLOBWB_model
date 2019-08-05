@@ -35,7 +35,7 @@ import datetime
 import glob
 from multiprocessing import Pool
 import calendar
-from dateutil.relativedelta import *
+#from dateutil.relativedelta import *
 
 # file cache to minimize/reduce opening/closing files.  
 filecache = dict()
