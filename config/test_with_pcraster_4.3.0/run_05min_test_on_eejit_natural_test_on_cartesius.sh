@@ -13,7 +13,7 @@
 #SBATCH --mail-user=edwinkost@gmail.com
 
 # pcraster option
-#SBATCH --export=NUMBER_OF_WORKING_THREADS=NONE
+#SBATCH --export=NUMBER_OF_WORKING_THREADS=test
 
 # output directory
 #SBATCH --export=OUTPUT_DIR=/scratch-shared/edwinvua/test/
