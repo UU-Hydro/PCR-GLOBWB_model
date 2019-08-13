@@ -18,7 +18,7 @@ pcrcalc
 echo $1
 echo $2
 
-while countfiles=20
-do 
-countfiles=20
-done
+#~ while countfiles=20
+#~ do 
+#~ countfiles=20
+#~ done
