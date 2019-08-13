@@ -12,7 +12,7 @@
 # send mail to this address
 #SBATCH --mail-user=edwinkost@gmail.com
 
-# pcraster option, -1 indicating that not defining 
+# pcraster option, -1 indicating that not defining PCRASTER_NR_WORKER_THREADS
 #SBATCH --export=NUMBER_OF_WORKING_THREADS=-1
 
 set -x
@@ -29,8 +29,6 @@ source /scratch/depfg/pcraster/pcraster-4.3.0.sh
 pcrcalc
 
 # set the number of working threads
-i=${NUMBER_OF_WORKING_THREADS}
-echo $i
 if [ ${NUMBER_OF_WORKING_THREADS} -gt -1 ]
 then
    export PCRASTER_NR_WORKER_THREADS=${NUMBER_OF_WORKING_THREADS}
