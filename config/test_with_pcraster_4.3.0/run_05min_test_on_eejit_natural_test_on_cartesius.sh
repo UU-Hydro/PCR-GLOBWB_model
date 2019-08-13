@@ -1,11 +1,10 @@
 #!/bin/bash
-#SBATCH -N 1
-#SBATCH -t 119:59:00
-#SBATCH -p normal
-#SBATCH --constraint=haswell
-#~ #SBATCH -J haswell-normal-edwinvua
 
-#SBATCH -J $3
+# test on cartesius
+#SBATCH -N 1
+#SBATCH -t 9:00
+#SBATCH -p short
+#SBATCH -J test-pcraster_4.3.0-test-edwinvua
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
@@ -13,12 +12,15 @@
 # send mail to this address
 #SBATCH --mail-user=edwinkost@gmail.com
 
+# pcraster option
+#SBATCH --export=NUMBER_OF_WORKING_THREADS=NONE
+
+# output directory
+#SBATCH --export=OUTPUT_DIR=/scratch-shared/edwinvua/test/
+
 pcrcalc
 
-echo $1
-echo $2
+echo NUMBER_OF_WORKING_THREADS
+echo OUTPUT_DIR
 
-#~ while countfiles=20
-#~ do 
-#~ countfiles=20
-#~ done
+cd /home/edwinvua/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
