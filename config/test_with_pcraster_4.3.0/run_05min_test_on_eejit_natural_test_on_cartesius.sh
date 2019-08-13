@@ -2,7 +2,7 @@
 
 # test on cartesius
 #SBATCH -N 1
-#SBATCH -t 9:00
+#SBATCH -t 59:00
 #SBATCH -p short
 #SBATCH -J test-pcraster_4.3.0-test-edwinvua
 
