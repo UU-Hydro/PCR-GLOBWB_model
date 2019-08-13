@@ -30,8 +30,8 @@ pcrcalc
 
 # set the number of working threads
 i=((${NUMBER_OF_WORKING_THREADS}))
-echo i
-if [ i -gt -1 ]
+echo $i
+if [ $i -gt -1 ]
 then
    export PCRASTER_NR_WORKER_THREADS=${NUMBER_OF_WORKING_THREADS}
    echo ${PCRASTER_NR_WORKER_THREADS}
