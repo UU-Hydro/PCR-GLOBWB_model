@@ -20,7 +20,7 @@
 
 pcrcalc
 
-echo NUMBER_OF_WORKING_THREADS
-echo OUTPUT_DIR
+echo $NUMBER_OF_WORKING_THREADS
+echo $OUTPUT_DIR
 
 cd /home/edwinvua/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
