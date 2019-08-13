@@ -29,7 +29,7 @@ source /scratch/depfg/pcraster/pcraster-4.3.0.sh
 pcrcalc
 
 # set the number of working threads
-i=((${NUMBER_OF_WORKING_THREADS}))
+i=${NUMBER_OF_WORKING_THREADS}
 echo $i
 if [ $i -gt -1 ]
 then
