@@ -1,10 +1,12 @@
 #!/bin/bash
 
+set -x
+
 # set a working folder on a scratch disk (it will contains slurm output)
 WORK_FOLDER="/scratch-shared/edwin/pcrglobwb_pcraster4.3_test_on_eejit"
 mkdir -p ${WORK_FOLDER}
 
-# copy master job file 
+# copy the master job file to the working folder
 cp run_05min_test_on_eejit_natural_test_on_cartesius.sh ${WORK_FOLDER}
 
 # go to the working folder
@@ -27,3 +29,5 @@ sbatch --export=NUMBER_OF_WORKING_THREADS=96 -J pcrt_96 run_05min_test_on_eejit_
 
 # go to the previous folder
 cd -
+
+set +x
