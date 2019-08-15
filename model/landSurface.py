@@ -858,8 +858,8 @@ class LandSurface(object):
                     self.domesticNettoDemand = pcr.max(pcr.cover(\
                                                vos.readPCRmapClone(nettoFileName,self.cloneMap,self.tmpDir), 0.0), 0.0)
             else:
-                self.domesticGrossDemand = pcr.scalar(0.0)
-                self.domesticNettoDemand = pcr.scalar(0.0)
+                self.domesticGrossDemand = pcr.spatial(pcr.scalar(0.0))
+                self.domesticNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Domestic water demand is NOT included.")
             
             # gross and netto domestic water demand in m/day
@@ -892,8 +892,8 @@ class LandSurface(object):
                     self.industryNettoDemand = pcr.max(0.0, pcr.cover(\
                                                vos.readPCRmapClone(nettoFileName,self.cloneMap,self.tmpDir), 0.0))
             else:
-                self.industryGrossDemand = pcr.scalar(0.0)
-                self.industryNettoDemand = pcr.scalar(0.0)
+                self.industryGrossDemand = pcr.spatial(pcr.scalar(0.0))
+                self.industryNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Industry water demand is NOT included.")
         
             # gross and netto industrial water demand in m/day
@@ -928,8 +928,8 @@ class LandSurface(object):
                     self.livestockNettoDemand = pcr.max(pcr.cover(\
                                                vos.readPCRmapClone(nettoFileName,self.cloneMap,self.tmpDir), 0.0), 0.0)
             else:
-                self.livestockGrossDemand = pcr.scalar(0.0)
-                self.livestockNettoDemand = pcr.scalar(0.0)
+                self.livestockGrossDemand = pcr.spatial(pcr.scalar(0.0))
+                self.livestockNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Livestock water demand is NOT included.")
             
             # gross and netto livestock water demand in m/day
