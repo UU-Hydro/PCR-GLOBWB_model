@@ -13,6 +13,7 @@
 #~ #SBATCH -t 10:00                                                                                                             
 #SBATCH -p gpu                                                                                                                  
 #SBATCH -J exclusive_gpu_sutan101                                                                                               
+#SBATCH --exclusive
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
