@@ -9,7 +9,8 @@
 # settings for actual tests on eejit
 #SBATCH -N 1                                                                                                                     
 #SBATCH -n 96                                                                                                                    
-#SBATCH -t 240:00:00                                                                                                             
+#~ #SBATCH -t 240:00:00                                                                                                             
+#SBATCH -t 10:00                                                                                                             
 #SBATCH -p gpu                                                                                                                  
 #SBATCH -J exclusive_gpu_sutan101                                                                                               
 
