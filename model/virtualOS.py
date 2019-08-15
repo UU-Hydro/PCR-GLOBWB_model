@@ -1116,7 +1116,7 @@ def readPCRmap(v):
     if not re.match(r"[0-9.-]*$", v):
         PCRmap = pcr.readmap(v)
     else:
-        PCRmap = pcr.scalar(float(v))
+        PCRmap = pcr.spatial(pcr.scalar(float(v)))
     return PCRmap    
 
 def isSameClone(inputMapFileName,cloneMapFileName):    
