@@ -4,7 +4,7 @@ set -x
 
 # set a working folder on a scratch disk (it will contains slurm output)
 # - for tests on cartesius
-WORK_FOLDER="/scratch/depfg/sutan101/pcrglobwb_pcraster4.3_test_on_eejit"
+WORK_FOLDER="/scratch/depfg/sutan101/pcrglobwb_pcraster4.3_test_on_eejit_global/"
 mkdir -p ${WORK_FOLDER}
 
 # master job file

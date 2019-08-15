@@ -47,7 +47,7 @@ fi
 #~ # - for fake tests on cartesius
 #~ OUTPUT_DIR=/scratch-shared/edwin/pcrglobwb_pcraster4.3_test_on_eejit/using_${NUMBER_OF_WORKING_THREADS}
 # - for actual tests on eejit
-OUTPUT_DIR=/scratch/depfg/sutan101/pcrglobwb_pcraster4.3_test_on_eejit/using_${NUMBER_OF_WORKING_THREADS}
+OUTPUT_DIR=/scratch/depfg/sutan101/pcrglobwb_pcraster4.3_test_on_eejit_global/using_${NUMBER_OF_WORKING_THREADS}
 
 # go to the script directory and execute the run
 cd ~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
