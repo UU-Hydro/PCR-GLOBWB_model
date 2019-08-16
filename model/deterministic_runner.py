@@ -80,10 +80,23 @@ def main():
     if len(sys.argv) > 2: 
         if sys.argv[2] == "debug": debug_mode = True
     
+    # no modification in the given ini file, use it as it is
+    no_modification = True
+    
+    # use the output directory as given in the system argument
+    if len(sys.argv) > 3 and sys.argv[3] == "--output_dir": 
+        no_modification_to_output_dir = False
+        output_directory = sys.argv[4]
+
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
-                                  debug_mode = debug_mode)      
-
+                                  debug_mode = debug_mode, \
+                                  no_modification = no_modification_to_output_dir)      
+    if no_modification_to_output_dir == False:
+        configuration.main_output_directory = output_directory
+        configuration.globalOptions['outputDir'] = output_directory
+        configuration.set_configuration()
+    
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
     

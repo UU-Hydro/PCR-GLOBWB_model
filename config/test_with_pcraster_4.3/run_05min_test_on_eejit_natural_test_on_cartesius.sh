@@ -1,10 +1,17 @@
 #!/bin/bash
 
-# test on cartesius
+# settings for test on cartesius
 #SBATCH -N 1
 #SBATCH -t 59:00
 #SBATCH -p short
-#SBATCH -J test-pcraster_4.3.0-test-edwinvua
+#SBATCH -J test-pcraster_4.3-pcrglobwb
+
+#~ # settings for actual tests on eejit
+#~ #SBATCH -N 1                                                                                                                     
+#~ #SBATCH -n 96                                                                                                                    
+#~ #SBATCH -t 240:00:00                                                                                                             
+#~ #SBATCH -p gpu                                                                                                                  
+#~ #SBATCH -J exclusive_gpu_sutan101                                                                                               
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
@@ -36,10 +43,14 @@ then
 fi
 
 # set output directory based on the number of working threads
-OUTPUT_DIR=/scratch-shared/edwinvua/test/using_${NUMBER_OF_WORKING_THREADS}
+# - for fake tests on cartesius
+OUTPUT_DIR=/scratch-shared/edwin/pcrglobwb_pcraster4.3_test_on_eejit/using_${NUMBER_OF_WORKING_THREADS}
+#~ # - for actual tests on eejit
+#~ OUTPUT_DIR=/scratch/depfg/sutan101/pcrglobwb_pcraster4.3_test_on_eejit/using_${NUMBER_OF_WORKING_THREADS}
 
 # go to the script directory and execute the run
-cd /home/edwinvua/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
+cd ~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
+git status
 python deterministic_runner.py ../config/test_with_pcraster_4.3.0/setup_05min_test_on_eejit_natural.ini no-debug --output_dir ${OUTPUT_DIR}
 
 # show pcraster version and number of working threads at the end of the calculation
