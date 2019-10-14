@@ -200,10 +200,11 @@ class Configuration(object):
         # - python version
         python_version = str(sys.version)
         logger.info('Python version:\n  %s', python_version)
-        # - pcraster 
-        logger.info('PCRaster version (output from pcrcalc):')
-        pcrcalc_out = subprocess.Popen(['pcrcalc'], stdout = subprocess.PIPE)
-        logger.info(pcrcalc_out.communicate())
+        # - pcraster
+        pcraster_check_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '_pcrcalc_output.txt'
+        cmd = "pcrcalc &> " + (pcraster_check_filename)
+        os.system(cmd)
+        logger.info('PCRaster version (output from pcrcalc): see the file %s', pcraster_check_filename)
         # - path
         logger.info('PATH=%s', os.environ["PATH"])        
         # - pythonpath
