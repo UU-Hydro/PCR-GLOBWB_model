@@ -199,7 +199,7 @@ class Configuration(object):
         logger.info('OS relesase: %s', str(platform.release()))
         # - python version
         python_version = str(sys.version)
-        logger.info('Python version:\n  %s', python_version)
+        logger.info('Python version:\n%s', python_version)
         # - pcraster
         pcraster_check_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '_pcrcalc_output.txt'
         cmd = "pcrcalc &> " + (pcraster_check_filename)
