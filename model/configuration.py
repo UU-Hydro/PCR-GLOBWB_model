@@ -32,6 +32,8 @@ import time
 import datetime
 import shutil
 import glob
+import subprocess
+import platform
 
 import logging
 logger = logging.getLogger(__name__)
@@ -190,6 +192,26 @@ class Configuration(object):
         logger.info('Model run started at %s', self._timestamp)
         logger.info('Logging output to %s', log_filename)
         logger.info('Debugging output to %s', dbg_filename)
+        
+        # save platform, python, pcrcalc version, path, pythonpath, etc. 
+        # - os platform
+        logger.info('OS platform: %s', str(platform.system()))
+        logger.info('OS relesase: %s', str(platform.release()))
+        # - python version
+        logger.info('Python version:')
+        python_version = str(sys.version)
+        logger.info(python_version)
+        # - pcraster 
+        logger.info('PCRaster version (output from pcrcalc):')
+        pcrcalc_cmd = subprocess.run(['pcrcalc'], stdout=subprocess.PIPE)
+        logger.info(pcrcalc_cmd.stdout)
+        # - path
+        logger.info('PATH=', os.environ["PATH"])        
+        # - pythonpath
+        logger.info('PYTHONPATH=', os.environ["PYTHONPATH"])        
+        # - hostname
+        logger.info('HOSTNAME=', os.environ["HOSTNAME"])        
+        
         
         if system_arguments != None:
             logger.info('The system arguments given to execute this run: %s', system_arguments)
