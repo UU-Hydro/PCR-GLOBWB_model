@@ -198,13 +198,12 @@ class Configuration(object):
         logger.info('OS platform: %s', str(platform.system()))
         logger.info('OS relesase: %s', str(platform.release()))
         # - python version
-        logger.info('Python version:')
         python_version = str(sys.version)
-        logger.info(python_version)
+        logger.info('Python version:\n  %s', python_version)
         # - pcraster 
         logger.info('PCRaster version (output from pcrcalc):')
-        pcrcalc_out = os.popen('pcrcalc').read()
-        logger.info(pcrcalc_out)
+        pcrcalc_out = subprocess.Popen(['pcrcalc'], stdout = subprocess.PIPE)
+        logger.info(pcrcalc_out.communicate())
         # - path
         logger.info('PATH=%s', os.environ["PATH"])        
         # - pythonpath
