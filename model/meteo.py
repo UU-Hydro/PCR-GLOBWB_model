@@ -485,8 +485,8 @@ class Meteo(object):
             self.referencePotET = pcr.windowaverage(self.referencePotET, self.smoothingWindowsLength)
         
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
-        pcr.aguila(self.precipitation)
-        pcr.aguila(self.temperature)
+        #~ pcr.aguila(self.precipitation)
+        #~ pcr.aguila(self.temperature)
         self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
         # ignore snow by setting temperature to 25 deg C
