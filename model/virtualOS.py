@@ -40,12 +40,13 @@ import types
 import calendar
 import glob
 
-import netCDF4 as nc
 import numpy as np
 import numpy.ma as ma
 import pcraster as pcr
 
 import logging
+
+import netCDF4 as nc
 
 from six.moves import range
 
