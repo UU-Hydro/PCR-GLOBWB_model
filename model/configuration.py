@@ -206,11 +206,11 @@ class Configuration(object):
         pcrcalc_cmd = subprocess.run(['pcrcalc'], stdout=subprocess.PIPE)
         logger.info(pcrcalc_cmd.stdout)
         # - path
-        logger.info('PATH=', os.environ["PATH"])        
+        logger.info('PATH=%s', os.environ["PATH"])        
         # - pythonpath
-        logger.info('PYTHONPATH=', os.environ["PYTHONPATH"])        
+        logger.info('PYTHONPATH=%s', os.environ["PYTHONPATH"])        
         # - hostname
-        logger.info('HOSTNAME=', os.environ["HOSTNAME"])        
+        logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])        
         
         
         if system_arguments != None:
