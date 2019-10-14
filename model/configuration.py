@@ -203,7 +203,7 @@ class Configuration(object):
         logger.info(python_version)
         # - pcraster 
         logger.info('PCRaster version (output from pcrcalc):')
-        pcrcalc_out os.popen('pcrcalc').read()
+        pcrcalc_out = os.popen('pcrcalc').read()
         logger.info(pcrcalc_out)
         # - path
         logger.info('PATH=%s', os.environ["PATH"])        
