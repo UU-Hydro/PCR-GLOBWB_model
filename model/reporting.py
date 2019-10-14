@@ -893,7 +893,6 @@ class Reporting(object):
         # channel storage (unit: m3)
         self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
                               pcr.cover(self._model.routing.channelStorage, 0.0))
-        # - NOTE: For this version, the channelStorage does not include floodVolume.
         
         # riverine flood inundation volume (unit: m3)
         if self._model.routing.floodPlain:
@@ -901,8 +900,6 @@ class Reporting(object):
                 self._model.routing.landmask,
                 pcr.cover(self._model.routing.floodInundationVolume, 0.0),
             )
-        
-
 
         # water withdrawal for irrigation sectors
         self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)

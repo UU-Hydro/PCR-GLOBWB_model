@@ -85,14 +85,14 @@ def main():
     
     # use the output directory as given in the system argument
     if len(sys.argv) > 3 and sys.argv[3] == "--output_dir": 
-        no_modification_to_output_dir = False
+        no_modification = False
         output_directory = sys.argv[4]
 
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
-                                  no_modification = no_modification_to_output_dir)      
-    if no_modification_to_output_dir == False:
+                                  no_modification = no_modification)      
+    if no_modification == False:
         configuration.main_output_directory = output_directory
         configuration.globalOptions['outputDir'] = output_directory
         configuration.set_configuration()

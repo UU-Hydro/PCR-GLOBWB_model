@@ -201,7 +201,9 @@ class Routing(object):
                 (self.channelLength + distanceDownstream)/\
                 (nrCellsDownstream + 1)                 # unit: m
         self.dist2celllength  = channelLengthDownstream /\
-                                  self.cellSizeInArcDeg # unit: m/arcDegree  
+                                  self.cellSizeInArcDeg # unit: m/arcDegree
+
+        self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
 
         # the channel gradient must be >= minGradient 
         minGradient   = 0.00005   # 0.000005
@@ -932,6 +934,16 @@ class Routing(object):
             )
             #
             #~ pcr.aguila(self.floodInundationVolume)
+
+        # lake and reservoir fraction
+        self.dynamicFracWat_excluding_flooding  = pcr.cover(\
+                                                           pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
+        # - plus fraction of channel (excluding its excess above bankfull capacity) 
+        self.dynamicFracWat_excluding_flooding += pcr.max(0.0, 1.0 - self.dynamicFracWat_excluding_flooding) * pcr.max(self.channelFraction, 0.0)
+        # - fraction of lake and reservoir, as well as channel, but excluding flood
+        self.dynamicFracWat_excluding_flooding  = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat_excluding_flooding))
+
+        # TODO: Calculate flood fraction 
 
         # estimate volume of water that can be extracted for abstraction in the next time step
         self.readAvlChannelStorage = pcr.max(0.0, self.estimate_available_volume_for_abstraction(self.channelStorage))
