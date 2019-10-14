@@ -486,8 +486,7 @@ class Meteo(object):
         
         # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
         pcr.aguila(self.temperature)
-        os.system('killall aguila')
-        self.temperature   = pcr.roundoff(pcr.scalar(self.temperature)*1000.)/1000. 
+        self.temperature   = pcr.roundoff(self.temperature*1000.)/1000. 
         
         # ignore snow by setting temperature to 25 deg C
         if self.ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
