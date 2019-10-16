@@ -40,13 +40,12 @@ import types
 import calendar
 import glob
 
+import netCDF4 as nc
 import numpy as np
 import numpy.ma as ma
 import pcraster as pcr
 
 import logging
-
-import netCDF4 as nc
 
 from six.moves import range
 
@@ -182,7 +181,9 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     return (outPCR)
 
 
-def netcdf2PCRobjClone(ncFile,varName,dateInput,\
+def netcdf2PCRobjClone(ncFile,\
+                       varName = "automatic" ,
+                       dateInput = None,\
                        useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
@@ -214,6 +215,13 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
             f.variables['lon'] = f.variables['longitude']
         except:
             pass
+
+    if varName == "automatic":
+        nc_dims = [dim for dim in f.dimensions]
+        nc_vars = [var for var in f.variables]
+        for var in nc_vars:                   
+            if var not in nc_dims: varName = var
+        logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if varName == "evapotranspiration":        
         try:
@@ -270,76 +278,83 @@ def netcdf2PCRobjClone(ncFile,varName,dateInput,\
        except:
            pass
 
-    # date
-    date = dateInput
-    if useDoy == "Yes": 
-        logger.debug('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
-        idx = int(dateInput) - 1
-    elif useDoy == "month":  # PS: WE NEED THIS ONE FOR NETCDF FILES that contain only 12 monthly values (e.g. cropCoefficientWaterNC).
-        logger.debug('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
-        # make sure that date is in the correct format
-        if isinstance(date, str) == True: date = \
-                        datetime.datetime.strptime(str(date),'%Y-%m-%d') 
-        idx = int(date.month) - 1
+    if dateInput == None:
+        logger.debug('Using the first time step in the netcdf file.')
+        idx = 0
+        if len(f.variables['time']) > 1: logger.warning('NOTE that there are more than one time steps in the netcdf file.')
+    
     else:
-        # make sure that date is in the correct format
-        if isinstance(date, str) == True: date = \
-                        datetime.datetime.strptime(str(date),'%Y-%m-%d') 
-        date = datetime.datetime(date.year,date.month,date.day)
-        if useDoy == "yearly":
-            date  = datetime.datetime(date.year,int(1),int(1))
-        if useDoy == "monthly":
-            date = datetime.datetime(date.year,date.month,int(1))
-        if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal":
-            # if the desired year is not available, use the first year or the last year that is available
-            first_year_in_nc_file = findFirstYearInNCTime(f.variables['time'])
-            last_year_in_nc_file  =  findLastYearInNCTime(f.variables['time'])
-            #
-            if date.year < first_year_in_nc_file:  
-                if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(first_year_in_nc_file) == False:
-                    date = datetime.datetime(first_year_in_nc_file, date.month, 28)
-                else:
-                    date = datetime.datetime(first_year_in_nc_file, date.month, date.day)
-                msg  = "\n"
-                msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                msg += "The date "+str(dateInput)+" is NOT available. "
-                msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
-                msg += "\n"
-                logger.warning(msg)
-            if date.year > last_year_in_nc_file:  
-                if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(last_year_in_nc_file) == False:
-                    date = datetime.datetime(last_year_in_nc_file, date.month, 28)
-                else:
-                    date = datetime.datetime(last_year_in_nc_file, date.month, date.day)
-                msg  = "\n"
-                msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                msg += "The date "+str(dateInput)+" is NOT available. "
-                msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
-                msg += "\n"
-                logger.warning(msg)
-        try:
-            idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
-                                select ='exact')
-            msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
-            logger.debug(msg)
-        except:
-            msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
-            logger.debug(msg)
-            try:                                  
+        
+        # date
+        date = dateInput
+        if useDoy == "Yes": 
+            logger.debug('Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)')
+            idx = int(dateInput) - 1
+        elif useDoy == "month":  # PS: WE NEED THIS ONE FOR NETCDF FILES that contain only 12 monthly values (e.g. cropCoefficientWaterNC).
+            logger.debug('Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)')
+            # make sure that date is in the correct format
+            if isinstance(date, str) == True: date = \
+                            datetime.datetime.strptime(str(date),'%Y-%m-%d') 
+            idx = int(date.month) - 1
+        else:
+            # make sure that date is in the correct format
+            if isinstance(date, str) == True: date = \
+                            datetime.datetime.strptime(str(date),'%Y-%m-%d') 
+            date = datetime.datetime(date.year,date.month,date.day)
+            if useDoy == "yearly":
+                date  = datetime.datetime(date.year,int(1),int(1))
+            if useDoy == "monthly":
+                date = datetime.datetime(date.year,date.month,int(1))
+            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal":
+                # if the desired year is not available, use the first year or the last year that is available
+                first_year_in_nc_file = findFirstYearInNCTime(f.variables['time'])
+                last_year_in_nc_file  =  findLastYearInNCTime(f.variables['time'])
+                #
+                if date.year < first_year_in_nc_file:  
+                    if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(first_year_in_nc_file) == False:
+                        date = datetime.datetime(first_year_in_nc_file, date.month, 28)
+                    else:
+                        date = datetime.datetime(first_year_in_nc_file, date.month, date.day)
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(dateInput)+" is NOT available. "
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
+                    msg += "\n"
+                    logger.warning(msg)
+                if date.year > last_year_in_nc_file:  
+                    if date.day == 29 and date.month == 2 and calendar.isleap(date.year) and calendar.isleap(last_year_in_nc_file) == False:
+                        date = datetime.datetime(last_year_in_nc_file, date.month, 28)
+                    else:
+                        date = datetime.datetime(last_year_in_nc_file, date.month, date.day)
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(dateInput)+" is NOT available. "
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is used."
+                    msg += "\n"
+                    logger.warning(msg)
+            try:
                 idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
-                                    select = 'before')
-                msg  = "\n"
-                msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'before' option is used while selecting netcdf time."
-                msg += "\n"
+                                    select ='exact')
+                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
+                logger.debug(msg)
             except:
-                idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
-                                    select = 'after')
-                msg  = "\n"
-                msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
-                msg += "\n"
-            logger.warning(msg)
+                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
+                logger.debug(msg)
+                try:                                  
+                    idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
+                                        select = 'before')
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'before' option is used while selecting netcdf time."
+                    msg += "\n"
+                except:
+                    idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
+                                        select = 'after')
+                    msg  = "\n"
+                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
+                    msg += "\n"
+                logger.warning(msg)
                                                   
     idx = int(idx)                                                  
     logger.debug('Using the date index '+str(idx))
@@ -1076,6 +1091,65 @@ def writePCRmapToDir(v,outFileName,outDir):
     pcr.report(v,fullFileName)
 
 def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
+    # v: inputMapFileName or floating values
+    # cloneMapFileName: If the inputMap and cloneMap have different clones,
+    #                   resampling will be done.   
+    logger.debug('read file/values: '+str(v))
+    if v == "None":
+        #~ PCRmap = str("None")
+        PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
+
+    elif not re.match(r"[0-9.-]*$",v):
+        if absolutePath != None: v = getFullPath(v,absolutePath)
+        # print(v)
+            
+        this_is_a_netcdf_file = v.endswith(".nc", ".nc4", ".nc3")
+        
+        if this_is_a_netcdf_file:
+        
+            logger.debug('read netcdf file: '+str(v))
+            
+            PCRmap = netcdf2PCRobjClone(ncFile = v,\
+                                        varName = "automatic",\
+                                        dateInput = None,\
+                                        useDoy = None, \
+                                        cloneMapFileName = cloneMapFileName)
+        else:
+            
+            # pcraster format is assumed 
+            
+            sameClone = isSameClone(v,cloneMapFileName)
+            if sameClone == True:
+                PCRmap = pcr.readmap(v)
+            else:
+                # resample using GDAL:
+                output = tmpDir+'temp.map'
+                warp = gdalwarpPCR(v,output,cloneMapFileName,tmpDir,isLddMap,isNomMap)
+                # read from temporary file and delete the temporary file:
+                PCRmap = pcr.readmap(output)
+                if os.path.isdir(tmpDir): shutil.rmtree(tmpDir)
+                os.makedirs(tmpDir)
+    else:
+        PCRmap = pcr.spatial(pcr.scalar(float(v)))
+    
+    # make sure that values are in correct format
+    if isLddMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) < 10., PCRmap)
+    if isLddMap == True: PCRmap = pcr.ldd(PCRmap)
+    if isNomMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
+    if isNomMap == True: PCRmap = pcr.nominal(PCRmap)
+    
+    
+    if cover != None: PCRmap = pcr.cover(PCRmap, cover)
+    
+    # cleaning 
+    co = None; cOut = None; err = None; warp = None
+    del co; del cOut; del err; del warp
+    stdout = None; del stdout
+    stderr = None; del stderr
+    
+    return PCRmap    
+
+def readPCRmapCloneOLD(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
     # v: inputMapFileName or floating values
     # cloneMapFileName: If the inputMap and cloneMap have different clones,
     #                   resampling will be done.   
