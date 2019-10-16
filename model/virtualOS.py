@@ -222,7 +222,6 @@ def netcdf2PCRobjClone(ncFile,\
         for var in nc_vars:                   
             if var not in nc_dims: varName = var
         logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
-        pietje
     
     if varName == "evapotranspiration":        
         try:
@@ -283,6 +282,8 @@ def netcdf2PCRobjClone(ncFile,\
         logger.debug('Using the first time step in the netcdf file.')
         idx = 0
         if len(f.variables['time']) > 1: logger.warning('NOTE that there are more than one time steps in the netcdf file.')
+        
+        pietje
     
     else:
         
