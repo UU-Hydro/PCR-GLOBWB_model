@@ -1103,7 +1103,8 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
         if absolutePath != None: v = getFullPath(v,absolutePath)
         # print(v)
             
-        this_is_a_netcdf_file = v.endswith(".nc", ".nc4", ".nc3")
+        this_is_a_netcdf_file = False
+        if v.endswith(".nc") or v.endswith(".nc4"): this_is_a_netcdf_file = True
         
         if this_is_a_netcdf_file:
         
