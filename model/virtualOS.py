@@ -283,8 +283,6 @@ def netcdf2PCRobjClone(ncFile,\
         idx = 0
         if len(f.variables['time']) > 1: logger.warning('NOTE that there are more than one time steps in the netcdf file.')
         
-        pietje
-    
     else:
         
         # date
