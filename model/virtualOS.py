@@ -221,9 +221,6 @@ def netcdf2PCRobjClone(ncFile,\
         nc_vars = [var for var in f.variables]
         for var in nc_vars:                   
             if var not in nc_dims: varName = var
-        print nc_dims
-        print nc_vars
-        pietje
         logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if varName == "evapotranspiration":        
