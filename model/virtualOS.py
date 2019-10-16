@@ -197,7 +197,7 @@ def netcdf2PCRobjClone(ncFile,\
     
     #~ print ncFile
     
-    logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
+    if varName != "automatic": logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
