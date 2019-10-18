@@ -1147,6 +1147,7 @@ def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,c
     
     # make sure that values are in correct format
     if isLddMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) < 10., PCRmap)
+    if isLddMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
     if isLddMap == True: PCRmap = pcr.ldd(PCRmap)
     if isNomMap == True: PCRmap = pcr.ifthen(pcr.scalar(PCRmap) >  0., PCRmap)
     if isNomMap == True: PCRmap = pcr.nominal(PCRmap)
