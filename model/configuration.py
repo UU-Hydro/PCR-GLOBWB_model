@@ -212,10 +212,10 @@ class Configuration(object):
         # - hostname
         logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
         # - PCRaster NUMBER_OF_WORKING_THREADS        
-        if "NUMBER_OF_WORKING_THREADS" in os.environ.keys(): 
-            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export, only for PCRaster version >= 4.2): %s', os.environ["NUMBER_OF_WORKING_THREADS"])
+        if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys(): 
+            logger.info('PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s', os.environ["PCRASTER_NR_WORKER_THREADS"])
         else:
-            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export, only for PCRaster version >= 4.2): %s', "N/A")
+            logger.info('PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s', "N/A")
         
         if system_arguments != None:
             logger.info('The system arguments given to execute this run: %s', system_arguments)
