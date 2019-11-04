@@ -211,11 +211,11 @@ class Configuration(object):
         logger.info('PYTHONPATH=%s', os.environ["PYTHONPATH"])        
         # - hostname
         logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
-        # - NUMBER_OF_WORKING_THREADS        
+        # - PCRaster NUMBER_OF_WORKING_THREADS        
         if "NUMBER_OF_WORKING_THREADS" in on.environ.keys(): 
-            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export): %s', on.environ["NUMBER_OF_WORKING_THREADS"])
+            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export, only for PCRaster version >= 4.2): %s', on.environ["NUMBER_OF_WORKING_THREADS"])
         else:
-            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export): %s', "N/A")
+            logger.info('PCRaster NUMBER_OF_WORKING_THREADS (set by export, only for PCRaster version >= 4.2): %s', "N/A")
         
         if system_arguments != None:
             logger.info('The system arguments given to execute this run: %s', system_arguments)
