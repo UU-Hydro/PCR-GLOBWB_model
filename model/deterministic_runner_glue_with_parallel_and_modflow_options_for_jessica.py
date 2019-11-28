@@ -286,30 +286,30 @@ class DeterministicRunner(DynamicModel):
         # do any needed reporting for this time step        
         self.reporting.report()
 
-        # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
-        if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_modflow or\
-                                                  self.with_merging):
+        #~ # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 
+        #~ if self.modelTime.isLastDayOfMonth() and (self.configuration.online_coupling_between_pcrglobwb_and_modflow or\
+                                                  #~ self.with_merging):
             
             # wait until modflow files are ready
-            if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
-                modflow_is_ready = False
-                self.count_check = 0
-                while modflow_is_ready == False:
-                    if datetime.datetime.now().second == 14 or\
-                       datetime.datetime.now().second == 29 or\
-                       datetime.datetime.now().second == 34 or\
-                       datetime.datetime.now().second == 59:\
-                       modflow_is_ready = self.check_modflow_status()
+            #~ if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
+                #~ modflow_is_ready = False
+                #~ self.count_check = 0
+                #~ while modflow_is_ready == False:
+                    #~ if datetime.datetime.now().second == 14 or\
+                       #~ datetime.datetime.now().second == 29 or\
+                       #~ datetime.datetime.now().second == 34 or\
+                       #~ datetime.datetime.now().second == 59:\
+                       #~ modflow_is_ready = self.check_modflow_status()
                 
             # wait until merged files are ready
-            merged_files_are_ready = False
-            while merged_files_are_ready == False:
-                self.count_check = 0
-                if datetime.datetime.now().second == 14 or\
-                   datetime.datetime.now().second == 29 or\
-                   datetime.datetime.now().second == 34 or\
-                   datetime.datetime.now().second == 59:\
-                   merged_files_are_ready = self.check_merging_status()
+            #~ merged_files_are_ready = False
+            #~ while merged_files_are_ready == False:
+                #~ self.count_check = 0
+                #~ if datetime.datetime.now().second == 14 or\
+                   #~ datetime.datetime.now().second == 29 or\
+                   #~ datetime.datetime.now().second == 34 or\
+                   #~ datetime.datetime.now().second == 59:\
+                   #~ merged_files_are_ready = self.check_merging_status()
 
     def check_modflow_status(self):
 
