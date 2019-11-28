@@ -21,12 +21,14 @@ source activate py3_pcrglobwb_edwin
 # using pcraster 4.3 development version (NOTE: continuously developed/compiled by Oliver)
 source /scratch/depfg/pcraster/pcraster-4.3.0.sh
 
-pcrcalc
 
 export PCRASTER_NR_WORKER_THREADS=4
 
+pcrcalc
+
 cd ~
 cd github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
-python parallel_pcrglobwb_runner.py ../config/opendap_development/05min_naturalized_with-parallelization_kinematic-wave/setup_05min_on_eejit_naturalized_with-parallelization_kinematic-wave_continue-from-2013_using-opendap-files.ini 
+python parallel_pcrglobwb_runner.py ../config/opendap_development/05min_naturalized_with-parallelization_kinematic-wave/continue-from-2013/setup_05min_on_eejit_naturalized_with-parallelization_kinematic-wave_continue-from-2013_using-opendap-files.ini
 
 pcrcalc
+
