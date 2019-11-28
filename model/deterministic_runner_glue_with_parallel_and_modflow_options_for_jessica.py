@@ -84,7 +84,7 @@ class DeterministicRunner(DynamicModel):
             multiplier_for_manningsN        = float(system_argument[10]) # linear scale
             
             # modfication for storGroundwaterIni
-            storGroundwaterIni_file = float(system_argument[11])
+            storGroundwaterIni_file = str(system_argument[11])
             
 
         # it is also possible to define prefactors via the ini/configuration file: 
