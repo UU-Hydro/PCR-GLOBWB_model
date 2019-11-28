@@ -107,7 +107,7 @@ class DeterministicRunner(DynamicModel):
         msg += "For storCap                    : "+str(multiplier_for_storCap         )+"\n"
         msg += "For degreeDayFactor            : "+str(multiplier_for_degreeDayFactor )+"\n"
         msg += "For refPotET                   : "+str(self.multiplier_for_refPotET   )+"\n"
-        msg += "For multiplier_for_manningsN   : "+str(self.multiplier_for_manningsN  )+"\n"
+        msg += "For multiplier_for_manningsN   : "+str(multiplier_for_manningsN       )+"\n"
         logger.info(msg)
         # - also to a txt file 
         f = open("multiplier.txt","w") # this will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
