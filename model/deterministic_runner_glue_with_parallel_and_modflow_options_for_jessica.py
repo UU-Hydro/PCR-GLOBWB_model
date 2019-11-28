@@ -81,7 +81,7 @@ class DeterministicRunner(DynamicModel):
             self.multiplier_for_refPotET    = float(system_argument[9])  # linear scale
         
 		    # pre-multiplier for the reference potential ET
-            self.multiplier_for_manningsN   = float(system_argument[10]) # linear scale
+            multiplier_for_manningsN        = float(system_argument[10]) # linear scale
 
         # it is also possible to define prefactors via the ini/configuration file: 
         # - this will be overwrite any previous given pre-multipliers
