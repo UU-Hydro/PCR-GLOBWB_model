@@ -1117,7 +1117,7 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
     # v: inputMapFileName or floating values
     # cloneMapFileName: If the inputMap and cloneMap have different clones,
     #                   resampling will be done.   
-    logger.debug('read file/values: '+str(v))
+    logger.debug('read file/value: '+str(v))
     
     if v == "None":
         #~ PCRmap = str("None")
