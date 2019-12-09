@@ -99,6 +99,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
         try:     
             singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName, 
                                                    cloneMapFileName, LatitudeLongitude, specificFillValue)
+            iter_try = max_num_of_tries + 10
         except:     
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
@@ -220,6 +221,7 @@ def netcdf2PCRobjClone(ncFile,\
         try:     
             singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
                                         specificFillValue)
+            iter_try = max_num_of_tries + 10
         except:     
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
@@ -1141,6 +1143,7 @@ def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap =
     while iter_try < max_num_of_tries:
         try:     
             singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
+            iter_try = max_num_of_tries + 10
         except:     
             iter_try = iter_try + 1
             logger.warning("Re-try to read file/value: " + str(v))
