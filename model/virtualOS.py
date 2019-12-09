@@ -88,12 +88,28 @@ def checkVariableInNC(ncFile,varName):
     
     return varName in list(f.variables.keys())
 
-
 def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
                                   cloneMapFileName  = None,\
                                   LatitudeLongitude = True,\
                                   specificFillValue = None,\
                                   absolutePath = None):
+    
+    iter_try = 0
+    while iter_try < max_num_of_tries:
+        try:     
+            singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName, 
+                                                   cloneMapFileName, LatitudeLongitude, specificFillValue)
+        except:     
+            iter_try = iter_try + 1
+            logger.warning("Re-try to read file: " + str(ncFile))
+    
+    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
+
+def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,
+                                           cloneMapFileName  = None,\
+                                           LatitudeLongitude = True,\
+                                           specificFillValue = None,\
+                                           absolutePath = None):
     
     if absolutePath != None: ncFile = getFullPath(ncFile, absolutePath)
     
@@ -198,6 +214,25 @@ def netcdf2PCRobjClone(ncFile,\
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
                        specificFillValue = None):
+    
+    iter_try = 0
+    while iter_try < max_num_of_tries:
+        try:     
+            singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
+                                        specificFillValue)
+        except:     
+            iter_try = iter_try + 1
+            logger.warning("Re-try to read file: " + str(ncFile))
+    
+    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
+
+def singleTryNetcdf2PCRobjClone(ncFile,\
+                                varName = "automatic" ,
+                                dateInput = None,\
+                                useDoy = None,
+                                cloneMapFileName  = None,\
+                                LatitudeLongitude = True,\
+                                specificFillValue = None):
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
     # --- with clone checking
@@ -1108,7 +1143,7 @@ def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap =
             singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
         except:     
             iter_try = iter_try + 1
-            logger.warning("Re-try to read file/values: " + str(v))
+            logger.warning("Re-try to read file/value: " + str(v))
     
     if iter_try >= max_num_of_tries: logger.error("CANNOT READ file/value: " + str(v))
 
