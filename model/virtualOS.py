@@ -1219,6 +1219,8 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
     stdout = None; del stdout
     stderr = None; del stderr
     
+    pcr.aguila(PCRmap)
+    
     return PCRmap    
 
 def readPCRmapCloneOLD(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
