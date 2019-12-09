@@ -1142,8 +1142,7 @@ def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap =
     iter_try = 0
     while iter_try < max_num_of_tries:
         try:     
-            PCRmap = singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
-            return PCRmap
+            return singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
         except:     
             iter_try = iter_try + 1
             logger.warning("Re-try to read file/value: " + str(v))
