@@ -209,9 +209,9 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,
 
 
 def netcdf2PCRobjClone(ncFile,\
-                       varName = "automatic",
+                       varName = "automatic",\
                        dateInput,\
-                       useDoy = None,
+                       useDoy = None,\
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
                        specificFillValue = None):
@@ -229,9 +229,9 @@ def netcdf2PCRobjClone(ncFile,\
     if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
 
 def singleTryNetcdf2PCRobjClone(ncFile,\
-                                varName = "automatic" ,
-                                dateInput,\
-                                useDoy = None,
+                                varName = "automatic",\
+                                dateInput = None,\
+                                useDoy = None,\
                                 cloneMapFileName  = None,\
                                 LatitudeLongitude = True,\
                                 specificFillValue = None):
