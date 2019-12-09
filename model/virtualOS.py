@@ -1180,8 +1180,7 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
 
             PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile,\
                                                    varName = "automatic",\
-                                                   cloneMapFileName,
-                                                   tmpDir, absolutePath, isLddMap, cover, isNomMap)
+                                                   cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
 
         else:
             
