@@ -209,9 +209,9 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
 
 
 def netcdf2PCRobjClone(ncFile,\
-                       varName,\
-                       dateInput,\
-                       useDoy = None,\
+                       varName = "automatic" ,
+                       dateInput = None,\
+                       useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
                        specificFillValue = None):
@@ -229,8 +229,8 @@ def netcdf2PCRobjClone(ncFile,\
     if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
 
 def singleTryNetcdf2PCRobjClone(ncFile,\
-                                varName,\
-                                dateInput,\
+                                varName = "automatic" ,
+                                dateInput = None,\
                                 useDoy = None,\
                                 cloneMapFileName  = None,\
                                 LatitudeLongitude = True,\
@@ -1179,10 +1179,7 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
 
             PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile = v,\
                                                    varName = "automatic",\
-                                                   cloneMapFileName = cloneMapFileName,\
-                                                   LatitudeLongitude = True,\
-                                                   specificFillValue = None,\
-                                                   absolutePath = absolutePath)
+                                                   cloneMapFileName = cloneMapFileName)
 
         else:
             
