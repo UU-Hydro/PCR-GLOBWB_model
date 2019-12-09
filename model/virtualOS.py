@@ -1142,14 +1142,15 @@ def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap =
     iter_try = 0
     while iter_try < max_num_of_tries:
         try:     
-            singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
+            PCRmap = singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
             iter_try = max_num_of_tries + 10
         except:     
             iter_try = iter_try + 1
             logger.warning("Re-try to read file/value: " + str(v))
     
     if iter_try >= max_num_of_tries: logger.error("CANNOT READ file/value: " + str(v))
-
+    
+    return PCRmap
 
 def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap = False, cover = None, isNomMap = False):
     # v: inputMapFileName or floating values
@@ -1219,7 +1220,7 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
     stdout = None; del stdout
     stderr = None; del stderr
     
-    pcr.aguila(PCRmap)
+    #~ pcr.aguila(PCRmap)
     
     return PCRmap    
 
