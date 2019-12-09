@@ -209,8 +209,8 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,
 
 
 def netcdf2PCRobjClone(ncFile,\
-                       varName = "automatic" ,
-                       dateInput = None,\
+                       varName = "automatic",
+                       dateInput,\
                        useDoy = None,
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
@@ -230,7 +230,7 @@ def netcdf2PCRobjClone(ncFile,\
 
 def singleTryNetcdf2PCRobjClone(ncFile,\
                                 varName = "automatic" ,
-                                dateInput = None,\
+                                dateInput,\
                                 useDoy = None,
                                 cloneMapFileName  = None,\
                                 LatitudeLongitude = True,\
