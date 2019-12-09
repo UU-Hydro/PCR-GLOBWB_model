@@ -61,6 +61,9 @@ smallNumber = 1E-39
 # tuple of netcdf file suffixes (extensions) that can be used:
 netcdf_suffixes = ('.nc4','.nc')
 
+# maximum number of tries for reading files:
+max_num_of_tries = 5
+
 def getFileList(inputDir, filePattern):
     '''creates a dictionary of  files meeting the pattern specified'''
     fileNameList = glob.glob(os.path.join(inputDir, filePattern))
@@ -1097,11 +1100,25 @@ def writePCRmapToDir(v,outFileName,outDir):
     logger.debug('Writing a pcraster map to : '+str(fullFileName))
     pcr.report(v,fullFileName)
 
-def readPCRmapClone(v,cloneMapFileName,tmpDir,absolutePath=None,isLddMap=False,cover=None,isNomMap=False):
+def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap = False, cover = None, isNomMap = False):
+    
+    iter_try = 0
+    while iter_try < max_num_of_tries:
+        try:     
+            singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
+        except:     
+            iter_try = iter_try + 1
+            logger.warning("Re-try to read file/values: " + str(v))
+    
+    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file/value: " + str(v))
+
+
+def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap = False, cover = None, isNomMap = False):
     # v: inputMapFileName or floating values
     # cloneMapFileName: If the inputMap and cloneMap have different clones,
     #                   resampling will be done.   
     logger.debug('read file/values: '+str(v))
+    
     if v == "None":
         #~ PCRmap = str("None")
         PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
