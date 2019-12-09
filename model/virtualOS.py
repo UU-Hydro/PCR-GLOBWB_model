@@ -88,7 +88,7 @@ def checkVariableInNC(ncFile,varName):
     
     return varName in list(f.variables.keys())
 
-def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
+def netcdf2PCRobjCloneWithoutTime(ncFile, varName,\
                                   cloneMapFileName  = None,\
                                   LatitudeLongitude = True,\
                                   specificFillValue = None,\
@@ -97,7 +97,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     iter_try = 0
     while iter_try < max_num_of_tries:
         try:     
-            return singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName, 
+            return singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
                                                           cloneMapFileName, LatitudeLongitude, specificFillValue)
             iter_try = max_num_of_tries + 100
         except:     
@@ -106,7 +106,7 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     
     if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
 
-def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,
+def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
                                            cloneMapFileName  = None,\
                                            LatitudeLongitude = True,\
                                            specificFillValue = None,\
@@ -210,7 +210,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,
 
 def netcdf2PCRobjClone(ncFile,\
                        varName = "automatic",\
-                       dateInput = None,\
+                       dateInput,\
                        useDoy = None,\
                        cloneMapFileName  = None,\
                        LatitudeLongitude = True,\
@@ -230,7 +230,7 @@ def netcdf2PCRobjClone(ncFile,\
 
 def singleTryNetcdf2PCRobjClone(ncFile,\
                                 varName = "automatic",\
-                                dateInput = None,\
+                                dateInput,\
                                 useDoy = None,\
                                 cloneMapFileName  = None,\
                                 LatitudeLongitude = True,\
