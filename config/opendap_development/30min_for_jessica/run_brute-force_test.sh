@@ -8,6 +8,8 @@
 #SBATCH --exclusive
 #SBATCH -n 96                                                                                                                    
 
+#SBATCH -p defq                                                                                                                    
+
 #~ # mail alert at start, end and abortion of execution
 #~ #SBATCH --mail-type=ALL
 #~ 
