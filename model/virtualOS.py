@@ -216,25 +216,25 @@ def netcdf2PCRobjClone(ncFile,\
                        LatitudeLongitude = True,\
                        specificFillValue = None):
     
-    #~ iter_try = 0
-    #~ while iter_try < max_num_of_tries:
-        #~ try:     
-            #~ return singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
-                                               #~ specificFillValue)
-            #~ iter_try = max_num_of_tries + 100
-        #~ except:     
-            #~ iter_try = iter_try + 1
-            #~ logger.warning("Re-try to read file: " + str(ncFile))
-    #~ 
-    #~ if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
-#~ 
-#~ def singleTryNetcdf2PCRobjClone(ncFile,\
-                                #~ varName = "automatic" ,
-                                #~ dateInput = None,\
-                                #~ useDoy = None,\
-                                #~ cloneMapFileName  = None,\
-                                #~ LatitudeLongitude = True,\
-                                #~ specificFillValue = None):
+    iter_try = 0
+    while iter_try < max_num_of_tries:
+        try:     
+            return singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
+                                               specificFillValue)
+            iter_try = max_num_of_tries + 100
+        except:     
+            iter_try = iter_try + 1
+            logger.warning("Re-try to read file: " + str(ncFile))
+    
+    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
+
+def singleTryNetcdf2PCRobjClone(ncFile,\
+                                varName = "automatic" ,
+                                dateInput = None,\
+                                useDoy = None,\
+                                cloneMapFileName  = None,\
+                                LatitudeLongitude = True,\
+                                specificFillValue = None):
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
     # --- with clone checking
