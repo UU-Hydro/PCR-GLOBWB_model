@@ -26,11 +26,11 @@ INI_FILE_FOR_SPINUP="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_ed
 
 #~ set -x
 #~ 
-# using pcraster 4.3.0 dev
-# - activate conda env with python3 that is compatible for running pcrglobwb (using pcraster >= 4.2.1)
-source activate py3_pcrglobwb_fixing
-# - using pcraster 4.3 development version (NOTE: continuously developed/compiled by Oliver)
-source /scratch/depfg/pcraster/pcraster-4.3.0.sh
+#~ # using pcraster 4.3.0 dev
+#~ # - activate conda env with python3 that is compatible for running pcrglobwb (using pcraster >= 4.2.1)
+#~ source activate py3_pcrglobwb_fixing
+#~ # - using pcraster 4.3 development version (NOTE: continuously developed/compiled by Oliver)
+#~ source /scratch/depfg/pcraster/pcraster-4.3.0.sh
 
 # test pcraster
 pcrcalc
