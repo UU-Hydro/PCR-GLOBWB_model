@@ -24,8 +24,8 @@ PCRGLOBWB_SCRIPTDIR="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_ed
 INI_FILE_FOR_SPINUP="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force_spinup.ini"
 
 
-set -x
-
+#~ set -x
+#~ 
 # using pcraster 4.3.0 dev
 # - activate conda env with python3 that is compatible for running pcrglobwb (using pcraster >= 4.2.1)
 source activate py3_pcrglobwb_fixing
@@ -56,4 +56,4 @@ wait
 
 
 
-set +x
+#~ set +x
