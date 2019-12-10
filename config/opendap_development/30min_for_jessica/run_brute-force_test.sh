@@ -21,8 +21,9 @@
 # SET THE VARIABLES
 ####################################################################################
 PCRGLOBWB_SCRIPTDIR="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
-INI_FILE_FOR_SPINUP="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force_spinup.ini"
 MAIN_PCR_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb2_output_test_opendap_with_jessica/test_brute_force/"
+INI_FILE_FOR_SPINUP="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force_spinup.ini"
+INI_FILE_FOR_ACTUAL="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force.ini"
 
 #~ set -x
 
@@ -64,14 +65,14 @@ wait
 
 # start the actual run
 echo "START ACTUAL RUNS"
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_1 0.5 -0.5 -0.5 1.0 0.5 1.0 0.5 ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_2 0.5 -0.5-0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_3 0.5 -0.5 0 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_4 0.5 -0.5 0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_5 0.5 -0.5 54 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_6 0.5 0 -0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_7 0.5 0 0 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
-python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug actual_test_8 0.5 0 0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_1 0.5 -0.5 -0.5 1.0 0.5 1.0 0.5 ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_2 0.5 -0.5-0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_3 0.5 -0.5 0 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_4 0.5 -0.5 0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_5 0.5 -0.5 54 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_6 0.5 0 -0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_7 0.5 0 0 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_ACTUAL} no_debug actual_test_8 0.5 0 0.5 1.0 0.5 1.0 0.5  ${MAIN_PCR_OUTPUT_DIR}/spinup_test_1/netcdf/estimate_of_initial_storGroundwater.map &
 wait
 
 #~ set +x
