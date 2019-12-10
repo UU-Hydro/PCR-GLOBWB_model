@@ -16,10 +16,12 @@
 #~ # send mail to this address
 #~ #SBATCH --mail-user=edwinkost@gmail.com
 
+
 ####################################################################################
 # SET THE VARIABLES
 ####################################################################################
-INI_FILE_FOR_SPINUP=/home/edwinhs/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force_spinup.ini
+PCRGLOBWB_SCRIPTDIR="~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+INI_FILE_FOR_SPINUP="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/opendap_development/30min_for_jessica/setup_30min_RM_using-local-files_version_2019_10_beta_1_on_eejit_brute-force_spinup.ini"
 
 
 set -x
@@ -34,7 +36,8 @@ source /scratch/depfg/pcraster/pcraster-4.3.0.sh
 pcrcalc
 
 # go to the script directory
-cd ~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
+cd ${PCRGLOBWB_SCRIPTDIR}
+pwd
 
 # start the spin-up run
 python deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} spinup_test_1 0.5 -0.5 -0.5 1.0 0.5 1.0 0.5 Default &
