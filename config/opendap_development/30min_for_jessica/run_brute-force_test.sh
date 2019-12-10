@@ -40,17 +40,17 @@ pcrcalc
 cd ${PCRGLOBWB_SCRIPTDIR}
 pwd
 
-#~ # start the spin-up run
-#~ echo "START SPINUP RUNS"
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_1 0.5 -0.5 -0.5 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_2 0.5 -0.5-0.5 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_3 0.5 -0.5 0 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_4 0.5 -0.5 0.5 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_5 0.5 -0.5 54 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_6 0.5 0 -0.5 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_7 0.5 0 0 1.0 0.5 1.0 0.5 Default &
-#~ python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_8 0.5 0 0.5 1.0 0.5 1.0 0.5 Default &
-#~ wait
+# start the spin-up run
+echo "START SPINUP RUNS"
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_1 0.5 -0.5 -0.5 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_2 0.5 -0.5-0.5 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_3 0.5 -0.5 0 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_4 0.5 -0.5 0.5 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_5 0.5 -0.5 54 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_6 0.5 0 -0.5 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_7 0.5 0 0 1.0 0.5 1.0 0.5 Default &
+python3 deterministic_runner_glue_with_parallel_and_modflow_options_for_jessica.py ${INI_FILE_FOR_SPINUP} no_debug spinup_test_8 0.5 0 0.5 1.0 0.5 1.0 0.5 Default &
+wait
 
 # get the initial storGroundwater based on the spin-up
 echo "CALCULATE GROUNDWATER STORAGE INITIAL"
