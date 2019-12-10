@@ -20,7 +20,7 @@ cd ${SUB_PCR_OUTPUT_DIR}
 cd netcdf
 
 # copy the reccession coefficient used
-cp ${MAIN_PCR_OUTPUT_DIR}/{SUB_PCR_OUTPUT_DIR}/maps/globalalpha.map .
+cp ${MAIN_PCR_OUTPUT_DIR}/${SUB_PCR_OUTPUT_DIR}/maps/globalalpha.map .
 
 # convert nc to map
 gdal_translate -of PCRaster gwRecharge_annuaAvg_output.nc gwRecharge_annuaAvg_output.map
