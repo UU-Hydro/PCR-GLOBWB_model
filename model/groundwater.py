@@ -335,9 +335,13 @@ class Groundwater(object):
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
             self.allocSegments = pcr.clump(self.allocSegments)
 
-            # extrapolate it 
-            self.allocSegments = pcr.cover(self.allocSegments, \
-                                           pcr.windowmajority(self.allocSegments, 0.5))
+            extrapolate = True
+            if "noParameterExtrapolation" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["noParameterExtrapolation"] == "True": extrapolate = False
+            if extrapolate:
+                # extrapolate it 
+                self.allocSegments = pcr.cover(self.allocSegments, \
+                                               pcr.windowmajority(self.allocSegments, 0.5))
+
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
             
             # clump it and cover the rests with cell ids 
