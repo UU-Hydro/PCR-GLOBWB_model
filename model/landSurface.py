@@ -644,7 +644,9 @@ class LandSurface(object):
                                     iniItems.landSurfaceOptions['irrigationEfficiency'],
                                     self.cloneMap,self.tmpDir,self.inputDir)
 
-        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+        extrapolate = True
+        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+        if extrapolate:
 
              # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
 
