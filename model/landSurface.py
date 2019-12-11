@@ -109,7 +109,7 @@ class LandSurface(object):
         self.tmpDir   = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
-
+        
         # cellArea (unit: m2)
         self.cellArea = vos.readPCRmapClone(iniItems.routingOptions['cellAreaMap'], \
                                             self.cloneMap, self.tmpDir, self.inputDir)
@@ -730,19 +730,23 @@ class LandSurface(object):
 
         # Fill cells with pristineAreaFrac < 0.0 - with window average value within 0.5 and 1.5 degree
         for coverType in self.coverTypes:         
+
             if not coverType.startswith('irr'):
 
-                filled_fractions = pcr.windowaverage(self.landCoverObj[coverType].fracVegCover,0.5)
-                filled_fractions = pcr.cover(filled_fractions,\
-                                   pcr.windowaverage(self.landCoverObj[coverType].fracVegCover,1.5))
-                filled_fractions = pcr.max(0.0, filled_fractions)
-                filled_fractions = pcr.min(1.0, filled_fractions)
+                extrapolate = True
+                if "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+                if extrapolate:
+                    filled_fractions = pcr.windowaverage(self.landCoverObj[coverType].fracVegCover,0.5)
+                    filled_fractions = pcr.cover(filled_fractions,\
+                                       pcr.windowaverage(self.landCoverObj[coverType].fracVegCover,1.5))
+                    filled_fractions = pcr.max(0.0, filled_fractions)
+                    filled_fractions = pcr.min(1.0, filled_fractions)
                 
-                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(pristineAreaFrac >= 0.0, self.landCoverObj[coverType].fracVegCover)
-                self.landCoverObj[coverType].fracVegCover = pcr.cover(\
-                                                            self.landCoverObj[coverType].fracVegCover,filled_fractions)
-                self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask,\
-                                                            self.landCoverObj[coverType].fracVegCover)                                            
+                    self.landCoverObj[coverType].fracVegCover = pcr.ifthen(pristineAreaFrac >= 0.0, self.landCoverObj[coverType].fracVegCover)
+                    self.landCoverObj[coverType].fracVegCover = pcr.cover(\
+                                                                self.landCoverObj[coverType].fracVegCover,filled_fractions)
+                    self.landCoverObj[coverType].fracVegCover = pcr.ifthen(self.landmask,\
+                                                                self.landCoverObj[coverType].fracVegCover)                                            
 
         # re-check total land cover fractions
         pristineAreaFrac = 0.0
