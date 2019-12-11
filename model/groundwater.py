@@ -225,16 +225,23 @@ class Groundwater(object):
             totalGroundwaterThickness = vos.readPCRmapClone(iniItems.groundwaterOptions['estimateOfTotalGroundwaterThickness'],
                                                             self.cloneMap, self.tmpDir, self.inputDir)
 
-            # extrapolation of totalGroundwaterThickness
-            # - TODO: Make a general extrapolation option as a function in the virtualOS.py
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 0.75))
-            totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                        pcr.windowaverage(totalGroundwaterThickness, 1.00))
+            extrapolateGroundwaterThickness = True
+            if "doNotExtrapolateThickness" in iniItems.groundwaterOptions.keys() and \
+                                              iniItems.groundwaterOptions["doNotExtrapolateThickness"] == "True":  
+                extrapolateGroundwaterThickness = False
+            
+            if extrapolateGroundwaterThickness:
+                # extrapolation of totalGroundwaterThickness
+                # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                            pcr.windowaverage(totalGroundwaterThickness, 1.00))
+
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
 
             # set minimum thickness
