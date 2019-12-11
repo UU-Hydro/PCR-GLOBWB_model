@@ -118,7 +118,9 @@ class SoilAndTopoParameters(object):
                 if input == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 
 
-                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+                extrapolate = True
+                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+                if extrapolate:
 
                     # extrapolation 
                     # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
@@ -148,7 +150,9 @@ class SoilAndTopoParameters(object):
 
                 if var == "percolationImp": vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+                extrapolate = True
+                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+                if extrapolate:
 
                     # extrapolation 
                     # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
@@ -243,7 +247,9 @@ class SoilAndTopoParameters(object):
                                      soilPropertiesNC,var, \
                                      cloneMapFileName = self.cloneMap)
 
-                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+                extrapolate = True
+                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+                if extrapolate:
 
                      # extrapolation 
                      # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
