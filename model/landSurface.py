@@ -110,6 +110,9 @@ class LandSurface(object):
         self.inputDir = iniItems.globalOptions['inputDir']
         self.landmask = landmask
         
+        # make iniItems available for the other methods/functions:
+        self.iniItems = iniItems
+
         # cellArea (unit: m2)
         self.cellArea = vos.readPCRmapClone(iniItems.routingOptions['cellAreaMap'], \
                                             self.cloneMap, self.tmpDir, self.inputDir)
@@ -381,9 +384,6 @@ class LandSurface(object):
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
         
-        # make iniItems available for the other methods/functions:
-        self.iniItems = iniItems
-
 
     def initiate_old_style_land_surface_reporting(self,iniItems):
 
