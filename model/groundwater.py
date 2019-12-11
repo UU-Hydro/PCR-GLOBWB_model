@@ -230,6 +230,8 @@ class Groundwater(object):
                                               iniItems.groundwaterOptions["doNotExtrapolateThickness"] == "True":  
                 extrapolateGroundwaterThickness = False
             
+            if "noParameterExtrapolation" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["noParameterExtrapolation"] == "True": extrapolateGroundwaterThickness = False
+
             if extrapolateGroundwaterThickness:
                 # extrapolation of totalGroundwaterThickness
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py
