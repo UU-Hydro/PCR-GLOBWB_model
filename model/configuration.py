@@ -208,7 +208,10 @@ class Configuration(object):
         # - path
         logger.info('PATH=%s', os.environ["PATH"])        
         # - pythonpath
-        logger.info('PYTHONPATH=%s', os.environ["PYTHONPATH"])        
+        if "PYTHONPATH" in os.environ.keys(): 
+            logger.info('PYTHONPATH=%s', os.environ["PYTHONPATH"])        
+        else:
+            logger.info('PYTHONPATH=%s', "N/A")        
         # - hostname
         logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
         # - PCRaster NUMBER_OF_WORKING_THREADS        
