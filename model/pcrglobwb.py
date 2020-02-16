@@ -195,30 +195,30 @@ class PCRGlobWB(object):
 
             # set all accumulated variables to zero
 
-            self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.scalar(0.0)) 
+            self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)() 
 
-            for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.scalar(0.0))            
+            for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))            
 
-            self.baseflowAcc                  = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.baseflowAcc                  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
-            self.surfaceWaterInfAcc           = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.surfaceWaterInfAcc           = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
-            self.runoffAcc                    = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.unmetDemandAcc               = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.runoffAcc                    = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+            self.unmetDemandAcc               = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
-            self.waterBalanceAcc              = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.absWaterBalanceAcc           = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.waterBalanceAcc              = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+            self.absWaterBalanceAcc           = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
             # non irrigation water use (unit: m) 
-            self.nonIrrigationWaterUseAcc     = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.nonIrrigationWaterUseAcc     = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
             
             # non irrigation return flow to water body and water body evaporation (unit: m) 
-            self.nonIrrReturnFlowAcc          = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.waterBodyEvaporationAcc      = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.nonIrrReturnFlowAcc          = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+            self.waterBodyEvaporationAcc      = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
             # surface water input/loss volume (m3) and outgoing volume (m3) at pits 
-            self.surfaceWaterInputAcc         = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-            self.dischargeAtPitAcc            = pcr.ifthen(self.landmask, pcr.scalar(0.0))
+            self.surfaceWaterInputAcc         = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+            self.dischargeAtPitAcc            = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
             
             # also save the storages at the first day of the year (or the first time step)
             # - land surface storage (unit: m)
