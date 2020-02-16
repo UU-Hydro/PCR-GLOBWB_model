@@ -191,7 +191,7 @@ class WaterBodies(object):
         # boolean map for water body outlets:   
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyOut) > 0.,\
-                            pcr.boolean(1))
+                            pcr.spatial(pcr.boolean(1)))
 
         # reservoir surface area (m2):
         if self.useNetCDF:
