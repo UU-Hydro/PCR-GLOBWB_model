@@ -267,7 +267,7 @@ class Groundwater(object):
         # extent of the productive aquifer (a boolean map)
         # - Principle: In non-productive aquifer areas, no capillary rise and groundwater abstraction should not exceed recharge
         #
-        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.boolean(1.0))
+        self.productive_aquifer = pcr.ifthen(self.landmask, pcr.spatial(pcr.boolean(1.0)))
         excludeUnproductiveAquifer = True
         if excludeUnproductiveAquifer:
             if 'minimumTransmissivityForProductiveAquifer' in list(iniItems.groundwaterOptions.keys()) and\
