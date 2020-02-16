@@ -611,7 +611,7 @@ class Routing(object):
                                               pcr.areaaverage(characteristicDistance, self.WaterBodies.waterBodyIds))
         #
         # - make sure that all outflow will be released outside lakes and reservoirs
-        outlets = pcr.cover(pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyOut) > 0, pcr.boolean(1)), pcr.boolean(0))
+        outlets = pcr.cover(pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyOut) > 0, pcr.spatial(pcr.boolean(1))), pcr.spatial(pcr.boolean(0)))
         distance_to_outlets = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
                               pcr.ldddist(self.lddMap, outlets, pcr.scalar(1.0)))
         #~ lakeReservoirCharacteristicDistance = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
