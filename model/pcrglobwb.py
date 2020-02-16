@@ -195,7 +195,7 @@ class PCRGlobWB(object):
 
             # set all accumulated variables to zero
 
-            self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)() 
+            self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0))) 
 
             for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))            
 
