@@ -796,10 +796,10 @@ class Reporting(object):
         
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
-        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
-        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
-        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
-        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.precipitation_at_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
+        self.netLqWaterToSoil_at_irrigation = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
+        self.evaporation_from_irrigation    = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
+        self.transpiration_from_irrigation  = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
         if self._model.landSurface.includeIrrigation:
             self.precipitation_at_irrigation    = self._model.meteo.precipitation * \
                                                   self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
@@ -875,14 +875,14 @@ class Reporting(object):
                       #~ pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
         #              
         # flood innundation depth (unit: m) above the floodplain
-        self.floodDepth = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.floodDepth = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
         if self._model.routing.floodPlain:
            self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
                                 self._model.routing.floodDepth, 0.0))
         #               
         # flood volume (unit: m3): excess above the channel storage capacity
-        self.floodVolume = pcr.ifthen(self._model.routing.landmask, pcr.scalar(0.0))
+        self.floodVolume = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
         if self._model.routing.floodPlain:
            self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
