@@ -149,11 +149,9 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,
     factor = 1                                 # needed in regridData2FinerGrid
     if sameClone == False:
         # crop to cloneMap:
-        minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
-        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
+        xIdxSta = np.argmin(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)))
         xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
-        minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
-        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
+        yIdxSta = np.argmin(abs(f.variables['lat'][:] - (xULClone - 0.5*cellsizeInput)))
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
