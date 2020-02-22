@@ -1503,7 +1503,7 @@ def getMapTotalHighPrecisionButOnlyForPositiveValues_NEEDMORETEST(mapFile):
         remainingMapValue = pcr.max(0.0, remainingMapValue - currentCellValue)
         
     # sum from the smallest values (minimizing numerical errors)
-    total = pcr.scalar(0.0)
+    total = pcr.spatial(pcr.scalar(0.0))
     for power_number in range(min_power_number, max_power_number + step, step):
         total += total_map_for_every_power_number[str(power_number)]
 

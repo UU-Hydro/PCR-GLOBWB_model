@@ -134,7 +134,7 @@ class WaterBodies(object):
             year_used = self.dateForNaturalCondition[0:4] 
         
         # fracWat = fraction of surface water bodies (dimensionless)
-        self.fracWat = pcr.scalar(0.0)
+        self.fracWat = pcr.spatial(pcr.scalar(0.0))
         
         if self.useNetCDF:
             self.fracWat = vos.netcdf2PCRobjClone(self.ncFileInp,'fracWaterInp', \
