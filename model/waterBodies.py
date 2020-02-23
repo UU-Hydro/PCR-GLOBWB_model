@@ -145,13 +145,13 @@ class WaterBodies(object):
                            self.fracWaterInp+str(year_used)+".map",
                            self.cloneMap,self.tmpDir,self.inputDir)
         
-        self.fracWat = pcr.cover(self.fracWat, 0.0)
+        self.fracWat = pcr.cover(self.fracWat, pcr.spatial(pcr.scalar(0.0)))
         self.fracWat = pcr.max(0.0,self.fracWat)
         self.fracWat = pcr.min(1.0,self.fracWat)
         
-        self.waterBodyIds  = pcr.nominal(0)    # waterBody ids
-        self.waterBodyOut  = pcr.boolean(0)    # waterBody outlets
-        self.waterBodyArea = pcr.scalar(0.)    # waterBody surface areas
+        self.waterBodyIds  = pcr.spatial(pcr.nominal(0))    # waterBody ids
+        self.waterBodyOut  = pcr.spatial(pcr.boolean(0))    # waterBody outlets
+        self.waterBodyArea = pcr.spatial(pcr.scalar(0.))    # waterBody surface areas
 
         # water body ids
         if self.useNetCDF:
