@@ -13,6 +13,8 @@
 # send mail to this address
 #SBATCH --mail-user=edwinkost@gmail.com
 
+
+
 conda activate pcrglobwb_py3_env_v20200128
 
 pcrcalc
@@ -24,6 +26,4 @@ cd /quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-develo
 python deterministic_runner.py ..config/opendap_development/30sec_african_countries/whole_africa/setup_30sec_africa.ini
 
 pcrcalc
-
-
 
