@@ -24,7 +24,7 @@ export PCRASTER_NR_WORKER_THREADS=36
 
 cd /quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
-python deterministic_runner.py ../config/opendap_development/30sec_african_countries/whole_africa/setup_30sec_africa.ini
+python deterministic_runner.py ../config/opendap_development/30sec_african_countries/whole_africa/setup_30sec_africa.ini debug
 
 pcrcalc
 
