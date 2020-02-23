@@ -14,6 +14,7 @@
 #SBATCH --mail-user=edwinkost@gmail.com
 
 
+set -x
 
 conda activate pcrglobwb_py3_env_v20200128
 
@@ -27,3 +28,4 @@ python deterministic_runner.py ..config/opendap_development/30sec_african_countr
 
 pcrcalc
 
+set +x
