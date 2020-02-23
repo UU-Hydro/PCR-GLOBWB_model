@@ -16,7 +16,7 @@
 
 set -x
 
-conda activate pcrglobwb_py3_env_v20200128
+source activate pcrglobwb_py3_env_v20200128
 
 pcrcalc
 
