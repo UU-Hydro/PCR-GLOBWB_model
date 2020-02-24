@@ -20,7 +20,7 @@ source activate pcrglobwb_py3_env_v20200128
 
 pcrcalc
 
-export PCRASTER_NR_WORKER_THREADS=88
+#~ export PCRASTER_NR_WORKER_THREADS=88
 
 cd /quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
