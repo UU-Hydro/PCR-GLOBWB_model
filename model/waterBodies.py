@@ -75,6 +75,7 @@ class WaterBodies(object):
             self.dateForNaturalCondition = "1900-01-01"                  # The run for a natural condition should access only this date.   
         
         # names of files containing water bodies parameters
+        self.useNetCDF = True
         if iniItems.routingOptions['waterBodyInputNC'] == str(None):
             self.useNetCDF = False
             self.fracWaterInp    = iniItems.routingOptions['fracWaterInp']
@@ -146,8 +147,8 @@ class WaterBodies(object):
                            self.cloneMap,self.tmpDir,self.inputDir)
         
         self.fracWat = pcr.cover(self.fracWat, pcr.spatial(pcr.scalar(0.0)))
-        self.fracWat = pcr.max(0.0,self.fracWat)
-        self.fracWat = pcr.min(1.0,self.fracWat)
+        self.fracWat = pcr.max(0.0, self.fracWat)
+        self.fracWat = pcr.min(1.0, self.fracWat)
         
         self.waterBodyIds  = pcr.spatial(pcr.nominal(0))    # waterBody ids
         self.waterBodyOut  = pcr.spatial(pcr.boolean(0))    # waterBody outlets
