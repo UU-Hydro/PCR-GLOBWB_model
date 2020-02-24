@@ -62,7 +62,7 @@ smallNumber = 1E-39
 netcdf_suffixes = ('.nc4','.nc')
 
 # maximum number of tries for reading files:
-max_num_of_tries = 5
+max_num_of_tries = 10
 
 def getFileList(inputDir, filePattern):
     '''creates a dictionary of  files meeting the pattern specified'''
@@ -104,7 +104,10 @@ def netcdf2PCRobjCloneWithoutTime(ncFile, varName,\
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
     
-    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
+    if iter_try >= max_num_of_tries:
+        logger.error("CANNOT READ file: " + str(ncFile))
+        return singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
+                                                      cloneMapFileName, LatitudeLongitude, specificFillValue)
 
 def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
                                            cloneMapFileName  = None,\
@@ -226,7 +229,10 @@ def netcdf2PCRobjClone(ncFile,\
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
     
-    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file: " + str(ncFile))
+    if iter_try >= max_num_of_tries:
+        logger.error("CANNOT READ file: " + str(ncFile))
+        return singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
+                                           specificFillValue)
 
 def singleTryNetcdf2PCRobjClone(ncFile,\
                                 varName = "automatic" ,
