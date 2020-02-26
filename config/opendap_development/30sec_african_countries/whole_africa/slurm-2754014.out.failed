@@ -1,0 +1,1049 @@
++ source activate pcrglobwb_py3_env_v20200128
+++ _CONDA_ROOT=/quanta1/home/sutan101/opt/miniconda3
+++ . /quanta1/home/sutan101/opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/conda
++++ CONDA_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/python
++++ '[' -z x ']'
+++ conda activate pcrglobwb_py3_env_v20200128
+++ '[' 2 -lt 1 ']'
+++ local cmd=activate
+++ shift
+++ case "$cmd" in
+++ __conda_activate activate pcrglobwb_py3_env_v20200128
+++ '[' -n '' ']'
+++ local cmd=activate
+++ shift
+++ local ask_conda
+++ OLDPATH=/quanta1/home/sutan101/opt/miniconda3/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
+++ __add_sys_prefix_to_path
+++ '[' -n '' ']'
++++ dirname /quanta1/home/sutan101/opt/miniconda3/bin/conda
+++ SYSP=/quanta1/home/sutan101/opt/miniconda3/bin
++++ dirname /quanta1/home/sutan101/opt/miniconda3/bin
+++ SYSP=/quanta1/home/sutan101/opt/miniconda3
+++ '[' -n '' ']'
+++ PATH=/quanta1/home/sutan101/opt/miniconda3/bin:/quanta1/home/sutan101/opt/miniconda3/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
+++ export PATH
++++ PS1=
++++ /quanta1/home/sutan101/opt/miniconda3/bin/conda shell.posix activate pcrglobwb_py3_env_v20200128
+++ ask_conda='PS1='\''(pcrglobwb_py3_env_v20200128) '\''
+export PATH='\''/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin'\''
+export CONDA_PREFIX='\''/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''pcrglobwb_py3_env_v20200128'\''
+export CONDA_PROMPT_MODIFIER='\''(pcrglobwb_py3_env_v20200128) '\''
+export CONDA_EXE='\''/quanta1/home/sutan101/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/quanta1/home/sutan101/opt/miniconda3/bin/python'\''
+export CONDA_PREFIX_1='\''/quanta1/home/sutan101/opt/miniconda3'\''
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/gdal-activate.sh"
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/geotiff-activate.sh"
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/proj4-activate.sh"'
+++ PATH=/quanta1/home/sutan101/opt/miniconda3/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
+++ eval 'PS1='\''(pcrglobwb_py3_env_v20200128) '\''
+export PATH='\''/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin'\''
+export CONDA_PREFIX='\''/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''pcrglobwb_py3_env_v20200128'\''
+export CONDA_PROMPT_MODIFIER='\''(pcrglobwb_py3_env_v20200128) '\''
+export CONDA_EXE='\''/quanta1/home/sutan101/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/quanta1/home/sutan101/opt/miniconda3/bin/python'\''
+export CONDA_PREFIX_1='\''/quanta1/home/sutan101/opt/miniconda3'\''
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/gdal-activate.sh"
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/geotiff-activate.sh"
+. "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/proj4-activate.sh"'
++++ PS1='(pcrglobwb_py3_env_v20200128) '
++++ export PATH=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
++++ PATH=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
++++ export CONDA_PREFIX=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128
++++ CONDA_PREFIX=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128
++++ export CONDA_SHLVL=2
++++ CONDA_SHLVL=2
++++ export CONDA_DEFAULT_ENV=pcrglobwb_py3_env_v20200128
++++ CONDA_DEFAULT_ENV=pcrglobwb_py3_env_v20200128
++++ export 'CONDA_PROMPT_MODIFIER=(pcrglobwb_py3_env_v20200128) '
++++ CONDA_PROMPT_MODIFIER='(pcrglobwb_py3_env_v20200128) '
++++ export CONDA_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/conda
++++ CONDA_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/quanta1/home/sutan101/opt/miniconda3/bin/python
++++ export CONDA_PREFIX_1=/quanta1/home/sutan101/opt/miniconda3
++++ CONDA_PREFIX_1=/quanta1/home/sutan101/opt/miniconda3
++++ . /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/gdal-activate.sh
+++++ [[ -n '' ]]
+++++ [[ -n '' ]]
+++++ '[' -d /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/gdal ']'
+++++ export GDAL_DATA=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/gdal
+++++ GDAL_DATA=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/gdal
+++++ export GDAL_DRIVER_PATH=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/gdalplugins
+++++ GDAL_DRIVER_PATH=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/gdalplugins
+++++ [[ ! -d /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/gdalplugins ]]
+++++ unset GDAL_DRIVER_PATH
+++++ export CPL_ZIP_ENCODING=UTF-8
+++++ CPL_ZIP_ENCODING=UTF-8
++++ . /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/geotiff-activate.sh
+++++ [[ -n '' ]]
+++++ '[' -d /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/epsg_csv ']'
+++++ '[' -d /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/Library/share/epsg_csv ']'
++++ . /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/etc/conda/activate.d/proj4-activate.sh
+++++ [[ -n '' ]]
+++++ '[' -d /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/proj ']'
+++++ export PROJ_LIB=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/proj
+++++ PROJ_LIB=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/share/proj
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ pcrcalc
+pcrcalc 4.3.0-rc1 (linux/x86_64)
+ USAGE: pcrcalc [options] "expression"
+ or     pcrcalc [options] -f scriptFile
+  ( or #!: pcrcalc -F [options]+)
+ other flags:
+  s #  : set seed (integer > 0) for random generator
+         default is based on current time
+  b f  : overrule script bindings
+  1    : update timeseries files at end of each timestep
+  r f  : set run directory
+  d f  : debug mode, check MV creation on assignment
+          comparing against clone or areamap boolean mask
+  c    : strict Case significant filename check (Unix portability)
+  p    : print profile information
+  m    : optimize with areamap MV compression
+  l    : use less memory but more temporary disk storage
+  t    : test argument substitution
++ export PCRASTER_NR_WORKER_THREADS=88
++ PCRASTER_NR_WORKER_THREADS=88
++ cd /quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
++ python deterministic_runner.py ../config/opendap_development/30sec_african_countries/whole_africa/setup_30sec_africa.ini debug
+2020-02-25 00:28:25,394 disclaimer INFO 
+
+ PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model                       
+
+ Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada,     
+ Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch,
+ Kor de Jong, Derek Karssenberg, Patricia Lopez Lopez, Stefanie Pessenteiner, Oliver Schmitz,
+ Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens            
+ Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands                       
+
+ This program comes with ABSOLUTELY NO WARRANTY                                             
+ This is free software, and you are welcome to redistribute it under certain conditions     
+ See the LICENSE file for more details                                                      
+
+
+2020-02-25 00:28:25,478 configuration INFO Model run started at 2020-02-25 00:28:24.680616
+2020-02-25 00:28:25,479 configuration INFO Logging output to /scratch/depfg/sutan101/pcrglobwb2_output_africa/30sec_africa_version_20200218_without_multicore/log/setup_30sec_africa.ini_2020-02-25T00.28.24.680616.log
+2020-02-25 00:28:25,479 configuration INFO Debugging output to /scratch/depfg/sutan101/pcrglobwb2_output_africa/30sec_africa_version_20200218_without_multicore/log/setup_30sec_africa.ini_2020-02-25T00.28.24.680616.dbg
+2020-02-25 00:28:25,489 configuration INFO OS platform: Linux
+2020-02-25 00:28:25,489 configuration INFO OS relesase: 3.10.0-862.9.1.el7.x86_64
+2020-02-25 00:28:25,490 configuration INFO Python version:
+3.8.1 | packaged by conda-forge | (default, Jan  5 2020, 20:58:18) 
+[GCC 7.3.0]
+2020-02-25 00:28:25,546 configuration INFO PCRaster version (output from pcrcalc): see the file /scratch/depfg/sutan101/pcrglobwb2_output_africa/30sec_africa_version_20200218_without_multicore/log/setup_30sec_africa.ini_2020-02-25T00.28.24.680616_pcrcalc_output.txt
+2020-02-25 00:28:25,547 configuration INFO PATH=/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/bin:/quanta1/home/sutan101/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ibutils/bin:/quanta1/home/sutan101/.local/bin:/quanta1/home/sutan101/bin
+2020-02-25 00:28:25,548 configuration INFO PYTHONPATH=N/A
+2020-02-25 00:28:25,548 configuration INFO HOSTNAME: node009
+2020-02-25 00:28:25,549 configuration INFO PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): 88
+2020-02-25 00:28:25,692 configuration WARNING The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. We assume "False" for this option.
+2020-02-25 00:28:25,692 configuration WARNING The option "maximumDailyGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. This run assumes "0.050 m/day" for this option.
+2020-02-25 00:28:25,693 configuration WARNING The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "groundwaterOptions" of the configuration file. This run assumes "0.020 m/day" for this option.
+2020-02-25 00:28:25,693 configuration WARNING The option "prioritizeLocalSourceToMeetWaterDemand" is not defined in the "landSurfaceOptions" of the configuration file. We assume "True" for this option. Local water sources are first used before abstracting water from neighboring cells.
+2020-02-25 00:28:25,694 __main__ INFO Spin-Up #Total Years: 3
+2020-02-25 00:28:25,695 __main__ INFO Spin-Up Run No. 1
+2020-02-25 00:28:25,788 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/global_hydrosheds_ldd.map
+2020-02-25 00:28:50,911 meteo INFO Temperature forcing will be downscaled to the cloneMap resolution.
+2020-02-25 00:28:50,913 virtualOS DEBUG read file/value: global_30sec/landSurface/topography/global_merit_dem_30sec/global_merit_dem_30sec.map
+2020-02-25 00:29:17,161 virtualOS DEBUG read file/value: global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
+2020-02-25 00:29:17,163 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
+2020-02-25 00:29:17,164 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
+2020-02-25 00:29:17,191 virtualOS DEBUG reading variable: uniqueIds_30min_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
+2020-02-25 00:29:17,241 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:29:18,097 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/cellsize30sec.map
+2020-02-25 00:29:58,468 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/cellsize30sec.map
+2020-02-25 00:30:27,297 landSurface INFO Irrigation is NOT included/considered in this run.
+2020-02-25 00:30:27,298 landSurface INFO Domestic water demand is included in the calculation.
+2020-02-25 00:30:27,299 landSurface INFO Industry water demand is included in the calculation.
+2020-02-25 00:30:27,299 landSurface INFO Livestock water demand is included in the calculation.
+2020-02-25 00:30:27,299 landSurface INFO Using the dynamicIrrigationArea option. Extent of irrigation areas is based on the file provided in the 'historicalIrrigationArea'.
+2020-02-25 00:30:27,300 virtualOS DEBUG read file/value: global_30min/waterUse/irrigation/irrigation_efficiency/efficiency.nc
+2020-02-25 00:30:27,300 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/irrigation/irrigation_efficiency/efficiency.nc
+2020-02-25 00:30:27,300 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/irrigation/irrigation_efficiency/efficiency.nc
+2020-02-25 00:30:27,446 virtualOS DEBUG reading variable: efficiency_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/irrigation/irrigation_efficiency/efficiency.nc
+2020-02-25 00:30:27,497 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:28,720 landSurface INFO Monthly desalination water is included.
+2020-02-25 00:30:28,723 landSurface INFO If there is any, water demand is satisfied by local source only.
+2020-02-25 00:30:28,723 landSurface INFO Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand.
+2020-02-25 00:30:28,724 virtualOS DEBUG read file/value: global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_SWFRAC.nc
+2020-02-25 00:30:28,725 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_SWFRAC.nc
+2020-02-25 00:30:28,725 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_SWFRAC.nc
+2020-02-25 00:30:28,766 virtualOS DEBUG reading variable: AEI_SWFRAC_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_SWFRAC.nc
+2020-02-25 00:30:28,941 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:29,879 virtualOS DEBUG read file/value: global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
+2020-02-25 00:30:29,879 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
+2020-02-25 00:30:29,880 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
+2020-02-25 00:30:29,900 virtualOS DEBUG reading variable: AEI_QUAL_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
+2020-02-25 00:30:30,058 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:30,986 landSurface INFO Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.
+2020-02-25 00:30:30,986 virtualOS DEBUG read file/value: global_30min/waterUse/source_partitioning/surface_water_fraction_for_non_irrigation/max_city_sw_fraction.nc
+2020-02-25 00:30:30,987 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/source_partitioning/surface_water_fraction_for_non_irrigation/max_city_sw_fraction.nc
+2020-02-25 00:30:30,987 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/source_partitioning/surface_water_fraction_for_non_irrigation/max_city_sw_fraction.nc
+2020-02-25 00:30:31,006 virtualOS DEBUG reading variable: max_city_sw_fraction_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/source_partitioning/surface_water_fraction_for_non_irrigation/max_city_sw_fraction.nc
+2020-02-25 00:30:31,067 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:31,976 virtualOS DEBUG read file/value: 0.50
+2020-02-25 00:30:32,014 virtualOS DEBUG read file/value: 0.70
+2020-02-25 00:30:32,051 virtualOS DEBUG reading variable: tanslope from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:32,318 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:33,216 virtualOS DEBUG reading variable: slopeLength from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:33,398 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:34,159 virtualOS DEBUG reading variable: orographyBeta from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:34,259 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:35,267 virtualOS DEBUG reading variable: dzRel0001 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:35,464 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:36,301 virtualOS DEBUG reading variable: dzRel0005 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:36,591 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:37,529 virtualOS DEBUG reading variable: dzRel0010 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:37,649 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:38,602 virtualOS DEBUG reading variable: dzRel0020 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:38,720 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:39,706 virtualOS DEBUG reading variable: dzRel0030 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:39,818 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:40,729 virtualOS DEBUG reading variable: dzRel0040 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:40,840 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:41,769 virtualOS DEBUG reading variable: dzRel0050 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:41,886 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:42,802 virtualOS DEBUG reading variable: dzRel0060 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:42,930 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:43,933 virtualOS DEBUG reading variable: dzRel0070 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:44,073 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:45,069 virtualOS DEBUG reading variable: dzRel0080 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:45,200 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:46,170 virtualOS DEBUG reading variable: dzRel0090 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:46,298 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:47,293 virtualOS DEBUG reading variable: dzRel0100 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
+2020-02-25 00:30:47,404 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:48,402 virtualOS DEBUG reading variable: airEntryValue1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:48,952 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:49,817 virtualOS DEBUG reading variable: airEntryValue2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:49,947 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:50,818 virtualOS DEBUG reading variable: poreSizeBeta1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:50,930 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:51,878 virtualOS DEBUG reading variable: poreSizeBeta2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:52,020 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:52,951 virtualOS DEBUG reading variable: resVolWC1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:53,079 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:53,964 virtualOS DEBUG reading variable: resVolWC2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:54,092 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:54,987 virtualOS DEBUG reading variable: satVolWC1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:55,111 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:56,009 virtualOS DEBUG reading variable: satVolWC2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:56,132 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:57,060 virtualOS DEBUG reading variable: KSat1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:57,174 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:58,061 virtualOS DEBUG reading variable: KSat2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:58,179 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:30:59,067 virtualOS DEBUG reading variable: percolationImp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:30:59,186 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:00,445 virtualOS DEBUG reading variable: firstStorDepth from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:31:00,647 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:01,489 virtualOS DEBUG reading variable: secondStorDepth from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:31:01,625 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:02,509 virtualOS DEBUG reading variable: soilWaterStorageCap1 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:31:02,659 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:03,555 virtualOS DEBUG reading variable: soilWaterStorageCap2 from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
+2020-02-25 00:31:03,701 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:07,054 landSurface INFO Using the default set of soil and topo parameters as defined in the landSurfaceOptions of the ini/configuration file.
+2020-02-25 00:31:07,055 landSurface INFO Using the default set of soil and topo parameters as defined in the landSurfaceOptions of the ini/configuration file.
+2020-02-25 00:31:07,056 virtualOS DEBUG read file/value: 0.0
+2020-02-25 00:31:07,188 virtualOS DEBUG read file/value: 0.0025
+2020-02-25 00:31:07,329 virtualOS DEBUG read file/value: 0.1
+2020-02-25 00:31:07,469 virtualOS DEBUG read file/value: 0.05
+2020-02-25 00:31:07,610 landCover DEBUG Obtaining the land cover parameters that are fixed for the entire simulation.
+2020-02-25 00:31:07,611 virtualOS DEBUG read file/value: global_30min/landSurface/landCover/naturalTall/minf_tall_permafrost.nc
+2020-02-25 00:31:07,611 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/minf_tall_permafrost.nc
+2020-02-25 00:31:07,611 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/minf_tall_permafrost.nc
+2020-02-25 00:31:07,634 virtualOS DEBUG reading variable: minf_tall_permafrost_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/minf_tall_permafrost.nc
+2020-02-25 00:31:07,707 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:08,771 virtualOS DEBUG read file/value: global_30min/landSurface/landCover/naturalTall/maxf_tall.nc
+2020-02-25 00:31:08,772 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/maxf_tall.nc
+2020-02-25 00:31:08,772 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/maxf_tall.nc
+2020-02-25 00:31:08,801 virtualOS DEBUG reading variable: maxf_tall_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalTall/maxf_tall.nc
+2020-02-25 00:31:08,868 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:10,009 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalTall/rfrac1_tall.nc
+2020-02-25 00:31:10,010 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac1_tall.nc
+2020-02-25 00:31:10,010 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac1_tall.nc
+2020-02-25 00:31:10,026 virtualOS DEBUG reading variable: rfrac1_tall_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac1_tall.nc
+2020-02-25 00:31:10,215 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:11,150 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalTall/rfrac2_tall.nc
+2020-02-25 00:31:11,151 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac2_tall.nc
+2020-02-25 00:31:11,151 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac2_tall.nc
+2020-02-25 00:31:11,155 virtualOS DEBUG reading variable: rfrac2_tall_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/rfrac2_tall.nc
+2020-02-25 00:31:11,322 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:12,258 virtualOS DEBUG read file/value: 1.0
+2020-02-25 00:31:12,368 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalTall/vegf_tall.nc
+2020-02-25 00:31:12,369 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/vegf_tall.nc
+2020-02-25 00:31:12,370 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/vegf_tall.nc
+2020-02-25 00:31:12,382 virtualOS DEBUG reading variable: vegf_tall_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/vegf_tall.nc
+2020-02-25 00:31:12,528 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:13,464 landCover DEBUG The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.
+2020-02-25 00:31:15,981 virtualOS DEBUG read file/value: 0.0
+2020-02-25 00:31:16,089 virtualOS DEBUG read file/value: 0.2
+2020-02-25 00:31:16,200 landCover INFO Local water sources are first used before abstracting water from neighboring cells
+2020-02-25 00:31:16,202 virtualOS DEBUG read file/value: 0.0
+2020-02-25 00:31:16,335 virtualOS DEBUG read file/value: 0.0025
+2020-02-25 00:31:16,477 virtualOS DEBUG read file/value: 0.1
+2020-02-25 00:31:16,619 virtualOS DEBUG read file/value: 0.05
+2020-02-25 00:31:16,760 landCover DEBUG Obtaining the land cover parameters that are fixed for the entire simulation.
+2020-02-25 00:31:16,761 virtualOS DEBUG read file/value: global_30min/landSurface/landCover/naturalShort/minf_short_permafrost.nc
+2020-02-25 00:31:16,762 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/minf_short_permafrost.nc
+2020-02-25 00:31:16,762 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/minf_short_permafrost.nc
+2020-02-25 00:31:16,776 virtualOS DEBUG reading variable: minf_short_permafrost_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/minf_short_permafrost.nc
+2020-02-25 00:31:16,863 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:18,011 virtualOS DEBUG read file/value: global_30min/landSurface/landCover/naturalShort/maxf_short.nc
+2020-02-25 00:31:18,012 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/maxf_short.nc
+2020-02-25 00:31:18,013 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/maxf_short.nc
+2020-02-25 00:31:18,025 virtualOS DEBUG reading variable: maxf_short_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/landSurface/landCover/naturalShort/maxf_short.nc
+2020-02-25 00:31:18,114 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:19,313 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalShort/rfrac1_short.nc
+2020-02-25 00:31:19,314 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac1_short.nc
+2020-02-25 00:31:19,314 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac1_short.nc
+2020-02-25 00:31:19,338 virtualOS DEBUG reading variable: rfrac1_short_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac1_short.nc
+2020-02-25 00:31:19,502 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:20,431 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalShort/rfrac2_short.nc
+2020-02-25 00:31:20,431 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac2_short.nc
+2020-02-25 00:31:20,432 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac2_short.nc
+2020-02-25 00:31:20,450 virtualOS DEBUG reading variable: rfrac2_short_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/rfrac2_short.nc
+2020-02-25 00:31:20,601 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:21,527 virtualOS DEBUG read file/value: 0.5
+2020-02-25 00:31:21,637 virtualOS DEBUG read file/value: global_05min/landSurface/landCover/naturalShort/vegf_short.nc
+2020-02-25 00:31:21,638 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/vegf_short.nc
+2020-02-25 00:31:21,638 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/vegf_short.nc
+2020-02-25 00:31:21,646 virtualOS DEBUG reading variable: vegf_short_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/vegf_short.nc
+2020-02-25 00:31:21,799 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:22,698 landCover DEBUG The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values.
+2020-02-25 00:31:25,213 virtualOS DEBUG read file/value: 0.0
+2020-02-25 00:31:25,334 virtualOS DEBUG read file/value: 0.2
+2020-02-25 00:31:25,445 landCover INFO Local water sources are first used before abstracting water from neighboring cells
+2020-02-25 00:31:27,119 landSurface INFO Determining fraction of total irrigated areas over each cell
+2020-02-25 00:31:27,121 virtualOS DEBUG reading variable: irrigationArea from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/irrigation/irrigated_areas/irrigationArea05ArcMin.nc
+2020-02-25 00:31:27,162 virtualOS DEBUG The date 1989-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:31:27,163 virtualOS DEBUG Using the date index 29
+2020-02-25 00:31:27,320 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:31:27,343 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:29,744 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/interceptStor_forest_1999-12-31.nc
+2020-02-25 00:31:29,745 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_forest_1999-12-31.nc
+2020-02-25 00:31:29,745 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_forest_1999-12-31.nc
+2020-02-25 00:31:29,754 virtualOS DEBUG reading variable: interceptStor_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_forest_1999-12-31.nc
+2020-02-25 00:31:29,916 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:31,198 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/snowCoverSWE_forest_1999-12-31.nc
+2020-02-25 00:31:31,198 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_forest_1999-12-31.nc
+2020-02-25 00:31:31,199 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_forest_1999-12-31.nc
+2020-02-25 00:31:31,204 virtualOS DEBUG reading variable: snowCoverSWE_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_forest_1999-12-31.nc
+2020-02-25 00:31:31,530 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:32,807 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/snowFreeWater_forest_1999-12-31.nc
+2020-02-25 00:31:32,808 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_forest_1999-12-31.nc
+2020-02-25 00:31:32,808 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_forest_1999-12-31.nc
+2020-02-25 00:31:32,814 virtualOS DEBUG reading variable: snowFreeWater_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_forest_1999-12-31.nc
+2020-02-25 00:31:33,050 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:34,339 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/topWaterLayer_forest_1999-12-31.nc
+2020-02-25 00:31:34,340 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_forest_1999-12-31.nc
+2020-02-25 00:31:34,341 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_forest_1999-12-31.nc
+2020-02-25 00:31:34,346 virtualOS DEBUG reading variable: topWaterLayer_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_forest_1999-12-31.nc
+2020-02-25 00:31:34,545 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:35,885 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storUpp_forest_1999-12-31.nc
+2020-02-25 00:31:35,885 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_forest_1999-12-31.nc
+2020-02-25 00:31:35,886 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_forest_1999-12-31.nc
+2020-02-25 00:31:35,892 virtualOS DEBUG reading variable: storUpp_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_forest_1999-12-31.nc
+2020-02-25 00:31:36,094 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:37,414 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storLow_forest_1999-12-31.nc
+2020-02-25 00:31:37,415 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_forest_1999-12-31.nc
+2020-02-25 00:31:37,415 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_forest_1999-12-31.nc
+2020-02-25 00:31:37,421 virtualOS DEBUG reading variable: storLow_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_forest_1999-12-31.nc
+2020-02-25 00:31:37,650 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:38,835 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/interflow_forest_1999-12-31.nc
+2020-02-25 00:31:38,836 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_forest_1999-12-31.nc
+2020-02-25 00:31:38,836 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_forest_1999-12-31.nc
+2020-02-25 00:31:38,845 virtualOS DEBUG reading variable: interflow_forest_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_forest_1999-12-31.nc
+2020-02-25 00:31:39,018 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:40,511 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/interceptStor_grassland_1999-12-31.nc
+2020-02-25 00:31:40,546 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_grassland_1999-12-31.nc
+2020-02-25 00:31:40,547 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_grassland_1999-12-31.nc
+2020-02-25 00:31:40,553 virtualOS DEBUG reading variable: interceptStor_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interceptStor_grassland_1999-12-31.nc
+2020-02-25 00:31:40,739 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:41,945 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/snowCoverSWE_grassland_1999-12-31.nc
+2020-02-25 00:31:41,946 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_grassland_1999-12-31.nc
+2020-02-25 00:31:41,946 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_grassland_1999-12-31.nc
+2020-02-25 00:31:41,952 virtualOS DEBUG reading variable: snowCoverSWE_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowCoverSWE_grassland_1999-12-31.nc
+2020-02-25 00:31:42,117 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:43,401 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/snowFreeWater_grassland_1999-12-31.nc
+2020-02-25 00:31:43,402 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_grassland_1999-12-31.nc
+2020-02-25 00:31:43,402 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_grassland_1999-12-31.nc
+2020-02-25 00:31:43,408 virtualOS DEBUG reading variable: snowFreeWater_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/snowFreeWater_grassland_1999-12-31.nc
+2020-02-25 00:31:43,705 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:44,920 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/topWaterLayer_grassland_1999-12-31.nc
+2020-02-25 00:31:44,927 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_grassland_1999-12-31.nc
+2020-02-25 00:31:44,928 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_grassland_1999-12-31.nc
+2020-02-25 00:31:44,956 virtualOS DEBUG reading variable: topWaterLayer_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/topWaterLayer_grassland_1999-12-31.nc
+2020-02-25 00:31:45,114 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:46,376 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storUpp_grassland_1999-12-31.nc
+2020-02-25 00:31:46,376 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_grassland_1999-12-31.nc
+2020-02-25 00:31:46,377 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_grassland_1999-12-31.nc
+2020-02-25 00:31:46,383 virtualOS DEBUG reading variable: storUpp_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storUpp_grassland_1999-12-31.nc
+2020-02-25 00:31:46,575 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:47,788 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storLow_grassland_1999-12-31.nc
+2020-02-25 00:31:47,789 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_grassland_1999-12-31.nc
+2020-02-25 00:31:47,790 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_grassland_1999-12-31.nc
+2020-02-25 00:31:47,796 virtualOS DEBUG reading variable: storLow_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storLow_grassland_1999-12-31.nc
+2020-02-25 00:31:47,988 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:49,201 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/interflow_grassland_1999-12-31.nc
+2020-02-25 00:31:49,202 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_grassland_1999-12-31.nc
+2020-02-25 00:31:49,203 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_grassland_1999-12-31.nc
+2020-02-25 00:31:49,209 virtualOS DEBUG reading variable: interflow_grassland_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/interflow_grassland_1999-12-31.nc
+2020-02-25 00:31:49,376 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:50,894 groundwater INFO Limit for annual regional groundwater abstraction is used.
+2020-02-25 00:31:50,895 virtualOS DEBUG reading variable: specificYield from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/properties/groundwaterProperties5ArcMin.nc
+2020-02-25 00:31:51,150 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:31:52,611 virtualOS DEBUG read file/value: global_30sec/groundwater/properties/conductivity_30sec_adjusted_edwin_m_per_day.map
+2020-02-25 00:32:21,291 groundwater INFO The 'recessionCoeff' will be obtained from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/properties/groundwaterProperties5ArcMin.nc
+2020-02-25 00:32:21,292 virtualOS DEBUG reading variable: recessionCoeff from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/properties/groundwaterProperties5ArcMin.nc
+2020-02-25 00:32:21,526 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:32:22,721 virtualOS DEBUG read file/value: global_30sec/groundwater/properties/recession_constant.map
+2020-02-25 00:32:50,243 virtualOS DEBUG read file/value: global_30sec/groundwater/properties/recession_constant.map
+2020-02-25 00:33:15,218 virtualOS DEBUG read file/value: global_05min/groundwater/aquifer_thickness_estimate/thickness_05min.nc
+2020-02-25 00:33:15,220 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/aquifer_thickness_estimate/thickness_05min.nc
+2020-02-25 00:33:15,220 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/aquifer_thickness_estimate/thickness_05min.nc
+2020-02-25 00:33:15,225 virtualOS DEBUG reading variable: thickness_05min_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/groundwater/aquifer_thickness_estimate/thickness_05min.nc
+2020-02-25 00:33:15,438 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:16,831 groundwater INFO Fossil groundwater abstractions are allowed with LIMIT.
+2020-02-25 00:33:16,832 groundwater INFO Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield.
+2020-02-25 00:33:16,832 virtualOS DEBUG read file/value: 0.0
+2020-02-25 00:33:17,105 virtualOS DEBUG read file/value: 0.050
+2020-02-25 00:33:17,152 virtualOS DEBUG read file/value: 0.020
+2020-02-25 00:33:17,190 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storGroundwater_1999-12-31.nc
+2020-02-25 00:33:17,190 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwater_1999-12-31.nc
+2020-02-25 00:33:17,191 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwater_1999-12-31.nc
+2020-02-25 00:33:17,264 virtualOS DEBUG reading variable: storGroundwater_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwater_1999-12-31.nc
+2020-02-25 00:33:17,468 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:18,663 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAbstraction_1999-12-31.nc
+2020-02-25 00:33:18,664 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAbstraction_1999-12-31.nc
+2020-02-25 00:33:18,664 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAbstraction_1999-12-31.nc
+2020-02-25 00:33:18,702 virtualOS DEBUG reading variable: avgTotalGroundwaterAbstraction_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAbstraction_1999-12-31.nc
+2020-02-25 00:33:19,366 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:20,545 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:20,546 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:20,546 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:20,552 virtualOS DEBUG reading variable: avgTotalGroundwaterAllocationLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:20,746 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:21,925 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:21,926 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:21,927 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:21,933 virtualOS DEBUG reading variable: avgTotalGroundwaterAllocationShort_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgTotalGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:22,123 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:23,302 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:23,303 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:23,303 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:23,309 virtualOS DEBUG reading variable: avgNonFossilGroundwaterAllocationLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationLong_1999-12-31.nc
+2020-02-25 00:33:23,586 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:24,777 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:24,777 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:24,778 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:24,784 virtualOS DEBUG reading variable: avgNonFossilGroundwaterAllocationShort_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgNonFossilGroundwaterAllocationShort_1999-12-31.nc
+2020-02-25 00:33:25,006 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:26,194 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/relativeGroundwaterHead_1999-12-31.nc
+2020-02-25 00:33:26,195 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/relativeGroundwaterHead_1999-12-31.nc
+2020-02-25 00:33:26,195 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/relativeGroundwaterHead_1999-12-31.nc
+2020-02-25 00:33:26,200 virtualOS DEBUG reading variable: relativeGroundwaterHead_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/relativeGroundwaterHead_1999-12-31.nc
+2020-02-25 00:33:26,401 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:27,585 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/baseflow_1999-12-31.nc
+2020-02-25 00:33:27,585 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/baseflow_1999-12-31.nc
+2020-02-25 00:33:27,586 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/baseflow_1999-12-31.nc
+2020-02-25 00:33:27,592 virtualOS DEBUG reading variable: baseflow_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/baseflow_1999-12-31.nc
+2020-02-25 00:33:27,790 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:28,980 groundwater INFO Using a pre-defined initial condition for fossil groundwater storage.
+2020-02-25 00:33:28,981 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/storGroundwaterFossil_1999-12-31.nc
+2020-02-25 00:33:28,981 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwaterFossil_1999-12-31.nc
+2020-02-25 00:33:28,982 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwaterFossil_1999-12-31.nc
+2020-02-25 00:33:29,193 virtualOS DEBUG reading variable: storGroundwaterFossil_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/storGroundwaterFossil_1999-12-31.nc
+2020-02-25 00:33:29,466 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:33:30,670 groundwater INFO The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity).
+2020-02-25 00:33:32,265 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/global_hydrosheds_ldd.map
+2020-02-25 00:34:17,268 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/cellsize30sec.map
+2020-02-25 00:34:43,454 virtualOS DEBUG read file/value: global_30sec/routing/channel_properties/slope_m_per_m_from_global_merit_dem_30sec_landmask.map
+2020-02-25 00:35:10,735 virtualOS DEBUG read file/value: 0.04
+2020-02-25 00:35:10,776 virtualOS DEBUG read file/value: global_30sec/routing/channel_properties/channel_width_from_average_discharge.map
+2020-02-25 00:35:35,954 virtualOS DEBUG read file/value: global_30sec/routing/channel_properties/channel_width_from_average_discharge.map
+2020-02-25 00:36:02,778 virtualOS DEBUG read file/value: global_30sec/routing/channel_properties/channel_depth_from_average_discharge.map
+2020-02-25 00:36:50,197 virtualOS DEBUG read file/value: global_30sec/routing/ldd_and_cell_area/global_hydrosheds_ldd.map
+2020-02-25 00:37:24,278 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/timestepsToAvgDischarge_1999-12-31.nc
+2020-02-25 00:37:24,279 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/timestepsToAvgDischarge_1999-12-31.nc
+2020-02-25 00:37:24,280 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/timestepsToAvgDischarge_1999-12-31.nc
+2020-02-25 00:37:24,287 virtualOS DEBUG reading variable: timestepsToAvgDischarge_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/timestepsToAvgDischarge_1999-12-31.nc
+2020-02-25 00:37:24,521 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:25,750 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/channelStorage_1999-12-31.nc
+2020-02-25 00:37:25,751 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/channelStorage_1999-12-31.nc
+2020-02-25 00:37:25,752 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/channelStorage_1999-12-31.nc
+2020-02-25 00:37:25,757 virtualOS DEBUG reading variable: channelStorage_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/channelStorage_1999-12-31.nc
+2020-02-25 00:37:26,093 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:27,304 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/readAvlChannelStorage_1999-12-31.nc
+2020-02-25 00:37:27,304 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/readAvlChannelStorage_1999-12-31.nc
+2020-02-25 00:37:27,305 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/readAvlChannelStorage_1999-12-31.nc
+2020-02-25 00:37:27,311 virtualOS DEBUG reading variable: readAvlChannelStorage_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/readAvlChannelStorage_1999-12-31.nc
+2020-02-25 00:37:27,525 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:28,747 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgDischargeLong_1999-12-31.nc
+2020-02-25 00:37:28,748 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeLong_1999-12-31.nc
+2020-02-25 00:37:28,748 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeLong_1999-12-31.nc
+2020-02-25 00:37:28,754 virtualOS DEBUG reading variable: avgDischargeLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeLong_1999-12-31.nc
+2020-02-25 00:37:28,972 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:30,199 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/m2tDischargeLong_1999-12-31.nc
+2020-02-25 00:37:30,200 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/m2tDischargeLong_1999-12-31.nc
+2020-02-25 00:37:30,200 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/m2tDischargeLong_1999-12-31.nc
+2020-02-25 00:37:30,206 virtualOS DEBUG reading variable: m2tDischargeLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/m2tDischargeLong_1999-12-31.nc
+2020-02-25 00:37:30,451 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:31,718 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgBaseflowLong_1999-12-31.nc
+2020-02-25 00:37:31,869 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgBaseflowLong_1999-12-31.nc
+2020-02-25 00:37:31,869 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgBaseflowLong_1999-12-31.nc
+2020-02-25 00:37:31,877 virtualOS DEBUG reading variable: avgBaseflowLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgBaseflowLong_1999-12-31.nc
+2020-02-25 00:37:32,102 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:33,270 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/riverbedExchange_1999-12-31.nc
+2020-02-25 00:37:33,270 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/riverbedExchange_1999-12-31.nc
+2020-02-25 00:37:33,271 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/riverbedExchange_1999-12-31.nc
+2020-02-25 00:37:33,276 virtualOS DEBUG reading variable: riverbedExchange_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/riverbedExchange_1999-12-31.nc
+2020-02-25 00:37:33,484 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:34,779 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgDischargeShort_1999-12-31.nc
+2020-02-25 00:37:34,780 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeShort_1999-12-31.nc
+2020-02-25 00:37:34,780 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeShort_1999-12-31.nc
+2020-02-25 00:37:34,786 virtualOS DEBUG reading variable: avgDischargeShort_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgDischargeShort_1999-12-31.nc
+2020-02-25 00:37:34,998 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:36,292 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/subDischarge_1999-12-31.nc
+2020-02-25 00:37:36,293 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/subDischarge_1999-12-31.nc
+2020-02-25 00:37:36,294 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/subDischarge_1999-12-31.nc
+2020-02-25 00:37:36,322 virtualOS DEBUG reading variable: subDischarge_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/subDischarge_1999-12-31.nc
+2020-02-25 00:37:36,554 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:39,382 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgLakeReservoirInflowShort_1999-12-31.nc
+2020-02-25 00:37:39,383 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirInflowShort_1999-12-31.nc
+2020-02-25 00:37:39,383 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirInflowShort_1999-12-31.nc
+2020-02-25 00:37:39,389 virtualOS DEBUG reading variable: avgLakeReservoirInflowShort_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirInflowShort_1999-12-31.nc
+2020-02-25 00:37:39,585 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:40,738 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/avgLakeReservoirOutflowLong_1999-12-31.nc
+2020-02-25 00:37:40,738 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirOutflowLong_1999-12-31.nc
+2020-02-25 00:37:40,738 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirOutflowLong_1999-12-31.nc
+2020-02-25 00:37:40,745 virtualOS DEBUG reading variable: avgLakeReservoirOutflowLong_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/avgLakeReservoirOutflowLong_1999-12-31.nc
+2020-02-25 00:37:40,958 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:42,247 virtualOS DEBUG read file/value: global_05min/initialConditions/non-natural/1999/waterBodyStorage_1999-12-31.nc
+2020-02-25 00:37:42,247 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/waterBodyStorage_1999-12-31.nc
+2020-02-25 00:37:42,248 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/waterBodyStorage_1999-12-31.nc
+2020-02-25 00:37:42,254 virtualOS DEBUG reading variable: waterBodyStorage_1999_12_31_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/initialConditions/non-natural/1999/waterBodyStorage_1999-12-31.nc
+2020-02-25 00:37:42,471 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:44,222 routing INFO Flood plain extents can vary during the simulation.
+2020-02-25 00:37:44,223 virtualOS DEBUG read file/value: 0.07
+2020-02-25 00:37:44,267 routing INFO Get the profile of relative elevation (relZ, unit: m) !!!
+2020-02-25 00:37:44,267 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0000.nc
+2020-02-25 00:37:44,268 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0000.nc
+2020-02-25 00:37:44,268 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0000.nc
+2020-02-25 00:37:44,284 virtualOS DEBUG reading variable: dzRel0000_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0000.nc
+2020-02-25 00:37:44,468 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:45,569 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0001.nc
+2020-02-25 00:37:45,570 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0001.nc
+2020-02-25 00:37:45,570 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0001.nc
+2020-02-25 00:37:45,574 virtualOS DEBUG reading variable: dzRel0001_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0001.nc
+2020-02-25 00:37:45,790 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:46,974 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0005.nc
+2020-02-25 00:37:46,975 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0005.nc
+2020-02-25 00:37:46,975 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0005.nc
+2020-02-25 00:37:46,987 virtualOS DEBUG reading variable: dzRel0005_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0005.nc
+2020-02-25 00:37:47,183 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:48,372 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0010.nc
+2020-02-25 00:37:48,373 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0010.nc
+2020-02-25 00:37:48,373 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0010.nc
+2020-02-25 00:37:48,377 virtualOS DEBUG reading variable: dzRel0010_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0010.nc
+2020-02-25 00:37:48,549 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:49,744 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0020.nc
+2020-02-25 00:37:49,745 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0020.nc
+2020-02-25 00:37:49,745 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0020.nc
+2020-02-25 00:37:49,749 virtualOS DEBUG reading variable: dzRel0020_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0020.nc
+2020-02-25 00:37:49,956 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:51,186 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0030.nc
+2020-02-25 00:37:51,187 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0030.nc
+2020-02-25 00:37:51,187 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0030.nc
+2020-02-25 00:37:51,220 virtualOS DEBUG reading variable: dzRel0030_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0030.nc
+2020-02-25 00:37:51,435 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:52,764 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0040.nc
+2020-02-25 00:37:52,781 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0040.nc
+2020-02-25 00:37:52,781 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0040.nc
+2020-02-25 00:37:52,788 virtualOS DEBUG reading variable: dzRel0040_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0040.nc
+2020-02-25 00:37:52,981 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:54,254 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0050.nc
+2020-02-25 00:37:54,255 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0050.nc
+2020-02-25 00:37:54,255 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0050.nc
+2020-02-25 00:37:54,259 virtualOS DEBUG reading variable: dzRel0050_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0050.nc
+2020-02-25 00:37:54,449 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:55,730 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0060.nc
+2020-02-25 00:37:55,733 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0060.nc
+2020-02-25 00:37:55,736 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0060.nc
+2020-02-25 00:37:55,743 virtualOS DEBUG reading variable: dzRel0060_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0060.nc
+2020-02-25 00:37:55,942 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:56,947 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0070.nc
+2020-02-25 00:37:56,948 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0070.nc
+2020-02-25 00:37:56,949 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0070.nc
+2020-02-25 00:37:56,954 virtualOS DEBUG reading variable: dzRel0070_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0070.nc
+2020-02-25 00:37:57,151 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:58,175 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0080.nc
+2020-02-25 00:37:58,176 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0080.nc
+2020-02-25 00:37:58,176 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0080.nc
+2020-02-25 00:37:58,180 virtualOS DEBUG reading variable: dzRel0080_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0080.nc
+2020-02-25 00:37:58,377 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:37:59,404 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0090.nc
+2020-02-25 00:37:59,405 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0090.nc
+2020-02-25 00:37:59,405 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0090.nc
+2020-02-25 00:37:59,410 virtualOS DEBUG reading variable: dzRel0090_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0090.nc
+2020-02-25 00:37:59,608 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:00,621 virtualOS DEBUG read file/value: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0100.nc
+2020-02-25 00:38:00,622 virtualOS DEBUG read netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0100.nc
+2020-02-25 00:38:00,622 virtualOS DEBUG reading variable: automatic from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0100.nc
+2020-02-25 00:38:00,627 virtualOS DEBUG reading variable: dzRel0100_map from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/channel_properties/dzRel0100.nc
+2020-02-25 00:38:00,830 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:11,490 routing INFO The bankfull channel storage capacity is NOT defined in the configuration file. The bankfull capacity is estimated from the given channel depth and channel width.
+2020-02-25 00:38:19,677 reporting INFO Creating the netcdf file for daily reporting for variable temperature.
+2020-02-25 00:38:19,723 reporting INFO Creating the netcdf file for daily reporting for variable discharge.
+2020-02-25 00:38:19,727 reporting INFO Creating the netcdf file for daily reporting for variable totalRunoff.
+2020-02-25 00:38:19,730 reporting INFO Creating the netcdf file for daily reporting for variable totalGroundwaterAbstraction.
+2020-02-25 00:38:19,752 reporting INFO Creating the netcdf file for daily reporting for variable surfaceWaterStorage.
+2020-02-25 00:38:19,756 reporting INFO Creating the netcdf file for daily reporting for variable gwRecharge.
+2020-02-25 00:38:19,822 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable irrGrossDemand.
+2020-02-25 00:38:19,955 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable nonIrrReturnFlow.
+2020-02-25 00:38:19,959 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable actualET.
+2020-02-25 00:38:19,962 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable surfaceWaterAbstraction.
+2020-02-25 00:38:19,965 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable interflowTotal.
+2020-02-25 00:38:19,993 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable livestockWaterWithdrawal.
+2020-02-25 00:38:19,997 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable nonFossilGroundwaterAbstraction.
+2020-02-25 00:38:20,000 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable referencePotET.
+2020-02-25 00:38:20,063 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalEvaporation.
+2020-02-25 00:38:20,067 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalRunoff.
+2020-02-25 00:38:20,102 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable irrNonPaddyWaterWithdrawal.
+2020-02-25 00:38:20,176 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable desalinationAbstraction.
+2020-02-25 00:38:20,186 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable domesticWaterWithdrawal.
+2020-02-25 00:38:20,189 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable precipitation.
+2020-02-25 00:38:20,193 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable gwRecharge.
+2020-02-25 00:38:20,222 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable runoff.
+2020-02-25 00:38:20,226 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable irrPaddyWaterWithdrawal.
+2020-02-25 00:38:20,229 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable waterBodyPotEvaporation.
+2020-02-25 00:38:20,232 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalGroundwaterAbstraction.
+2020-02-25 00:38:20,235 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable fossilGroundwaterAbstraction.
+2020-02-25 00:38:20,244 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable directRunoff.
+2020-02-25 00:38:20,262 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable waterBodyActEvaporation.
+2020-02-25 00:38:20,285 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalLandSurfacePotET.
+2020-02-25 00:38:20,372 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalPotentialEvaporation.
+2020-02-25 00:38:20,376 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable baseflow.
+2020-02-25 00:38:20,417 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totLandSurfaceActuaET.
+2020-02-25 00:38:20,421 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable surfaceWaterInf.
+2020-02-25 00:38:20,424 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable industryWaterWithdrawal.
+2020-02-25 00:38:20,428 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable totalGrossDemand.
+2020-02-25 00:38:20,431 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable nonIrrWaterConsumption.
+2020-02-25 00:38:20,457 reporting INFO Creating the netcdf file for monthly accumulation reporting for variable nonIrrGrossDemand.
+2020-02-25 00:38:20,461 reporting INFO Creating the netcdf file for monthly average reporting for variable channelStorage.
+2020-02-25 00:38:20,464 reporting INFO Creating the netcdf file for monthly average reporting for variable interceptStor.
+2020-02-25 00:38:20,471 reporting INFO Creating the netcdf file for monthly average reporting for variable storLowTotal.
+2020-02-25 00:38:20,476 reporting INFO Creating the netcdf file for monthly average reporting for variable temperature.
+2020-02-25 00:38:20,479 reporting INFO Creating the netcdf file for monthly average reporting for variable waterBodyStorage.
+2020-02-25 00:38:20,500 reporting INFO Creating the netcdf file for monthly average reporting for variable snowCoverSWE.
+2020-02-25 00:38:20,504 reporting INFO Creating the netcdf file for monthly average reporting for variable discharge.
+2020-02-25 00:38:20,646 reporting INFO Creating the netcdf file for monthly average reporting for variable satDegLow.
+2020-02-25 00:38:20,650 reporting INFO Creating the netcdf file for monthly average reporting for variable totalWaterStorageThickness.
+2020-02-25 00:38:20,653 reporting INFO Creating the netcdf file for monthly average reporting for variable topWaterLayer.
+2020-02-25 00:38:20,656 reporting INFO Creating the netcdf file for monthly average reporting for variable storGroundwater.
+2020-02-25 00:38:20,660 reporting INFO Creating the netcdf file for monthly average reporting for variable dynamicFracWat.
+2020-02-25 00:38:20,689 reporting INFO Creating the netcdf file for monthly average reporting for variable storGroundwaterFossil.
+2020-02-25 00:38:20,709 reporting INFO Creating the netcdf file for monthly average reporting for variable totalActiveStorageThickness.
+2020-02-25 00:38:20,713 reporting INFO Creating the netcdf file for monthly average reporting for variable storUppTotal.
+2020-02-25 00:38:20,716 reporting INFO Creating the netcdf file for monthly average reporting for variable surfaceWaterStorage.
+2020-02-25 00:38:20,720 reporting INFO Creating the netcdf file for monthly average reporting for variable snowFreeWater.
+2020-02-25 00:38:20,723 reporting INFO Creating the netcdf file for monthly average reporting for variable satDegUpp.
+2020-02-25 00:38:20,726 reporting INFO Creating the netcdf file for monthly end reporting for variable channelStorage.
+2020-02-25 00:38:20,761 reporting INFO Creating the netcdf file for monthly end reporting for variable waterBodyStorage.
+2020-02-25 00:38:20,764 reporting INFO Creating the netcdf file for monthly end reporting for variable totalWaterStorageThickness.
+2020-02-25 00:38:20,768 reporting INFO Creating the netcdf file for monthly end reporting for variable storGroundwater.
+2020-02-25 00:38:20,771 reporting INFO Creating the netcdf file for monthly end reporting for variable totalActiveStorageThickness.
+2020-02-25 00:38:20,775 reporting INFO Creating the netcdf file for monthly end reporting for variable storGroundwaterFossil.
+2020-02-25 00:38:20,812 reporting INFO Creating the netcdf file for monthly maximum reporting for variable channelStorage.
+2020-02-25 00:38:20,816 reporting INFO Creating the netcdf file for monthly maximum reporting for variable floodDepth.
+2020-02-25 00:38:20,820 reporting INFO Creating the netcdf file for monthly maximum reporting for variable surfaceWaterLevel.
+2020-02-25 00:38:20,824 reporting INFO Creating the netcdf file for monthly maximum reporting for variable discharge.
+2020-02-25 00:38:20,828 reporting INFO Creating the netcdf file for monthly maximum reporting for variable floodVolume.
+2020-02-25 00:38:20,831 reporting INFO Creating the netcdf file for monthly maximum reporting for variable totalRunoff.
+2020-02-25 00:38:20,950 reporting INFO Creating the netcdf file for monthly maximum reporting for variable dynamicFracWat.
+2020-02-25 00:38:20,954 reporting INFO Creating the netcdf file for annual accumulation reporting for variable irrGrossDemand.
+2020-02-25 00:38:21,004 reporting INFO Creating the netcdf file for annual accumulation reporting for variable nonIrrReturnFlow.
+2020-02-25 00:38:21,008 reporting INFO Creating the netcdf file for annual accumulation reporting for variable actualET.
+2020-02-25 00:38:21,022 reporting INFO Creating the netcdf file for annual accumulation reporting for variable netLqWaterToSoil_at_irrigation.
+2020-02-25 00:38:21,025 reporting INFO Creating the netcdf file for annual accumulation reporting for variable surfaceWaterAbstraction.
+2020-02-25 00:38:21,029 reporting INFO Creating the netcdf file for annual accumulation reporting for variable livestockWaterWithdrawal.
+2020-02-25 00:38:21,052 reporting INFO Creating the netcdf file for annual accumulation reporting for variable transpiration_from_irrigation.
+2020-02-25 00:38:21,056 reporting INFO Creating the netcdf file for annual accumulation reporting for variable nonFossilGroundwaterAbstraction.
+2020-02-25 00:38:21,060 reporting INFO Creating the netcdf file for annual accumulation reporting for variable totalEvaporation.
+2020-02-25 00:38:21,064 reporting INFO Creating the netcdf file for annual accumulation reporting for variable referencePotET.
+2020-02-25 00:38:21,067 reporting INFO Creating the netcdf file for annual accumulation reporting for variable totalRunoff.
+2020-02-25 00:38:21,088 reporting INFO Creating the netcdf file for annual accumulation reporting for variable irrNonPaddyWaterWithdrawal.
+2020-02-25 00:38:21,092 reporting INFO Creating the netcdf file for annual accumulation reporting for variable desalinationAbstraction.
+2020-02-25 00:38:21,107 reporting INFO Creating the netcdf file for annual accumulation reporting for variable gwRecharge.
+2020-02-25 00:38:21,338 reporting INFO Creating the netcdf file for annual accumulation reporting for variable precipitation.
+2020-02-25 00:38:21,362 reporting INFO Creating the netcdf file for annual accumulation reporting for variable domesticWaterWithdrawal.
+2020-02-25 00:38:21,401 reporting INFO Creating the netcdf file for annual accumulation reporting for variable irrigationWaterWithdrawal.
+2020-02-25 00:38:21,404 reporting INFO Creating the netcdf file for annual accumulation reporting for variable runoff.
+2020-02-25 00:38:21,412 reporting INFO Creating the netcdf file for annual accumulation reporting for variable irrPaddyWaterWithdrawal.
+2020-02-25 00:38:21,430 reporting INFO Creating the netcdf file for annual accumulation reporting for variable totalAbstraction.
+2020-02-25 00:38:21,434 reporting INFO Creating the netcdf file for annual accumulation reporting for variable fossilGroundwaterAbstraction.
+2020-02-25 00:38:21,437 reporting INFO Creating the netcdf file for annual accumulation reporting for variable totalGroundwaterAbstraction.
+2020-02-25 00:38:21,458 reporting INFO Creating the netcdf file for annual accumulation reporting for variable baseflow.
+2020-02-25 00:38:21,462 reporting INFO Creating the netcdf file for annual accumulation reporting for variable industryWaterWithdrawal.
+2020-02-25 00:38:21,466 reporting INFO Creating the netcdf file for annual accumulation reporting for variable evaporation_from_irrigation.
+2020-02-25 00:38:21,485 reporting INFO Creating the netcdf file for annual accumulation reporting for variable precipitation_at_irrigation.
+2020-02-25 00:38:21,511 reporting INFO Creating the netcdf file for annual accumulation reporting for variable totalGrossDemand.
+2020-02-25 00:38:21,543 reporting INFO Creating the netcdf file for annual accumulation reporting for variable nonIrrWaterConsumption.
+2020-02-25 00:38:21,567 reporting INFO Creating the netcdf file for annual accumulation reporting for variable nonIrrGrossDemand.
+2020-02-25 00:38:21,570 reporting INFO Creating the netcdf file for annual average reporting for variable channelStorage.
+2020-02-25 00:38:21,606 reporting INFO Creating the netcdf file for annual average reporting for variable interceptStor.
+2020-02-25 00:38:21,641 reporting INFO Creating the netcdf file for annual average reporting for variable storGroundwaterFossil.
+2020-02-25 00:38:21,644 reporting INFO Creating the netcdf file for annual average reporting for variable temperature.
+2020-02-25 00:38:21,648 reporting INFO Creating the netcdf file for annual average reporting for variable waterBodyStorage.
+2020-02-25 00:38:21,652 reporting INFO Creating the netcdf file for annual average reporting for variable totalWaterStorageThickness.
+2020-02-25 00:38:21,655 reporting INFO Creating the netcdf file for annual average reporting for variable fracSurfaceWaterAllocation.
+2020-02-25 00:38:21,659 reporting INFO Creating the netcdf file for annual average reporting for variable fracDesalinatedWaterAllocation.
+2020-02-25 00:38:21,678 reporting INFO Creating the netcdf file for annual average reporting for variable storGroundwater.
+2020-02-25 00:38:21,682 reporting INFO Creating the netcdf file for annual average reporting for variable gwRecharge.
+2020-02-25 00:38:21,722 reporting INFO Creating the netcdf file for annual average reporting for variable storLowTotal.
+2020-02-25 00:38:21,737 reporting INFO Creating the netcdf file for annual average reporting for variable snowCoverSWE.
+2020-02-25 00:38:21,741 reporting INFO Creating the netcdf file for annual average reporting for variable satDegLow.
+2020-02-25 00:38:21,769 reporting INFO Creating the netcdf file for annual average reporting for variable fractionTotalEvaporation.
+2020-02-25 00:38:21,846 reporting INFO Creating the netcdf file for annual average reporting for variable storUppTotal.
+2020-02-25 00:38:21,857 reporting INFO Creating the netcdf file for annual average reporting for variable fractionWaterBodyEvaporation.
+2020-02-25 00:38:21,861 reporting INFO Creating the netcdf file for annual average reporting for variable satDegUpp.
+2020-02-25 00:38:21,865 reporting INFO Creating the netcdf file for annual average reporting for variable discharge.
+2020-02-25 00:38:21,869 reporting INFO Creating the netcdf file for annual average reporting for variable topWaterLayer.
+2020-02-25 00:38:21,984 reporting INFO Creating the netcdf file for annual average reporting for variable surfaceWaterStorage.
+2020-02-25 00:38:22,076 reporting INFO Creating the netcdf file for annual average reporting for variable snowFreeWater.
+2020-02-25 00:38:22,079 reporting INFO Creating the netcdf file for annual end reporting for variable interceptStor.
+2020-02-25 00:38:22,083 reporting INFO Creating the netcdf file for annual end reporting for variable storLowTotal.
+2020-02-25 00:38:22,087 reporting INFO Creating the netcdf file for annual end reporting for variable snowCoverSWE.
+2020-02-25 00:38:22,090 reporting INFO Creating the netcdf file for annual end reporting for variable totalWaterStorageThickness.
+2020-02-25 00:38:22,111 reporting INFO Creating the netcdf file for annual end reporting for variable topWaterLayer.
+2020-02-25 00:38:22,140 reporting INFO Creating the netcdf file for annual end reporting for variable storGroundwater.
+2020-02-25 00:38:22,144 reporting INFO Creating the netcdf file for annual end reporting for variable storGroundwaterFossil.
+2020-02-25 00:38:22,147 reporting INFO Creating the netcdf file for annual end reporting for variable storUppTotal.
+2020-02-25 00:38:22,150 reporting INFO Creating the netcdf file for annual end reporting for variable surfaceWaterStorage.
+2020-02-25 00:38:22,154 reporting INFO Creating the netcdf file for annual end reporting for variable snowFreeWater.
+2020-02-25 00:38:22,186 currTimeStep INFO Spin-Up 1 of 3
+2020-02-25 00:38:22,186 pcrglobwb INFO Reading forcings for time 1990-01-01
+2020-02-25 00:38:22,187 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:38:22,193 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:22,194 virtualOS DEBUG Using the date index 4018
+2020-02-25 00:38:22,328 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:22,333 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:23,455 virtualOS DEBUG reading variable: temperature from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_temperature_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:38:23,461 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:23,462 virtualOS DEBUG Using the date index 4018
+2020-02-25 00:38:23,626 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:23,631 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:24,433 virtualOS DEBUG reading variable: temperature from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/temperature_slope.nc
+2020-02-25 00:38:24,438 virtualOS DEBUG Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)
+2020-02-25 00:38:24,439 virtualOS DEBUG Using the date index 0
+2020-02-25 00:38:24,595 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:24,600 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:25,688 virtualOS DEBUG reading variable: temperature from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/temperature_correl.nc
+2020-02-25 00:38:25,693 virtualOS DEBUG Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)
+2020-02-25 00:38:25,694 virtualOS DEBUG Using the date index 0
+2020-02-25 00:38:25,839 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:25,844 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:27,308 virtualOS DEBUG reading variable: evapotranspiration from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_referencePotET_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:38:27,315 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:27,315 virtualOS DEBUG Using the date index 4018
+2020-02-25 00:38:27,452 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:27,457 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:28,677 pcrglobwb INFO Updating model for time 1990-01-01
+2020-02-25 00:38:28,811 landSurface DEBUG Total groundwater abstraction is limited by regional annual pumping capacity.
+2020-02-25 00:38:28,811 virtualOS DEBUG reading variable: region_ids from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/groundwater_pumping_capacity/regional_abstraction_limit.nc
+2020-02-25 00:38:28,823 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:28,823 virtualOS DEBUG Using the date index 30
+2020-02-25 00:38:29,051 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:29,056 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:30,207 virtualOS DEBUG reading variable: regional_pumping_limit from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/waterUse/groundwater_pumping_capacity/regional_abstraction_limit.nc
+2020-02-25 00:38:30,213 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:30,214 virtualOS DEBUG Using the date index 30
+2020-02-25 00:38:30,413 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:30,418 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:33,240 virtualOS DEBUG reading variable: fracWaterInp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:38:33,250 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:33,251 virtualOS DEBUG Using the date index 90
+2020-02-25 00:38:33,567 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:33,615 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:37,702 virtualOS DEBUG reading variable: domesticGrossDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/domestic/domestic_water_demand_version_april_2015.nc
+2020-02-25 00:38:37,717 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:37,718 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:37,973 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:38,023 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:38,930 virtualOS DEBUG reading variable: domesticNettoDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/domestic/domestic_water_demand_version_april_2015.nc
+2020-02-25 00:38:38,938 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:38,938 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:39,182 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:39,231 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:40,384 virtualOS DEBUG reading variable: industryGrossDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/industry/industry_water_demand_version_april_2015.nc
+2020-02-25 00:38:40,397 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:40,398 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:40,721 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:40,779 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:41,785 virtualOS DEBUG reading variable: industryNettoDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/industry/industry_water_demand_version_april_2015.nc
+2020-02-25 00:38:41,793 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:41,794 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:42,053 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:42,100 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:43,540 virtualOS DEBUG reading variable: livestockGrossDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/livestock/livestock_water_demand_version_april_2015.nc
+2020-02-25 00:38:43,555 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:43,555 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:43,803 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:43,853 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:45,053 virtualOS DEBUG reading variable: livestockNettoDemand from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/waterDemand/livestock/livestock_water_demand_version_april_2015.nc
+2020-02-25 00:38:45,061 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:45,061 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:45,314 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:45,363 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:55,545 landSurface DEBUG Water demand can only be satisfied by local source.
+2020-02-25 00:38:56,250 landSurface DEBUG Using/incorporating the predefined fractions of surface water source.
+2020-02-25 00:38:56,826 landSurface DEBUG Monthly desalination water use is included.
+2020-02-25 00:38:56,827 virtualOS DEBUG reading variable: desalination_water_use from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/waterUse/desalination/desalination_water_version_april_2015.nc
+2020-02-25 00:38:56,888 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:56,889 virtualOS DEBUG Using the date index 360
+2020-02-25 00:38:57,168 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:57,216 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:38:58,163 landSurface INFO Updating land cover: forest
+2020-02-25 00:38:58,178 virtualOS DEBUG reading variable: kc from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/cropCoefficientForest.nc
+2020-02-25 00:38:58,323 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/cropCoefficientForest.nc ; variable: kc !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:38:58,325 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:38:58,326 virtualOS DEBUG Using the date index 0
+2020-02-25 00:38:58,618 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:38:58,637 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:39:00,505 virtualOS DEBUG reading variable: interceptCapInput from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/interceptCapInputForest.nc
+2020-02-25 00:39:00,511 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/interceptCapInputForest.nc ; variable: interceptCapInput !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:39:00,512 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:39:00,513 virtualOS DEBUG Using the date index 0
+2020-02-25 00:39:00,783 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:39:00,804 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:39:01,643 virtualOS DEBUG reading variable: coverFractionInput from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/coverFractionInputForest.nc
+2020-02-25 00:39:01,649 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalTall/coverFractionInputForest.nc ; variable: coverFractionInput !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:39:01,651 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:39:01,651 virtualOS DEBUG Using the date index 0
+2020-02-25 00:39:01,949 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:39:01,967 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:39:14,641 landCover DEBUG Supply from desalination water is only for satisfying local demand (no network).
+2020-02-25 00:39:17,521 landCover DEBUG Surface water abstraction is only to satisfy local demand (no surface water network).
+2020-02-25 00:39:20,349 landCover DEBUG Total groundwater abstraction is limited by regional annual pumping capacity.
+2020-02-25 00:39:25,666 landCover DEBUG Non fossil groundwater abstraction is only for satisfying local demand.
+2020-02-25 00:39:27,069 landCover DEBUG Fossil groundwater abstractions are allowed.
+2020-02-25 00:39:28,039 landCover DEBUG Fossil groundwater abstraction is allowed, BUT limited by the regional annual pumping capacity.
+2020-02-25 00:39:32,430 landCover DEBUG Fossil groundwater abstractions are allowed, but with limit.
+2020-02-25 00:39:33,042 landCover DEBUG Fossil groundwater abstraction is only for satisfying local demand. NO Allocation for fossil groundwater abstraction.
+2020-02-25 00:39:55,647 landSurface INFO Updating land cover: grassland
+2020-02-25 00:39:55,649 virtualOS DEBUG reading variable: kc from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/cropCoefficientGrassland.nc
+2020-02-25 00:39:55,657 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/cropCoefficientGrassland.nc ; variable: kc !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:39:55,659 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:39:55,659 virtualOS DEBUG Using the date index 0
+2020-02-25 00:39:56,080 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:39:56,100 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:39:58,015 virtualOS DEBUG reading variable: interceptCapInput from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/interceptCapInputGrassland.nc
+2020-02-25 00:39:58,022 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/interceptCapInputGrassland.nc ; variable: interceptCapInput !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:39:58,024 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:39:58,024 virtualOS DEBUG Using the date index 0
+2020-02-25 00:39:58,412 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:39:58,432 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:39:59,547 virtualOS DEBUG reading variable: coverFractionInput from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/coverFractionInputGrassland.nc
+2020-02-25 00:39:59,553 virtualOS WARNING 
+WARNING related to the netcdf file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/landSurface/landCover/naturalShort/coverFractionInputGrassland.nc ; variable: coverFractionInput !!!!!!
+The date 1990-01-01 is NOT available. The date 2000-1-1 is used.
+
+2020-02-25 00:39:59,554 virtualOS DEBUG The date 2000-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:39:59,555 virtualOS DEBUG Using the date index 0
+2020-02-25 00:39:59,963 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:39:59,983 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:40:11,877 landCover DEBUG Supply from desalination water is only for satisfying local demand (no network).
+2020-02-25 00:40:14,472 landCover DEBUG Surface water abstraction is only to satisfy local demand (no surface water network).
+2020-02-25 00:40:16,541 landCover DEBUG Total groundwater abstraction is limited by regional annual pumping capacity.
+2020-02-25 00:40:21,767 landCover DEBUG Non fossil groundwater abstraction is only for satisfying local demand.
+2020-02-25 00:40:23,204 landCover DEBUG Fossil groundwater abstractions are allowed.
+2020-02-25 00:40:23,881 landCover DEBUG Fossil groundwater abstraction is allowed, BUT limited by the regional annual pumping capacity.
+2020-02-25 00:40:28,760 landCover DEBUG Fossil groundwater abstractions are allowed, but with limit.
+2020-02-25 00:40:29,443 landCover DEBUG Fossil groundwater abstraction is only for satisfying local demand. NO Allocation for fossil groundwater abstraction.
+2020-02-25 00:40:53,898 groundwater INFO Updating groundwater
+2020-02-25 00:40:58,450 routing INFO routing in progress
+2020-02-25 00:40:58,496 virtualOS DEBUG reading variable: fracWaterInp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:40:58,499 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:40:58,500 virtualOS DEBUG Using the date index 90
+2020-02-25 00:40:59,098 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:40:59,148 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:41:00,715 virtualOS DEBUG reading variable: waterBodyIds from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:41:00,719 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:41:00,719 virtualOS DEBUG Using the date index 90
+2020-02-25 00:41:01,314 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:41:01,379 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:41:27,768 virtualOS DEBUG reading variable: resSfAreaInp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:41:27,773 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:41:27,773 virtualOS DEBUG Using the date index 90
+2020-02-25 00:41:28,328 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:41:28,376 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:41:31,416 virtualOS DEBUG reading variable: waterBodyTyp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:41:31,420 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:41:31,420 virtualOS DEBUG Using the date index 90
+2020-02-25 00:41:31,948 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:41:31,998 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:41:34,875 virtualOS DEBUG reading variable: resMaxCapInp from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_05min/routing/surface_water_bodies/waterBodies5ArcMin.nc
+2020-02-25 00:41:34,879 virtualOS DEBUG The date 1990-1-1 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:41:34,880 virtualOS DEBUG Using the date index 90
+2020-02-25 00:41:35,460 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:41:35,507 virtualOS DEBUG Resample: input cell size = 0.08333587646484375 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:41:41,032 routing INFO Calculate channel inundated fraction and flood inundation depth above the floodplain.
+2020-02-25 00:41:45,616 virtualOS DEBUG reading variable: kc from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/routing/kc_surface_water/cropCoefficientForOpenWater.nc
+2020-02-25 00:41:45,638 virtualOS DEBUG Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)
+2020-02-25 00:41:45,639 virtualOS DEBUG Using the date index 0
+2020-02-25 00:41:46,207 virtualOS DEBUG Crop to the clone map with lower left corner (x,y): -19.0 , 39.0
+2020-02-25 00:41:46,328 virtualOS DEBUG Resample: input cell size = 0.5 ; output/clone cell size = 0.008333333333333333
+2020-02-25 00:44:23,538 virtualOS ERROR 
+
+##############################################################################################################################################
+WARNING !!!!!!!! Water Balance Error channelStorage after surface water infiltration Min -0.000965 Max 0.070096 Mean 0.000000
+##############################################################################################################################################
+
+
+
+
+2020-02-25 00:44:55,520 reporting INFO reporting for time 1990-01-01
+2020-02-25 00:45:35,054 currTimeStep INFO Spin-Up 1 of 3
+2020-02-25 00:45:35,056 pcrglobwb INFO Reading forcings for time 1990-01-02
+2020-02-25 00:45:35,057 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,071 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,072 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,089 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,090 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,092 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,093 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,101 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,102 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,104 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,105 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,117 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,118 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,120 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,120 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,130 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,131 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,133 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,133 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,142 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,143 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,145 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,145 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,155 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,155 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,157 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,157 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,167 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,167 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,169 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,169 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,178 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,179 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,181 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,181 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,190 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,191 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,193 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,194 virtualOS DEBUG Using the date index 4019
+2020-02-25 00:45:35,203 virtualOS WARNING Re-try to read file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,204 virtualOS ERROR CANNOT READ file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,204 virtualOS DEBUG reading variable: precipitation from the file: /scratch/depfg/sutan101/data/pcrglobwb2_input_arise/develop/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+2020-02-25 00:45:35,206 virtualOS DEBUG The date 1990-1-2 is available. The 'exact' option is used while selecting netcdf time.
+2020-02-25 00:45:35,206 virtualOS DEBUG Using the date index 4019
+
+
+ PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model                       
+
+ Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada,     
+ Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch,
+ Kor de Jong, Derek Karssenberg, Patricia Lopez Lopez, Stefanie Pessenteiner, Oliver Schmitz,
+ Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens            
+ Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands                       
+
+ This program comes with ABSOLUTELY NO WARRANTY                                             
+ This is free software, and you are welcome to redistribute it under certain conditions     
+ See the LICENSE file for more details                                                      
+
+
+[0.0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+Traceback (most recent call last):
+  File "deterministic_runner.py", line 167, in <module>
+    sys.exit(main())
+  File "deterministic_runner.py", line 126, in main
+    dynamic_framework.run()
+  File "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/python3.8/site-packages/pcraster/framework/dynamicFramework.py", line 65, in run
+    self._runDynamic()
+  File "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/python3.8/site-packages/pcraster/framework/frameworkBase.py", line 371, in _runDynamic
+    self._userModel().dynamic()
+  File "deterministic_runner.py", line 63, in dynamic
+    self.model.read_forcings()
+  File "/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/pcrglobwb.py", line 439, in read_forcings
+    self.meteo.read_forcings(self._modelTime)
+  File "/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/meteo.py", line 383, in read_forcings
+    self.precipitation = vos.netcdf2PCRobjClone(\
+  File "/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/virtualOS.py", line 234, in netcdf2PCRobjClone
+    return singleTryNetcdf2PCRobjClone(ncFile, varName, dateInput, useDoy, cloneMapFileName, LatitudeLongitude, \
+  File "/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/virtualOS.py", line 419, in singleTryNetcdf2PCRobjClone
+    attributeClone = getMapAttributesALL(cloneMapFileName)
+  File "/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/virtualOS.py", line 1437, in getMapAttributesALL
+    cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
+  File "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/python3.8/subprocess.py", line 854, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_py3_env_v20200128/lib/python3.8/subprocess.py", line 1637, in _execute_child
+    self.pid = _posixsubprocess.fork_exec(
+OSError: [Errno 12] Cannot allocate memory
++ pcrcalc
+pcrcalc 4.3.0-rc1 (linux/x86_64)
+ USAGE: pcrcalc [options] "expression"
+ or     pcrcalc [options] -f scriptFile
+  ( or #!: pcrcalc -F [options]+)
+ other flags:
+  s #  : set seed (integer > 0) for random generator
+         default is based on current time
+  b f  : overrule script bindings
+  1    : update timeseries files at end of each timestep
+  r f  : set run directory
+  d f  : debug mode, check MV creation on assignment
+          comparing against clone or areamap boolean mask
+  c    : strict Case significant filename check (Unix portability)
+  p    : print profile information
+  m    : optimize with areamap MV compression
+  l    : use less memory but more temporary disk storage
+  t    : test argument substitution
++ set +x
