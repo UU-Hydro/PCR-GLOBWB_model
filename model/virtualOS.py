@@ -62,7 +62,7 @@ smallNumber = 1E-39
 netcdf_suffixes = ('.nc4','.nc')
 
 # maximum number of tries for reading files:
-max_num_of_tries = 10
+max_num_of_tries = 5
 
 def getFileList(inputDir, filePattern):
     '''creates a dictionary of  files meeting the pattern specified'''
@@ -1154,7 +1154,10 @@ def readPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap =
             iter_try = iter_try + 1
             logger.warning("Re-try to read file/value: " + str(v))
     
-    if iter_try >= max_num_of_tries: logger.error("CANNOT READ file/value: " + str(v))
+    if iter_try >= max_num_of_tries:
+        logger.error("CANNOT READ file: " + str(v))
+        return singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap)
+
     
 def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, isLddMap = False, cover = None, isNomMap = False):
     # v: inputMapFileName or floating values
