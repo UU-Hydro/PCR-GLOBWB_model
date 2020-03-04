@@ -306,8 +306,9 @@ class Meteo(object):
         preSlope = pcr.cover(preSlope, 0.0)
     
         if useFactor == True:
-            #~ factor = pcr.max(0.,self.precipitation + preSlope*self.anomalyDEM)
-            factor = pcr.max(0.001, self.precipitation + preSlope*self.anomalyDEM)
+            factor = pcr.max(0.,self.precipitation + preSlope*self.anomalyDEM)
+            min_factor = 0.0005
+            factor = pcr.max(min_factor, factor)
             factor = factor / \
                      pcr.areaaverage(factor, self.meteoDownscaleIds)
             factor = pcr.cover(factor, 1.0)
