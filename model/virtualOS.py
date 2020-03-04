@@ -426,7 +426,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     if f.variables['lat'][0] < f.variables['lat'][1]:
         logger.debug('Note that lat/lon invertion is required and performed while reading this file.')
         f.variables['lat'] = f.variables['lat'][::-1] 
-        cropData = cropData[::-1.:]
+        cropData = cropData[::-1,:]
     
     sameClone = True
     # check whether clone and input maps have the same attributes:
