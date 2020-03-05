@@ -412,22 +412,6 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     idx = int(idx)                                                  
     logger.debug('Using the date index '+str(idx))
 
-    # check data on dimensions - this correction is needed in case of the WFDEI_Forcing which has includes levels for surface varables (time, height/level, lat, lon)
-    if f.variables[varName].ndim == 4:
-        # not standard NC format
-        logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
-        # file with additional layer/dimension
-        cropData = f.variables[varName][int(idx),0,:,:]       # still original data
-    else:
-        # standard nc file
-        cropData = f.variables[varName][int(idx),:,:]       # still original data
-
-    # invert lat lon if needed
-    if f.variables['lat'][0] < f.variables['lat'][1]:
-        logger.debug('Note that lat/lon invertion is required and performed while reading this file.')
-        f.variables['lat'] = f.variables['lat'][::-1] 
-        cropData = cropData[::-1,:]
-    
     sameClone = True
     # check whether clone and input maps have the same attributes:
     if cloneMapFileName != None:
@@ -452,6 +436,15 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
 
+    # check data on dimensions - this correction is needed in case of the WFDEI_Forcing which has includes levels for surface varables (time, height/level, lat, lon)
+    if f.variables[varName].ndim == 4:
+        # not standard NC format
+        logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
+        # file with additional layer/dimension
+        cropData = f.variables[varName][int(idx),0,:,:]       # still original data
+    else:
+        # standard nc file
+        cropData = f.variables[varName][int(idx),:,:]       # still original data
     factor = 1                          # needed in regridData2FinerGrid
  
     if sameClone == False:
