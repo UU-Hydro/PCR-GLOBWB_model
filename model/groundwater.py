@@ -339,6 +339,7 @@ class Groundwater(object):
 
             extrapolate = True
             if "noParameterExtrapolation" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
             if extrapolate:
                 # extrapolate it 
                 self.allocSegments = pcr.cover(self.allocSegments, \

@@ -120,6 +120,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
                 if extrapolate:
 
                     # extrapolation 
@@ -152,6 +153,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
                 if extrapolate:
 
                     # extrapolation 
@@ -218,7 +220,10 @@ class SoilAndTopoParameters(object):
                                             self.cloneMap,
                                             self.tmpDir,self.inputDir)
 
-                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+                extrapolate = True
+                if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
+                if extrapolate:
 
                     # extrapolation 
                     # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
@@ -249,6 +254,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
                 if extrapolate:
 
                      # extrapolation 

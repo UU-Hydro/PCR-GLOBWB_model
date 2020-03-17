@@ -646,6 +646,7 @@ class LandSurface(object):
 
         extrapolate = True
         if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
         if extrapolate:
 
              # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
@@ -692,6 +693,7 @@ class LandSurface(object):
             
             extrapolate = True
             if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
             if extrapolate:
                 # extrapolate it 
                 self.allocSegments = pcr.cover(self.allocSegments, \
@@ -739,6 +741,7 @@ class LandSurface(object):
 
                 extrapolate = True
                 if "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
+
                 if extrapolate:
                     filled_fractions = pcr.windowaverage(self.landCoverObj[coverType].fracVegCover,0.5)
                     filled_fractions = pcr.cover(filled_fractions,\
