@@ -630,9 +630,17 @@ class Meteo(object):
         ####################################################################################################################################
         
         # meteo files/variables needed for the Penman-Monteith method
-        method_for_time_index = None 
+        
+        UNTIL-THIS-PART
+        
+        # - default option used in the method netcdf2PCRobjClone
+        method_for_time_index = None
+        # TODO: Check whether we need others?
+        
+        # - 
+        for meteo_var_name in   
 
-        if 
+        if '' in 
         
         UNTIL THIS PART
 
