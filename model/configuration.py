@@ -228,7 +228,7 @@ class Configuration(object):
         # copy ini File to logDir:
         
         shutil.copy(self.iniFileName, self.logFileDir + \
-                                     os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.ini')
+                                      os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.ini')
 
     def parse_configuration_file(self, modelFileName):
 
@@ -298,7 +298,7 @@ class Configuration(object):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
         
-        # working/starting directory where all s
+        # working/starting directory where all scripts are stored
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
         self.starting_directory = path_of_this_module
                            
