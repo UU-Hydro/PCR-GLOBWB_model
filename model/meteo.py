@@ -427,7 +427,7 @@ class Meteo(object):
                 
                 # extraterestrial_radiation (unit: MJ/m2/day)
                 extraterestrial_radiation = penman_monteith.shortwave_radiation.compute_radsw_ext(latitude = self.latitudes_in_radian, \
-                                                                                                  solar_declination = solar declination, \
+                                                                                                  solar_declination = solar_declination, \
                                                                                                   eccentricity, \
                                                                                                   day_length, \
                                                                                                   solar_constant = 118.1)
