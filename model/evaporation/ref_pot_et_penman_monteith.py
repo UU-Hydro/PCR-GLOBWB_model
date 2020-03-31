@@ -9,20 +9,20 @@ import sys
 import pcraster as pcr
 import pcraster.framework as pcrm
 
-import shortwave_radiation
+#~ import shortwave_radiation
 
 from types import NoneType
 
-def get_extraterestrial_shortwave_radiation(\
-                                            latitude, solar_declination, \
-                                            eccentricity, day_length, solar_constant = 118.1):
-
-    extraterestrial_shortwave_radiation = shortwave_radiation.compute_radsw_ext(latitude, solar_declination, \
-                                                                                eccentricity, day_length, solar_constant)
-    
-    # Note: Unit must be consistent with the unit of solar_constant, if solar_constant = 118.1, the unit is MJ.day**-1.m**-2  
-    
-    return extraterestrial_shortwave_radiation
+#~ def get_extraterestrial_shortwave_radiation(\
+                                            #~ latitude, solar_declination, \
+                                            #~ eccentricity, day_length, solar_constant = 118.1):
+#~ 
+    #~ extraterestrial_shortwave_radiation = shortwave_radiation.compute_radsw_ext(latitude, solar_declination, \
+                                                                                #~ eccentricity, day_length, solar_constant)
+    #~ 
+    #~ # Note: Unit must be consistent with the unit of solar_constant, if solar_constant = 118.1, the unit is MJ.day**-1.m**-2  
+    #~ 
+    #~ return extraterestrial_shortwave_radiation
 
 def computeDefaultPressure(elevation):
 	'''computeDefaultPressure: function that returns the \
