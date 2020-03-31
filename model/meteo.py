@@ -451,7 +451,7 @@ class Meteo(object):
             
             # shortwave radiation
             
-            if self.iniItems.meteoOptions['shortwave_radiation'].endswith('.nc', '.nc4', '.nc3'):
+            if self.iniItems.meteoOptions['shortwave_radiation'].endswith(('.nc', '.nc4', '.nc3')):
 
                 msg = "Shortwave (solar) radiation is obtained from the input file."
                 logger.info(msg)
