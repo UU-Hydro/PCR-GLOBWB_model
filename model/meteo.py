@@ -529,7 +529,7 @@ class Meteo(object):
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
         # Downscaling referenceETPot (based on temperature)
-        self.referenceETPot_before_downscaling = self.referenceETPot
+        self.referenceETPot_before_downscaling = self.referencePotET
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
  
         # smoothing:
