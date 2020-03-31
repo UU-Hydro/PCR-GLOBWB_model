@@ -741,7 +741,6 @@ class Meteo(object):
             factor = hamon_et0.HamonPotET(self.temperature,\
                                           julian_day,\
                                           self.latitudes)
-            factor = 
         else:
             # factor is based on high resolution temperature in Kelvin unit
             factor = self.temperature + zeroCelciusInKelvin
