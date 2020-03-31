@@ -296,6 +296,6 @@ def main():
 			os.path.join(outputPath,pcrm.generateNameT('etpot',month)))
 
 if __name__ == "__main__":
-	print main.__doc__
+	print(main.__doc__)
 	main()
 
