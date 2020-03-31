@@ -11,7 +11,7 @@ import pcraster.framework as pcrm
 
 #~ import shortwave_radiation
 
-from types import NoneType
+#~ from types import NoneType
 
 #~ def get_extraterestrial_shortwave_radiation(\
                                             #~ latitude, solar_declination, \
