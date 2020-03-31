@@ -504,9 +504,9 @@ class Meteo(object):
             # - compute vapour pressure (Pa)
             vapourPressure    = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
             # - longwave radiation [W.m**-2]
-            longWaveRadiation = penman_monteith.getLongWaveRadiation(airTemperature = self.temperature, \
-                                                                     vapourPressure = vapourPressure, \
-                                                                     fractionShortWaveRadiation = fractionShortWaveRadiation)
+            longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
+                                                                     vapourPressure, \
+                                                                     fractionShortWaveRadiation)
             # - netRadiation (unit: W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation) / (24.0 * 3600.)
             
