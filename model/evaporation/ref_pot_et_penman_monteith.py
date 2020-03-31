@@ -220,9 +220,11 @@ must be provided; the latter takes precedence):
 		dGLv = (delta+gamma*(1+self.canopyResistance/self.atmosphericResistance))*latentHeatVaporization
 
 		#-decide on actual vapour pressure [Pa]
-		if not isinstance(unsatVapPressure, NoneType):
+		#~ if not isinstance(unsatVapPressure, NoneType):
+		if unsatVapPressure != None:
 			pass
-		elif not isinstance(relativeHumidity, NoneType):
+		#~ elif not isinstance(relativeHumidity, NoneType):
+		elif relativeHumidity != None:
 			unsatVapPressure= relativeHumidity*satVapPressure
 		else:
 			sys.exit(' * Halted: either relative humidity or actual vapour pressure should be defined')
