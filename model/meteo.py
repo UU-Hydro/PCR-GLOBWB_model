@@ -502,7 +502,8 @@ class Meteo(object):
                                                   self.shortwave_radiation / self.extraterestrial_radiation), \
                                                   0.0)
             # - compute vapour pressure (Pa)
-            vapourPressure    = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
+            vapourPressure = penman_monteith.getSaturatedVapourPressure(\
+                                                                        self.dewpoint_temperature_avg)
             # - longwave radiation [W.m**-2]
             longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                      vapourPressure, \
@@ -514,7 +515,7 @@ class Meteo(object):
                                                                                   airTemperature      = self.temperature, 
                                                                                   windSpeed           = self.wind_speed_10m, 
                                                                                   atmosphericPressure = self.atmospheric_pressure,
-                                                                                  unsatVapPressure    = None, 
+                                                                                  unsatVapPressure    = vapourPressure, 
                                                                                   relativeHumidity    = None,\
                                                                                   timeStepLength      = 86400)
 
