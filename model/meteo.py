@@ -502,15 +502,15 @@ class Meteo(object):
                                                   self.shortwave_radiation / self.extraterestrial_radiation), \
                                                   0.0)
             # - compute vapour pressure (Pa)
-            vapourPressure    = self.penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
+            vapourPressure    = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
             # - longwave radiation [W.m**-2]
-            longWaveRadiation = self.penman_monteith.getLongWaveRadiation(airTemperature = self.temperature, \
-                                                                          vapourPressure = vapourPressure, \
-                                                                          fractionShortWaveRadiation = fractionShortWaveRadiation)
+            longWaveRadiation = penman_monteith.getLongWaveRadiation(airTemperature = self.temperature, \
+                                                                     vapourPressure = vapourPressure, \
+                                                                     fractionShortWaveRadiation = fractionShortWaveRadiation)
             # - netRadiation (unit: W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation) / (24.0 * 3600.)
             
-            self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation, 
+            self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
                                                                                   airTemperature      = self.temperature, 
                                                                                   windSpeed           = self.wind_speed_10m, 
                                                                                   atmosphericPressure = self.atmospheric_pressure,
