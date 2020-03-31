@@ -80,7 +80,7 @@ class Meteo(object):
         self.extra_meteo_var_names = ['wind_speed_10m',\
                                       'wind_speed_10m_u_comp',\
                                       'wind_speed_10m_v_comp',\
-                                      'surface_pressure',\
+                                      'atmospheric_pressure',\
                                       'extraterestrial_radiation',\
                                       'shortwave_radiation',\
                                       'surface_net_solar_radiation',\
