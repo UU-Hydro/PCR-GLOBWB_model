@@ -33,7 +33,7 @@ import virtualOS as vos
 from ncConverter import *
 
 import evaporation.hamonETPFunctions as hamon_et0
-import evaporation.ref_pot_et_penman-monteith as penman_monteith
+import evaporation.ref_pot_et_penman_monteith as penman_monteith
 
 class Meteo(object):
 
