@@ -118,13 +118,13 @@ class Meteo(object):
             
             # read dem (should be in the same resolution as other meteo inputs)
             elevation_meteo = pcr.ifthen(self.landmask, \
-                                         pcr.cover(vos.readPCRmapClone(meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+                                         pcr.cover(vos.readPCRmapClone(meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
 
             # read long term annual temperature and diurnal difference
             self.delta_temp_mean = pcr.ifthen(self.landmask, \
-                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualDiurnalDeltaTmpIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualDiurnalDeltaTmpIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
             self.temp_annual     = pcr.ifthen(self.landmask, \
-                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualMeanTemperatureIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualMeanTemperatureIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
             #
             # - read and apply conversion factors
             for meteo_var_name in ['delta_temp_mean',\
