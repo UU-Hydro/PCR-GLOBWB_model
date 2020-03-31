@@ -72,6 +72,20 @@ class Meteo(object):
         
         if self.refETPotMethod == 'Input': self.etpFileNC = iniItems.meteoOptions['refETPotFileNC']              
 
+        # list of extra meteo variable names, needed for the Peman-Monteith calculation
+        self.extra_meteo_var_names = ['wind_speed_10m',\
+                                      'wind_speed_10m_u_comp',\
+                                      'wind_speed_10m_v_comp',\
+                                      'surface_pressure',\
+                                      'extraterestrial_radiation',\
+                                      'shortwave_radiation',\
+                                      'surface_net_solar_radiation',\
+                                      'albedo',\
+                                      'air_temperature_max',\
+                                      'air_temperature_min',\
+                                      'dewpoint_temperature_avg']
+
+
         #-----------------------------------------------------------------------            
         # NOTE: RvB 13/07/2016 Added correction constant and factor and variable name
         # to allow for easier use of netCDF climate inpute files
@@ -94,19 +108,6 @@ class Meteo(object):
         self.latitudes = pcr.ycoordinate(self.cloneMap) # needed to calculate 'referenceETPot'
         self.latitudes_in_radian = penman_monteith.shortwave_radiation.deg2rad(self.latitudes)    
         
-        # list of extra meteo variable names, needed for the Peman-Monteith calculation
-        self.extra_meteo_var_names = ['wind_speed_10m',\
-                                      'wind_speed_10m_u_comp',\
-                                      'wind_speed_10m_v_comp',\
-                                      'surface_pressure',\
-                                      'extraterestrial_radiation',\
-                                      'shortwave_radiation',\
-                                      'surface_net_solar_radiation',\
-                                      'albedo',\
-                                      'air_temperature_max',\
-                                      'air_temperature_min',\
-                                      'dewpoint_temperature_avg']
-
         # initiate shortwave radiation class, required for the Bristow-Campbell method
         self.sw_rad_based_on_bristow_campbell = False
         if ('shortwave_radiation' in iniItems.meteoOptions) and (iniItems.meteoOptions['shortwave_radiation'] == "Bristow-Campbell"):
