@@ -58,6 +58,9 @@ filecache = dict()
 MV = 1e20
 smallNumber = 1E-39
 
+# and set pi
+pi = math.pi
+
 # tuple of netcdf file suffixes (extensions) that can be used:
 netcdf_suffixes = ('.nc4','.nc')
 
