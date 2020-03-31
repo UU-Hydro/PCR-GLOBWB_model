@@ -95,16 +95,16 @@ class Meteo(object):
         self.latitudes_in_radian = penman_monteith.shortwave_radiation.deg2rad(self.latitudes)    
         
         # list of extra meteo variable names, needed for the Peman-Monteith calculation
-        self.extra_meteo_var_names = ['wind_speed_10m',\          
-                                      'wind_speed_10m_u_comp',\    
-                                      'wind_speed_10m_v_comp',\    
-                                      'surface_pressure',\         
+        self.extra_meteo_var_names = ['wind_speed_10m',\
+                                      'wind_speed_10m_u_comp',\
+                                      'wind_speed_10m_v_comp',\
+                                      'surface_pressure',\
                                       'extraterestrial_radiation',\
-                                      'shortwave_radiation',\      
+                                      'shortwave_radiation',\
                                       'surface_net_solar_radiation',\
-                                      'albedo',\                   
-                                      'air_temperature_max',\      
-                                      'air_temperature_min',\      
+                                      'albedo',\
+                                      'air_temperature_max',\
+                                      'air_temperature_min',\
                                       'dewpoint_temperature_avg']
 
         # initiate shortwave radiation class, required for the Bristow-Campbell method
