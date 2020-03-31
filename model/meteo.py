@@ -876,7 +876,7 @@ class Meteo(object):
         # extra meteo files/variables (needed for the Penman-Monteith method)
         for meteo_var_name in self.extra_meteo_var_names:  
         #
-            if meteo_var_name in list(self.iniItems.meteoOptions.keys()) and self.iniItems.meteoOptions[meteo_var_name].endswith('.nc', '.nc4', '.nc3'):
+            if meteo_var_name in list(self.iniItems.meteoOptions.keys()) and self.iniItems.meteoOptions[meteo_var_name].endswith(('.nc', '.nc4', '.nc3')):
                 
                 # read the file
                 method_for_time_index = None
