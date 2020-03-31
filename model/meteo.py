@@ -23,6 +23,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import calendar
+
 from pcraster.framework import *
 import pcraster as pcr
 
@@ -412,7 +414,7 @@ class Meteo(object):
                 #~ julian_day = penman_monteith.shortwave_radiation.get_julian_day_number(currTimeStep._currTimeFull)
                 # - number of days in a year
                 number_days = 365
-                if isleap(date.year): number_days = 366
+                if calendar.isleap(date.year): number_days = 366
                 # - day angle (rad)
                 day_angle = float(julian_day - 1) / number_days * 2 * pi
 
