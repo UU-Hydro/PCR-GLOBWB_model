@@ -147,13 +147,13 @@ class Meteo(object):
 
             # TODO: The long term mean annual and diurnal difference temperature should be calculated online. 
             
+            # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
             self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
                                                           elevation       = elevation_meteo, \
                                                           temp_annual     = self.temp_annual, \
                                                           delta_temp_mean = self.temp_annual, \
-                                                          solar_constant = 118.1)
-            
-            # TODO: set solar_constant in the configuration file                                              
+                                                          solar_constant  = 118.1)
+            # - TODO: set solar_constant in the configuration file                                              
 
         # daily time step
         self.usingDailyTimeStepForcingData = False
