@@ -431,7 +431,8 @@ class Meteo(object):
                                                                                                   eccentricity = eccentricity, \
                                                                                                   day_length = day_length, \
                                                                                                   solar_constant = 118.1)
-
+                # UNTIL-THIS-PART check deg and rad values
+                
                 # TODO: set solar_constant in the configuration file                                              
 
                 # extraterestrial_radiation (unit: J.m-2.day-1)
