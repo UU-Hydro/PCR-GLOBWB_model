@@ -224,7 +224,7 @@ must be provided; the latter takes precedence):
 		if unsatVapPressure is not None:
 			pass
 		#~ elif not isinstance(relativeHumidity, NoneType):
-		elif relativeHumidity is not = None:
+		elif relativeHumidity is not None:
 			unsatVapPressure= relativeHumidity*satVapPressure
 		else:
 			sys.exit(' * Halted: either relative humidity or actual vapour pressure should be defined')
