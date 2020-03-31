@@ -313,10 +313,10 @@ class Meteo(object):
            self.downscaleReferenceETPotOption:
 
             # cellArea (m2), needed for downscaling P and ET0
-            if 'cellArea' not in list(iniItems.meteoOptions.keys()):
-                iniItems.meteoOptions['cellArea'] = iniItems.routingOptions['cellArea']
+            if 'cellAreaMap' not in list(iniItems.meteoOptions.keys()):
+                iniItems.meteoOptions['cellAreaMap'] = iniItems.routingOptions['cellAreaMap']
             self.cellArea = vos.readPCRmapClone(\
-                iniItems.routingOptions['cellAreaMap'],
+                iniItems.meteoOptions['cellAreaMap'],
                 self.cloneMap,self.tmpDir,self.inputDir)
             self.cellArea = pcr.ifthen(self.landmask, cellArea)
 
