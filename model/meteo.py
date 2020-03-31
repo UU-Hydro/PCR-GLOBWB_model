@@ -265,12 +265,12 @@ class Meteo(object):
         # conversion constants and factors for extra meteo variables 
         for meteo_var_name in self.extra_meteo_var_names:
             # constant
-            consta_var_name = 'consta_' + meteo_var_name
+            consta_var_name = 'consta_for_' + meteo_var_name
             vars(self)[consta_var_name]     = pcr.spatial(pcr.scalar(0.0))
             if consta_var_name in meteoOptions:
                 vars(self)[consta_var_name] = pcr.cover(vos.readPCRmapClone(meteoOptions[consta_var_name], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
             # factor
-            factor_var_name = 'factor_' + meteo_var_name
+            factor_var_name = 'factor_for_' + meteo_var_name
             vars(self)[factor_var_name]     = pcr.spatial(pcr.scalar(1.0))
             if factor_var_name in meteoOptions:
                 vars(self)[factor_var_name] = pcr.cover(vos.readPCRmapClone(meteoOptions[factor_var_name], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
