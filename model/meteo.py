@@ -24,6 +24,7 @@
 
 import os
 import calendar
+import math
 
 from pcraster.framework import *
 import pcraster as pcr
@@ -416,7 +417,7 @@ class Meteo(object):
                 number_days = 365
                 if calendar.isleap(currTimeStep.year): number_days = 366
                 # - day angle (rad)
-                day_angle = float(julian_day - 1) / number_days * 2 * pi
+                day_angle = float(julian_day - 1) / number_days * 2 * math.pi
 
                 # solar declination
                 solar_declination = penman_monteith.shortwave_radiation.compute_solar_declination(day_angle)
