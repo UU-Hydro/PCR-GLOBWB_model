@@ -37,6 +37,7 @@ from ncConverter import *
 
 import evaporation.hamonETPFunctions as hamon_et0
 import evaporation.ref_pot_et_penman_monteith as penman_monteith
+import evaporation.shortwave_radiation as sw_rad
 
 class Meteo(object):
 
@@ -420,21 +421,21 @@ class Meteo(object):
                 day_angle = float(julian_day - 1) / number_days * 2 * math.pi
 
                 # solar declination
-                solar_declination = penman_monteith.shortwave_radiation.compute_solar_declination(day_angle)
+                solar_declination = sw_rad.compute_solar_declination(day_angle)
                 
                 # eccentricity 
-                eccentricity = penman_monteith.shortwave_radiation.compute_eccentricity(day_angle)
+                eccentricity = sw_rad.compute_eccentricity(day_angle)
                 
                 # day length (hours)
-                day_length = penman_monteith.shortwave_radiation.compute_day_length(latitude = self.latitudes_in_radian,\
-                                                                                    solar_declination = solar_declination)
+                day_length = sw_rad.compute_day_length(latitude = self.latitudes_in_radian,\
+                                                       solar_declination = solar_declination)
                 
                 # extraterestrial_radiation (unit: MJ/m2/day)
-                extraterestrial_radiation = penman_monteith.shortwave_radiation.compute_radsw_ext(latitude = self.latitudes_in_radian, \
-                                                                                                  solar_declination = solar_declination, \
-                                                                                                  eccentricity = eccentricity, \
-                                                                                                  day_length = day_length, \
-                                                                                                  solar_constant = 118.1)
+                extraterestrial_radiation = sw_rad.compute_radsw_ext(latitude = self.latitudes_in_radian, \
+                                                                                solar_declination = solar_declination, \
+                                                                                eccentricity = eccentricity, \
+                                                                                day_length = day_length, \
+                                                                                solar_constant = 118.1)
                 # UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
