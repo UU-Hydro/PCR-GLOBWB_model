@@ -509,7 +509,7 @@ class Meteo(object):
                                                                      vapourPressure, \
                                                                      fractionShortWaveRadiation)
             # - netRadiation (unit: W.m**-2)
-            netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation) / (24.0 * 3600.)
+            netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation / (24.0 * 3600.))
             
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
                                                                                   airTemperature      = self.temperature, 
