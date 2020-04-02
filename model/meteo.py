@@ -550,7 +550,7 @@ class Meteo(object):
 
             # debug, all in W.m**-2
             self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) * 0.0864
-            self.shorWaveRadiation         = shorWaveRadiation
+            self.shorWaveRadiation         = shortWaveRadiation
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
             input("Press Enter to continue...")
