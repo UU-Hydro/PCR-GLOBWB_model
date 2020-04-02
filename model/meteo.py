@@ -534,9 +534,9 @@ class Meteo(object):
                                                                      fractionShortWaveRadiation)
            
             # - shortwave radiation in W.m**-2
-            shorWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
+            shortWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
             
-            # - netRadiation (unit: W.m**-2)
+            # - netRadiation in W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
             
             # - referencePotET in m.day-1
