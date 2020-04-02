@@ -47,15 +47,15 @@ from copy import deepcopy
 #~ 
 #~ print ('\nDevelopmens for main module:')
 
-if len(critical_improvements) > 0:
-    print('Critical improvements: \n%s' % \
-          critical_improvements)
-
-if len(development) > 0:
-    print ('Ongoing: \n%s' % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
+#~ if len(critical_improvements) > 0:
+    #~ print('Critical improvements: \n%s' % \
+          #~ critical_improvements)
+#~ 
+#~ if len(development) > 0:
+    #~ print ('Ongoing: \n%s' % development)
+#~ 
+#~ if len(critical_improvements) > 0:
+    #~ sys.exit()
 
 ####################
 # global variables #
