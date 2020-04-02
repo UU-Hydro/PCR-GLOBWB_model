@@ -545,6 +545,11 @@ class Meteo(object):
             input("Press Enter to continue...")
             os.system("killall aguila")
             
+            # debug
+            pcr.aguila(self.extraterestrial_radiation / (24.0 * 3600))
+            input("Press Enter to continue...")
+            os.system("killall aguila")
+            
             # - netRadiation (unit: W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
             
