@@ -443,9 +443,6 @@ class Meteo(object):
                 # extraterestrial_radiation (unit: J.m-2.day-1)
                 self.extraterestrial_radiation = extraterestrial_radiation * 1000000.
                 
-                pcr.aguila(self.extraterestrial_radiation)
-                input("Press Enter to continue...")
-
             else:
 
                 msg = "Extraterestrial shortwave (solar) radiation is obtained from the input file."
@@ -485,6 +482,10 @@ class Meteo(object):
                 self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000000.
                 self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000000.
             
+            # debug
+            pcr.aguila(self.shortwave_radiation)
+            pcr.aguila(self.extraterestrial_radiation)
+            input("Press Enter to continue...")
 
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
