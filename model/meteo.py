@@ -506,12 +506,12 @@ class Meteo(object):
                 self.wind_speed_10m = (self.wind_speed_10m_u_comp**2. + self.wind_speed_10m_v_comp**2.)**(0.5)
             
 
-            #~ # debug
-            #~ pcr.aguila(self.shortwave_radiation)
-            #~ pcr.aguila(self.extraterestrial_radiation)
-            #~ pcr.aguila(self.wind_speed_10m)
-            #~ input("Press Enter to continue...")
-            #~ os.system("killall aguila")
+            # debug
+            pcr.aguila(self.shortwave_radiation)
+            pcr.aguila(self.extraterestrial_radiation)
+            pcr.aguila(self.wind_speed_10m)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
 
             # update PM method
             
