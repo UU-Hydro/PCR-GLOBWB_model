@@ -533,7 +533,7 @@ class Meteo(object):
                                                                      fractionShortWaveRadiation)
            
             # - shortwave radiation in W.m**-2
-            shortWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
+            shortWaveRadiation = (self.shortwave_radiation / 1e6) / 0.0864
             
             # - netRadiation in W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
@@ -548,7 +548,7 @@ class Meteo(object):
                                                                                   timeStepLength      = 86400)
 
             # debug, all in W.m**-2
-            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) * 0.0864
+            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) / 0.0864
             self.shorWaveRadiation         = shortWaveRadiation
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
