@@ -456,7 +456,11 @@ class Meteo(object):
                 msg = "Extraterestrial shortwave (solar) radiation is obtained from the input file."
                 logger.info(msg)
 
-            
+            # debug
+            pcr.aguila(self.extraterestrial_radiation)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
+
             # shortwave radiation
             
             if self.iniItems.meteoOptions['shortwave_radiation'].endswith(('.nc', '.nc4', '.nc3')):
@@ -472,6 +476,10 @@ class Meteo(object):
                 
                 self.shortwave_radiation = self.surface_net_solar_radiation / (pcr.spatial(pcr.scalar(1.0)) - self.albedo)
                 
+            # debug
+            pcr.aguila(self.shortwave_radiation)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
 
             if self.iniItems.meteoOptions['shortwave_radiation'] == "Bristow-Campbell":
 
