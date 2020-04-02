@@ -395,6 +395,14 @@ class Meteo(object):
 
     def update(self, currTimeStep):
 
+        # Downscaling precipitation
+        self.precipitation_before_downscaling = self.precipitation
+        if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
+
+        # dowsncaling temperature        
+        self.temperature_before_downscaling = self.temperature
+        if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
+
         # calculate or obtain referencePotET
         if self.refETPotMethod == 'Hamon':
             
@@ -495,8 +503,8 @@ class Meteo(object):
                                          extraterrestrial_rad = self.extraterestrial_radiation / 1000000.)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
-                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000000.
-                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000000.
+                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1e6
+                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1e6
             
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -547,19 +555,11 @@ class Meteo(object):
                                                                                   relativeHumidity    = None,\
                                                                                   timeStepLength      = 86400)
 
-            # debug, all in W.m**-2
+            # all radiation terms in W.m**-2
             self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) / 0.0864
             self.shorWaveRadiation         = shortWaveRadiation
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
-
-        # Downscaling precipitation
-        self.precipitation_before_downscaling = self.precipitation
-        if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
-
-        # dowsncaling temperature        
-        self.temperature_before_downscaling = self.temperature
-        if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
         # Downscaling referenceETPot (based on temperature)
         self.referenceETPot_before_downscaling = self.referencePotET
