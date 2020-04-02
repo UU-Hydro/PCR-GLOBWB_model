@@ -536,7 +536,7 @@ class Meteo(object):
             shortWaveRadiation = (self.shortwave_radiation / 1e6) / 0.0864
             
             # - netRadiation in W.m**-2)
-            netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
+            netRadiation = pcr.max(0.0, shortWaveRadiation- longWaveRadiation)
             
             # - referencePotET in m.day-1
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
