@@ -449,7 +449,7 @@ class Meteo(object):
                 # TODO: set solar_constant in the configuration file                                              
 
                 # extraterestrial_radiation (unit: J.m-2.day-1)
-                self.extraterestrial_radiation = extraterestrial_radiation * 1e6.
+                self.extraterestrial_radiation = extraterestrial_radiation * 1e6
                 
             else:
 
