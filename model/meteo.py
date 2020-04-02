@@ -152,19 +152,19 @@ class Meteo(object):
 
             # TODO: The long term mean annual and diurnal difference temperature should be calculated online. 
             
-            #~ # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
-            #~ self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
-                                                          #~ elevation       = elevation_meteo, \
-                                                          #~ temp_annual     = self.temp_annual, \
-                                                          #~ delta_temp_mean = self.temp_annual, \
-                                                          #~ solar_constant  = 118.1)
-
-            # initiate short wave radiation class with the the solar constant = 1362 W.m-2
+            # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
             self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
                                                           elevation       = elevation_meteo, \
                                                           temp_annual     = self.temp_annual, \
                                                           delta_temp_mean = self.temp_annual, \
-                                                          solar_constant  = 1362.0)
+                                                          solar_constant  = 118.1)
+
+            #~ # initiate short wave radiation class with the the solar constant = 1362 W.m-2
+            #~ self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
+                                                          #~ elevation       = elevation_meteo, \
+                                                          #~ temp_annual     = self.temp_annual, \
+                                                          #~ delta_temp_mean = self.temp_annual, \
+                                                          #~ solar_constant  = 1362.0)
 
             # - TODO: set solar_constant in the configuration file                                              
 
@@ -438,18 +438,18 @@ class Meteo(object):
                 day_length = sw_rad.compute_day_length(latitude = self.latitudes_in_radian,\
                                                        solar_declination = solar_declination)
                 
-                # extraterestrial_radiation (unit: W.m-2)
+                # extraterestrial_radiation
                 extraterestrial_radiation = sw_rad.compute_radsw_ext(latitude = self.latitudes_in_radian, \
                                                                                 solar_declination = solar_declination, \
                                                                                 eccentricity = eccentricity, \
                                                                                 day_length = day_length, \
-                                                                                solar_constant = 1362.0)
+                                                                                solar_constant = 118.1)
                 # UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
 
                 # extraterestrial_radiation (unit: J.m-2.day-1)
-                self.extraterestrial_radiation = extraterestrial_radiation * 24. * 3600.
+                self.extraterestrial_radiation = extraterestrial_radiation * 1e6.
                 
             else:
 
@@ -487,8 +487,8 @@ class Meteo(object):
                                          extraterrestrial_rad = self.extraterestrial_radiation / 1000000.)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
-                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 24. * 3600.
-                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 24. * 3600.
+                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000.
+                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000.
             
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
