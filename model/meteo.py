@@ -444,7 +444,7 @@ class Meteo(object):
                 self.extraterestrial_radiation = extraterestrial_radiation * 1000000.
                 
                 pcr.aguila(self.extraterestrial_radiation)
-                
+                input("Press Enter to continue...")
 
             else:
 
