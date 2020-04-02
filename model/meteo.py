@@ -444,6 +444,10 @@ class Meteo(object):
                                                                                 eccentricity = eccentricity, \
                                                                                 day_length = day_length, \
                                                                                 solar_constant = 118.1)
+
+                # debug
+                pcr.aguila(extraterestrial_radiation)
+
                 # UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
