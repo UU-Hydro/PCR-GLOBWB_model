@@ -448,7 +448,7 @@ class Meteo(object):
                 # debug
                 pcr.aguila(extraterestrial_radiation)
 
-                # UNTIL-THIS-PART check deg and rad values
+                # TODO: UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
 
@@ -528,6 +528,7 @@ class Meteo(object):
             fractionShortWaveRadiation = pcr.cover(pcr.min(1.0, \
                                                   self.shortwave_radiation / self.extraterestrial_radiation), \
                                                   0.0)
+            
             # - compute vapour pressure (Pa)
             vapourPressure = penman_monteith.getSaturatedVapourPressure(\
                                                                         self.dewpoint_temperature_avg)
@@ -542,7 +543,7 @@ class Meteo(object):
             os.system("killall aguila")
 
             # - shortWaveRadiation in W.m**-2
-            shortWaveRadiation = self.shortwave_radiation / (24.0 * 3600.)
+            shortWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
 
             # debug
             pcr.aguila(shortWaveRadiation)
@@ -550,7 +551,7 @@ class Meteo(object):
             os.system("killall aguila")
             
             # debug
-            pcr.aguila(self.extraterestrial_radiation / (24.0 * 3600))
+            pcr.aguila((self.extraterestrial_radiation / 1e6) * 0.0864)
             input("Press Enter to continue...")
             os.system("killall aguila")
             
