@@ -553,9 +553,6 @@ class Meteo(object):
             self.shorWaveRadiation         = shortWaveRadiation
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-
 
         # Downscaling precipitation
         self.precipitation_before_downscaling = self.precipitation
