@@ -53,6 +53,10 @@ class PCRGlobWB(object):
         
         pcr.setclone(configuration.cloneMap)
 
+        UNTIL-THIS-PART
+        
+        if 
+        
         # Read the ldd map.
         self.lddMap = vos.readPCRmapClone(\
                   configuration.routingOptions['lddMap'],
