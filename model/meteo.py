@@ -538,7 +538,7 @@ class Meteo(object):
             os.system("killall aguila")
 
             # - shortWaveRadiation in W.m**-2
-            shorWaveRadiation = self.shortwave_radiation / (24.0 * 3600.)
+            shortWaveRadiation = self.shortwave_radiation / (24.0 * 3600.)
 
             # debug
             pcr.aguila(shortWaveRadiation)
@@ -546,8 +546,13 @@ class Meteo(object):
             os.system("killall aguila")
             
             # - netRadiation (unit: W.m**-2)
-            netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation / (24.0 * 3600.))
+            netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
             
+            # debug
+            pcr.aguila(netRadiation)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
+
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
                                                                                   airTemperature      = self.temperature, 
                                                                                   windSpeed           = self.wind_speed_10m, 
