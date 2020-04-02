@@ -514,8 +514,10 @@ class Meteo(object):
             longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                      vapourPressure, \
                                                                      fractionShortWaveRadiation)
+            self.longWaveRadiation = longWaveRadiation
             # - netRadiation (unit: W.m**-2)
-            netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation / (24.0 * 3600.*2))
+            netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation / (24.0 * 3600.))
+            self.netRadiation = netRadiation
             
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
                                                                                   airTemperature      = self.temperature, 
@@ -525,12 +527,12 @@ class Meteo(object):
                                                                                   relativeHumidity    = None,\
                                                                                   timeStepLength      = 86400)
 
-            # debug
-            pcr.aguila(longWaveRadiation)
-            pcr.aguila(netRadiation)
-            pcr.aguila(self.referencePotET)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
+            #~ # debug
+            #~ pcr.aguila(longWaveRadiation)
+            #~ pcr.aguila(netRadiation)
+            #~ pcr.aguila(self.referencePotET)
+            #~ input("Press Enter to continue...")
+            #~ os.system("killall aguila")
         
 
         # Downscaling precipitation
