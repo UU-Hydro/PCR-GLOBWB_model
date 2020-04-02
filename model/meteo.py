@@ -442,6 +442,9 @@ class Meteo(object):
 
                 # extraterestrial_radiation (unit: J.m-2.day-1)
                 self.extraterestrial_radiation = extraterestrial_radiation * 1000000.
+                
+                pcr.aguila(self.extraterestrial_radiation)
+                
 
             else:
 
