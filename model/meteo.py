@@ -495,8 +495,8 @@ class Meteo(object):
                                          extraterrestrial_rad = self.extraterestrial_radiation / 1000000.)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
-                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000.
-                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000.
+                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000000.
+                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000000.
             
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -533,7 +533,7 @@ class Meteo(object):
                                                                      fractionShortWaveRadiation)
            
             # - shortwave radiation in W.m**-2
-            shortWaveRadiation = (self.shortwave_radiation / 1e6) / 0.0864
+            shortWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
             
             # - netRadiation in W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
@@ -548,7 +548,7 @@ class Meteo(object):
                                                                                   timeStepLength      = 86400)
 
             # debug, all in W.m**-2
-            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) / 0.0864
+            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) * 0.0864
             self.shorWaveRadiation         = shortWaveRadiation
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
