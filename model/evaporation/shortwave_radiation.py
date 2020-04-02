@@ -29,23 +29,23 @@ import pcraster as pcr
 from calendar import isleap
 from copy import deepcopy
 
-########
-# TODO #
-########
-critical_improvements= str.join('\n\t',\
-             ( \
-              '', \
-              ))
-
-development= str.join('\n\t',\
-             ( \
-              '', \
-              'add a class to compute subdaily radiation and the angle', \
-              'as well as a class to compute the topographic shading for regional models.'
-              '', \
-              ))
-
-print ('\nDevelopmens for main module:')
+#~ ########
+#~ # TODO #
+#~ ########
+#~ critical_improvements= str.join('\n\t',\
+             #~ ( \
+              #~ '', \
+              #~ ))
+#~ 
+#~ development= str.join('\n\t',\
+             #~ ( \
+              #~ '', \
+              #~ 'add a class to compute subdaily radiation and the angle', \
+              #~ 'as well as a class to compute the topographic shading for regional models.'
+              #~ '', \
+              #~ ))
+#~ 
+#~ print ('\nDevelopmens for main module:')
 
 if len(critical_improvements) > 0:
     print('Critical improvements: \n%s' % \
