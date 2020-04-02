@@ -487,8 +487,8 @@ class Meteo(object):
                                          extraterrestrial_rad = self.extraterestrial_radiation / 1000000.)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
-                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 24. * 36000.
-                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 24. * 36000.
+                self.shortwave_radiation       = self.sw_rad_model.radsw_act * 24. * 3600.
+                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 24. * 3600.
             
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
