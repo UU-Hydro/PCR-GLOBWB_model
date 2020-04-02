@@ -482,12 +482,6 @@ class Meteo(object):
                 self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1000000.
                 self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1000000.
             
-            # debug
-            pcr.aguila(self.shortwave_radiation)
-            pcr.aguila(self.extraterestrial_radiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
                                             (self.iniItems.meteoOptions['wind_speed_10m'] == "None"): 
@@ -501,7 +495,7 @@ class Meteo(object):
             pcr.aguila(self.extraterestrial_radiation)
             pcr.aguila(self.wind_speed_10m)
             input("Press Enter to continue...")
-
+            os.system("killall aguila")
 
             # update PM method
             
@@ -531,7 +525,14 @@ class Meteo(object):
                                                                                   relativeHumidity    = None,\
                                                                                   timeStepLength      = 86400)
 
+            # debug
+            pcr.aguila(longWaveRadiation)
+            pcr.aguila(netRadiation)
+            pcr.aguila(self.referencePotET)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
         
+
         # Downscaling precipitation
         self.precipitation_before_downscaling = self.precipitation
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
