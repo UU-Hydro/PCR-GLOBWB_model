@@ -506,12 +506,12 @@ class Meteo(object):
                 self.wind_speed_10m = (self.wind_speed_10m_u_comp**2. + self.wind_speed_10m_v_comp**2.)**(0.5)
             
 
-            # debug
-            pcr.aguila(self.shortwave_radiation)
-            pcr.aguila(self.extraterestrial_radiation)
-            pcr.aguila(self.wind_speed_10m)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
+            #~ # debug
+            #~ pcr.aguila(self.shortwave_radiation)
+            #~ pcr.aguila(self.extraterestrial_radiation)
+            #~ pcr.aguila(self.wind_speed_10m)
+            #~ input("Press Enter to continue...")
+            #~ os.system("killall aguila")
 
             # update PM method
             
@@ -527,10 +527,24 @@ class Meteo(object):
             # - compute vapour pressure (Pa)
             vapourPressure = penman_monteith.getSaturatedVapourPressure(\
                                                                         self.dewpoint_temperature_avg)
-            # - longwave radiation [W.m**-2]
+            # - longwave radiation in W.m**-2
             longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                      vapourPressure, \
                                                                      fractionShortWaveRadiation)
+
+            # debug
+            pcr.aguila(longWaveRadiation)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
+
+            # - shortWaveRadiation in W.m**-2
+            shorWaveRadiation = self.shortwave_radiation / (24.0 * 3600.)
+
+            # debug
+            pcr.aguila(shortWaveRadiation)
+            input("Press Enter to continue...")
+            os.system("killall aguila")
+            
             # - netRadiation (unit: W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - self.shortwave_radiation / (24.0 * 3600.))
             
