@@ -444,10 +444,6 @@ class Meteo(object):
                                                                                 eccentricity = eccentricity, \
                                                                                 day_length = day_length, \
                                                                                 solar_constant = 118.1)
-
-                # debug
-                pcr.aguila(extraterestrial_radiation)
-
                 # TODO: UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
@@ -460,10 +456,10 @@ class Meteo(object):
                 msg = "Extraterestrial shortwave (solar) radiation is obtained from the input file."
                 logger.info(msg)
 
-            # debug
-            pcr.aguila(self.extraterestrial_radiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
+            #~ # debug
+            #~ pcr.aguila(self.extraterestrial_radiation)
+            #~ input("Press Enter to continue...")
+            #~ os.system("killall aguila")
 
             # shortwave radiation
             
@@ -480,10 +476,10 @@ class Meteo(object):
                 
                 self.shortwave_radiation = self.surface_net_solar_radiation / (pcr.spatial(pcr.scalar(1.0)) - self.albedo)
                 
-            # debug
-            pcr.aguila(self.shortwave_radiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
+            #~ # debug
+            #~ pcr.aguila(self.shortwave_radiation)
+            #~ input("Press Enter to continue...")
+            #~ os.system("killall aguila")
 
             if self.iniItems.meteoOptions['shortwave_radiation'] == "Bristow-Campbell":
 
@@ -536,33 +532,11 @@ class Meteo(object):
             longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                      vapourPressure, \
                                                                      fractionShortWaveRadiation)
-
-            # debug
-            pcr.aguila(longWaveRadiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-
-            # - shortWaveRadiation in W.m**-2
-            shortWaveRadiation = (self.shortwave_radiation / 1e6) * 0.0864
-
-            # debug
-            pcr.aguila(shortWaveRadiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-            
-            # debug
-            pcr.aguila((self.extraterestrial_radiation / 1e6) * 0.0864)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-            
+           
             # - netRadiation (unit: W.m**-2)
             netRadiation = pcr.max(0.0, longWaveRadiation - shortWaveRadiation)
             
-            # debug
-            pcr.aguila(netRadiation)
-            input("Press Enter to continue...")
-            os.system("killall aguila")
-
+            # - referencePotET in m.day-1
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
                                                                                   airTemperature      = self.temperature, 
                                                                                   windSpeed           = self.wind_speed_10m, 
@@ -572,10 +546,12 @@ class Meteo(object):
                                                                                   timeStepLength      = 86400)
 
             # debug, all in W.m**-2
-            self.extraterrestrialRadiation = self.extraterestrial_radiation / (24.0 * 3600)
-            self.shorWaveRadiation         = self.shortwave_radiation / (24.0 * 3600.)
+            self.extraterrestrialRadiation = self.extraterestrial_radiation / 1e6) * 0.0864
+            self.shorWaveRadiation         = (self.shortwave_radiation / 1e6) * 0.0864
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
+            input("Press Enter to continue...")
+            os.system("killall aguila")
 
 
         # Downscaling precipitation
