@@ -546,7 +546,7 @@ class Meteo(object):
                                                                                   timeStepLength      = 86400)
 
             # debug, all in W.m**-2
-            self.extraterrestrialRadiation = self.extraterestrial_radiation / 1e6) * 0.0864
+            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) * 0.0864
             self.shorWaveRadiation         = (self.shortwave_radiation / 1e6) * 0.0864
             self.longWaveRadiation         = longWaveRadiation
             self.netRadiation              = netRadiation
