@@ -486,6 +486,7 @@ class Meteo(object):
             pcr.aguila(self.shortwave_radiation)
             pcr.aguila(self.extraterestrial_radiation)
             input("Press Enter to continue...")
+            os.system("killall aguila")
 
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -494,6 +495,13 @@ class Meteo(object):
                 logger.info(msg)
                 self.wind_speed_10m = (self.wind_speed_10m_u_comp**2. + self.wind_speed_10m_v_comp**2.)**(0.5)
             
+
+            # debug
+            pcr.aguila(self.shortwave_radiation)
+            pcr.aguila(self.extraterestrial_radiation)
+            pcr.aguila(self.wind_speed_10m)
+            input("Press Enter to continue...")
+
 
             # update PM method
             
@@ -898,4 +906,4 @@ class Meteo(object):
 
                 # apply conversion factor and constant
                 vars(self)[meteo_var_name] = vars(self)['consta_for_' + meteo_var_name] + \
-                                             vars(self)['consta_for_' + meteo_var_name] * pcr.ifthen(self.landmask, vars(self)[meteo_var_name])                                                   
+                                             vars(self)['factor_for_' + meteo_var_name] * pcr.ifthen(self.landmask, vars(self)[meteo_var_name])                                                   
