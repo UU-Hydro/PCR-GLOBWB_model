@@ -774,7 +774,7 @@ class Meteo(object):
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
-    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = False, considerCellArea = True, julian_day = None, min_limit = 0.001):
+    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, julian_day = None, min_limit = 0.001):
         
         if usingHamon:
             # factor is based on hamon reference potential evaporation using high resolution temperature
