@@ -714,7 +714,9 @@ class Meteo(object):
                                          timeStamp,currTimeStep.annuaIdx-1)
 
 
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.00, considerCellArea = True, drizzle_limit = 0.001):
+    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, considerCellArea = True, drizzle_limit = 0.001):
+        
+        # TODO: add CorrelationCriteria in the config file
         
         preSlope = 0.001 * vos.netcdf2PCRobjClone(\
                            self.precipLapseRateNC, 'precipitation',\
@@ -748,6 +750,8 @@ class Meteo(object):
 
     def downscaleTemperature(self, currTimeStep, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
         
+        # TODO: add CorrelationCriteria in the config file
+
         tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
                            self.temperLapseRateNC, 'temperature',\
                            currTimeStep.month, useDoy = "Yes",\
