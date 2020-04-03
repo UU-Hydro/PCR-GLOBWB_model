@@ -563,7 +563,7 @@ class Meteo(object):
 
         # Downscaling referenceETPot (based on temperature)
         self.referencePotET_before_downscaling = self.referencePotET
-        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
+        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot(zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, julian_day = currTimeStep.doy, min_limit = 0.001)
  
         # smoothing:
         if self.forcingSmoothing == True:
