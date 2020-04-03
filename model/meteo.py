@@ -562,7 +562,7 @@ class Meteo(object):
             self.netRadiation              = netRadiation
 
         # Downscaling referenceETPot (based on temperature)
-        self.referenceETPot_before_downscaling = self.referencePotET
+        self.referencePotET_before_downscaling = self.referencePotET
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
  
         # smoothing:
