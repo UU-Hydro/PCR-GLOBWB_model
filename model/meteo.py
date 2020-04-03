@@ -714,7 +714,7 @@ class Meteo(object):
                                          timeStamp,currTimeStep.annuaIdx-1)
 
 
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, considerCellArea = True, drizzle_limit = 0.001):
+    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.00, considerCellArea = True, drizzle_limit = 0.001):
         
         preSlope = 0.001 * vos.netcdf2PCRobjClone(\
                            self.precipLapseRateNC, 'precipitation',\
