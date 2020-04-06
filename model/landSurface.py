@@ -1024,9 +1024,12 @@ class LandSurface(object):
                                 currTimeStep.fulldate, useDoy = 'yearly',\
                                 cloneMapFileName = self.cloneMap)
                 else:
-                    routing.WaterBodies.fracWat = vos.readPCRmapClone(\
-                                routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
-                                self.cloneMap,self.tmpDir,self.inputDir)
+                    if routing.WaterBodies.fracWaterInp != "None":
+                        routing.WaterBodies.fracWat = vos.readPCRmapClone(\
+                                    routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+                    else:
+                        routing.WaterBodies.fracWat = pcr.ifthen(self.landmask, 0,0)
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
         # zero fracwat assumption used for debugging against version 1.0
