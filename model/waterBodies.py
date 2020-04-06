@@ -275,7 +275,7 @@ class WaterBodies(object):
                              date_used, useDoy = 'yearly',\
                              cloneMapFileName = self.cloneMap)
         else:
-            if self.resMaxCap != "None":
+            if self.resMaxCapInp != "None":
                 self.resMaxCap = 1000. * 1000. * vos.readPCRmapClone(\
                     self.resMaxCapInp+str(year_used)+".map", \
                     self.cloneMap,self.tmpDir,self.inputDir)
