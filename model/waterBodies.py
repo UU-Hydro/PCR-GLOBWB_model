@@ -142,7 +142,7 @@ class WaterBodies(object):
                            date_used, useDoy = 'yearly',\
                            cloneMapFileName = self.cloneMap)
         else:
-            if routing.WaterBodies.fracWaterInp != "None":
+            if self.fracWaterInp != "None":
                 self.fracWat = vos.readPCRmapClone(\
                                self.fracWaterInp+str(year_used)+".map",
                                self.cloneMap,self.tmpDir,self.inputDir)
@@ -161,9 +161,10 @@ class WaterBodies(object):
                                 date_used, useDoy = 'yearly',\
                                 cloneMapFileName = self.cloneMap)
         else:
-            self.waterBodyIds = vos.readPCRmapClone(\
-                self.waterBodyIdsInp+str(year_used)+".map",\
-                self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
+            if self.waterBodyIdsInp != "None":
+                self.waterBodyIds = vos.readPCRmapClone(\
+                    self.waterBodyIdsInp+str(year_used)+".map",\
+                    self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
         #
         self.waterBodyIds = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
@@ -202,9 +203,10 @@ class WaterBodies(object):
                         date_used, useDoy = 'yearly',\
                         cloneMapFileName = self.cloneMap)
         else:
-            resSfArea = 1000. * 1000. * vos.readPCRmapClone(
-                   self.resSfAreaInp+str(year_used)+".map",\
-                   self.cloneMap,self.tmpDir,self.inputDir)
+            if self.resSfAreaInp != "None":
+                resSfArea = 1000. * 1000. * vos.readPCRmapClone(
+                       self.resSfAreaInp+str(year_used)+".map",\
+                       self.cloneMap,self.tmpDir,self.inputDir)
         resSfArea = pcr.areaaverage(resSfArea,self.waterBodyIds)                        
         resSfArea = pcr.cover(resSfArea,0.)                        
 
@@ -234,9 +236,10 @@ class WaterBodies(object):
                                 date_used, useDoy = 'yearly',\
                                 cloneMapFileName = self.cloneMap)
         else:
-            self.waterBodyTyp = vos.readPCRmapClone(
-                self.waterBodyTypInp+str(year_used)+".map",\
-                self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
+            if self.waterBodyTypInp != "None":
+                self.waterBodyTyp = vos.readPCRmapClone(
+                    self.waterBodyTypInp+str(year_used)+".map",\
+                    self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
 
         # excluding wetlands (waterBodyTyp = 0) in all functions related to lakes/reservoirs 
         #
@@ -270,9 +273,10 @@ class WaterBodies(object):
                              date_used, useDoy = 'yearly',\
                              cloneMapFileName = self.cloneMap)
         else:
-            self.resMaxCap = 1000. * 1000. * vos.readPCRmapClone(\
-                self.resMaxCapInp+str(year_used)+".map", \
-                self.cloneMap,self.tmpDir,self.inputDir)
+            if self.resMaxCap != "None":
+                self.resMaxCap = 1000. * 1000. * vos.readPCRmapClone(\
+                    self.resMaxCapInp+str(year_used)+".map", \
+                    self.cloneMap,self.tmpDir,self.inputDir)
 
         self.resMaxCap = pcr.ifthen(self.resMaxCap > 0,\
                                     self.resMaxCap)
