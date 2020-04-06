@@ -254,6 +254,9 @@ class LandCover(object):
             self.coverFractionNC = None               
             self.interceptCapNC  = None
 
+        if self.iniItemsLC['coverFractionNC'] == "None": self.coverFractionNC = None 
+        if self.iniItemsLC['interceptCapNC']  == "None": self.interceptCapNC  = None
+        
         # for reporting: output in netCDF files:
         self.report = True
         try:
@@ -1089,10 +1092,13 @@ class LandCover(object):
     def getPotET(self, meteo, currTimeStep):
 
         # get crop coefficient:
-        cropKC = pcr.cover(
-                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                    currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                    cloneMapFileName = self.cloneMap), 0.0)
+        if self.iniItemsLC['cropCoefficientNC'] == "None":
+            cropKC = pcr.ifthen(self.landmask, 0.0)
+        else:
+            cropKC = pcr.cover(
+                     vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+                                            currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                            cloneMapFileName = self.cloneMap), 0.0)
         self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 
