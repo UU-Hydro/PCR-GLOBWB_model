@@ -1093,7 +1093,7 @@ class LandCover(object):
 
         # get crop coefficient:
         if self.iniItemsLC['cropCoefficientNC'] == "None":
-            cropKC = pcr.ifthen(self.landmask, 0.0)
+            cropKC = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0))
         else:
             cropKC = pcr.cover(
                      vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
