@@ -207,6 +207,8 @@ class WaterBodies(object):
                 resSfArea = 1000. * 1000. * vos.readPCRmapClone(
                        self.resSfAreaInp+str(year_used)+".map",\
                        self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                resSfArea = pcr.spatial(pcr.scalar(0.0))
         resSfArea = pcr.areaaverage(resSfArea,self.waterBodyIds)                        
         resSfArea = pcr.cover(resSfArea,0.)                        
 
