@@ -142,9 +142,10 @@ class WaterBodies(object):
                            date_used, useDoy = 'yearly',\
                            cloneMapFileName = self.cloneMap)
         else:
-            self.fracWat = vos.readPCRmapClone(\
-                           self.fracWaterInp+str(year_used)+".map",
-                           self.cloneMap,self.tmpDir,self.inputDir)
+            if routing.WaterBodies.fracWaterInp != "None":
+                self.fracWat = vos.readPCRmapClone(\
+                               self.fracWaterInp+str(year_used)+".map",
+                               self.cloneMap,self.tmpDir,self.inputDir)
         
         self.fracWat = pcr.cover(self.fracWat, pcr.spatial(pcr.scalar(0.0)))
         self.fracWat = pcr.max(0.0, self.fracWat)
