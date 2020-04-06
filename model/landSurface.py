@@ -1029,7 +1029,9 @@ class LandSurface(object):
                                     routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
                                     self.cloneMap,self.tmpDir,self.inputDir)
                     else:
-                        routing.WaterBodies.fracWat = pcr.ifthen(self.landmask, 0.0)
+                        routing.WaterBodies.fracWat = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+            # Note that the variable used in the following line is FRACWAT (this may be a 'small' bug fixing to the GMD paper version)
+            FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
         # zero fracwat assumption used for debugging against version 1.0
