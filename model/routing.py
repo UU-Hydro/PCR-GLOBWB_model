@@ -964,7 +964,7 @@ class Routing(object):
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
         #
-        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1) and self.no_zero_crop_water_coefficient:
+        if ((currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1)) and self.no_zero_crop_water_coefficient:
             waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
                                currTimeStep.fulldate, useDoy = 'month',\
                                        cloneMapFileName = self.cloneMap)
