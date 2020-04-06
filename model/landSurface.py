@@ -1029,7 +1029,20 @@ class LandSurface(object):
                                     routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
                                     self.cloneMap,self.tmpDir,self.inputDir)
                     else:
-                        routing.WaterBodies.fracWat = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+                        routing.WaterBodies.fracWat = pcr.spatial(pcr.scalar(0.0))
+            else:
+                if routing.WaterBodies.useNetCDF:
+                    routing.WaterBodies.fracWat = vos.netcdf2PCRobjClone(\
+                                routing.WaterBodies.ncFileInp,'fracWaterInp', \
+                                currTimeStep.fulldate, useDoy = 'yearly',\
+                                cloneMapFileName = self.cloneMap)
+                else:
+                    if routing.WaterBodies.fracWaterInp != "None":
+                        routing.WaterBodies.fracWat = vos.readPCRmapClone(\
+                                    routing.WaterBodies.fracWaterInp,
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+                    else:
+                        routing.WaterBodies.fracWat = pcr.spatial(pcr.scalar(0.0))
             # Note that the variable used in the following line is FRACWAT (this may be a 'small' bug fixing to the GMD paper version)
             FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 
         FRACWAT = pcr.cover(FRACWAT, 0.0)
