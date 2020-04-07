@@ -396,11 +396,11 @@ class Meteo(object):
     def update(self, currTimeStep):
 
         # Downscaling precipitation
-        self.precipitation_before_downscaling = self.precipitation
+        self.precipitation_before_downscaling = pcr.ifthen(self.landmask, self.precipitation)
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
 
         # dowsncaling temperature        
-        self.temperature_before_downscaling = self.temperature
+        self.temperature_before_downscaling = pcr.ifthen(self.landmask, self.temperature)
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
         # calculate or obtain referencePotET
@@ -562,7 +562,7 @@ class Meteo(object):
             self.netRadiation              = netRadiation
 
         # Downscaling referenceETPot (based on temperature)
-        self.referencePotET_before_downscaling = self.referencePotET
+        self.referencePotET_before_downscaling = pcr.ifthen(self.landmask, self.referencePotET)
         if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
  
         # smoothing:
