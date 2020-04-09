@@ -254,8 +254,8 @@ class LandCover(object):
             self.coverFractionNC = None               
             self.interceptCapNC  = None
 
-        if self.iniItemsLC['coverFractionNC'] == "None": self.coverFractionNC = None 
-        if self.iniItemsLC['interceptCapNC']  == "None": self.interceptCapNC  = None
+        if 'coverFractionNC' in list(self.iniItemsLC.keys()) and self.iniItemsLC['coverFractionNC'] == "None": self.coverFractionNC = None 
+        if 'interceptCapNC'  in list(self.iniItemsLC.keys()) and self.iniItemsLC['interceptCapNC' ] == "None": self.interceptCapNC  = None
         
         # for reporting: output in netCDF files:
         self.report = True
