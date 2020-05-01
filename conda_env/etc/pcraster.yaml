@@ -1,9 +1,0 @@
-name: pcraster_4.3
-channels:
-- conda-forge
-- http://pcraster.geo.uu.nl/pcraster/pcraster/
-dependencies:
-- python>=3.6
-- numpy
-- pcraster
-
