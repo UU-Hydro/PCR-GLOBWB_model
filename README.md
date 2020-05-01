@@ -8,12 +8,11 @@ Please also see the file README.txt.
 
 Main reference/paper: Sutanudjaja, E. H., van Beek, R., Wanders, N., Wada, Y., Bosmans, J. H. C., Drost, N., van der Ent, R. J., de Graaf, I. E. M., Hoch, J. M., de Jong, K., Karssenberg, D., López López, P., Peßenteiner, S., Schmitz, O., Straatsma, M. W., Vannametee, E., Wisser, D., and Bierkens, M. F. P.: PCR-GLOBWB 2: a 5 arcmin global hydrological and water resources model, Geosci. Model Dev., 11, 2429-2453, https://doi.org/10.5194/gmd-11-2429-2018, 2018.
 
-## Input and output files
+## Input and output files (including OPeNDAP-based access)
 
 PCR-GLOBWB input and output files for the runs made in Sutanudjaja et al. (2018, https://doi.org/10.5194/gmd-11-2429-2018) are available on https://geo.data.uu.nl/research-pcrglobwb/pcr-globwb_gmd_paper_sutanudjaja_et_al_2018/. For requesting access, please send an e-mail to E.H.Sutanudjaja@uu.nl.
 
-The input files are also available on the OPeNDAP server: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/version_2019_11_beta/catalog.html. 
-
+The input files (and some output files) are also available on the OPeNDAP server: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/catalog.html. The OPeNDAP protocol (https://www.opendap.org) allow users to access PCR-GLOBWB input files from the remote server and perform PCR-GLOBWB runs **without** the need to download the input files (with total size ~250 GB for the global extent).
 
 ## How to install
 
@@ -23,15 +22,15 @@ Please follow the following steps required to install PCR-GLOBWB:
 
  2. Get the requirement or environment file from this repository [conda_env/pcrglobwb_py3.yml](conda_env/pcrglobwb_py3.yml) and use it to install all modules required () to run PCR-GLOBWB:
 
-    `conda env create -f requirements.yaml`
+    `conda env create --name pcrglobwb_python3 -f pcrglobwb_py3.yml`
 
-    The requirements file will create a environment named *riverscape*.
+    The requirements file will create a environment named *pcrglobwb_python3*.
 
  3. Activate the environment in a command prompt:
 
-    `conda activate riverscape`
+    `conda activate pcrglobwb_python3`
 
- 4. Clone or download this repository. We suggest to use the latest version of the model
+ 4. Clone or download this repository. We suggest to use the latest version of the model, which should also be in the default branch. 
 
     `git clone https://github.com/UU-Hydro/RiverScape.git`
 
@@ -40,7 +39,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
 ## How to run
 
-Activate the environment in a command prompt:
+Please make sure that the correct sourenvironment in a command prompt:
 
 `conda activate riverscape`
 
@@ -55,6 +54,9 @@ You can start Jupyter from the command prompt and afterwards select a notebook i
 You can also open individual notebooks directly by specifying the filename, e.g. the intervention planning with:
 
 `jupyter-notebook intervent_parameter.ipynb`
+
+
+## Make your own study areas (clone and landmask areas)
 
 
 
