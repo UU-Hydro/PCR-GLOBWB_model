@@ -37,9 +37,20 @@ Please follow the following steps required to install PCR-GLOBWB:
     This will clone PCR-GLOBWB into the current working directory.
 
 
-## How to run
+## PCR-GLOBWB configuration .ini file
 
-Please make sure that the correct sourenvironment in a command prompt:
+For running PCR-GLOBWB, a configuration .ini file is required. Some configuration .ini file examples are given in the *config* directory. To be able to run PCR-GLOBWB using these .ini file examples, there are at least two things that must be adjusted. 
+
+First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. You do not need to create this directory mannually.  
+
+Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in this repository [clone_landmask_maps/clone_landmask_examples.zip](clone_landmask_maps/clone_landmask_examples.zip).
+
+By default, the configuration .ini file examples are given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory): https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/. You can adjust 
+
+
+## PCR-GLOBWB configuration .ini file
+
+Please make sure that the correct conda environment in a command prompt:
 
 `conda activate pcrglobwb_python3`
 
@@ -50,19 +61,3 @@ You can start a PCR-GLOBWB run the command prompt using the following
 `python deterministic_runner.py <ini_configuration_file>`
 
 where <ini_configuration_file> is the configuration file of PCR-GLOBWB. 
-
-Some configuration .ini file examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to edit. 
-
-First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. 
-
-Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in this repository [clone_landmask_maps/clone_landmask_examples.zip](clone_landmask_maps/clone_landmask_examples.zip).
-
-By default, the configuration .ini file examples are given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory).
-
-`inputDir = https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/'
-
-[//]: #  <TODO)
-[//]: #  (A manual for making your own study areas, i.e. clone and landmask areas)
-[//]: #  (PCR-GLOBWB website)
-[//]: #  (Tool for downloading and resampling from opendap files)
-
