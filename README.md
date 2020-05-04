@@ -20,7 +20,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
  1. You will need a working Python environment, we recommend to install Miniconda, particularly for Python 3. Follow their instructions given at https://docs.conda.io/en/latest/miniconda.html. The user guide and short reference on conda can be found [here](https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html).
 
- 2. Get the requirement or environment file from this repository [conda_env/pcrglobwb_py3.yml](conda_env/pcrglobwb_py3.yml) and use it to install all modules required () to run PCR-GLOBWB:
+ 2. Get the requirement or environment file from this repository [conda_env/pcrglobwb_py3.yml](conda_env/pcrglobwb_py3.yml) and use it to install all modules required (e.g. PCRaster, netCDF4) to run PCR-GLOBWB:
 
     `conda env create --name pcrglobwb_python3 -f pcrglobwb_py3.yml`
 
@@ -48,19 +48,28 @@ Change to the PCR-GLOBWB *model* directory.
 You can start a PCR-GLOBWB run the command prompt using the following 
 
 `python deterministic_runner.py <ini_configuration_file>`
-`python deterministic_runner.py <ini_configuration_file>`
 
-where <ini_configuration_file> is the configuration file of PCR-GLOBWB. Some configuration files examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to do. 
+where <ini_configuration_file> is the configuration file of PCR-GLOBWB. 
+
+Some configuration files examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to edit. 
 
 First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. 
 
 
+Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in the folder
 
-Moreover, please also make sure that the *cloneMap* file 
 
-, defining the spatial resolution and extent of your study area.
-# - Please make sure that the file is stored locally in your computing machine.
-# - The file must be in the pcraster format.
+, 
+# - Please make sure that the file 
+
+that will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory).
+
+`inputDir = https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/'
+
+
+First, 
+
+
 cloneMap    = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/global_05min/cloneMaps/RhineMeuse05min.clone.map
 #~ cloneMap = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019
 
