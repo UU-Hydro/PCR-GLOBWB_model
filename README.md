@@ -32,7 +32,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
  4. Clone or download this repository. We suggest to use the latest version of the model, which should also be in the default branch. 
 
-    `git clone https://github.com/UU-Hydro/RiverScape.git`
+    `git clone https://github.com/UU-Hydro/PCR-GLOBWB.git`
 
     This will clone PCR-GLOBWB into the current working directory.
 
@@ -41,15 +41,28 @@ Please follow the following steps required to install PCR-GLOBWB:
 
 Please make sure that the correct sourenvironment in a command prompt:
 
-`conda activate riverscape`
+`conda activate pcrglobwb_python3`
 
-Change to the RiverScape *scripts* directory.
+Change to the PCR-GLOBWB *model* directory.
 
-You can start Jupyter from the command prompt and afterwards select a notebook in your browser:
+You can start a PCR-GLOBWB run the command prompt using the following 
 
-`jupyter-notebook`
+`python deterministic_runner.py <ini_configuration_file>`
+`python deterministic_runner.py <ini_configuration_file>`
+
+where <ini_configuration_file> is the configuration file of PCR-GLOBWB. Some configuration files examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to do. 
+
+First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. 
 
 
+
+Moreover, please also make sure that the *cloneMap* file 
+
+, defining the spatial resolution and extent of your study area.
+# - Please make sure that the file is stored locally in your computing machine.
+# - The file must be in the pcraster format.
+cloneMap    = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/global_05min/cloneMaps/RhineMeuse05min.clone.map
+#~ cloneMap = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019
 
 You can also open individual notebooks directly by specifying the filename, e.g. the intervention planning with:
 
