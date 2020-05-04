@@ -61,8 +61,8 @@ By default, the configuration .ini file examples are given in the *config* direc
 
 `inputDir = https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/'
 
-<> <TODO)
-<> (A manual for making your own study areas, i.e. clone and landmask areas)
-<> (PCR-GLOBWB website)
-<> (Tool for downloading and resampling from opendap files)
+[//]: #  <TODO)
+[//]: #  (A manual for making your own study areas, i.e. clone and landmask areas)
+[//]: #  (PCR-GLOBWB website)
+[//]: #  (Tool for downloading and resampling from opendap files)
 
