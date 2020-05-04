@@ -41,7 +41,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
 For running PCR-GLOBWB, a configuration .ini file is required. Some configuration .ini file examples are given in the *config* directory. To be able to run PCR-GLOBWB using these .ini file examples, there are at least two things that must be adjusted. 
 
-First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. You do not need to create this directory mannually.  
+First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. You do not need to create this directory manually.  
 
 Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in this repository [clone_landmask_maps/clone_landmask_examples.zip](clone_landmask_maps/clone_landmask_examples.zip).
 
