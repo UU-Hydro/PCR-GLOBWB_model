@@ -51,40 +51,18 @@ You can start a PCR-GLOBWB run the command prompt using the following
 
 where <ini_configuration_file> is the configuration file of PCR-GLOBWB. 
 
-Some configuration files examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to edit. 
+Some configuration .ini file examples are given in the *config* directory. To be able to run using these examples, there are two things that you have to edit. 
 
 First, please make sure that you edit or set the *outputDir* (output directory) to the directory that you have access. 
 
+Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in this repository [clone_landmask_maps/clone_landmask_examples.zip](clone_landmask_maps/clone_landmask_examples.zip).
 
-Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in the folder
-
-
-, 
-# - Please make sure that the file 
-
-that will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory).
+By default. the examples of .ini file examples are given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory).
 
 `inputDir = https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/'
 
-
-First, 
-
-
-cloneMap    = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/global_05min/cloneMaps/RhineMeuse05min.clone.map
-#~ cloneMap = /quanta1/home/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019
-
-You can also open individual notebooks directly by specifying the filename, e.g. the intervention planning with:
-
-`jupyter-notebook intervent_parameter.ipynb`
-
-
-## Make your own study areas (clone and landmask areas)
-
-
-
-## PCR-GLOBWB website is under development
-
-Currently under development. 
-We will include some exercises. 
-
+<> <TODO)
+<> (A manual for making your own study areas, i.e. clone and landmask areas)
+<> (PCR-GLOBWB website)
+<> (Tool for downloading and resampling from opendap files)
 
