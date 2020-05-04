@@ -48,7 +48,7 @@ Moreover, please also make sure that the *cloneMap* file is stored locally in yo
 By default, the configuration .ini file examples given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory): https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/. This can be adjusted to any (local) locations, e.g. if you have the input files stored locally in your computing machine. 
 
 
-## PCR-GLOBWB configuration .ini file
+## How to run
 
 Please make sure that the correct conda environment in a command prompt:
 
