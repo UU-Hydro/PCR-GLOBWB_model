@@ -32,7 +32,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
  4. Clone or download this repository. We suggest to use the latest version of the model, which should also be in the default branch. 
 
-    `git clone https://github.com/UU-Hydro/PCR-GLOBWB.git`
+    `git clone https://github.com/UU-Hydro/PCR-GLOBWB_model.git`
 
     This will clone PCR-GLOBWB into the current working directory.
 
@@ -45,7 +45,11 @@ First, please make sure that you edit or set the *outputDir* (output directory) 
 
 Moreover, please also make sure that the *cloneMap* file is stored locally in your computing machine. The *cloneMap* file defines the spatial resolution and extent of your study area and must be in the pcraster format. Some examples are given in this repository [clone_landmask_maps/clone_landmask_examples.zip](clone_landmask_maps/clone_landmask_examples.zip).
 
-By default, the configuration .ini file examples given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory): https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/. This can be adjusted to any (local) locations, e.g. if you have the input files stored locally in your computing machine. 
+By default, the configuration .ini file examples given in the *config* directory will use PCR-GLOBWB input files from the 4TU.ResearchData server, as set in their *inputDir* (input directory). 
+
+`inputDir = https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/`
+
+This can be adjusted to any (local) locations, e.g. if you have the input files stored locally in your computing machine. 
 
 
 ## How to run

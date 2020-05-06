@@ -10,9 +10,9 @@ dependencies:
   - pcraster
   - pip:
     - netcdf4>=1.5.3
-    - cdsapi
-  - cdo
+#   - cdsapi
+# - cdo
   - nco
-  - ncview
+# - ncview
   
 # Note: You may want to exclude cdsapi, cdo, and ncview.
