@@ -15,4 +15,4 @@ dependencies:
   - nco
   - ncview
   
-# Note: You may want to exclude cdsapi, cdo, nco and ncview.
+# Note: You may want to exclude cdsapi, cdo, and ncview.
