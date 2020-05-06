@@ -32,7 +32,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
  4. Clone or download this repository. We suggest to use the latest version of the model, which should also be in the default branch. 
 
-    `git clone https://github.com/UU-Hydro/PCR-GLOBWB.git`
+    `git clone https://github.com/UU-Hydro/PCR-GLOBWB_model.git`
 
     This will clone PCR-GLOBWB into the current working directory.
 
