@@ -52,6 +52,7 @@ def main():
             msg = "The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension.variable names of lat/latitude and lon/longitude. \n"
         else: 
             msg = "ERROR: The file " + target_file_name + " can NOT BE created. \n"
+        print(msg)    
 
     txt_file_list.close()
     
