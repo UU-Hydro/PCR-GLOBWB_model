@@ -22,6 +22,9 @@ def main():
     
     for opendap_filename in filenames:
 
+        # opendap file name
+        opendap_filename = opendap_filename.replace("\n", "")
+        
         # target file name
         target_file_name = opendap_filename.replace(opendap_main_folder, target_local_folder)
                 
@@ -35,6 +38,8 @@ def main():
         print(msg) 
         # - downloading using nccopy
         cmd = "nccopy " + opendap_filename + " " + target_file_name
+        print(cmd_line)
+        os.system(cmd_line)
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
         cmd_line = "ncea -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + target_file_name
         print(cmd_line)
