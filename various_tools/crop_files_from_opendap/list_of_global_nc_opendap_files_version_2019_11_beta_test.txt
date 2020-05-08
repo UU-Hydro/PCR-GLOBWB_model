@@ -6,6 +6,3 @@ https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglo
 https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/temperature_correl.nc
 https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
 https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/precipitation_slope.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_temperature_cru_era-interim_1979_to_2010.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_referencePotET_cru_era-interim_1979_to_2010.nc

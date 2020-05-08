@@ -33,8 +33,10 @@ def main():
         if os.path.exists(target_directory) == False:
             os.makedirs(target_directory)
         
+        print("\n\n")
+
         # perform ncea for cropping
-        msg = 'Croping the file ' +  opendap_filename + "\n\n"
+        msg = 'Croping the file ' +  opendap_filename + "using one of the following commands \n"
         print(msg) 
 
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
@@ -44,6 +46,12 @@ def main():
         cmd_line = "ncea -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
+        
+        # check if the file is produced
+        if os.path.exists(target_file_name):
+            msg = "The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension.variable names of lat/latitude and lon/longitude. \n"
+        else: 
+            msg = "ERROR: The file " + target_file_name + " can NOT BE created. \n"
 
     txt_file_list.close()
     
