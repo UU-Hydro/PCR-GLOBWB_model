@@ -17,11 +17,11 @@ def main():
 
     txt_file_list = open(file_list, "r")
     
-    for filename in filenames:
+    # opendap file names
+    filenames = txt_file_list.readlines()
+    
+    for opendap_filename in filenames:
 
-        # opendap file name
-        opendap_filename = txt_file_list.readlines()
-        
         # target file name
         target_file_name = opendap_filename.replace(opendap_main_folder, target_local_folder)
                 
