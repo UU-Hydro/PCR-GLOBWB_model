@@ -11,7 +11,7 @@ def main():
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
     
-    for roots, dirs, files in os.walk(source_path, followlinks = True):
+    for roots, dirs, files in os.walk(local_source_folder, followlinks = True):
 
         for file_name in files:
             
