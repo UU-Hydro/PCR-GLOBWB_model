@@ -37,7 +37,7 @@ def main():
         msg = 'Croping the file ' +  opendap_filename + "\n\n"
         print(msg) 
         # - downloading using nccopy
-        cmd = "nccopy " + opendap_filename + " " + target_file_name
+        cmd_line = "nccopy " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
