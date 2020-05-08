@@ -9,11 +9,16 @@ def main():
     
     target_local_folder = "/scratch/depfg/sutan101/test_crop_opendap_files/"
     
-    ncea_lat_range = "-16.0,0.0"
-    ncea_lon_range = "28.0,41.0"
+    #~ ncea_lat_range = "-16.0,0.0"
+    #~ ncea_lon_range = "28.0,41.0"
+
+    ncea_lat_range    = "46.0,53.0"
+    ncea_lon_range    = "3.00,13.0"
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
-    file_list = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
+
+    #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
+    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
 
     txt_file_list = open(file_list, "r")
     
