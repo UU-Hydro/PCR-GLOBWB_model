@@ -49,9 +49,9 @@ def main():
         
         # check if the file is produced
         if os.path.exists(target_file_name):
-            msg = "The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension.variable names of lat/latitude and lon/longitude. \n"
+            msg = "\n The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension names of lat/latitude. \n"
         else: 
-            msg = "ERROR: The file " + target_file_name + " can NOT BE created. \n"
+            msg = "\n ERROR: The file " + target_file_name + " can NOT BE created. \n"
         print(msg)    
 
     txt_file_list.close()
