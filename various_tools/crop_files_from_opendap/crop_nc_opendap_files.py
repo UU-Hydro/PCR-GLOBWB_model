@@ -31,13 +31,15 @@ def main():
             os.makedirs(target_directory)
         
         # perform ncea for cropping
-        msg = 'Croping the file ' +  opendap_filename
-        print() 
+        msg = 'Croping the file ' +  opendap_filename + "\n\n"
+        print(msg) 
+        # - downloading using nccopy
+        cmd = "nccopy " + opendap_filename + " " + target_file_name
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
-        cmd_line = "ncea -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
-        cmd_line = "ncea -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
 
