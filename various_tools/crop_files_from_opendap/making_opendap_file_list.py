@@ -24,9 +24,9 @@ def main():
             opendap_filename = local_file_name.replace(local_source_folder, opendap_main_folder)
 
             # print only netcdf files and skip cloneMaps directories
-            if (target_file_name.endswith(".nc") or target_file_name.endswith(".nc4")) and ("cloneMaps" not in target_file_name):
+            if (opendap_filename.endswith(".nc") or opendap_filename.endswith(".nc4")) and ("cloneMaps" not in opendap_filename):
 
-                print(target_file_name)
+                print(opendap_filename)
                 
                 # write it to the file
 
