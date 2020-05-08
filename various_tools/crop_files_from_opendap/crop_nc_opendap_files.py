@@ -36,7 +36,7 @@ def main():
         print("\n\n")
 
         # perform ncea for cropping
-        msg = 'Croping the file ' +  opendap_filename + "using one of the following commands \n"
+        msg = 'Croping the file ' +  opendap_filename + "using one of the following commands: \n"
         print(msg) 
 
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
@@ -48,10 +48,12 @@ def main():
         os.system(cmd_line)
         
         # check if the file is produced
+        msg = "\n"        
         if os.path.exists(target_file_name):
-            msg = "\n The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension names of lat/latitude. \n"
+            msg += "The file " + target_file_name + " is succesfuly created. Please ignore the error message above, related to dimension names of lat/latitude."
         else: 
-            msg = "\n ERROR: The file " + target_file_name + " can NOT BE created. \n"
+            msg += "ERROR: The file " + target_file_name + " can NOT BE created."
+        msg += "\n"        
         print(msg)    
 
     txt_file_list.close()
