@@ -11,7 +11,7 @@ def main():
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
     
-    txt_file_list = open("global_nc_opendap_file_list_version_2019_11_beta.txt", "w")
+    txt_file_list = open("list_of_global_nc_opendap_files_version_2019_11_beta.txt", "w")
     
     for roots, dirs, files in os.walk(local_source_folder, followlinks = True):
 
@@ -31,7 +31,7 @@ def main():
                 print(opendap_filename)
                 
                 # write it to the file
-                txt_file_list.writelines(opendap_filename)
+                txt_file_list.writelines(opendap_filename + "\n")
 
     txt_file_list.close()
     
