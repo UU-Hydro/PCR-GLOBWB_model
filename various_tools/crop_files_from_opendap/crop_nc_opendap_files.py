@@ -7,7 +7,7 @@ import shutil
 
 def main():
     
-    target_local_folder = "/scratch/depfg/sutan101/test_crop_opendap_files/"
+    target_local_folder = "/scratch/depfg/sutan101/test_crop_opendap_files_rhine-meuse/"
     
     #~ ncea_lat_range = "-16.0,0.0"
     #~ ncea_lon_range = "28.0,41.0"
