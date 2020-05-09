@@ -45,10 +45,10 @@ def main():
         print(msg) 
 
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
-        cmd_line = "ncea -D 1 -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -D 3 -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
-        cmd_line = "ncea -D 1 -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -D 3 -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
         
