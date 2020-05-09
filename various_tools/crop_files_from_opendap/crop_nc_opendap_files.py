@@ -17,8 +17,8 @@ def main():
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
 
-    #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
-    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
+    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
+    #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
 
     txt_file_list = open(file_list, "r")
     
