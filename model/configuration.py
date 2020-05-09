@@ -213,7 +213,7 @@ class Configuration(object):
         else:
             logger.info('PYTHONPATH=%s', "N/A")        
         # - hostname
-        if "PYTHONPATH" in os.environ.keys(): 
+        if "HOSTNAME" in os.environ.keys(): 
             logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
         else:
             logger.info('HOSTNAME: %s', "N/A")
