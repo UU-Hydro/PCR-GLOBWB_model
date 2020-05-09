@@ -55,7 +55,7 @@ def main():
         # check if the file is produced
         msg = "\n"        
         if os.path.exists(target_file_name):
-            msg += "The file " + target_file_name + " is succesfuly created. Please ignore the ERROR message above, related to dimension names of lat/latitude."
+            msg += "The file " + target_file_name + " is succesfuly created. Please ignore any above-mentioned ERROR messages related to dimension names of lat/latitude."
         else: 
             msg += "ERROR: The file " + target_file_name + " can NOT BE created."
         msg += "\n"        
