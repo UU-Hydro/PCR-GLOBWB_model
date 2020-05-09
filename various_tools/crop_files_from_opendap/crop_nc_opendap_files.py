@@ -17,8 +17,8 @@ def main():
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
 
-    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
-    #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
+    #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
+    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
 
     txt_file_list = open(file_list, "r")
     
@@ -45,10 +45,10 @@ def main():
         print(msg) 
 
         # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
-        cmd_line = "ncea -D 3 -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -D 2 -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
-        cmd_line = "ncea -D 3 -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "ncea -D 2 -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
         
