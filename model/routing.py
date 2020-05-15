@@ -310,7 +310,7 @@ class Routing(object):
                 logger.info(msg)
             
             # covering the value
-            self.predefinedBankfullCapacity = pcr.cover(self.predefinedBankfullCapacity, 0.0)    
+            self.predefinedBankfullCapacity = pcr.cover(self.predefinedBankfullCapacity, pcr.spatial(pcr.scalar(0.0)))    
 
         # zero fracwat assumption (used for debugging to the version 1)
         self.zeroFracWatAllAndAlways = False
