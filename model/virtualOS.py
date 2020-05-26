@@ -478,23 +478,34 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
-    # convert to PCR object and close f
+
+    #~ # convert to PCR object and close f - OLD METHOD
+    #~ if specificFillValue != None:
+        #~ outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                  #~ regridData2FinerGrid(factor,cropData,MV), \
+                  #~ float(specificFillValue))
+    #~ else:
+        #~ outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                  #~ regridData2FinerGrid(factor,cropData,MV), \
+                  #~ float(f.variables[varName]._FillValue))
+
+
+    # convert to PCR object and close f 
     if specificFillValue != None:
         outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor,cropData,MV), \
+                  regridData2FinerGrid(factor, cropData, float(specificFillValue)), \
                   float(specificFillValue))
     else:
         try:
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor,cropData,MV), \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue)), \
                   float(f.variables[varName]._FillValue))
         except:
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor,cropData,MV), \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value), \
                   float(f.variables[varName].missing_value))
-    
-    pcr.aguila(outPCR)
                   
+
     #f.close();
     f = None ; cropData = None 
     # PCRaster object
