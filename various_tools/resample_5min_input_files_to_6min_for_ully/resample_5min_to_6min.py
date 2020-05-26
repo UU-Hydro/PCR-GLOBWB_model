@@ -7,12 +7,12 @@ import shutil
 
 def main():
     
-    target_local_folder = "/scratch/depfg/sutan101/test_resample_to_6min/"
+    target_local_folder = "/scratch/depfg/sutan101/test_resample_to_06min/"
     
-    source_local_folder = ""
-    opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
+    source_local_folder = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/"
+    opendap_main_folder =  "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
 
-    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
+    file_list    = "list_of_global_nc_5min_version_2019_11_beta_without_routing_and_meteo_test.txt"
 
     txt_file_list = open(file_list, "r")
     
@@ -41,21 +41,15 @@ def main():
         print("\n\n")
 
         # perform cdo remapcon
-        msg = 'Croping the file ' +  opendap_filename + "using one of the following commands: \n"
-        print(msg) 
 
-        # - using one of the following command lines, depending on variable names of lat/latitude and lon/longitude 
-        cmd_line = "ncks -D 2 -O -d latitude," + ncea_lat_range + " -d longitude," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
-        print(cmd_line)
-        os.system(cmd_line)
-        cmd_line = "ncks -D 2 -O -d lat," + ncea_lat_range + " -d lon," + ncea_lon_range + " " + opendap_filename + " " + target_file_name
+        cmd_line = "cdo -L -remapcon,griddes_land_mask_only.nc.txt " + " " + local_filename + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
         
         # check if the file is produced
         msg = "\n"        
         if os.path.exists(target_file_name):
-            msg += "The file " + target_file_name + " is succesfuly created. Please ignore any above-mentioned ERROR messages related to dimension names of lat/latitude."
+            msg += "The file " + target_file_name + " is succesfuly created."
         else: 
             msg += "ERROR: The file " + target_file_name + " can NOT BE created."
         msg += "\n"        
