@@ -484,9 +484,14 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
                   regridData2FinerGrid(factor,cropData,MV), \
                   float(specificFillValue))
     else:
-        outPCR = pcr.numpy2pcr(pcr.Scalar, \
+        try:
+            outPCR = pcr.numpy2pcr(pcr.Scalar, \
                   regridData2FinerGrid(factor,cropData,MV), \
                   float(f.variables[varName]._FillValue))
+        except:
+            outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                  regridData2FinerGrid(factor,cropData,MV), \
+                  float(f.variables[varName]._missing_value))
                   
     #f.close();
     f = None ; cropData = None 
