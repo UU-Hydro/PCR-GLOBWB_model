@@ -492,6 +492,8 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
                   regridData2FinerGrid(factor,cropData,MV), \
                   float(f.variables[varName].missing_value))
+    
+    pcr.aguila(outPCR)
                   
     #f.close();
     f = None ; cropData = None 
