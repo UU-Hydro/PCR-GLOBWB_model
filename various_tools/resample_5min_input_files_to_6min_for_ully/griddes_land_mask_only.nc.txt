@@ -1,0 +1,13 @@
+#
+# gridID 1
+#
+gridtype  = generic
+gridsize  = 5040000
+xsize     = 3600
+ysize     = 1400
+xname     = longitude
+yname     = latitude
+xfirst    = -179.95
+xinc      = 0.1
+yfirst    = 83.95
+yinc      = -0.1
