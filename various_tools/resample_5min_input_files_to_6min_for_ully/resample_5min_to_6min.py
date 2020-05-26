@@ -42,7 +42,7 @@ def main():
 
         # perform cdo remapcon
 
-        cmd_line = "cdo -L -remapcon,griddes_land_mask_only.nc.txt " + " " + local_filename + " " + target_file_name
+        cmd_line = "cdo -L -remapcon,griddes_land_mask_only.nc.txt " + " " + local_file_name + " " + target_file_name
         print(cmd_line)
         os.system(cmd_line)
         
