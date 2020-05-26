@@ -219,10 +219,10 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
                   regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value)), \
                   float(f.variables[varName].missing_value))
 
-    # debug:
-    pcr.report(outPCR,"tmp.map")
-    print(varName)
-    os.system('aguila tmp.map')
+    #~ # debug:
+    #~ pcr.report(outPCR,"tmp.map")
+    #~ print(varName)
+    #~ os.system('aguila tmp.map')
     
     #f.close();
     f = None ; cropData = None 
