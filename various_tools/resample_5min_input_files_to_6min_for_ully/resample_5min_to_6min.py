@@ -12,7 +12,7 @@ def main():
     source_local_folder = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/"
     opendap_main_folder =  "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
 
-    file_list    = "list_of_global_nc_5min_version_2019_11_beta_without_routing_and_meteo_test.txt"
+    file_list    = "list_of_selected_global_nc_5min_files_version_2019_11_beta.txt"
 
     txt_file_list = open(file_list, "r")
     

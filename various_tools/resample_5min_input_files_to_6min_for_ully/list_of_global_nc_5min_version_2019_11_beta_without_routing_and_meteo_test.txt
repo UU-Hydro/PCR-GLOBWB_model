@@ -1,8 +1,0 @@
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/landSurface/soil/soilProperties5ArcMin.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/landSurface/topography/topography_parameters_5_arcmin_october_2015.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/landSurface/landCover/irrPaddy/fractionPaddy.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/initialConditions/non-natural/1978/timestepsToAvgDischarge_1978-12-31.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/initialConditions/non-natural/1978/waterBodyStorage_1978-12-31.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/initialConditions/non-natural/1978/snowCoverSWE_irrNonPaddy_1978-12-31.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
-https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/waterUse/irrigation/irrigated_areas/irrigationArea05ArcMin.nc
