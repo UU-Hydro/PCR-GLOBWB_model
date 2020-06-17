@@ -35,7 +35,7 @@ pcrcalc fractionPaddy_05min_30sec.map    = "cover(min(1.0, fractionPaddy_05min_3
 
 mapattr -s -P yb2t *.map
 
-pcrcalc fractionNonPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map * if( (fractionNonPaddy_05min_30sec.map + fractionPaddy_05min_30sec.map) > 0.0, fractionPaddy_05min_30sec.map / (fractionNonPaddy_05min_30sec.map + fractionPaddy_05min_30sec.map), 0.5 )))"
+pcrcalc fractionNonPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map * if( (fractionNonPaddy_05min_30sec.map + fractionPaddy_05min_30sec.map) > 0.0, fractionNonPaddy_05min_30sec.map / (fractionNonPaddy_05min_30sec.map + fractionPaddy_05min_30sec.map), 0.5 )))"
 pcrcalc fractionPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map - fractionNonPaddy_30sec.map ))"
 
 mapattr -s -P yb2t *.map
