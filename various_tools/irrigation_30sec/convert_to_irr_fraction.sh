@@ -14,7 +14,7 @@ gdalwarp -tr 0.00833333333333333333333333333333333333333333333333333333333333333
 
 pcrcalc irrigated_fraction.map = "if(scalar(GFSAD1KCM.2010.001.2016348142550_global_30sec.tif) eq 1, scalar(1.0), if( scalar(GFSAD1KCM.2010.001.2016348142550_global_30sec.tif) eq 2, scalar(1.0))   )"
 
-pcrcalc irrigated_fraction.map = "cover(irrigated_fraction.map, 0.0)"
+pcrcalc irrigated_fraction.map = "min(1.0, max(0.0, cover(irrigated_fraction.map, 0.0)))"
 
 mapattr -s -P yb2t irrigated_fraction.map
 
@@ -39,5 +39,7 @@ pcrcalc fractionNonPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map *
 pcrcalc fractionPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map - fractionNonPaddy_30sec.map ))"
 
 mapattr -s -P yb2t *.map
+
+aguila fractionPaddy_30sec.map fractionNonPaddy_30sec.map irrigated_fraction.map
 
 set +x
