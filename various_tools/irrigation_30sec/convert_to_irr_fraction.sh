@@ -1,9 +1,11 @@
 
+set -x
+
 cd /scratch/depfg/sutan101/data/GFSAD1KCM/edwin_process
 
-rm *.tif
-rm *.map
-rm *
+rm -r *.tif
+rm -r *.map
+rm -r *
 
 
 # convert from GFSAD1KCM.2010
@@ -29,7 +31,7 @@ gdalwarp -tr 0.00833333333333333333333333333333333333333333333333333333333333333
 
 pcrcalc fractionNonPaddy_05min_30sec.map = "cover(min(1.0, fractionNonPaddy_05min_30sec.tif),0.0)"
 
-pcrcalc fractionPaddy_05min_30sec.map    = "cover(min(1.0, fractionPaddy_05min_30sec.tif),0.0) + "
+pcrcalc fractionPaddy_05min_30sec.map    = "cover(min(1.0, fractionPaddy_05min_30sec.tif),0.0)"
 
 mapattr -s -P yb2t *.map
 
@@ -37,3 +39,5 @@ pcrcalc fractionNonPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map *
 pcrcalc fractionPaddy_30sec.map = "max(0.0, min(1.0, irrigated_fraction.map - fractionNonPaddy_30sec.map ))"
 
 mapattr -s -P yb2t *.map
+
+set +x
