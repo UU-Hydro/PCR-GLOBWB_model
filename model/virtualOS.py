@@ -187,18 +187,20 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         # crop to cloneMap:
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
 
-        #~ xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
-        xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
-        # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
+
+        #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
         #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
         xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
 
         minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
 
-        #~ yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
-        yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
-        # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
+
+        #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
         #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
