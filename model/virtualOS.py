@@ -181,6 +181,9 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
     cropData = f.variables[varName][:,:]       # still original data
     factor = 1                                 # needed in regridData2FinerGrid
     if sameClone == False:
+
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
+
         # crop to cloneMap:
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
 
@@ -188,7 +191,8 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
         # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
-        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
+        #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
+        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
 
         minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
 
@@ -196,11 +200,10 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
         # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
-        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
+        #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
+        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
 
         cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
-
-        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
 
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
     
