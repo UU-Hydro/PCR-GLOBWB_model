@@ -1599,6 +1599,9 @@ def getMinMaxMean(mapFile,ignoreEmptyMap=False):
     nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
     if nrValues == 0.0 and ignoreEmptyMap: 
         return 0.0,0.0,0.0
+    elif nrValues == 0.0 and ignoreEmptyMap == False:
+        logger.warning("map is empty")
+        return 0.0,0.0,0.0
     else:
         return mn,mx,(getMapTotal(mapFile) / nrValues)
 
