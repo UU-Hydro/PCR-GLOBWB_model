@@ -783,7 +783,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         cropData = f.variables[varName][int(idx),0,:,:]       # still original data
     else:
         # standard nc file
-        cropData = f.variables[varName][int(idx),:,:]         # still original data
+        cropData = f.variables[varName][int(idx),:,:]       # still original data
 
 
     factor = 1                                 # needed in regridData2FinerGrid
@@ -812,8 +812,19 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
 
-        cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
+        # retrieve data from netCDF for slice
 
+        if f.variables[varName].ndim == 4:
+            # not standard NC format
+            logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
+            #-file with additional layer
+            cropData = f.variables[varName][int(idx),0,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]       # selection of original data
+        else:
+            # standard nc file
+            cropData = f.variables[varName][int(idx),yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]       # selection of original data
+
+        # get resampling factor
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
 
