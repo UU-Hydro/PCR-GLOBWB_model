@@ -860,6 +860,7 @@ class Meteo(object):
         # method for finding time index in the temperature netdf file:
         # - the default one
         method_for_time_index = None
+        method_for_time_index = "daily"
         # - based on the ini/configuration file (if given)
         if 'time_index_method_for_temperature_netcdf' in list(self.iniItems.meteoOptions.keys()) and\
                                                          self.iniItems.meteoOptions['time_index_method_for_temperature_netcdf'] != "None":
@@ -892,6 +893,7 @@ class Meteo(object):
             # method for finding time indexes in the precipitation netdf file:
             # - the default one
             method_for_time_index = None
+            method_for_time_index = "daily"
             # - based on the ini/configuration file (if given)
             if 'time_index_method_for_ref_pot_et_netcdf' in list(self.iniItems.meteoOptions.keys()) and\
                                                             self.iniItems.meteoOptions['time_index_method_for_ref_pot_et_netcdf'] != "None":
@@ -925,6 +927,7 @@ class Meteo(object):
                 
                 # read the file
                 method_for_time_index = None
+                method_for_time_index = "daily"
                 netcdf_file_name = vos.getFullPath(self.iniItems.meteoOptions[meteo_var_name], self.inputDir)
                 vars(self)[meteo_var_name] = vos.netcdf2PCRobjClone(ncFile = netcdf_file_name,\
                                                                     varName = "automatic" ,
