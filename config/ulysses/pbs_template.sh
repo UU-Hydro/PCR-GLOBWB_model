@@ -6,8 +6,8 @@
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster421.sh
 
-# set number of working threads
-export PCRASTER_NR_WORKER_THREADS=36
+#~ # set number of working threads
+#~ export PCRASTER_NR_WORKER_THREADS=36
 
 # run the model
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
