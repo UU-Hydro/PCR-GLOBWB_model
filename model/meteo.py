@@ -832,7 +832,7 @@ class Meteo(object):
                                                   (self.iniItems.meteoOptions['precipitation_file_per_month'] == "True"):
             
             #~ precipitationNC    = /scratch/mo/nest/ulysses/data/meteo/era5land/1981/01/precipitation_daily_01_1981.nc
-            netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.year), int(currTimeStep.month))
+            netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
         
         if self.precipitation_set_per_year:
             netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
