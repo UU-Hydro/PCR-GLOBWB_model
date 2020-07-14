@@ -838,7 +838,7 @@ class Meteo(object):
             netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 
         self.precipitation = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, self.preVarName,\
+                                      netcdf_file_name, self.preVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
