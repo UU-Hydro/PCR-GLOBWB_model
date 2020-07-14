@@ -899,21 +899,23 @@ class Meteo(object):
                                                             self.iniItems.meteoOptions['time_index_method_for_ref_pot_et_netcdf'] != "None":
                 method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_ref_pot_et_netcdf']
 
-            if self.refETPotFileNC_set_per_year: 
-                nc_file_per_year = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
-                self.referencePotET = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, self.refETPotVarName,\
-                                      str(currTimeStep.fulldate), 
-                                      useDoy = method_for_time_index,
-                                      cloneMapFileName = self.cloneMap,\
-                                      LatitudeLongitude = True)
-            else:
-                self.referencePotET = vos.netcdf2PCRobjClone(\
-                                      self.etpFileNC,self.refETPotVarName,\
-                                      str(currTimeStep.fulldate), 
-                                      useDoy = method_for_time_index,
-                                      cloneMapFileName=self.cloneMap,\
-                                      LatitudeLongitude = True)
+            # reading referencePotET
+            netcdf_file_name = self.etpFileNC
+		    
+            if ("refETPotFileNC_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
+                                                       (self.iniItems.meteoOptions['refETPotFileNC_file_per_month'] == "True"):
+                netcdf_file_name = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+            
+            if self.temperature_set_per_year:
+                netcdf_file_name = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+		    
+            self.referencePotET = vos.netcdf2PCRobjClone(\
+                                          netcdf_file_name, self.refETPotVarName,\
+                                          str(currTimeStep.fulldate), 
+                                          useDoy = method_for_time_index,
+                                          cloneMapFileName = self.cloneMap,\
+                                          LatitudeLongitude = True)
+
             #-----------------------------------------------------------------------
             # NOTE: RvB 13/07/2016 added to automatically update reference potential evapotranspiration
             self.referencePotET = self.refETPotConst + self.refETPotFactor * pcr.ifthen(self.landmask, self.referencePotET)
