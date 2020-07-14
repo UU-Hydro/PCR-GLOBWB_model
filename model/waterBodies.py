@@ -282,9 +282,7 @@ class WaterBodies(object):
 
         self.resMaxCap = pcr.ifthen(self.resMaxCap > 0.,\
                                     self.resMaxCap)
-        vos.plot_variable(self.resMaxCap)
-        pcr.aguila(self.resMaxCap)
-        self.resMaxCap = pcr.areaaverage(pcr.spatial(pcr.scalar(pcr.cover(self.resMaxCap, 0.0))),\
+        self.resMaxCap = pcr.areaaverage(self.resMaxCap,\
                                          self.waterBodyIds)
                                          
         # water body capacity (m3): (lakes and reservoirs)
