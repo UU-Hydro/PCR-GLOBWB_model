@@ -2414,10 +2414,15 @@ def cmd_line(command_line,using_subprocess = True):
     else:
         os.system(co)
 
-def plot_variable(pcr_variable, filename = "test.map"):
+def plot_variable(pcr_variable, filename = None):
 
+    if filename == None: filename = get_random_word(8) + ".map"
+    
     pcr.report(pcr_variable, filename)
     cmd = 'aguila '+str(filename)
+    os.system(cmd)
+    
+    cmd = 'rm '+str(filename)
     os.system(cmd)
 
 # conversions to and from radians
