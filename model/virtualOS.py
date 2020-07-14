@@ -451,10 +451,15 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
                         msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
                         msg += "\n"
                 logger.warning(msg)
-                logger.warning('Using the datetime '+str(f.variables['time'][int(idx)]))
+                date_string = nc.num2date(f.variables['time'][int(idx)], f.variables['time'].units, f.variables['time'].calendar)
+                logger.warning('Using the datetime '+str(date_string))
+                logger.warning(msg)
                                                   
     idx = int(idx)                                                  
     logger.debug('Using the date index '+str(idx))
+
+    date_string = nc.num2date(f.variables['time'][int(idx)], f.variables['time'].units, f.variables['time'].calendar)
+    logger.debug('Using the datetime '+str(date_string))
 
     sameClone = True
     # check whether clone and input maps have the same attributes:
