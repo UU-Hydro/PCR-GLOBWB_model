@@ -282,6 +282,7 @@ class WaterBodies(object):
 
         self.resMaxCap = pcr.ifthen(self.resMaxCap > 0.,\
                                     self.resMaxCap)
+        pcr.aguila(self.resMaxCap)
         self.resMaxCap = pcr.areaaverage(self.resMaxCap,\
                                          self.waterBodyIds)
                                          
