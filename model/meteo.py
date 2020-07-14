@@ -830,8 +830,6 @@ class Meteo(object):
 
         if ("precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
                                                   (self.iniItems.meteoOptions['precipitation_file_per_month'] == "True"):
-            
-            #~ precipitationNC    = /scratch/mo/nest/ulysses/data/meteo/era5land/1981/01/precipitation_daily_01_1981.nc
             netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
         
         if self.precipitation_set_per_year:
@@ -868,26 +866,27 @@ class Meteo(object):
             method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_temperature_netcdf']
 
         # reading temperature
+        netcdf_file_name = self.tmpFileNC
+
+        if ("temperature_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
+                                                 (self.iniItems.meteoOptions['temperature_file_per_month'] == "True"):
+            netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+        
         if self.temperature_set_per_year:
-            nc_file_per_year = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
-            self.temperature = vos.netcdf2PCRobjClone(\
-                                      nc_file_per_year, self.tmpVarName,\
+            netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+
+        self.temperature = vos.netcdf2PCRobjClone(\
+                                      netcdf_file_name, self.tmpVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
                                       LatitudeLongitude = True)
-        else:
-            self.temperature = vos.netcdf2PCRobjClone(\
-                                 self.tmpFileNC,self.tmpVarName,\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = method_for_time_index,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True)
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update temperature
         self.temperature    = self.tmpConst + self.tmpFactor * pcr.ifthen(self.landmask, self.temperature)
         #-----------------------------------------------------------------------
+
 
         if self.refETPotMethod == 'Input': 
 
