@@ -826,18 +826,19 @@ class Meteo(object):
             method_for_time_index = self.iniItems.meteoOptions['time_index_method_for_precipitation_netcdf']
         
         # reading precipitation:
+        netcdf_file_name = self.preFileNC
+
+        if ("precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
+                                                  (self.iniItems.meteoOptions['precipitation_file_per_month'] == "True"):
+            
+            #~ precipitationNC    = /scratch/mo/nest/ulysses/data/meteo/era5land/1981/01/precipitation_daily_01_1981.nc
+            netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.year), int(currTimeStep.month))
+        
         if self.precipitation_set_per_year:
-            #~ print currTimeStep.year
-            nc_file_per_year = self.preFileNC %(float(currTimeStep.year), float(currTimeStep.year))
-            self.precipitation = vos.netcdf2PCRobjClone(\
+            netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
+
+        self.precipitation = vos.netcdf2PCRobjClone(\
                                       nc_file_per_year, self.preVarName,\
-                                      str(currTimeStep.fulldate), 
-                                      useDoy = method_for_time_index,
-                                      cloneMapFileName = self.cloneMap,\
-                                      LatitudeLongitude = True)
-        else:
-            self.precipitation = vos.netcdf2PCRobjClone(\
-                                      self.preFileNC, self.preVarName,\
                                       str(currTimeStep.fulldate), 
                                       useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
