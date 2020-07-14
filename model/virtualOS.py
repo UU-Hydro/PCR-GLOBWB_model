@@ -393,7 +393,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
                 date  = datetime.datetime(date.year,int(1),int(1))
             if useDoy == "monthly":
                 date = datetime.datetime(date.year,date.month,int(1))
-            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal":
+            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal" or useDoy == "daily":
                 # if the desired year is not available, use the first year or the last year that is available
                 first_year_in_nc_file = findFirstYearInNCTime(f.variables['time'])
                 last_year_in_nc_file  =  findLastYearInNCTime(f.variables['time'])
@@ -423,29 +423,38 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
             try:
                 idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                     select ='exact')
-                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is available. The 'exact' option is used while selecting netcdf time."
+                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is available. The 'exact' option is used while selecting netcdf time."
                 logger.debug(msg)
             except:
-                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
+                msg = "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
                 logger.debug(msg)
-                try:                                  
-                    idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
-                                        select = 'before')
-                    msg  = "\n"
-                    msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'before' option is used while selecting netcdf time."
-                    msg += "\n"
-                except:
+                if useDoy == "daily":
                     idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
                                         select = 'after')
                     msg  = "\n"
                     msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
-                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" is NOT available. The 'after' option is used while selecting netcdf time."
+                    msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
                     msg += "\n"
+                else:
+                    try:                                  
+                        idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
+                                            select = 'before')
+                        msg  = "\n"
+                        msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                        msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is NOT available. The 'before' option is used while selecting netcdf time."
+                        msg += "\n"
+                    except:
+                        idx = nc.date2index(date, f.variables['time'], calendar = f.variables['time'].calendar, \
+                                            select = 'after')
+                        msg  = "\n"
+                        msg += "WARNING related to the netcdf file: "+str(ncFile)+" ; variable: "+str(varName)+" !!!!!!"+"\n"
+                        msg += "The date "+str(date.year)+"-"+str(date.month)+"-"+str(date.day)+" 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
+                        msg += "\n"
                 logger.warning(msg)
                                                   
     idx = int(idx)                                                  
     logger.debug('Using the date index '+str(idx))
+    logger.debug('Using the datetime '+str(f.variables['time'][idx]))
 
     sameClone = True
     # check whether clone and input maps have the same attributes:

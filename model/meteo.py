@@ -819,6 +819,7 @@ class Meteo(object):
         # method for finding time indexes in the precipitation netdf file:
         # - the default one
         method_for_time_index = None
+        method_for_time_index = "daily"
         # - based on the ini/configuration file (if given)
         if 'time_index_method_for_precipitation_netcdf' in list(self.iniItems.meteoOptions.keys()) and\
                                                            self.iniItems.meteoOptions['time_index_method_for_precipitation_netcdf'] != "None":
