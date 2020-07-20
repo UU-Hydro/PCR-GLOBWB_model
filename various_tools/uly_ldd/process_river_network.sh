@@ -43,26 +43,28 @@ cdo selname,rivlen_grid ../d8map_06min.nc rivlen_grid.nc /home/ms/copext/cyes/li
                 #~ flwdir:standard_name = "flow direction (D8)" ;
                 #~ flwdir:units = "-" ;/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network
 
-rm flwdir.nc
-rm *.map
-
-cdo selname,flwdir ../d8map_06min.nc flwdir.nc
+rm flwdir*
+cdo selname,flwdir ${INP_FOLDER}/d8map_06min.nc flwdir.nc
+gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 flwdir.nc flwdir.tif
 
 # http://hydro.iis.u-tokyo.ac.jp/~yamadai/flow/tech.html
 # http://pcraster.geo.uu.nl/pcraster/4.3.0/documentation/pcraster_manual/sphinx/secdatbase.html#ldd-data-type
 
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq -1, ldd(5))"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  0, ldd(5), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  1, ldd(8), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  2, ldd(9), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  3, ldd(6), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  4, ldd(3), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  5, ldd(2), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  6, ldd(1), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  7, ldd(4), flwdir_pcraster_ldd.map)"
-pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.nc) eq  8, ldd(7), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq -1, ldd(5))"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  0, ldd(5), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  1, ldd(8), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  2, ldd(9), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  3, ldd(6), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  4, ldd(3), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  5, ldd(2), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  6, ldd(1), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  7, ldd(4), flwdir_pcraster_ldd.map)"
+pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  8, ldd(7), flwdir_pcraster_ldd.map)"
 pcrcalc flwdir_pcraster_ldd.map = "lddrepair(lddrepair(flwdir_pcraster_ldd.map))"
- aguila flwdir_pcraster_ldd.map flwdir.nc
+ aguila flwdir_pcraster_ldd.map
+
+pcrcalc flwdir_pcraster_ldd_covered.map = "cover(flwdir_pcraster_ldd.map, ldd(5.0))"
+
 
 # expand ldd - UNTIL THIS PART
 # - landmask from Stephan
