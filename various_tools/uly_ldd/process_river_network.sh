@@ -1,8 +1,8 @@
 
 set -x
 
-OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-20/test/"
-
+OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-20/develop/"
+mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
 INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network/"
@@ -13,9 +13,11 @@ INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_
                 #~ width:standard_name = "chanel width GWD-LR - satellite" ;
                 #~ width:units = "m" ;
 
-rm width.nc
-cdo selname,width ${OUT_FOLDER}/d8map_06min.nc width.nc
-gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 width.nc width.map
+rm width.*
+cdo selname,width ${INP_FOLDER}/d8map_06min.nc width.nc
+gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 width.nc width.tif
+pcrcalc width.map = "if(scalar(width.tif) ge 0.00, scalar(width.tif))"
+ aguila width.map
 
         #~ float grdare(lat, lon) ;
                 #~ grdare:_FillValue = -9999.f ;
@@ -23,8 +25,8 @@ gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 width.nc width.map
                 #~ grdare:standard_name = "rectangular grid area" ;
                 #~ grdare:units = "m2" ;
 
-rm grdare.nc
-cdo selname,grdare ../d8map_06min.nc grdare.nc
+rm grdare.*
+cdo selname,grdare ${INP_FOLDER}/d8map_06min.nc grdare.nc
 
         #~ float rivlen_grid(lat, lon) ;
                 #~ rivlen_grid:_FillValue = -9999.f ;
