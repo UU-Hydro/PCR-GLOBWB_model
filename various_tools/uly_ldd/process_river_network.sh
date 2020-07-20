@@ -1,41 +1,15 @@
 
 set -x
 
-OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-20/develop/"
+OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-20/final/"
 mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
+rm -rf *
 
 INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network/"
 
-        #~ float width(lat, lon) ;
-                #~ width:_FillValue = -9999.f ;
-                #~ width:long_name = "chanel width GWD-LR - satellite" ;
-                #~ width:standard_name = "chanel width GWD-LR - satellite" ;
-                #~ width:units = "m" ;
 
-rm width.*
-cdo selname,width ${INP_FOLDER}/d8map_06min.nc width.nc
-gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 width.nc width.tif
-pcrcalc width.map = "if(scalar(width.tif) ge 0.00, scalar(width.tif))"
- aguila width.map
-
-        #~ float grdare(lat, lon) ;
-                #~ grdare:_FillValue = -9999.f ;
-                #~ grdare:long_name = "rectangular grid area" ;
-                #~ grdare:standard_name = "rectangular grid area" ;
-                #~ grdare:units = "m2" ;
-
-rm grdare.*
-cdo selname,grdare ${INP_FOLDER}/d8map_06min.nc grdare.nc
-
-        #~ float rivlen_grid(lat, lon) ;
-                #~ rivlen_grid:_FillValue = -9999.f ;
-                #~ rivlen_grid:long_name = "rectangular channel lenght" ;
-                #~ rivlen_grid:standard_name = "rectangular channel lenght" ;
-                #~ rivlen_grid:units = "m" ;
-
-rm rivlen_grid.nc
-cdo selname,rivlen_grid ../d8map_06min.nc rivlen_grid.nc /home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network
+# ldd - drainage direction
 
         #~ int flwdir(lat, lon) ;
                 #~ flwdir:_FillValue = -9999 ;
@@ -64,22 +38,28 @@ pcrcalc flwdir_pcraster_ldd.map = "lddrepair(lddrepair(flwdir_pcraster_ldd.map))
  aguila flwdir_pcraster_ldd.map
 
 pcrcalc flwdir_pcraster_ldd_covered.map = "cover(flwdir_pcraster_ldd.map, ldd(5.0))"
+pcrcalc flwdir_pcraster_ldd_covered.map = "lddrepair(lddrepair(flwdir_pcraster_ldd_covered.map))"
+ aguila flwdir_pcraster_ldd_covered.map
 
 
-# expand ldd - UNTIL THIS PART
-# - landmask from Stephan
-cp /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/various_tools/test_uly/land_mask_only.map .
-# - forcing landmask version 1
-cp /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/various_tools/test_uly/land_mask_only.map .
-cp /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/various_tools/test_uly/landmask_forcing_2020-06-XX/landmask_precipitation_daily_01_01_1981.map .
+# cellarea
+
+rm grdare*
+cdo selname,grdare ${INP_FOLDER}/d8map_06min.nc grdare.nc
+gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 grdare.nc grdare.tif
+pcrcalc grdare.map = "scalar(grdare.tif)"
+mapattr -s -P yb2t *.map
+ aguila grdare.map
+
+# get also gridarea using cdo
+rm cdo_griddarea*
+cdo gridarea ${INP_FOLDER}/d8map_06min.nc cdo_griddarea.nc
+gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 cdo_griddarea.nc cdo_griddarea.tif
+pcrcalc cdo_griddarea.map = "scalar(cdo_griddarea.tif)"
+mapattr -s -P yb2t *.map
+ aguila cdo_griddarea.map
 
 
-
-pcrcalc catchment_flwdir_pcraster_ldd.map        = "catchment(flwdir_pcraster_ldd.map, pit(flwdir_pcraster_ldd.map))"
-pcrcalc scalar_catchment_flwdir_pcraster_ldd.map = "scalar(catchment_flwdir_pcraster_ldd.map)"
-
-pcrcalc streamorder_flwdir_pcraster_ldd.map = "streamorder(flwdir_pcraster_ldd.map)"
-
-aguila *.map *.nc
+# NEXT: put the ldd and cellarea map to derive channel properties
 
 set +x
