@@ -1,12 +1,12 @@
 
 set -x
 
-OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-20/final/"
+OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-21/develop/"
 mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 rm -rf *
 
-INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network/"
+INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/ulysses_river_network_adjusted_for_pcrglobwb/source/river_network/"
 
 
 # ldd - drainage direction
@@ -18,7 +18,7 @@ INP_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_
                 #~ flwdir:units = "-" ;/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/source/river_network
 
 rm flwdir*
-cdo selname,flwdir ${INP_FOLDER}/d8map_06min.nc flwdir.nc
+cdo -L -sellonlatbox,-180,180,90,-90 -selname,flwdir ${INP_FOLDER}/d8map_06min.nc flwdir.nc
 gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 flwdir.nc flwdir.tif
 
 # http://hydro.iis.u-tokyo.ac.jp/~yamadai/flow/tech.html
@@ -42,18 +42,9 @@ pcrcalc flwdir_pcraster_ldd_covered.map = "lddrepair(lddrepair(flwdir_pcraster_l
  aguila flwdir_pcraster_ldd_covered.map
 
 
-# cellarea
-
-rm grdare*
-cdo selname,grdare ${INP_FOLDER}/d8map_06min.nc grdare.nc
-gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 grdare.nc grdare.tif
-pcrcalc grdare.map = "scalar(grdare.tif)"
-mapattr -s -P yb2t *.map
- aguila grdare.map
-
-# get also gridarea using cdo
+# cellarea (m2), using cdo
 rm cdo_griddarea*
-cdo gridarea ${INP_FOLDER}/d8map_06min.nc cdo_griddarea.nc
+cdo -L -setname,cellarea -setunit,m2 -gridarea ${INP_FOLDER}/flwdir.nc cdo_griddarea.nc
 gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 cdo_griddarea.nc cdo_griddarea.tif
 pcrcalc cdo_griddarea.map = "scalar(cdo_griddarea.tif)"
 mapattr -s -P yb2t *.map
