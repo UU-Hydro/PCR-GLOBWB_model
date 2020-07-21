@@ -355,7 +355,8 @@ def main():
         clone_code = str(sys.argv[3])
         configuration.globalOptions['outputDir'] += "/"+clone_code+"/" 
         configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
-        configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
+        if configuration.globalOptions['landmask'] != "None"
+            configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
 
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)
