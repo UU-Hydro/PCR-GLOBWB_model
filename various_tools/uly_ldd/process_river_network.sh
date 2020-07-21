@@ -40,6 +40,7 @@ mapattr -s -P yb2t *.map
 
 mapattr -p flwdir_pcraster_ldd.map
 gdalinfo flwdir_pcraster_ldd.map
+aguila flwdir_pcraster_ldd.map
 
 pcrcalc flwdir_pcraster_ldd_covered.map = "cover(flwdir_pcraster_ldd.map, ldd(5.0))"
 pcrcalc flwdir_pcraster_ldd_covered.map = "lddrepair(lddrepair(flwdir_pcraster_ldd_covered.map))"
@@ -48,7 +49,7 @@ mapattr -s -P yb2t *.map
 
 mapattr -p flwdir_pcraster_ldd_covered.map
 gdalinfo flwdir_pcraster_ldd_covered.map
-
+aguila flwdir_pcraster_ldd_covered.map
 
 # cellarea (m2), using cdo
 rm cdo_griddarea*
@@ -60,6 +61,7 @@ mapattr -s -P yb2t *.map
 
 mapattr -p cdo_griddarea.map
 gdalinfo cdo_griddarea.map
+aguila cdo_griddarea.map
 
 # NEXT: put the ldd and cellarea map to derive channel properties
 
