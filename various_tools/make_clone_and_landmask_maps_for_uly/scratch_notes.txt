@@ -1,0 +1,40 @@
+
+pcrcalc mask_basin_74.map = "boolean(mask_basin_74.nc)"
+mapattr -s -P yb2t *.map
+mapattr -p mask_basin_74.map
+
+pcrcalc x_min.map = "mapminimum(xcoordinate(mask_basin_74.map))"
+pcrcalc x_max.map = "mapmaximum(xcoordinate(mask_basin_74.map))"
+pcrcalc y_min.map = "mapminimum(ycoordinate(mask_basin_74.map))"
+pcrcalc y_max.map = "mapmaximum(ycoordinate(mask_basin_74.map))"
+
+mapattr -p *.map
+
+(pcrglobwb_python3) cyes@cca-login4:~/links/scratch_ulysses/data/edwin/landmask/mask_basin_74> mapattr -p *.map
+mapattr version: Jul 31 2019 (linux/x86_64)
+attributes  mask_basin_74.map x_max.map   x_min.map   y_max.map   y_min.map
+rows        1400              1400        1400        1400        1400
+columns     3600              3600        3600        3600        3600
+cell_length 0.1               0.1         0.1         0.1         0.1
+data_type   boolean           scalar      scalar      scalar      scalar
+cell_repr   small             single      single      single      single
+projection  yb2t              yb2t        yb2t        yb2t        yb2t
+angle(deg)  0                 0           0           0           0
+xUL         -180              -180        -180        -180        -180
+yUL         84                84          84          84          84
+min_val     0                 11.75       3.65        52.05       46.35
+max_val     1                 11.75       3.65        52.05       46.35
+version     2                 2           2           2           2
+file_id     0                 0           0           0           0
+native      y                 y           y           y           y
+attr_tab    n                 n           n           n           n
+(pcrglobwb_python3) cyes@cca-login4:~/links/scratch_ulysses/data/edwin/landmask/mask_basin_74>
+
+
+mapattr clone_basin_74.map
+
+mapattr -p clone_basin_74.map
+
+resample --clone clone_basin_74.map mask_basin_74.map clone_mask_basin_74.map
+
+aguila clone_mask_basin_74.map
