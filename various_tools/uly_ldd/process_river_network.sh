@@ -1,7 +1,7 @@
 
 set -x
 
-OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-21/develop/"
+OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-21/final/"
 mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 rm -rf *
@@ -44,7 +44,7 @@ pcrcalc flwdir_pcraster_ldd_covered.map = "lddrepair(lddrepair(flwdir_pcraster_l
 
 # cellarea (m2), using cdo
 rm cdo_griddarea*
-cdo -L -setname,cellarea -setunit,m2 -gridarea ${INP_FOLDER}/flwdir.nc cdo_griddarea.nc
+cdo -L -setname,cellarea -setunit,m2 -gridarea flwdir.nc cdo_griddarea.nc
 gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 cdo_griddarea.nc cdo_griddarea.tif
 pcrcalc cdo_griddarea.map = "scalar(cdo_griddarea.tif)"
 mapattr -s -P yb2t *.map
