@@ -35,6 +35,25 @@ mapattr clone_basin_74.map
 
 mapattr -p clone_basin_74.map
 
+(pcrglobwb_python3) cyes@cca-login4:~/links/scratch_ulysses/data/edwin/landmask/mask_basin_74> mapattr -p clone_basin_74.map
+mapattr version: Jul 31 2019 (linux/x86_64)
+attributes  clone_basin_74.map
+rows        70
+columns     90
+cell_length 0.1
+data_type   boolean
+cell_repr   small
+projection  yb2t
+angle(deg)  0
+xUL         3
+yUL         53
+min_val     1
+max_val     1
+version     2
+file_id     0
+native      y
+attr_tab    n
+
 resample --clone clone_basin_74.map mask_basin_74.map clone_mask_basin_74.map
 
 aguila clone_mask_basin_74.map
