@@ -80,6 +80,13 @@ class DeterministicRunner(DynamicModel):
 		    # pre-multiplier for the reference potential ET
             self.multiplier_for_refPotET    = float(system_argument[9])  # linear scale
         
+		    # pre-multiplier for manningsN
+            multiplier_for_manningsN        = float(system_argument[10]) # linear scale
+            
+            # modfication for storGroundwaterIni
+            storGroundwaterIni_file = str(system_argument[11])
+            
+
         # it is also possible to define prefactors via the ini/configuration file: 
         # - this will be overwrite any previous given pre-multipliers
         if 'prefactorOptions' in configuration.allSections:
@@ -92,6 +99,9 @@ class DeterministicRunner(DynamicModel):
             multiplier_for_kSat             = float(configuration.prefactorOptions['log_10_multiplier_for_kSat'            ])  # log scale
             multiplier_for_storCap          = float(configuration.prefactorOptions['linear_multiplier_for_storCap'         ])  # linear scale
             multiplier_for_recessionCoeff   = float(configuration.prefactorOptions['log_10_multiplier_for_recessionCoeff'  ])  # log scale
+            multiplier_for_manningsN        = float(configuration.prefactorOptions['multiplier_for_manningsN'              ])  # linear scale
+            
+            storGroundwaterIni_file = str(configuration.prefactorOptions['storGroundwaterIni_file'])  # file location (please use full path)
         
         # saving global pre-multipliers to the log file:
         msg  = "\n" 
@@ -103,11 +113,26 @@ class DeterministicRunner(DynamicModel):
         msg += "For storCap                    : "+str(multiplier_for_storCap         )+"\n"
         msg += "For degreeDayFactor            : "+str(multiplier_for_degreeDayFactor )+"\n"
         msg += "For refPotET                   : "+str(self.multiplier_for_refPotET   )+"\n"
+        msg += "For multiplier_for_manningsN   : "+str(multiplier_for_manningsN       )+"\n"
+        msg += "For storGroundwaterIni_file    : "+str(storGroundwaterIni_file        )+"\n"
         logger.info(msg)
         # - also to a txt file 
         f = open("multiplier.txt","w") # this will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
         f.write(msg)
         f.close()
+
+        # adjust storGroundwaterIni
+        if storGroundwaterIni_file != "Default": self.model.groundwater.storGroundwater = pcr.readmap(storGroundwaterIni_file)
+        pcr.report(self.model.groundwater.storGroundwater, "storGroundwaterIni.map") 
+        
+        # set parameter "manningsN" based on the given pre-multiplier
+        # - also saving the adjusted parameter maps to pcraster files
+        # - these will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
+        # "manningsN"
+        # minimum value is zero and using log-scale
+        self.model.routing.manningsN = multiplier_for_manningsN * self.model.routing.manningsN
+        # report the map
+        pcr.report(self.model.routing.manningsN, "manningsN.map")
 
         # set parameter "recessionCoeff" based on the given pre-multiplier
         # - also saving the adjusted parameter maps to pcraster files
