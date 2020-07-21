@@ -1,7 +1,7 @@
 
 set -x
 
-OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/river_network_adjusted_for_pcrglobwb/version_2020-07-21/final/"
+OUT_FOLDER="/home/ms/copext/cyes/links/scratch_ulysses/data/edwin/ulysses_river_network_adjusted_for_pcrglobwb/version_2020-07-21/final/"
 mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 rm -rf *
