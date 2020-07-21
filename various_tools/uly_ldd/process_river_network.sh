@@ -35,11 +35,19 @@ pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  6, ldd(1), flwdir_p
 pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  7, ldd(4), flwdir_pcraster_ldd.map)"
 pcrcalc flwdir_pcraster_ldd.map = "if(scalar(flwdir.tif) eq  8, ldd(7), flwdir_pcraster_ldd.map)"
 pcrcalc flwdir_pcraster_ldd.map = "lddrepair(lddrepair(flwdir_pcraster_ldd.map))"
- aguila flwdir_pcraster_ldd.map
+
+mapattr -s -P yb2t *.map
+
+mapattr -p flwdir_pcraster_ldd.map
+gdalinfo flwdir_pcraster_ldd.map
 
 pcrcalc flwdir_pcraster_ldd_covered.map = "cover(flwdir_pcraster_ldd.map, ldd(5.0))"
 pcrcalc flwdir_pcraster_ldd_covered.map = "lddrepair(lddrepair(flwdir_pcraster_ldd_covered.map))"
- aguila flwdir_pcraster_ldd_covered.map
+
+mapattr -s -P yb2t *.map
+
+mapattr -p flwdir_pcraster_ldd_covered.map
+gdalinfo flwdir_pcraster_ldd_covered.map
 
 
 # cellarea (m2), using cdo
@@ -47,9 +55,11 @@ rm cdo_griddarea*
 cdo -L -setname,cellarea -setunit,m2 -gridarea flwdir.nc cdo_griddarea.nc
 gdalwarp -tr 0.1 0.1 -te -180 -90 180 90 cdo_griddarea.nc cdo_griddarea.tif
 pcrcalc cdo_griddarea.map = "scalar(cdo_griddarea.tif)"
-mapattr -s -P yb2t *.map
- aguila cdo_griddarea.map
 
+mapattr -s -P yb2t *.map
+
+mapattr -p cdo_griddarea.map
+gdalinfo cdo_griddarea.map
 
 # NEXT: put the ldd and cellarea map to derive channel properties
 
