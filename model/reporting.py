@@ -1068,7 +1068,7 @@ class Reporting(object):
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
 
                     # masking out for reporting
-                    if self.landmask_for_reporting is not None::
+                    if self.landmask_for_reporting is not None:
                         vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                      vars(self)[var])
 
@@ -1116,7 +1116,7 @@ class Reporting(object):
                     vars(self)[var+'MonthMax'] = vars(self)[var]
 
                 # masking out for reporting
-                if self.landmask_for_reporting is not None::
+                if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
 
@@ -1146,7 +1146,7 @@ class Reporting(object):
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
 
                 # masking out for reporting
-                if self.landmask_for_reporting is not None::
+                if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
 
@@ -1178,7 +1178,7 @@ class Reporting(object):
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
 
                     # masking out for reporting
-                    if self.landmask_for_reporting is not None::
+                    if self.landmask_for_reporting is not None:
                         vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                      vars(self)[var])
 
@@ -1226,7 +1226,7 @@ class Reporting(object):
                     vars(self)[var+'AnnuaMax'] = vars(self)[var]
 
                 # masking out for reporting
-                if self.landmask_for_reporting is not None::
+                if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
 
