@@ -382,6 +382,8 @@ def main():
         configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
         if configuration.globalOptions['landmask'] != "None":
             configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
+        if configuration.reportingOptions['landmask_for_reporting'] != "None":
+            configuration.globalOptions['landmask_for_reporting'] = configuration.globalOptions['landmask_for_reporting'] %(clone_code)
 
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)

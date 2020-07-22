@@ -60,6 +60,16 @@ class Reporting(object):
         # initiate reporting tool/object and its configuration
         self.initiate_reporting()
 
+        # landmask for reporting
+        self.landmask_for_reporting = None
+        if "landmask_for_reporting" in list(configuration.reportingOptions.keys()) and\
+            self.configuration.reportingOptions["landmask_for_reporting"] != "None": 
+            self.landmask_for_reporting = vos.readPCRmapClone(\
+                                                              configuration.reportingOptions['landmask_for_reporting], \
+                                                              configuration.cloneMap, \
+                                                              configuration.tmpDir, \
+                                                              configuration.inputDir)
+            
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
         if self.configuration.debug_to_version_one: self.debug_to_version_one = True
@@ -999,7 +1009,13 @@ class Reporting(object):
         if self.outDailyTotNC[0] != "None":
             for var in self.outDailyTotNC:
                 
+                # masking out for reporting
+                if self.landmask_for_reporting != None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
                 short_name = varDicts.netcdf_short_name[var]
+                
                 self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_dailyTot_output.nc",\
@@ -1018,6 +1034,11 @@ class Reporting(object):
                    self._modelTime.day == 1:\
                    vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
 
+                # masking out for reporting
+                if self.landmask_for_reporting != None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
                 # accumulating
                 vars(self)[var+'MonthTot'] += vars(self)[var]
 
@@ -1025,6 +1046,7 @@ class Reporting(object):
                 if self._modelTime.endMonth == True: 
 
                     short_name = varDicts.netcdf_short_name[var]
+
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                                "_monthTot_output.nc",\
@@ -1044,6 +1066,11 @@ class Reporting(object):
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.day == 1:\
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
+
+                    # masking out for reporting
+                    if self.landmask_for_reporting != None:
+                        vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                     vars(self)[var])
 
                     # accumulating
                     vars(self)[var+'MonthTot'] += vars(self)[var]
@@ -1086,6 +1113,12 @@ class Reporting(object):
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.day == 1:\
                    vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
+                   vars(self)[var+'MonthMax'] = vars(self)[var]
+
+                # masking out for reporting
+                if self.landmask_for_reporting != None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # find the maximum
                 vars(self)[var+'MonthMax'] = pcr.max(vars(self)[var], vars(self)[var+'MonthMax'])
@@ -1111,6 +1144,11 @@ class Reporting(object):
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:\
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+
+                # masking out for reporting
+                if self.landmask_for_reporting != None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # accumulating
                 vars(self)[var+'AnnuaTot'] += vars(self)[var]
@@ -1138,6 +1176,11 @@ class Reporting(object):
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.doy == 1:\
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+
+                    # masking out for reporting
+                    if self.landmask_for_reporting != None:
+                        vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                     vars(self)[var])
 
                     # accumulating
                     vars(self)[var+'AnnuaTot'] += vars(self)[var]
@@ -1180,6 +1223,12 @@ class Reporting(object):
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:\
                    vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
+                   vars(self)[var+'AnnuaMax'] = vars(self)[var]
+
+                # masking out for reporting
+                if self.landmask_for_reporting != None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # find the maximum
                 vars(self)[var+'AnnuaMax'] = pcr.max(vars(self)[var], vars(self)[var+'AnnuaMax'])
