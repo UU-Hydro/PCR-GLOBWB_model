@@ -68,7 +68,7 @@ class Reporting(object):
                                                               configuration.reportingOptions['landmask_for_reporting'], \
                                                               configuration.cloneMap, \
                                                               configuration.tmpDir, \
-                                                              configuration.inputDir)
+                                                              configuration.globalOptions["inputDir"])
             
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
