@@ -1111,9 +1111,9 @@ class Reporting(object):
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the month
                 if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.day == 1:\
-                   vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
-                   vars(self)[var+'MonthMax'] = vars(self)[var]
+                   self._modelTime.day == 1:
+                    vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
+                    vars(self)[var+'MonthMax'] = vars(self)[var]
 
                 # masking out for reporting
                 if self.landmask_for_reporting != None:
@@ -1221,9 +1221,9 @@ class Reporting(object):
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the year
                 if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.doy == 1:\
-                   vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
-                   vars(self)[var+'AnnuaMax'] = vars(self)[var]
+                   self._modelTime.doy == 1:
+                    vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
+                    vars(self)[var+'AnnuaMax'] = vars(self)[var]
 
                 # masking out for reporting
                 if self.landmask_for_reporting != None:
