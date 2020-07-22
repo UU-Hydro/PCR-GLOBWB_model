@@ -65,7 +65,7 @@ class Reporting(object):
         if "landmask_for_reporting" in list(configuration.reportingOptions.keys()) and\
             self.configuration.reportingOptions["landmask_for_reporting"] != "None": 
             self.landmask_for_reporting = vos.readPCRmapClone(\
-                                                              configuration.reportingOptions['landmask_for_reporting], \
+                                                              configuration.reportingOptions['landmask_for_reporting'], \
                                                               configuration.cloneMap, \
                                                               configuration.tmpDir, \
                                                               configuration.inputDir)
