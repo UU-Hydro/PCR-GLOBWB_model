@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -l walltime=24:00:00
+#PBS -l walltime=96:00:00
 #PBS -N test-PCR-GLOBWB
 #PBS -q np
 
