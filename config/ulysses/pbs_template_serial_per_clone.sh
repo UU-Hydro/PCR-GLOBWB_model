@@ -7,9 +7,9 @@
 #PBS -M hsutanudjajacchms99@yahoo.com
 
 #~ #PBS -l EC_memory_per_task=64000MB
-#PBS -l EC_memory_per_task=10000MB
+#PBS -l EC_memory_per_task=16000MB
 
-#PBS -v CLONE_CODE=99
+#PBS -v CLONE_CODE_ONE=98,CLONE_CODE_TWO=99
 
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster421.sh
@@ -20,5 +20,8 @@ cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-developm
 
 
 # run the model for every clone
-python deterministic_runner_parallel_for_ulysses.py ../config/ulysses/setup_6arcmin_mask_xxxx_serial.ini debug_parallel ${CLONE_CODE}
+python deterministic_runner_parallel_for_ulysses.py ../config/ulysses/setup_6arcmin_mask_xxxx_serial.ini debug_parallel ${CLONE_CODE_ONE} &
+python deterministic_runner_parallel_for_ulysses.py ../config/ulysses/setup_6arcmin_mask_xxxx_serial.ini debug_parallel ${CLONE_CODE_TWO} &
+wait
+
 
