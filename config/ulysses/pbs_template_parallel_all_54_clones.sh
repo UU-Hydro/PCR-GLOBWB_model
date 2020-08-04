@@ -1,20 +1,20 @@
 #!/bin/bash 
-#PBS -l walltime=48:00:00
 #PBS -N test-PCR-GLOBWB
 #PBS -q np
+#PBS -l EC_nodes=1
 #PBS -l EC_billing_account=c3s432l3
+#PBS -l walltime=48:00:00
+
+#PBS -M hsutanudjajacchms99@yahoo.com
+
+
 
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster421.sh
 
+
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
-
-
-
-
-
-
 
 
 # run the model for every clone
