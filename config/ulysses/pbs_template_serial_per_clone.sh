@@ -8,7 +8,7 @@
 
 #PBS -l EC_memory_per_task=64000MB
 
-#PBS -M -v CLONE_CODE=99
+#PBS -v CLONE_CODE=99
 
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster421.sh
