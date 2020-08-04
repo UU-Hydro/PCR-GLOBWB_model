@@ -2,7 +2,7 @@
 #PBS -l walltime=48:00:00
 #PBS -N test-PCR-GLOBWB
 #PBS -q np
-
+#PBS -l EC_billing_account=c3s432l3
 
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster421.sh
