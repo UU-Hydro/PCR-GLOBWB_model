@@ -6,7 +6,8 @@
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
-#PBS -l EC_memory_per_task=64000MB
+#~ #PBS -l EC_memory_per_task=64000MB
+#PBS -l EC_memory_per_task=10000MB
 
 #PBS -v CLONE_CODE=99
 
