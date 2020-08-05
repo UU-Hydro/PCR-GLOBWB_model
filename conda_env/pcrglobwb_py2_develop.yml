@@ -3,7 +3,7 @@ channels:
 dependencies:
   - python=2.7
   - numpy
-  - pip
+# - pip
   - python-dateutil
   - six  
   - zlib
@@ -13,9 +13,9 @@ dependencies:
 #   - netcdf4>=1.5.3
 # - netcdf4
   - netcdf4=1.4.2
-  - cdo
-  - nco
-  - ncview
+# - cdo
+# - nco
+# - ncview
 # - gdal
   
 # Notes: 
