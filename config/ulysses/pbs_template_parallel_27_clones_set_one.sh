@@ -1,8 +1,9 @@
 #!/bin/bash 
 #PBS -N PGB01-27
 #PBS -q nf
-#PBS -l EC_total_tasks=32
+#PBS -l EC_total_tasks=30
 #PBS -l EC_hyperthreads=2
+#PBS -l EC_memory_per_task=2GB
 #PBS -l EC_billing_account=c3s432l3
 #PBS -l walltime=48:00:00
 
