@@ -15,5 +15,9 @@ dependencies:
   - cdo
   - nco
   - ncview
+# - gdal
   
-# Note: You may want to exclude cdsapi, cdo, and ncview. For python 2.7, you will have to use pcraster 4.1
+# Notes: 
+# - For python 2.7, you will have to use pcraster 4.1.
+# - It is recommended to install gdal separately.  
+# - You may want to exclude cdsapi, cdo, and ncview. 
