@@ -15,4 +15,4 @@ dependencies:
   - nco
   - ncview
   
-# Note: You may want to exclude cdsapi, cdo, and ncview.
+# Note: You may want to exclude cdsapi, cdo, and ncview. For python 2.7, you will have to use pcraster 4.1
