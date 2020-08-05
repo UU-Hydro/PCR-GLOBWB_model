@@ -8,10 +8,11 @@ dependencies:
   - six  
   - zlib
 # - pcraster
-  - pip:
-    - cdsapi
+# - pip:
+#   - cdsapi
 #   - netcdf4>=1.5.3
-  - netcdf4>=1.5.3
+# - netcdf4
+  - netcdf4=1.4.2
   - cdo
   - nco
   - ncview
