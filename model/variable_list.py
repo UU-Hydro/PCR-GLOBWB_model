@@ -1703,6 +1703,51 @@ latex_symbol[pcrglobwb_variable_name]      = None
 
 # RvB 23/02/2017: end of edit
 
+
+
+#############################################################################################################
+# ulysses 
+#############################################################################################################
+
+        #~ # surface temperature
+        #~ self.ulyssesTsurf = None
+        #~ 
+        #~ # total precipitation (kg m-2 s-1)
+        #~ self.ulyssesP   =   self._model.meteo.precipitation / 86.4\ 
+        #~ 
+        #~ # total evaporation and transpiration (kg m-2 s-1)
+        #~ self.ulyssesET  = - (self._model.landSurface.actualET + 
+                             #~ self._model.routing.waterBodyEvaporation) / 86.4
+        #~ # - land only
+        #~ self.ulyssesETland  = - (self._model.landSurface.actualET   ) / 86.4
+        #~ 
+        #~ # TODO: PET
+        #~ 
+        #~ # SWE (*1000 to go from "m" to "kg m-2")
+        #~ self.ulyssesSWE     =    self._model.landSurface.snowCoverSWE * 1000 # report in kg m-2
+        #~ 
+        #~ # snowmelt
+        #~ self.ulyssesQsm     =   self._model.landSurface.snowMelt / 86.4 # report in kg m-2 s-1
+        #~ 
+        #~ # SM: total volumetric of soil moisture
+        #~ self.ulyssesSoilMoist  =   ( self._model.landSurface.storUppTotal + 
+                                     #~ self._model.landSurface.storLowTotal ) * 1000 # report in kg m-2 (water in RootLayerThick)
+#~ 
+#~ 
+        #~ # Qr: total runoff
+        #~ # - land only, not including local changes in water body
+        #~ self.ulyssesRunoffland = - self._model.routing.runoff / 86.4 # report in kg m-2 s-1
+        #~ 
+        #~ # gridder river discharge
+        #~ self.ulyssesDischarge  = self.discharge
+
+
+#############################################################################################################
+# ulysses : end of edit 
+#############################################################################################################
+
+
+
 #~ # remove/clear pcrglobwb_variable_name 
 #~ pcrglobwb_variable_name = None
 #~ del pcrglobwb_variable_name
