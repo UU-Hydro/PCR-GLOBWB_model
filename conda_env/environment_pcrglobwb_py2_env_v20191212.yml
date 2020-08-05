@@ -40,5 +40,5 @@ dependencies:
   - tk=8.6.8=hbc83047_0
   - wheel=0.33.6=py27_0
   - zlib=1.2.11=h7b6447c_3
-prefix: /home/edwinhs/.conda/envs/pcrglobwb_py2_env_v20191212
+#~ prefix: /home/edwinhs/.conda/envs/pcrglobwb_py2_env_v20191212
 
