@@ -1,3 +1,4 @@
+#!/bin/bash 
 
 # load modules, etc
 . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster430.sh
