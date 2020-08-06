@@ -1007,6 +1007,7 @@ class LandCover(object):
             self.satDegLow030150 = vos.getValDivZero(\
                   self.storLow030150, self.parameters.storCapLow030150,\
                   vos.smallNumber,0.)
+            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
 
             self.satDegUppTotal  = vos.getValDivZero(\
                   self.storUpp000005 + self.storUpp005030,\
@@ -1019,7 +1020,7 @@ class LandCover(object):
             self.satDegTotal = pcr.ifthen(self.landmask, \
                   vos.getValDivZero(\
                   self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
-                  vos.smallNumber, 0.0)
+                  vos.smallNumber, 0.0))
 
         
         if self.report == True:
