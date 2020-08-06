@@ -1709,37 +1709,80 @@ latex_symbol[pcrglobwb_variable_name]      = None
 # ulysses 
 #############################################################################################################
 
-        #~ # surface temperature
-        #~ self.ulyssesTsurf = None
-        #~ 
-        #~ # total precipitation (kg m-2 s-1)
-        #~ self.ulyssesP   =   self._model.meteo.precipitation / 86.4\ 
-        #~ 
-        #~ # total evaporation and transpiration (kg m-2 s-1)
-        #~ self.ulyssesET  = - (self._model.landSurface.actualET + 
-                             #~ self._model.routing.waterBodyEvaporation) / 86.4
-        #~ # - land only
-        #~ self.ulyssesETland  = - (self._model.landSurface.actualET   ) / 86.4
-        #~ 
-        #~ # TODO: PET
-        #~ 
-        #~ # SWE (*1000 to go from "m" to "kg m-2")
-        #~ self.ulyssesSWE     =    self._model.landSurface.snowCoverSWE * 1000 # report in kg m-2
-        #~ 
-        #~ # snowmelt
-        #~ self.ulyssesQsm     =   self._model.landSurface.snowMelt / 86.4 # report in kg m-2 s-1
-        #~ 
-        #~ # SM: total volumetric of soil moisture
-        #~ self.ulyssesSoilMoist  =   ( self._model.landSurface.storUppTotal + 
-                                     #~ self._model.landSurface.storLowTotal ) * 1000 # report in kg m-2 (water in RootLayerThick)
-#~ 
-#~ 
-        #~ # Qr: total runoff
-        #~ # - land only, not including local changes in water body
-        #~ self.ulyssesRunoffland = - self._model.routing.runoff / 86.4 # report in kg m-2 s-1
-        #~ 
-        #~ # gridder river discharge
-        #~ self.ulyssesDischarge  = self.discharge
+# surface temperature (ulyssesTsurf)
+pcrglobwb_variable_name                            = 'ulyssesTsurf'
+netcdf_short_name[pcrglobwb_variable_name]         = 'Tsurf'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Average surface temperature'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'surface_temperature'
+netcdf_unit[pcrglobwb_variable_name]               = 'K'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Average of all vegetation, bare soil and snow skin temperatures.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " This variable is not simulated by PCR-GLOBWB."
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# total precipitation (ulyssesP)
+pcrglobwb_variable_name                            = 'ulyssesP'
+netcdf_short_name[pcrglobwb_variable_name]         = 'P'
+netcdf_long_name[pcrglobwb_variable_name]          = 'total precipitation'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'precipitation_flux'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Average of total precipitation (Rainf+Snowf).'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive direction is downwards."
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# total evaporation and transpiration, land only (ulyssesET)
+pcrglobwb_variable_name                            = 'ulyssesET'
+netcdf_short_name[pcrglobwb_variable_name]         = 'ET'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Total evapotranspiration'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'water evaporation_flux'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Sum of all evaporation sources, averaged over a grid cell.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Not including evaporation from surface water bodies (which are simulated by the routing module of PCR-GLOBWB)." + " Positive direction is downwards."
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# TODO: PET: reference potential evaporation or potential one?
+
+# SWE (ulyssesSWE)
+pcrglobwb_variable_name                            = 'ulyssesSWE'
+netcdf_short_name[pcrglobwb_variable_name]         = 'SWE'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Snow water equivalent'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'snow_water_equivalent'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'The amount of liquid water contained within the snow pack.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Including free liquid water stored within/above snow cover."
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# ulyssesSWE_excluding_free_water
+pcrglobwb_variable_name                            = 'ulyssesSWE_excluding_free_water'
+netcdf_short_name[pcrglobwb_variable_name]         = 'SWE_excluding_free_water'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Snow water equivalent_excluding_free_water'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'snow_water_equivalent_excluding_free_water'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'The amount of liquid water contained within the snow pack, but excluding free liquid water stored within/above snow cover.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# UNTIL THIS PART
+
+# QSM = snowmelt (kg m-2 s-1)
+
+# SM: total volumetric of soil moisture (kg m-2)
+
+# Qr: total runoff (report in kg m-2 s-1)
+# - land only, not including local changes in water body
+self.ulyssesQrRunoff = - self._model.routing.runoff / 86.4 
+
+# gridder river discharge
+self.ulyssesDischarge  = self.discharge
 
 
 #############################################################################################################

@@ -173,6 +173,11 @@ class Meteo(object):
         if iniItems.timeStep == 1.0 and iniItems.timeStepUnit == "day":
             self.usingDailyTimeStepForcingData = True
         
+        # option to remove drizzle with rounddown
+        # - if True, any precipitation values less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 are ignored
+        self.rounddownPrecipitation = True
+        if "rounddownPrecipitation" in 
+        
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
@@ -852,7 +857,7 @@ class Meteo(object):
         self.precipitation = pcr.cover(  self.precipitation, 0.0)
         
         # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
-        if self.usingDailyTimeStepForcingData:
+        if self.usingDailyTimeStepForcingData and self.rounddownPrecipitation:
             self.precipitation = pcr.rounddown(self.precipitation*100000.)/100000.
 
         

@@ -364,6 +364,9 @@ class Reporting(object):
         self.additional_post_processing()
         #-RvB 23/02/2017: post-processing for the eartH2Observe project
         self.e2o_post_processing()
+        
+        # reporting, post-processing for the Ulysses project
+        self.ulysses_post_processing()
                 
         if self.debug_to_version_one:
             if self._modelTime.timeStepPCR == 1: self.report_static_maps_for_debugging()
@@ -1281,34 +1284,39 @@ class Reporting(object):
 
     def ulysses_post_processing(self):
 
+        # PGB is assumed to write at least ET, SWE, Qsm, SM, Qr
+        
         # surface temperature
         self.ulyssesTsurf = None
         
         # total precipitation (kg m-2 s-1)
-        self.ulyssesP   =   self._model.meteo.precipitation / 86.4\ 
+        self.ulyssesP     = self._model.meteo.precipitation / 86.4 
         
         # total evaporation and transpiration (kg m-2 s-1)
-        self.ulyssesET  = - (self._model.landSurface.actualET + 
-                             self._model.routing.waterBodyEvaporation) / 86.4
         # - land only
-        self.ulyssesETland  = - (self._model.landSurface.actualET   ) / 86.4
+        self.ulyssesET       = - (self._model.landSurface.actualET   ) / 86.4
+        # - including water bodies
+        self.ulyssesETall    = - (self._model.landSurface.actualET + 
+                              self._model.routing.waterBodyEvaporation) / 86.4
         
-        # TODO: PET
+        # TODO: PET: reference potential evaporation or potential one?
         
-        # SWE (*1000 to go from "m" to "kg m-2")
-        self.ulyssesSWE     =    self._model.landSurface.snowCoverSWE * 1000 # report in kg m-2
+        # SWE (kg m-2")
+        # - including free water stored above the snow cover
+        self.ulyssesSWE      =   (self._model.landSurface.snowCoverSWE + self._model.landSurface.snowFreeWater)* 1000.
+        # - excluding free water stored above the snow cover
+        self.ulyssesSWE_excluding_free_water = (self._model.landSurface.snowCoverSWE) * 1000.
         
-        # snowmelt
-        self.ulyssesQsm     =   self._model.landSurface.snowMelt / 86.4 # report in kg m-2 s-1
+        # QSM = snowmelt (kg m-2 s-1)
+        self.ulyssesQsm      =    self._model.landSurface.snowMelt / 86.4
         
-        # SM: total volumetric of soil moisture
-        self.ulyssesSoilMoist  =   ( self._model.landSurface.storUppTotal + 
-                                     self._model.landSurface.storLowTotal ) * 1000 # report in kg m-2 (water in RootLayerThick)
+        # SM: total volumetric of soil moisture (kg m-2)
+        self.ulyssesSM       =   ( self._model.landSurface.storUppTotal + 
+                                      self._model.landSurface.storLowTotal ) * 1000
 
-
-        # Qr: total runoff
+        # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
-        self.ulyssesRunoffland = - self._model.routing.runoff / 86.4 # report in kg m-2 s-1
+        self.ulyssesQrRunoff = - self._model.routing.runoff / 86.4 
         
         # gridder river discharge
         self.ulyssesDischarge  = self.discharge
