@@ -137,7 +137,8 @@ class LandSurface(object):
         self.stateVars = ['storUppTotal',
                           'storLowTotal',
                           'satDegUppTotal',
-                          'satDegLowTotal']
+                          'satDegLowTotal',
+                          'satDegTotal']
         #
         # flux variables (unit: m/day)
         self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',

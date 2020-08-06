@@ -989,6 +989,11 @@ class LandCover(object):
 
             self.satDegUppTotal = self.satDegUpp
             self.satDegLowTotal = self.satDegLow
+            
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp + self.storLow, self.parameters.storCapUpp + self.parameters.storCapLow,\
+                  vos.smallNumber, 0.0))
 
         if self.numberOfSoilLayers == 3:
             self.satDegUpp000005 = vos.getValDivZero(\
@@ -1002,7 +1007,7 @@ class LandCover(object):
             self.satDegLow030150 = vos.getValDivZero(\
                   self.storLow030150, self.parameters.storCapLow030150,\
                   vos.smallNumber,0.)
-            self.satDegLow030150 = pcr.ifthen(self.landmask, self.satDegLow030150)
+            self.satDegLow030150 = self.satDegLow030150)
 
             self.satDegUppTotal  = vos.getValDivZero(\
                   self.storUpp000005 + self.storUpp005030,\
@@ -1011,6 +1016,12 @@ class LandCover(object):
                   vos.smallNumber,0.)
             self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
             self.satDegLowTotal = self.satDegLow030150
+
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
+                  vos.smallNumber, 0.0)
+
         
         if self.report == True:
             # writing Output to netcdf files

@@ -1755,7 +1755,7 @@ netcdf_standard_name[pcrglobwb_variable_name]      = 'snow_water_equivalent'
 netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]               = 'The amount of liquid water contained within the snow pack.'
+description[pcrglobwb_variable_name]               = 'The amount of water contained within the snow pack.'
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Including free liquid water stored within/above snow cover."
 latex_symbol[pcrglobwb_variable_name]              = None
 
@@ -1767,22 +1767,56 @@ netcdf_standard_name[pcrglobwb_variable_name]      = 'snow_water_equivalent_excl
 netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-description[pcrglobwb_variable_name]               = 'The amount of liquid water contained within the snow pack, but excluding free liquid water stored within/above snow cover.'
+description[pcrglobwb_variable_name]               = 'The amount of water contained within the snow pack, but excluding free liquid water stored within/above snow cover.'
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
 latex_symbol[pcrglobwb_variable_name]              = None
 
-# UNTIL THIS PART
+# Qsm = snowmelt (ulyssesQsm)
+pcrglobwb_variable_name                            = 'ulyssesQsm'
+netcdf_short_name[pcrglobwb_variable_name]         = 'Qsm'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Snowmelt'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'surface_snow_melt_flux'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Average liquid water generated from solid to liquid phase change in the snow.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive direction indicates changes from solid to liquid phase."
+latex_symbol[pcrglobwb_variable_name]              = None
 
-# QSM = snowmelt (kg m-2 s-1)
+# SM: total volumetric of soil moisture (ulyssesSM)
+pcrglobwb_variable_name                            = 'ulyssesSM'
+netcdf_short_name[pcrglobwb_variable_name]         = 'SM'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Percentage of water with respect to the available volume in the soil layers.'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'total_volumetric_soil_moisture'
+netcdf_unit[pcrglobwb_variable_name]               = '%'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Volumetric soil moisture content in the soil layers at the end of each model time step.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
 
-# SM: total volumetric of soil moisture (kg m-2)
+# Qr: total runoff (ulyssesQrRunoff)
+pcrglobwb_variable_name                            = 'ulyssesQrRunoff'
+netcdf_short_name[pcrglobwb_variable_name]         = 'Qr'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Total runoff.'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'runoff_flux'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Average total liquid water draining from land. '
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive direction is into grid cell."
 
-# Qr: total runoff (report in kg m-2 s-1)
-# - land only, not including local changes in water body
-self.ulyssesQrRunoff = - self._model.routing.runoff / 86.4 
 
-# gridder river discharge
-self.ulyssesDischarge  = self.discharge
+# gridder river discharge (ulyssesDischarge)
+pcrglobwb_variable_name                            = 'ulyssesDischarge'
+netcdf_short_name[pcrglobwb_variable_name]         = 'Q'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Gridded river discharge.'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'gridded_river_discharge'
+netcdf_unit[pcrglobwb_variable_name]               = 'm3 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Water volume leaving the cell.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive indicates downstream direction."
+
 
 
 #############################################################################################################

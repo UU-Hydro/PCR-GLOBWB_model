@@ -1307,12 +1307,11 @@ class Reporting(object):
         # - excluding free water stored above the snow cover
         self.ulyssesSWE_excluding_free_water = (self._model.landSurface.snowCoverSWE) * 1000.
         
-        # QSM = snowmelt (kg m-2 s-1)
+        # Qsm = snowmelt (kg m-2 s-1)
         self.ulyssesQsm      =    self._model.landSurface.snowMelt / 86.4
         
-        # SM: total volumetric of soil moisture (kg m-2)
-        self.ulyssesSM       =   ( self._model.landSurface.storUppTotal + 
-                                      self._model.landSurface.storLowTotal ) * 1000
+        # SM: total volumetric of soil moisture (%)
+        self.ulyssesSM       =    self._model.landSurface.satDegTotal
 
         # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
