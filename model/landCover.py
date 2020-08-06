@@ -1007,7 +1007,6 @@ class LandCover(object):
             self.satDegLow030150 = vos.getValDivZero(\
                   self.storLow030150, self.parameters.storCapLow030150,\
                   vos.smallNumber,0.)
-            self.satDegLow030150 = self.satDegLow030150)
 
             self.satDegUppTotal  = vos.getValDivZero(\
                   self.storUpp000005 + self.storUpp005030,\
