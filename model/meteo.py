@@ -175,8 +175,8 @@ class Meteo(object):
         
         # option to remove drizzle with rounddown
         # - if True, any precipitation values less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 are ignored
-        self.rounddownPrecipitation = True
-        if "rounddownPrecipitation" in 
+        self.rounddownPrecipitation = False
+        #~ if "rounddownPrecipitation" in 
         
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
