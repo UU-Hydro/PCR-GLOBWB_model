@@ -10,11 +10,11 @@ export PATH=$HOME/opt/miniconda3/bin:$PATH
 # activate conda env
 source activate pcrglobwb_python36_ulysses
 
-# load gdal
-module load gdal/3.0.4
-
 # using pcraster 4.3.0
 module load pcraster/4.3.0
+
+# load gdal
+module load gdal/3.0.4
 
 # include PATH for for a working aguila
 export PATH=$HOME/opt/aguila:$PATH
