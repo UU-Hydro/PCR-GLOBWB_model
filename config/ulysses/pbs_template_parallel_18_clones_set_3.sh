@@ -12,7 +12,7 @@
 
 
 # load modules, etc
-. load_miniconda_pcrglobwb-py3-env_pcraster430.sh
+. /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster430.sh
 
 
 # go to the folder that contain PCR-GLOBWB scripts
