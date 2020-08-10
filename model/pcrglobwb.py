@@ -76,6 +76,11 @@ class PCRGlobWB(object):
         # preparing sub-modules
         self.createSubmodels(initialState)
         
+        # option to save monthly end states
+        self.save_monthly_end_states = False
+        if "save_monthly_end_states" in list(configuration.reportingOptions.keys()):
+            self.save_monthly_end_states = configuration.reportingOptions["save_monthly_end_states"] == "True"
+                    
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
         if configuration.debug_to_version_one: self.debug_to_version_one = True
@@ -451,7 +456,10 @@ class PCRGlobWB(object):
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
         # save/dump states at the end of the year or at the end of model simulation
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
+        # - option to also save model output at the last day of the month
+        save_monthly_end_states = self.save_monthly_end_states 
+        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
+          (self._modelTime.isLastDayOfMonth and save_monthly_end_states):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
