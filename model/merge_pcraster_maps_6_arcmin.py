@@ -255,11 +255,11 @@ try:
     areas = str(sys.argv[5])
     areas = list(set(areas.split(",")))
     if areas[0] == "Global":
-		try:
-			number_of_clone_maps = int(sys.argv[6])
-		except:
-			pass
-		areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
+        try:
+            number_of_clone_maps = int(sys.argv[6])
+        except:
+            pass
+        areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
 except:
     pass
 
