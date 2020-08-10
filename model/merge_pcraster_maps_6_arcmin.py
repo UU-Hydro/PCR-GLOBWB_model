@@ -263,6 +263,10 @@ try:
 except:
     pass
 
+# option to ignore empty
+ignoreNotExistingMap = False
+ignoreNotExistingMap = str(sys.argv[7]) == "ignoreNotExistingMap"
+
 #-main script
 #-get clone
 nrRows= int((latMax-latMin)/deltaLat)
@@ -303,7 +307,10 @@ for fileName in list(files.keys()):
         if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[3] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
-        ll.append(inputFileName)
+        if ignoreNotExistingMap == False
+            ll.append(inputFileName)
+        else:
+            if os.path.exists(inputFileName): ll.append(inputFileName)
     files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
 #~ # this is for testing
