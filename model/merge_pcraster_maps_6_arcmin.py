@@ -307,7 +307,7 @@ for fileName in list(files.keys()):
         if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[3] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
-        if ignoreNotExistingMap == False
+        if ignoreNotExistingMap == False:
             ll.append(inputFileName)
         else:
             if os.path.exists(inputFileName): ll.append(inputFileName)
