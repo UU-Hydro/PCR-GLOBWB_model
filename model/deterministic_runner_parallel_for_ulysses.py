@@ -384,6 +384,7 @@ def process_optional_system_arguments(configuration, all_sys_args):
             for key, value in list(sec.items()):
                 if key.endswith("Ini"):
                     sec[key] = os.path.abspath(value)
+                    print(vars(configuration)[sec])
                     vars(configuration)[sec][key] = vars(configuration)[sec][key].replace("INITIAL_STATE_FOLDER", "test")
     
     print(configuration.routingOptions)
