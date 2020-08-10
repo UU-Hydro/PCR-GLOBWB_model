@@ -348,6 +348,52 @@ class DeterministicRunner(DynamicModel):
         if status: self.count_check = 0            
         return status
  
+ 
+def process_optional_system_arguments(all_sys_args):
+    # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
+    
+    # optional system arguments for replacing the following outputDir (-mod)
+    if "-mod" in all_sys_args:
+        main_output_dir = all_sys_args[all_sys_args.index("-mod") + 1]
+        configuration.globalOptions['outputDir'] = configuration.globalOptions['outputDir'].replace("MAIN_OUTPUT_DIR", main_output_dir)
+        msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + configuration.globalOptions['outputDir']
+        logger.info(msg)
+    
+    # optional system arguments for modifying startTime (-st) and endTime (-et)
+    if "-st" in all_sys_args:
+        starting_date = all_sys_args[all_sys_args.index("-st") + 1]
+        configuration.globalOptions['startTime'] = configuration.globalOptions['startTime'].replace("STARTING_DATE", starting_date)
+        msg = "The starting time 'startTime' is set based on the system argument (-st): " + configuration.globalOptions['startTime']
+        logger.info(msg)
+    if "-et" in all_sys_args:
+        end_date = all_sys_args[all_sys_args.index("-et") + 1]
+        configuration.globalOptions['endTime'] = configuration.globalOptions['endTime'].replace("END_DATE", end_date)
+        msg = "The end time 'endTime' is set based on the system argument (-et): " + configuration.globalOptions['startTime']
+        logger.info(msg)
+        
+    # optional system arguments for modifying initial states (note that it is assumed that we always save model states at the global extent)
+    # - folder
+    if "-mid" in all_sys_args:
+        initial_state_folder = all_sys_args[all_sys_args.index("-md") + 1]        
+        msg = "The main folder for all initial states is set based on the system argument (-mid): " + initial_state_folder
+        logger.info(msg)
+
+        for section in configuration.allSections:
+            sec = getattr(self, section)
+            for key, value in list(sec.items()):
+                if key.endswith("Ini"):
+                    sec[key] = os.path.abspath(value)
+                    vars(configuration)[sec][key] = vars(configuration)[sec][key].replace("INITIAL_STATE_FOLDER", "test")
+    
+    print(configuration.routingOptions)
+
+    # - date
+        
+    
+    # optional system arguments for modifying forcing files (-prefile, -tmpfile, -retpfile)
+
+ 
+ 
 
 def main():
     
@@ -359,79 +405,88 @@ def main():
     if len(sys.argv) > 2: 
         if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel" or sys.argv[2] == "debug-parallel": debug_mode = True
     
-    # object to handle configuration/ini file
-    configuration = Configuration(iniFileName = iniFileName, \
-                                  debug_mode = debug_mode, \
-                                  no_modification = False)      
-
     # parallel option
     this_run_is_part_of_a_set_of_parallel_run = False    
     if len(sys.argv) > 2: 
         if sys.argv[2] == "parallel" or sys.argv[2] == "debug_parallel" or sys.argv[2] == "debug-parallel": this_run_is_part_of_a_set_of_parallel_run = True
+
+    # process optional arguments
+    process_optional_system_arguments(list(sys.argv))
     
-    # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
-    if this_run_is_part_of_a_set_of_parallel_run == False:
-        # modfiying 'outputDir' (based on the given system argument)
-        configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
-
-    # for a parallel run (usually 5min), we assign a specific directory based on the clone number/code:
-    if this_run_is_part_of_a_set_of_parallel_run:
-        # modfiying outputDir, clone-map and landmask (based on the given system arguments)
-        clone_code = str(sys.argv[3])
-        configuration.globalOptions['outputDir'] += "/"+clone_code+"/" 
-        configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
-        if configuration.globalOptions['landmask'] != "None":
-            configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
-        if configuration.reportingOptions['landmask_for_reporting'] != "None":
-            configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(clone_code)
-
-    # set configuration
-    configuration.set_configuration(system_arguments = sys.argv)
-
-    # timeStep info: year, month, day, doy, hour, etc
-    currTimeStep = ModelTime() 
-
-    # object for spin_up
-    spin_up = SpinUp(configuration)            
-    
-    # spinning-up 
-    noSpinUps = int(configuration.globalOptions['maxSpinUpsInYears'])
-    initial_state = None
-    if noSpinUps > 0:
-        
-        logger.info('Spin-Up #Total Years: '+str(noSpinUps))
-
-        spinUpRun = 0 ; has_converged = False
-        while spinUpRun < noSpinUps and has_converged == False:
-            spinUpRun += 1
-            currTimeStep.getStartEndTimeStepsForSpinUp(
-                    configuration.globalOptions['startTime'],
-                    spinUpRun, noSpinUps)
-            logger.info('Spin-Up Run No. '+str(spinUpRun))
-            deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
-            
-            all_state_begin = deterministic_runner.model.getAllState() 
-            
-            dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
-            dynamic_framework.setQuiet(True)
-            dynamic_framework.run()
-            
-            all_state_end = deterministic_runner.model.getAllState() 
-            
-            has_converged = spin_up.checkConvergence(all_state_begin, all_state_end, spinUpRun, deterministic_runner.model.routing.cellArea)
-            
-            initial_state = deterministic_runner.model.getState()
-    #
-    # Running the deterministic_runner (excluding DA scheme)
-    currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
-                                      configuration.globalOptions['endTime'])
-    
-    logger.info('Transient simulation run started.')
-    deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
-    
-    dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
-    dynamic_framework.setQuiet(True)
-    dynamic_framework.run()
+    #~ # object to handle configuration/ini file
+    #~ configuration = Configuration(iniFileName = iniFileName, \
+                                  #~ debug_mode = debug_mode, \
+                                  #~ no_modification = False)      
+    #~ 
+    #~ # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
+    #~ if this_run_is_part_of_a_set_of_parallel_run == False:
+        #~ # modfiying 'outputDir' (based on the given system argument)
+        #~ configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
+#~ 
+    #~ # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
+    #~ if this_run_is_part_of_a_set_of_parallel_run:
+        #~ # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
+        #~ # - clone code in string
+        #~ clone_code = str(sys.argv[3])
+        #~ # - output folder
+        #~ output_folder_with_clone_code = "mask_%4i" (%int(clone_code))
+        #~ configuration.globalOptions['outputDir'] += output_folder_with_clone_code 
+        #~ # - clone map
+        #~ configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
+        #~ # - landmask for model calculation
+        #~ if configuration.globalOptions['landmask'] != "None":
+            #~ configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
+        #~ # - landmask for reporting
+        #~ if configuration.reportingOptions['landmask_for_reporting'] != "None":
+            #~ configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(clone_code)
+#~ 
+    #~ # set configuration
+    #~ configuration.set_configuration(system_arguments = sys.argv)
+#~ 
+    #~ # timeStep info: year, month, day, doy, hour, etc
+    #~ currTimeStep = ModelTime() 
+#~ 
+    #~ # object for spin_up
+    #~ spin_up = SpinUp(configuration)            
+    #~ 
+    #~ # spinning-up 
+    #~ noSpinUps = int(configuration.globalOptions['maxSpinUpsInYears'])
+    #~ initial_state = None
+    #~ if noSpinUps > 0:
+        #~ 
+        #~ logger.info('Spin-Up #Total Years: '+str(noSpinUps))
+#~ 
+        #~ spinUpRun = 0 ; has_converged = False
+        #~ while spinUpRun < noSpinUps and has_converged == False:
+            #~ spinUpRun += 1
+            #~ currTimeStep.getStartEndTimeStepsForSpinUp(
+                    #~ configuration.globalOptions['startTime'],
+                    #~ spinUpRun, noSpinUps)
+            #~ logger.info('Spin-Up Run No. '+str(spinUpRun))
+            #~ deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
+            #~ 
+            #~ all_state_begin = deterministic_runner.model.getAllState() 
+            #~ 
+            #~ dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+            #~ dynamic_framework.setQuiet(True)
+            #~ dynamic_framework.run()
+            #~ 
+            #~ all_state_end = deterministic_runner.model.getAllState() 
+            #~ 
+            #~ has_converged = spin_up.checkConvergence(all_state_begin, all_state_end, spinUpRun, deterministic_runner.model.routing.cellArea)
+            #~ 
+            #~ initial_state = deterministic_runner.model.getState()
+    #~ #
+    #~ # Running the deterministic_runner (excluding DA scheme)
+    #~ currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
+                                      #~ configuration.globalOptions['endTime'])
+    #~ 
+    #~ logger.info('Transient simulation run started.')
+    #~ deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
+    #~ 
+    #~ dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+    #~ dynamic_framework.setQuiet(True)
+    #~ dynamic_framework.run()
 
 if __name__ == '__main__':
     # print disclaimer
