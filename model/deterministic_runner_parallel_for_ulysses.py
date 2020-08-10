@@ -349,7 +349,7 @@ class DeterministicRunner(DynamicModel):
         return status
  
  
-def process_optional_system_arguments(all_sys_args):
+def process_optional_system_arguments(configuration, all_sys_args):
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
     
     # optional system arguments for replacing the following outputDir (-mod)
@@ -410,13 +410,15 @@ def main():
     if len(sys.argv) > 2: 
         if sys.argv[2] == "parallel" or sys.argv[2] == "debug_parallel" or sys.argv[2] == "debug-parallel": this_run_is_part_of_a_set_of_parallel_run = True
 
+    # object to handle configuration/ini file
+    configuration = Configuration(iniFileName = iniFileName, \
+                                  debug_mode = debug_mode, \
+                                  no_modification = False)      
+
     # process optional arguments
-    process_optional_system_arguments(list(sys.argv))
+    process_optional_system_arguments(configuration, list(sys.argv))
     
-    #~ # object to handle configuration/ini file
-    #~ configuration = Configuration(iniFileName = iniFileName, \
-                                  #~ debug_mode = debug_mode, \
-                                  #~ no_modification = False)      
+
     #~ 
     #~ # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
     #~ if this_run_is_part_of_a_set_of_parallel_run == False:
