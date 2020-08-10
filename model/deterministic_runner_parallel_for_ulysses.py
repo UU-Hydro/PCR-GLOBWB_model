@@ -374,7 +374,7 @@ def process_optional_system_arguments(all_sys_args):
     # optional system arguments for modifying initial states (note that it is assumed that we always save model states at the global extent)
     # - folder
     if "-mid" in all_sys_args:
-        initial_state_folder = all_sys_args[all_sys_args.index("-md") + 1]        
+        initial_state_folder = all_sys_args[all_sys_args.index("-mid") + 1]        
         msg = "The main folder for all initial states is set based on the system argument (-mid): " + initial_state_folder
         logger.info(msg)
 
