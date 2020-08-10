@@ -379,7 +379,7 @@ def process_optional_system_arguments(configuration, all_sys_args):
         logger.info(msg)
 
         for section in configuration.allSections:
-            sec = getattr(self, section)
+            sec = getattr(configuration, section)
             for key, value in list(sec.items()):
                 if key.endswith("Ini"):
                     sec[key] = os.path.abspath(value)
