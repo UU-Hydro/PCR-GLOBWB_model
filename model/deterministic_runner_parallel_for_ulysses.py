@@ -480,7 +480,7 @@ def main():
         clone_code = str(sys.argv[3])
         # - output folder
         output_folder_with_clone_code = "M%07i" %int(clone_code)
-        configuration.globalOptions['outputDir'] += output_folder_with_clone_code 
+        configuration.globalOptions['outputDir'] += "/" + output_folder_with_clone_code 
         # - clone map
         configuration.globalOptions['cloneMap'] = configuration.globalOptions['cloneMap'] %(clone_code)
         # - landmask for model calculation
