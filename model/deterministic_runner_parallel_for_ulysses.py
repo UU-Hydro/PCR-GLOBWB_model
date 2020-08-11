@@ -418,8 +418,6 @@ def modify_ini_file(original_ini_file,
         msg = "The reference potential ET forcing file 'refETPotFileNC' is set based on the system argument (-tff): " + ref_pot_et_forcing_file
         logger.info(msg)
 
-    # UNTIL THIS PART
-    
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     # - for a run that is part of a set of parallel (clone) runs
