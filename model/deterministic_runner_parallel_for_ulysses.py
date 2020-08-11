@@ -51,8 +51,9 @@ class DeterministicRunner(DynamicModel):
         self.model = PCRGlobWB(configuration, modelTime, initialState)
         self.reporting = Reporting(configuration, self.model, modelTime)
         
-        # the model will set paramaters based on global pre-multipliers given in the argument:
-        if system_argument != None: self.adusting_parameters(configuration, system_argument)
+        # the model paramaters may be modiffied
+        if ((system_argument != None) or ("-adjparm" in list(system_argument)) or ('prefactorOptions' in configuration.allSections)): 
+            self.adusting_parameters(configuration, system_argument)
 
         # option to include merging processes for pcraster maps and netcdf files:
         self.with_merging = True
@@ -66,26 +67,28 @@ class DeterministicRunner(DynamicModel):
     def adusting_parameters(self, configuration, system_argument): 
 
         # global pre-multipliers given in the argument:
-        if len(system_argument) > 4:
+        if "-adjparm" in list(system_argument):
+            
+            # starting adjustment index (sai)
+            sai = system_argument.index("-adjparm")
             
             logger.info("Adjusting some model parameters based on given values in the system argument.")
 
 		    # pre-multipliers for minSoilDepthFrac, kSat, recessionCoeff, storCap and degreeDayFactor
-            multiplier_for_minSoilDepthFrac = float(system_argument[4])  # linear scale                                        # Note that this one does NOT work for the changing WMIN or Joyce land cover options.  
-            multiplier_for_kSat             = float(system_argument[5])  # log scale
-            multiplier_for_recessionCoeff   = float(system_argument[6])  # log scale
-            multiplier_for_storCap          = float(system_argument[7])  # linear scale
-            multiplier_for_degreeDayFactor  = float(system_argument[8])  # linear scale
+            multiplier_for_minSoilDepthFrac = float(system_argument[sai + 1])  # linear scale
+            multiplier_for_kSat             = float(system_argument[sai + 2])  # log scale
+            multiplier_for_recessionCoeff   = float(system_argument[sai + 3])  # log scale
+            multiplier_for_storCap          = float(system_argument[sai + 4])  # linear scale
+            multiplier_for_degreeDayFactor  = float(system_argument[sai + 5])  # linear scale
 		    
 		    # pre-multiplier for the reference potential ET
-            self.multiplier_for_refPotET    = float(system_argument[9])  # linear scale
+            self.multiplier_for_refPotET    = float(system_argument[sai + 6])  # linear scale
         
 		    # pre-multiplier for manningsN
-            multiplier_for_manningsN        = float(system_argument[10]) # linear scale
+            multiplier_for_manningsN        = float(system_argument[sai + 7]) # linear scale
             
-            # modfication for storGroundwaterIni
-            storGroundwaterIni_file = str(system_argument[11])
-            
+            # modification for storGroundwaterIni
+            storGroundwaterIni_file         =   str(system_argument[sai + 8])
 
         # it is also possible to define prefactors via the ini/configuration file: 
         # - this will be overwrite any previous given pre-multipliers
@@ -117,12 +120,18 @@ class DeterministicRunner(DynamicModel):
         msg += "For storGroundwaterIni_file    : "+str(storGroundwaterIni_file        )+"\n"
         logger.info(msg)
         # - also to a txt file 
-        f = open("multiplier.txt","w") # this will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
+        f = open("multiplier.txt", "w") # this will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
         f.write(msg)
         f.close()
 
         # adjust storGroundwaterIni
-        if storGroundwaterIni_file != "Default": self.model.groundwater.storGroundwater = pcr.readmap(storGroundwaterIni_file)
+        if storGroundwaterIni_file != "Default":
+            #~ self.model.groundwater.storGroundwater = pcr.readmap(storGroundwaterIni_file)
+            self.model.groundwater.storGroundwater    = vos.readPCRmapClone(storGroundwaterIni_file,\
+                                                                            configuration.cloneMap,\
+                                                                            configuration.tmpDir)
+            self.model.groundwater.storGroundwater    = pcr.ifthen(self.landmask, \
+                                                                   pcr.cover(self.model.groundwater.storGroundwater, 0.0))
         pcr.report(self.model.groundwater.storGroundwater, "storGroundwaterIni.map") 
         
         # set parameter "manningsN" based on the given pre-multiplier
@@ -349,8 +358,12 @@ class DeterministicRunner(DynamicModel):
         return status
  
  
-def process_optional_system_arguments(configuration, all_sys_args):
+def modify_ini_file(system_argument, \
+                    original_ini_file_location): 
+
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
+    
+    # open ini file
     
     # optional system arguments for replacing the following outputDir (-mod)
     if "-mod" in all_sys_args:
@@ -387,10 +400,8 @@ def process_optional_system_arguments(configuration, all_sys_args):
                     print(vars(configuration)[sec])
                     vars(configuration)[sec][key] = vars(configuration)[sec][key].replace("INITIAL_STATE_FOLDER", "test")
     
-    print(configuration.routingOptions)
-
-    # - date
         
+    # save ini file
     
     # optional system arguments for modifying forcing files (-prefile, -tmpfile, -retpfile)
 
@@ -401,6 +412,13 @@ def main():
     
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
+    
+    # modify ini file and return it in a new location 
+    iniFileName   = modify_ini_file(system_argument = sys.argv, \
+                                    original_ini_file_location = iniFileName)
+    iniFileName   = os.path.abspath(sys.argv[1])
+    
+    # UNTIL THIS PART
     
     # debug option
     debug_mode = False
@@ -417,8 +435,6 @@ def main():
                                   debug_mode = debug_mode, \
                                   no_modification = False)      
 
-    # process optional arguments
-    process_optional_system_arguments(configuration, list(sys.argv))
     
 
     #~ 
