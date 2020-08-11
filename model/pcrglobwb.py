@@ -459,7 +459,7 @@ class PCRGlobWB(object):
         # - option to also save model output at the last day of the month
         save_monthly_end_states = self.save_monthly_end_states 
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
-          (self._modelTime.isLastDayOfMonth and save_monthly_end_states):
+          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
