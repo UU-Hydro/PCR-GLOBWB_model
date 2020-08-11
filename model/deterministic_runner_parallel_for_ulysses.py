@@ -53,7 +53,7 @@ class DeterministicRunner(DynamicModel):
         self.reporting = Reporting(configuration, self.model, modelTime)
         
         # the model paramaters may be modiffied
-        if ((system_argument != None) or ("-adjparm" in list(system_argument)) or ('prefactorOptions' in configuration.allSections)): 
+        if (("-adjparm" in list(system_argument)) or ('prefactorOptions' in configuration.allSections)): 
             self.adusting_parameters(configuration, system_argument)
 
         # option to include merging processes for pcraster maps and netcdf files:

@@ -1,6 +1,6 @@
 
 git pull; python deterministic_runner_parallel_for_ulysses.py \
-          ../config/ulysses/setup_6arcmin_develop.ini debug_parallel 29 \
+          ../config/ulysses/setup_6arcmin_develop.ini debug_parallel 52 \
           -mod /scratch/ms/copext/cyes/develop_parallel \
           -sd 1982-01-01 -ed 1982-01-31 \
           -misd /scratch/ms/copext/cyes/pcrglobwb_output_version_2020-10-08_example/first_test_54_clones/global/states \
