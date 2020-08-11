@@ -480,7 +480,7 @@ def main():
         # - clone code in string
         clone_code = str(sys.argv[3])
         # - output folder
-        output_folder_with_clone_code = "mask_%4i" (%int(clone_code))
+        output_folder_with_clone_code = "M%2i" %int(clone_code)
         configuration.globalOptions['outputDir'] += output_folder_with_clone_code 
         # - clone map
         configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
