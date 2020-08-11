@@ -364,7 +364,7 @@ def modify_ini_file(original_ini_file,
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
     
     # open and read ini file
-    file_ini = f.open(original_ini_file, "rt")
+    file_ini = open(original_ini_file, "rt")
     file_ini_content = file_ini.read()
     file_ini.close()
     
