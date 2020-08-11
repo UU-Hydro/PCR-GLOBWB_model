@@ -396,9 +396,9 @@ def modify_ini_file(original_ini_file,
         logger.info(msg)
     # - date for initial states 
     if "-dfis" in system_argument:
-        date_for_initial_state = system_argument[system_argument.index("-dfis") + 1]        
-        file_ini_content = file_ini_content.replace("DATE_FOR_INITIAL_STATE", date_for_initial_state)
-        msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_state
+        date_for_initial_states = system_argument[system_argument.index("-dfis") + 1]        
+        file_ini_content = file_ini_content.replace("DATE_FOR_INITIAL_STATES", date_for_initial_state)
+        msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_states
         logger.info(msg)
     
     # optional system argument for modifying forcing files
