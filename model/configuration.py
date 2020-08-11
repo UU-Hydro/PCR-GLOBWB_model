@@ -44,7 +44,11 @@ import disclaimer
 
 class Configuration(object):
 
-    def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None, relative_ini_meteo_paths = False):
+    def __init__(self, iniFileName, \
+                       debug_mode = False, \
+                       no_modification = True, \
+                       system_arguments = None, \
+                       relative_ini_meteo_paths = False):
         object.__init__(self)
 
         if iniFileName is None:
@@ -74,10 +78,12 @@ class Configuration(object):
         # option to define an online coupling between PCR-GLOBWB and MODFLOW
         self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
 
-        # if no_modification, set configuration directly (otherwise, the function/method  
+        # if no_modification, set configuration directly
+        # - this will create directories (output, tmp, etc)
+        # - if modification is required, set_configuration must be called separately   
         if no_modification: self.set_configuration(system_arguments)
 
-        # the main output directory (for runs with merging processes)
+        # the main output directory (required for runs with merging processes)
         self.main_output_directory = self.globalOptions['outputDir']
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):

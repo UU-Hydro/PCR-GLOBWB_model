@@ -368,12 +368,11 @@ def modify_ini_file(original_ini_file,
     file_ini_content = file_ini.read()
     file_ini.close()
     
-    # optional system argument for replacing outputDir (-mod)
-    if "-mod" in system_argument:
-        main_output_dir = system_argument[system_argument.index("-mod") + 1]
-        file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
-        msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
-        logger.info(msg)
+    # system argument for replacing outputDir (-mod) ; this is always required
+    main_output_dir = system_argument[system_argument.index("-mod") + 1]
+    file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
+    msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
+    logger.info(msg)
     
     # optional system arguments for modifying startTime (-sd) and endTime (-ed)
     if "-sd" in system_argument:
@@ -418,14 +417,31 @@ def modify_ini_file(original_ini_file,
         msg = "The reference potential ET forcing file 'refETPotFileNC' is set based on the system argument (-tff): " + ref_pot_et_forcing_file
         logger.info(msg)
 
-    UNTIL_THIS_PART
-
-    # save ini file
+    # UNTIL THIS PART
     
-    # optional system arguments for modifying forcing files (-prefile, -tmpfile, -retpfile)
+    # folder for saving original and modified ini files
+    folder_for_ini_files = os.path.join(main_output_dir, ini_files)
+    # - for a run that is part of a set of parallel (clone) runs
+    if system_argument == "parallel" or system_argument == "debug_parallel" or system_argument == "debug-parallel":
+        clone_code = str(system_argument[3])
+        output_folder_with_clone_code = "M%2i" (%int(clone_code))
+        folder_for_ini_files = os.path.join(main_output_dir, ini_files) 
+    
+    # create folder
+    if os.path.exists(folder_for_ini_files): shutil.rmtree(folder_for_ini_files)
+    os.makedirs(folder_for_ini_files)
+    
+    # save/copy the original ini file
+    shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
+    
+    # save the new ini file
+    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
+    new_ini_file = open(new_ini_file_name, "w")
+    new_ini_file.write(file_ini_content)
+    new_ini_file.close()
+            
+    return new_ini_file_name
 
- 
- 
 
 def main():
     
@@ -433,11 +449,9 @@ def main():
     iniFileName   = os.path.abspath(sys.argv[1])
     
     # modify ini file and return it in a new location 
-    if "---mod_ini" in sys.argv:
+    if "-mod" in sys.argv:
         iniFileName = modify_ini_file(original_ini_file = iniFileName, \
                                       system_argument = sys.argv)
-    
-    # UNTIL THIS PART
     
     # debug option
     debug_mode = False
@@ -455,32 +469,33 @@ def main():
                                   no_modification = False)      
 
     
+    # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
+    if this_run_is_part_of_a_set_of_parallel_run == False:
+        # modfiying 'outputDir' (based on the given system argument)
+        configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
 
-    #~ 
-    #~ # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
-    #~ if this_run_is_part_of_a_set_of_parallel_run == False:
-        #~ # modfiying 'outputDir' (based on the given system argument)
-        #~ configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
-#~ 
-    #~ # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
-    #~ if this_run_is_part_of_a_set_of_parallel_run:
-        #~ # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
-        #~ # - clone code in string
-        #~ clone_code = str(sys.argv[3])
-        #~ # - output folder
-        #~ output_folder_with_clone_code = "mask_%4i" (%int(clone_code))
-        #~ configuration.globalOptions['outputDir'] += output_folder_with_clone_code 
-        #~ # - clone map
-        #~ configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
-        #~ # - landmask for model calculation
-        #~ if configuration.globalOptions['landmask'] != "None":
-            #~ configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
-        #~ # - landmask for reporting
-        #~ if configuration.reportingOptions['landmask_for_reporting'] != "None":
-            #~ configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(clone_code)
-#~ 
-    #~ # set configuration
-    #~ configuration.set_configuration(system_arguments = sys.argv)
+    # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
+    if this_run_is_part_of_a_set_of_parallel_run:
+        # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
+        # - clone code in string
+        clone_code = str(sys.argv[3])
+        # - output folder
+        output_folder_with_clone_code = "mask_%4i" (%int(clone_code))
+        configuration.globalOptions['outputDir'] += output_folder_with_clone_code 
+        # - clone map
+        configuration.globalOptions['cloneMap']   = configuration.globalOptions['cloneMap'] %(clone_code)
+        # - landmask for model calculation
+        if configuration.globalOptions['landmask'] != "None":
+            configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
+        # - landmask for reporting
+        if configuration.reportingOptions['landmask_for_reporting'] != "None":
+            configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(clone_code)
+
+    # set configuration
+    configuration.set_configuration(system_arguments = sys.argv)
+    
+    #~ UNTIL_THIS_PART
+    
 #~ 
     #~ # timeStep info: year, month, day, doy, hour, etc
     #~ currTimeStep = ModelTime() 
