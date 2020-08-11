@@ -20,4 +20,4 @@ cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-developm
 
 
 # merging process
-python merge_netcdf_6_arcmin.py /scratch/ms/copext/cyes/pcrglobwb_output_version_2020-10-08_example/first_test_54_clones /scratch/ms/copext/cyes/pcrglobwb_output_version_2020-10-08_example/first_test_54_clones/global/netcdf/ outDailyTotNC 1981-01-01 1981-01-31 ulyssesET,ulyssesQrRunoff,ulyssesSM,ulyssesDischarge,ulyssesP,ulyssesQsm,ulyssesSWE NETCDF4 True 8 Global
+python merge_netcdf_6_arcmin.py /scratch/ms/copext/cyes/pcrglobwb_output_version_2020-10-08_example/first_test_54_clones /scratch/ms/copext/cyes/pcrglobwb_output_version_2020-10-08_example first_test_54_clones/global/netcdf/ outDailyTotNC 1981-01-01 1981-01-31 ulyssesET,ulyssesQrRunoff,ulyssesSM,ulyssesDischarge,ulyssesP,ulyssesQsm,ulyssesSWE NETCDF4 True 8 Global
