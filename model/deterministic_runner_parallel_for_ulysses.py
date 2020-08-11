@@ -425,7 +425,7 @@ def modify_ini_file(original_ini_file,
     # - for a run that is part of a set of parallel (clone) runs
     if system_argument[2] == "parallel" or system_argument[2] == "debug_parallel" or system_argument[2] == "debug-parallel":
         clone_code = str(system_argument[3])
-        output_folder_with_clone_code = "M%2i" %int(clone_code)
+        output_folder_with_clone_code = "M%02i" %int(clone_code)
         folder_for_ini_files = os.path.join(main_output_dir, output_folder_with_clone_code, "ini_files") 
     
    # create folder
