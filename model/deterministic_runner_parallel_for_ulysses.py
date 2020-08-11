@@ -52,9 +52,11 @@ class DeterministicRunner(DynamicModel):
         self.model = PCRGlobWB(configuration, modelTime, initialState)
         self.reporting = Reporting(configuration, self.model, modelTime)
         
-        # the model paramaters may be modiffied
+        # the model paramaters may be modified
+        self.parameter_adjusment = False
         if (("-adjparm" in list(system_argument)) or ('prefactorOptions' in configuration.allSections)): 
             self.adusting_parameters(configuration, system_argument)
+            self.parameter_adjusment = True
 
         # option to include merging processes for pcraster maps and netcdf files:
         self.with_merging = True
@@ -295,7 +297,8 @@ class DeterministicRunner(DynamicModel):
         self.model.read_forcings()
         
 		# adjust the reference potential ET according to the given pre-multiplier
-        self.model.meteo.referencePotET = self.model.meteo.referencePotET * self.multiplier_for_refPotET
+        if self.parameter_adjusment:
+            self.model.meteo.referencePotET = self.model.meteo.referencePotET * self.multiplier_for_refPotET
 		
         # update model (will pick up current model time from model time object)
         # - for a run coupled to MODFLOW, water balance checks are not valid due to lateral flow. 
