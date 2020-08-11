@@ -447,7 +447,7 @@ ncores = min(len(netcdfList), max_number_of_cores)
 # clone areas
 areas = str(sys.argv[10])
 if areas == "Global":
-    areas = ['M%02d'%i for i in range(1,54,1)]
+    areas = ['M%02d'%i for i in range(1,55,1)]
 else:
     areas = list(set(areas.split(",")))
 
