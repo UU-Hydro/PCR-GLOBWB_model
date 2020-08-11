@@ -358,49 +358,68 @@ class DeterministicRunner(DynamicModel):
         return status
  
  
-def modify_ini_file(system_argument, \
-                    original_ini_file_location): 
+def modify_ini_file(original_ini_file,
+                    system_argument): 
 
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
     
-    # open ini file
+    # open and read ini file
+    file_ini = f.open(original_ini_file, "rt")
+    file_ini_content = file_ini.read()
+    file_ini.close()
     
-    # optional system arguments for replacing the following outputDir (-mod)
-    if "-mod" in all_sys_args:
-        main_output_dir = all_sys_args[all_sys_args.index("-mod") + 1]
-        configuration.globalOptions['outputDir'] = configuration.globalOptions['outputDir'].replace("MAIN_OUTPUT_DIR", main_output_dir)
-        msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + configuration.globalOptions['outputDir']
+    # optional system argument for replacing outputDir (-mod)
+    if "-mod" in system_argument:
+        main_output_dir = system_argument[system_argument.index("-mod") + 1]
+        file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
+        msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
         logger.info(msg)
     
-    # optional system arguments for modifying startTime (-st) and endTime (-et)
-    if "-st" in all_sys_args:
-        starting_date = all_sys_args[all_sys_args.index("-st") + 1]
-        configuration.globalOptions['startTime'] = configuration.globalOptions['startTime'].replace("STARTING_DATE", starting_date)
-        msg = "The starting time 'startTime' is set based on the system argument (-st): " + configuration.globalOptions['startTime']
+    # optional system arguments for modifying startTime (-sd) and endTime (-ed)
+    if "-sd" in system_argument:
+        starting_date = system_argument[system_argument.index("-sd") + 1]
+        file_ini_content.replace("STARTING_DATE", starting_date)
+        msg = "The starting date 'startTime' is set based on the system argument (-sd): " + starting_date
         logger.info(msg)
-    if "-et" in all_sys_args:
-        end_date = all_sys_args[all_sys_args.index("-et") + 1]
-        configuration.globalOptions['endTime'] = configuration.globalOptions['endTime'].replace("END_DATE", end_date)
-        msg = "The end time 'endTime' is set based on the system argument (-et): " + configuration.globalOptions['startTime']
+    if "-ed" in system_argument:
+        end_date = system_argument[system_argument.index("-ed") + 1]
+        file_ini_content.replace("END_DATE", end_date)
+        msg = "The end date 'END_DATE' is set based on the system argument (-ed): " + end_date
         logger.info(msg)
         
-    # optional system arguments for modifying initial states (note that it is assumed that we always save model states at the global extent)
-    # - folder
-    if "-misd" in all_sys_args:
-        initial_state_folder = all_sys_args[all_sys_args.index("-misd") + 1]        
-        msg = "The main folder for all initial states is set based on the system argument (-misd): " + initial_state_folder
+    # optional system arguments for initial condition files
+    # - main initial state folder
+    if "-misd" in system_argument:
+        main_initial_state_folder = system_argument[system_argument.index("-misd") + 1]        
+        file_ini_content.replace("MAIN_INITIAL_STATE_FOLDER", main_initial_state_folder)
+        msg = "The main folder for all initial states is set based on the system argument (-misd): " + main_initial_state_folder
+        logger.info(msg)
+    # - date for initial states 
+    if "-dfis" in system_argument:
+        date_for_initial_state = system_argument[system_argument.index("-dfis") + 1]        
+        file_ini_content.replace("DATE_FOR_INITIAL_STATE", date_for_initial_state)
+        msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_state
+        logger.info(msg)
+    
+    # optional system argument for modifying forcing files
+    if "-pff" in system_argument:
+        precipitation_forcing_file = system_argument[system_argument.index("-pff") + 1]
+        file_ini_content.replace("PRECIPITATION_FORCING_FILE", precipitation_forcing_file)
+        msg = "The precipitation forcing file 'precipitationNC' is set based on the system argument (-pff): " + precipitation_forcing_file
+        logger.info(msg)
+    if "-tff" in system_argument:
+        temperature_forcing_file = system_argument[system_argument.index("-tff") + 1]
+        file_ini_content.replace("TEMPERATURE_FORCING_FILE", temperature_forcing_file)
+        msg = "The temperature forcing file 'temperatureNC' is set based on the system argument (-tff): " + temperature_forcing_file
+        logger.info(msg)
+    if "-rpetff" in system_argument:
+        ref_pot_et_forcing_file = system_argument[system_argument.index("-rpetff") + 1]
+        file_ini_content.replace("REF_POT_ET_FORCING_FILE", ref_pot_et_forcing_file)
+        msg = "The reference potential ET forcing file 'refETPotFileNC' is set based on the system argument (-tff): " + ref_pot_et_forcing_file
         logger.info(msg)
 
-        for section in configuration.allSections:
-            sec = getattr(configuration, section)
-            print(sec)
-            for key, value in list(sec.items()):
-                if key.endswith("Ini"):
-                    sec[key] = os.path.abspath(value)
-                    print(vars(configuration)[sec])
-                    vars(configuration)[sec][key] = vars(configuration)[sec][key].replace("INITIAL_STATE_FOLDER", "test")
-    
-        
+    UNTIL_THIS_PART
+
     # save ini file
     
     # optional system arguments for modifying forcing files (-prefile, -tmpfile, -retpfile)
@@ -414,9 +433,9 @@ def main():
     iniFileName   = os.path.abspath(sys.argv[1])
     
     # modify ini file and return it in a new location 
-    iniFileName   = modify_ini_file(system_argument = sys.argv, \
-                                    original_ini_file_location = iniFileName)
-    iniFileName   = os.path.abspath(sys.argv[1])
+    if "---mod_ini" in sys.argv:
+        iniFileName = modify_ini_file(original_ini_file = iniFileName, \
+                                      system_argument = sys.argv)
     
     # UNTIL THIS PART
     
