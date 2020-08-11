@@ -24,6 +24,7 @@
 
 import os
 import sys
+import shutil
 import datetime
 
 import pcraster as pcr
