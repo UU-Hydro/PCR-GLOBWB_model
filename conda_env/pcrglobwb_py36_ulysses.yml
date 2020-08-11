@@ -17,5 +17,5 @@ dependencies:
   
 # Notes: 
 # - You may want to exclude cdsapi, cdo, and ncview.
-# - For ulysses, PCRaster 4.3.0 is available.
-# - We also have to load/install gdal.
+# - For ulysses, PCRaster 4.3.0 is available on cca.
+# - For ulysses, gdal is also available on cca (and must be loaded there).
