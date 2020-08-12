@@ -26,7 +26,7 @@ module load gdal/3.0.4
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
-#~ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
+INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
 
 # run the model for every clone
 python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  3 &
