@@ -309,7 +309,7 @@ class Configuration(object):
         self.starting_directory = path_of_this_module
                            
         #~ for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
-        for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True)
+        for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
             print(filename)
             shutil.copy(filename, self.scriptDir)
 
