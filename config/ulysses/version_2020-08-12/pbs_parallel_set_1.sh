@@ -36,7 +36,7 @@ python3 deterministic_runner_parallel_for_ulysses.py /home/ms/copext/cyes/github
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 39 &
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 40 &
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 44 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
 
 wait
 

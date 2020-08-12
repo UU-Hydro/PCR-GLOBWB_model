@@ -308,10 +308,13 @@ class Configuration(object):
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
         self.starting_directory = path_of_this_module
                            
-        for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+        #~ for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+        for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True)
             print(filename)
             shutil.copy(filename, self.scriptDir)
 
+        test
+        
         # making log directory:
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
