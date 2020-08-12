@@ -11,8 +11,17 @@
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
-# load modules, etc
-. /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster430.sh
+
+# load modules, etc 
+#
+#~ # - using conda (NOT RECOMMENDED)
+#~ . /home/ms/copext/cyes/load_miniconda_pcrglobwb-py3-env_pcraster430.sh
+#
+# - using modules on cca
+module load python3/3.6.10-01
+module load pcraster/4.3.0
+module load gdal/3.0.4
+
 
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
@@ -20,14 +29,14 @@ cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-developm
 #~ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
 
 # run the model for every clone
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  3 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 17 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 26 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 28 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 39 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 40 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 44 &
-python deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  3 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 17 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 26 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 28 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 39 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 40 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 44 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
 
 wait
 
