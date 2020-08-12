@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -N testset1
+#PBS -N pgb-set1
 #PBS -q nf
 #PBS -l EC_total_tasks=10
 #PBS -l EC_hyperthreads=2
@@ -21,7 +21,6 @@
 module load python3/3.6.10-01
 module load pcraster/4.3.0
 module load gdal/3.0.4
-
 
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
