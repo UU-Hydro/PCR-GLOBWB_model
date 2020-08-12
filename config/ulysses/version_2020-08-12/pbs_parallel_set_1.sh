@@ -29,7 +29,7 @@ cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-developm
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
 
 # run the model for every clone
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  3 &
+python3 deterministic_runner_parallel_for_ulysses.py /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini debug_parallel  3 &
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 17 &
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 26 &
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 28 &
