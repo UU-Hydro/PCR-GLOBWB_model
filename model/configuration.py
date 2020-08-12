@@ -312,8 +312,7 @@ class Configuration(object):
         for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
             print(filename)
             shutil.copy(filename, self.scriptDir)
-
-        test
+        # TODO: Fix this copying (it does not include subfolders)   
         
         # making log directory:
         self.logFileDir = vos.getFullPath("log/", \
