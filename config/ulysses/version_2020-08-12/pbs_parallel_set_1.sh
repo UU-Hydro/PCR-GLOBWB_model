@@ -30,13 +30,13 @@ cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-developm
 
 # run the model for every clone
 python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  3 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 17 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 26 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 28 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 39 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 40 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 44 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 17 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 26 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 28 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 39 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 40 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 44 &
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 46 &
 
 wait
 
