@@ -309,6 +309,7 @@ class Configuration(object):
         self.starting_directory = path_of_this_module
                            
         for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+            print(filename)
             shutil.copy(filename, self.scriptDir)
 
         # making log directory:
