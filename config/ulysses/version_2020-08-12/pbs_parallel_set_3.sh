@@ -7,7 +7,7 @@
 #PBS -l EC_billing_account=c3s432l3
 #PBS -l walltime=48:00:00
 
-#PBS -v INI_FILE=None
+#PBS -v INI_FILE="test.ini",MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/tmp_pbs_edwin/"
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
@@ -25,24 +25,25 @@ module load gdal/3.0.4
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
-INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
+#~ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-12/setup_6arcmin_test_version_2020-08-12.ini"
+#~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-12/"
 
 # run the model for every clone
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  1 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  2 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 11 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 12 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 13 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 16 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 23 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 25 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 31 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 32 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 35 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 43 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 48 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 51 &
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 54 &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  1 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel  2 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 11 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 12 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 13 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 16 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 23 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 25 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 31 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 32 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 35 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 43 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 48 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 51 -mod ${MAIN_OUTPUT_DIR} &
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 54 -mod ${MAIN_OUTPUT_DIR} &
 
 wait
 
