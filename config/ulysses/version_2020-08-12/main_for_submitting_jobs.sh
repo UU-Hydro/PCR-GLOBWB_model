@@ -11,4 +11,7 @@ qsub -v INI_FILE=${INI_FILE},MAIN_OUTPUT_DIR=${MAIN_OUTPUT_DIR} pbs_parallel_set
 qsub -v INI_FILE=${INI_FILE},MAIN_OUTPUT_DIR=${MAIN_OUTPUT_DIR} pbs_parallel_set_4.sh
 qsub -v INI_FILE=${INI_FILE},MAIN_OUTPUT_DIR=${MAIN_OUTPUT_DIR} pbs_parallel_set_5.sh
 
+#~ # -for test only
+#~ qsub -v INI_FILE=${INI_FILE},MAIN_OUTPUT_DIR=${MAIN_OUTPUT_DIR} pbs_parallel_set_test.sh 
+
 set +x
