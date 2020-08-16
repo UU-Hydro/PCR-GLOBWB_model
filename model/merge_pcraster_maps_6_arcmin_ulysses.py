@@ -248,7 +248,7 @@ try:
 except:
     pass
 #~ areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
-areas = ['M%06i'%i for i in range(1,number_of_clone_maps+1,1)]
+areas = ['M%07i'%i for i in range(1,number_of_clone_maps+1,1)]
 
 # set clone maps based on the system argument
 #~ areas = ["M47","M48"]   ### only fot TEST CASE
@@ -261,7 +261,7 @@ try:
         except:
             pass
         #~ areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
-        areas = ['M%06i'%i for i in range(1,number_of_clone_maps+1,1)]
+        areas = ['M%07i'%i for i in range(1,number_of_clone_maps+1,1)]
 except:
     pass
 
