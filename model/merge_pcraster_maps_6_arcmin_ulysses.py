@@ -265,6 +265,8 @@ try:
 except:
     pass
 
+print(areas)
+
 # option to ignore empty
 ignoreNonExistingMaps = False
 ignoreNonExistingMaps = str(sys.argv[7]) == "ignoreNonExistingMaps"
