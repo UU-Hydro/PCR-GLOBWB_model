@@ -16,7 +16,7 @@
 set -x
 
 # set the folder that contain PCR-GLOBWB model scripts
-PCRGLOBWB_MODEL_SCRIPT_FOLDER=
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used 
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/setup_6arcmin_test_version_2020-08-XX_develop.ini"
@@ -43,11 +43,10 @@ REF_POT_ET_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1982/01/pe
 
 
 # go to the folder that contain the bash script that will be submitted using aprun
-
-# set the working directory
+#~ # - manual 
 #~ WORKING_DIRECTORY=/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/
 #~ cd ${WORKING_DIRECTORY} 
-
+# - using the folder that contain this script 
 cd ${PBS_O_WORKDIR}
 
 # make the run for every clone using aprun
