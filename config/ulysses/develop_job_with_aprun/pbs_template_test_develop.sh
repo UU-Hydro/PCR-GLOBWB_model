@@ -24,9 +24,6 @@ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-d
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
 
-#~ # - clear the output folder
-#~ rm -rf ${MAIN_OUTPUT_DIR}
-
 # set the starting and end simulation dates
 STARTING_DATE=1996-01-01
 END_DATE=1996-01-31
