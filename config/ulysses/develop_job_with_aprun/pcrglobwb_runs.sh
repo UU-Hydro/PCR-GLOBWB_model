@@ -1,13 +1,13 @@
 #!/bin/bash 
 
-echo "Arg 0: $0"
-echo "Arg 1: $1"
-echo "Arg 2: $2"
-
-for arg in "$@"
-do
-    echo "$arg"
-done
+#~ echo "Arg 0: $0"
+#~ echo "Arg 1: $1"
+#~ echo "Arg 2: $2"
+#~ 
+#~ for arg in "$@"
+#~ do
+    #~ echo "$arg"
+#~ done
 
 set -x
 
@@ -21,7 +21,7 @@ DATE_FOR_INITIAL_STATES=$6
 PRECIPITATION_FORCING_FILE=$7
 TEMPERATURE_FORCING_FILE=$8
 REF_POT_ET_FORCING_FILE=$9
-PCRGLOBWB_MODEL_SCRIPT_FOLDER=$10
+PCRGLOBWB_MODEL_SCRIPT_FOLDER=${10}
 
 # load using modules on cca (or ccb)
 module load python3/3.6.10-01
