@@ -7,7 +7,7 @@
 #PBS -l EC_billing_account=c3s432l3
 #PBS -l walltime=48:00:00
 
-#PBS -v MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/tmp_pbs_edwin/"
+#PBS -v MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-10_example/first_test_54_clones/"
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
@@ -26,8 +26,8 @@ set -x
 # go to the folder that contain the script for merging
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-10_example/first_test_54_clones/"
+#~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-10_example/first_test_54_clones/"
 
-python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC 1981-01-01 1981-01-31 ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 1 Global
+python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC 1981-01-01 1981-01-31 ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 8 Global
 
 set +x
