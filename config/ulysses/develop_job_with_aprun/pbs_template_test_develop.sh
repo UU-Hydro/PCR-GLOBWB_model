@@ -8,7 +8,8 @@
 
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
-#PBS -l walltime=1:00:00
+#~ #PBS -l walltime=1:00:00
+#PBS -l walltime=12:00:00
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
