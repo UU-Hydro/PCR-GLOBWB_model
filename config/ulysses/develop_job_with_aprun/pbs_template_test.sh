@@ -9,7 +9,7 @@
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
-cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/
+cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/
 
 aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash test.sh
 
