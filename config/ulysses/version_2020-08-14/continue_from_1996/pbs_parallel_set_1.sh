@@ -2,8 +2,8 @@
 #PBS -N pgb-set1
 #PBS -q nf
 #PBS -l EC_total_tasks=15
-#PBS -l EC_hyperthreads=4
-#PBS -l EC_memory_per_task=6GB
+#PBS -l EC_hyperthreads=2
+#PBS -l EC_memory_per_task=4GB
 #PBS -l EC_billing_account=c3s432l3
 #PBS -l walltime=48:00:00
 
