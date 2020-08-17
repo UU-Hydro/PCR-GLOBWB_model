@@ -40,14 +40,12 @@ REF_POT_ET_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1982/01/pe
 
 
 # go to the folder that contain the bash script that will be submitted using aprun
-#~ # - manual 
-#~ WORKING_DIRECTORY=/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/
-#~ cd ${WORKING_DIRECTORY} 
-# - using the folder that contain this script 
+# - using the folder that contain this pbs job script 
 cd ${PBS_O_WORKDIR}
 
 # make the run for every clone using aprun
 aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobwb_runs.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} ${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
+
 
 
 # merging netcdf and state files
