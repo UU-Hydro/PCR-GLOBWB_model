@@ -2,7 +2,7 @@
 #PBS -N test-np
 #PBS -q np
 #PBS -l EC_nodes=1
-#PBS -l EC_total_tasks=54
+#PBS -l EC_total_tasks=72
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 #PBS -l walltime=48:00:00
@@ -11,5 +11,6 @@
 
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/
 
-aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash test.sh
+aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash test_runs.sh
 
+cd 
