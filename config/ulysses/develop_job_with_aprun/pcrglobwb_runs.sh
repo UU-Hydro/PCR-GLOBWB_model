@@ -26,7 +26,7 @@ set -x
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/setup_6arcmin_test_version_2020-08-XX_develop.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
 
 #~ # - clear the output folder
 #~ rm -rf ${MAIN_OUTPUT_DIR}
