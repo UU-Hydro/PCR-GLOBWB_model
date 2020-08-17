@@ -18,7 +18,7 @@ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun/"
 
 # run the model for every clone
 set -x
-CLONE_CODE='%d $ALPS_APP_PE'
+CLONE_CODE=`printf %d $ALPS_APP_PE`
 python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR}
 set +x
 
