@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -N test-np
+#PBS -N test-npd
 #PBS -q np
 #PBS -l EC_nodes=1
 #PBS -l EC_total_tasks=72
