@@ -1,25 +1,45 @@
 #!/bin/bash 
 
-#~ set -x 
+echo "Arg 0: $0"
+echo "Arg 1: $1"
+echo "Arg 2: $2"
 
-# - using modules on cca
+for arg in "$@"
+do
+    echo "$arg"
+done
+
+set -x
+
+# get the aguments
+INI_FILE=$1
+MAIN_OUTPUT_DIR=$2
+STARTING_DATE=$3
+END_DATE=$4
+MAIN_INITIAL_STATE_FOLDER=$5
+DATE_FOR_INITIAL_STATES=$6
+PRECIPITATION_FORCING_FILE=$7
+TEMPERATURE_FORCING_FILE=$8
+REF_POT_ET_FORCING_FILE=$9
+
+
+# load using modules on cca (or ccb)
 module load python3/3.6.10-01
 module load pcraster/4.3.0
 module load gdal/3.0.4
 
+
 # go to the folder that contain PCR-GLOBWB scripts
 cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
-pwd
 
-INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_1996/setup_6arcmin_test_version_2020-08-14_continue_from_1996.ini"
-#~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14_test_with_aprun/continue_from_1996/"
-
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_2/"
-
-# run the model for every clone
-set -x
+# run the model for all clone, from 1 to 54
+if [ $ALPS_APP_PE -gt 0 ]
+then
+if [ $ALPS_APP_PE -lt 55 ]
+then
+#~ set -x
 CLONE_CODE=`printf %d $ALPS_APP_PE`
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR}
-set +x
-
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
 #~ set +x
+fi
+fi
