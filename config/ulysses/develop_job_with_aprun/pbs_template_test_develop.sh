@@ -16,7 +16,7 @@
 set -x
 
 # set the configuration file (*.ini) that will be used 
-INI_FILE="setup_6arcmin_test_version_2020-08-XX_develop.ini"
+INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/setup_6arcmin_test_version_2020-08-XX_develop.ini"
 
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop"
@@ -38,7 +38,9 @@ TEMPERATURE_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1982/01/t
 REF_POT_ET_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1982/01/pet_01_1996.nc"
 
 
+
 # make the run for every clone
+cd /home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/develop_job_with_aprun/
 aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobwb_runs.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} -${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE}
 
 cd ${MAIN_OUTPUT_DIR}
