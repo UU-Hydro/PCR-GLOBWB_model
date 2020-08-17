@@ -14,7 +14,7 @@ pwd
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_1996/setup_6arcmin_test_version_2020-08-14_continue_from_1996.ini"
 #~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14_test_with_aprun/continue_from_1996/"
 
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_2/"
 
 # run the model for every clone
 set -x
