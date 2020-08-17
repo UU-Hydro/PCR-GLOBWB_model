@@ -16,6 +16,7 @@ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-d
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun"
 
 # run the model for every clone
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${ALPS_APP_PE} -mod ${MAIN_OUTPUT_DIR} &
+CLONE_CODE='d $ALPS_APP_PE'
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} &
 
 set +x
