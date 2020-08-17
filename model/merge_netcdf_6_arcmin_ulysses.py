@@ -396,8 +396,10 @@ def mergeNetCDF(inputTuple):
 #~ deltaLon     = 5.0/60.0
 deltaLat        = 0.1
 deltaLon        = 0.1
-latMin          =  -90 + deltaLat / 2
-latMax          =   90 - deltaLat / 2
+#~ latMin       =  -90 + deltaLat / 2
+#~ latMax       =   90 - deltaLat / 2
+latMin          =  -56 + deltaLat / 2
+latMax          =   84 - deltaLat / 2
 lonMin          = -180 + deltaLon / 2
 lonMax          =  180 - deltaLon / 2
 
