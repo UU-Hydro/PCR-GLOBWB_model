@@ -22,9 +22,6 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_sourc
 INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_test_version_2020-08-XX_develop.ini"
 #~ INI_FILE="setup_6arcmin_test_version_2020-08-XX_develop.ini"
 
-# set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
-
 #~ # set the starting and end simulation dates
 #~ STARTING_DATE=1996-01-01
 #~ END_DATE=1996-01-31
@@ -32,6 +29,10 @@ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
 # set the starting and end simulation dates - for testing
 STARTING_DATE=1996-01-29
 END_DATE=1996-01-31
+
+# set the output folder
+MAIN_OUTPUT_DIR=/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/${STARTING_DATE}_to_${END_DATE}/
+#~ MAIN_OUTPUT_DIR=/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/
 
 # set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/begin_from_1981/global/states/"
