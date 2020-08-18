@@ -27,8 +27,7 @@ echo ${PBS_JOBID}
 echo ${HOSTNAME}
 
 # set the folder that contain PCR-GLOBWB model scripts
-#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/ws/scratch/ms/copext/cyes/edwin_github/edwinkost/PCR-GLOBWB_model_edwin-private-development
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used 
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_2007/setup_6arcmin_test_version_2020-08-14_continue_from_2007.ini"
