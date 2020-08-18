@@ -17,6 +17,9 @@
 #~ #PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.out.${PBS_JOBID}.${HOSTNAME}
 #~ #PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.err.${PBS_JOBID}.${HOSTNAME}
 
+#PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/pgb_2007-2019.out
+#PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/pgb_2007-2019.err
+
 set -x
 
 # set the folder that contain PCR-GLOBWB model scripts
