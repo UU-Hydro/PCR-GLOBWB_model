@@ -9,7 +9,7 @@
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
 #~ #PBS -l walltime=1:00:00
-#PBS -l walltime=21:00:00
+#PBS -l walltime=20:00:00
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
