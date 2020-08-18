@@ -26,7 +26,7 @@ INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-d
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
 
 # set the starting and end simulation dates
-STARTING_DATE=1996-01-01
+STARTING_DATE=1996-01-29
 END_DATE=1996-01-31
 
 # set the initial conditions (folder and time stamp for the files)
@@ -57,9 +57,9 @@ module load gdal/3.0.4
 # - go to the folder that contain the scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 # - merging state files
-python merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 54 False
+python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 54 False
 # - merging netcdf files
-python merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 2 Global
+python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 2 Global
 
 
 #~ cd ${MAIN_OUTPUT_DIR}
