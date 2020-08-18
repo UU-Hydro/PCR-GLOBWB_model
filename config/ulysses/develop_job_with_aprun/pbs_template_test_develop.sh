@@ -29,6 +29,10 @@ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_aprun_develop/"
 STARTING_DATE=1996-01-29
 END_DATE=1996-01-31
 
+#~ # set the starting and end simulation dates - for testing
+#~ STARTING_DATE=1996-01-29
+#~ END_DATE=1996-01-31
+
 # set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/begin_from_1981/global/states/"
 DATE_FOR_INITIAL_STATES=1995-12-31
