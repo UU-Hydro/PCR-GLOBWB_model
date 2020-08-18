@@ -13,8 +13,9 @@
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
-#PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.out.${PBS_JOBID}.${HOSTNAME}
-#PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.err.${PBS_JOBID}.${HOSTNAME}
+#~ # this is not working
+#~ #PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.out.${PBS_JOBID}.${HOSTNAME}
+#~ #PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.err.${PBS_JOBID}.${HOSTNAME}
 
 set -x
 
