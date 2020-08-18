@@ -25,9 +25,9 @@ INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_2020-08-XX.ini"
 # set the starting and end simulation dates
 STARTING_DATE=1996-01-01
 END_DATE=1996-01-31
-#~ # - for testing
-#~ STARTING_DATE=1996-01-29
-#~ END_DATE=1996-01-31
+# - for testing
+STARTING_DATE=1996-01-29
+END_DATE=1996-01-31
 
 # set the output folder
 #~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_pcrglobwb_example_version_2020-08-XX/"
