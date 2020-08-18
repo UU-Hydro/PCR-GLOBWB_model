@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -N test-npd
+#PBS -N pcrglobwb
 #PBS -q np
 #PBS -l EC_nodes=1
 #PBS -l EC_total_tasks=72
@@ -53,7 +53,7 @@ aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobw
 
 
 
-# merging netcdf and state files
+# merging netcdf and state files (TODO: Shall we put the following in a separate job and called it with qsub?)
 # - load modules on cca (or ccb)
 module load python3/3.6.10-01
 module load pcraster/4.3.0
@@ -65,10 +65,5 @@ python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} s
 # - merging netcdf files
 python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 2 Global
 
-
-#~ cd ${MAIN_OUTPUT_DIR}
-#~ mkdir test 
-#~ cd test
-#~ pwd
 
 set +x

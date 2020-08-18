@@ -14,7 +14,7 @@
 #PBS -M hsutanudjajacchms99@yahoo.com
 
 #PBS -o %N.out.%j
-#PBS -e %N.out.%j
+#PBS -e %N.err.%j
 
 set -x
 
