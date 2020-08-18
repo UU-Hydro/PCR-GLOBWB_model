@@ -50,6 +50,10 @@ aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobw
 
 
 # merging netcdf and state files
+# - load modules on cca (or ccb)
+module load python3/3.6.10-01
+module load pcraster/4.3.0
+module load gdal/3.0.4
 # - go to the folder that contain the scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 # - merging state files
