@@ -19,8 +19,8 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_sourc
 #~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
-INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_test_version_2020-08-XX_develop.ini"
-#~ INI_FILE="setup_6arcmin_test_version_2020-08-XX_develop.ini"
+INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_2020-08-XX.ini"
+#~ INI_FILE="setup_6arcmin_version_2020-08-XX.ini"
 
 #~ # set the starting and end simulation dates
 #~ STARTING_DATE=1996-01-01
@@ -31,8 +31,8 @@ STARTING_DATE=1996-01-29
 END_DATE=1996-01-31
 
 # set the output folder
-MAIN_OUTPUT_DIR=/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/${STARTING_DATE}_to_${END_DATE}/
-#~ MAIN_OUTPUT_DIR=/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/"${STARTING_DATE}_to_${END_DATE}/
+#~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_job_example_version_2020-08-XX/"
 
 # set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/begin_from_1981/global/states/"
