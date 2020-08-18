@@ -9,7 +9,7 @@
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
 #~ #PBS -l walltime=1:00:00
-#PBS -l walltime=19:00:00
+#PBS -l walltime=18:00:00
 
 #PBS -M hsutanudjajacchms99@yahoo.com
 
@@ -17,11 +17,18 @@
 #~ #PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.out.${PBS_JOBID}.${HOSTNAME}
 #~ #PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/${PBS_JOBNAME}.err.${PBS_JOBID}.${HOSTNAME}
 
+#PBS -o /scratch/ms/copext/cyes/pbs_jobs_output/pgb_2007-2019.out
+#PBS -e /scratch/ms/copext/cyes/pbs_jobs_output/pgb_2007-2019.err
 
 set -x
 
+echo ${PBS_JOBNAME}
+echo ${PBS_JOBID}
+echo ${HOSTNAME}
+
 # set the folder that contain PCR-GLOBWB model scripts
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/ws/scratch/ms/copext/cyes/edwin_github/edwinkost/PCR-GLOBWB_model_edwin-private-development
 
 # set the configuration file (*.ini) that will be used 
 INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_2007/setup_6arcmin_test_version_2020-08-14_continue_from_2007.ini"
