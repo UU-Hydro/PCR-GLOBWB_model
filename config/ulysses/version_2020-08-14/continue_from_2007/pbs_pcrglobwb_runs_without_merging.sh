@@ -26,7 +26,7 @@ set -x
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used 
-INI_FILE="/home/edwin/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_2007/setup_6arcmin_test_version_2020-08-14_continue_from_2007.ini"
+INI_FILE="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/version_2020-08-14/continue_from_2007/setup_6arcmin_test_version_2020-08-14_continue_from_2007.ini"
 
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2007/"
