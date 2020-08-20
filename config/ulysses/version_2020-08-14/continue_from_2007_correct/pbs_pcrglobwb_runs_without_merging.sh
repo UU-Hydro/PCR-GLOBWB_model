@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -N pgb-2009
+#PBS -N pgb-2007-2019
 #PBS -q np
 #PBS -l EC_nodes=1
 #PBS -l EC_total_tasks=72
