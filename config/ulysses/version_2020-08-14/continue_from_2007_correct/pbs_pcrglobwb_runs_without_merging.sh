@@ -30,7 +30,7 @@ echo ${HOSTNAME}
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used 
-INI_FILE=${PCRGLOBWB_MODEL_SCRIPT_FOLDER}/setup_6arcmin_test_version_2020-08-14_continue_from_YYYY.ini
+INI_FILE=${PBS_O_WORKDIR}/setup_6arcmin_test_version_2020-08-14_continue_from_YYYY.ini
 
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2007/"
