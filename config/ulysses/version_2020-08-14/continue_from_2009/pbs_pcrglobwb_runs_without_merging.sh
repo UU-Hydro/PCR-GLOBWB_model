@@ -78,6 +78,7 @@ aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobw
 # check output
 
 cd ${MAIN_OUTPUT_DIR}
+pwd
 ls -lah *
 ls -lah M*/states/time*${END_DATE}*.map
 
