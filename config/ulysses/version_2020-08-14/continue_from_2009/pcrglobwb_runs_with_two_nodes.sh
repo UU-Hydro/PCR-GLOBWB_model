@@ -44,9 +44,11 @@ then
 if [ $ALPS_APP_PE -lt 28 ]
 then
 #~ set -x
-CLONE_NUMBER=$(( ${CLONE_NUMBER} + 1 ))
+CLONE_NUMBER=$(( ${CLONE_NUMBER} ++ ))
 CLONE_CODE=`printf %d ${CLONE_NUMBER}`
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo ${CLONE_NUMBER}
+echo ${CLONE_CODE}
 #~ set +x
 fi
 fi
@@ -54,12 +56,14 @@ fi
 # - second node
 if [ $ALPS_APP_PE -gt 72 ]
 then
-CLONE_NUMBER=$(( ${CLONE_NUMBER} + 1 ))
+CLONE_NUMBER=$(( ${CLONE_NUMBER} ++ ))
 if [ ${CLONE_NUMBER} -lt 55 ]
 then
 #~ set -x
 CLONE_CODE=`printf %d ${CLONE_NUMBER}`
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo ${CLONE_NUMBER}
+echo ${CLONE_CODE}
 #~ set +x
 fi
 fi
