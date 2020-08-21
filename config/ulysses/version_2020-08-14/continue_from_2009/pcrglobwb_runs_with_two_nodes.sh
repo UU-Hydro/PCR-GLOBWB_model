@@ -34,7 +34,6 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 
 # run the model for all clones, from 1 to 54
-CLONENUMBER=0
 
 # - splitted into two nodes
 
@@ -44,8 +43,7 @@ then
 if [ $ALPS_APP_PE -lt 28 ]
 then
 #~ set -x
-let "CLONENUMBER=CLONENUMBER+1"
-#~ CLONENUMBER=$(( CLONENUMBER+1 ))
+CLONENUMBER=$ALPS_APP_PE
 CLONE_CODE=`printf %d $CLONENUMBER`
 python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
 #~ set +x
@@ -55,8 +53,9 @@ fi
 # - second node
 if [ $ALPS_APP_PE -gt 72 ]
 then
-let "CLONENUMBER=CLONENUMBER+1"
-#~ CLONENUMBER=$(( CLONENUMBER+1 ))
+CLONENUMBER=$((ALPS_APP_PE-72))
+if [ $CLONENUMBER -gt 27 ]
+then
 if [ $CLONENUMBER -lt 55 ]
 then
 #~ set -x
