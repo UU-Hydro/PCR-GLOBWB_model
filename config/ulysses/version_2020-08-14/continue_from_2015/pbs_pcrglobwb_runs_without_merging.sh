@@ -40,7 +40,7 @@ STARTING_DATE=2015-01-01
 END_DATE=2019-12-31
 
 # set the initial conditions (folder and time stamp for the files)
-MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2014/global/states/"
+MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2009/global/states/"
 DATE_FOR_INITIAL_STATES=2014-12-31
 
 # set the forcing files
