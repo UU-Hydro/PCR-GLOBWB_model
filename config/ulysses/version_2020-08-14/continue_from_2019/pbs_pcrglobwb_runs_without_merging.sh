@@ -33,7 +33,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_
 INI_FILE=${PBS_O_WORKDIR}/setup_6arcmin_test_version_2020-08-14_continue_from_YYYY.ini
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2015/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2019/"
 
 # set the starting and end simulation dates
 STARTING_DATE=2019-01-01
