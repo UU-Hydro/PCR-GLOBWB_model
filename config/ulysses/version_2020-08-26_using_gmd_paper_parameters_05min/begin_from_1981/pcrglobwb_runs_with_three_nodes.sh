@@ -42,7 +42,7 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 # - first node
 if [ $ALPS_APP_PE -gt 0 ]
 then
-if [ $ALPS_APP_PE -lt 18 ]
+if [ $ALPS_APP_PE -lt 19 ]
 then
 #~ set -x
 CLONENUMBER=$ALPS_APP_PE
@@ -58,7 +58,7 @@ fi
 if [ $ALPS_APP_PE -gt 72 ]
 then
 CLONENUMBER=$((ALPS_APP_PE-72))
-if [ $CLONENUMBER -gt 17 ]
+if [ $CLONENUMBER -gt 18 ]
 then
 if [ $CLONENUMBER -lt 37 ]
 then
