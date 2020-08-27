@@ -73,9 +73,9 @@ fi
 fi
 
 # - third node
-if [ $ALPS_APP_PE -gt 96 ]
+if [ $ALPS_APP_PE -gt 144 ]
 then
-CLONENUMBER=$((ALPS_APP_PE-72))
+CLONENUMBER=$((ALPS_APP_PE-144))
 if [ $CLONENUMBER -gt 36 ]
 then
 #~ if [ $CLONENUMBER -lt 55 ]
