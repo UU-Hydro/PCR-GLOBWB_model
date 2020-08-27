@@ -38,7 +38,7 @@ def main():
             target_file_name = opendap_filename.replace(opendap_main_folder, target_local_folder)
                     
             # target file name
-            target_file_name = target_file_name.replace("global_05min", "global_06min")
+            target_file_name = target_file_name.replace("global_05min", "global_06min_remapcon_from_05min")
             
             # preparing directory 
             target_directory = os.path.dirname(target_file_name)
