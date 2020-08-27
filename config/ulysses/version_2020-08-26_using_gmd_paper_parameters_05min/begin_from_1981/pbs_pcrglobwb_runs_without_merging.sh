@@ -1,8 +1,8 @@
 #!/bin/bash 
 #PBS -N era5_gmd-1981-2019
 #PBS -q np
-#PBS -l EC_nodes=2
-#PBS -l EC_total_tasks=144
+#PBS -l EC_nodes=3
+#PBS -l EC_total_tasks=216
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 
@@ -59,7 +59,7 @@ REF_POT_ET_FORCING_FILE="NONE"
 cd ${PBS_O_WORKDIR}
 
 # make the run for every clone using aprun
-aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobwb_runs_with_two_nodes.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} ${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
+aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobwb_runs_with_three_nodes.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} ${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 
 # SKIP MERGING
