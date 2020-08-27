@@ -7,12 +7,16 @@ import shutil
 
 def main():
     
-    target_local_folder = "/scratch/depfg/sutan101/test_resample_to_06min/"
-    
-    source_local_folder = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/"
-    opendap_main_folder =  "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
+    #~ target_local_folder = "/scratch/depfg/sutan101/test_resample_to_06min/"
+    target_local_folder    = "/scratch/ms/copext/cyes/test_resample_to_06min/"
 
-    file_list    = "list_of_selected_global_nc_5min_files_version_2019_11_beta.txt"
+    #~ source_local_folder = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta/pcrglobwb2_input/"
+    source_local_folder    = "/scratch/mo/nest/ulysses/data/edwin/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/"
+
+    #~ file_list = "list_of_selected_global_nc_5min_files_version_2019_11_beta.txt"
+    file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
+
+    opendap_main_folder =  "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
 
     txt_file_list = open(file_list, "r")
     
