@@ -58,7 +58,8 @@ then
 CLONENUMBER=$((ALPS_APP_PE-72))
 if [ $CLONENUMBER -gt 18 ]
 then
-if [ $CLONENUMBER -lt 55 ]
+#~ if [ $CLONENUMBER -lt 55 ]
+if [ $CLONENUMBER -lt 54 ] # for 5 arcmin gmd run (containing only 53 clones)
 then
 #~ set -x
 CLONE_CODE=`printf %d ${CLONENUMBER}`
