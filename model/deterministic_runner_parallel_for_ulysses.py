@@ -489,13 +489,13 @@ def main():
         output_folder_with_clone_code = "M%07i" %int(clone_code)
         configuration.globalOptions['outputDir'] += "/" + output_folder_with_clone_code 
         # - clone map
-        configuration.globalOptions['cloneMap'] = configuration.globalOptions['cloneMap'] %(clone_code)
+        configuration.globalOptions['cloneMap'] = configuration.globalOptions['cloneMap'] %(int(clone_code))
         # - landmask for model calculation
         if configuration.globalOptions['landmask'] != "None":
-            configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(clone_code)
+            configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(int(clone_code))
         # - landmask for reporting
         if configuration.reportingOptions['landmask_for_reporting'] != "None":
-            configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(clone_code)
+            configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(int(clone_code))
 
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)
