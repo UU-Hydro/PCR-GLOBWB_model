@@ -235,12 +235,13 @@ except:
     pass
 
 number_of_clone_maps = 53
-#~ try:
-    #~ number_of_clone_maps = int(sys.argv[5])
-#~ except:
-    #~ pass
+try:
+    number_of_clone_maps = int(sys.argv[5])
+except:
+    pass
 areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
 
+if sys.argv[5] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
 if sys.argv[5] == "Global_uly": areas = ['M%07d'%i for i in range(1,number_of_clone_maps+1,1)] 
 
 #~ # set clone maps based on the system argument
