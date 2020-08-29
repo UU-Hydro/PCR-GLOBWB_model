@@ -38,6 +38,8 @@ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output/pcrglobwb_output_versi
 # set the starting and end simulation dates
 STARTING_DATE=1999-01-01
 END_DATE=2019-12-31
+#~ STARTING_DATE="NONE"
+#~ END_DATE="NONE"
 
 # set the initial conditions (folder and time stamp for the files)
 #~ MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/pcrglobwb_output_version_2020-08-14/continue_from_2015/global/states/"
