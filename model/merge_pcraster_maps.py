@@ -253,7 +253,8 @@ except:
 try:
     areas = str(sys.argv[5])
     areas = list(set(areas.split(",")))
-    if areas[0] == "Global_uly": areas = ['M%07'%i for i in range(1,number_of_clone_maps+1,1)] 
+    print(areas)
+    if areas[0] == "Global_uly" or areas == "Global_uly": areas = ['M%07'%i for i in range(1,number_of_clone_maps+1,1)] 
 except:
     pass
 
