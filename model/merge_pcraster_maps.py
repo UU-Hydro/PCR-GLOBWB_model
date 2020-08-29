@@ -257,6 +257,8 @@ try:
 except:
     pass
 
+print(areas) 
+
 #-main script
 #-get clone
 nrRows= int((latMax-latMin)/deltaLat)
