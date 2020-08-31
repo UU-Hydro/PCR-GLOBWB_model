@@ -457,10 +457,9 @@ else:
     areas = list(set(areas.split(",")))
 
 # extent of the global map
-if sys.argv[10] = "all_lats":
+if sys.argv[11] == "all_lats":
     latMin =  -90 + deltaLat / 2
     latMax =   90 - deltaLat / 2
-
 
 #~ # for testing, we use only a single core
 #~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
