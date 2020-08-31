@@ -446,9 +446,10 @@ ncores = min(len(netcdfList), max_number_of_cores)
 areas = str(sys.argv[10])
 if areas == "Global":
     areas = ['M%02d'%i for i in range(1,54,1)]
+elif areas == "Global_Uly_but_53":
+    areas = ['M%07d'%i for i in range(1,54,1)]
 else:
     areas = list(set(areas.split(",")))
-
 
 #~ # for testing, we use only a single core
 #~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
