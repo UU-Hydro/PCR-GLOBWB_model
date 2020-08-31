@@ -392,10 +392,13 @@ def mergeNetCDF(inputTuple):
 ##################################
 
 # latitudes and longitudes:
+#~ # - 5 arcmin
 #~ deltaLat     = 5.0/60.0
 #~ deltaLon     = 5.0/60.0
+# - 6 arcmin
 deltaLat        = 0.1
 deltaLon        = 0.1
+
 #~ latMin       =  -90 + deltaLat / 2
 #~ latMax       =   90 - deltaLat / 2
 latMin          =  -56 + deltaLat / 2
@@ -452,6 +455,11 @@ if areas == "Global":
     areas = ['M%07d'%i for i in range(1,55,1)]
 else:
     areas = list(set(areas.split(",")))
+
+# extent of the global map
+if sys.argv[10] = "all_lats":
+    latMin =  -90 + deltaLat / 2
+    latMax =   90 - deltaLat / 2
 
 
 #~ # for testing, we use only a single core
