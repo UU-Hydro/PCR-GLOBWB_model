@@ -17,7 +17,7 @@ def main():
 
     opendap_main_folder = "https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/"
     # - local files on eejit
-    opendap_main_folder = "/projects/0/dfguu/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/"
+    opendap_main_folder = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/"
 
     #~ file_list = "list_of_global_nc_opendap_files_version_2019_11_beta_test.txt"
     file_list    = "list_of_global_nc_opendap_files_version_2019_11_beta.txt"
