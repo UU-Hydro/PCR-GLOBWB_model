@@ -208,7 +208,7 @@ def main():
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 30.0)
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 20.0)
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
