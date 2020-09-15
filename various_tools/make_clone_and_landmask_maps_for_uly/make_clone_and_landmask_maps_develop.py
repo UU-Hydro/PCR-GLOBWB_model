@@ -244,15 +244,24 @@ def main():
                 clonemap_mask_long_file_name = "clonemap_with_longname_mask_%s_%s.map" %(str(nr), str(assigned_number))
                 cmd = "cp %s %s" %(str(clonemap_mask_file), str(clonemap_mask_long_file_name))
                 
-                # set the landmask for land
+                # set the local landmask for the clump
                 pcr.setclone(clonemap_mask_file)
-                landmask_land = vos.readPCRmapClone(v = filename_for_mask_selected_nominal_at_global_extent, \
-                                                    cloneMapFileName = clonemap_mask_file, 
-                                                    tmpDir = tmp_folder, \
-                                                    absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
-                landmask_land_boolean = pcr.ifthen(pcr.scalar(landmask_land) > 0.0, pcr.boolean(1.0))
+                local_mask_selected_from_clump = vos.readPCRmapClone(v = filename_for_mask_selected_nominal_at_global_extent, \
+                                                                     cloneMapFileName = clonemap_mask_file, 
+                                                                     tmpDir = tmp_folder, \
+                                                                     absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
+                local_mask_selected_from_clump_boolean = pcr.ifthen(pcr.scalar(local_mask_selected_from_clump) > 0.0, pcr.boolean(1.0))
+                local_mask_selected_from_clump_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, local_mask_selected_from_clump_boolean)
+
+                # set the landmask for land
+                landmask_land = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_land_nc_file, \
+                                                                  varName = "mask",\
+                                                                  cloneMapFileName  = clonemap_mask_file,\
+                                                                  LatitudeLongitude = True,\
+                                                                  specificFillValue = "NaN",\
+                                                                  absolutePath = None)
                 landmask_land_boolean = pcr.ifthen(landmask_land_boolean, landmask_land_boolean)
-                landmask_land_boolean = pcr.ifthen(mask_selected_boolean_from_clump, landmask_land_boolean)
+                landmask_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_land_boolean)
                 # - save the landmask for land (used for PCR-GLOBWB reporting)
                 landmask_land_file = "landmask_land_mask_%s.map" %(str(assigned_number))
                 pcr.report(landmask_land_boolean, landmask_land_file)
