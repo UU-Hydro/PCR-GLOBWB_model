@@ -71,6 +71,8 @@ def main():
     pcr.setclone(global_clone_map)
     # - for river and land
     landmask_river_and_land_all = pcr.ifthen(pcr.scalar(global_clone_map) > 10, pcr.nominal(0))
+    # - filename
+    filename_for_nominal_land_river_mask_at_global_extent = "global_landmask_river_and_land_mask_all.map"
     
     # clone code that will be assigned
     assigned_number = 0
@@ -100,8 +102,13 @@ def main():
         
         # read river nc file (and convert it to pcraster)
         subdomain_river_nc_file = subdomain_river_nc %(str(nr))
+        variable_name = "lsmask"
+        # - there is no river file for greenland (nr = 54), therefore we will use its land mask
+        if nr == 54:
+            subdomain_river_nc_file = subdomain_land_nc_file
+            variable_name = "mask"
         mask_river_selected = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_river_nc_file, \
-                                                                varName = "lsmask",\
+                                                                varName = variable_name,\
                                                                 cloneMapFileName  = global_clone_map,\
                                                                 LatitudeLongitude = True,\
                                                                 specificFillValue = "NaN",\
@@ -154,7 +161,9 @@ def main():
             # update global landmask for river and land
             mask_selected_nominal = pcr.ifthen(mask_selected_boolean, pcr.nominal(assigned_number))
             landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+            pcr.report(landmask_river_and_land_all, filename_for_nominal_land_river_mask_at_global_extent)
             pcr.aguila(landmask_river_and_land_all)
+
             
             # get the bounding box based on the landmask file
             xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean)
@@ -209,7 +218,7 @@ def main():
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 20.0)
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 30.0)
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
@@ -253,6 +262,7 @@ def main():
                     # update global landmask for river and land
                     mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
                     landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+                    pcr.report(landmask_river_and_land_all, filename_for_nominal_land_river_mask_at_global_extent)
                     pcr.aguila(landmask_river_and_land_all)
 				    
                     # save mask_selected_nominal at the global extent
@@ -318,7 +328,6 @@ def main():
 
     # report a global nominal map for river and and land
     pcr.setclone(global_clone_map)
-    filename_for_nominal_land_river_mask_at_global_extent = "global_landmask_river_and_land_mask_all.map"
     pcr.report(landmask_river_and_land_all, filename_for_nominal_land_river_mask_at_global_extent)
     pcr.aguila(landmask_river_and_land_all)
     
