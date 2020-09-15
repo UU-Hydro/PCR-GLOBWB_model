@@ -75,8 +75,10 @@ def main():
     # clone code that will be assigned
     assigned_number = 0
     
-    for nr in range(1, num_of_masks + 1, 1):
-        
+    # ~ for nr in range(1, num_of_masks + 1, 1):
+    # - for testing
+    for nr in range(36, 39, 1):
+
         msg = "Processing the landmask %s" %(str(nr))
         msg = "\n\n" +str(msg) + "\n\n"
         print(msg)
@@ -147,6 +149,7 @@ def main():
             # update global landmask for river and land
             mask_selected_nominal = pcr.ifthen(mask_selected_boolean, pcr.nominal(assigned_number))
             landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+            pcr.aguila(landmask_river_and_land_all)
             
             # get the bounding box based on the landmask file
             xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean)
@@ -217,6 +220,7 @@ def main():
                 # update global landmask for river and land
                 mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
                 landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+                pcr.aguila(landmask_river_and_land_all)
 
                 # get the bounding box based on the landmask file
                 xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
