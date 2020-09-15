@@ -196,12 +196,16 @@ def main():
         if check_ok == False:
 			
             # make clump
-            clump_ids    = pcr.nominal(pcr.clump(mask_selected_boolean))
+            clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # minimimum and maximum values
             min_clump_id = int(pcr.cellvalue(pcr.mapminimum(pcr.scalar(clump_ids)),1)[0])
             max_clump_id = int(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(clump_ids)),1)[0])
-           
+
+            # merge clumps that are close together 
+            clump_ids_window_majority = pcr.windowmajority(clump_ids,1.0)
+            clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
+            
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
                 msg = "Processing the clump %s of %s from the ulysses landmask %s" %(str(clump_id), str(max_clump_id), str(nr))
@@ -211,72 +215,87 @@ def main():
                 # make sure that it is set to the global clone map
                 pcr.setclone(global_clone_map)
 
-                # assign the clone code
-                assigned_number = assigned_number + 1
-
                 # identify mask based on the clump
                 mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
-                
-                # update global landmask for river and land
-                mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
-                landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
-                pcr.aguila(landmask_river_and_land_all)
 
-                # save mask_selected_nominal at the global extent
-                filename_for_mask_selected_nominal_at_global_extent = "global_mask_%s_clump_%s_selected_nominal.map" %(str(nr), str(assigned_number)) 
-                filename_for_mask_selected_nominal_at_global_extent = os.path.join(out_folder, filename_for_mask_selected_nominal_at_global_extent )
-                pcr.report(mask_selected_nominal, filename_for_mask_selected_nominal_at_global_extent )
+                # check whether the clump is empty
+                check_if_empty = float(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(mask_selected_boolean_from_clump)),1)[0])
+                
+                if check_if_empty == 0.0: 
+                
+                     msg = "Map is empty !"
+                     msg = "\n\n" +str(msg) + "\n\n"
+                     print(msg)
 
-                # get the bounding box based on the landmask file
-                xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
+                else:
                 
-                # cellsize 
-                cellsize = vos.getMapAttributes(global_clone_map, "cellsize")
-                num_rows = int(round(ymax - ymin) / cellsize)
-                num_cols = int(round(xmax - xmin) / cellsize)
-                
-                # make the clone map using mapattr 
-                clonemap_mask_file = "clonemap_mask_%s.map" %(str(assigned_number))
-                cmd = "mapattr -s -R %s -C %s -B -P yb2t -x %s -y %s -l %s %s" %(str(num_rows), str(num_cols), str(xmin), str(ymax), str(cellsize), clonemap_mask_file)
-                print(cmd); os.system(cmd)
-                
-                # make also a clone map with the file name using nr and assigned_number
-                clonemap_mask_long_file_name = "clonemap_with_longname_mask_%s_%s.map" %(str(nr), str(assigned_number))
-                cmd = "cp %s %s" %(str(clonemap_mask_file), str(clonemap_mask_long_file_name))
-                
-                # set the local landmask for the clump
-                pcr.setclone(clonemap_mask_file)
-                local_mask_selected_from_clump = vos.readPCRmapClone(v = filename_for_mask_selected_nominal_at_global_extent, \
-                                                                     cloneMapFileName = clonemap_mask_file, 
-                                                                     tmpDir = tmp_folder, \
-                                                                     absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
-                local_mask_selected_from_clump_boolean = pcr.ifthen(pcr.scalar(local_mask_selected_from_clump) > 0.0, pcr.boolean(1.0))
-                local_mask_selected_from_clump_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, local_mask_selected_from_clump_boolean)
+                     msg = "Map is NOT empty !"
+                     msg = "\n\n" +str(msg) + "\n\n"
+                     print(msg)
 
-                # set the landmask for land
-                landmask_land = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_land_nc_file, \
-                                                                  varName = "mask",\
-                                                                  cloneMapFileName  = clonemap_mask_file,\
-                                                                  LatitudeLongitude = True,\
-                                                                  specificFillValue = "NaN",\
-                                                                  absolutePath = None)
-                landmask_land_boolean = pcr.ifthen(pcr.scalar(landmask_land) > 0.0, pcr.boolean(1.0))
-                landmask_land_boolean = pcr.ifthen(landmask_land_boolean, landmask_land_boolean)
-                landmask_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_land_boolean)
-                # - save the landmask for land (used for PCR-GLOBWB reporting)
-                landmask_land_file = "landmask_land_mask_%s.map" %(str(assigned_number))
-                pcr.report(landmask_land_boolean, landmask_land_file)
-                
-                # set the landmask for river and land
-                landmask_river_and_land = vos.readPCRmapClone(v = filename_for_land_river_mask_at_global_extent, \
-                                                              cloneMapFileName = clonemap_mask_file, 
-                                                              tmpDir = tmp_folder, \
-                                                              absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
-                landmask_river_and_land_boolean = pcr.ifthen(pcr.scalar(landmask_river_and_land) > 0.0, pcr.boolean(1.0))
-                landmask_river_and_land_boolean = pcr.ifthen(landmask_river_and_land_boolean, landmask_river_and_land_boolean)
-                landmask_river_and_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_river_and_land_boolean)
-                landmask_river_and_land_file = "landmask_river_and_land_mask_%s.map" %(str(assigned_number))
-                pcr.report(landmask_river_and_land_boolean, landmask_river_and_land_file) 
+                    # assign the clone code
+                    assigned_number = assigned_number + 1
+                    
+                    # update global landmask for river and land
+                    mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
+                    landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+                    pcr.aguila(landmask_river_and_land_all)
+				    
+                    # save mask_selected_nominal at the global extent
+                    filename_for_mask_selected_nominal_at_global_extent = "global_mask_%s_clump_%s_selected_nominal.map" %(str(nr), str(assigned_number)) 
+                    filename_for_mask_selected_nominal_at_global_extent = os.path.join(out_folder, filename_for_mask_selected_nominal_at_global_extent )
+                    pcr.report(mask_selected_nominal, filename_for_mask_selected_nominal_at_global_extent )
+				    
+                    # get the bounding box based on the landmask file
+                    xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
+                    
+                    # cellsize 
+                    cellsize = vos.getMapAttributes(global_clone_map, "cellsize")
+                    num_rows = int(round(ymax - ymin) / cellsize)
+                    num_cols = int(round(xmax - xmin) / cellsize)
+                    
+                    # make the clone map using mapattr 
+                    clonemap_mask_file = "clonemap_mask_%s.map" %(str(assigned_number))
+                    cmd = "mapattr -s -R %s -C %s -B -P yb2t -x %s -y %s -l %s %s" %(str(num_rows), str(num_cols), str(xmin), str(ymax), str(cellsize), clonemap_mask_file)
+                    print(cmd); os.system(cmd)
+                    
+                    # make also a clone map with the file name using nr and assigned_number
+                    clonemap_mask_long_file_name = "clonemap_with_longname_mask_%s_%s.map" %(str(nr), str(assigned_number))
+                    cmd = "cp %s %s" %(str(clonemap_mask_file), str(clonemap_mask_long_file_name))
+                    
+                    # set the local landmask for the clump
+                    pcr.setclone(clonemap_mask_file)
+                    local_mask_selected_from_clump = vos.readPCRmapClone(v = filename_for_mask_selected_nominal_at_global_extent, \
+                                                                         cloneMapFileName = clonemap_mask_file, 
+                                                                         tmpDir = tmp_folder, \
+                                                                         absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
+                    local_mask_selected_from_clump_boolean = pcr.ifthen(pcr.scalar(local_mask_selected_from_clump) > 0.0, pcr.boolean(1.0))
+                    local_mask_selected_from_clump_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, local_mask_selected_from_clump_boolean)
+				    
+                    # set the landmask for land
+                    landmask_land = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_land_nc_file, \
+                                                                      varName = "mask",\
+                                                                      cloneMapFileName  = clonemap_mask_file,\
+                                                                      LatitudeLongitude = True,\
+                                                                      specificFillValue = "NaN",\
+                                                                      absolutePath = None)
+                    landmask_land_boolean = pcr.ifthen(pcr.scalar(landmask_land) > 0.0, pcr.boolean(1.0))
+                    landmask_land_boolean = pcr.ifthen(landmask_land_boolean, landmask_land_boolean)
+                    landmask_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_land_boolean)
+                    # - save the landmask for land (used for PCR-GLOBWB reporting)
+                    landmask_land_file = "landmask_land_mask_%s.map" %(str(assigned_number))
+                    pcr.report(landmask_land_boolean, landmask_land_file)
+                    
+                    # set the landmask for river and land
+                    landmask_river_and_land = vos.readPCRmapClone(v = filename_for_land_river_mask_at_global_extent, \
+                                                                  cloneMapFileName = clonemap_mask_file, 
+                                                                  tmpDir = tmp_folder, \
+                                                                  absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
+                    landmask_river_and_land_boolean = pcr.ifthen(pcr.scalar(landmask_river_and_land) > 0.0, pcr.boolean(1.0))
+                    landmask_river_and_land_boolean = pcr.ifthen(landmask_river_and_land_boolean, landmask_river_and_land_boolean)
+                    landmask_river_and_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_river_and_land_boolean)
+                    landmask_river_and_land_file = "landmask_river_and_land_mask_%s.map" %(str(assigned_number))
+                    pcr.report(landmask_river_and_land_boolean, landmask_river_and_land_file) 
 			    
 
     # kill all aguila processes if exist
