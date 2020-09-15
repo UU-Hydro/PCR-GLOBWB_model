@@ -139,7 +139,11 @@ def main():
             if area_in_degree2 > 1.50 * reference_area_in_degree2: check_ok = False
         
         if check_ok == True:
-        
+
+            msg = "Clump is not needed."
+            msg = "\n\n" +str(msg) + "\n\n"
+            print(msg)
+
             # make sure that it is set to the global clone map
             pcr.setclone(global_clone_map)
 
@@ -167,6 +171,7 @@ def main():
             # make also a clone map with the file name using nr and assigned_number
             clonemap_mask_long_file_name = "clonemap_with_longname_mask_%s_%s.map" %(str(nr), str(assigned_number))
             cmd = "cp %s %s" %(str(clonemap_mask_file), str(clonemap_mask_long_file_name))
+            print(cmd); os.system(cmd)
             
             # set the landmask for land
             pcr.setclone(clonemap_mask_file)
@@ -195,11 +200,15 @@ def main():
     
         if check_ok == False:
 			
+            msg = "Clump is needed."
+            msg = "\n\n" +str(msg) + "\n\n"
+            print(msg)
+
             # make clump
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 15.0)
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 30.0)
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
