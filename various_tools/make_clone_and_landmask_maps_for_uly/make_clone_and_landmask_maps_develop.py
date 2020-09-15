@@ -44,7 +44,7 @@ def main():
     subdomain_land_nc        = "/scratch/mo/nest/ulysses/data/subdomain_masks/subdomain_land_%s.nc"
 
     # list of subdomain maks files for routing (all in nc files)
-    subdomain_river_nc       = "/scratch/mo/nest/ulysses/data/subdomain_river_masks/subdomain_river_%s.nc"	
+    subdomain_river_nc       = "/scratch/mo/nest/ulysses/data/subdomain_river_masks/subdomain_river_network_%s.nc"	
     
     # list of 5 arcmin pcrglobwb clone maps
     pcrglobwb_5min_clone_map = "/scratch/mo/nest/ulysses/data/edwin/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_05min/cloneMaps/global_parallelization/clone_M%02d.map" 
@@ -100,7 +100,7 @@ def main():
         # read river nc file (and convert it to pcraster)
         subdomain_river_nc_file = subdomain_river_nc %(str(nr))
         mask_river_selected = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_river_nc_file, \
-                                                                varName = "mask",\
+                                                                varName = "lsmask",\
                                                                 cloneMapFileName  = global_clone_map,\
                                                                 LatitudeLongitude = True,\
                                                                 specificFillValue = "NaN",\
@@ -199,7 +199,7 @@ def main():
            
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
-                msg = "Processing the clump %s of %s" %(str(clump_id), str(max_clump_id))
+                msg = "Processing the clump %s of %s from the ulysses landmask %s" %(str(clump_id), str(max_clump_id), str(nr))
                 msg = "\n\n" +str(msg) + "\n\n"
                 print(msg)
 
