@@ -77,7 +77,7 @@ def main():
     
     # ~ for nr in range(1, num_of_masks + 1, 1):
     # - for testing
-    for nr in range(36, 39, 1):
+    for nr in range(36, 40, 1):
 
         msg = "Processing the landmask %s" %(str(nr))
         msg = "\n\n" +str(msg) + "\n\n"
