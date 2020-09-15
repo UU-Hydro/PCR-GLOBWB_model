@@ -117,7 +117,7 @@ def main():
         
         # check whether the size of bounding box is the same as the one based on the 5 arcmin PCR-GLOBWB clone maps
         # - initial check value
-        check_ok == True:
+        check_ok = True
         # - no check for nr 54 as there is no pcrglobwb clone nr 53
         if nr < 54:
         
