@@ -203,7 +203,7 @@ def main():
             max_clump_id = int(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(clump_ids)),1)[0])
 
             # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 5.0)
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 2.5)
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
