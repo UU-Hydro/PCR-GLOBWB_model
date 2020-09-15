@@ -75,9 +75,10 @@ def main():
     # clone code that will be assigned
     assigned_number = 0
     
-    # ~ for nr in range(1, num_of_masks + 1, 1):
-    # - for testing
-    for nr in range(36, 40, 1):
+    for nr in range(1, num_of_masks + 1, 1):
+
+    # ~ # - for testing
+    # ~ for nr in range(36, 40, 1):
 
         msg = "Processing the landmask %s" %(str(nr))
         msg = "\n\n" +str(msg) + "\n\n"
@@ -275,6 +276,7 @@ def main():
                     # make also a clone map with the file name using nr and assigned_number
                     clonemap_mask_long_file_name = "clonemap_with_longname_mask_%s_%s.map" %(str(nr), str(assigned_number))
                     cmd = "cp %s %s" %(str(clonemap_mask_file), str(clonemap_mask_long_file_name))
+                    print(cmd); os.system(cmd)
                     
                     # set the local landmask for the clump
                     pcr.setclone(clonemap_mask_file)
