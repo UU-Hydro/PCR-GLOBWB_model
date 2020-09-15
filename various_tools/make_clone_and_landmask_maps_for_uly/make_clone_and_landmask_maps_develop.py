@@ -223,15 +223,15 @@ def main():
                 
                 if check_if_empty == 0.0: 
                 
-                     msg = "Map is empty !"
-                     msg = "\n\n" +str(msg) + "\n\n"
-                     print(msg)
+                    msg = "Map is empty !"
+                    msg = "\n\n" +str(msg) + "\n\n"
+                    print(msg)
 
                 else:
                 
-                     msg = "Map is NOT empty !"
-                     msg = "\n\n" +str(msg) + "\n\n"
-                     print(msg)
+                    msg = "Map is NOT empty !"
+                    msg = "\n\n" +str(msg) + "\n\n"
+                    print(msg)
 
                     # assign the clone code
                     assigned_number = assigned_number + 1
