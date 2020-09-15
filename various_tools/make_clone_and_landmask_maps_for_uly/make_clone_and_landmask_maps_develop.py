@@ -32,10 +32,10 @@ def boundingBox(pcrmap):
 def main():
 
     # global map of subdomain masks
-    # ~ # - using the clone with 1400 rows
-    # ~ global_clone_map = "/scratch/mo/nest/ulysses/data/edwin/clone_maps/version_2020-09-XX/clone_all_maps/clone_ulysses_06min_global_with_1400_rows.map"
-    # - using the clone with 1800 rows
-    global_clone_map     = "/scratch/mo/nest/ulysses/data/edwin/clone_maps/version_2020-09-XX/clone_all_maps/clone_ulysses_06min_global_with_1800_rows.map"
+    # - using the clone with 1400 rows
+    global_clone_map = "/scratch/mo/nest/ulysses/data/edwin/clone_maps/version_2020-09-XX/clone_all_maps/clone_ulysses_06min_global_with_1400_rows.map"
+    # ~ # - using the clone with 1800 rows
+    # ~ global_clone_map = "/scratch/mo/nest/ulysses/data/edwin/clone_maps/version_2020-09-XX/clone_all_maps/clone_ulysses_06min_global_with_1800_rows.map"
 
     # number of subdomain masks
     num_of_masks = 54
@@ -199,6 +199,10 @@ def main():
            
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
+                msg = "Processing the clump %s of %s" %(str(clump_id), str(max_clump_id))
+                msg = "\n\n" +str(msg) + "\n\n"
+                print(msg)
+
                 mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
                 
                 # get the bounding box based on the landmask file
