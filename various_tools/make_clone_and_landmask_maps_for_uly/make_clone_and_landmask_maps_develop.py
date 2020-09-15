@@ -207,7 +207,7 @@ def main():
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
-            test
+            # ~ test
             
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
