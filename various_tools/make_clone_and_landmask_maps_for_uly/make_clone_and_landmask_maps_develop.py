@@ -199,7 +199,7 @@ def main():
            
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
-                mask_selected_boolean_from_clump = pcr.ifthen(clump_ids eq pcr.nominal(clump_id), mask_selected_boolean)
+                mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
                 
                 # get the bounding box based on the landmask file
                 xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
