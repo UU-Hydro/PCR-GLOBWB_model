@@ -66,12 +66,10 @@ def main():
     if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder) 
     os.makedirs(tmp_folder)
     
-    # make initial landmask maps at the global extent
+    # make initial landmask map at the global extent
     # - set to the global clone map
     pcr.setclone(global_clone_map)
-    # - for land
-    landmask_land_all = pcr.ifthen(pcr.scalar(global_clone_map) > 10, pcr.nominal(0))
-    # - for river
+    # - for river and land
     landmask_river_and_land_all = pcr.ifthen(pcr.scalar(global_clone_map) > 10, pcr.nominal(0))
     
     # clone code that will be assigned
@@ -114,7 +112,7 @@ def main():
         # ~ pcr.aguila(mask_selected_nominal)
         #
         # - save it in a file for further processes
-        filename_for_land_river_mask_at_global_extent = "global_landmask_river_and_land_mask_%s.map" %(str(nr)) 
+        filename_for_land_river_mask_at_global_extent = "global_landmask_river_and_land_mask_%s_ulysses_original.map" %(str(nr)) 
         filename_for_land_river_mask_at_global_extent = os.path.join(out_folder, filename_for_land_river_mask_at_global_extent)
         pcr.report(mask_selected_nominal, filename_for_land_river_mask_at_global_extent)
         
@@ -143,6 +141,13 @@ def main():
             # make sure that it is set to the global clone map
             pcr.setclone(global_clone_map)
 
+            # assign the clone code
+            assigned_number = assigned_number + 1
+
+            # update global landmask for river and land
+            mask_selected_nominal = pcr.ifthen(mask_selected_boolean, pcr.nominal(assigned_number))
+            landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+            
             # get the bounding box based on the landmask file
             xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean)
             
@@ -151,9 +156,6 @@ def main():
             num_rows = int(round(ymax - ymin) / cellsize)
             num_cols = int(round(xmax - xmin) / cellsize)
             
-            # assign the clone code
-            assigned_number = assigned_number + 1
-
             # make the clone map using mapattr 
             clonemap_mask_file = "clonemap_mask_%s.map" %(str(assigned_number))
             cmd = "mapattr -s -R %s -C %s -B -P yb2t -x %s -y %s -l %s %s" %(str(num_rows), str(num_cols), str(xmin), str(ymax), str(cellsize), clonemap_mask_file)
@@ -187,13 +189,6 @@ def main():
             landmask_river_and_land_file = "landmask_river_and_land_mask_%s.map" %(str(assigned_number))
             pcr.report(landmask_river_and_land_boolean, landmask_river_and_land_file) 
 
-            # update global landmasks
-            pcr.setclone(global_clone_map)
-            # - for land
-            landmask_land_all = pcr.cover(landmask_land_all, landmask_land)
-            # - for river and land
-            landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, landmask_river_and_land)
-            pcr.aguila(landmask_river_and_land_all)
     
         if check_ok == False:
 			
@@ -210,8 +205,19 @@ def main():
                 msg = "\n\n" +str(msg) + "\n\n"
                 print(msg)
 
+                # make sure that it is set to the global clone map
+                pcr.setclone(global_clone_map)
+
+                # identify mask based on the clump
                 mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
                 
+                # assign the clone code
+                assigned_number = assigned_number + 1
+
+                # update global landmask for river and land
+                mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
+                landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
+
                 # get the bounding box based on the landmask file
                 xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
                 
@@ -220,9 +226,6 @@ def main():
                 num_rows = int(round(ymax - ymin) / cellsize)
                 num_cols = int(round(xmax - xmin) / cellsize)
                 
-                # assign the clone code
-                assigned_number = assigned_number + 1
-			    
                 # make the clone map using mapattr 
                 clonemap_mask_file = "clonemap_mask_%s.map" %(str(assigned_number))
                 cmd = "mapattr -s -R %s -C %s -B -P yb2t -x %s -y %s -l %s %s" %(str(num_rows), str(num_cols), str(xmin), str(ymax), str(cellsize), clonemap_mask_file)
@@ -258,22 +261,9 @@ def main():
                 landmask_river_and_land_file = "landmask_river_and_land_mask_%s.map" %(str(assigned_number))
                 pcr.report(landmask_river_and_land_boolean, landmask_river_and_land_file) 
 			    
-                # update global landmasks
-                pcr.setclone(global_clone_map)
-                # - for land
-                landmask_land_all = pcr.cover(landmask_land_all, landmask_land)
-                # - for river and land
-                landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, landmask_river_and_land)
-                pcr.aguila(landmask_river_and_land_all)
 
     # kill all aguila processes if exist
     os.system('killall aguila')
-
-    # report a global nominal map for land
-    pcr.setclone(global_clone_map)
-    filename_for_nominal_land_mask_at_global_extent = "global_landmask_land_mask_all.map"
-    pcr.report(landmask_land_all, filename_for_nominal_land_mask_at_global_extent)
-    pcr.aguila(landmask_land_all)
 
     # report a global nominal map for river and and land
     pcr.setclone(global_clone_map)
