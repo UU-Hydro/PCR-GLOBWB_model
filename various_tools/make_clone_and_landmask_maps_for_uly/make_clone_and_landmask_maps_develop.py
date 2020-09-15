@@ -222,8 +222,8 @@ def main():
                 landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
                 pcr.aguila(landmask_river_and_land_all)
 
-                # TODO: Save mask_selected_nominal at the global extent
-                filename_for_mask_selected_nominal_at_global_extent = "global_clump_mask_selected_nominal.map" %(str(assigned_number)) 
+                # save mask_selected_nominal at the global extent
+                filename_for_mask_selected_nominal_at_global_extent = "global_mask_%s_clump_%s_selected_nominal.map" %(str(nr), str(assigned_number)) 
                 filename_for_mask_selected_nominal_at_global_extent = os.path.join(out_folder, filename_for_mask_selected_nominal_at_global_extent )
                 pcr.report(mask_selected_nominal, filename_for_mask_selected_nominal_at_global_extent )
 
