@@ -113,7 +113,7 @@ def main():
         mask_selected_nominal = pcr.ifthen(mask_selected_boolean, pcr.nominal(nr)) 
         # ~ pcr.aguila(mask_selected_nominal)
         #
-        # - save it in a file for further processes
+        # - save it in a global extent file for further processes
         filename_for_land_river_mask_at_global_extent = "global_landmask_river_and_land_mask_%s_ulysses_original.map" %(str(nr)) 
         filename_for_land_river_mask_at_global_extent = os.path.join(out_folder, filename_for_land_river_mask_at_global_extent)
         pcr.report(mask_selected_nominal, filename_for_land_river_mask_at_global_extent)
@@ -211,16 +211,21 @@ def main():
                 # make sure that it is set to the global clone map
                 pcr.setclone(global_clone_map)
 
-                # identify mask based on the clump
-                mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
-                
                 # assign the clone code
                 assigned_number = assigned_number + 1
 
+                # identify mask based on the clump
+                mask_selected_boolean_from_clump = pcr.ifthen(clump_ids == pcr.nominal(clump_id), mask_selected_boolean)
+                
                 # update global landmask for river and land
                 mask_selected_nominal = pcr.ifthen(mask_selected_boolean_from_clump, pcr.nominal(assigned_number))
                 landmask_river_and_land_all = pcr.cover(landmask_river_and_land_all, mask_selected_nominal) 
                 pcr.aguila(landmask_river_and_land_all)
+
+                # TODO: Save mask_selected_nominal at the global extent
+                filename_for_mask_selected_nominal_at_global_extent = "global_clump_mask_selected_nominal.map" %(str(assigned_number)) 
+                filename_for_mask_selected_nominal_at_global_extent = os.path.join(out_folder, filename_for_mask_selected_nominal_at_global_extent )
+                pcr.report(mask_selected_nominal, filename_for_mask_selected_nominal_at_global_extent )
 
                 # get the bounding box based on the landmask file
                 xmin, ymin, xmax, ymax = boundingBox(mask_selected_boolean_from_clump)
@@ -241,12 +246,10 @@ def main():
                 
                 # set the landmask for land
                 pcr.setclone(clonemap_mask_file)
-                landmask_land = vos.netcdf2PCRobjCloneWithoutTime(ncFile  = subdomain_land_nc_file, \
-                                                                  varName = "mask",\
-                                                                  cloneMapFileName  = clonemap_mask_file,\
-                                                                  LatitudeLongitude = True,\
-                                                                  specificFillValue = "NaN",\
-                                                                  absolutePath = None)
+                landmask_land = vos.readPCRmapClone(v = filename_for_mask_selected_nominal_at_global_extent, \
+                                                    cloneMapFileName = clonemap_mask_file, 
+                                                    tmpDir = tmp_folder, \
+                                                    absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
                 landmask_land_boolean = pcr.ifthen(pcr.scalar(landmask_land) > 0.0, pcr.boolean(1.0))
                 landmask_land_boolean = pcr.ifthen(landmask_land_boolean, landmask_land_boolean)
                 landmask_land_boolean = pcr.ifthen(mask_selected_boolean_from_clump, landmask_land_boolean)
