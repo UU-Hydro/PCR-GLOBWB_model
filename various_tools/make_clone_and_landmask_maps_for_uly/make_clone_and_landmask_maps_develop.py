@@ -274,7 +274,7 @@ def main():
                                                               absolutePath = None, isLddMap = False, cover = None, isNomMap = True)
                 landmask_river_and_land_boolean = pcr.ifthen(pcr.scalar(landmask_river_and_land) > 0.0, pcr.boolean(1.0))
                 landmask_river_and_land_boolean = pcr.ifthen(landmask_river_and_land_boolean, landmask_river_and_land_boolean)
-                landmask_river_and_land_boolean = pcr.ifthen(mask_selected_boolean_from_clump, landmask_river_and_land_boolean)
+                landmask_river_and_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_river_and_land_boolean)
                 landmask_river_and_land_file = "landmask_river_and_land_mask_%s.map" %(str(assigned_number))
                 pcr.report(landmask_river_and_land_boolean, landmask_river_and_land_file) 
 			    
