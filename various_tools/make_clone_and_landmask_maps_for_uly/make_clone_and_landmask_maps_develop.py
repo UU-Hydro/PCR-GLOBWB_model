@@ -260,6 +260,7 @@ def main():
                                                                   LatitudeLongitude = True,\
                                                                   specificFillValue = "NaN",\
                                                                   absolutePath = None)
+                landmask_land_boolean = pcr.ifthen(pcr.scalar(landmask_land) > 0.0, pcr.boolean(1.0))
                 landmask_land_boolean = pcr.ifthen(landmask_land_boolean, landmask_land_boolean)
                 landmask_land_boolean = pcr.ifthen(local_mask_selected_from_clump_boolean, landmask_land_boolean)
                 # - save the landmask for land (used for PCR-GLOBWB reporting)
