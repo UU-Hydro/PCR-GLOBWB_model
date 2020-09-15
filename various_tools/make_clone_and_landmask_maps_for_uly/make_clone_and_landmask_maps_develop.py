@@ -198,15 +198,15 @@ def main():
             # make clump
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
+            # merge clumps that are close together 
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 10.0)
+            clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
+            pcr.aguila(clump_ids)
+            
             # minimimum and maximum values
             min_clump_id = int(pcr.cellvalue(pcr.mapminimum(pcr.scalar(clump_ids)),1)[0])
             max_clump_id = int(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(clump_ids)),1)[0])
 
-            # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 2.5)
-            clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
-            pcr.aguila(clump_ids)
-            
             # ~ test
             
             for clump_id in range(min_clump_id, max_clump_id, 1):
