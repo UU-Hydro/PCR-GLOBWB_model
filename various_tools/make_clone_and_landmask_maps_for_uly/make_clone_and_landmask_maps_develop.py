@@ -129,7 +129,7 @@ def main():
             reference_ymin = reference_ymax - reference_mapattr["cellsize"]*reference_mapattr["rows"]
             reference_area_in_degree2 = (xmax - xmin) * (ymax - ymin)
             
-            if area_in_degree2 > 1.50 * reference_size: check_ok = False
+            if area_in_degree2 > 1.50 * reference_area_in_degree2: check_ok = False
         
         if check_ok == True:
         
