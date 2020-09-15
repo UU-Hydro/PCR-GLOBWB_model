@@ -219,7 +219,7 @@ def main():
 
             # ~ test
             
-            for clump_id in range(min_clump_id, max_clump_id, 1):
+            for clump_id in range(min_clump_id, max_clump_id + 1, 1):
             
                 msg = "Processing the clump %s of %s from the ulysses landmask %s" %(str(clump_id), str(max_clump_id), str(nr))
                 msg = "\n\n" +str(msg) + "\n\n"
