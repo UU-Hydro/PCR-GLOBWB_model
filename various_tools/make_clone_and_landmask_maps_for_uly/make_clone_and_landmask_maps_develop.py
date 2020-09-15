@@ -199,8 +199,8 @@ def main():
             clump_ids    = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # minimimum and maximum values
-            min_clump_id = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
-            max_clump_id = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
+            min_clump_id = pcr.cellvalue(pcr.mapminimum(clump_ids),1)[0]
+            max_clump_id = pcr.cellvalue(pcr.mapmaximum(clump_ids),1)[0]
            
             for clump_id in range(min_clump_id, max_clump_id, 1):
             
