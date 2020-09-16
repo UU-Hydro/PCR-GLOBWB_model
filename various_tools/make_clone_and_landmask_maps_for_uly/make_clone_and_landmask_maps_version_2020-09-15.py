@@ -218,7 +218,7 @@ def main():
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # merge clumps that are close together 
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 10.0 * 1.1)
+            clump_ids_window_majority = pcr.windowmajority(clump_ids, 15.0)
             clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
             pcr.aguila(clump_ids)
             
@@ -242,7 +242,8 @@ def main():
                 mask_selected_boolean_from_clump = pcr.ifthen(mask_selected_boolean_from_clump, mask_selected_boolean_from_clump)
 
                 # check whether the clump is empty
-                check_if_empty = float(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(pcr.defined(mask_selected_boolean_from_clump))),1)[0])
+                check_mask_selected_boolean_from_clump = pcr.ifthen(mask_land_selected_boolean, mask_selected_boolean_from_clump)
+                check_if_empty = float(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(pcr.defined(check_mask_selected_boolean_from_clump))),1)[0])
                 
                 if check_if_empty == 0.0: 
                 
