@@ -2,16 +2,16 @@
 
 set -x
 
-INP_FOLDER="/scratch-shared/edwinhs/meteo_arise/tanzania/source_icl_downloaded_2020-03-02/era5/"
+#~ INP_FOLDER="/scratch-shared/edwinhs/meteo_arise/tanzania/source_icl_downloaded_2020-03-02/era5/"
 INP_FOLDER=$1
 
-INP_FILE=TNZ-ERA5_daily_d2m_Max_1981-2019.nc
+#~ INP_FILE=TNZ-ERA5_daily_d2m_Max_1981-2019.nc
 INP_FILE=$2
 
-MAIN_OUT_FOLDER="/scratch-shared/edwinhs/meteo_arise/tanzania/version_2020-03-07/era5/"
+#~ MAIN_OUT_FOLDER="/scratch-shared/edwinhs/meteo_arise/tanzania/version_2020-03-07/era5/"
 MAIN_OUT_FOLDER=$3
 
-OUTP_FILE=tanzania_era5_d2m-max_1981-2019
+#~ OUTP_FILE=tanzania_era5_d2m-max_1981-2019
 OUTP_FILE=$4
 
 CDO_MON_METH="monmean"
