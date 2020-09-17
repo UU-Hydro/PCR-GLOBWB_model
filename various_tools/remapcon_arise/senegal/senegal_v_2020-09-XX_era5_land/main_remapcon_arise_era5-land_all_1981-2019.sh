@@ -31,9 +31,6 @@ OUT_FOLDER="/rds/general/user/esutanud/ephemeral/meteo_arise/senegal/version_202
 #~ -rw------- 1 ec407 hpc-ec407 2.4G Sep  9 00:43 TNZ-ERA5_daily_d2m_min_1981-2020.nc
 
 bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_Max_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_d2m-maximum_1981-2020 monmean "K" &
-
-wait
-
 bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_d2m-average_1981-2020 monmean "K" &
 bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_min_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_d2m-minimum_1981-2020 monmean "K" &
 
