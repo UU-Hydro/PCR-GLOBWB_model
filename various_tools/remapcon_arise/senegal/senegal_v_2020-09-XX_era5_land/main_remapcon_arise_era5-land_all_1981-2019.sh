@@ -56,7 +56,7 @@ bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Falb/TNZ-ERA5_daily_Fa_mean_1
 #~ drwxr-sr-x 9 ec407 hpc-ec407 4.0K Sep  3 15:21 ..
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 22:51 TNZ-ERA5_daily_Sp_mean_1981-2020.nc
 
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Spre/TNZ-ERA5_daily_Sp_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_spressu-avg_1981-2020 monmean "Pa" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Spre/TNZ-ERA5_daily_Sp_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_spressu-avg_1981-2020 monmean "Pa" &
 
 #~ Variable_Tpre:
 #~ total 2.4G
@@ -64,7 +64,7 @@ bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Spre/TNZ-ERA5_daily_Sp_1981-2
 #~ drwxr-sr-x 9 ec407 hpc-ec407 4.0K Sep  3 15:21 ..
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 23:08 TNZ-ERA5_daily_Tp_daysum_1981-2020.nc
 
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Tpre/TNZ-ERA5_daily_tp_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_total-preci_1981-2020 monsum  "m.month-1" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Tpre/TNZ-ERA5_daily_Tp_daysum_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_total-preci_1981-2020 monsum  "m.month-1" &
 
 #~ Variable_Snsr:
 #~ total 2.4G
