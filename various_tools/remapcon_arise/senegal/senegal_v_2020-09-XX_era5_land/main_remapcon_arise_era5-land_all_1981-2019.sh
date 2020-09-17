@@ -30,17 +30,17 @@ OUT_FOLDER="/rds/general/user/esutanud/ephemeral/meteo_arise/senegal/version_202
 #~ -rw------- 1 ec407 hpc-ec407 2.4G Sep  9 00:43 TNZ-ERA5_daily_d2m_mean_1981-2020.nc
 #~ -rw------- 1 ec407 hpc-ec407 2.4G Sep  9 00:43 TNZ-ERA5_daily_d2m_min_1981-2020.nc
 
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m-Max_1981-2020nc   ${OUT_FOLDER} senegal_era5-land_d2m-maximum_1981-2020 monmean "K" &
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m-mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_d2m-average_1981-2020 monmean "K" &
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m-min_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_d2m-minimum_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_Max_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_d2m-maximum_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_d2m-average_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_d2m_min_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_d2m-minimum_1981-2020 monmean "K" &
 
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 23:02 TNZ-ERA5_daily_t2m_Max_1981-2020.nc
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 22:59 TNZ-ERA5_daily_t2m_mean_1981-2020.nc
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 22:54 TNZ-ERA5_daily_t2m_min_1981-2020.nc
 
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m-Max_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_t2m-maximum_1981-2020 monmean "K" &
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m-mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_t2m-average_1981-2020 monmean "K" &
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m-min_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_t2m-minimum_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m_Max_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_t2m-maximum_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_t2m-average_1981-2020 monmean "K" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Temp/TNZ-ERA5_daily_t2m_min_1981-2020.nc  ${OUT_FOLDER} senegal_era5-land_t2m-minimum_1981-2020 monmean "K" &
 
 #~ Variable_Falb:
 #~ total 2.4G
@@ -83,8 +83,8 @@ bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Snsr/TNZ-ERA5_daily_Ssr_mean_
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 23:16 TNZ-ERA5_daily_WSPEED10m_1981-2020.nc
 #~ -rw-r-s--- 1 ec407 hpc-ec407 2.4G Aug 30 23:20 TNZ-ERA5_daily_WSPEED2m_1981-2020.nc
 
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Wind/TNZ-ERA5-daily_u10-mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_u10-average_1981-2020 monmean "m.s-1" &
-bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Wind/TNZ-ERA5-daily_v10-mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_v10-average_1981-2020 monmean "m.s-1" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Wind/TNZ-ERA5-daily_u10_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_u10-average_1981-2020 monmean "m.s-1" &
+bash remapcon_arise_era5.sh ${INP_FOLDER} Variable_Wind/TNZ-ERA5-daily_v10_mean_1981-2020.nc ${OUT_FOLDER} senegal_era5-land_v10-average_1981-2020 monmean "m.s-1" &
 
 wait
 
