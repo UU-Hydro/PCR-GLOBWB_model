@@ -19,7 +19,7 @@ INP_FOLDER="/rds/general/user/ec407/ephemeral/Senegal/ForEdwin/"
 
 
 #~ OUT_FOLDER="/scratch-shared/edwinhs/meteo_arise/tanzania/version_2020-04-07/era5-land/"
-MAIN_OUT_FOLDER="/rds/general/user/esutanud/ephemeral/meteo_arise/senegal/version_2020-09-XX/era5-land/"
+OUT_FOLDER="/rds/general/user/esutanud/ephemeral/meteo_arise/senegal/version_2020-09-XX/era5-land/"
 
 
 #~ Variable_Temp:
