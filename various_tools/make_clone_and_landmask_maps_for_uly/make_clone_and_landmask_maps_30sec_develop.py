@@ -44,7 +44,7 @@ def main():
     subdomain_map = "/scratch/depfg/sutan101/making_subdomains/initial_subdomains/subdomain_30sec_areamajority_catchment_lddsound_30sec_version_202005XX.map"
 
     # list of 5 arcmin pcrglobwb clone maps
-    pcrglobwb_5min_clone_map = "/scratch/depfg/sutan101/data/edwin/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_05min/cloneMaps/global_parallelization/clone_M%02d.map" 
+    pcrglobwb_5min_clone_map = "/scratch/depfg/sutan101/data/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_05min/cloneMaps/global_parallelization/clone_M%02d.map" 
     
     # output folder (and tmp folder)
     out_folder = "/scratch/depfg/sutan101/making_subdomains/refined_subdomains/pcraster_maps/"
