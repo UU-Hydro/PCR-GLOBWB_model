@@ -64,7 +64,7 @@ def main():
                                                                varName = "mask",\
                                                                cloneMapFileName  = global_clone_map,\
                                                                LatitudeLongitude = True,\
-                                                               specificFillValue = "NaN",\
+                                                               specificFillValue = -2147483647,\
                                                                absolutePath = None)
     pcr.aguila(mask_original)                                                           
 
