@@ -150,7 +150,7 @@ def main():
 
             # update global landmask for river and land
             mask_selected_nominal = pcr.ifthen(mask_selected_boolean, pcr.nominal(assigned_number))
-            landmask_all = pcr.cover(landmask_land_all, mask_selected_nominal) 
+            landmask_all = pcr.cover(landmask_all, mask_selected_nominal) 
             pcr.report(landmask_all, filename_for_nominal_land_river_mask_at_global_extent)
             pcr.aguila(landmask_all)
 
