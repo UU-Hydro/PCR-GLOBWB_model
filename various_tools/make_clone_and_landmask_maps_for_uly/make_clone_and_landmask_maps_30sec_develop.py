@@ -96,6 +96,9 @@ def main():
 
     for nr in range(1, 5 + 1, 1):
 
+        # kill all aguila processes if exist
+        os.system('killall aguila')
+
         msg = "Processing the landmask %s" %(str(nr))
         msg = "\n\n" +str(msg) + "\n\n"
         print(msg)
@@ -293,8 +296,8 @@ def main():
 
     # report a global nominal map for river and and land
     pcr.setclone(global_clone_map)
-    pcr.report(landmask_river_and_land_all, filename_for_nominal_land_river_mask_at_global_extent)
-    pcr.aguila(landmask_river_and_land_all)
+    pcr.report(landmask_all, filename_for_nominal_land_river_mask_at_global_extent)
+    pcr.aguila(landmask_all)
     
     print("\n\n Done \n\n")
     
