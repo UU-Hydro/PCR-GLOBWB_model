@@ -89,12 +89,13 @@ def main():
     # clone code that will be assigned
     assigned_number = 0
     
-    # ~ for nr in range(1, num_of_masks + 1, 1):
+    for nr in range(1, num_of_masks + 1, 1):
 
     # ~ # - for testing
     # ~ for nr in range(36, 40, 1):
 
-    for nr in range(1, 5 + 1, 1):
+    # - for testing
+    # ~ for nr in range(1, 5 + 1, 1):
 
         # kill all aguila processes if exist
         os.system('killall aguila')
