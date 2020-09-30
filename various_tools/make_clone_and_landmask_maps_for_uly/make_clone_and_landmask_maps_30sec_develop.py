@@ -38,7 +38,11 @@ def main():
     num_of_masks = 53
     
     # subdomain file (land and inland water: rivers, lakes and reservoirs)
-    subdomain_nc = "/scratch/depfg/sutan101/making_subdomains/initial_subdomains/subdomain_30sec_areamajority_catchment_lddsound_30sec_version_202005XX_invertlat.nc"
+    # ~ # - using a netcdf file - still not working
+    # ~ subdomain_nc = "/scratch/depfg/sutan101/making_subdomains/initial_subdomains/subdomain_30sec_areamajority_catchment_lddsound_30sec_version_202005XX_invertlat.nc"
+    # - read from a pcraster map
+    subdomain_map = "/scratch/depfg/sutan101/making_subdomains/initial_subdomains/subdomain_30sec_areamajority_catchment_lddsound_30sec_version_202005XX.map"
+
     # list of 5 arcmin pcrglobwb clone maps
     pcrglobwb_5min_clone_map = "/scratch/depfg/sutan101/data/edwin/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_05min/cloneMaps/global_parallelization/clone_M%02d.map" 
     
@@ -60,12 +64,17 @@ def main():
     os.makedirs(tmp_folder)
     
     # read subdomain file - this is the input
-    mask_original = vos.netcdf2PCRobjCloneWithoutTime(ncFile = subdomain_nc, \
-                                                               varName = "mask",\
-                                                               cloneMapFileName  = global_clone_map,\
-                                                               LatitudeLongitude = True,\
-                                                               specificFillValue = -2147483647,\
-                                                               absolutePath = None)
+    # - set to the global clone map
+    pcr.setclone(global_clone_map)
+    # ~ # - using a netcdf file - still not working
+    # ~ mask_original = vos.netcdf2PCRobjCloneWithoutTime(ncFile = subdomain_nc, \
+                                                               # ~ varName = "mask",\
+                                                               # ~ cloneMapFileName  = global_clone_map,\
+                                                               # ~ LatitudeLongitude = True,\
+                                                               # ~ specificFillValue = -2147483647,\
+                                                               # ~ absolutePath = None)
+    # - using a pcraster map
+    mask_original     = pcr.readmap(subdomain_map) 
     pcr.aguila(mask_original)                                                           
 
     # make initial landmask map at the global extent - this will be used as the output 
