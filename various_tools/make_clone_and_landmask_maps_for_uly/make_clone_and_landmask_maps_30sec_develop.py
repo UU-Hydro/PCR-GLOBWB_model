@@ -199,10 +199,29 @@ def main():
             clump_ids = pcr.nominal(pcr.clump(mask_selected_boolean))
             
             # merge clumps that are close together 
-            # ~ clump_ids_window_majority = pcr.windowmajority(clump_ids, 25.0)
-            clump_ids_window_majority = pcr.windowmajority(clump_ids, 1.0)
-            clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
-            pcr.aguila(clump_ids)
+            # - not recommended for 30sec 
+            merging_clumps = False
+            
+            if merging_clumps:
+                
+                print("Merging clumps that are close together.")
+                
+                print("Window majority operation.")
+			    
+                # ~ # - ideal for 6 arcmin, i.e. 25/0.1 = 250 cells
+                # ~ clump_ids_window_majority = pcr.windowmajority(clump_ids, 25.0)
+			    
+                # - for 30sec, use 0.25deg, 0.25/(30/3600) = 30 cells
+                clump_ids_window_majority = pcr.windowmajority(clump_ids, 0.25)
+			    
+                # ~ print("Area majority operation.")
+                # ~ clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
+			    
+                # - for 30arcsec, areaminimum is used as areamajority is too slow.
+                print("Area maximum operation.")
+                clump_ids = pcr.areamaximum(clump_ids_window_majority, clump_ids) 
+			    
+                pcr.aguila(clump_ids)
             
             # minimimum and maximum values
             min_clump_id = int(pcr.cellvalue(pcr.mapminimum(pcr.scalar(clump_ids)),1)[0])
