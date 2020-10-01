@@ -94,8 +94,11 @@ def main():
     # ~ # - for testing
     # ~ for nr in range(36, 40, 1):
 
-    # - for testing
+    # ~ # - for testing
     # ~ for nr in range(1, 5 + 1, 1):
+
+    # ~ # - for testing
+    # ~ for nr in range(18, 23 + 1, 1):
 
         # kill all aguila processes if exist
         os.system('killall aguila')
@@ -200,7 +203,7 @@ def main():
             
             # merge clumps that are close together 
             # - not recommended for 30sec 
-            merging_clumps = False
+            merging_clumps = True
             
             if merging_clumps:
                 
@@ -243,7 +246,6 @@ def main():
                 mask_selected_boolean_from_clump = pcr.ifthen(mask_selected_boolean_from_clump, mask_selected_boolean_from_clump)
 
                 # check whether the clump is empty
-                check_mask_selected_boolean_from_clump = pcr.ifthen(mask_land_selected_boolean, mask_selected_boolean_from_clump)
                 check_if_empty = float(pcr.cellvalue(pcr.mapmaximum(pcr.scalar(pcr.defined(check_mask_selected_boolean_from_clump))),1)[0])
                 
                 if check_if_empty == 0.0: 
