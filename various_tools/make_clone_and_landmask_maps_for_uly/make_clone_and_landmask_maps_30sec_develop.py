@@ -214,8 +214,8 @@ def main():
                 # ~ # - ideal for 6 arcmin, i.e. 25/0.1 = 250 cells
                 # ~ clump_ids_window_majority = pcr.windowmajority(clump_ids, 25.0)
 			    
-                # - for 30sec, use 0.25deg, 0.25/(30/3600) = 30 cells
-                clump_ids_window_majority = pcr.windowmajority(clump_ids, 0.25)
+                # - for 30sec, use 0.75deg, 0.75/(30/3600) = 90 cells
+                clump_ids_window_majority = pcr.windowmajority(clump_ids, 0.75)
 			    
                 # ~ print("Area majority operation.")
                 # ~ clump_ids = pcr.areamajority(clump_ids_window_majority, clump_ids) 
