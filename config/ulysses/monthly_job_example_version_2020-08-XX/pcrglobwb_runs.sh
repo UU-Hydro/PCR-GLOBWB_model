@@ -32,7 +32,7 @@ module load gdal/3.0.4
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
-# run the model for all clones, from 1 to 54
+# run the model for all clones, from 1 to 71
 if [ $ALPS_APP_PE -gt 0 ]
 then
 if [ $ALPS_APP_PE -lt 55 ]
