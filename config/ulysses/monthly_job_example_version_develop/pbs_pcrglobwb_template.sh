@@ -25,13 +25,13 @@ INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_develop.ini"
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_develop/"
 
-#~ # set the starting and end simulation dates
-#~ STARTING_DATE=2000-01-01
-#~ END_DATE=2000-01-31
-
-# set the starting and end simulation dates - for testing
-STARTING_DATE=2000-01-29
+# set the starting and end simulation dates
+STARTING_DATE=2000-01-01
 END_DATE=2000-01-31
+
+#~ # set the starting and end simulation dates - for testing
+#~ STARTING_DATE=2000-01-29
+#~ END_DATE=2000-01-31
 
 # set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy/"
@@ -53,17 +53,17 @@ aprun -N $EC_tasks_per_node -n $EC_total_tasks -j $EC_hyperthreads bash pcrglobw
 
 
 
-#~ # merging netcdf and state files (TODO: Shall we put the following in a separate job and called it with qsub?)
-#~ # - load modules on cca (or ccb)
-#~ module load python3/3.6.10-01
-#~ module load pcraster/4.3.0
-#~ module load gdal/3.0.4
-#~ # - go to the folder that contain the scripts
-#~ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
-#~ # - merging state files
-#~ python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
-#~ # - merging netcdf files
-#~ python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 2 Global
+# merging netcdf and state files (TODO: Shall we put the following in a separate job and called it with qsub?)
+# - load modules on cca (or ccb)
+module load python3/3.6.10-01
+module load pcraster/4.3.0
+module load gdal/3.0.4
+# - go to the folder that contain the scripts
+cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
+# - merging state files
+python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
+# - merging netcdf files
+python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 2 Global
 
 
 set +x
