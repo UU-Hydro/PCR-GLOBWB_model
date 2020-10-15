@@ -13,6 +13,8 @@
 # send mail to this address
 #SBATCH --mail-user=edwinkost@gmail.com
 
+set -x
+
 cd $HOME
 . load_my_miniconda_and_my_default_env.sh
 
@@ -26,9 +28,7 @@ python deterministic_runner.py ../config/30sec_african_countries/africa_using_su
 python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-15/setup_30sec_africa_using_subdomains_clone_09.ini debug &
 wait
 
-#~ while countfiles=20
-#~ do
-#~ countfiles=20
-#~ done
+set +x
+
 
 
