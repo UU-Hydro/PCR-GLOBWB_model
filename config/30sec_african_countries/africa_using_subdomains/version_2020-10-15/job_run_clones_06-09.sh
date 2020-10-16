@@ -22,10 +22,10 @@ export PCRASTER_NR_WORKER_THREADS=24
 
 cd /quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
-python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-15/setup_30sec_africa_using_subdomains_clone_06.ini debug &
-python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-15/setup_30sec_africa_using_subdomains_clone_07.ini debug &
-python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-15/setup_30sec_africa_using_subdomains_clone_08.ini debug &
-python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-15/setup_30sec_africa_using_subdomains_clone_09.ini debug &
+python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-16/setup_30sec_africa_using_subdomains_clone_06.ini debug &
+python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-16/setup_30sec_africa_using_subdomains_clone_07.ini debug &
+python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-16/setup_30sec_africa_using_subdomains_clone_08.ini debug &
+python deterministic_runner.py ../config/30sec_african_countries/africa_using_subdomains/version_2020-10-16/setup_30sec_africa_using_subdomains_clone_09.ini debug &
 wait
 
 set +x
