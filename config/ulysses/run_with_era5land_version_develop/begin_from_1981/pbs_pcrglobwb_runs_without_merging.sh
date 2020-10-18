@@ -2,7 +2,7 @@
 #PBS -N pgb-era5land-1981-2019
 #PBS -q np
 #PBS -l EC_nodes=4
-#PBS -l EC_total_tasks=72
+#PBS -l EC_total_tasks=288
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 
