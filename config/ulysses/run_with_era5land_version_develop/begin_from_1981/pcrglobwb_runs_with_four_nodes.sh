@@ -91,7 +91,7 @@ fi
 fi
 
 # - fourth node: 55 to 71
-if [ $ALPS_APP_PE -gt 144 ]
+if [ $ALPS_APP_PE -gt 216 ]
 then
 CLONENUMBER=$((ALPS_APP_PE-216))
 if [ $CLONENUMBER -gt 54 ]
