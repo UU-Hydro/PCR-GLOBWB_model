@@ -683,7 +683,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
                 date  = datetime.datetime(date.year,int(1),int(1))
             if useDoy == "monthly":
                 date = datetime.datetime(date.year,date.month,int(1))
-            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal" or useDoy == "daily":
+            if useDoy == "yearly" or useDoy == "monthly" or useDoy == "daily_seasonal" or useDoy == "daily" or useDoy == "daily_per_monthly_file":
                 # if the desired year is not available, use the first year or the last year that is available
                 first_year_in_nc_file = findFirstYearInNCTime(f.variables['time'])
                 last_year_in_nc_file  =  findLastYearInNCTime(f.variables['time'])
@@ -858,7 +858,16 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     #~ pcr.aguila(outPCR)
     
     #f.close();
+    
+    if useDoy == "daily_per_monthly_file": 
+        # close the file on the last day of the month
+        tomorrow = date + datetime.timedelta(days=1)
+        if tomorrow.day == 1: f.close()
+ 
+    
+    del f ; del cropData
     f = None ; cropData = None 
+    
     # PCRaster object
     return (outPCR)
 
