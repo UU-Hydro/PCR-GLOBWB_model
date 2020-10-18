@@ -34,7 +34,7 @@ INI_FILE=${PBS_O_WORKDIR}/setup_6arcmin_era5land_version_develop.ini
 
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_era5land_version_develop/begin_from_1981/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_output_era5land_version_develop/version_2020-10-18/begin_from_1981/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1981-01-01
