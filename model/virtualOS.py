@@ -862,8 +862,11 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     if useDoy == "daily_per_monthly_file": 
         # close the file on the last day of the month
         tomorrow = date + datetime.timedelta(days=1)
-        if tomorrow.day == 1: f.close()
- 
+        if tomorrow.day == 1: 
+            # close the file
+            f.close()
+            # remove from the cache
+            del filecache[ncFile]
     
     del f ; del cropData
     f = None ; cropData = None 
