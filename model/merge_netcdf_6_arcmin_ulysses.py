@@ -256,11 +256,11 @@ def mergeNetCDF(inputTuple):
     #~ longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=4)
     #~ latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=4)
 
-    longitudes= np.arange(lonMin,lonMax+deltaLon,deltaLon)
-    latitudes=  np.arange(latMax,latMin-deltaLat,-deltaLat)
+    # ~ longitudes= np.arange(lonMin,lonMax+deltaLon,deltaLon)
+    # ~ latitudes=  np.arange(latMax,latMin-deltaLat,-deltaLat)
 
-    #~ longitudes= np.linspace(lonMin,lonMax+deltaLon, int(round((lonMax+deltaLon - lonMin)/deltaLon)))
-    #~ latitudes=  np.linspace(latMax,latMin-deltaLat, int(round((latMax - latMin+deltaLat)/deltaLat)))
+    longitudes= np.linspace(lonMin,lonMax+deltaLon, int(round((lonMax+deltaLon - lonMin)/deltaLon)))
+    latitudes=  np.linspace(latMax,latMin-deltaLat, int(round((latMax - latMin+deltaLat)/deltaLat)))
 
     uniqueTimes= uniqueTimes.tolist()
 
