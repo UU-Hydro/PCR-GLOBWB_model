@@ -475,11 +475,6 @@ def main():
                                   no_modification = False)      
 
     
-    # for a non parallel run (usually 30min), a specific directory given in the system argument (sys.argv[3]) will be assigned for a given parameter combination:
-    if this_run_is_part_of_a_set_of_parallel_run == False:
-        # modfiying 'outputDir' (based on the given system argument)
-        configuration.globalOptions['outputDir'] += "/"+str(sys.argv[3])+"/" 
-
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
     if this_run_is_part_of_a_set_of_parallel_run:
         # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
