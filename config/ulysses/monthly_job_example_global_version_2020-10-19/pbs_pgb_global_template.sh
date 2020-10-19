@@ -1,17 +1,22 @@
-#!/bin/bash 
+#!/bin/bash
+ 
 #PBS -N pcrglobwb
+
 #PBS -q nf
+
 #PBS -l EC_total_tasks=32
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 
+#PBS -l walltime=3:00:00
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
 #~ #PBS -l walltime=1:00:00
 #~ #PBS -l walltime=12:00:00
-#PBS -l walltime=3:00:00
+
 
 set -x
+
 
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
 #~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
