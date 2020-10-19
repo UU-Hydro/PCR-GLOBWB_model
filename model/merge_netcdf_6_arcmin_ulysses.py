@@ -289,8 +289,8 @@ def mergeNetCDF(inputTuple):
     lat[:]= latitudes
     lon[:]= longitudes  
 
-    latitudes = np.around(latitudes, decimals=4)   # TODO: Improve this. We need this one for selecting rows and columns.
-    longitudes = np.around(longitudes, decimals=4) # TODO: Improve this. We need this one for selecting rows and columns. 
+    # ~ latitudes = np.around(latitudes, decimals=4)   # TODO: Improve this. We need this one for selecting rows and columns.
+    # ~ longitudes = np.around(longitudes, decimals=4) # TODO: Improve this. We need this one for selecting rows and columns. 
     
 
     # - setting variable
