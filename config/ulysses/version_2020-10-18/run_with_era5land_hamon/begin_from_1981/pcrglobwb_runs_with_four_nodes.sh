@@ -35,83 +35,83 @@ export PCRASTER_NR_WORKER_THREADS=4
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 
-# - test
-if [ $ALPS_APP_PE -gt 2 ]
-then
-if [ $ALPS_APP_PE -lt 4 ]
-then
-set -x
-CLONENUMBER=$ALPS_APP_PE
-CLONE_CODE=`printf %d $CLONENUMBER`
-python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
-echo $CLONENUMBER
-echo ${CLONE_CODE}
-set +x
-fi
-fi
-
-
-#~ # run the model for all clones, from 1 to 71
-
-#~ # - splitted into four nodes
-
-#~ # - first node: 1 to 18
-#~ if [ $ALPS_APP_PE -gt 0 ]
+#~ # - for testing, run only clone 3
+#~ if [ $ALPS_APP_PE -gt 2 ]
 #~ then
-#~ if [ $ALPS_APP_PE -lt 19 ]
+#~ if [ $ALPS_APP_PE -lt 4 ]
 #~ then
+#~ set -x
 #~ CLONENUMBER=$ALPS_APP_PE
 #~ CLONE_CODE=`printf %d $CLONENUMBER`
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
 #~ echo $CLONENUMBER
 #~ echo ${CLONE_CODE}
+#~ set +x
 #~ fi
 #~ fi
 
-#~ # - second node: 19 to 36
-#~ if [ $ALPS_APP_PE -gt 72 ]
-#~ then
-#~ CLONENUMBER=$((ALPS_APP_PE-72))
-#~ if [ $CLONENUMBER -gt 18 ]
-#~ then
-#~ if [ $CLONENUMBER -lt 37 ]
-#~ then
-#~ CLONE_CODE=`printf %d ${CLONENUMBER}`
-#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
-#~ echo $CLONENUMBER
-#~ echo ${CLONE_CODE}
-#~ fi
-#~ fi
-#~ fi
 
-#~ # - third node: 37 to 54
-#~ if [ $ALPS_APP_PE -gt 144 ]
-#~ then
-#~ CLONENUMBER=$((ALPS_APP_PE-144))
-#~ if [ $CLONENUMBER -gt 36 ]
-#~ then
-#~ if [ $CLONENUMBER -lt 55 ]
-#~ then
-#~ CLONE_CODE=`printf %d ${CLONENUMBER}`
-#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
-#~ echo $CLONENUMBER
-#~ echo ${CLONE_CODE}
-#~ fi
-#~ fi
-#~ fi
 
-#~ # - fourth node: 55 to 71
-#~ if [ $ALPS_APP_PE -gt 216 ]
-#~ then
-#~ CLONENUMBER=$((ALPS_APP_PE-216))
-#~ if [ $CLONENUMBER -gt 54 ]
-#~ then
-#~ if [ $CLONENUMBER -lt 72 ]
-#~ then
-#~ CLONE_CODE=`printf %d ${CLONENUMBER}`
-#~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
-#~ echo $CLONENUMBER
-#~ echo ${CLONE_CODE}
-#~ fi
-#~ fi
-#~ fi
+# run the model for all clones, from 1 to 71
+# - splitted into four nodes
+
+# - first node: 1 to 18
+if [ $ALPS_APP_PE -gt 0 ]
+then
+if [ $ALPS_APP_PE -lt 19 ]
+then
+CLONENUMBER=$ALPS_APP_PE
+CLONE_CODE=`printf %d $CLONENUMBER`
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo $CLONENUMBER
+echo ${CLONE_CODE}
+fi
+fi
+
+# - second node: 19 to 36
+if [ $ALPS_APP_PE -gt 72 ]
+then
+CLONENUMBER=$((ALPS_APP_PE-72))
+if [ $CLONENUMBER -gt 18 ]
+then
+if [ $CLONENUMBER -lt 37 ]
+then
+CLONE_CODE=`printf %d ${CLONENUMBER}`
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo $CLONENUMBER
+echo ${CLONE_CODE}
+fi
+fi
+fi
+
+# - third node: 37 to 54
+if [ $ALPS_APP_PE -gt 144 ]
+then
+CLONENUMBER=$((ALPS_APP_PE-144))
+if [ $CLONENUMBER -gt 36 ]
+then
+if [ $CLONENUMBER -lt 55 ]
+then
+CLONE_CODE=`printf %d ${CLONENUMBER}`
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo $CLONENUMBER
+echo ${CLONE_CODE}
+fi
+fi
+fi
+
+# - fourth node: 55 to 71
+if [ $ALPS_APP_PE -gt 216 ]
+then
+CLONENUMBER=$((ALPS_APP_PE-216))
+if [ $CLONENUMBER -gt 54 ]
+then
+if [ $CLONENUMBER -lt 72 ]
+then
+CLONE_CODE=`printf %d ${CLONENUMBER}`
+python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
+echo $CLONENUMBER
+echo ${CLONE_CODE}
+fi
+fi
+fi

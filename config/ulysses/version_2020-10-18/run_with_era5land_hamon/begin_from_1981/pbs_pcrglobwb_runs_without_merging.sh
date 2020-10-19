@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -N pgb-era5land-hamon-1981-2019
+#PBS -N hamon-pgb-era5land-1981-2019
 #PBS -q np
 #PBS -l EC_nodes=4
 #PBS -l EC_total_tasks=288
