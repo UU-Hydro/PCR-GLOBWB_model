@@ -19,8 +19,10 @@
 set -x
 
 
-# set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
+# set the folder that contain PCR-GLOBWB model scripts
+# - using the 'official' version for Uly
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
+# - using the 'development' version by Edwin
 #~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
