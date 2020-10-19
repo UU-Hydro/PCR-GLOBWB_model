@@ -225,12 +225,12 @@ latMax =   84.0
 lonMin = -180.0
 lonMax =  180.0
 
-Corner Coordinates:
-Upper Left  (-180.0000000,  84.0000000)
-Lower Left  (-180.0000000, -56.0000000)
-Upper Right ( 180.0000000,  84.0000000)
-Lower Right ( 180.0000000, -56.0000000)
-Center      (  -0.0000000,  14.0000000)
+# ~ Corner Coordinates:
+# ~ Upper Left  (-180.0000000,  84.0000000)
+# ~ Lower Left  (-180.0000000, -56.0000000)
+# ~ Upper Right ( 180.0000000,  84.0000000)
+# ~ Lower Right ( 180.0000000, -56.0000000)
+# ~ Center      (  -0.0000000,  14.0000000)
 
 
 inputDirRoot = ''  
