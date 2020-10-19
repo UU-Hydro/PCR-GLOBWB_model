@@ -8,7 +8,8 @@
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 
-#PBS -l walltime=3:00:00
+#PBS -l walltime=59:00
+#~ #PBS -l walltime=3:00:00
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
 #~ #PBS -l walltime=1:00:00
@@ -33,7 +34,7 @@ STARTING_DATE=1982-01-01
 END_DATE=1982-01-31
 
 # set the initial conditions (folder and time stamp for the files)
-MAIN_INITIAL_STATE_FOLDER="scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/version_2020-10-19/global_06min/initialConditions/dummy_version_2020-10-19/global/states/"
+MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/version_2020-10-19/global_06min/initialConditions/dummy_version_2020-10-19/global/states/"
 DATE_FOR_INITIAL_STATES=1981-12-31
 
 # set the forcing files
