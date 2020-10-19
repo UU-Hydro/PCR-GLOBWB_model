@@ -209,28 +209,29 @@ except:
 #~ lonMin= -180.
 #~ lonMax= 180.0
 
-# ~ # map coordinates and resolution 
-# ~ deltaLat= 0.1
-# ~ deltaLon= 0.1
-# ~ latMin= -90.
-# ~ latMax= 90.0
-# ~ lonMin= -180.
-# ~ lonMax= 180.0
+# map coordinates and resolution 
+deltaLat= 0.1
+deltaLon= 0.1
+latMin= -90.
+latMax= 90.0
+lonMin= -180.
+lonMax= 180.0
 
-# map coordinates and resolution for the Ulysses project (1400 rows)
-deltaLat =  0.1
-deltaLon =  0.1
-latMin =  -56.0
-latMax =   84.0
-lonMin = -180.0
-lonMax =  180.0
-
-# ~ Corner Coordinates:
-# ~ Upper Left  (-180.0000000,  84.0000000)
-# ~ Lower Left  (-180.0000000, -56.0000000)
-# ~ Upper Right ( 180.0000000,  84.0000000)
-# ~ Lower Right ( 180.0000000, -56.0000000)
-# ~ Center      (  -0.0000000,  14.0000000)
+# ~ # map coordinates and resolution for the Ulysses project (1400 rows)
+# ~ #
+# ~ # Corner Coordinates:
+# ~ # Upper Left  (-180.0000000,  84.0000000)
+# ~ # Lower Left  (-180.0000000, -56.0000000)
+# ~ # Upper Right ( 180.0000000,  84.0000000)
+# ~ # Lower Right ( 180.0000000, -56.0000000)
+# ~ # Center      (  -0.0000000,  14.0000000)
+# ~ #
+# ~ deltaLat =  0.1
+# ~ deltaLon =  0.1
+# ~ latMin =  -56.0
+# ~ latMax =   84.0
+# ~ lonMin = -180.0
+# ~ lonMax =  180.0
 
 
 inputDirRoot = ''  
