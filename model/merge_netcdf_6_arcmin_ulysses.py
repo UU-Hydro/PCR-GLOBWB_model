@@ -256,11 +256,19 @@ def mergeNetCDF(inputTuple):
     #~ longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=4)
     #~ latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=4)
 
-    # ~ longitudes= np.arange(lonMin,lonMax+deltaLon,deltaLon)
-    # ~ latitudes=  np.arange(latMax,latMin-deltaLat,-deltaLat)
+    lonMin = round(lonMin, 1)
+    lonMax = round(lonMax, 1)
+    latMax = round(latMax, 1)
+    latMin = round(latMin, 1)
+    
+    deltaLon = round(deltaLon, 1)
+    deltaLat = round(deltaLat, 1)
+    
+    longitudes= np.arange(lonMin,lonMax+deltaLon,deltaLon)
+    latitudes=  np.arange(latMax,latMin-deltaLat,-deltaLat)
 
-    longitudes= np.linspace(lonMin,lonMax+deltaLon, int(round((lonMax+deltaLon - lonMin)/deltaLon)))
-    latitudes=  np.linspace(latMax,latMin-deltaLat, int(round((latMax - latMin+deltaLat)/deltaLat)))
+    #~ longitudes= np.linspace(lonMin,lonMax+deltaLon, int(round((lonMax+deltaLon - lonMin)/deltaLon)))
+    #~ latitudes=  np.linspace(latMax,latMin-deltaLat, int(round((latMax - latMin+deltaLat)/deltaLat)))
 
     uniqueTimes= uniqueTimes.tolist()
 
@@ -274,6 +282,7 @@ def mergeNetCDF(inputTuple):
     for attr,value in list(calendar_used.items()):
         setattr(date_time,attr,str(value))
     date_time[:]= uniqueTimes
+
 
     #-create dimensions for longitudes and latitudes
     rootgrp.createDimension('latitude',len(latitudes))
@@ -289,8 +298,8 @@ def mergeNetCDF(inputTuple):
     lat[:]= latitudes
     lon[:]= longitudes  
 
-    # ~ latitudes = np.around(latitudes, decimals=4)   # TODO: Improve this. We need this one for selecting rows and columns.
-    # ~ longitudes = np.around(longitudes, decimals=4) # TODO: Improve this. We need this one for selecting rows and columns. 
+    latitudes = np.around(latitudes, decimals=4)   # TODO: Improve this. We need this one for selecting rows and columns.
+    longitudes = np.around(longitudes, decimals=4) # TODO: Improve this. We need this one for selecting rows and columns. 
     
 
     # - setting variable
