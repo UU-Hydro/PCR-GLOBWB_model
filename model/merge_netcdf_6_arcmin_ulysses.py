@@ -263,8 +263,18 @@ def mergeNetCDF(inputTuple):
     #~ latitudes=  np.linspace(latMax,latMin-deltaLat, int(round((latMax - latMin+deltaLat)/deltaLat)))
 
     uniqueTimes= uniqueTimes.tolist()
+
     #-open file
     rootgrp= nc.Dataset(netCDFOutput,'w',format= ncFormat)
+
+    # - create time and set its attributes
+    date_time=rootgrp.createDimension('time',len(uniqueTimes))
+    #~ date_time=rootgrp.createDimension('time', None)
+    date_time= rootgrp.createVariable('time','f8',('time',))
+    for attr,value in list(calendar_used.items()):
+        setattr(date_time,attr,str(value))
+    date_time[:]= uniqueTimes
+
     #-create dimensions for longitudes and latitudes
     rootgrp.createDimension('latitude',len(latitudes))
     rootgrp.createDimension('longitude',len(longitudes))
@@ -274,6 +284,7 @@ def mergeNetCDF(inputTuple):
     lon= rootgrp.createVariable('longitude','f4',('longitude'))
     lon.standard_name= 'Longitude'
     lon.long_name= 'Longitude cell centres'
+
     #-assing latitudes and longitudes to variables
     lat[:]= latitudes
     lon[:]= longitudes  
@@ -281,13 +292,6 @@ def mergeNetCDF(inputTuple):
     latitudes = np.around(latitudes, decimals=4)   # TODO: Improve this. We need this one for selecting rows and columns.
     longitudes = np.around(longitudes, decimals=4) # TODO: Improve this. We need this one for selecting rows and columns. 
     
-    # - create time and set its attributes
-    date_time=rootgrp.createDimension('time',len(uniqueTimes))
-    #~ date_time=rootgrp.createDimension('time', None)
-    date_time= rootgrp.createVariable('time','f8',('time',))
-    for attr,value in list(calendar_used.items()):
-        setattr(date_time,attr,str(value))
-    date_time[:]= uniqueTimes
 
     # - setting variable
     if len(calendar_used) == 0:
@@ -405,6 +409,23 @@ latMin          =  -56 + deltaLat / 2
 latMax          =   84 - deltaLat / 2
 lonMin          = -180 + deltaLon / 2
 lonMax          =  180 - deltaLon / 2
+
+# ~ cyes@cca-login4:/lus/snx11062/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/cloneMaps/global_land_mask/version_2020-08-11> cdo griddes land_mask.nc
+# ~ #
+# ~ # gridID 1
+# ~ #
+# ~ gridtype  = generic
+# ~ gridsize  = 5040000
+# ~ xsize     = 3600
+# ~ ysize     = 1400
+# ~ xname     = longitude
+# ~ yname     = latitude
+# ~ xfirst    = -179.95
+# ~ xinc      = 0.1
+# ~ yfirst    = 83.95
+# ~ yinc      = -0.1
+# ~ cdo    griddes: Processed 3 variables [0.07s 25MB].
+
 
 # input directory:
 inputDirRoot = sys.argv[1] 
