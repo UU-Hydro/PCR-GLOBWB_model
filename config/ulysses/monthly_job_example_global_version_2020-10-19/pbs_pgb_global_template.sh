@@ -1,7 +1,6 @@
 #!/bin/bash 
 #PBS -N pcrglobwb
 #PBS -q nf
-#PBS -l EC_nodes=1
 #PBS -l EC_total_tasks=32
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
