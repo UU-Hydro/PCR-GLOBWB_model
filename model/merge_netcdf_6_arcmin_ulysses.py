@@ -256,10 +256,10 @@ def mergeNetCDF(inputTuple):
     #~ longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=4)
     #~ latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=4)
 
-    lonMin = round(lonMin, 1)
-    lonMax = round(lonMax, 1)
-    latMax = round(latMax, 1)
-    latMin = round(latMin, 1)
+    lonMin = round(lonMin, 2)
+    lonMax = round(lonMax, 2)
+    latMax = round(latMax, 2)
+    latMin = round(latMin, 2)
     
     deltaLon = round(deltaLon, 2)
     deltaLat = round(deltaLat, 2)
