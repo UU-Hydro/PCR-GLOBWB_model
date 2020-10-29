@@ -47,7 +47,7 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    def __init__(self, configuration, currTimeStep, initialState = None):
+    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
@@ -93,6 +93,10 @@ class PCRGlobWB(object):
             
             # dump the initial state
             self.dumpState(self.directory_for_initial_maps, "initial")
+
+
+        # get the status whether a run belongs to spinUpRun or not
+        self.spinUpRun = spinUpRun
 
          
     @property
@@ -481,6 +485,10 @@ class PCRGlobWB(object):
 
         if self._modelTime.isLastDayOfMonth():
             # make an empty file to indicate that the calculation for this month has done
-            filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
-            if os.path.exists(filename): os.remove(filename)
-            open(filename, "w").close()    
+            # - this is only needed for runs with merging and modflow processes
+            # - for a spinUpRun, merging will be skipped
+            if self.spinUpRun is not None and self.spinUpRun = False:
+                filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
+                if os.path.exists(filename): os.remove(filename)
+                open(filename, "w").close()    
+

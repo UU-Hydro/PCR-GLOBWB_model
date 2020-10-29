@@ -45,11 +45,11 @@ import disclaimer
 
 class DeterministicRunner(DynamicModel):
 
-    def __init__(self, configuration, modelTime, initialState = None, system_argument = None):
+    def __init__(self, configuration, modelTime, initialState = None, system_argument = None, spinUpRun = False):
         DynamicModel.__init__(self)
 
         self.modelTime = modelTime        
-        self.model = PCRGlobWB(configuration, modelTime, initialState)
+        self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
         self.reporting = Reporting(configuration, self.model, modelTime)
         
         # the model paramaters may be modified
@@ -67,9 +67,11 @@ class DeterministicRunner(DynamicModel):
         if ('with_merging' in configuration.globalOptions.keys()) and (configuration.globalOptions['with_merging'] == "True"):
             self.with_merging = True
 
+        # for a run with spinUp, we have to disactivate merging
+        if spinUpRun == True: self.with_merging = False
+        
         # make the configuration available for the other method/function
         self.configuration = configuration
-        
         
     def adusting_parameters(self, configuration, system_argument): 
 
@@ -158,7 +160,7 @@ class DeterministicRunner(DynamicModel):
         self.model.groundwater.recessionCoeff = pcr.max(0.0, (10**(multiplier_for_recessionCoeff)) * self.model.groundwater.recessionCoeff)
         self.model.groundwater.recessionCoeff = pcr.min(1.0, self.model.groundwater.recessionCoeff)
         # report the map
-        pcr.report(self.model.groundwater.recessionCoeff, "recessionCoeff.map")
+        pcr.report(self.model.groundwater.recessionCoeff, "recessionCoeff.map")c
         
         # set parameters "kSat", "storCap", "minSoilDepthFrac", and "degreeDayFactor" based on the given pre-multipliers
         for coverType in self.model.landSurface.coverTypes:
@@ -516,7 +518,7 @@ def main():
                     configuration.globalOptions['startTime'],
                     spinUpRun, noSpinUps)
             logger.info('Spin-Up Run No. '+str(spinUpRun))
-            deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
+            deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv, spinUpRun = True)
             
             all_state_begin = deterministic_runner.model.getAllState() 
             
@@ -529,7 +531,9 @@ def main():
             has_converged = spin_up.checkConvergence(all_state_begin, all_state_end, spinUpRun, deterministic_runner.model.routing.cellArea)
             
             initial_state = deterministic_runner.model.getState()
-    #
+            
+    # TODO: call merging when the spinUp is done and isolate the states in a separate directory/folder
+
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                       configuration.globalOptions['endTime'])

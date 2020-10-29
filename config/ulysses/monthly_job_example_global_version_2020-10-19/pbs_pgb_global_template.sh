@@ -26,10 +26,10 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_sourc
 #~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
-INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_2020-10-19.ini"
+INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_2020-10-29.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_version_2020-10-19_2nd_test/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_version_2020-10-29/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1982-01-01
