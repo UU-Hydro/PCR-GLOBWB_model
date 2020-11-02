@@ -8,13 +8,14 @@
 #PBS -l EC_hyperthreads=2
 #PBS -l EC_billing_account=c3s432l3
 
-#PBS -l walltime=59:00
+#~ #PBS -l walltime=59:00
 #~ #PBS -l walltime=3:00:00
 #~ #PBS -l walltime=48:00:00
 #~ #PBS -l walltime=8:00
 #~ #PBS -l walltime=1:00:00
 #~ #PBS -l walltime=12:00:00
 
+#PBS -l walltime=48:00:00
 
 set -x
 
