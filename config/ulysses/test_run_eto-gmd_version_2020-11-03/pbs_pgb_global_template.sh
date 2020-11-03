@@ -37,8 +37,12 @@ STARTING_DATE=1981-01-01
 END_DATE=2019-01-31
 
 # set the initial conditions (folder and time stamp for the files)
-MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-11-03/"
+#~ MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-11-03/"
+#~ DATE_FOR_INITIAL_STATES=1981-12-31
+
+MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-10-19/global/states/"
 DATE_FOR_INITIAL_STATES=1981-12-31
+
 
 #~ # set the forcing files
 #~ PRECIPITATION_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1982/01/precipitation_daily_01_1982.nc"
