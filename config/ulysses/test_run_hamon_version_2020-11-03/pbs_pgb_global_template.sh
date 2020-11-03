@@ -1,6 +1,6 @@
 #!/bin/bash
  
-#PBS -N pgb
+#PBS -N pgb_hamon
 
 #PBS -q nf
 
