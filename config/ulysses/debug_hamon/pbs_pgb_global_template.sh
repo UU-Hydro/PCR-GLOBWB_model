@@ -17,7 +17,7 @@
 
 #~ #PBS -l walltime=48:00:00
 
-#PBS -l walltime10:00
+#PBS -l walltime=8:00
 
 set -x
 
@@ -32,7 +32,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_sourc
 INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_hamon_version_develop.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/reference_run_version_2020-10-29/pgb_eto-gmd/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/debug_hamon/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1981-01-01
