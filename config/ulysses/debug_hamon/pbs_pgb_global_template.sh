@@ -38,6 +38,9 @@ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/debug_hamon/"
 STARTING_DATE=1981-01-01
 END_DATE=2019-01-31
 
+STARTING_DATE=1981-01-01
+END_DATE=1981-03-31
+
 # set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/scratch/ms/copext/cyes/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-10-20/global/states/"
 DATE_FOR_INITIAL_STATES=1981-12-31
