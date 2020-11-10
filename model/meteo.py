@@ -414,9 +414,15 @@ class Meteo(object):
             msg = "Calculating reference potential evaporation based on the Hamon method"
             logger.info(msg)
 
+            pcr.aguila(self.temperature)
+            pcr.aguila(self.latitudes)
+            pcr.aguila(pcr.scalar(currTimeStep.doy))
+            
             self.referencePotET = hamon_et0.HamonPotET(self.temperature,\
-                                                       currTimeStep.doy,\
+                                                       pcr.scalar(currTimeStep.doy),\
                                                        self.latitudes)
+            
+            pcr.aguila(self.referencePotET)                                           
 
         if self.refETPotMethod == 'Penman-Monteith':
             
