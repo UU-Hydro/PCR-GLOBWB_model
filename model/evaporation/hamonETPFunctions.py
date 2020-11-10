@@ -30,7 +30,7 @@ import virtualOS as vos
 #  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
 # Convert all arguments to deg using * 180 / pi
 
-# Note that all following functions use trigonometric function in degres
+# Note that all following functions use trigonometric function in degres.
 
 # ~ >>> pcr.setglobaloption("degrees")
 # ~ >>> float(pcr.sin(90.0))
@@ -41,6 +41,8 @@ import virtualOS as vos
 
 def HamonPotET(airT,doy,lat):
      
+    # Note that all following functions use trigonometric function in degres.
+    
     reset_globaloption_to_radians = False
     if float(pcr.sin(90.0)) < 1.0: 
         pcr.setglobaloption("degrees")
