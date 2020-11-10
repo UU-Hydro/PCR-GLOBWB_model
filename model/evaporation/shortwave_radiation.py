@@ -63,7 +63,8 @@ from copy import deepcopy
 
 # set the global option to radians
 pcr.setglobaloption('radians')
-# TODO: Check whether this setglobaloption affects other parts of PCR-GLOBWB
+# FIXME: This setglobaloption affects other parts of PCR-GLOBWB, e.g. the Hamon method.
+
 
 # type set to identify None (compatible with pytyon 2.x)
 NoneType = type(None)

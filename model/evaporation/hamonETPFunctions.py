@@ -33,13 +33,16 @@ import virtualOS as vos
 
 
 def HamonPotET(airT,doy,lat):
+    
+    pcr.setglobaloption('degrees')
+    
     rhoSat =  2.167 * satPressure (airT) / (airT + 273.15)
     
-    vos.plot_variable(rhoSat)
+    # ~ vos.plot_variable(rhoSat)
     
     dayLen = dayLength(doy,lat)
 
-    vos.plot_variable(dayLen)
+    # ~ vos.plot_variable(dayLen)
 
     pet     = 165.1 * 2.0 * dayLen * rhoSat # // 2 * DAYLEN = daylength as frac
     pet = pet / 1000 # in meters!
