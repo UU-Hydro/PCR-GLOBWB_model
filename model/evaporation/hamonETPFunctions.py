@@ -38,6 +38,9 @@ def HamonPotET(airT,doy,lat):
     vos.plot_variable(rhoSat)
     
     dayLen = dayLength(doy,lat)
+
+    vos.plot_variable(dayLen)
+
     pet     = 165.1 * 2.0 * dayLen * rhoSat # // 2 * DAYLEN = daylength as frac
     pet = pet / 1000 # in meters!
     return pet
