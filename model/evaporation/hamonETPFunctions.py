@@ -25,6 +25,8 @@
 import pcraster as pcr
 import math
 
+import virtualOS as vos
+
 #  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
 # Convert all arguments to deg using * 180 / pi
 
@@ -32,6 +34,9 @@ import math
 
 def HamonPotET(airT,doy,lat):
     rhoSat =  2.167 * satPressure (airT) / (airT + 273.15)
+    
+    vos.plot_variable(rhoSat)
+    
     dayLen = dayLength(doy,lat)
     pet     = 165.1 * 2.0 * dayLen * rhoSat # // 2 * DAYLEN = daylength as frac
     pet = pet / 1000 # in meters!
