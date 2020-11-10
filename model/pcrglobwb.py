@@ -487,7 +487,7 @@ class PCRGlobWB(object):
             # make an empty file to indicate that the calculation for this month has done
             # - this is only needed for runs with merging and modflow processes
             # - for a spinUpRun, merging will be skipped
-            if self.spinUpRun is not None and self.spinUpRun = False:
+            if self.spinUpRun is not None and self.spinUpRun == False:
                 filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
                 if os.path.exists(filename): os.remove(filename)
                 open(filename, "w").close()    
