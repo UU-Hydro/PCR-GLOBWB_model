@@ -422,7 +422,7 @@ class Meteo(object):
                                                        pcr.scalar(currTimeStep.doy),\
                                                        self.latitudes)
             
-            vos.plot_variable(self.referencePotET)                                           
+            # ~ vos.plot_variable(self.referencePotET)                                           
 
         if self.refETPotMethod == 'Penman-Monteith':
             
