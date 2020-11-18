@@ -4,7 +4,7 @@
 #~ #SBATCH -t 240:00:00
 
 #SBATCH -p defq
-#SBATCH -J hamon_gmd_lcv
+#SBATCH -J ham_gmd
 
 #~ #SBATCH --exclusive
 
@@ -30,7 +30,7 @@ INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon_gmd_lcv_develop.ini"
 
 # set the output folder
 #~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_develop/"
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/test_ulysses/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-XX/hamon_gmd_lcv/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1980-01-01

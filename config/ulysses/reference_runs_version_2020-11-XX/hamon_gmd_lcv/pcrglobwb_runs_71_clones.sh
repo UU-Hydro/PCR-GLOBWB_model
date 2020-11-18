@@ -39,9 +39,14 @@ unset PCRASTER_NR_WORKER_THREADS
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
+
 # run the model for all clones, from 1 to 71
-#~ for i in {1..71}
-for i in {2..3}
+
+#~ # - for testing
+#~ for i in {2..3}
+
+for i in {1..71}
+
 do
 
 CLONE_CODE=${i}
