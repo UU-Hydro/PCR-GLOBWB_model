@@ -308,6 +308,11 @@ def main():
     # get the full path of configuration/ini file given in the system argument
     iniFileName   = os.path.abspath(sys.argv[1])
     
+    # modify ini file and return it in a new location 
+    if "-mod" in sys.argv:
+        iniFileName = modify_ini_file(original_ini_file = iniFileName, \
+                                      system_argument = sys.argv)
+
     # debug option
     debug_mode = False
     if len(sys.argv) > 2:
