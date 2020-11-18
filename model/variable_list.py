@@ -1745,8 +1745,6 @@ description[pcrglobwb_variable_name]               = 'Sum of all evaporation sou
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Not including evaporation from surface water bodies (which are simulated by the routing module of PCR-GLOBWB)." + " Positive direction is downwards."
 latex_symbol[pcrglobwb_variable_name]              = None
 
-# TODO: PET: reference potential evaporation or potential one?
-
 # SWE (ulyssesSWE)
 pcrglobwb_variable_name                            = 'ulyssesSWE'
 netcdf_short_name[pcrglobwb_variable_name]         = 'SWE'
@@ -1805,7 +1803,6 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]               = 'Average total liquid water draining from land. '
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive direction is into grid cell."
 
-
 # gridder river discharge (ulyssesDischarge)
 pcrglobwb_variable_name                            = 'ulyssesDischarge'
 netcdf_short_name[pcrglobwb_variable_name]         = 'Q'
@@ -1817,6 +1814,51 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]               = 'Water volume leaving the cell.'
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive indicates downstream direction."
 
+# ulyssesSnowFraction
+pcrglobwb_variable_name                            = 'ulyssesSnowFraction'
+netcdf_short_name[pcrglobwb_variable_name]         = 'snowFraction'
+netcdf_long_name[pcrglobwb_variable_name]          = 'snowFraction'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'snowFraction'
+netcdf_unit[pcrglobwb_variable_name]               = 'm2 m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Snow fraction over grid cell.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
+
+# ulyssesSMUpp       
+pcrglobwb_variable_name                            = 'ulyssesSMUpp'
+netcdf_short_name[pcrglobwb_variable_name]         = 'UppSM'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Percentage of water with respect to the available volume in the top soil (<= 30 cm).'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'upper_volumetric_soil_moisture'
+netcdf_unit[pcrglobwb_variable_name]               = '%'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Volumetric soil moisture content in the top soil (<= 30 cm) at the end of each model time step.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
+
+# ulyssessRefPET    
+pcrglobwb_variable_name                            = 'ulyssessRefPET'
+netcdf_short_name[pcrglobwb_variable_name]         = 'RefPET'
+netcdf_long_name[pcrglobwb_variable_name]          = 'reference potential evaporation and transpiration'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'RefPET'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'reference potential evaporation, averaged over a grid cell.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Positive direction is downwards."
+latex_symbol[pcrglobwb_variable_name]              = None
+
+# ulyssessCropPET
+pcrglobwb_variable_name                            = 'ulyssessCropPET'
+netcdf_short_name[pcrglobwb_variable_name]         = 'CropPET'
+netcdf_long_name[pcrglobwb_variable_name]          = 'reference potential evaporation and transpiration'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'water evaporation_flux'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2 s-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'potential evaporation and transpiration, averaged over a grid cell.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Not including ones from surface water bodies (which are simulated by the routing module of PCR-GLOBWB)." + " Positive direction is downwards."
+latex_symbol[pcrglobwb_variable_name]              = None
 
 
 #############################################################################################################

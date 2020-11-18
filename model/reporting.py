@@ -1299,7 +1299,14 @@ class Reporting(object):
         self.ulyssesETall    = - (self._model.landSurface.actualET + 
                               self._model.routing.waterBodyEvaporation) / 86.4
         
-        # TODO: PET: reference potential evaporation or potential one?
+        # potential evaporation
+        # - reference potential evaporation
+        self.ulyssessRefPET     = - (self.referencePotET) / 86.4
+        # - with crop coefficient, but land only, excluding water
+        self.ulyssessCropPET    = - (self._model.landSurface.totalPotET) / 86.4
+        # - with crop coefficient, land and water
+        self.ulyssessCropPETall = - (self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap) / 86.4
+
         
         # SWE (kg m-2")
         # - including free water stored above the snow cover
@@ -1319,3 +1326,7 @@ class Reporting(object):
         
         # gridder river discharge
         self.ulyssesDischarge  = self.discharge
+
+        # extra variable for ILAMB evaluation
+        self.ulyssesSnowFraction = pcr.ifthenelse(self.ulyssesSWE > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))
+        self.ulyssesSMUpp        = self._model.landSurface.satDegUppTotal
