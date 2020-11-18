@@ -31,7 +31,7 @@ import pcraster as pcr
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
-from configuration_for_modflow import Configuration
+from configuration import Configuration
 from currTimeStep import ModelTime
 
 try:

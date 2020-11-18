@@ -244,7 +244,7 @@ class DeterministicRunner(DynamicModel):
         if self.configuration.globalOptions['cloneAreas'] == "Global" or \
            self.configuration.globalOptions['cloneAreas'] == "part_one":
             clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
-        elif self.configuration.globalOptions['cloneAreas'] == "Ulysses":
+        elif self.configuration.globalOptions['cloneAreas'] == "GlobalUlysses":
             clone_areas = ['M%07d'%i for i in range(1,71+1,1)]
         else:
             clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))

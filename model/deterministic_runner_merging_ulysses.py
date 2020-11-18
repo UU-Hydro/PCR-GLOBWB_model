@@ -65,6 +65,9 @@ class DeterministicRunner(DynamicModel):
 
         # indicating whether this run includes modflow or merging processes
         self.include_merging_or_modflow = True
+        # - For the standard PCR-GLOBWB 5arcmin runs, only the "Global" and "part_one" runs include modflow or merging processes 
+        if "cloneAreas" in list(self.configuration.globalOptions.keys()) and\
+            self.configuration.globalOptions['cloneAreas'] == "part_two": self.include_merging_or_modflow = False
         
         if self.include_merging_or_modflow:
         
@@ -147,19 +150,20 @@ class DeterministicRunner(DynamicModel):
 
 
         # merging initial conditions (pcraster maps) of PCR-GLOBWB
-        if self.modelTime.isLastDayOfYear():
+        # ~ if self.modelTime.isLastDayOfYear():
+        # - for Ulysses we have to do it on every month
+        if self.modelTime.isLastDayOfMonth():
 
             msg = "Merging pcraster map files belonging to initial conditions."
             logger.info(msg)
-
-            # ~ # - default, for NON Ulysses project
             # ~ cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcraster_maps.py " + str(self.modelTime.fulldate) + " " +\
                                                                                                    # ~ str(self.configuration.main_output_directory)+"/ states 8 "+\
                                                                                                    # ~ str("Global")
-            # - for the Ulysses project
-            cmd = 'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                     str(self.configuration.globalOptions["outputDir"])+"/ states 20 "+\
-                                                                                                                     str("Global 71 False")
+            # - for Ulysses: 
+            # example: python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
+            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                                         str(self.configuration.main_output_directory)+"/ states 8 "+\
+                                                                                                                         str("Global 71 False")
             vos.cmd_line(cmd, using_subprocess = False)
             
             # cleaning up unmerged files (not tested yet)
@@ -209,7 +213,6 @@ class DeterministicRunner(DynamicModel):
             msg = "Merging netcdf files for the files/variables: " + netcdf_files_that_will_be_merged
             logger.info(msg)
             
-            # ~ # - default, for NON Ulysses project
             # ~ cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
                                                                                             # ~ str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
                                                                                             # ~ str(nc_report_type)  + " " +\
@@ -221,18 +224,19 @@ class DeterministicRunner(DynamicModel):
                                                                                             # ~ str(max_number_of_cores) + " "  +\
                                                                                             # ~ str("Global")  + " "
             
-            # - for the Ulysses project
-            cmd = 'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.globalOptions["outputDir"]) + " " +\
-                                                                                                              str(self.configuration.globalOptions["outputDir"]) + "/global/netcdf/ "+\
-                                                                                                              str(nc_report_type)  + " " +\
-                                                                                                              str(start_date) + " " +\
-                                                                                                              str(end_date)   + " " +\
-                                                                                                              str(netcdf_files_that_will_be_merged) + " " +\
-                                                                                                              str(self.netcdf_format)  + " "  +\
-                                                                                                              str(self.zlib_option  )  + " "  +\
-                                                                                                              str(max_number_of_cores) + " "  +\
-                                                                                                              str("Global default_lats")  + " "
-
+            # - for Ulysses:
+            # example: python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
+            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.main_output_directory) + " " +\
+                                                                                                                  str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
+                                                                                                                  str(nc_report_type)  + " " +\
+                                                                                                                  str(start_date) + " " +\
+                                                                                                                  str(end_date)   + " " +\
+                                                                                                                  str(netcdf_files_that_will_be_merged) + " " +\
+                                                                                                                  str(self.netcdf_format)  + " "  +\
+                                                                                                                  str(self.zlib_option  )  + " "  +\
+                                                                                                                  str(max_number_of_cores) + " "  +\
+                                                                                                                  str("Global default_lats")  + " "
+            
             msg = "Using the following command line: " + cmd
             logger.info(msg)
             
