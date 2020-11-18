@@ -539,7 +539,7 @@ def main():
                                       configuration.globalOptions['endTime'])
     
     logger.info('Transient simulation run started.')
-    deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv)
+    deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, sys.argv, spinUpRun = False)
     
     dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
