@@ -86,14 +86,6 @@ class DeterministicRunner(DynamicModel):
             self.reporting = Reporting(configuration, self.model, modelTime)
 
 
-        # if required, set the output directory based on the provided system arguments 
-        # - system argument for replacing outputDir (-mod)
-        main_output_dir = system_argument[system_argument.index("-mod") + 1]
-        self.configuration.globalOptions["outputDir"] = configuration.globalOptions["outputDir"].replace("MAIN_OUTPUT_DIR", main_output_dir)
-        msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + self.configuration.globalOptions["outputDir"]
-        print(msg)
-
-        
         # somehow you need to set the clone map as the dynamic framework needs it (and the "self.model" is not always created) 
         pcr.setclone(self.configuration.cloneMap)
         
