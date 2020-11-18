@@ -200,6 +200,7 @@ class DeterministicRunner(DynamicModel):
         if self.modelTime.isLastDayOfMonth() or self.modelTime.isLastDayOfYear():
 
             outputDirectory = str(self.configuration.main_output_directory) + "/global/maps/"
+            if os.path.exists(outputDirectory) == False: os.makedirs(outputDirectory) 
             filename = outputDirectory + "/merged_files_for_" + str(self.modelTime.fulldate)+"_are_ready.txt"
             if os.path.exists(filename): os.remove(filename)
             open(filename, "w").close()    
