@@ -59,6 +59,7 @@ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 
 done
 
 # with merging
-python3 deterministic_runner_merging_ulysses.py ${INI_FILE} debug_parallel -mod ${MAIN_OUTPUT_DIR}/global/ -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+python3 deterministic_runner_merging_ulysses.py ${INI_FILE} debug_parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+
 
 wait
