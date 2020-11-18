@@ -349,3 +349,5 @@ os.remove(tempCloneMap)
 print(' all done')
 print()
 print()
+
+sys.exit()
