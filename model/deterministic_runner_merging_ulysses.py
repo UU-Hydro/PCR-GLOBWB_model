@@ -133,7 +133,7 @@ class DeterministicRunner(DynamicModel):
                                                                                                         str(self.configuration.main_output_directory)+"/ maps 8 "+\
                                                                                                         str("Global")
                 vos.cmd_line(cmd, using_subprocess = False)
-                
+
                 # cleaning up unmerged files (not tested yet)
                 clean_up_pcraster_maps = False
                 if self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps = True                    # TODO: FIXME: This is NOT working yet.
@@ -164,7 +164,8 @@ class DeterministicRunner(DynamicModel):
             cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
                                                                                                                          str(self.configuration.main_output_directory)+"/ states 8 "+\
                                                                                                                          str("Global 71 False")
-            vos.cmd_line(cmd, using_subprocess = False)
+            # ~ vos.cmd_line(cmd, using_subprocess = False)
+            os.system(cmd)
             
             # cleaning up unmerged files (not tested yet)
             clean_up_pcraster_maps = False
@@ -240,7 +241,9 @@ class DeterministicRunner(DynamicModel):
             msg = "Using the following command line: " + cmd
             logger.info(msg)
             
-            vos.cmd_line(cmd, using_subprocess = False)
+            # ~ vos.cmd_line(cmd, using_subprocess = False)
+            os.system(cmd)
+
 
     def check_pcrglobwb_status(self):
 
