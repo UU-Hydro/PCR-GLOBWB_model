@@ -25,6 +25,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
 #~ INI_FILE="setup_6arcmin_test_version_2020-08-XX_develop.ini"
 #~ INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_develop.ini"
+#~ INI_FILE="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/reference_runs_version_2020-11-XX/hamon_gmd_lcv/setup_6arcmin_hamon_gmd_lcv_develop.ini"
 INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon_gmd_lcv_develop.ini"
 
 # set the output folder
