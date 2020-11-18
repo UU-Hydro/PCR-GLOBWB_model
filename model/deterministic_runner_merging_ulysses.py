@@ -168,7 +168,7 @@ class DeterministicRunner(DynamicModel):
             
             # cleaning up unmerged files (not tested yet)
             clean_up_pcraster_maps = False
-            if self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps = True                    # TODO: FIXME: This is NOT working yet.
+            if "delete_unmerged_pcraster_maps" in list(self.configuration.mergingOutputOptions.keys()) and self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps = True                    # TODO: FIXME: This is NOT working yet.
             if clean_up_pcraster_maps:                                                                                    
                 files_to_be_removed = glob.glob(str(self.configuration.main_output_directory) + "/M*/states/*" + str(self.modelTime.fulldate) + "*")
                 for f in files_to_be_removed:
