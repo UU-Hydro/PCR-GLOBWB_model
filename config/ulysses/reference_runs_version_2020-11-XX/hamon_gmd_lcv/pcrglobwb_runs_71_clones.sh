@@ -32,13 +32,16 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=${10}
 
 # load modules on eejit
 . /quanta1/home/sutan101$ cat load_my_miniconda_and_my_default_env.sh
+# - unset pcraster working threads
+unset PCRASTER_NR_WORKER_THREADS
 
 
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # run the model for all clones, from 1 to 71
-for i in {1..71}
+#~ for i in {1..71}
+for i in {2..3}
 do
 
 
