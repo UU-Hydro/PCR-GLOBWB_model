@@ -350,4 +350,5 @@ print(' all done')
 print()
 print()
 
-sys.exit()
+pool.terminate()
+pool.join()

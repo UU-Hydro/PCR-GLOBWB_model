@@ -500,4 +500,5 @@ for ncName in netcdfList:
 pool = Pool(processes = ncores)    # start "ncores" of worker processes
 pool.map(mergeNetCDF, ll)          # multicore processing
 
-sys.exit()
+pool.terminate()
+pool.join()
