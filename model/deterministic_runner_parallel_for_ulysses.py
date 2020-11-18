@@ -160,7 +160,7 @@ class DeterministicRunner(DynamicModel):
         self.model.groundwater.recessionCoeff = pcr.max(0.0, (10**(multiplier_for_recessionCoeff)) * self.model.groundwater.recessionCoeff)
         self.model.groundwater.recessionCoeff = pcr.min(1.0, self.model.groundwater.recessionCoeff)
         # report the map
-        pcr.report(self.model.groundwater.recessionCoeff, "recessionCoeff.map")c
+        pcr.report(self.model.groundwater.recessionCoeff, "recessionCoeff.map")
         
         # set parameters "kSat", "storCap", "minSoilDepthFrac", and "degreeDayFactor" based on the given pre-multipliers
         for coverType in self.model.landSurface.coverTypes:
