@@ -301,6 +301,15 @@ def modify_ini_file(original_ini_file,
     # save/copy the original ini file
     shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
 
+    # save the new ini file
+    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
+    new_ini_file = open(new_ini_file_name, "w")
+    new_ini_file.write(file_ini_content)
+    new_ini_file.close()
+            
+    return new_ini_file_name
+
+
 def main():
     
     # print disclaimer
