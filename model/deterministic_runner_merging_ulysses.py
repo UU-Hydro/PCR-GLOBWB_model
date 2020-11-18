@@ -133,9 +133,9 @@ class DeterministicRunner(DynamicModel):
                 # merging pcraster maps that are needed for MODFLOW calculation
                 msg = "Merging pcraster map files that are needed for the MODFLOW calculation."
                 logger.info(msg)
-                cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcraster_maps.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                       str(self.configuration.main_output_directory)+"/ maps 8 "+\
-                                                                                                       str("Global")
+                cmd = 'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                        str(self.configuration.main_output_directory)+"/ maps 8 "+\
+                                                                                                        str("Global")
                 vos.cmd_line(cmd, using_subprocess = False)
                 
                 # cleaning up unmerged files (not tested yet)
@@ -164,9 +164,9 @@ class DeterministicRunner(DynamicModel):
                                                                                                    # ~ str(self.configuration.main_output_directory)+"/ states 8 "+\
                                                                                                    # ~ str("Global")
             # - for the Ulysses project
-            cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                    str(self.configuration.globalOptions["outputDir"])+"/ states 20 "+\
-                                                                                                                    str("Global 71 False")
+            cmd = 'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                                     str(self.configuration.globalOptions["outputDir"])+"/ states 20 "+\
+                                                                                                                     str("Global 71 False")
             vos.cmd_line(cmd, using_subprocess = False)
             
             # cleaning up unmerged files (not tested yet)
@@ -229,17 +229,17 @@ class DeterministicRunner(DynamicModel):
                                                                                             # ~ str("Global")  + " "
             
             # - for the Ulysses project
-            cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + self.configuration.globalOptions["outputDir"]) + " " +\
-                                                                                                             self.configuration.globalOptions["outputDir"]) + "/global/netcdf/ "+\
-                                                                                                             str(nc_report_type)  + " " +\
-                                                                                                             str(start_date) + " " +\
-                                                                                                             str(end_date)   + " " +\
-                                                                                                             str(netcdf_files_that_will_be_merged) + " " +\
-                                                                                                             str(self.netcdf_format)  + " "  +\
-                                                                                                             str(self.zlib_option  )  + " "  +\
-                                                                                                             str(max_number_of_cores) + " "  +\
-                                                                                                             str("Global")  + " "
-                                                                                                             str("default_lats")  + " "
+            cmd = 'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.globalOptions["outputDir"]) + " " +\
+                                                                                                              str(self.configuration.globalOptions["outputDir"]) + "/global/netcdf/ "+\
+                                                                                                              str(nc_report_type)  + " " +\
+                                                                                                              str(start_date) + " " +\
+                                                                                                              str(end_date)   + " " +\
+                                                                                                              str(netcdf_files_that_will_be_merged) + " " +\
+                                                                                                              str(self.netcdf_format)  + " "  +\
+                                                                                                              str(self.zlib_option  )  + " "  +\
+                                                                                                              str(max_number_of_cores) + " "  +\
+                                                                                                              str("Global")  + " "
+                                                                                                              str("default_lats")  + " "
 
             msg = "Using the following command line: " + cmd
             logger.info(msg)
