@@ -26,11 +26,11 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 #~ INI_FILE="setup_6arcmin_test_version_2020-08-XX_develop.ini"
 #~ INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_version_develop.ini"
 #~ INI_FILE="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/ulysses/reference_runs_version_2020-11-XX/hamon_gmd_lcv/setup_6arcmin_hamon_gmd_lcv_develop.ini"
-INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon_gmd_lcv_develop.ini"
+INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon-et0_gmd-lcv.ini"
 
 # set the output folder
 #~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_develop/"
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-XX/hamon_gmd_lcv/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-18/hamon-et0_gmd-lcv/begin_from_1980/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1980-01-01
