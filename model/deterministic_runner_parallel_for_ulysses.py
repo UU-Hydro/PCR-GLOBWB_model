@@ -532,7 +532,7 @@ def main():
             
             initial_state = deterministic_runner.model.getState()
             
-    # TODO: call merging when the spinUp is done and isolate the states in a separate directory/folder
+        # TODO: for a parallel run call merging when the spinUp is done and isolate the states in a separate directory/folder
 
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],

@@ -275,6 +275,32 @@ class DeterministicRunner(DynamicModel):
         
         return status
 
+def modify_ini_file(original_ini_file,
+                    system_argument): 
+
+    # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
+    
+    # open and read ini file
+    file_ini = open(original_ini_file, "rt")
+    file_ini_content = file_ini.read()
+    file_ini.close()
+    
+    # system argument for replacing outputDir (-mod) ; this is always required
+    main_output_dir = system_argument[system_argument.index("-mod") + 1]
+    file_ini_content = file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
+    msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
+    print(msg)
+    
+    # folder for saving original and modified ini files
+    folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
+    
+   # create folder
+    if os.path.exists(folder_for_ini_files): shutil.rmtree(folder_for_ini_files)
+    os.makedirs(folder_for_ini_files)
+    
+    # save/copy the original ini file
+    shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
+
 def main():
     
     # print disclaimer

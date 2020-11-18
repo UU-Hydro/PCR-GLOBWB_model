@@ -58,7 +58,7 @@ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} debug_parallel 
 
 done
 
-#~ # with merging
-#~ python3 deterministic_runner_merging_ulysses.py  
+# with merging
+python3 deterministic_runner_merging_ulysses.py ${INI_FILE} debug_parallel -mod ${MAIN_OUTPUT_DIR}/global/
 
 wait
