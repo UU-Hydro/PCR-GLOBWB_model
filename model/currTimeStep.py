@@ -59,7 +59,7 @@ class ModelTime(object):
                        # ~ datetime.timedelta(days=1)
         
         # always use the last day of a year
-        self._endTime = datetime.date(int(sd[31]), int(sd[12]), int(sd[2]))
+        self._endTime = datetime.date(int(31), int(12), int(sd[2]))
         
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
         self._spinUpStatus = True
