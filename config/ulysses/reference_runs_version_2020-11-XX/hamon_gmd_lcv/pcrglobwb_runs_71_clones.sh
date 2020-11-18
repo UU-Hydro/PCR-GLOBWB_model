@@ -31,7 +31,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=${10}
 #~ module load gdal/3.0.4
 
 # load modules on eejit
-. /quanta1/home/sutan101$ cat load_my_miniconda_and_my_default_env.sh
+. /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
 # - unset pcraster working threads
 unset PCRASTER_NR_WORKER_THREADS
 
