@@ -144,7 +144,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         nc_dims = [dim for dim in f.dimensions]
         nc_vars = [var for var in f.variables]
         for var in nc_vars:                   
-            if var not in nc_dims: varName = var
+            if var not in nc_dims and var not in ["lat", "lon", "latitude", "longitude"]: varName = var
         logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
 
     if LatitudeLongitude == True:
