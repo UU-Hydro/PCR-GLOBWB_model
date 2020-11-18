@@ -308,7 +308,7 @@ def singleTryNetcdf2PCRobjClone_version_until_2020_07_14(ncFile,\
         nc_dims = [dim for dim in f.dimensions]
         nc_vars = [var for var in f.variables]
         for var in nc_vars:                   
-            if var not in nc_dims: varName = var
+            if var not in nc_dims and var not in ["lat", "lon", "latitude", "longitude"]: varName = var
         logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if varName == "evapotranspiration":        
