@@ -291,6 +291,49 @@ def modify_ini_file(original_ini_file,
     msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
     print(msg)
     
+    # optional system arguments for modifying startTime (-sd) and endTime (-ed)
+    if "-sd" in system_argument:
+        starting_date = system_argument[system_argument.index("-sd") + 1]
+        file_ini_content = file_ini_content.replace("STARTING_DATE", starting_date)
+        msg = "The starting date 'startTime' is set based on the system argument (-sd): " + starting_date
+        print(msg)
+    if "-ed" in system_argument:
+        end_date = system_argument[system_argument.index("-ed") + 1]
+        file_ini_content = file_ini_content.replace("END_DATE", end_date)
+        msg = "The end date 'END_DATE' is set based on the system argument (-ed): " + end_date
+        print(msg)
+        
+    # optional system arguments for initial condition files
+    # - main initial state folder
+    if "-misd" in system_argument:
+        main_initial_state_folder = system_argument[system_argument.index("-misd") + 1]        
+        file_ini_content = file_ini_content.replace("MAIN_INITIAL_STATE_FOLDER", main_initial_state_folder)
+        msg = "The main folder for all initial states is set based on the system argument (-misd): " + main_initial_state_folder
+        print(msg)
+    # - date for initial states 
+    if "-dfis" in system_argument:
+        date_for_initial_states = system_argument[system_argument.index("-dfis") + 1]        
+        file_ini_content = file_ini_content.replace("DATE_FOR_INITIAL_STATES", date_for_initial_states)
+        msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_states
+        print(msg)
+    
+    # optional system argument for modifying forcing files
+    if "-pff" in system_argument:
+        precipitation_forcing_file = system_argument[system_argument.index("-pff") + 1]
+        file_ini_content = file_ini_content.replace("PRECIPITATION_FORCING_FILE", precipitation_forcing_file)
+        msg = "The precipitation forcing file 'precipitationNC' is set based on the system argument (-pff): " + precipitation_forcing_file
+        print(msg)
+    if "-tff" in system_argument:
+        temperature_forcing_file = system_argument[system_argument.index("-tff") + 1]
+        file_ini_content = file_ini_content.replace("TEMPERATURE_FORCING_FILE", temperature_forcing_file)
+        msg = "The temperature forcing file 'temperatureNC' is set based on the system argument (-tff): " + temperature_forcing_file
+        print(msg)
+    if "-rpetff" in system_argument:
+        ref_pot_et_forcing_file = system_argument[system_argument.index("-rpetff") + 1]
+        file_ini_content = file_ini_content.replace("REF_POT_ET_FORCING_FILE", ref_pot_et_forcing_file)
+        msg = "The reference potential ET forcing file 'refETPotFileNC' is set based on the system argument (-tff): " + ref_pot_et_forcing_file
+        print(msg)
+
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     
