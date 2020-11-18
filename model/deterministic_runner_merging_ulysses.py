@@ -86,8 +86,8 @@ class DeterministicRunner(DynamicModel):
             self.reporting = Reporting(configuration, self.model, modelTime)
 
 
-        # somehow you need to set the clone map as the dynamic framework needs it (and the "self.model" is not always created) 
-        pcr.setclone(self.configuration.cloneMap)
+        # ~ # somehow you need to set the clone map as the dynamic framework needs it (and the "self.model" is not always created) 
+        # ~ pcr.setclone(self.configuration.cloneMap)
         
         
 
