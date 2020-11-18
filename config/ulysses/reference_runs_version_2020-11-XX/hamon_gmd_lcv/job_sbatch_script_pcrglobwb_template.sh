@@ -1,16 +1,19 @@
-#!/bin/bash 
-#PBS -N pcrglobwb
-#PBS -q np
-#PBS -l EC_nodes=1
-#PBS -l EC_total_tasks=72
-#PBS -l EC_hyperthreads=2
-#PBS -l EC_billing_account=c3s432l3
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -n 71
+#~ #SBATCH -t 240:00:00
 
-#~ #PBS -l walltime=48:00:00
-#~ #PBS -l walltime=8:00
-#~ #PBS -l walltime=1:00:00
-#~ #PBS -l walltime=12:00:00
-#PBS -l walltime=3:00:00
+#SBATCH -p defq
+#SBATCH -J hamon_gmd_lcv
+
+#~ #SBATCH --exclusive
+
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=edwinkost@gmail.com
+
 
 set -x
 
@@ -46,8 +49,8 @@ TEMPERATURE_FORCING_FILE="NONE"
 REF_POT_ET_FORCING_FILE="NONE"
 
 
-# for runs with pbs and aprun
-# - go to the folder that contain the bash script that will be submitted using aprun
+# for runs with sbatch (on eejit)
+# - go to the folder that contain the bash script that will be used
 # - using the folder that contain this pbs job script 
 cd ${SLURM_SUBMIT_DIR}
 # - make the run for every clone using aprun
