@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 71
+#SBATCH -n 72
 #~ #SBATCH -t 240:00:00
 
 #SBATCH -p defq
