@@ -33,7 +33,7 @@ INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon-et0_gmd-lcv.ini"
 MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-18/hamon-et0_gmd-lcv/begin_from_1980/"
 
 # set the starting and end simulation dates
-STARTING_DATE=1980-12-25
+STARTING_DATE=1980-01-01
 END_DATE=2019-12-31
 
 # set the initial conditions (folder and time stamp for the files)
