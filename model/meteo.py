@@ -841,7 +841,10 @@ class Meteo(object):
 
         if ("precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
                                                   (self.iniItems.meteoOptions['precipitation_file_per_month'] == "True"):
-            netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+            try:
+                netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+            except:
+                netcdf_file_name = self.preFileNC %(int(currTimeStep.month), int(currTimeStep.year))
             method_for_time_index = "daily_per_monthly_file"
         
         if self.precipitation_set_per_year:
@@ -882,7 +885,10 @@ class Meteo(object):
 
         if ("temperature_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
                                                  (self.iniItems.meteoOptions['temperature_file_per_month'] == "True"):
-            netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+            try:
+                netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+            except:
+                netcdf_file_name = self.tmpFileNC %(int(currTimeStep.month), int(currTimeStep.year))
             method_for_time_index = "daily_per_monthly_file"
         
         if self.temperature_set_per_year:
@@ -917,7 +923,10 @@ class Meteo(object):
 		    
             if ("refETPotFileNC_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
                                                        (self.iniItems.meteoOptions['refETPotFileNC_file_per_month'] == "True"):
-                netcdf_file_name = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+                try:
+                    netcdf_file_name = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+                except:
+                    netcdf_file_name = self.etpFileNC %(int(currTimeStep.month), int(currTimeStep.year))
                 method_for_time_index = "daily_per_monthly_file"
             
             if self.temperature_set_per_year:

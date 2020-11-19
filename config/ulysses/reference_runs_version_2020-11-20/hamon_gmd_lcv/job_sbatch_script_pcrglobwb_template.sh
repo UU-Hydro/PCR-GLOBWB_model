@@ -30,15 +30,17 @@ INI_FILE=${SLURM_SUBMIT_DIR}/"setup_6arcmin_hamon-et0_gmd-lcv.ini"
 
 # set the output folder
 #~ MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_develop/"
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-18/hamon-et0_gmd-lcv/begin_from_1980/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2020-11-20/hamon-et0_gmd-lcv/begin_from_1981/"
 
 # set the starting and end simulation dates
-STARTING_DATE=1980-01-01
+STARTING_DATE=1981-01-01
 END_DATE=2019-12-31
 
 # set the initial conditions (folder and time stamp for the files)
-MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-10-19/global/states_1800_rows/"
-DATE_FOR_INITIAL_STATES=1981-12-31
+#~ MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_ulysses/develop/global_06min/initialConditions/dummy_version_2020-10-19/global/states_1800_rows/"
+#~ DATE_FOR_INITIAL_STATES=1981-12-31
+MAIN_INITIAL_STATE_FOLDER="NONE"
+DATE_FOR_INITIAL_STATES="NONE"
 
 
 #~ # set the forcing files
