@@ -58,6 +58,7 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 # run the model for all clones, from 1 to 71
 # - splitted into four nodes
 
+
 # - first node: 1 to 18
 if [ $ALPS_APP_PE -gt 0 ]
 then
@@ -127,10 +128,13 @@ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLON
 #~ python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
 echo $CLONENUMBER
 echo ${CLONE_CODE}
-if [ $CLONENUMBER -eq 72 ]
-then
+fi
+fi
+fi
+
+
 # merging process
+if [ $CLONENUMBER -lt 1 ]
+then
 python3 deterministic_runner_merging_ulysses.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
-fi
-fi
 fi
