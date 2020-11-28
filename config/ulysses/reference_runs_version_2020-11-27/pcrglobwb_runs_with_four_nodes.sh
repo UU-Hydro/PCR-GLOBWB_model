@@ -114,7 +114,7 @@ fi
 fi
 
 # - fourth node: 55 to 71, 72 for merging
-if [ $ALPS_APP_PE -gt 216 ]-
+if [ $ALPS_APP_PE -gt 216 ]
 then
 CLONENUMBER=$((ALPS_APP_PE-216))
 if [ $CLONENUMBER -gt 54 ]
@@ -134,7 +134,7 @@ fi
 
 
 # merging process
-if [ $CLONENUMBER -lt 1 ]
+if [ $ALPS_APP_PE -lt 1 ]
 then
 python3 deterministic_runner_merging_ulysses.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
 fi
