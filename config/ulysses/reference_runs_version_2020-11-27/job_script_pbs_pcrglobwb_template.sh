@@ -25,7 +25,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_
 INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_uly-et0_uly-lcv_on_cca.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-11-27/ulysse-et0_uly-lcv/begin_from_1981/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-11-27/uly-et0_uly-lcv/begin_from_1981/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1981-01-01
