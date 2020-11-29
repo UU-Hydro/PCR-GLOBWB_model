@@ -55,6 +55,13 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 
 
+# merging process
+if [ $ALPS_APP_PE -lt 1 ]
+then
+python3 deterministic_runner_merging_ulysses.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
+fi
+
+
 # run the model for all clones, from 1 to 71
 # - splitted into four nodes
 
@@ -132,9 +139,3 @@ fi
 fi
 fi
 
-
-# merging process
-if [ $ALPS_APP_PE -lt 1 ]
-then
-python3 deterministic_runner_merging_ulysses.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
-fi

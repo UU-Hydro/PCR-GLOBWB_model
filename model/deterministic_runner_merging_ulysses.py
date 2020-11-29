@@ -162,7 +162,7 @@ class DeterministicRunner(DynamicModel):
             # - for Ulysses: 
             # example: python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
             cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                         str(self.configuration.main_output_directory)+"/ states 8 "+\
+                                                                                                                         str(self.configuration.main_output_directory)+"/ states 32 "+\
                                                                                                                          str("Global 71 False")
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
