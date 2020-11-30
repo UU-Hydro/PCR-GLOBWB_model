@@ -14,9 +14,6 @@
 
 #PBS -N uet_uly_1981-2000
 
-# increase the file system
-#PBS -l JOBFS=20GB
-
 set -x
 
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
