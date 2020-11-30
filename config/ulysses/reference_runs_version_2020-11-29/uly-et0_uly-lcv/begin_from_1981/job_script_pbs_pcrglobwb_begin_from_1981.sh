@@ -15,7 +15,7 @@
 #PBS -N uet_uly_1981-2000
 
 # increase the file system
-#PBS -l jobfs=20GB
+#PBS -l JOBFS=20GB
 
 set -x
 
