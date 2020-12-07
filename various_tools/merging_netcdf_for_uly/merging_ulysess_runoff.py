@@ -18,7 +18,7 @@ import sys
 main_folder = "/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv/"
 
 start_years = [1981, 1991, 2001, 2011] 
-final_year = 2001
+final_year = 2019
 
 # ~ main_folder = sys.argv[1]
 # ~ start_years = map(int, list(set(sys.argv[2].split(","))))
@@ -72,7 +72,7 @@ for i_year in range(0, len(start_years)):
               str(year)+"-01-01" + " " + str(year)+"-12-31" + " " + \
               "ulyssesQrRunoff NETCDF4 True 1 Global default_lats &"
     
-        if str(year)[3] == 9: cmd = cmd + " wait ;"
+        if str(year)[3] == "9": cmd = cmd + " wait ;"
     
     print(cmd)
     os.system(cmd)
