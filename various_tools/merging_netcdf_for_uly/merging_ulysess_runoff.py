@@ -15,7 +15,7 @@ import sys
 # ~ drwxr-x--- 76 cyes copext 4.0K Dec  4 10:59 continue_from_2011
 
 
-main_folder = "/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_correct/"
+main_folder = "/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv/"
 
 start_years = [1981, 1991, 2001, 2011] 
 final_year = 2001
@@ -62,9 +62,12 @@ for i_year in range(0, len(start_years)):
     
         # ~ python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
         
+        cmd_mkdir = "mkdir -p " + outp_folder + "/" + str(year)
+        os.system(cmd_mkdir)
+        
         cmd = cmd + "python3 merge_netcdf_6_arcmin_ulysses.py " + \
               input_folder + " " + \
-              outp_folder + " " + \
+              outp_folder + "/" + str(year) + " " + \
               "outDailyTotNC " + \
               str(year)+"-01-01" + " " + str(year)+"-12-31" + " " + \
               "ulyssesQrRunoff NETCDF4 True 1 Global default_lats &"
