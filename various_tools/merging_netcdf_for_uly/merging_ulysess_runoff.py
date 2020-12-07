@@ -27,7 +27,7 @@ final_year  = int(sys.argv[3])
 
 print(start_years)
 
-outp_folder = "/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/runoff/"
+outp_folder = "/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/runoff/"
 outp_folder = str(sys.argv[4])
 
 #~ cmd = "rm -rf " + outp_folder
