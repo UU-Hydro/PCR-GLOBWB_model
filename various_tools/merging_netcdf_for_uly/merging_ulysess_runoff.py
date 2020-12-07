@@ -20,15 +20,16 @@ main_folder = "/scratch/ms/copext/cyes/pcrglobwb_ulysses_reference_runs_version_
 start_years = [1981, 1991, 2001, 2011] 
 final_year = 2001
 
-main_folder = sys.argv[1]
-start_years = map(int, list(set(sys.argv[2].split(","))))
-start_years.sort()
-final_year  = int(sys.argv[3])
+# ~ main_folder = sys.argv[1]
+# ~ start_years = map(int, list(set(sys.argv[2].split(","))))
+# ~ start_years.sort()
+# ~ final_year  = int(sys.argv[3])
 
 print(start_years)
 
 outp_folder = "/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/runoff/"
-outp_folder = str(sys.argv[4])
+
+# ~ outp_folder = str(sys.argv[4])
 
 #~ cmd = "rm -rf " + outp_folder
 #~ print(cmd)
