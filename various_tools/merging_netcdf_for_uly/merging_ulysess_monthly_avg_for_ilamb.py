@@ -70,14 +70,7 @@ for i_year in range(0, len(start_years)):
               outp_folder + "/" + str(year) + " " + \
               "outMonthAvgNC " + \
               str(year)+"-01-31" + " " + str(year)+"-12-31" + " " + \
-              "ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssessRefPET,ulyssessCropPET,ulyssesSnowFraction NETCDF4 True 24 Global default_lats ;"
-    
-        cmd = cmd + "python3 merge_netcdf_6_arcmin_ulysses.py " + \
-              input_folder + " " + \
-              outp_folder + "/" + str(year) + " " + \
-              "outMonthAvgNC " + \
-              str(year)+"-01-31" + " " + str(year)+"-12-31" + " " + \
-              "ulyssesSnowFraction,ulyssesSMUpp,totalWaterStorageThickness,surfaceWaterStorage,interceptStor,snowFreeWater,snowCoverSWE,storGroundwater NETCDF4 True 24 Global default_lats ;"
+              "ulyssesP,ulyssesET,ulyssesSWE,ulyssesQsm,ulyssesSM,ulyssesQrRunoff,ulyssessRefPET,ulyssessCropPET,ulyssesSnowFraction,ulyssesSMUpp,totalWaterStorageThickness,surfaceWaterStorage,interceptStor,snowFreeWater,snowCoverSWE,storGroundwater NETCDF4 True 5 Global default_lats ;"
 
         print(cmd)
         os.system(cmd)
