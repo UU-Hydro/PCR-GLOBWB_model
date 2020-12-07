@@ -60,7 +60,7 @@ for i_year in range(0, len(start_years)):
     
         # ~ python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
         
-        cmd = "merge_netcdf_6_arcmin_ulysses.py " + \
+        cmd = "python3 merge_netcdf_6_arcmin_ulysses.py " + \
               input_folder + " " + \
               outp_folder + " " + \
               "outDailyTotNC " + \
