@@ -42,6 +42,9 @@ print(cmd)
 os.system(cmd)
 os.chdir(outp_folder)
 
+
+cmd = ""
+
 for i_year in range(0, len(start_years)):
     
     # - input sub folder
@@ -55,8 +58,6 @@ for i_year in range(0, len(start_years)):
         end_year = final_year
     else:
         end_year = int(start_years[i_year+1]) - 1
-    
-    cmd = ""
     
     for year in range(sta_year, end_year + 1):
     
@@ -74,6 +75,6 @@ for i_year in range(0, len(start_years)):
     
         if str(year)[3] == "9": cmd = cmd + " wait ;"
     
-    print(cmd)
-    os.system(cmd)
+print(cmd)
+os.system(cmd)
         
