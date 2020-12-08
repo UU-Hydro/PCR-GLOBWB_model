@@ -2,10 +2,11 @@ set -x
 
 YEAR=$1
 
-OUT_FOLDER="/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/daily_runoff_in_monthly_files/"
-cd ${OUT_FOLDER}
-
 INP_FOLDER="/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/runoff/"
+
+OUT_FOLDER="/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/daily_runoff_in_monthly_files/"
+mkdir -p ${OUT_FOLDER}
+cd ${OUT_FOLDER}
 
 mkdir ${YEAR}
 
