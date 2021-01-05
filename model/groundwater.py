@@ -703,7 +703,7 @@ class Groundwater(object):
                                        self.storGroundwater - self.nonFossilGroundwaterAbs)
 
         # baseflow
-        baseflow = (self.recessionCoeff * self.storGroundwater)**(self.baseflow_exponent)
+        baseflow = self.recessionCoeff * ((self.storGroundwater)**(self.baseflow_exponent))
         self.baseflow          = pcr.max(0.,\
                                  pcr.min(self.storGroundwater, baseflow))
         
