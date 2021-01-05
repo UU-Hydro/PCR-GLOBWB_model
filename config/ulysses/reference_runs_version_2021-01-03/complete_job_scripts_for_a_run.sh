@@ -37,7 +37,7 @@ INITIAL_FOLD="NONE"
 INITIAL_DATE="NONE"
 SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/_spinup/with_1981/
 # - start the run
-SPINUP=$(sbatch --nodelist "${NODENMR}" -J "${JOBSUBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
+SPINUP=$(sbatch --nodelist "${NODENMR}" -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
 
 
 # run for the period 1981-90
@@ -49,7 +49,7 @@ INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
 INITIAL_DATE="1981-12-31"
 SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/begin_from_1981/
 # - start the run
-FIRST=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${SPINUP} --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
+FIRST=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${SPINUP} -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
 
 
 # run for the period 1991-00
@@ -61,31 +61,7 @@ INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
 INITIAL_DATE="1990-12-31"
 SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_1991/
 # - start the run
-SECOND=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${FIRST} --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
-
-
-#~ # run for the period 2001-10
-#~ SUB_JOBNAME=${JOBNAME}_01-10
-#~ SUB_INIFILE=${WARMED_RUN_INI}
-#~ STA_DATE="2001-01-01"
-#~ END_DATE="2010-12-31"
-#~ INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
-#~ INITIAL_DATE="2000-12-31"
-#~ SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_2001/
-#~ # - start the run
-#~ THIRD=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${SECOND} --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
-
-
-#~ # run for the period 2011-19
-#~ SUB_JOBNAME=${JOBNAME}_11-19
-#~ SUB_INIFILE=${WARMED_RUN_INI}
-#~ STA_DATE="2011-01-01"
-#~ END_DATE="2019-12-31"
-#~ INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
-#~ INITIAL_DATE="2000-12-31"
-#~ SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_2011/
-#~ # - start the run
-#~ FOURTH=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${THIRD} --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
+SECOND=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${FIRST} -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh)
 
 
 
