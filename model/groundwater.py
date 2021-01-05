@@ -77,6 +77,19 @@ class Groundwater(object):
         self.useMODFLOW = False
         if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
 
+        
+        # exponent in baseflow reservoir formula (default is one)
+        if "baseflow_exponent" list(iniItems.groundwaterOptions.keys()):
+            msg = "The exponent for the groundwater reservoir formula is set according to the baseflow_exponent values in the groundwaterOptions of the configuration file."
+            logger.info(msg)
+            self.baseflow_exponent = vos.readPCRmapClone(iniItems.groundwaterOptions['baseflow_exponent'],\
+                                                         self.cloneMap,\
+                                                         self.tmpDir,\
+                                                         self.inputDir)
+        else:                                               
+            self.baseflow_exponent = pcr.spatial(pcr.scalar(1.0))
+        self.baseflow_exponent = pcr.ifthen(self.landmask, self.baseflow_exponent)    
+
 
         #####################################################################################################################################################
         # limitAbstraction options
@@ -479,9 +492,18 @@ class Groundwater(object):
         if iniConditions == None: # when the model just start (reading the initial conditions from file)
 
 
-            self.storGroundwater         = vos.readPCRmapClone(\
+            if iniItems.groundwaterOptions['storGroundwaterIni'] != "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE":
+                self.storGroundwater     = vos.readPCRmapClone(\
                                            iniItems.groundwaterOptions['storGroundwaterIni'],
                                            self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                msg = "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
+                logger.info(msg)
+                daily_gw_recharge        = vos.readPCRmapClone(\
+                                           iniItems.groundwaterOptions['storGroundwaterIni'],
+                                           self.cloneMap,self.tmpDir,self.inputDir)
+                self.storGroundwater     = (daily_gw_recharge / self.recessionCoeff)**(1.0/self.baseflow_exponent)
+            
             self.avgAbstraction          = vos.readPCRmapClone(\
                                            iniItems.groundwaterOptions['avgTotalGroundwaterAbstractionIni'],
                                            self.cloneMap,self.tmpDir,self.inputDir)
@@ -681,10 +703,11 @@ class Groundwater(object):
                                        self.storGroundwater - self.nonFossilGroundwaterAbs)
 
         # baseflow
-        self.baseflow         = pcr.max(0.,\
-                                pcr.min(self.storGroundwater,\
-                                        self.recessionCoeff* \
-                                        self.storGroundwater))
+        baseflow = (self.recessionCoeff * self.storGroundwater)**(self.baseflow_exponent)
+        self.baseflow          = pcr.max(0.,\
+                                 pcr.min(self.storGroundwater, baseflow)
+        
+        # update storGroundwater after baseflow
         self.storGroundwater  = pcr.max(0.,\
                                 self.storGroundwater - self.baseflow)
         # PS: baseflow must be calculated at the end (to ensure the availability of storGroundwater to support nonFossilGroundwaterAbs)
