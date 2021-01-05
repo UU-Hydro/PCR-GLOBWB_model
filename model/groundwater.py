@@ -705,7 +705,7 @@ class Groundwater(object):
         # baseflow
         baseflow = (self.recessionCoeff * self.storGroundwater)**(self.baseflow_exponent)
         self.baseflow          = pcr.max(0.,\
-                                 pcr.min(self.storGroundwater, baseflow)
+                                 pcr.min(self.storGroundwater, baseflow))
         
         # update storGroundwater after baseflow
         self.storGroundwater  = pcr.max(0.,\
