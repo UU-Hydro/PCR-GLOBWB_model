@@ -24,7 +24,7 @@ NODENMR=$3
 SPINUP_RUN_INI="setup_6arcmin_ulysses_version_2021-01-03_for_spinup.ini"
 WARMED_RUN_INI="setup_6arcmin_ulysses_version_2021-01-03_with_initial_states.ini" 
 
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_2021-01-03/"${JOBNAME}
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2021-01-XX/"${JOBNAME}
 
 set -x
 
@@ -64,12 +64,37 @@ SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_1991/
 SECOND=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${FIRST} -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh | sed 's/Submitted batch job //')
 
 
+# run for the period 2001-10
+SUB_JOBNAME=${JOBNAME}_01-10
+SUB_INIFILE=${WARMED_RUN_INI}
+STA_DATE="2001-01-01"
+END_DATE="2010-12-31"
+INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
+INITIAL_DATE="2000-12-31"
+SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_2001/
+# - start the run
+THIRD=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${SECOND} -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh | sed 's/Submitted batch job //')
+
+
+# run for the period 2011-19
+SUB_JOBNAME=${JOBNAME}_11-19
+SUB_INIFILE=${WARMED_RUN_INI}
+STA_DATE="2011-01-01"
+END_DATE="2019-12-31"
+INITIAL_FOLD=${SUB_OUT_DIR}/global/states/
+INITIAL_DATE="2010-12-31"
+SUB_OUT_DIR=${MAIN_OUTPUT_DIR}/continue_from_2011/
+# - start the run
+FOURTH=$(sbatch --nodelist "${NODENMR}" --dependency=afterany:${THIRD} -J "${SUB_JOBNAME}" --export INI_FILE="${SUB_INIFILE}",MAIN_OUTPUT_DIR="${SUB_OUT_DIR}",STARTING_DATE="${STA_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${INITIAL_FOLD}",DATE_FOR_INITIAL_STATES="${INITIAL_DATE}",BASEFLOW_EXPONENT="${BFEXPON}" job_script_sbatch_pcrglobwb_template.sh | sed 's/Submitted batch job //')
+
 
 set +x
 
 echo $SPINUP
 echo $FIRST
 echo $SECOND
+echo $THIRD
+echo $FOURTH
 
 squeue -u sutan101
 
