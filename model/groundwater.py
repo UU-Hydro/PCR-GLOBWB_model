@@ -79,7 +79,7 @@ class Groundwater(object):
 
         
         # exponent in baseflow reservoir formula (default is one)
-        if "baseflow_exponent" list(iniItems.groundwaterOptions.keys()):
+        if "baseflow_exponent" in list(iniItems.groundwaterOptions.keys()):
             msg = "The exponent for the groundwater reservoir formula is set according to the baseflow_exponent values in the groundwaterOptions of the configuration file."
             logger.info(msg)
             self.baseflow_exponent = vos.readPCRmapClone(iniItems.groundwaterOptions['baseflow_exponent'],\
