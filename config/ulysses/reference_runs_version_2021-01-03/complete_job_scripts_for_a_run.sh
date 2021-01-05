@@ -17,9 +17,9 @@ JOBNAME="b1.0"
 BFEXPON="1.0"
 NODENMR="gpu030"
 
-#~ JOBNAME=$1
-#~ BFEXPON=$2
-#~ NODENMR=$3
+JOBNAME=$1
+BFEXPON=$2
+NODENMR=$3
 
 SPINUP_RUN_INI="setup_6arcmin_ulysses_version_2021-01-03_for_spinup.ini"
 WARMED_RUN_INI="setup_6arcmin_ulysses_version_2021-01-03_with_initial_states.ini" 
