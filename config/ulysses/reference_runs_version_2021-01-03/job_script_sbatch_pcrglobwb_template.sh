@@ -3,6 +3,8 @@
 #SBATCH -n 96
 #~ #SBATCH -p gpu
 
+#SBATCH -t 1:00
+
 #SBATCH -J pgb_uly_spinup_and_actual_runs
 
 # mail alert at start, end and abortion of execution
