@@ -1,7 +1,7 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -n 96
-#~ #SBATCH -p gpu
+#SBATCH -p gpu
 
 #~ #SBATCH -t 1:00
 
