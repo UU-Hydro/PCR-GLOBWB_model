@@ -734,7 +734,7 @@ class Groundwater(object):
         #
         # set the minimum value is from the linear reservoir
         min_baseflow  = self.recessionCoeff * self.storGroundwater
-        baseflow = pcr.max(min_baseflow, baseflow))
+        baseflow = pcr.max(min_baseflow, baseflow)
         #
         # make sure that baseflow is always positive 
         self.baseflow          = pcr.max(0.,\
