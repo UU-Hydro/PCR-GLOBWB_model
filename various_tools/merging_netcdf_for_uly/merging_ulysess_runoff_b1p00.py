@@ -16,7 +16,7 @@ import sys
 # ~ drwxr-xr-x  2 sutan101 depfg 6 Jan 12 16:22 merged_discharge_1981-2019
 
 
-main_folder = "/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2021-01-XX_b/b1p00/"
+main_folder = "/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2021-01-XX_b/1.00/"
 
 
 start_years = [1981, 1991, 2001, 2011] 
