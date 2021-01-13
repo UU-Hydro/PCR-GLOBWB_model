@@ -37,3 +37,11 @@ wait
 
 set +x
 
+#~ totalWaterStorageThickness_monthAvg_output_1981-2019.nc = TWS (NOTE: Unit is still in meter)
+#~ ulyssesET_monthAvg_output_1981-2019.nc = evaporation and transpiration (ET)                 
+#~ ulyssesQrRunoff_monthAvg_output_1981-2019.nc = runoff            
+#~ ulyssesSMUpp_monthAvg_output_1981-2019.nc = soil moisture, upper part, the first 30 cm             
+#~ ulyssesSM_monthAvg_output_1981-2019.nc = soil moisture, from surface until about 1.5 m (root zone)                
+#~ ulyssesSWE_monthAvg_output_1981-2019.nc = SWE              
+#~ ulyssesSnowFraction_monthAvg_output_1981-2019.nc = snow fraction
+      

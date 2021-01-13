@@ -1836,6 +1836,17 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]               = 'Volumetric soil moisture content in the top soil (<= 30 cm) at the end of each model time step.'
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
 
+# ulyssesSMLow       
+pcrglobwb_variable_name                            = 'ulyssesSMLow'
+netcdf_short_name[pcrglobwb_variable_name]         = 'LowSM'
+netcdf_long_name[pcrglobwb_variable_name]          = 'Percentage of water with respect to the available volume in the lower soil layer (30-150 cm).'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'lower_volumetric_soil_moisture'
+netcdf_unit[pcrglobwb_variable_name]               = '%'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               = 'Volumetric soil moisture content in the lower soil layer (30-150 cm) at the end of each model time step.'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
+
 # ulyssessRefPET    
 pcrglobwb_variable_name                            = 'ulyssessRefPET'
 netcdf_short_name[pcrglobwb_variable_name]         = 'RefPET'
@@ -1859,6 +1870,19 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 description[pcrglobwb_variable_name]               = 'potential evaporation and transpiration, averaged over a grid cell.'
 comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name] + " Not including ones from surface water bodies (which are simulated by the routing module of PCR-GLOBWB)." + " Positive direction is downwards."
 latex_symbol[pcrglobwb_variable_name]              = None
+
+# ulyssesTWS       
+pcrglobwb_variable_name                            = 'ulyssesTWS'
+netcdf_short_name[pcrglobwb_variable_name]         = 'TWS'
+netcdf_long_name[pcrglobwb_variable_name]          = 'total_thickness_of_water_storage'
+netcdf_standard_name[pcrglobwb_variable_name]      = 'total_thickness_of_water_storage'
+netcdf_unit[pcrglobwb_variable_name]               = 'kg m-2'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]               ='total_thickness_of_water_storage'
+comment[pcrglobwb_variable_name]                   = description[pcrglobwb_variable_name]
+latex_symbol[pcrglobwb_variable_name]              = None
+
 
 
 #############################################################################################################

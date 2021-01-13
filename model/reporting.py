@@ -1319,6 +1319,8 @@ class Reporting(object):
         
         # SM: total volumetric of soil moisture (%)
         self.ulyssesSM       =    self._model.landSurface.satDegTotal
+        self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
+        self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
 
         # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
@@ -1327,6 +1329,8 @@ class Reporting(object):
         # gridder river discharge
         self.ulyssesDischarge  = self.discharge
 
+        # TWS (kg m-2)
+        self.ulyssesTWS = self.totalWaterStorageThickness * 1000. 
+
         # extra variable for ILAMB evaluation
         self.ulyssesSnowFraction = pcr.ifthenelse(self.ulyssesSWE > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))
-        self.ulyssesSMUpp        = self._model.landSurface.satDegUppTotal
