@@ -4,11 +4,11 @@ YEAR=$1
 
 INP_FOLDER="/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/runoff/"
 INP_FOLDER="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2021-01-XX_b/merged_runoff_1981-2019/b1p50/"
-INP_FOLDER=$1
+INP_FOLDER=$2
 
 OUT_FOLDER="/scratch/ms/copext/cynw/pcrglobwb_ulysses_reference_runs_version_2020-12-01/old-jgw_uly-et0_uly-lcv_merged_1981-2019/daily_runoff_in_monthly_files/"
 OUT_FOLDER="/scratch/depfg/sutan101/pcrglobwb_ulysses_reference_runs_version_2021-01-XX_b/merged_runoff_1981-2019/b1p50/daily_runoff_in_monthly_files/"
-OUT_FOLDER=$2
+OUT_FOLDER=$3
 
 mkdir -p ${OUT_FOLDER}
 cd ${OUT_FOLDER}
