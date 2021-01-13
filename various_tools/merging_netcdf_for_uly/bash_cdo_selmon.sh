@@ -8,44 +8,44 @@ INP_FOLDER=$1
 OUT_FOLDER=$2
 
 bash cdo_selmon.sh 1981 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1982 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1983 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1984 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1985 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1986 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1987 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1988 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1989 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1990 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1991 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1992 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1993 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1994 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1995 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1996 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1997 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1998 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 1999 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2000 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2001 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2002 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2003 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2004 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2005 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2006 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2007 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2008 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2009 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2010 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2011 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2012 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2013 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2014 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2015 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2016 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2017 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2018 ${INP_FOLDER} ${OUT_FOLDER}
-#~ bash cdo_selmon.sh 2019 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1982 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1983 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1984 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1985 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1986 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1987 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1988 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1989 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1990 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1991 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1992 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1993 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1994 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1995 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1996 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1997 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1998 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 1999 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2000 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2001 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2002 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2003 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2004 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2005 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2006 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2007 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2008 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2009 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2010 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2011 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2012 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2013 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2014 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2015 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2016 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2017 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2018 ${INP_FOLDER} ${OUT_FOLDER}
+bash cdo_selmon.sh 2019 ${INP_FOLDER} ${OUT_FOLDER}
                    
 #~ dr-xr-x---  2 cynw copext 4.0K Dec  7 19:33 1981
 #~ dr-xr-x---  2 cynw copext 4.0K Dec  7 19:33 1982
