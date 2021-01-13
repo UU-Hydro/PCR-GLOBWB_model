@@ -29,7 +29,7 @@ cdo -L -f nc4 -mergetime  */totalWaterStorageThickness_monthAvg_output* totalWat
 cdo -L -f nc4 -mergetime  */ulyssesET_monthAvg_output*                  ulyssesET_monthAvg_output_1981-2019.nc                  &
 cdo -L -f nc4 -mergetime  */ulyssesQrRunoff_monthAvg_output*            ulyssesQrRunoff_monthAvg_output_1981-2019.nc            &
 cdo -L -f nc4 -mergetime  */ulyssesSMUpp_monthAvg_output*               ulyssesSMUpp_monthAvg_output_1981-2019.nc               &
-cdo -L -f nc4 -mergetime  */ulyssesSMUpp_monthAvg_output*               ulyssesSM_monthAvg_output_1981-2019.nc                  &
+cdo -L -f nc4 -mergetime  */ulyssesSM_monthAvg_output*                  ulyssesSM_monthAvg_output_1981-2019.nc                  &
 cdo -L -f nc4 -mergetime  */ulyssesSWE_monthAvg_output*                 ulyssesSWE_monthAvg_output_1981-2019.nc                 &
 cdo -L -f nc4 -mergetime  */ulyssesSnowFraction_monthAvg_output*        ulyssesSnowFraction_monthAvg_output_1981-2019.nc        &
 
