@@ -52,9 +52,9 @@ TEMPERATURE_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1993/01/t
 REF_POT_ET_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1993/01/pet_01_1993.nc"
 
 # - forcing files on eejit
-PRECIPITATION_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1993/01/precipitation_daily_01_1993.nc"
-TEMPERATURE_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1993/01/tavg_01_1993.nc"
-REF_POT_ET_FORCING_FILE="/scratch/mo/nest/ulysses/data/meteo/era5land/1993/01/pet_01_1993.nc"
+PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/era5land_ulysses/version_202011XX/1993/01/precipitation_daily_01_1993.nc"
+TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/era5land_ulysses/version_202011XX/1993/01/tavg_01_1993.nc"
+REF_POT_ET_FORCING_FILE="/scratch/depfg/sutan101/data/era5land_ulysses/version_202011XX/1993/01/pet_01_1993.nc"
 
 #~ sutan101@gpu040.cluster:/scratch/depfg/sutan101/data/era5land_ulysses/version_202011XX/1992$ ls -lah
 #~ total 7.0K
