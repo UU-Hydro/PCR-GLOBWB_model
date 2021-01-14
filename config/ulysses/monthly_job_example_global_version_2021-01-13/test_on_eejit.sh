@@ -29,7 +29,8 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
 INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_ulysses_global_version_2021-01-13.ini"
-INI_FILE="setup_6arcmin_ulysses_global_version_2021-01-13.ini"
+# - for testing on eejit
+INI_FILE=$(pwd)/"setup_6arcmin_ulysses_global_version_2021-01-13.ini"
 
 # set the output folder
 MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_version_2020-10-29/"
