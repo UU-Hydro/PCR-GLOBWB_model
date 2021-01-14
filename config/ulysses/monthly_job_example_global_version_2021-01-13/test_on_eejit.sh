@@ -33,8 +33,7 @@ INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_ulysses_global_version_2021-01-13.ini"
 INI_FILE=$(pwd)/"setup_6arcmin_ulysses_global_version_2021-01-13.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/test_monthly_runs_version_2020-10-29/"
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/test_monthly_runs_version_2020-10-29/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/test_monthly_runs_version_2021-01-13/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1993-01-01
