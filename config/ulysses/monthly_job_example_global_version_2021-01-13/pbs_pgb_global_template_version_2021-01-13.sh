@@ -20,16 +20,16 @@ set -x
 
 
 # set the folder that contain PCR-GLOBWB model scripts
-#~ # - using the 'official' version for Uly
-#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
-# - using the 'development' version by Edwin
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+# - using the 'official' version for Uly
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
+#~ # - using the 'development' version by Edwin
+#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
 INI_FILE=${PBS_O_WORKDIR}/"setup_6arcmin_ulysses_global_version_2021-01-13.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-13/test_1/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-13/test_2/"
 
 # set the starting and end simulation dates
 STARTING_DATE=1991-01-01
@@ -59,6 +59,5 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # run PCR-GLOBWB
 python3 deterministic_runner_parallel_for_ulysses.py ${INI_FILE} no-debug global -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${REF_POT_ET_FORCING_FILE}
-
 
 set +x
