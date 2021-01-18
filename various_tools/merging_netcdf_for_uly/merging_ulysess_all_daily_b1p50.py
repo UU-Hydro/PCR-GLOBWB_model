@@ -79,7 +79,7 @@ for i_year in range(0, len(start_years)):
               outp_folder + "/" + str(year) + " " + \
               "outDailyTotNC " + \
               str(year)+"-01-01" + " " + str(year)+"-12-31" + " " + \
-              "ulyssesET,ulyssesQrRunoff,ulyssesQsm,ulyssesSMUpp,ulyssesSM,ulyssesSWE,ulyssesSnowFraction,ulyssessCropPET" NETCDF4 True 8 Global default_lats &"
+              "ulyssesET,ulyssesQrRunoff,ulyssesQsm,ulyssesSMUpp,ulyssesSM,ulyssesSWE,ulyssesSnowFraction,ulyssessCropPET NETCDF4 True 8 Global default_lats &"
     
         if str(year)[3] == "9": cmd = cmd + " wait ;"
     
