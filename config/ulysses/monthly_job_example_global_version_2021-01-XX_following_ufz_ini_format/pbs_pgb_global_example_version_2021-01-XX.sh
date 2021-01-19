@@ -21,15 +21,15 @@ set -x
 
 # set the folder that contain PCR-GLOBWB model scripts
 # - using the 'official' version for Uly
-#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
-# - using the 'development' version by Edwin
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/perm/mo/nest/ulysses/src/edwin/ulysses_pgb_source/model/"
+#~ # - using the 'development' version by Edwin
+#~ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 # set the configuration file (*.ini) that will be used (assumption: the .ini file is located within the same directory as this job, i.e. ${PBS_O_WORKDIR})
 INI_FILE=${PBS_O_WORKDIR}/"pgb_config.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-19/199301/test_1/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-19/199301/test_2/"
 
 # set the starting and end simulation dates
 STARTING_DATE="NONE"
