@@ -29,7 +29,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/ms/copext/cyes/github/edwinkost/PCR-GLOBWB_
 INI_FILE=${PBS_O_WORKDIR}/"pgb_config.ini"
 
 # set the output folder
-MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-19/test_199301/"
+MAIN_OUTPUT_DIR="/scratch/ms/copext/cyes/monthly_runs_version_2021-01-19/199301/test_1/"
 
 # set the starting and end simulation dates
 STARTING_DATE="NONE"
