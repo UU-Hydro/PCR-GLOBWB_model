@@ -887,8 +887,15 @@ class Meteo(object):
         if self.precipitation_set_per_year:
             netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 
+        # ~ self.precipitation = vos.netcdf2PCRobjClone(\
+                                      # ~ netcdf_file_name, self.preVarName,\
+                                      # ~ str(currTimeStep.fulldate), 
+                                      # ~ useDoy = method_for_time_index,
+                                      # ~ cloneMapFileName = self.cloneMap,\
+                                      # ~ LatitudeLongitude = True)
+
         self.precipitation = vos.netcdf2PCRobjClone(\
-                                      netcdf_file_name, self.preVarName,\
+                                      netcdf_file_name, "automatic",\
                                       str(currTimeStep.fulldate), 
                                       useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
@@ -931,8 +938,15 @@ class Meteo(object):
         if self.temperature_set_per_year:
             netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 
+        # ~ self.temperature = vos.netcdf2PCRobjClone(\
+                                      # ~ netcdf_file_name, self.tmpVarName,\
+                                      # ~ str(currTimeStep.fulldate), 
+                                      # ~ useDoy = method_for_time_index,
+                                      # ~ cloneMapFileName = self.cloneMap,\
+                                      # ~ LatitudeLongitude = True)
+
         self.temperature = vos.netcdf2PCRobjClone(\
-                                      netcdf_file_name, self.tmpVarName,\
+                                      netcdf_file_name, "automatic",\
                                       str(currTimeStep.fulldate), 
                                       useDoy = method_for_time_index,
                                       cloneMapFileName = self.cloneMap,\
@@ -969,8 +983,15 @@ class Meteo(object):
             if self.temperature_set_per_year:
                 netcdf_file_name = self.etpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 		    
+            # ~ self.referencePotET = vos.netcdf2PCRobjClone(\
+                                          # ~ netcdf_file_name, self.refETPotVarName,\
+                                          # ~ str(currTimeStep.fulldate), 
+                                          # ~ useDoy = method_for_time_index,
+                                          # ~ cloneMapFileName = self.cloneMap,\
+                                          # ~ LatitudeLongitude = True)
+
             self.referencePotET = vos.netcdf2PCRobjClone(\
-                                          netcdf_file_name, self.refETPotVarName,\
+                                          netcdf_file_name, "automatic",\
                                           str(currTimeStep.fulldate), 
                                           useDoy = method_for_time_index,
                                           cloneMapFileName = self.cloneMap,\
