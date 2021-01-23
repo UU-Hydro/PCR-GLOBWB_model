@@ -503,7 +503,7 @@ class Meteo(object):
             # TODO: There is a case that we don't need extraterestrial shortwave radiation (e.g. if shortwave and longwave have been provided). 
 
             # set the extraterestrial radiation unit to W.m-2
-            if "extraterestrial_radiation_input_in_w_per_m2" in list(self.iniItems.meteoOptions.keys())) and \
+            if "extraterestrial_radiation_input_in_w_per_m2" in list(self.iniItems.meteoOptions.keys()) and \
                                                               (self.iniItems.meteoOptions['extraterestrial_radiation_input_in_w_per_m2'] == "True"): 
                 self.extraterestrial_radiation  = pcr.max(0.0, self.extraterestrial_radiation) 
             else:
