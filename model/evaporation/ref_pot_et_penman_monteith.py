@@ -39,6 +39,7 @@ def getSaturatedVapourPressure(temperature):
 	'''returns the saturated vapour pressure [Pa] as \
 as a function of temperature [degC]'''
 	return 611.0*pcr.exp(17.27*temperature/(temperature+237.3))
+	# see also https://www.weather.gov/media/epz/wxcalc/vaporPressure.pdf
 
 def getSlopeVapourPressureCurve(temperature,satVapPres):
 	'''returns the slope of the saturated vapour pressure curve [Pa.degC**-1]'''

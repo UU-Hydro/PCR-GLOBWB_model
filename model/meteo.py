@@ -83,6 +83,8 @@ class Meteo(object):
                                       'atmospheric_pressure',\
                                       'extraterestrial_radiation',\
                                       'shortwave_radiation',\
+                                      'longwave_radiation',\
+                                      'relative_humidity',\
                                       'surface_net_solar_radiation',\
                                       'albedo',\
                                       'air_temperature_max',\
@@ -429,6 +431,29 @@ class Meteo(object):
             msg = "Calculating reference potential evaporation based on the Penman-Monteith"
             logger.info(msg)
             
+
+            # compute actual vapour pressure (Pa) based on dew point temperature
+            vapourPressure = None
+            if self.dewpoint_temperature_avg is not None:
+                msg = "Estimating actual vapour pressure based on dew point temperature."
+                logger.info(msg)
+                vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
+
+
+
+            # wind speed (m.s-1)
+            if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
+                                            (self.iniItems.meteoOptions['wind_speed_10m'] == "None"): 
+                msg = "Calculating wind speed based on their u and v components"
+                logger.info(msg)
+                self.wind_speed_10m = (self.wind_speed_10m_u_comp**2. + self.wind_speed_10m_v_comp**2.)**(0.5)
+
+            #~ # debug
+            #~ pcr.aguila(self.wind_speed_10m)
+            #~ input("Press Enter to continue...")
+            #~ os.system("killall aguila")
+
+
             # extraterestrial radiation
             
             if ('extraterestrial_radiation' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -457,7 +482,7 @@ class Meteo(object):
                 day_length = sw_rad.compute_day_length(latitude = self.latitudes_in_radian,\
                                                        solar_declination = solar_declination)
                 
-                # extraterestrial_radiation
+                # compute extraterestrial_radiation in MJ/m2/day
                 extraterestrial_radiation = sw_rad.compute_radsw_ext(latitude = self.latitudes_in_radian, \
                                                                                 solar_declination = solar_declination, \
                                                                                 eccentricity = eccentricity, \
@@ -467,18 +492,28 @@ class Meteo(object):
                 
                 # TODO: set solar_constant in the configuration file                                              
 
-                # extraterestrial_radiation (unit: J.m-2.day-1)
+                # the default unit for the extraterestrial_radiation is J.m-2.day-1
                 self.extraterestrial_radiation = extraterestrial_radiation * 1e6
                 
             else:
 
-                msg = "Extraterestrial shortwave (solar) radiation is obtained from the input file."
+                msg = "Extraterestrial radiation is obtained from the input file."
                 logger.info(msg)
+                
+            # TODO: There is a case that we don't need extraterestrial shortwave radiation (e.g. if shortwave and longwave have been provided). 
+
+            # set the extraterestrial radiation unit to W.m-2
+            if "extraterestrial_radiation_input_in_w_per_m2" in list(self.iniItems.meteoOptions.keys())) and \
+                                                              (self.iniItems.meteoOptions['extraterestrial_radiation_input_in_w_per_m2'] == "True"): 
+                self.extraterestrial_radiation  = pcr.max(0.0, self.extraterestrial_radiation) 
+            else:
+                self.extraterestrial_radiation  = pcr.max(0.0, self.extraterestrial_radiation / 1e6) / 0.0864
 
             #~ # debug
             #~ pcr.aguila(self.extraterestrial_radiation)
             #~ input("Press Enter to continue...")
             #~ os.system("killall aguila")
+
 
             # shortwave radiation
             
@@ -495,15 +530,15 @@ class Meteo(object):
                 
                 self.shortwave_radiation = self.surface_net_solar_radiation / (pcr.spatial(pcr.scalar(1.0)) - self.albedo)
                 
-            #~ # debug
-            #~ pcr.aguila(self.shortwave_radiation)
-            #~ input("Press Enter to continue...")
-            #~ os.system("killall aguila")
 
             if self.iniItems.meteoOptions['shortwave_radiation'] == "Bristow-Campbell":
 
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
+                
+                # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
+                extraterrestrial_rad_in_watt_per_m2 = self.extraterestrial_radiation
+                extraterrestrial_rad = extraterrestrial_rad_in_watt_per_m2 * 0.0864
                 
                 self.sw_rad_model.update(date = currTimeStep._currTimeFull, \
                                          prec_daily = self.precipitation, \
@@ -511,66 +546,69 @@ class Meteo(object):
                                          temp_max_daily  = self.air_temperature_max, \
                                          temp_avg_daily  = self.temperature, \
                                          dew_temperature = self.dewpoint_temperature_avg, \
-                                         extraterrestrial_rad = self.extraterestrial_radiation / 1000000.)
+                                         extraterrestrial_rad = extraterrestrial_rad)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
                 self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1e6
-                self.extraterestrial_radiation = self.sw_rad_model.radsw_ext * 1e6
             
-            # wind speed (m.s-1)
-            if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
-                                            (self.iniItems.meteoOptions['wind_speed_10m'] == "None"): 
-                msg = "Calculating wind speed based on their u and v components"
-                logger.info(msg)
-                self.wind_speed_10m = (self.wind_speed_10m_u_comp**2. + self.wind_speed_10m_v_comp**2.)**(0.5)
-            
+            # set the shortwave radiation unit to W.m-2
+            if "shortwave_radiation_input_in_w_per_m2" in list(self.iniItems.meteoOptions.keys()) and \
+                                                        (self.iniItems.meteoOptions['shortwave_radiation_input_in_w_per_m2'] == "True"): 
+                self.shortwave_radiation = pcr.max(0.0, self.shortwave_radiation) 
+            else:
+                self.shortwave_radiation = pcr.max(0.0, self.shortwave_radiation / 1e6) / 0.0864
+
             #~ # debug
             #~ pcr.aguila(self.shortwave_radiation)
-            #~ pcr.aguila(self.extraterestrial_radiation)
-            #~ pcr.aguila(self.wind_speed_10m)
             #~ input("Press Enter to continue...")
             #~ os.system("killall aguila")
 
-            # update PM method
+            # UNTIL THIS PART    
             
-            msg = "Calculating reference potential evaporation based on Penman-Monteith."
-            logger.info(msg)
+            # longwave radiation
             
-            # calculate netRadiation (unit: W.m**-2)
+            if "longwave_radiation" in list(self.iniItems.meteoOptions.keys()) and\
+                                            self.iniItems.meteoOptions['longwave_radiation'].endswith(('.nc', '.nc4', '.nc3')):
+
+                msg = "Longwave radiation is obtained from the input file."
+                logger.info(msg)
             
-            # - fraction of shortWaveRadiation (dimensionless)
-            fractionShortWaveRadiation = pcr.cover(pcr.min(1.0, \
-                                                  self.shortwave_radiation / self.extraterestrial_radiation), \
-                                                  0.0)
+                # make sure that longwave radiation unit is W.m-2
+                # - note that the default unit for the input file defined in the configuration file is J.m-2.day-1
+                # - therefore we have set the longwave radiation unit to W.m-2
+                if "longwave_radiation_input_in_w_per_m2" in list(self.iniItems.meteoOptions.keys()) and \
+                                                            (self.iniItems.meteoOptions['longwave_radiation_input_in_w_per_m2'] == "True"): 
+                    self.longwave_radiation = pcr.max(0.0, self.longwave_radiation) 
+                else:
+                    self.longwave_radiation = pcr.max(0.0, self.longwave_radiation / 1e6) / 0.0864
+
+            else:    
+
+                msg = "Longwave radiation is estimated from shortwave radiation, extraterestrial radiation, and actual vapour pressue"
+                logger.info(msg)
+                
+                # fraction of shortWaveRadiation (dimensionless)
+                fractionShortWaveRadiation = pcr.cover(pcr.min(1.0, \
+                                                        self.shortwave_radiation / self.extraterestrial_radiation), 0.0)
             
-            # - compute vapour pressure (Pa)
-            vapourPressure = penman_monteith.getSaturatedVapourPressure(\
-                                                                        self.dewpoint_temperature_avg)
-            # - longwave radiation in W.m**-2
-            longWaveRadiation = penman_monteith.getLongWaveRadiation(self.temperature, \
-                                                                     vapourPressure, \
-                                                                     fractionShortWaveRadiation)
-           
-            # - shortwave radiation in W.m**-2
-            shortWaveRadiation = (self.shortwave_radiation / 1e6) / 0.0864
+                # longwave radiation (already) in W.m**-2
+                self.longwave_radiation = penman_monteith.getLongWaveRadiation(self.temperature, \
+                                                                               vapourPressure, \
+                                                                               fractionShortWaveRadiation)
+
             
-            # - netRadiation in W.m**-2)
-            netRadiation = pcr.max(0.0, shortWaveRadiation- longWaveRadiation)
+            # calculate net radiation (unit: W.m**-2)
+            self.net_radiation = pcr.max(0.0, shortWaveRadiation- longWaveRadiation)
             
-            # - referencePotET in m.day-1
-            self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = netRadiation, 
+            # referencePotET in m.day-1
+            self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = self.net_radiation, 
                                                                                   airTemperature      = self.temperature, 
                                                                                   windSpeed           = self.wind_speed_10m, 
                                                                                   atmosphericPressure = self.atmospheric_pressure,
                                                                                   unsatVapPressure    = vapourPressure, 
-                                                                                  relativeHumidity    = None,\
+                                                                                  relativeHumidity    = self.relative_humidity,\
                                                                                   timeStepLength      = 86400)
 
-            # all radiation terms in W.m**-2
-            self.extraterrestrialRadiation = (self.extraterestrial_radiation / 1e6) / 0.0864
-            self.shorWaveRadiation         = shortWaveRadiation
-            self.longWaveRadiation         = longWaveRadiation
-            self.netRadiation              = netRadiation
 
         # Downscaling referenceETPot (based on temperature)
         self.referencePotET_before_downscaling = pcr.ifthen(self.landmask, self.referencePotET)
@@ -816,7 +854,6 @@ class Meteo(object):
         
         self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
         
-        # UNTIL THIS PART
 
     def read_forcings(self,currTimeStep):
 
@@ -948,6 +985,7 @@ class Meteo(object):
         # extra meteo files/variables (needed for the Penman-Monteith method)
         for meteo_var_name in self.extra_meteo_var_names:  
         #
+            vars(self)[meteo_var_name] = None
             if meteo_var_name in list(self.iniItems.meteoOptions.keys()) and self.iniItems.meteoOptions[meteo_var_name].endswith(('.nc', '.nc4', '.nc3')):
                 
                 # read the file
