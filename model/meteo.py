@@ -111,7 +111,7 @@ class Meteo(object):
         self.read_meteo_variable_names(iniItems.meteoOptions)
 
         # latitudes (required for the Hamon and Penman-Monteith method)
-        self.latitudes = pcr.ycoordinate(self.cloneMap) # needed to calculate 'referenceETPot'
+        self.latitudes = pcr.ycoordinate(pcr.boolean(self.cloneMap)) # needed to calculate 'referenceETPot'
         self.latitudes_in_radian = vos.deg2rad(self.latitudes)    
         
         # initiate shortwave radiation class, required for the Bristow-Campbell method
