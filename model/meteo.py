@@ -594,11 +594,11 @@ class Meteo(object):
                 # longwave radiation (already) in W.m**-2
                 self.longwave_radiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                                vapourPressure, \
-                                                                               fractionShortWaveRadiation)
+                                                                               fractionShortWaveRadiation, \
+                                                                               self.relative_humidity)
 
             
             # calculate net radiation (unit: W.m**-2)
-            # ~ self.net_radiation = pcr.max(0.0, shortWaveRadiation- longWaveRadiation)
             self.net_radiation = pcr.max(0.0, self.shortwave_radiation - self.longwave_radiation)
             
             # referencePotET in m.day-1

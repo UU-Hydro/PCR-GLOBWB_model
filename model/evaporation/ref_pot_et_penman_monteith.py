@@ -50,7 +50,7 @@ def getPsychrometricConstant(atmosphericPressure,\
 	'''returns the psychrometric constant [Pa.degC**-1]'''
 	return (cpAir*atmosphericPressure)/(epsilon*latentHeatVaporization)
 
-def getLongWaveRadiation(temperature,eAct,radFrac= 1.00):
+def getLongWaveRadiation(temperature, eAct, radFrac= 1.00, relativeHumidity = None):
 	'''getLongWaveRadiation: returns the longwave radiation [W.m**-2] \
 according to FAO guidelines.
 
@@ -73,6 +73,12 @@ according to FAO guidelines.
 	radSlope= 0.50
 	radDif= 0.35
 	radCor= (1+radDif)/(radCon+radSlope)
+	
+	# estimate actual vapor pressure based on relativeHumidity
+	if eAct == None:
+		satVapPressure = getSaturatedVapourPressure(temperature)
+		eAct = relativeHumidity * satVapPressure
+
 	#-longwave radiation
 	return sigma*(temperature+273.15)**4*pcr.max(0,ea0-eaFactor*eAct**0.5)*\
 		pcr.max(0,(pcr.min(1+radDif,radCor*radFrac)-radDif))
