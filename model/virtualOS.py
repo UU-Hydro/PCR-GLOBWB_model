@@ -776,15 +776,15 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         if yULClone != yULInput: sameClone = False
 
 
-    #~ # check data on dimensions - this correction is needed in case of the WFDEI_Forcing which has includes levels for surface varables (time, height/level, lat, lon)
-    #~ if f.variables[varName].ndim == 4:
-        #~ # not standard NC format
-        #~ logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
-        #~ # file with additional layer/dimension
-        #~ cropData = f.variables[varName][int(idx),0,:,:]       # still original data
-    #~ else:
-        #~ # standard nc file
-        #~ cropData = f.variables[varName][int(idx),:,:]       # still original data
+    # check data on dimensions - this correction is needed in case of the WFDEI_Forcing which has includes levels for surface varables (time, height/level, lat, lon)
+    if f.variables[varName].ndim == 4:
+        # not standard NC format
+        logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
+        # file with additional layer/dimension
+        cropData = f.variables[varName][int(idx),0,:,:]     # still original data
+    else:
+        # standard nc file
+        cropData = f.variables[varName][int(idx),:,:]       # still original data
 
 
     factor = 1                                 # needed in regridData2FinerGrid
