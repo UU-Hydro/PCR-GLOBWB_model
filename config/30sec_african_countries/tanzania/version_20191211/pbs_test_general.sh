@@ -3,7 +3,7 @@
 #PBS -l select=1:ncpus=32:mem=62gb
 #PBS -l walltime=72:00:00
 
-#PBS -q express -P exp-0032
+#~ #PBS -q express -P exp-0032
 
 # load all software needed
 cd /rds/general/user/esutanud/home/
