@@ -438,7 +438,8 @@ class Meteo(object):
                 msg = "Estimating actual vapour pressure based on dew point temperature."
                 logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
-
+            
+            # TODO: Downscale actual vapor pressure using high resolution vapor pressure estimated with daily minimum temperature (i.e. assuming dewpoint_temperature_avg = temperature minimum)     
 
 
             # wind speed (m.s-1)
