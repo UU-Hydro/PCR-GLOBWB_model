@@ -1319,10 +1319,10 @@ class Reporting(object):
         # Qsm = snowmelt (kg m-2 s-1)
         self.ulyssesQsm      =    self._model.landSurface.snowMelt / 86.4
         
-        # ~ # SM: total volumetric of soil moisture (%) - THIS IS WRONG # TODO: FIX THIS
-        # ~ self.ulyssesSM       =    self._model.landSurface.satDegTotal
-        # ~ self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
-        # ~ self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
+        # SM: total volumetric of soil moisture (%) - THIS IS WRONG # TODO: FIX THIS
+        self.ulyssesSM       =    self._model.landSurface.satDegTotal
+        self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
+        self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
 
         # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
