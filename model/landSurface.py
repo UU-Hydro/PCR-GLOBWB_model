@@ -765,10 +765,14 @@ class LandSurface(object):
                 numb_of_lc_types += 1.0
 
         # Fill cells with pristineAreaFrac = 0.0:
-        self.landCoverObj['forest'].fracVegCover    = pcr.ifthenelse(pristineAreaFrac > 0.0, self.landCoverObj['forest'].fracVegCover, 0.0)
-        self.landCoverObj['forest'].fracVegCover    = pcr.min(1.0, self.landCoverObj['forest'].fracVegCover)
-        self.landCoverObj['grassland'].fracVegCover = 1.0 - self.landCoverObj['forest'].fracVegCover
-
+        # - NOTE this only works for certain land cover names. TODO: FIX THIS
+        try:
+            self.landCoverObj['forest'].fracVegCover    = pcr.ifthenelse(pristineAreaFrac > 0.0, self.landCoverObj['forest'].fracVegCover, 0.0)
+            self.landCoverObj['forest'].fracVegCover    = pcr.min(1.0, self.landCoverObj['forest'].fracVegCover)
+            self.landCoverObj['grassland'].fracVegCover = 1.0 - self.landCoverObj['forest'].fracVegCover
+        except:
+            pass
+        
         # recalculate total land cover fractions
         pristineAreaFrac = 0.0
         for coverType in self.coverTypes:         
