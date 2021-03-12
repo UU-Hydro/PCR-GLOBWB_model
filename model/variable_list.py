@@ -484,6 +484,28 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# satDegLow                       
+pcrglobwb_variable_name = 'satDegLow'
+netcdf_short_name[pcrglobwb_variable_name] = 'lower_soil_saturation_degree'
+netcdf_unit[pcrglobwb_variable_name]       = '1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# satDegTotal                       
+pcrglobwb_variable_name = 'satDegTotal'
+netcdf_short_name[pcrglobwb_variable_name] = 'soil_saturation_degree_for_the_entire_soil_layers'
+netcdf_unit[pcrglobwb_variable_name]       = '1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # storGroundwater                 
 pcrglobwb_variable_name = 'storGroundwater'
 netcdf_short_name[pcrglobwb_variable_name] = 'groundwater_storage'
