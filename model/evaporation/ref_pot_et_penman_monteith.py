@@ -75,7 +75,7 @@ according to FAO guidelines.
 	radCor= (1+radDif)/(radCon+radSlope)
 	
 	# estimate actual vapor pressure based on relativeHumidity
-	if eAct == None:
+	if eAct is None:
 		satVapPressure = getSaturatedVapourPressure(temperature)
 		eAct = relativeHumidity * satVapPressure
 
