@@ -767,7 +767,7 @@ class Meteo(object):
                                          timeStamp,currTimeStep.annuaIdx-1)
 
 
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, conss = True, drizzle_limit = 0.001):
+    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, conss = True, drizzle_limit = 0.001, considerCellArea = True):
         
         # TODO: add CorrelationCriteria in the config file
         
