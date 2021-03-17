@@ -337,7 +337,9 @@ class Meteo(object):
             cellArea = vos.readPCRmapClone(\
                 iniItems.meteoOptions['cellAreaMap'],
                 self.cloneMap,self.tmpDir,self.inputDir)
-            self.cellArea = pcr.ifthen(self.landmask, cellArea)
+            
+            # ~ # - Related to parallelization, dO not mask out cell area
+            # ~ self.cellArea = pcr.ifthen(self.landmask, cellArea)
 
             # creating anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(\
@@ -765,7 +767,7 @@ class Meteo(object):
                                          timeStamp,currTimeStep.annuaIdx-1)
 
 
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, considerCellArea = True, drizzle_limit = 0.001):
+    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, conss = True, drizzle_limit = 0.001):
         
         # TODO: add CorrelationCriteria in the config file
         
@@ -830,7 +832,9 @@ class Meteo(object):
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
-    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = False, considerCellArea = True, julian_day = None, min_limit = 0.001):
+    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, julian_day = None, min_limit = 0.001):
+
+    # ~ def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = False, considerCellArea = True, julian_day = None, min_limit = 0.001):
         
         if usingHamon:
             # factor is based on hamon reference potential evaporation using high resolution temperature
