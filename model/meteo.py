@@ -790,12 +790,21 @@ class Meteo(object):
     
         if useFactor == True:
             factor = pcr.max(0.,self.precipitation + preSlope * self.anomalyDEM)
+
+            # avoid zero factor
+            min_limit = drizzle_limit
+            factor = pcr.max(min_limit, factor)
+
             if considerCellArea: factor = factor * self.cellArea
+
             factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
+
             # - do not downscale drizzle
             #~ factor = pcr.ifthenelse(pcr.areaaverage(self.precipitation, self.meteoDownscaleIds) > drizzle_limit, factor, 1.00) 
             factor = pcr.ifthenelse(self.precipitation > drizzle_limit, factor, 1.00) 
+            
             factor = pcr.cover(factor, 1.0)
+            
             self.precipitation = factor * self.precipitation
         else:
             self.precipitation = self.precipitation + preSlope*self.anomalyDEM
@@ -844,6 +853,10 @@ class Meteo(object):
             factor = self.temperature + zeroCelciusInKelvin
         
         factor = pcr.max(0.0, factor)
+
+        # avoid zero factor
+        factor = pcr.max(min_limit, factor)
+
         if considerCellArea: factor = factor * self.cellArea
         
         factor = factor / \
@@ -852,7 +865,6 @@ class Meteo(object):
         # - do not downscale small values
         #~ factor = pcr.ifthenelse(pcr.areaaverage(self.referencePotET, self.meteoDownscaleIds) > min_limit, factor, 1.00) 
         factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00) 
-        factor = pcr.cover(factor, 1.0)
 
         factor = pcr.cover(factor, 1.0)
         
