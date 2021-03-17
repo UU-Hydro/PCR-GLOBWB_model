@@ -793,7 +793,8 @@ class Meteo(object):
 
             # avoid zero factor
             min_limit = drizzle_limit
-            factor = pcr.max(min_limit, factor)
+            min_limit = pcr.max(min_limit, self.precipitation)
+            factor    = pcr.max(min_limit, factor)
 
             if considerCellArea: factor = factor * self.cellArea
 
