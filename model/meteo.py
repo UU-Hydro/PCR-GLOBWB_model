@@ -789,11 +789,13 @@ class Meteo(object):
         preSlope = pcr.cover(preSlope, 0.0)
     
         if useFactor == True:
-            factor = pcr.max(0.,self.precipitation + preSlope * self.anomalyDEM)
+            factor = pcr.max(0., self.precipitation + preSlope * self.anomalyDEM)
+
+            # avoid too high factor
+            factor    = pcr.min(self.precipitation * 3.0, factor)
 
             # avoid zero factor
             min_limit = drizzle_limit
-            min_limit = pcr.max(min_limit, self.precipitation)
             factor    = pcr.max(min_limit, factor)
 
             if considerCellArea: factor = factor * self.cellArea
