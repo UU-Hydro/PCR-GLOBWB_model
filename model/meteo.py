@@ -616,7 +616,7 @@ class Meteo(object):
 
         # Downscaling referenceETPot (based on temperature)
         self.referencePotET_before_downscaling = pcr.ifthen(self.landmask, self.referencePotET)
-        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
+        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot(currTimeStep)
  
         # smoothing:
         if self.forcingSmoothing == True:
@@ -832,14 +832,12 @@ class Meteo(object):
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
-    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, julian_day = None, min_limit = 0.001):
+    def downscaleReferenceETPot(self, currTimeStep, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, min_limit = 0.001):
 
-    # ~ def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = False, considerCellArea = True, julian_day = None, min_limit = 0.001):
-        
         if usingHamon:
             # factor is based on hamon reference potential evaporation using high resolution temperature
             factor = hamon_et0.HamonPotET(self.temperature,\
-                                          julian_day,\
+                                          pcr.scalar(currTimeStep.doy),\
                                           self.latitudes)
         else:
             # factor is based on high resolution temperature in Kelvin unit
