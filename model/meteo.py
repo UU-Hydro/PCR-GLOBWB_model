@@ -791,8 +791,8 @@ class Meteo(object):
         if useFactor == True:
             factor = pcr.max(0., self.precipitation + preSlope * self.anomalyDEM)
 
-            # avoid too high factor
-            factor    = pcr.min(self.precipitation * 3.0, factor)
+            # ~ # avoid too high factor
+            # ~ factor    = pcr.min(self.precipitation * 3.0, factor)
 
             # avoid zero factor
             min_limit = drizzle_limit
