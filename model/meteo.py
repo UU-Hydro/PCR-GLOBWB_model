@@ -414,7 +414,7 @@ class Meteo(object):
             return -1
 
 
-    def update(self, currTimeStep):
+    def update(self, routing, currTimeStep):
 
         # Downscaling precipitation
         self.precipitation_before_downscaling = pcr.ifthen(self.landmask, self.precipitation)
@@ -932,7 +932,7 @@ class Meteo(object):
         self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
         
 
-    def read_forcings(self, routing, currTimeStep):
+    def read_forcings(self, currTimeStep):
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 hard-coded reference to the variable names
