@@ -176,7 +176,7 @@ class Meteo(object):
             logger.info(msg)
             
             # read dem: 
-            self.elevation_meteo = pcr.cover(vos.readPCRmapClone(meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+            self.elevation_meteo = pcr.cover(vos.readPCRmapClone(iniItems.meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
             
 
         # daily time step
