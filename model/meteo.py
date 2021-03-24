@@ -918,7 +918,7 @@ class Meteo(object):
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
-    def downscaleTemperatureFunction(self, input_temperature, currTimeStep, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
+    def downscaleTemperatureFunction(self, currTimeStep, input_temperature, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
         
         # TODO: add CorrelationCriteria in the config file
 
