@@ -129,14 +129,6 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
-        for coverType, coverTypeState in list(landSurfaceState.items()):
-            for variable, map in list(coverTypeState.items()):
-                vos.writePCRmapToDir(\
-                map,\
-                 str(variable)+"_"+coverType+"_"+
-                 specific_date_string+".map",\
-                 outputDirectory)
-
         landSurfaceState = state['landSurface']
         for coverType, coverTypeState in list(landSurfaceState.items()):
             for variable, map in list(coverTypeState.items()):
@@ -374,15 +366,19 @@ class PCRGlobWB(object):
     def getState(self):
         result = {}
         
+        result['meteo']       = self.meteo.getState()
+
         result['landSurface'] = self.landSurface.getState()
         result['groundwater'] = self.groundwater.getState()
-        result['routing'] = self.routing.getState()
+        result['routing']     = self.routing.getState()
         
         return result
         
     def getPseudoState(self):
         result = {}
         
+        result['meteo']       = self.meteo.getPseudoState()
+
         result['landSurface'] = self.landSurface.getPseudoState()
         result['groundwater'] = self.groundwater.getPseudoState()
         result['routing'] = self.routing.getPseudoState()
@@ -392,6 +388,9 @@ class PCRGlobWB(object):
     def getAllState(self):
         result = {}
         
+        result['meteo'] = self.meteo.getState()
+        result['meteo'].update(self.meteo.getPseudoState())
+
         result['landSurface'] = self.landSurface.getState()
         result['landSurface'].update(self.landSurface.getPseudoState())
         
