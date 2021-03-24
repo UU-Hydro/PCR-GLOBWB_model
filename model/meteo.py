@@ -463,8 +463,8 @@ class Meteo(object):
                 saturatedVapourPressure = penman_monteith.getSaturatedVapourPressure(self.temperature)
                 vapourPressure = self.relative_humidity * saturatedVapourPressure
             
-           # compute actual vapour pressure (Pa) based on dew point temperature
-2           if vapourPressure is None and self.dewpoint_temperature_avg is not None:
+            # compute actual vapour pressure (Pa) based on dew point temperature
+            if vapourPressure is None and self.dewpoint_temperature_avg is not None:
                 msg = "Estimating actual vapour pressure based on dew point temperature."
                 logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
