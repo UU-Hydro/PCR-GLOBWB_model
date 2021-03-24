@@ -87,7 +87,7 @@ class Meteo(object):
         
         # make sure the following values cannot be negative
         self.avgAnnualPrecipitation    = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualPrecipitation,    0.0)))
-        self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(avgAnnualDiurnalDeltaTemp,      0.0)))
+        self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0)))
 
         # the following values can be negative
         self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0)))
