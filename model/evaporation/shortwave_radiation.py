@@ -767,7 +767,7 @@ precipitation, minimum and maximum daily temperature.
 
         # extraterrestrial radiation
         self.radsw_ext = extraterrestrial_rad
-        if self.radsw_ext == None:\
+        if self.radsw_ext is None:\
            self.radsw_ext = compute_radsw_ext(self.latitude, solar_declination, \
                                               eccentricity, day_length, \
                                               self.solar_constant)
