@@ -121,8 +121,23 @@ class PCRGlobWB(object):
         
         state = self.getState()
         
-        landSurfaceState = state['landSurface']
+        meteoState = state['meteo']
+        for variable, map in list(meteoState.items()):
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             specific_date_string+".map",\
+             outputDirectory)
         
+        for coverType, coverTypeState in list(landSurfaceState.items()):
+            for variable, map in list(coverTypeState.items()):
+                vos.writePCRmapToDir(\
+                map,\
+                 str(variable)+"_"+coverType+"_"+
+                 specific_date_string+".map",\
+                 outputDirectory)
+
+        landSurfaceState = state['landSurface']
         for coverType, coverTypeState in list(landSurfaceState.items()):
             for variable, map in list(coverTypeState.items()):
                 vos.writePCRmapToDir(\
@@ -454,7 +469,7 @@ class PCRGlobWB(object):
             landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
             surfaceWaterStoresAtBeginning = self.totalSurfaceWaterStores()     
 
-        self.meteo.update(self._modelTime)                                         
+        self.meteo.update(self.routing, self._modelTime)                                         
         self.landSurface.update(self.meteo, self.groundwater, self.routing, self._modelTime)      
         self.groundwater.update(self.landSurface, self.routing, self._modelTime)
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
