@@ -778,9 +778,9 @@ precipitation, minimum and maximum daily temperature.
 
         # estimate the relative humidity 
         # - if not defined, using the minimum daily temperature as the dewpoint temperature
-        if dew_temperature == None: dew_temperature = temp_min_daily
+        if dew_temperature is None: dew_temperature = temp_min_daily
         # - if not defined, using the maximum daily temperature as the average temperature
-        if  temp_avg_daily == None: temp_avg_daily  = temp_max_daily
+        if  temp_avg_daily is None: temp_avg_daily  = temp_max_daily
         rel_hum = estimate_relative_humidity(t = temp_avg_daily , \
                                              tdew = dew_temperature)
 
