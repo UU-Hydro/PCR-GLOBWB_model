@@ -426,12 +426,12 @@ class Meteo(object):
 
         # downscaling temperature min       
         if self.air_temperature_min is not None and self.downscaleTemperatureOption:
-            self.air_temperature_min = self.downscaleTemperatureFunction(self.air_temperature_min)
+            self.air_temperature_min = self.downscaleTemperatureFunction(currTimeStep, self.air_temperature_min)
             self.air_temperature_min = pcr.min(self.temperature, self.air_temperature_min)
             
         # downscaling temperature max       
         if self.air_temperature_max is not None and self.downscaleTemperatureOption:
-            self.air_temperature_max = self.downscaleTemperatureFunction(self.air_temperature_max)
+            self.air_temperature_max = self.downscaleTemperatureFunction(currTimeStep, self.air_temperature_max)
             self.air_temperature_max = pcr.max(self.temperature, self.air_temperature_max)
         
         # calculate or obtain referencePotET
