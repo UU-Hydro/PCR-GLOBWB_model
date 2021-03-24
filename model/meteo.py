@@ -420,10 +420,20 @@ class Meteo(object):
         self.precipitation_before_downscaling = pcr.ifthen(self.landmask, self.precipitation)
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
 
-        # dowsncaling temperature        
+        # downscaling temperature average       
         self.temperature_before_downscaling = pcr.ifthen(self.landmask, self.temperature)
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
+        # downscaling temperature min       
+        if self.air_temperature_min is not None and self.downscaleTemperatureOption:
+            self.air_temperature_min = self.downscaleTemperatureFunction(self.air_temperature_min)
+            self.air_temperature_min = pcr.min(self.temperature, self.air_temperature_min)
+            
+        # downscaling temperature max       
+        if self.air_temperature_max is not None and self.downscaleTemperatureOption:
+            self.air_temperature_max = self.downscaleTemperatureFunction(self.air_temperature_max)
+            self.air_temperature_max = pcr.max(self.temperature, self.air_temperature_max)
+        
         # calculate or obtain referencePotET
         if self.refETPotMethod == 'Hamon':
             
@@ -444,17 +454,21 @@ class Meteo(object):
             
             msg = "Calculating reference potential evaporation based on the Penman-Monteith"
             logger.info(msg)
-            
 
-            # compute actual vapour pressure (Pa) based on dew point temperature
+            # compute actual vapour pressure (Pa) based on relative humidity (rh = e / e_sat)
             vapourPressure = None
-            if self.dewpoint_temperature_avg is not None:
+            if self.relative_humidity is not None:
+                msg = "Estimating actual vapour pressure based on relative humidity and temperature"
+                logger.info(msg)
+                saturatedVapourPressure = penman_monteith.getSaturatedVapourPressure(self.temperature)
+                vapourPressure = self.relative_humidity * saturatedVapourPressure
+            
+           # compute actual vapour pressure (Pa) based on dew point temperature
+2           if vapourPressure is None and self.dewpoint_temperature_avg is not None:
                 msg = "Estimating actual vapour pressure based on dew point temperature."
                 logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
             
-            # TODO: Downscale actual vapor pressure using high resolution vapor pressure estimated with daily minimum temperature (i.e. assuming dewpoint_temperature_avg = temperature minimum)     
-
 
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -503,7 +517,7 @@ class Meteo(object):
                                                                                 eccentricity = eccentricity, \
                                                                                 day_length = day_length, \
                                                                                 solar_constant = 118.1)
-                # TODO: UNTIL-THIS-PART check deg and rad values
+                # TODO: Double check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
 
@@ -551,10 +565,6 @@ class Meteo(object):
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
                 
-                # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
-                extraterrestrial_rad_in_watt_per_m2 = self.extraterestrial_radiation
-                extraterrestrial_rad = extraterrestrial_rad_in_watt_per_m2 * 0.0864
-                
                 # initiate shortwave_radiation module (this still must be done at every time step as temp_annual and delta_temp_mean is defined on the 'init' part)
 
                 # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
@@ -573,14 +583,20 @@ class Meteo(object):
 			    
                 # - TODO: set solar_constant in the configuration file                                              
 
+                # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
+                extraterrestrial_rad_in_watt_per_m2 = self.extraterestrial_radiation
+                extraterrestrial_rad = extraterrestrial_rad_in_watt_per_m2 * 0.0864
+
                 # calculate shortwave_radiation
-                self.sw_rad_model.update(date            = currTimeStep._currTimeFull, \
-                                         prec_daily      = self.precipitation, \
-                                         temp_min_daily  = self.air_temperature_min, \
-                                         temp_max_daily  = self.air_temperature_max, \
-                                         temp_avg_daily  = self.temperature, \
-                                         dew_temperature = self.dewpoint_temperature_avg, \
-                                         extraterrestrial_rad = extraterrestrial_rad)
+                self.sw_rad_model.update(date                 = currTimeStep._currTimeFull, \
+                                         prec_daily           = self.precipitation, \
+                                         temp_min_daily       = self.air_temperature_min, \
+                                         temp_max_daily       = self.air_temperature_max, \
+                                         temp_avg_daily       = self.temperature, \
+                                         dew_temperature      = self.dewpoint_temperature_avg, \
+                                         extraterrestrial_rad = extraterrestrial_rad,\
+                                         relative_humidity    = self.relative_humidity
+                                         )
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
                 self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1e6
@@ -901,6 +917,39 @@ class Meteo(object):
             self.temperature = factor * temperatureInKelvin - zeroCelciusInKelvin
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
+
+    def downscaleTemperatureFunction(self, input_temperature, currTimeStep, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
+        
+        # TODO: add CorrelationCriteria in the config file
+
+        tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
+                           self.temperLapseRateNC, 'temperature',\
+                           currTimeStep.month, useDoy = "Yes",\
+                           cloneMapFileName=self.cloneMap,\
+                           LatitudeLongitude = True)
+        tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
+        tmpCriteria = vos.netcdf2PCRobjClone(\
+                      self.temperatCorrelNC, 'temperature',\
+                      currTimeStep.month, useDoy = "Yes",\
+                      cloneMapFileName=self.cloneMap,\
+                      LatitudeLongitude = True)
+        tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
+                   tmpSlope, 0.0)             
+        tmpSlope = pcr.cover(tmpSlope, 0.0)
+    
+        if useFactor == True:
+            temperatureInKelvin = input_temperature + zeroCelciusInKelvin
+            factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
+            if considerCellArea: factor = factor * self.cellArea
+            factor = factor / \
+                     pcr.areaaverage(factor, self.meteoDownscaleIds)
+            factor = pcr.cover(factor, 1.0)
+            output_temperature = factor * temperatureInKelvin - zeroCelciusInKelvin
+        else:
+            output_temperature = input_temperature + tmpSlope * self.anomalyDEM
+        
+        return output_temperature    
+
 
     def downscaleReferenceETPot(self, currTimeStep, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, min_limit = 0.001):
 
