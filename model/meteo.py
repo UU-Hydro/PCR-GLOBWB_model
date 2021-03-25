@@ -703,7 +703,6 @@ class Meteo(object):
         self.avgAnnualTemperature = self.avgAnnualTemperature +\
                                        deltaAnnualTemperature/\
                                     pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
-        self.avgAnnualTemperature = pcr.max(0.0, self.avgAnnualTemperature)
 
         # avgAnnualDiurnalDeltaTemp
         diurnalDeltaTemp               = pcr.max(0.0, self.air_temperature_max - self.air_temperature_min)
