@@ -471,6 +471,8 @@ class Meteo(object):
                 msg = "Estimating actual vapour pressure based on dew point temperature."
                 logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
+                
+                # TODO: If dewpoint_temperature_avg is unavailable, shall we use air_temperature_min?
             
 
             # wind speed (m.s-1)
@@ -568,7 +570,7 @@ class Meteo(object):
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
                 
-                # initiate shortwave_radiation module (this still must be done at every time step as temp_annual and delta_temp_mean is defined on the 'init' part)
+                # TODO: Note initiating shortwave_radiation module still must be done at every time step as temp_annual and delta_temp_mean is defined on the 'init' part)
 
                 # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
                 self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \

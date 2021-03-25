@@ -713,8 +713,8 @@ All variables are also set internally
         self.patm_cor = patm_cor
         self.beta = beta
 
-        # return the values
-        return tau_o, tau_a, tau_v, patm_cor, beta
+        # ~ # return the values
+        # ~ return tau_o, tau_a, tau_v, patm_cor, beta
 
     def update(self, date, prec_daily, temp_min_daily, temp_max_daily, temp_avg_daily = None, dew_temperature = None, extraterrestrial_rad = None, relative_humidity = None):
 
