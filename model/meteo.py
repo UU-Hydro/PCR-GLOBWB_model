@@ -90,7 +90,10 @@ class Meteo(object):
         self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0)))
 
         # the following values can be negative
-        self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0)))
+        self.avgAnnualTemperature     = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
+        
+        # TODO: Check whether we have missing values for zero values (if yes, we have to do the following)
+        # ~ self.avgAnnualTemperature = pcr.ifthen(self.landmask, pcr.cover(self.avgAnnualTemperature, 0.0)))
 
     def __init__(self,iniItems,landmask,spinUp):
         object.__init__(self)
