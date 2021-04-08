@@ -710,7 +710,7 @@ class Meteo(object):
                                     pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
 
         # avgAnnualDiurnalDeltaTemp
-        if self.air_temperature_max is None or self.air_temperature_min is None:
+        if self.air_temperature_max is not None or self.air_temperature_min is not None:
             diurnalDeltaTemp           = pcr.max(0.0, self.air_temperature_max - self.air_temperature_min)
         else:
             diurnalDeltaTemp           = pcr.ifthen(pcr.scalar(self.landmask)*-1.0 > 0, 0.0)
