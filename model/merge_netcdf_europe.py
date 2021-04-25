@@ -497,7 +497,7 @@ areas = str(sys.argv[10])
 if areas == "Global":
     areas = ['M%07d'%i for i in range(1,72,1)]
 elif areas == "europe_30sec":
-    areas = ['M%07d'%i for i in range(1,72,1)]
+    areas = ['M%07d'%i for i in range(1,46,1)]
 else:
     areas = list(set(areas.split(",")))
 
