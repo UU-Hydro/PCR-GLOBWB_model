@@ -358,10 +358,10 @@ def mergeNetCDF(inputTuple):
             # ~ lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),4)
             # ~ lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),4)
 
-            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),40)
-            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),40)
-            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),40)
-            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),40)
+            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),1)
+            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),1)
+            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),1)
+            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),1)
 
             print(latMaxNcFile)
             print(latMinNcFile)
