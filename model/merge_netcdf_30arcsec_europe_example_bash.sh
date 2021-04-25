@@ -10,7 +10,7 @@ MAIN_OUTPUT_DIR="/lustre1/0/einf1079/edwin/pcrglobwb_output_europe/europe_30sec/
 
 wait
 
-python merge_netcdf_europe.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/europe_30sec/netcdf outMonthAvgNC 1981-01-01 1981-03-31 discharge NETCDF4 False 12 europe_30sec europe_30sec &
+python merge_netcdf_europe.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/europe_30sec/netcdf outMonthAvgNC 1981-01-31 1981-03-31 discharge NETCDF4 False 12 europe_30sec europe_30sec &
 
 
 
