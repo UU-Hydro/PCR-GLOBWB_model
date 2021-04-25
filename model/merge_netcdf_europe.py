@@ -379,10 +379,10 @@ def mergeNetCDF(inputTuple):
             maxY = min(abs(latitudes - max(latMax,latMaxNcFile)))
             row1 = int(np.where(abs(latitudes - max(latMax,latMaxNcFile)) == maxY)[0]) + 1
 
-            maxX = min(abs(latitudes - max(lonMin,lonMinNcFile)))
+            maxX = min(abs(longitudes - max(lonMin,lonMinNcFile)))
             col0 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == maxX)[0])
 
-            minX = min(abs(latitudes - min(lonMin,lonMinNcFile)))
+            minX = min(abs(longitudes - min(lonMin,lonMinNcFile)))
             col1 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == minX)[0]) + 1
 
             # ~ print(row0)
