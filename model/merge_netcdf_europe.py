@@ -363,6 +363,11 @@ def mergeNetCDF(inputTuple):
             lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),40)
             lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),40)
 
+            print(latMaxNcFile)
+            print(latMinNcFile)
+            print(lonMinNcFile)
+            print(lonMaxNcFile)
+            
             row0=  np.where(latitudes == min(latMax,latMaxNcFile))[0][0]
             row1=  np.where(latitudes == max(latMin,latMinNcFile))[0][0]+1
             col0= np.where(longitudes == max(lonMin,lonMinNcFile))[0][0]
