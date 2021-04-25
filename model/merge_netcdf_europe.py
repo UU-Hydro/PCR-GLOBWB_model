@@ -376,12 +376,12 @@ def mergeNetCDF(inputTuple):
             posCnt= None
             try:
                 
-                #~ # find the correct index (old method) - this is very slow
-                #~ posCnt= variables[index]['time'][:].tolist().index(time)
+                # find the correct index (old method) - this is very slow
+                posCnt= variables[index]['time'][:].tolist().index(time)
                 
-                # find the correct index (new method)
-                date_value = nc.num2date(time, rootgrp.variables['time'].units, rootgrp.variables['time'].calendar)
-                posCnt = nc.date2index(date_value, rootgrp.variables['time'])
+                # ~ # find the correct index (new method)
+                # ~ date_value = nc.num2date(time, rootgrp.variables['time'].units, rootgrp.variables['time'].calendar)
+                # ~ posCnt = nc.date2index(date_value, rootgrp.variables['time'])
                 
                 sampleArray= rootgrp.variables[variableName][posCnt,:,:]
                 sampleArray[sampleArray == variables[index][variableName]._FillValue]= MV
