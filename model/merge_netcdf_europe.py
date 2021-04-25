@@ -423,10 +423,10 @@ lonMax          =  180 - deltaLon / 2
 # europe 30sec
 deltaLat = 0.5/60
 deltaLon = 0.5/60
-latMin          =  33 + deltaLat / 2
-latMax          =  73 - deltaLat / 2
-lonMin          = -11 + deltaLon / 2
-lonMax          =  42 - deltaLon / 2
+latMin          =  32 + deltaLat / 2
+latMax          =  74 - deltaLat / 2
+lonMin          = -12 + deltaLon / 2
+lonMax          =  43 - deltaLon / 2
 
 # ~ (pcrglobwb_py3_env_v20200309_with_cdsapi) edwinari@tcn858.bullx:/lustre1/0/einf1079/edwin/pcrglobwb_output_europe/europe_30sec/version_2021-04-20$ gdalinfo global_subdomains_final.map
 # ~ Driver: PCRaster/PCRaster Raster File
