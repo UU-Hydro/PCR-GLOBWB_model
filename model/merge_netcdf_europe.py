@@ -253,8 +253,8 @@ def mergeNetCDF(inputTuple):
         rootgrp.close()
     
     #-create output netCDF
-    longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=20)
-    latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=20)
+    # ~ longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=20)
+    # ~ latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=20)
 
     # ~ # - for the Uly project, we fixed the following
     # ~ lonMin = round(lonMin, 2)
