@@ -253,8 +253,8 @@ def mergeNetCDF(inputTuple):
         rootgrp.close()
     
     #-create output netCDF
-    longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=20)
-    latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=20)
+    longitudes= np.around(np.arange(lonMin,lonMax+deltaLon,deltaLon), decimals=4)
+    latitudes=  np.around(np.arange(latMax,latMin-deltaLat,-deltaLat), decimals=4)
 
     # ~ # - for the Uly project, we fixed the following
     # ~ lonMin = round(lonMin, 2)
@@ -353,37 +353,37 @@ def mergeNetCDF(inputTuple):
                     latVar= key
                 if 'lon' in key.lower():
                     lonVar= key
-            # ~ latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),4)
-            # ~ latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),4)
-            # ~ lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),4)
-            # ~ lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),4)
+            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),4)
+            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),4)
+            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),4)
+            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),4)
 
-            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),20)
-            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),20)
-            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),20)
-            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),20)
+            # ~ latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),20)
+            # ~ latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),20)
+            # ~ lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),20)
+            # ~ lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),20)
 
             # ~ print(latMaxNcFile)
             # ~ print(latMinNcFile)
             # ~ print(lonMinNcFile)
             # ~ print(lonMaxNcFile)
             
-            # ~ row0= int( np.where(latitudes == min(latMax,latMaxNcFile))[0][0]  )
-            # ~ row1= int( np.where(latitudes == max(latMin,latMinNcFile))[0][0]+1)
-            # ~ col0= int(np.where(longitudes == max(lonMin,lonMinNcFile))[0][0]  ) 
-            # ~ col1= int(np.where(longitudes == min(lonMax,lonMaxNcFile))[0][0]+1)
+            row0= int( np.where(latitudes == min(latMax,latMaxNcFile))[0][0]  )
+            row1= int( np.where(latitudes == max(latMin,latMinNcFile))[0][0]+1)
+            col0= int(np.where(longitudes == max(lonMin,lonMinNcFile))[0][0]  ) 
+            col1= int(np.where(longitudes == min(lonMax,lonMaxNcFile))[0][0]+1)
 
-            minY = min(abs(latitudes - min(latMax,latMaxNcFile)))
-            row0 = int(np.where(abs(latitudes - min(latMax,latMaxNcFile)) == minY)[0])
+            # ~ minY = min(abs(latitudes - min(latMax,latMaxNcFile)))
+            # ~ row0 = int(np.where(abs(latitudes - min(latMax,latMaxNcFile)) == minY)[0])
             
-            maxY = min(abs(latitudes - max(latMax,latMaxNcFile)))
-            row1 = int(np.where(abs(latitudes - max(latMax,latMaxNcFile)) == maxY)[0]) + 1
+            # ~ maxY = min(abs(latitudes - max(latMax,latMaxNcFile)))
+            # ~ row1 = int(np.where(abs(latitudes - max(latMax,latMaxNcFile)) == maxY)[0]) + 1
 
-            maxX = min(abs(longitudes - max(lonMin,lonMinNcFile)))
-            col0 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == maxX)[0])
+            # ~ maxX = min(abs(longitudes - max(lonMin,lonMinNcFile)))
+            # ~ col0 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == maxX)[0])
 
-            minX = min(abs(longitudes - min(lonMin,lonMinNcFile)))
-            col1 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == minX)[0]) + 1
+            # ~ minX = min(abs(longitudes - min(lonMin,lonMinNcFile)))
+            # ~ col1 = int(np.where(abs(longitudes - max(lonMin,lonMinNcFile)) == minX)[0]) + 1
 
             # ~ print(row0)
             # ~ print(row1)
