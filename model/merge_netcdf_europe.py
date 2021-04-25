@@ -421,8 +421,8 @@ lonMax          =  180 - deltaLon / 2
 
 
 # europe 30sec
-deltaLat = 0.5/60
-deltaLon = 0.5/60
+deltaLat = 0.5/60.
+deltaLon = 0.5/60.
 latMin          =  32 + deltaLat / 2
 latMax          =  74 - deltaLat / 2
 lonMin          = -12 + deltaLon / 2
