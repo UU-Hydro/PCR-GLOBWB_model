@@ -373,10 +373,10 @@ def mergeNetCDF(inputTuple):
             col0= int(np.where(longitudes == max(lonMin,lonMinNcFile))[0][0]  ) 
             col1= int(np.where(longitudes == min(lonMax,lonMaxNcFile))[0][0]+1)
 
-            print(row0)
-            print(row1)
-            print(col0)
-            print(col1)
+            # ~ print(row0)
+            # ~ print(row1)
+            # ~ print(col0)
+            # ~ print(col1)
 
             posCnt= None
             try:
@@ -388,7 +388,13 @@ def mergeNetCDF(inputTuple):
                 date_value = nc.num2date(time, rootgrp.variables['time'].units, rootgrp.variables['time'].calendar)
                 posCnt = nc.date2index(date_value, rootgrp.variables['time'])
                 
+                print(date_value)
+                print(posCnt)
+                
                 sampleArray= rootgrp.variables[variableName][posCnt,:,:]
+                
+                print(sampleArray)
+                
                 sampleArray[sampleArray == variables[index][variableName]._FillValue]= MV
                 variableArray[row0:row1,col0:col1][variableArray[row0:row1,col0:col1] == MV]= \
                     sampleArray[variableArray[row0:row1,col0:col1] == MV]
