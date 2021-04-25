@@ -353,10 +353,15 @@ def mergeNetCDF(inputTuple):
                     latVar= key
                 if 'lon' in key.lower():
                     lonVar= key
-            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),4)
-            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),4)
-            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),4)
-            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),4)
+            # ~ latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),4)
+            # ~ latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),4)
+            # ~ lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),4)
+            # ~ lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),4)
+
+            latMaxNcFile = round(getMax(latMin,variables[index][latVar][:]),40)
+            latMinNcFile = round(getMin(latMax,variables[index][latVar][:]),40)
+            lonMinNcFile = round(getMin(lonMax,variables[index][lonVar][:]),40)
+            lonMaxNcFile = round(getMax(lonMin,variables[index][lonVar][:]),40)
 
             row0=  np.where(latitudes == min(latMax,latMaxNcFile))[0][0]
             row1=  np.where(latitudes == max(latMin,latMinNcFile))[0][0]+1
