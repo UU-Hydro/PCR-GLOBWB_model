@@ -62,7 +62,8 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 # run the model for all clones, from 1 to 51
 
 # - for testing
-for i in {2..3}
+#~ for i in {2..3}
+for i in {2..2}
 
 #~ for i in {1..53}
 
