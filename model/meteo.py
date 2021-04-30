@@ -1156,4 +1156,4 @@ class Meteo(object):
                 vars(self)[meteo_var_name] = vars(self)['consta_for_' + meteo_var_name] + \
                                              vars(self)['factor_for_' + meteo_var_name] * vars(self)[meteo_var_name]                                                   
 
-        pcr.aguila(self.relative_humidity)
+        # ~ pcr.aguila(self.relative_humidity)
