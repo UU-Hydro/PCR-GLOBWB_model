@@ -25,7 +25,7 @@ set -x
 #~ BASEFLOW_EXPONENT=${10}
 #~ PCRGLOBWB_MODEL_SCRIPT_FOLDER=${11}
 
-INI_FILE="setup_05min_gmd_isimip_3a_forcing_update_parameters_develop.ini"
+INI_FILE="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/aqueduct_2021/version_2021-04-30/setup_05min_gmd_isimip_3a_forcing_update_parameters_develop.ini"
 MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_develop/test/"
 STARTING_DATE="1979-01-01"
 END_DATE="1980-12-31"
