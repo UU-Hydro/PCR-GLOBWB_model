@@ -31,10 +31,10 @@ STARTING_DATE="1979-01-01"
 END_DATE="1980-12-31"
 PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_pr_global_daily_1971_1980.nc"
 TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_tas_global_daily_1971_1980.nc"
+PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_tasmax_global_daily_1971_1980.nc"
 WIND_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_sfcwind_global_daily_1971_1980.nc"
 SHORTWAVE_RADIATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_rsds_global_daily_1971_1980.nc"
 RELATIVE_HUMIDITY_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_hurs_global_daily_1971_1980.nc"
-PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5/gswp3-w5e5_obsclim_tasmax_global_daily_1971_1980.nc"
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 #~ sutan101@gpu038.cluster:/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/GSWP3-W5E5$ ls -lah *1980*
@@ -70,7 +70,7 @@ for i in {2..2}
 do
 
 CLONE_CODE=${i}
-python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -rpetff ${WIND_FORCING_FILE} -presff ${SHORTWAVE_RADIATION_FORCING_FILE} -windff ${RELATIVE_HUMIDITY_FORCING_FILE} -swradff ${PRESSURE_FORCING_FILE} -relhumff ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
+python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -presff ${PRESSURE_FORCING_FILE} -windff ${WIND_FORCING_FILE} -swradff ${SHORTWAVE_RADIATION_FORCING_FILE} -relhumff ${RELATIVE_HUMIDITY_FORCING_FILE} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 done
 
