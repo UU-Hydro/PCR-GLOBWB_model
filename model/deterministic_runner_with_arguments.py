@@ -435,10 +435,10 @@ def modify_ini_file(original_ini_file,
         print(msg)
 
     # atmospheric_pressure = PRESSURE_FORCING_FILE
-    if "-preff" in system_argument:
-        pressure_forcing_file = system_argument[system_argument.index("-preff") + 1]
+    if "-presff" in system_argument:
+        pressure_forcing_file = system_argument[system_argument.index("-presff") + 1]
         file_ini_content = file_ini_content.replace("PRESSURE_FORCING_FILE", pressure_forcing_file)
-        msg = "The pressure forcing file 'atmospheric_pressure' is set based on the system argument (-preff): " + pressure_forcing_file
+        msg = "The pressure forcing file 'atmospheric_pressure' is set based on the system argument (-presff): " + pressure_forcing_file
         print(msg)
 
     # wind_speed_10m = WIND_FORCING_FILE
