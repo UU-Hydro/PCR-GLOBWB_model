@@ -59,7 +59,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
-# run the model for all clones, from 1 to 51
+# run the model for all clones, from 1 to 53
 
 # - for testing
 #~ for i in {2..3}
