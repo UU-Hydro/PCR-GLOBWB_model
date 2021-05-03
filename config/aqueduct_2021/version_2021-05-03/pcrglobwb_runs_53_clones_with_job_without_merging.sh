@@ -73,6 +73,8 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 # load modules on eejit
 . /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
 
+pcrcalc
+
 #~ # - unset pcraster working threads
 #~ unset PCRASTER_NR_WORKER_THREADS
 
