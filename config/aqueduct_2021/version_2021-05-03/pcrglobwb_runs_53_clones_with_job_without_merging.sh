@@ -48,7 +48,7 @@ END_DATE="2016-12-31"
 
 PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_pr_global_daily_1979_2016_with_climatology_on_1978.nc"
 TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_tas_global_daily_1979_2016_with_climatology_on_1978.nc"
-PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_ps_global_daily_1979_2016_with_climatology_on_1978.ncc"
+PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_ps_global_daily_1979_2016_with_climatology_on_1978.nc"
 WIND_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_sfcwind_global_daily_1979_2016_with_climatology_on_1978.nc"
 SHORTWAVE_RADIATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_rsds_global_daily_1979_2016_with_climatology_on_1978.nc"
 RELATIVE_HUMIDITY_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a/copied_on_2020-12-XX/W5E5_merged_1979-2016/merged_1979-2016_with_climatology/w5e5_obsclim_hurs_global_daily_1979_2016_with_climatology_on_1978.nc"
@@ -85,9 +85,9 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # - for testing
 #~ for i in {2..3}
-for i in {2..2}
+#~ for i in {2..2}
 
-#~ for i in {1..53}
+for i in {1..53}
 
 do
 
