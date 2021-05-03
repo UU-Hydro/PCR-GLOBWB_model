@@ -97,7 +97,7 @@ python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLON
 done
 
 
-#~ # merging process
+#~ # merging process (still under development)
 #~ python3 deterministic_runner_merging_ulysses.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
 
 wait
