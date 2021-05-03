@@ -376,7 +376,7 @@ class Reporting(object):
         # saving some model paramaters that are constant over time
         if self._modelTime.timeStepPCR == 1:
             # recession coefficient (day-1)
-            pcr.report(pcr.ifthen(self._model.routing.landmask, self._model.groundwater.recessionCoeff, self.configuration.mapsDir + "/globalalpha.map"))
+            pcr.report(pcr.ifthen(self._model.routing.landmask, self._model.groundwater.recessionCoeff), self.configuration.mapsDir + "/globalalpha.map")
 
     def report_forcing_for_debugging(self):
 
