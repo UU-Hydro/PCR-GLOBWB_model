@@ -188,7 +188,7 @@ class DeterministicRunner(DynamicModel):
 
             print(cmd)
 
-            # ~ pietje
+            pietje
             
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
