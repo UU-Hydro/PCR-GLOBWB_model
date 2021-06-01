@@ -256,10 +256,10 @@ if sys.argv[6] == "defined":
     ymin               = float(sys.argv[9])
     xmax               = float(sys.argv[10])
     ymax               = float(sys.argv[11])
-    lonMin = xmin + float(sys.argv[12]) / (2. * 3600.)
-    latMin = ymin + float(sys.argv[12]) / (2. * 3600.)
-    latMax = xmax - float(sys.argv[12]) / (2. * 3600.)
-    lonMax = ymax - float(sys.argv[12]) / (2. * 3600.)
+    lonMin = xmin + float(sys.argv[7]) / (2. * 3600.)
+    latMin = ymin + float(sys.argv[7]) / (2. * 3600.)
+    latMax = xmax - float(sys.argv[7]) / (2. * 3600.)
+    lonMax = ymax - float(sys.argv[7]) / (2. * 3600.)
 
 
 
