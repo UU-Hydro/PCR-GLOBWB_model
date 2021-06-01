@@ -188,7 +188,7 @@ class DeterministicRunner(DynamicModel):
 
             print(cmd)
 
-            pietje
+            # ~ pietje
             
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
@@ -314,8 +314,8 @@ class DeterministicRunner(DynamicModel):
                 self.count_check += 1
             status = os.path.exists(status_file)
 
-            # for debugging
-            status = True
+            # ~ # for debugging
+            # ~ status = True
 
             if status == False: return status
             if status: self.count_check = 0            
