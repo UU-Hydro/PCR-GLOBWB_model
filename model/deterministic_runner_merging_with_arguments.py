@@ -185,6 +185,8 @@ class DeterministicRunner(DynamicModel):
                                                                                                                 str(self.xmax              ) + " "  +\
                                                                                                                 str(self.ymax              ) + " "
 
+            print(cmd)
+            
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
             
