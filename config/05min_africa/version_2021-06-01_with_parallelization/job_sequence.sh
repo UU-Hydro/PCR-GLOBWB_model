@@ -34,13 +34,15 @@ DATE_FOR_INITIAL_STATES=${END_DATE}
 
 
 
+# number of years
+let NUM_OF_YEARS=${STARTING_YEAR}-${END_YEAR}+1
 
 # the run for every year
-for i in {${STARTING_YEAR}..${END_YEAR}}
+for i in {1..${NUM_OF_YEARS}}
 
 do
 
-YEAR=${i}
+let YEAR=i+${STARTING_YEAR}-1
 
 SUB_JOBNAME=${JOB_NAME}_${YEAR}
 MAIN_OUTPUT_DIR=${GENERAL_MAIN_OUTPUT_DIR}/${YEAR}/
