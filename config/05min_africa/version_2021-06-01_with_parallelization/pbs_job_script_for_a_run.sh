@@ -4,7 +4,9 @@
 #~ #PBS -l walltime=72:00:00
 
 #PBS -l select=1:ncpus=256:mem=620gb
-#PBS -l walltime=72:00:00
+#~ #PBS -l walltime=72:00:00
+
+#PBS -l walltime=24:00:00
 
 #PBS -q express -P exp-00044
 
