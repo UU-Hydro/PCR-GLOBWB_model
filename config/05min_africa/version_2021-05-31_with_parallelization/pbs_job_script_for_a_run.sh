@@ -1,7 +1,10 @@
 #!/bin/bash 
 
-#PBS -l select=1:ncpus=48:mem=124gb
-#PBS -l walltime=48:00:00
+#~ #PBS -l select=1:ncpus=48:mem=124gb
+#~ #PBS -l walltime=72:00:00
+
+#PBS -l select=1:ncpus=256:mem=124gb
+#PBS -l walltime=72:00:00
 
 #PBS -q express -P exp-00044
 

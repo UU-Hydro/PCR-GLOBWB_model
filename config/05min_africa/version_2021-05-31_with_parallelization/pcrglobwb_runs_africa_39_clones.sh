@@ -30,11 +30,11 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=${11}
 cd /rds/general/user/esutanud/home/
 . load_all_default.sh
 
-#~ # set number of threads for pcraster
-#~ export PCRASTER_NR_WORKER_THREADS=48
+# set number of threads for pcraster
+export PCRASTER_NR_WORKER_THREADS=16
 
-# do not use workers/threads for pcraster
-unset PCRASTER_NR_WORKER_THREADS
+#~ # do not use workers/threads for pcraster
+#~ unset PCRASTER_NR_WORKER_THREADS
 
 
 # go to the folder that contain PCR-GLOBWB scripts
