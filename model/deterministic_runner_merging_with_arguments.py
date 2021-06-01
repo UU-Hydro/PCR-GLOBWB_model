@@ -302,13 +302,13 @@ class DeterministicRunner(DynamicModel):
         
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory) + "/" +str(clone_area) + "/maps/pcrglobwb_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
-            if self.count_check == 1: logger.info(msg)
-            if self.count_check < 7:
-                #~ logger.debug(msg)		# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
-                self.count_check += 1
             status = os.path.exists(status_file)
             if status == False:
                 msg = 'Waiting for the file: '+status_file
+                if self.count_check == 1: logger.info(msg)
+                if self.count_check < 7:
+                    #~ logger.debug(msg)		# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
+                    self.count_check += 1
                 return status
             if status: self.count_check = 0            
                     
