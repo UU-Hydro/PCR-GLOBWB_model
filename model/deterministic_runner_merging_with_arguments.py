@@ -177,7 +177,7 @@ class DeterministicRunner(DynamicModel):
 
             # - for general (e.g. africa extent, europe, etc)
             cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_general.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                str(self.configuration.main_output_directory)+"/ states 1 "+\
+                                                                                                                str(self.configuration.main_output_directory)+"/ states 32 "+\
                                                                                                                 str(self.number_of_clones  ) + " "  +\
                                                                                                                 str("defined")               + " "  +\
                                                                                                                 str(self.cellsize_in_arcsec) + " "  +\
@@ -187,11 +187,12 @@ class DeterministicRunner(DynamicModel):
                                                                                                                 str(self.ymax              ) + " "
 
             print(cmd)
+
+            # ~ pietje
             
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
             
-            pietje
             
             # cleaning up unmerged files (not tested yet)
             clean_up_pcraster_maps = False
@@ -312,7 +313,10 @@ class DeterministicRunner(DynamicModel):
                 #~ logger.debug(msg)		# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
                 self.count_check += 1
             status = os.path.exists(status_file)
-            status = True
+
+            # ~ # for debugging
+            # ~ status = True
+
             if status == False: return status
             if status: self.count_check = 0            
                     
