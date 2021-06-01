@@ -328,23 +328,26 @@ for fileName in list(files.keys()):
         ll.append(inputFileName)
     files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
 
-# this is for testing
-joinMaps(files[fileName])
+# ~ # this is for testing
+# ~ joinMaps(files[fileName])
 
-# ~ print()
-# ~ print()
-# ~ pool = Pool(processes=ncores)       # start "ncores" of worker processes
-# ~ pool.map(joinMaps,list(files.values()))
-# ~ print()
-# ~ print()
-
-#-remove temporary file
-os.remove(tempCloneMap)
-print(' all done')
+print()
+print()
+pool = Pool(processes=ncores)       # start "ncores" of worker processes
+pool.map(joinMaps,list(files.values()))
 print()
 print()
 
 pool.terminate()
 pool.join()
+
+#-remove temporary file
+os.remove(tempCloneMap)
+
+print()
+print()
+print(' all done')
+print()
+print()
 
 sys.exit()
