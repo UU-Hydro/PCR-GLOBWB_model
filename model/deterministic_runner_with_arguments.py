@@ -469,6 +469,13 @@ def modify_ini_file(original_ini_file,
         msg = "The groundwater baseflow exponent 'bfexp' is set based on the system argument (-bfexp): " + baseflow_exponent
         print(msg)
 
+    # NUMBER_OF_SPINUP_YEARS
+    if "-num_of_sp_years" in system_argument:
+        number_of_spinup_years = system_argument[system_argument.index("-num_of_sp_years") + 1]
+        file_ini_content = file_ini_content.replace("NUMBER_OF_SPINUP_YEARS", number_of_spinup_years)
+        msg = "The number_of_spinup_years is set based on the system argument (-num_of_sp_years): " + number_of_spinup_years
+        print(msg)
+    
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     # - for a run that is part of a set of parallel (clone) runs

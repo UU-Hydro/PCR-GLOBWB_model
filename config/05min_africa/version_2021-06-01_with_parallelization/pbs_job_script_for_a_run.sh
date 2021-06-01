@@ -10,23 +10,17 @@
 
 #PBS -N pgb_af_parl_test
 
-#PBS -v INI_FILE="setup.ini",MAIN_OUTPUT_DIR="/scratch/out/",STARTING_DATE="1982-01-01",END_DATE="2000-12-31",MAIN_INITIAL_STATE_FOLDER="/scratch/prev_out/states/",DATE_FOR_INITIAL_STATES="1981-12-31"
+#PBS -v INI_FILE="setup.ini",MAIN_OUTPUT_DIR="/scratch/out/",STARTING_DATE="1982-01-01",END_DATE="2000-12-31",MAIN_INITIAL_STATE_FOLDER="/scratch/prev_out/states/",DATE_FOR_INITIAL_STATES="1981-12-31",NUMBER_OF_SPINUP_YEARS="0"
 
 
 # for testing
 INI_FILE="setup_05min_africa_version_develop.ini"
-
-# set the output folder
-MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-05-31/africa_05min/africa_with_parallelization_accutraveltime_test/"
-
-# set the starting and end simulation dates
+MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-06-01/africa_05min/africa_with_parallelization_accutraveltime_test/"
 STARTING_DATE="1981-01-01"
 END_DATE="1981-12-31"
-
-# set the initial conditions (folder and time stamp for the files)
 MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-05-31/africa_05min/africa_kinematicwave/states/"
 DATE_FOR_INITIAL_STATES="1981-12-31"
-
+NUMBER_OF_SPINUP_YEARS="0"
 
 set -x
 
@@ -55,10 +49,12 @@ REF_POT_ET_FORCING_FILE="NONE"
 # baseflow exponent
 BASEFLOW_EXPONENT="NONE"
 
+# NUMBER_OF_SPINUP_YEARS
+NUMBER_OF_SPINUP_YEARS=${NUMBER_OF_SPINUP_YEARS}
 
 # run the script
 cd ${PBS_O_WORKDIR}
-bash pcrglobwb_runs_africa_39_clones.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} ${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE} ${BASEFLOW_EXPONENT} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
+bash pcrglobwb_runs_africa_39_clones.sh ${INI_FILE} ${MAIN_OUTPUT_DIR} ${STARTING_DATE} ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${DATE_FOR_INITIAL_STATES} ${PRECIPITATION_FORCING_FILE} ${TEMPERATURE_FORCING_FILE} ${REF_POT_ET_FORCING_FILE} ${BASEFLOW_EXPONENT} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${NUMBER_OF_SPINUP_YEARS}
 
 # wait for 30 sec 
 sleep 30
