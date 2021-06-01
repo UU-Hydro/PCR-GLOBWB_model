@@ -157,9 +157,10 @@ class DeterministicRunner(DynamicModel):
 
 
         # merging initial conditions (pcraster maps) of PCR-GLOBWB
-        # ~ if self.modelTime.isLastDayOfYear():
-        # - for Ulysses we have to do it on every month
-        if self.modelTime.isLastDayOfMonth():
+        if self.modelTime.isLastDayOfYear():
+
+        # ~ # - for Ulysses we have to do it on every month
+        # ~ if self.modelTime.isLastDayOfMonth():
 
             msg = "Merging pcraster map files belonging to initial conditions."
             logger.info(msg)
