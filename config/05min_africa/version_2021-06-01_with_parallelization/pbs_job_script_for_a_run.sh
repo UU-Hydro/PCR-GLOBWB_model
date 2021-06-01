@@ -6,8 +6,12 @@
 #~ #PBS -l select=1:ncpus=256:mem=620gb
 #~ #PBS -l walltime=72:00:00
 
-#PBS -l select=1:ncpus=240:mem=240gb
-#PBS -l walltime=24:00:00
+#~ Express queue exp_48_128_72:
+  #~ Permitted job configurations:
+   #~ -lselect=1-16:ncpus=24-48:mem=252gb -lwalltime=240:00:00
+
+#PBS -l select=1:ncpus=48:mem=252gb
+#PBS -l walltime=72:00:00
 
 #PBS -q express -P exp-00044
 
