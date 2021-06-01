@@ -57,6 +57,13 @@ class DeterministicRunner(DynamicModel):
     def __init__(self, configuration, modelTime, system_argument = None):
         DynamicModel.__init__(self)
 
+        self.number_of_clones   = configuration.globalMergingAndModflowOptions['number_of_clones']
+        self.cellsize_in_arcsec = configuration.globalMergingAndModflowOptions['cellsize_in_arcsec']       
+        self.xmin               = configuration.globalMergingAndModflowOptions['xmin']                    
+        self.ymin               = configuration.globalMergingAndModflowOptions['ymin']
+        self.xmax               = configuration.globalMergingAndModflowOptions['xmax']
+        self.ymax               = configuration.globalMergingAndModflowOptions['ymax']
+
         # model time object
         self.modelTime = modelTime        
         
@@ -156,14 +163,29 @@ class DeterministicRunner(DynamicModel):
 
             msg = "Merging pcraster map files belonging to initial conditions."
             logger.info(msg)
+
+            # ~ # - for a global extent 
             # ~ cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcraster_maps.py " + str(self.modelTime.fulldate) + " " +\
                                                                                                    # ~ str(self.configuration.main_output_directory)+"/ states 8 "+\
                                                                                                    # ~ str("Global")
-            # - for Ulysses: 
-            # example: python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
-            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                         str(self.configuration.main_output_directory)+"/ states 32 "+\
-                                                                                                                         str("Global 71 False")
+            # ~ # - for Ulysses: 
+            # ~ # example: python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
+            # ~ cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                                         # ~ str(self.configuration.main_output_directory)+"/ states 32 "+\
+                                                                                                                         # ~ str("Global 71 False")
+
+            # - for general (e.g. africa extent, europe, etc)
+            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_geneay.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                               str(self.configuration.main_output_directory)+"/ states 32 "+\
+                                                                                                               str(max_number_of_cores) + " "  +\
+                                                                                                               str(self.number_of_clones  ) + " "  +\
+                                                                                                               str("defined")               + " "  +\
+                                                                                                               str(self.cellsize_in_arcsec) + " "  +\
+                                                                                                               str(self.xmin              ) + " "  +\
+                                                                                                               str(self.ymin              ) + " "  +\
+                                                                                                               str(self.xmax              ) + " "  +\
+                                                                                                               str(self.ymax              ) + " "
+
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
             
@@ -226,19 +248,36 @@ class DeterministicRunner(DynamicModel):
                                                                                             # ~ str(max_number_of_cores) + " "  +\
                                                                                             # ~ str("Global")  + " "
             
-            # - for Ulysses:
-            # example: python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
-            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.main_output_directory) + " " +\
-                                                                                                                  str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
-                                                                                                                  str(nc_report_type)  + " " +\
-                                                                                                                  str(start_date) + " " +\
-                                                                                                                  str(end_date)   + " " +\
-                                                                                                                  str(netcdf_files_that_will_be_merged) + " " +\
-                                                                                                                  str(self.netcdf_format)  + " "  +\
-                                                                                                                  str(self.zlib_option  )  + " "  +\
-                                                                                                                  str(max_number_of_cores) + " "  +\
-                                                                                                                  str("Global default_lats")  + " "
-            
+            # ~ # - for Ulysses:
+            # ~ # example: python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
+            # ~ cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.main_output_directory) + " " +\
+                                                                                                                  # ~ str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
+                                                                                                                  # ~ str(nc_report_type)  + " " +\
+                                                                                                                  # ~ str(start_date) + " " +\
+                                                                                                                  # ~ str(end_date)   + " " +\
+                                                                                                                  # ~ str(netcdf_files_that_will_be_merged) + " " +\
+                                                                                                                  # ~ str(self.netcdf_format)  + " "  +\
+                                                                                                                  # ~ str(self.zlib_option  )  + " "  +\
+                                                                                                                  # ~ str(max_number_of_cores) + " "  +\
+                                                                                                                  # ~ str("Global default_lats")  + " "
+
+            # - for general:
+            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_general.py " + str(self.configuration.main_output_directory) + " " +\
+                                                                                                         str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
+                                                                                                         str(nc_report_type)  + " " +\
+                                                                                                         str(start_date) + " " +\
+                                                                                                         str(end_date)   + " " +\
+                                                                                                         str(netcdf_files_that_will_be_merged) + " " +\
+                                                                                                         str(self.netcdf_format)  + " "  +\
+                                                                                                         str(self.zlib_option  )  + " "  +\
+                                                                                                         str(max_number_of_cores) + " "  +\
+                                                                                                         str(self.number_of_clones  ) + " "  +\
+                                                                                                         str(self.cellsize_in_arcsec) + " "  +\
+                                                                                                         str(self.xmin              ) + " "  +\
+                                                                                                         str(self.ymin              ) + " "  +\
+                                                                                                         str(self.xmax              ) + " "  +\
+                                                                                                         str(self.ymax              ) + " "
+
             msg = "Using the following command line: " + cmd
             logger.info(msg)
             
@@ -371,7 +410,7 @@ def main():
     if len(sys.argv) > 2:
         if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel": debug_mode = True
     
-    # options to perform steady state calculation
+    # options to perform steady state calculation (for modflow)
     steady_state_only = False
     if len(sys.argv) > 3: 
         if sys.argv[3] == "steady-state-only": steady_state_only = True
@@ -398,5 +437,3 @@ if __name__ == '__main__':
     # print disclaimer
     disclaimer.print_disclaimer(with_logger = True)
     sys.exit(main())
-
-
