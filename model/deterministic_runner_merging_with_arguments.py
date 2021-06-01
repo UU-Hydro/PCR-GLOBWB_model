@@ -287,17 +287,18 @@ class DeterministicRunner(DynamicModel):
 
     def check_pcrglobwb_status(self):
 
-        if self.configuration.globalOptions['cloneAreas'] == "Global" or \
-           self.configuration.globalOptions['cloneAreas'] == "part_one":
-            clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
+        # ~ if self.configuration.globalOptions['cloneAreas'] == "Global" or \
+           # ~ self.configuration.globalOptions['cloneAreas'] == "part_one":
+            # ~ clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
         
-        # for the Ulysses project
-        elif self.configuration.globalOptions['cloneAreas'] == "GlobalUlysses":
-            clone_areas = ['M%07d'%i for i in range(1,71+1,1)]
+        # ~ # for the Ulysses project
+        # ~ elif self.configuration.globalOptions['cloneAreas'] == "GlobalUlysses":
+            # ~ clone_areas = ['M%07d'%i for i in range(1,71+1,1)]
         
-        else:
-            clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
-        
+        # ~ else:
+            # ~ clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
+
+        clone_areas = ['M%07d'%i for i in range(1, self.number_of_clones + 1, 1)]
         
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory) + "/" +str(clone_area) + "/maps/pcrglobwb_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
