@@ -39,8 +39,8 @@ let NUM_OF_YEARS=${END_YEAR}-${STARTING_YEAR}+1
 
 # the run for every year
 #~ for i in {1..39}
-for i in {1..${(NUM_OF_YEARS)}}
-
+#~ for i in {1..${(NUM_OF_YEARS)}}
+for i in {1..$((NUM_OF_YEARS))}
 
 do
 
