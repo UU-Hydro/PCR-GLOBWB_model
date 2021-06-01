@@ -555,8 +555,8 @@ if sys.argv[11] == "defined":
     ymax               = float(sys.argv[16])
     lonMin = xmin + float(sys.argv[12]) / (2. * 3600.)
     latMin = ymin + float(sys.argv[12]) / (2. * 3600.)
-    latMax = xmax - float(sys.argv[12]) / (2. * 3600.)
-    lonMax = ymax - float(sys.argv[12]) / (2. * 3600.)
+    lonMax = xmax - float(sys.argv[12]) / (2. * 3600.)
+    latMax = ymax - float(sys.argv[12]) / (2. * 3600.)
 
 #~ # for testing, we use only a single core
 #~ mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))

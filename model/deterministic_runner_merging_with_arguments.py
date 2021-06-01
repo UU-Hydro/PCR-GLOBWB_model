@@ -277,6 +277,7 @@ class DeterministicRunner(DynamicModel):
                                                                                                          str(self.zlib_option  )  + " "  +\
                                                                                                          str(max_number_of_cores) + " "  +\
                                                                                                          str(self.number_of_clones  ) + " "  +\
+                                                                                                         str("defined")               + " "  +\
                                                                                                          str(self.cellsize_in_arcsec) + " "  +\
                                                                                                          str(self.xmin              ) + " "  +\
                                                                                                          str(self.ymin              ) + " "  +\
@@ -314,8 +315,8 @@ class DeterministicRunner(DynamicModel):
                 self.count_check += 1
             status = os.path.exists(status_file)
 
-            # ~ # for debugging
-            # ~ status = True
+            # for debugging
+            status = True
 
             if status == False: return status
             if status: self.count_check = 0            
