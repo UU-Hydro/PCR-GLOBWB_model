@@ -260,8 +260,8 @@ if sys.argv[6] == "defined":
     deltaLon = deltaLat
     lonMin = xmin
     latMin = ymin
-    latMax = xmax
-    lonMax = ymax
+    lonMax = xmax
+    latMax = ymax
 
 
 
