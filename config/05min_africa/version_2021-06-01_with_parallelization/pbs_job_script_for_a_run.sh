@@ -14,7 +14,7 @@
 
 
 # for testing
-INI_FILE="setup_05min_africa_version_develop.ini"
+INI_FILE="setup_05min_africa_version_2021-06-01.ini"
 MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-06-01/africa_05min/africa_with_parallelization_accutraveltime_test/"
 STARTING_DATE="1981-01-01"
 END_DATE="1981-12-31"
