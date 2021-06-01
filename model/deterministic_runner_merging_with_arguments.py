@@ -188,6 +188,8 @@ class DeterministicRunner(DynamicModel):
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
             
+            pietje
+            
             # cleaning up unmerged files (not tested yet)
             clean_up_pcraster_maps = False
             if "delete_unmerged_pcraster_maps" in list(self.configuration.mergingOutputOptions.keys()) and self.configuration.mergingOutputOptions["delete_unmerged_pcraster_maps"] == "True": clean_up_pcraster_maps = True                    # TODO: FIXME: This is NOT working yet.
