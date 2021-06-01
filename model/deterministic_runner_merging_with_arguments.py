@@ -177,7 +177,7 @@ class DeterministicRunner(DynamicModel):
 
             # - for general (e.g. africa extent, europe, etc)
             cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_general.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                                str(self.configuration.main_output_directory)+"/ states 32 "+\
+                                                                                                                str(self.configuration.main_output_directory)+"/ states 1 "+\
                                                                                                                 str(self.number_of_clones  ) + " "  +\
                                                                                                                 str("defined")               + " "  +\
                                                                                                                 str(self.cellsize_in_arcsec) + " "  +\
