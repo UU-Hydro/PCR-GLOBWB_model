@@ -30,7 +30,7 @@ DATE_FOR_INITIAL_STATES="1981-12-31"
 NUMBER_OF_SPINUP_YEARS="0"
 
 # for testing - with kinematicwave
-INI_FILE="setup_05min_africa_version_2021-06-01.ini"
+INI_FILE="setup_05min_africa_version_2021-06-01_kinemacticwave.ini"
 MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-06-01/africa_05min/africa_with_parallelization_kinematicwave_test/"
 STARTING_DATE="1981-01-01"
 END_DATE="2019-12-31"
