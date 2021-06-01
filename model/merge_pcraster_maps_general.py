@@ -256,6 +256,8 @@ if sys.argv[6] == "defined":
     ymin               = float(sys.argv[9])
     xmax               = float(sys.argv[10])
     ymax               = float(sys.argv[11])
+    deltaLat = float(sys.argv[7]) / (3600.)
+    deltaLon = deltaLat
     lonMin = xmin
     latMin = ymin
     latMax = xmax
