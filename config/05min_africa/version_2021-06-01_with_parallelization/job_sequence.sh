@@ -35,7 +35,7 @@ DATE_FOR_INITIAL_STATES=${END_DATE}
 
 
 # number of years
-let NUM_OF_YEARS=${STARTING_YEAR}-${END_YEAR}+1
+let NUM_OF_YEARS=${END_YEAR}-${STARTING_YEAR}+1
 
 # the run for every year
 for i in {1..${NUM_OF_YEARS}}
