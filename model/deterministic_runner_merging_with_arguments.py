@@ -298,7 +298,7 @@ class DeterministicRunner(DynamicModel):
         # ~ else:
             # ~ clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
 
-        clone_areas = ['M%07d'%i for i in range(1, self.number_of_clones + 1, 1)]
+        clone_areas = ['M%07d'%i for i in range(1, int(self.number_of_clones) + 1, 1)]
         
         for clone_area in clone_areas:
             status_file = str(self.configuration.main_output_directory) + "/" +str(clone_area) + "/maps/pcrglobwb_files_for_" + str(self.modelTime.fulldate) + "_are_ready.txt"
