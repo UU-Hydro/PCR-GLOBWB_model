@@ -308,6 +308,7 @@ class DeterministicRunner(DynamicModel):
                 #~ logger.debug(msg)		# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
                 self.count_check += 1
             status = os.path.exists(status_file)
+            status = True
             if status == False: return status
             if status: self.count_check = 0            
                     
