@@ -175,15 +175,15 @@ class DeterministicRunner(DynamicModel):
                                                                                                                          # ~ str("Global 71 False")
 
             # - for general (e.g. africa extent, europe, etc)
-            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_geneay.py " + str(self.modelTime.fulldate) + " " +\
-                                                                                                               str(self.configuration.main_output_directory)+"/ states 32 "+\
-                                                                                                               str(self.number_of_clones  ) + " "  +\
-                                                                                                               str("defined")               + " "  +\
-                                                                                                               str(self.cellsize_in_arcsec) + " "  +\
-                                                                                                               str(self.xmin              ) + " "  +\
-                                                                                                               str(self.ymin              ) + " "  +\
-                                                                                                               str(self.xmax              ) + " "  +\
-                                                                                                               str(self.ymax              ) + " "
+            cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_general.py " + str(self.modelTime.fulldate) + " " +\
+                                                                                                                str(self.configuration.main_output_directory)+"/ states 32 "+\
+                                                                                                                str(self.number_of_clones  ) + " "  +\
+                                                                                                                str("defined")               + " "  +\
+                                                                                                                str(self.cellsize_in_arcsec) + " "  +\
+                                                                                                                str(self.xmin              ) + " "  +\
+                                                                                                                str(self.ymin              ) + " "  +\
+                                                                                                                str(self.xmax              ) + " "  +\
+                                                                                                                str(self.ymax              ) + " "
 
             # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
