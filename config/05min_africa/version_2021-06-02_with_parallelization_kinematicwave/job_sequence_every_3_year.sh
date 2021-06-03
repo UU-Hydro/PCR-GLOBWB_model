@@ -44,7 +44,7 @@ for i in $( eval echo {1..$NUMOFYEARS} )
 
 do
 
-let STAYEAR=${STARTING_YEAR}+(${i}-1)*3
+let STAYEAR=${STARTING_YEAR}+${i}*3-3
 let ENDYEAR=${STAYEAR}+3-1
 
 SUB_JOBNAME=${JOB_NAME}_${STAYEAR}-${ENDYEAR}
