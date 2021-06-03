@@ -38,9 +38,11 @@ DATE_FOR_INITIAL_STATES=${END_DATE}
 # number of years
 let NUMOFYEARS=${END_YEAR}-${STARTING_YEAR}+1
 
-# the run for every year
-#~ for i in {1..39}
-for i in $( eval echo {1..$NUMOFYEARS} )
+# we will run for every 3-year period
+let NUMOFSUBRUNS=${NUMOFYEARS}/3
+
+# the run for every 3-year period
+for i in $( eval echo {1..$NUMOFSUBRUNS} )
 
 do
 
