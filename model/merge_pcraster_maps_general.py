@@ -246,7 +246,7 @@ except:
 
 # number of clone areas
 number_of_clones = int(sys.argv[5])
-areas = ['M%07d'%i for i in range(1, number_of_clones, 1)]
+areas = ['M%07d'%i for i in range(1, number_of_clones + 1, 1)]
 
 
 # clonemap defined from the system argument =
