@@ -476,6 +476,15 @@ def modify_ini_file(original_ini_file,
         msg = "The number_of_spinup_years is set based on the system argument (-num_of_sp_years): " + number_of_spinup_years
         print(msg)
     
+    # CLONEMAP
+    if "-clonemap" in system_argument:
+        clonemap = system_argument[system_argument.index("-clonemap") + 1]
+        file_ini_content = file_ini_content.replace("CLONEMAP", clonemap)
+        msg = "The clonemap is set based on the system argument (-clonemap): " + clonemap
+        print(msg)
+
+
+    
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     # - for a run that is part of a set of parallel (clone) runs
