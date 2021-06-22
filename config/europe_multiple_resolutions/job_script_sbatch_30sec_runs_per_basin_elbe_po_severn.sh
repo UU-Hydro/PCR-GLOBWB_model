@@ -3,7 +3,7 @@
 #SBATCH -N 1
 #SBATCH -t 119:59:00
 #SBATCH -p normal
-#SBATCH --constraint=haswell
+#~ #SBATCH --constraint=haswell
 
 #SBATCH -J eu1k_eps
 
