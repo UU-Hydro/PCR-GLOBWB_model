@@ -1,11 +1,14 @@
 #!/bin/bash 
 
 #SBATCH -N 1
-#SBATCH -t 119:59:00
-#SBATCH -p normal
-#SBATCH --constraint=haswell
+#~ #SBATCH -t 119:59:00
+#~ #SBATCH -p normal
+#~ #SBATCH --constraint=haswell
 
-#SBATCH -J 1km_eps
+#SBATCH -t 59:00
+#SBATCH -p short
+
+#SBATCH -J eu1k_test
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
@@ -26,7 +29,7 @@ set -x
 unset PCRASTER_NR_WORKER_THREADS
 
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 # - go there
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} 
 
@@ -46,21 +49,14 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # run all runs
 
-CLONEMAP="elbe"
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative1_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative2_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
+CLONEMAP="vistula"
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP}_test -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP}_test -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${CLONEMAP}_test -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative1_version_2021-06-XX.ini -mod ${CLONEMAP}_test -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative2_version_2021-06-XX.ini -mod ${CLONEMAP}_test -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
 
-CLONEMAP="po"
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative1_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_alternative2_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
-
-CLONEMAP="severn"
+CLONEMAP="maritsa"
 python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
 python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
 python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${CLONEMAP} -clonemap ${CLONEMAP}/${CLONEMAP}_30sec.map &
