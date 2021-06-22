@@ -5,7 +5,7 @@
 #SBATCH -p normal
 #~ #SBATCH --constraint=haswell
 
-#SBATCH -J eu1k_vm
+#SBATCH -J eu1k_rme
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
