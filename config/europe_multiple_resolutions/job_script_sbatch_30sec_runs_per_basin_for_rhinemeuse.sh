@@ -54,9 +54,9 @@ GENERAL_OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe/europe_30
 # run all runs
 
 CLONEMAP="rhinemeuse"
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP}/ -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP}/ -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX.ini -mod ${GENERAL_OUTPUT_DIR}/${CLONEMAP}/ -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map &
 
 wait
 
