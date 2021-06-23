@@ -6,9 +6,6 @@
 
 #~ #SBATCH -p normal
 
-#~ #SBATCH -p normal
-#~ #SBATCH --constraint=haswell
-
 #~ #SBATCH -t 59:00
 #~ #SBATCH -p short
 
