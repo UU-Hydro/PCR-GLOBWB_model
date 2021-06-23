@@ -2,8 +2,12 @@
 
 #SBATCH -N 1
 #SBATCH -t 119:59:00
-#SBATCH -p normal
-#SBATCH --constraint=haswell
+#SBATCH -p broadwell
+
+#~ #SBATCH -p normal
+
+#~ #SBATCH -p normal
+#~ #SBATCH --constraint=haswell
 
 #~ #SBATCH -t 59:00
 #~ #SBATCH -p short
@@ -31,6 +35,7 @@ set -x
 . /home/edwinari/load_my_miniconda_and_my_default_env.sh
 
 #~ unset PCRASTER_NR_WORKER_THREADS
+export PCRASTER_NR_WORKER_THREADS=12
 
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
