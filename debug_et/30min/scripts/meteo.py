@@ -41,60 +41,6 @@ import evaporation.shortwave_radiation as sw_rad
 
 class Meteo(object):
 
-    def getState(self):
-
-        result = {}
-        
-        # annual average precipitation from the latest 365 days (unit: m/day)
-        result['avgAnnualPrecipitation']      = self.avgAnnualPrecipitation
-
-        # annual average temperature and annual average of diurnal temperature difference from the latest 365 days (unit: Celcius)
-        result['avgAnnualTemperature']        = self.avgAnnualTemperature
-        result['avgAnnualDiurnalDeltaTemp']   = self.avgAnnualDiurnalDeltaTemp
-
-        return result
-
-    def getPseudoState(self):
-        result = {}
-
-        return result
-
-    def getICs(self, iniItems, iniConditions = None):
-
-        self.initialize_states(iniItems, iniConditions)
-
-    def initialize_states(self, iniItems, iniConditions):
-
-        # initial conditions (unit: m)
-        if iniConditions == None: # when the model just start (reading the initial conditions from file)
-
-            self.avgAnnualPrecipitation    = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualPrecipitationIni'],
-                                                                 self.cloneMap, self.tmpDir, self.inputDir)
-
-            self.avgAnnualTemperature      = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualTemperatureIni'],
-                                                                 self.cloneMap, self.tmpDir, self.inputDir)
-
-            self.avgAnnualDiurnalDeltaTemp = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualDiurnalDeltaTempIni'],
-                                                                 self.cloneMap, self.tmpDir, self.inputDir)
-
-        # during/after spinUp
-        else:                     
-
-            self.avgAnnualPrecipitation    = iniConditions['meteo']['avgAnnualPrecipitation']
-            self.avgAnnualTemperature      = iniConditions['meteo']['avgAnnualTemperature']
-            self.avgAnnualDiurnalDeltaTemp = iniConditions['meteo']['avgAnnualDiurnalDeltaTemp']
-
-        
-        # make sure the following values cannot be negative
-        self.avgAnnualPrecipitation    = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualPrecipitation,    0.0)))
-        self.avgAnnualDiurnalDeltaTemp = pcr.ifthen(self.landmask, pcr.max(0., pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0)))
-
-        # the following values can be negative
-        self.avgAnnualTemperature     = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
-        
-        # TODO: Check whether we have missing values for zero values (if yes, we have to do the following)
-        # ~ self.avgAnnualTemperature = pcr.ifthen(self.landmask, pcr.cover(self.avgAnnualTemperature, 0.0)))
-
     def __init__(self,iniItems,landmask,spinUp):
         object.__init__(self)
 
@@ -107,8 +53,7 @@ class Meteo(object):
         if iniItems.globalOptions['landmask'] != "None":
            self.landmask = vos.readPCRmapClone(\
            iniItems.globalOptions['landmask'],
-           self.cloneMap,self.tmpDir,self.inputDir)
-        # NOTE: To ensure water belance consistency during meteo downscaling, perhaps we should not mask out during the calculation process ! (yet, we still have to mask out for reporting and during initial conditions reading) 
+           self.cloneMap,self.tmpDir,self.inputDir) 
 
         # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
         self.ignore_snow = False
@@ -176,11 +121,54 @@ class Meteo(object):
             self.sw_rad_based_on_bristow_campbell = True
 
             msg = "The shortwave (solar) radiation will be estimated based on actual shortwave radiation is estimated based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)"
-            logger.info(msg)
+            logger,info(msg)
             
-            # read dem: 
-            self.elevation_meteo = pcr.cover(vos.readPCRmapClone(iniItems.meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+            # read dem (should be in the same resolution as other meteo inputs)
+            elevation_meteo = pcr.ifthen(self.landmask, \
+                                         pcr.cover(vos.readPCRmapClone(meteoOptions['dem_for_input_meteo'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
+
+            # read long term annual temperature and diurnal difference
+            self.delta_temp_mean = pcr.ifthen(self.landmask, \
+                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualDiurnalDeltaTmpIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
+            self.temp_annual     = pcr.ifthen(self.landmask, \
+                                   pcr.cover(vos.readPCRmapClone(meteoOptions['annualMeanTemperatureIni'], self.cloneMap, self.tmpDir, self.inputDir), 0.0))
+            #
+            # - read and apply conversion factors
+            for meteo_var_name in ['delta_temp_mean',\
+                                   'temp_annual']:
+                #
+                # - read constant
+                consta_var_name = 'consta_' + meteo_var_name
+                vars(self)[consta_var_name]     = pcr.spatial(pcr.scalar(0.0))
+                if consta_var_name in meteoOptions:
+                    vars(self)[consta_var_name] = pcr.cover(vos.readPCRmapClone(meteoOptions[consta_var_name], self.cloneMap, self.tmpDir, self.inputDir), 0.0)
+                #
+                # - read factor
+                factor_var_name = 'factor_' + meteo_var_name
+                vars(self)[factor_var_name]     = pcr.spatial(pcr.scalar(1.0))
+                if factor_var_name in meteoOptions:
+                    vars(self)[factor_var_name] = pcr.cover(vos.readPCRmapClone(meteoOptions[factor_var_name], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
+                #
+                # - apply conversion factors
+                vars(self)[meteo_var_name] = vars(self)[consta_var_name] + vars(self)[factor_var_name] * pcr.ifthen(self.landmask, vars(self)[meteo_var_name])
+
+            # TODO: The long term mean annual and diurnal difference temperature should be calculated online. 
             
+            # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
+            self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
+                                                          elevation       = elevation_meteo, \
+                                                          temp_annual     = self.temp_annual, \
+                                                          delta_temp_mean = self.temp_annual, \
+                                                          solar_constant  = 118.1)
+
+            #~ # initiate short wave radiation class with the the solar constant = 1362 W.m-2
+            #~ self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
+                                                          #~ elevation       = elevation_meteo, \
+                                                          #~ temp_annual     = self.temp_annual, \
+                                                          #~ delta_temp_mean = self.temp_annual, \
+                                                          #~ solar_constant  = 1362.0)
+
+            # - TODO: set solar_constant in the configuration file                                              
 
         # daily time step
         self.usingDailyTimeStepForcingData = False
@@ -203,9 +191,6 @@ class Meteo(object):
         # make the iniItems available for the other modules:
         self.iniItems = iniItems
         
-        # get the initial conditions
-        self.getICs(iniItems, spinUp)
-
         self.report = True
         try:
             self.outDailyTotNC = iniItems.meteoOptions['outDailyTotNC'].split(",")
@@ -352,9 +337,7 @@ class Meteo(object):
             cellArea = vos.readPCRmapClone(\
                 iniItems.meteoOptions['cellAreaMap'],
                 self.cloneMap,self.tmpDir,self.inputDir)
-            
-            # ~ # - Related to parallelization, dO not mask out cell area
-            # ~ self.cellArea = pcr.ifthen(self.landmask, cellArea)
+            self.cellArea = pcr.ifthen(self.landmask, cellArea)
 
             # creating anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(\
@@ -417,26 +400,16 @@ class Meteo(object):
             return -1
 
 
-    def update(self, routing, currTimeStep):
+    def update(self, currTimeStep):
 
         # Downscaling precipitation
         self.precipitation_before_downscaling = pcr.ifthen(self.landmask, self.precipitation)
         if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
 
-        # downscaling temperature average       
+        # dowsncaling temperature        
         self.temperature_before_downscaling = pcr.ifthen(self.landmask, self.temperature)
         if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
 
-        # downscaling temperature min       
-        if self.air_temperature_min is not None and self.downscaleTemperatureOption:
-            self.air_temperature_min = self.downscaleTemperatureFunction(currTimeStep, self.air_temperature_min)
-            self.air_temperature_min = pcr.min(self.temperature, self.air_temperature_min)
-            
-        # downscaling temperature max       
-        if self.air_temperature_max is not None and self.downscaleTemperatureOption:
-            self.air_temperature_max = self.downscaleTemperatureFunction(currTimeStep, self.air_temperature_max)
-            self.air_temperature_max = pcr.max(self.temperature, self.air_temperature_max)
-        
         # calculate or obtain referencePotET
         if self.refETPotMethod == 'Hamon':
             
@@ -457,23 +430,16 @@ class Meteo(object):
             
             msg = "Calculating reference potential evaporation based on the Penman-Monteith"
             logger.info(msg)
-
-            # compute actual vapour pressure (Pa) based on relative humidity (rh = e / e_sat)
-            vapourPressure = None
-            if self.relative_humidity is not None:
-                msg = "Estimating actual vapour pressure based on relative humidity and temperature"
-                logger.info(msg)
-                saturatedVapourPressure = penman_monteith.getSaturatedVapourPressure(self.temperature)
-                vapourPressure = self.relative_humidity * saturatedVapourPressure
             
+
             # compute actual vapour pressure (Pa) based on dew point temperature
-            if vapourPressure is None and self.dewpoint_temperature_avg is not None:
+            vapourPressure = None
+            if self.dewpoint_temperature_avg is not None:
                 msg = "Estimating actual vapour pressure based on dew point temperature."
                 logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(self.dewpoint_temperature_avg)
-                
-                # TODO: If dewpoint_temperature_avg is unavailable, shall we use air_temperature_min?
-            
+
+
 
             # wind speed (m.s-1)
             if ('wind_speed_10m' not in list(self.iniItems.meteoOptions.keys())) or \
@@ -522,7 +488,7 @@ class Meteo(object):
                                                                                 eccentricity = eccentricity, \
                                                                                 day_length = day_length, \
                                                                                 solar_constant = 118.1)
-                # TODO: Double check deg and rad values
+                # TODO: UNTIL-THIS-PART check deg and rad values
                 
                 # TODO: set solar_constant in the configuration file                                              
 
@@ -565,43 +531,22 @@ class Meteo(object):
                 self.shortwave_radiation = self.surface_net_solar_radiation / (pcr.spatial(pcr.scalar(1.0)) - self.albedo)
                 
 
-            if self.sw_rad_based_on_bristow_campbell == True:
+            if self.iniItems.meteoOptions['shortwave_radiation'] == "Bristow-Campbell":
 
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
                 
-                # TODO: Note initiating shortwave_radiation module still must be done at every time step as temp_annual and delta_temp_mean is defined on the 'init' part)
-
-                # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
-                self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
-                                                              elevation       = self.elevation_meteo, \
-                                                              temp_annual     = self.avgAnnualTemperature, \
-                                                              delta_temp_mean = self.avgAnnualDiurnalDeltaTemp, \
-                                                              solar_constant  = 118.1)
-			    
-                #~ # initiate short wave radiation class with the the solar constant = 1362 W.m-2
-                #~ self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
-                                                              #~ elevation       = elevation_meteo, \
-                                                              #~ temp_annual     = self.avgAnnualTemperature, \
-                                                              #~ delta_temp_mean = self.avgAnnualDiurnalDeltaTemp, \
-                                                              #~ solar_constant  = 1362.0)
-			    
-                # - TODO: set solar_constant in the configuration file                                              
-
                 # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
                 extraterrestrial_rad_in_watt_per_m2 = self.extraterestrial_radiation
                 extraterrestrial_rad = extraterrestrial_rad_in_watt_per_m2 * 0.0864
-
-                # calculate shortwave_radiation
-                self.sw_rad_model.update(date                 = currTimeStep._currTimeFull, \
-                                         prec_daily           = self.precipitation, \
-                                         temp_min_daily       = self.air_temperature_min, \
-                                         temp_max_daily       = self.air_temperature_max, \
-                                         temp_avg_daily       = self.temperature, \
-                                         dew_temperature      = self.dewpoint_temperature_avg, \
-                                         extraterrestrial_rad = extraterrestrial_rad,\
-                                         relative_humidity    = self.relative_humidity
-                                         )
+                
+                self.sw_rad_model.update(date = currTimeStep._currTimeFull, \
+                                         prec_daily = self.precipitation, \
+                                         temp_min_daily  = self.air_temperature_min, \
+                                         temp_max_daily  = self.air_temperature_max, \
+                                         temp_avg_daily  = self.temperature, \
+                                         dew_temperature = self.dewpoint_temperature_avg, \
+                                         extraterrestrial_rad = extraterrestrial_rad)
                 
                 # using the values from the shortwave radiation model (unit: J.m-2.day-1)
                 self.shortwave_radiation       = self.sw_rad_model.radsw_act * 1e6
@@ -618,6 +563,8 @@ class Meteo(object):
             #~ input("Press Enter to continue...")
             #~ os.system("killall aguila")
 
+            # UNTIL THIS PART    
+            
             # longwave radiation
             
             if "longwave_radiation" in list(self.iniItems.meteoOptions.keys()) and\
@@ -665,8 +612,8 @@ class Meteo(object):
 
 
         # Downscaling referenceETPot (based on temperature)
-        self.referencePotET_before_downscaling = self.referencePotET
-        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot(currTimeStep)
+        self.referencePotET_before_downscaling = pcr.ifthen(self.landmask, self.referencePotET)
+        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot()
  
         # smoothing:
         if self.forcingSmoothing == True:
@@ -681,45 +628,14 @@ class Meteo(object):
         # ignore snow by setting temperature to 25 deg C
         if self.ignore_snow: self.temperature = pcr.spatial(pcr.scalar(25.))
         
-        # make sure precipitation and referencePotET are always positive:
-        self.precipitation  = pcr.max(0.0, self.precipitation)
-        self.referencePotET = pcr.max(0.0, self.referencePotET)
-
         # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
         self.precipitation  = pcr.ifthen(self.landmask, self.precipitation)
         self.temperature    = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
-        
-        
-        # updata average long term values
-        # - avgAnnualPrecipitation   
-        # - avgAnnualTemperature             
-        # - avgAnnualDiurnalDeltaTemp
 
-        # avgAnnualPrecipitation
-        deltaAnnualPrecipitation    = self.precipitation - self.avgAnnualPrecipitation
-        self.avgAnnualPrecipitation = self.avgAnnualPrecipitation +\
-                                         deltaAnnualPrecipitation/\
-                                      pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
-        self.avgAnnualPrecipitation = pcr.max(0.0, self.avgAnnualPrecipitation)
-
-        # avgAnnualTemperature
-        deltaAnnualTemperature    = self.temperature - self.avgAnnualTemperature
-        self.avgAnnualTemperature = self.avgAnnualTemperature +\
-                                       deltaAnnualTemperature/\
-                                    pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
-
-        # avgAnnualDiurnalDeltaTemp
-        if self.air_temperature_max is not None or self.air_temperature_min is not None:
-            diurnalDeltaTemp           = pcr.max(0.0, self.air_temperature_max - self.air_temperature_min)
-        else:
-            diurnalDeltaTemp           = pcr.ifthen(pcr.pcrnot(self.landmask), pcr.scalar(0.0))
-        deltaAnnualDiurnalDeltaTemp    = diurnalDeltaTemp - self.avgAnnualDiurnalDeltaTemp
-        self.avgAnnualDiurnalDeltaTemp = self.avgAnnualDiurnalDeltaTemp +\
-                                            deltaAnnualDiurnalDeltaTemp/\
-                                         pcr.min(365., pcr.max(1.0, routing.timestepsToAvgDischarge))
-        self.avgAnnualDiurnalDeltaTemp = pcr.max(0.0, self.avgAnnualDiurnalDeltaTemp)
-
+        # make sure precipitation and referencePotET are always positive:
+        self.precipitation  = pcr.max(0.0, self.precipitation)
+        self.referencePotET = pcr.max(0.0, self.referencePotET)
 
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
@@ -848,7 +764,7 @@ class Meteo(object):
                                          timeStamp,currTimeStep.annuaIdx-1)
 
 
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, drizzle_limit = 0.001, considerCellArea = True):
+    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, considerCellArea = True, drizzle_limit = 0.001):
         
         # TODO: add CorrelationCriteria in the config file
         
@@ -870,25 +786,13 @@ class Meteo(object):
         preSlope = pcr.cover(preSlope, 0.0)
     
         if useFactor == True:
-            factor = pcr.max(0., self.precipitation + preSlope * self.anomalyDEM)
-
-            # ~ # avoid too high factor
-            # ~ factor    = pcr.min(self.precipitation * 3.0, factor)
-
-            # avoid zero factor
-            min_limit = drizzle_limit
-            factor    = pcr.max(min_limit, factor)
-
+            factor = pcr.max(0.,self.precipitation + preSlope * self.anomalyDEM)
             if considerCellArea: factor = factor * self.cellArea
-
             factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
-
             # - do not downscale drizzle
             #~ factor = pcr.ifthenelse(pcr.areaaverage(self.precipitation, self.meteoDownscaleIds) > drizzle_limit, factor, 1.00) 
             factor = pcr.ifthenelse(self.precipitation > drizzle_limit, factor, 1.00) 
-            
             factor = pcr.cover(factor, 1.0)
-            
             self.precipitation = factor * self.precipitation
         else:
             self.precipitation = self.precipitation + preSlope*self.anomalyDEM
@@ -925,55 +829,18 @@ class Meteo(object):
         else:
             self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
-    def downscaleTemperatureFunction(self, currTimeStep, input_temperature, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
+    def downscaleReferenceETPot(self, zeroCelciusInKelvin = 273.15, usingHamon = False, considerCellArea = True, julian_day = None, min_limit = 0.001):
         
-        # TODO: add CorrelationCriteria in the config file
-
-        tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                           self.temperLapseRateNC, 'temperature',\
-                           currTimeStep.month, useDoy = "Yes",\
-                           cloneMapFileName=self.cloneMap,\
-                           LatitudeLongitude = True)
-        tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
-        tmpCriteria = vos.netcdf2PCRobjClone(\
-                      self.temperatCorrelNC, 'temperature',\
-                      currTimeStep.month, useDoy = "Yes",\
-                      cloneMapFileName=self.cloneMap,\
-                      LatitudeLongitude = True)
-        tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
-                   tmpSlope, 0.0)             
-        tmpSlope = pcr.cover(tmpSlope, 0.0)
-    
-        if useFactor == True:
-            temperatureInKelvin = input_temperature + zeroCelciusInKelvin
-            factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
-            if considerCellArea: factor = factor * self.cellArea
-            factor = factor / \
-                     pcr.areaaverage(factor, self.meteoDownscaleIds)
-            factor = pcr.cover(factor, 1.0)
-            output_temperature = factor * temperatureInKelvin - zeroCelciusInKelvin
-        else:
-            output_temperature = input_temperature + tmpSlope * self.anomalyDEM
-        
-        return output_temperature    
-
-
-    def downscaleReferenceETPot(self, currTimeStep, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, min_limit = 0.001):
-
         if usingHamon:
             # factor is based on hamon reference potential evaporation using high resolution temperature
             factor = hamon_et0.HamonPotET(self.temperature,\
-                                          pcr.scalar(currTimeStep.doy),\
+                                          julian_day,\
                                           self.latitudes)
         else:
             # factor is based on high resolution temperature in Kelvin unit
             factor = self.temperature + zeroCelciusInKelvin
         
         factor = pcr.max(0.0, factor)
-
-        # avoid zero factor
-        factor = pcr.max(min_limit, factor)
-
         if considerCellArea: factor = factor * self.cellArea
         
         factor = factor / \
@@ -982,13 +849,14 @@ class Meteo(object):
         # - do not downscale small values
         #~ factor = pcr.ifthenelse(pcr.areaaverage(self.referencePotET, self.meteoDownscaleIds) > min_limit, factor, 1.00) 
         factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00) 
+        factor = pcr.cover(factor, 1.0)
 
         factor = pcr.cover(factor, 1.0)
         
         self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
         
 
-    def read_forcings(self, currTimeStep):
+    def read_forcings(self,currTimeStep):
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 hard-coded reference to the variable names
@@ -1036,7 +904,7 @@ class Meteo(object):
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update precipitation              
-        self.precipitation  = self.preConst + self.preFactor * self.precipitation
+        self.precipitation  = self.preConst + self.preFactor * pcr.ifthen(self.landmask, self.precipitation)
         #-----------------------------------------------------------------------
 
         # make sure that precipitation is always positive
@@ -1087,7 +955,7 @@ class Meteo(object):
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update temperature
-        self.temperature    = self.tmpConst + self.tmpFactor * self.temperature
+        self.temperature    = self.tmpConst + self.tmpFactor * pcr.ifthen(self.landmask, self.temperature)
         #-----------------------------------------------------------------------
 
 
@@ -1132,7 +1000,7 @@ class Meteo(object):
 
             #-----------------------------------------------------------------------
             # NOTE: RvB 13/07/2016 added to automatically update reference potential evapotranspiration
-            self.referencePotET = self.refETPotConst + self.refETPotFactor * self.referencePotET
+            self.referencePotET = self.refETPotConst + self.refETPotFactor * pcr.ifthen(self.landmask, self.referencePotET)
             #-----------------------------------------------------------------------
 
         
@@ -1154,6 +1022,6 @@ class Meteo(object):
 
                 # apply conversion factor and constant
                 vars(self)[meteo_var_name] = vars(self)['consta_for_' + meteo_var_name] + \
-                                             vars(self)['factor_for_' + meteo_var_name] * vars(self)[meteo_var_name]                                                   
+                                             vars(self)['factor_for_' + meteo_var_name] * pcr.ifthen(self.landmask, vars(self)[meteo_var_name])                                                   
 
         # ~ pcr.aguila(self.relative_humidity)

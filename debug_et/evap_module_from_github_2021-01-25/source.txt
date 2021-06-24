@@ -1,0 +1,1 @@
+/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-05-03_updated_gmd_parameters/global/netcdf
