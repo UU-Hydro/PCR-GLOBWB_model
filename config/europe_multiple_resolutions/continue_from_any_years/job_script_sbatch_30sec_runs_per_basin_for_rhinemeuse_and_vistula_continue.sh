@@ -60,7 +60,6 @@ INI_FILE_FOLDER="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_edwin-private-
 CLONEMAP="rhinemeuse"
 
 INI_FILE="setup_30sec_europe_with_05min_forcing_version_2021-06-XX_continue_from_any_years.ini"
-INI_FILE="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"${INI_FILE}
 INI_FILE=${INI_FILE_FOLDER}/${INI_FILE}
 INITIAL_STATE_FOLDER="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing/rhinemeuse/begin_from_1981/states/"
 DATE_FOR_INITIAL_STATES="2013-12-31"
