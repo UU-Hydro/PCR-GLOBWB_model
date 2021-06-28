@@ -57,16 +57,54 @@ INI_FILE_FOLDER="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_edwin-private-
 
 # run all runs
 
-CLONEMAP="rhinemeuse"
 
+CLONEMAP="rhinemeuse"
 INI_FILE="setup_30sec_europe_with_05min_forcing_version_2021-06-XX_continue_from_any_years.ini"
+
 INI_FILE=${INI_FILE_FOLDER}/${INI_FILE}
 INITIAL_STATE_FOLDER="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing/rhinemeuse/begin_from_1981/states/"
 DATE_FOR_INITIAL_STATES="2013-12-31"
 STARTING_DATE="2014-01-01"
 END_DATE="2019-12-31"
-OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing/rhinemeuse/continue_from_2014_test/"
+OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing/rhinemeuse/continue_from_2014/"
 python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${OUTPUT_DIR} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+
+
+CLONEMAP="rhinemeuse"
+INI_FILE="setup_30sec_europe_with_30min_forcing_version_2021-06-XX_continue_from_any_years.ini"
+
+INI_FILE=${INI_FILE_FOLDER}/${INI_FILE}
+INITIAL_STATE_FOLDER="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30min_forcing/rhinemeuse/begin_from_1981/states/"
+DATE_FOR_INITIAL_STATES="2014-12-31"
+STARTING_DATE="2015-01-01"
+END_DATE="2019-12-31"
+OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30min_forcing/rhinemeuse/continue_from_2015/"
+python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${OUTPUT_DIR} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+
+
+CLONEMAP="rhinemeuse"
+INI_FILE="setup_30sec_europe_with_30sec_forcing_version_2021-06-XX_continue_from_any_years.ini"
+
+INI_FILE=${INI_FILE_FOLDER}/${INI_FILE}
+INITIAL_STATE_FOLDER="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing/rhinemeuse/begin_from_1981/states/"
+DATE_FOR_INITIAL_STATES="2010-12-31"
+STARTING_DATE="2011-01-01"
+END_DATE="2019-12-31"
+OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing/rhinemeuse/continue_from_2011/"
+python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${OUTPUT_DIR} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+
+
+CLONEMAP="vistula"
+INI_FILE="setup_30sec_europe_with_30sec_forcing_version_2021-06-XX_continue_from_any_years.ini"
+
+INI_FILE=${INI_FILE_FOLDER}/${INI_FILE}
+INITIAL_STATE_FOLDER="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing/rhinemeuse/begin_from_1981/states/"
+DATE_FOR_INITIAL_STATES="2016-12-31"
+STARTING_DATE="2017-01-01"
+END_DATE="2019-12-31"
+OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing/rhinemeuse/continue_from_2017/"
+python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${OUTPUT_DIR} -clonemap ${CLONEMAP}/clone_${CLONEMAP}_30sec.map -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+
 
 wait
 
