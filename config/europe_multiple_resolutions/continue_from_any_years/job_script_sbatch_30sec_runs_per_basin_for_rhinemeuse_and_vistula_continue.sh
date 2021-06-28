@@ -108,7 +108,9 @@ python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${OUTPUT_DIR} -cl
 
 wait
 
+
 # wait for 5 sec 
 sleep 5
+
 
 set +x
