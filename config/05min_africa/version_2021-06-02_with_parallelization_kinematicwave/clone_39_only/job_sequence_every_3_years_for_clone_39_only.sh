@@ -10,9 +10,9 @@
 set -x
 
 
-JOB_NAME="af10k_kw"
+JOB_NAME="af10kkw39"
 INI_FILE="setup_05min_africa_version_2021-06-02_kinematicwave.ini"
-GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-06-02/africa_05min/africa_with_parallelization_kinematicwave/"
+GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-06-02/africa_05min/africa_with_parallelization_kinematicwave_only_clone39/"
 STARTING_YEAR=1981
 END_YEAR=2019
 NUMBER_OF_SPINUP_YEARS="5"
@@ -30,7 +30,9 @@ SPIN_UP=$(qsub -N "${SUB_JOBNAME}" -v INI_FILE="${INI_FILE}",MAIN_OUTPUT_DIR="${
 
 # save and use the following variables for the next run/job
 PREVIOUS_JOB=${SPIN_UP}
-MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/global/states/
+#~ MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/global/states/
+# - for the clone 39 only
+MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/M0000039/states/
 DATE_FOR_INITIAL_STATES=${END_DATE}
 
 
@@ -57,7 +59,9 @@ CURRENT_JOB=$(qsub -N "${SUB_JOBNAME}" -W depend=afterany:${PREVIOUS_JOB} -v INI
 
 # save and use the following variables for the next run/job
 PREVIOUS_JOB=${CURRENT_JOB}
-MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/global/states/
+#~ MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/global/states/
+# - for the clone 39 only
+MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/M0000039/states/
 DATE_FOR_INITIAL_STATES=${END_DATE}
 
 done
