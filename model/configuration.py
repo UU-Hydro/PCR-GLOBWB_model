@@ -219,7 +219,10 @@ class Configuration(object):
         else:
             logger.info('PYTHONPATH=%s', "N/A")        
         # - hostname
-        logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
+        if "HOSTNAME" in os.environ.keys(): 
+            logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])        
+        else:
+            logger.info('HOSTNAME: %s', "N/A")        
         # - PCRaster NUMBER_OF_WORKING_THREADS        
         if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys(): 
             logger.info('PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s', os.environ["PCRASTER_NR_WORKER_THREADS"])
