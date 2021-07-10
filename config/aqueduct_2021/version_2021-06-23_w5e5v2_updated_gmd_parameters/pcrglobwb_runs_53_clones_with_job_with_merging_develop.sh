@@ -49,7 +49,7 @@ INI_FILE=$(pwd)/"setup_05min_develop_on_azure.ini"
 MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters_test/"
 
 # on azure
-MAIN_OUTPUT_DIR="/scratch/pgbtest/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters_test/"
+MAIN_OUTPUT_DIR="/scratch/pgbtest/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters/"
 
 STARTING_DATE="1978-01-01"
 END_DATE="2019-12-31"
