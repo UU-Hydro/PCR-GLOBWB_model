@@ -98,7 +98,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/pgbtest/github/edwinkost/PCR-GLOBWB_model_e
 #~ . /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
 
 # load modules on eejit
-conda activate pcrglobwb_python3
+source activate pcrglobwb_python3
 
 
 pcrcalc
