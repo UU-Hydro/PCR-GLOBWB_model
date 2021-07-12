@@ -42,11 +42,11 @@ set -x
 
 INI_FILE=${SLURM_SUBMIT_DIR}/"setup_05min_develop.ini"
 
-# using bash on azure
+# using bash
 INI_FILE=$(pwd)/"setup_05min_develop.ini"
 
-# using bash on azure
-INI_FILE=$(pwd)/"setup_05min_develop_on_azure.ini"
+#~ # using bash on azure
+#~ INI_FILE=$(pwd)/"setup_05min_develop_on_azure.ini"
 
 
 MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters_test/"
