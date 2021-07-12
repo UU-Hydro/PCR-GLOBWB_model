@@ -42,7 +42,10 @@ set -x
 
 INI_FILE=${SLURM_SUBMIT_DIR}/"setup_05min_develop.ini"
 
-# using bash
+# using bash on azure
+INI_FILE=$(pwd)/"setup_05min_develop.ini"
+
+# using bash on azure
 INI_FILE=$(pwd)/"setup_05min_develop_on_azure.ini"
 
 
