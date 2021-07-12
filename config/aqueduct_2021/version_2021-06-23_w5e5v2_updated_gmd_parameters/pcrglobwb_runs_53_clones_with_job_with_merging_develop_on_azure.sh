@@ -54,8 +54,10 @@ MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-06
 # on azure
 MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters/"
 
+
 STARTING_DATE="1978-01-01"
 END_DATE="2019-12-31"
+
 
 PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/w5e5_version_2.0/downloaded_on_2021-06-09/merged/merged_1979-2019_with_climatology_on_1978/pr_W5E5v2.0_19790101-20191231_with_climatology_on_1978.nc"
 TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/w5e5_version_2.0/downloaded_on_2021-06-09/merged/merged_1979-2019_with_climatology_on_1978/tas_W5E5v2.0_19790101-20191231_with_climatology_on_1978.nc"
@@ -97,11 +99,11 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/pcrglobwb/github/edwinkost/PCR-GLOBWB_model
 
 
 
-# load modules on eejit
-. /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
-
 #~ # load modules on eejit
-#~ source activate pcrglobwb_python3
+#~ . /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
+
+# load modules on azure
+source activate pcrglobwb_python3
 
 
 pcrcalc
