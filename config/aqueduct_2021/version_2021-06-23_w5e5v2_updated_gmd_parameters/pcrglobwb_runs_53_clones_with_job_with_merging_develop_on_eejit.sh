@@ -103,8 +103,8 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBW
 
 pcrcalc
 
-#~ # - unset pcraster working threads
-#~ unset PCRASTER_NR_WORKER_THREADS
+# - unset pcraster working threads
+unset PCRASTER_NR_WORKER_THREADS
 
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
