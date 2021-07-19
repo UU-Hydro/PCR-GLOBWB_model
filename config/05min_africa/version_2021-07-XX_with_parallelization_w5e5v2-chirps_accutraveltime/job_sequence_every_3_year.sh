@@ -15,32 +15,17 @@ INI_FILE="setup_05min_africa_version_w5e5v2-chirps_accutraveltime.ini"
 GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/africa_05min/w5e5v2-chirps_accutraveltime/"
 STARTING_YEAR=1981
 END_YEAR=2019
+NUMBER_OF_SPINUP_YEARS="30"
 MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-05-31/africa_05min/africa_accutraveltime/states/"
 DATE_FOR_INITIAL_STATES="1981-12-31"
 
 
-# spinup - 1st part (25 years)
+# spinup
 
-SUB_JOBNAME=${JOB_NAME}_spinup_25yrs_1st
-MAIN_OUTPUT_DIR=${GENERAL_MAIN_OUTPUT_DIR}/_spinup_1st_25years/with_${STARTING_YEAR}/
+SUB_JOBNAME=${JOB_NAME}_spinup
+MAIN_OUTPUT_DIR=${GENERAL_MAIN_OUTPUT_DIR}/_spinup/with_${STARTING_YEAR}/
 STARTING_DATE=${STARTING_YEAR}-01-01
 END_DATE=${STARTING_YEAR}-12-31
-NUMBER_OF_SPINUP_YEARS="25"
-SPIN_UP=$(qsub -N "${SUB_JOBNAME}" -v INI_FILE="${INI_FILE}",MAIN_OUTPUT_DIR="${MAIN_OUTPUT_DIR}",STARTING_DATE="${STARTING_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${MAIN_INITIAL_STATE_FOLDER}",DATE_FOR_INITIAL_STATES="${DATE_FOR_INITIAL_STATES}",NUMBER_OF_SPINUP_YEARS="${NUMBER_OF_SPINUP_YEARS}" pbs_job_script_for_a_run.sh)
-
-# save and use the following variables for the next run/job
-PREVIOUS_JOB=${SPIN_UP}
-MAIN_INITIAL_STATE_FOLDER=${MAIN_OUTPUT_DIR}/global/states/
-DATE_FOR_INITIAL_STATES=${END_DATE}
-
-
-# spinup - 2nd part (5 years)
-
-SUB_JOBNAME=${JOB_NAME}_spinup_5yrs_2nd
-MAIN_OUTPUT_DIR=${GENERAL_MAIN_OUTPUT_DIR}/_spinup_2nd_3years/with_${STARTING_YEAR}/
-STARTING_DATE=${STARTING_YEAR}-01-01
-END_DATE=${STARTING_YEAR}-12-31
-NUMBER_OF_SPINUP_YEARS="5"
 SPIN_UP=$(qsub -N "${SUB_JOBNAME}" -v INI_FILE="${INI_FILE}",MAIN_OUTPUT_DIR="${MAIN_OUTPUT_DIR}",STARTING_DATE="${STARTING_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${MAIN_INITIAL_STATE_FOLDER}",DATE_FOR_INITIAL_STATES="${DATE_FOR_INITIAL_STATES}",NUMBER_OF_SPINUP_YEARS="${NUMBER_OF_SPINUP_YEARS}" pbs_job_script_for_a_run.sh)
 
 # save and use the following variables for the next run/job
