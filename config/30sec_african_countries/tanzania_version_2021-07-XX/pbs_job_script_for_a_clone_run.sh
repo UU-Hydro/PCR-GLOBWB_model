@@ -13,13 +13,13 @@
 #~ #PBS -l select=1:ncpus=48:mem=252gb
 #~ #PBS -l walltime=72:00:00
 
-#~ #PBS -l select=1:ncpus=48:mem=126gb
-#~ #PBS -l walltime=72:00:00
+#PBS -l select=1:ncpus=48:mem=126gb
+#PBS -l walltime=72:00:00
 
-#~ #PBS -q express -P exp-00044
+#PBS -q express -P exp-00044
 
-#PBS -l select=1:ncpus=8:mem=96gb
-#PBS -l walltime=29:00
+#~ #PBS -l select=1:ncpus=8:mem=96gb
+#~ #PBS -l walltime=29:00
 
 #PBS -N pgb_af_parl_test
 
