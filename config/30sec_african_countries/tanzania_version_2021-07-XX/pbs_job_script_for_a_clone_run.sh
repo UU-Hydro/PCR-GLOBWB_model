@@ -10,11 +10,11 @@
   #~ Permitted job configurations:
    #~ -lselect=1-16:ncpus=24-48:mem=252gb -lwalltime=240:00:00
 
-#~ #PBS -l select=1:ncpus=48:mem=252gb
-#~ #PBS -l walltime=72:00:00
-
-#PBS -l select=1:ncpus=48:mem=126gb
+#PBS -l select=1:ncpus=48:mem=252gb
 #PBS -l walltime=72:00:00
+
+#~ #PBS -l select=1:ncpus=48:mem=126gb
+#~ #PBS -l walltime=72:00:00
 
 #PBS -q express -P exp-00044
 
