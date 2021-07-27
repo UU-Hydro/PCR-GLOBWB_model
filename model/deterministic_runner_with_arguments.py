@@ -483,7 +483,26 @@ def modify_ini_file(original_ini_file,
         msg = "The clonemap is set based on the system argument (-clonemap): " + clonemap
         print(msg)
 
-
+    # USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI
+    if "-use_max_fossil_gw_ini" in system_argument:
+        use_max_fossil_gw_ini = system_argument[system_argument.index("-use_max_fossil_gw_ini") + 1]
+        file_ini_content = file_ini_content.replace("USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI", use_max_fossil_gw_ini)
+        msg = "The option 'useMaximumStorGroundwaterFossilIni' is set based on the system argument (-use_max_fossil_gw_ini): " + use_max_fossil_gw_ini 
+        print(msg)
+    
+    # ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE
+    if "-est_stor_gw_from_rch" in system_argument:
+        est_stor_gw_from_rch = system_argument[system_argument.index("-est_stor_gw_from_rch") + 1]
+        file_ini_content = file_ini_content.replace("ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE", est_stor_gw_from_rch)
+        msg = "The option 'estimateStorGroundwaterIniFromRecharge' is set based on the system argument (-est_stor_gw_from_rch): " + est_stor_gw_from_rch 
+        print(msg)
+    
+    # dailyGroundwaterRechargeIni / DAILY_GROUNDWATER_RECHARGE_INI
+    if "-day_gw_rch_ini" in system_argument:
+        day_gw_rch_ini = system_argument[system_argument.index("-day_gw_rch_ini") + 1]
+        file_ini_content = file_ini_content.replace("DAILY_GROUNDWATER_RECHARGE_INI", day_gw_rch_ini)
+        msg = "The option 'dailyGroundwaterRechargeIni' is set based on the system argument (-day_gw_rch_ini): " + day_gw_rch_ini 
+        print(msg)
     
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")

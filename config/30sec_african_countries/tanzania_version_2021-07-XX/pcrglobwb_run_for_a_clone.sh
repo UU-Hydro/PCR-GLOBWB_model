@@ -26,13 +26,16 @@ BASEFLOW_EXPONENT=${10}
 PCRGLOBWB_MODEL_SCRIPT_FOLDER=${11}
 NUMBER_OF_SPINUP_YEARS=${12}
 
+USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI=${13}
+ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE=${14}
+DAILY_GROUNDWATER_RECHARGE_INI=${15}
 
 # load all software needed
 cd /rds/general/user/esutanud/home/
 . load_all_default.sh
 
 # set number of threads for pcraster
-export PCRASTER_NR_WORKER_THREADS=16
+export PCRASTER_NR_WORKER_THREADS=24
 
 #~ # do not use workers/threads for pcraster
 #~ unset PCRASTER_NR_WORKER_THREADS
@@ -42,29 +45,6 @@ export PCRASTER_NR_WORKER_THREADS=16
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 
-# run the model for all clones, from 1 to 39
+# run the model (for a specific clone)
 
-#~ # - for testing
-#~ for i in {2..3}
-
-for i in {1..39}
-
-do
-
-CLONE_CODE=${i}
-
-python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} &
-
-
-done
-
-
-# merging process
-python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} &
-
-
-
-# do not forget to wait
-wait
-
-
+python3 deterministic_runner_with_arguments.py ${INI_FILE} debug -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -use_max_fossil_gw_ini ${USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI} -est_stor_gw_from_rch ${ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE} -day_gw_rch_ini ${DAILY_GROUNDWATER_RECHARGE_INI} &

@@ -493,17 +493,33 @@ class Groundwater(object):
         # initial conditions (unit: m)
         if iniConditions == None: # when the model just start (reading the initial conditions from file)
 
+            # UNTIL THIS PART
+            if "estimateStorGroundwaterIniFromRecharge" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["estimateStorGroundwaterIniFromRecharge"] == "True":
+                iniItems.groundwaterOptions['storGroundwaterIni']      = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"
+                self.iniItems.groundwaterOptions['storGroundwaterIni'] = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"    
+            
             if iniItems.groundwaterOptions['storGroundwaterIni'] != "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE":
                 self.storGroundwater     = vos.readPCRmapClone(\
-                                           iniItems.groundwaterOptions['storGroundwaterIni'],
+                                           iniItems.groundwaterOptions['staorGroundwaterIni'],
                                            self.cloneMap,self.tmpDir,self.inputDir)
             else:
                 msg = "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
                 logger.info(msg)
                 daily_gw_recharge        = vos.readPCRmapClone(\
-                                           iniItems.groundwaterOptions['storGroundwaterIni'],
+                                           iniItems.groundwaterOptions['dailyGroundwaterRechargeIni'],
                                            self.cloneMap,self.tmpDir,self.inputDir)
+                daily_gw_recharge        = pcr.max(0.0, \
+                                           pcr.ifthen(self.landmask, \
+                                           pcr.cover(daily_gw_recharge, 0.0)))
+                pcr.report(daily_gw_recharge,   "daily_gw_recharge_m_per_day_used_to_estimate_initial_stor_groundwater_when_the_model_just_start_without_spinup.map")
+                pcr.report(self.recessionCoeff, "   gw_recession_coeff_day-1_used_to_estimate_initial_stor_groundwater_when_the_model_just_start_without_spinup.map")                
                 self.storGroundwater     = daily_gw_recharge / self.recessionCoeff
+                self.storGroundwater     = pcr.max(0.0, self.storGroundwater)
+            
+            self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
+            self.storGroundwater = pcr.max(0.,self.storGroundwater)
+            self.storGroundwater = pcr.ifthen(self.landmask, self.storGroundwater)
+            pcr.report(self.storGroundwater, "initial_stor_groundwater_when_the_model_just_start_without_spinup.map")
             
             self.avgAbstraction          = vos.readPCRmapClone(\
                                            iniItems.groundwaterOptions['avgTotalGroundwaterAbstractionIni'],
@@ -560,6 +576,10 @@ class Groundwater(object):
             self.avgStorGroundwater          = iniConditions['groundwater']['avgStorGroundwater']
 
         # initial condition for storGroundwaterFossil (unit: m)
+        #
+        if "useMaximumStorGroundwaterFossilIni" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "True": 
+             iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum" 
+             self.iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "Maximum"
         #
         # Note that storGroundwaterFossil should not be depleted during the spin-up.
         #
