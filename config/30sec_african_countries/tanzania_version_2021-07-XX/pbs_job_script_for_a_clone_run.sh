@@ -67,7 +67,7 @@ DAILY_GROUNDWATER_RECHARGE_INI=${DAILY_GROUNDWATER_RECHARGE_INI}
 
 
 # for testing with bash
-PBS_O_WORKDIR=(pwd)
+PBS_O_WORKDIR=$(pwd)
 INI_FILE="setup_30sec_tanzania-basin_version_develop.ini"
 MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/tanzania_30sec/test/test_with_bash/"
 STARTING_DATE=1981-01-01
