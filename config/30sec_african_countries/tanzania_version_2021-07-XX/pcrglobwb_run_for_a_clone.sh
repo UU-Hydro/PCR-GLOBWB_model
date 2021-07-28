@@ -47,4 +47,4 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # run the model (for a specific clone)
 
-python3 deterministic_runner_with_arguments.py ${INI_FILE} debug -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -use_max_fossil_gw_ini ${USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI} -est_stor_gw_from_rch ${ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE} -day_gw_rch_ini ${DAILY_GROUNDWATER_RECHARGE_INI} &
+python3 deterministic_runner_with_arguments.py ${INI_FILE} debug -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -use_max_fossil_gw_ini ${USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI} -est_stor_gw_from_rch ${ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE} -day_gw_rch_ini ${DAILY_GROUNDWATER_RECHARGE_INI} 

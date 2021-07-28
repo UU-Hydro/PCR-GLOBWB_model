@@ -10,11 +10,11 @@
   #~ Permitted job configurations:
    #~ -lselect=1-16:ncpus=24-48:mem=252gb -lwalltime=240:00:00
 
-#PBS -l select=1:ncpus=48:mem=252gb
-#PBS -l walltime=72:00:00
-
-#~ #PBS -l select=1:ncpus=48:mem=126gb
+#~ #PBS -l select=1:ncpus=48:mem=252gb
 #~ #PBS -l walltime=72:00:00
+
+#PBS -l select=1:ncpus=48:mem=126gb
+#PBS -l walltime=72:00:00
 
 #PBS -q express -P exp-00044
 
@@ -66,25 +66,24 @@ ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE=${ESTIMATE_STOR_GROUNDWATER_INI_FROM
 DAILY_GROUNDWATER_RECHARGE_INI=${DAILY_GROUNDWATER_RECHARGE_INI}
 
 
-# for testing with bash
-PBS_O_WORKDIR=$(pwd)
-INI_FILE="setup_30sec_tanzania-basin_version_develop.ini"
-INI_FILE=${PBS_O_WORKDIR}/${INI_FILE}
-MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/tanzania_30sec/test/test_with_bash/"
-STARTING_DATE=1981-01-01
-END_DATE=1981-12-31
-MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-05-31/africa_05min/africa_accutraveltime/states/"
-DATE_FOR_INITIAL_STATES="1981-12-31"
-PRECIPITATION_FORCING_FILE="NONE"
-TEMPERATURE_FORCING_FILE="NONE"
-REF_POT_ET_FORCING_FILE="NONE"
-BASEFLOW_EXPONENT="NONE"
-NUMBER_OF_SPINUP_YEARS="5"
-USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI="True"
-ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE="False"
-DAILY_GROUNDWATER_RECHARGE_INI="NONE"
-
-echo ${PBS_O_WORKDIR}
+#~ # for testing with bash
+#~ PBS_O_WORKDIR=$(pwd)
+#~ echo ${PBS_O_WORKDIR}
+#~ INI_FILE="setup_30sec_tanzania-basin_version_develop.ini"
+#~ INI_FILE=${PBS_O_WORKDIR}/${INI_FILE}
+#~ MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/tanzania_30sec/test/test_with_bash/"
+#~ STARTING_DATE=1981-01-01
+#~ END_DATE=1981-12-31
+#~ MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-05-31/africa_05min/africa_accutraveltime/states/"
+#~ DATE_FOR_INITIAL_STATES="1981-12-31"
+#~ PRECIPITATION_FORCING_FILE="NONE"
+#~ TEMPERATURE_FORCING_FILE="NONE"
+#~ REF_POT_ET_FORCING_FILE="NONE"
+#~ BASEFLOW_EXPONENT="NONE"
+#~ NUMBER_OF_SPINUP_YEARS="5"
+#~ USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI="True"
+#~ ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE="False"
+#~ DAILY_GROUNDWATER_RECHARGE_INI="NONE"
 
 
 # run the script

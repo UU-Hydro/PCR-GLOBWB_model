@@ -1565,15 +1565,18 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
         
             logger.debug('read netcdf file: '+str(v))
             
-            #~ PCRmap = netcdf2PCRobjClone(ncFile = v,\
-                                        #~ varName = "automatic",\
-                                        #~ dateInput = None,\
-                                        #~ useDoy = None, \
-                                        #~ cloneMapFileName = cloneMapFileName)
-
-            PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile = v,\
-                                                   varName = "automatic",\
-                                                   cloneMapFileName = cloneMapFileName)
+            try:
+                # read netcdf file without time
+                PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile = v,\
+                                                       varName = "automatic",\
+                                                       cloneMapFileName = cloneMapFileName)
+            except:
+                # read netcdf file with time
+                PCRmap = netcdf2PCRobjClone(ncFile = v,\
+                                            varName = "automatic",\
+                                            dateInput = None,\
+                                            useDoy = None, \
+                                            cloneMapFileName = cloneMapFileName)
 
         else:
             
