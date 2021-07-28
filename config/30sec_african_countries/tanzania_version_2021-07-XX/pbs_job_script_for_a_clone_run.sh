@@ -66,8 +66,9 @@ ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE=${ESTIMATE_STOR_GROUNDWATER_INI_FROM
 DAILY_GROUNDWATER_RECHARGE_INI=${DAILY_GROUNDWATER_RECHARGE_INI}
 
 
-# for testing
-INI_FILE="/rds/general/user/esutanud/home/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/config/30sec_african_countries/tanzania_version_2021-07-XX/setup_30sec_tanzania-basin_version_develop.ini"
+# for testing with bash
+PBS_O_WORKDIR="."
+INI_FILE="setup_30sec_tanzania-basin_version_develop.ini"
 MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/tanzania_30sec/test/test_with_bash/"
 STARTING_DATE=1981-01-01
 END_DATE=1981-12-31
@@ -81,7 +82,6 @@ NUMBER_OF_SPINUP_YEARS="5"
 USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI="True"
 ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE="False"
 DAILY_GROUNDWATER_RECHARGE_INI="NONE"
-
 
 # run the script
 cd ${PBS_O_WORKDIR}
