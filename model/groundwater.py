@@ -500,7 +500,7 @@ class Groundwater(object):
             
             if iniItems.groundwaterOptions['storGroundwaterIni'] != "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE":
                 self.storGroundwater     = vos.readPCRmapClone(\
-                                           iniItems.groundwaterOptions['staorGroundwaterIni'],
+                                           iniItems.groundwaterOptions['storGroundwaterIni'],
                                            self.cloneMap,self.tmpDir,self.inputDir)
             else:
                 msg = "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
