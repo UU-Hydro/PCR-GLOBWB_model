@@ -512,7 +512,7 @@ class Groundwater(object):
                                            pcr.ifthen(self.landmask, \
                                            pcr.cover(daily_gw_recharge, 0.0)))
                 pcr.report(daily_gw_recharge,   "daily_gw_recharge_m_per_day_used_to_estimate_initial_stor_groundwater_when_the_model_just_start_without_spinup.map")
-                pcr.report(self.recessionCoeff, "   gw_recession_coeff_day-1_used_to_estimate_initial_stor_groundwater_when_the_model_just_start_without_spinup.map")                
+                pcr.report(self.recessionCoeff,    "gw_recession_coeff_day-1_used_to_estimate_initial_stor_groundwater_when_the_model_just_start_without_spinup.map")                
                 self.storGroundwater     = daily_gw_recharge / self.recessionCoeff
                 self.storGroundwater     = pcr.max(0.0, self.storGroundwater)
             
