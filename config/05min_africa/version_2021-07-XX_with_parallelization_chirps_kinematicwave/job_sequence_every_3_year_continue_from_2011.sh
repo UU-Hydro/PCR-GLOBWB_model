@@ -13,7 +13,7 @@ set -x
 JOB_NAME="chrp_kw"
 INI_FILE="setup_05min_africa_version_chirps_kinematicwave.ini"
 GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/africa_05min/chirps_kinematicwave/"
-STARTING_YEAR=1981
+STARTING_YEAR=2011
 END_YEAR=2019
 NUMBER_OF_SPINUP_YEARS="5"
 MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/africa_05min/chirps_accutraveltime/_spinup/with_1981/global/states/"
