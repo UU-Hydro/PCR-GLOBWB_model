@@ -12,7 +12,7 @@ set -x
 
 JOB_NAME="w5e5_tza"
 INI_FILE="setup_30sec_tanzania-basin_version_2021-07-30.ini"
-GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-30/tanzania_30sec/"
+GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/tanzania_30sec/"
 STARTING_YEAR=1981
 END_YEAR=2019
 
