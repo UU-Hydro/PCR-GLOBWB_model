@@ -112,6 +112,8 @@ let NUMOFSUBRUNS=${NUMOFYEARS}/3
 # the run for every 3-year period
 for i in $( eval echo {1..$NUMOFSUBRUNS} )
 
+do
+
 NUMBER_OF_SPINUP_YEARS="0"
 
 ESTIMATE_STOR_GROUNDWATER_INI_FROM_RECHARGE="False"
@@ -123,8 +125,6 @@ if [ ${i} -eq 1 ]
 then
 USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI="True"
 fi
-
-do
 
 let STAYEAR=${STARTING_YEAR}+${i}*3-3
 let ENDYEAR=${STAYEAR}+3-1
