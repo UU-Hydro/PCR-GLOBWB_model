@@ -13,8 +13,11 @@ set -x
 JOB_NAME="chrp_kw"
 INI_FILE="setup_05min_africa_version_chirps_kinematicwave.ini"
 GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/africa_05min/chirps_kinematicwave/"
-STARTING_YEAR=2011
+
+# we start from 2008, but 2008-2010 will be just a dummy run (as we only have to load the initial conditions from 2010)
+STARTING_YEAR=2008
 END_YEAR=2019
+
 NUMBER_OF_SPINUP_YEARS="5"
 MAIN_INITIAL_STATE_FOLDER="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/africa_05min/chirps_accutraveltime/_spinup/with_1981/global/states/"
 DATE_FOR_INITIAL_STATES="1981-12-31"
@@ -57,6 +60,7 @@ END_DATE=${ENDYEAR}-12-31
 # dummy jobs/runs for the years before 2011
 if [ ${STAYEAR} -lt 2011 ]
 then
+SUB_JOBNAME=${SUB_JOBNAME}_dummy
 CURRENT_JOB=$(qsub -N "${SUB_JOBNAME}" -W depend=afterany:${PREVIOUS_JOB} -v INI_FILE="${INI_FILE}",MAIN_OUTPUT_DIR="${MAIN_OUTPUT_DIR}",STARTING_DATE="${STARTING_DATE}",END_DATE="${END_DATE}",MAIN_INITIAL_STATE_FOLDER="${MAIN_INITIAL_STATE_FOLDER}",DATE_FOR_INITIAL_STATES="${DATE_FOR_INITIAL_STATES}",NUMBER_OF_SPINUP_YEARS="0" pbs_job_script_for_a_run_dummy.sh)
 fi
 
