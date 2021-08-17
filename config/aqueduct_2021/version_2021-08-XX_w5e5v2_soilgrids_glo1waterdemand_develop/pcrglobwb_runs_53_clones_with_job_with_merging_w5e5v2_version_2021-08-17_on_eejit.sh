@@ -49,7 +49,7 @@ INI_FILE=${SLURM_SUBMIT_DIR}/"setup_05min_w5e5v2_version_2021-08-17.ini"
 #~ INI_FILE=$(pwd)/"setup_05min_develop_on_azure.ini"
 
 
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/w5e5v2_version_2021-08-17/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-08-17_w5e5v2_test_with_hamon/"
 
 #~ # on azure
 #~ MAIN_OUTPUT_DIR="/datadrive/pgb/pcrglobwb_aqueduct_2021/version_2021-06-23_w5e5v2_updated_gmd_parameters/"
@@ -119,9 +119,9 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 #~ # - for testing
 #~ for i in {2..3}
-for i in {2..2}
+#~ for i in {2..2}
 
-#~ for i in {1..53}
+for i in {1..53}
 
 do
 
@@ -131,8 +131,8 @@ python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLON
 done
 
 
-#~ # merging process
-#~ python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
+# merging process
+python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
 
 
 wait
