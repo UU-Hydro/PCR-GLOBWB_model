@@ -131,8 +131,8 @@ python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLON
 done
 
 
-# merging process
-python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
+#~ # merging process
+#~ python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
 
 
 wait
