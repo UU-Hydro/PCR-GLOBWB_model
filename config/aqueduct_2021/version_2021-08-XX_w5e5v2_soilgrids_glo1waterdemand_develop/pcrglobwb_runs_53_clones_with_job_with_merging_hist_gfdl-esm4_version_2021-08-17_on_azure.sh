@@ -39,7 +39,7 @@ WIND_FORCING_FILE="/datadrive/pcrglobwb_input/data/isimip_forcing/isimip3b_versi
 TEMPERATURE_FORCING_FILE="/datadrive/pcrglobwb_input/data/isimip_forcing/isimip3b_version_2021-05-XX/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
 
 
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/pgb/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 
 
 # load modules on azure
