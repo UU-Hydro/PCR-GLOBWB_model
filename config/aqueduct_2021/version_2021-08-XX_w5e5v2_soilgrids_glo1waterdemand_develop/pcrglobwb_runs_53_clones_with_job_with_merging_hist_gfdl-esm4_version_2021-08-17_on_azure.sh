@@ -55,13 +55,14 @@ unset PCRASTER_NR_WORKER_THREADS
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 pwd
 
+
 # run the model for all clones, from 1 to 53
 
-# - for testing
-for i in {2..2}
+#~ # - for testing
+#~ for i in {2..2}
 #~ for i in {2..3}
 
-#~ for i in {1..53}
+for i in {1..53}
 
 do
 
@@ -71,8 +72,8 @@ python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLON
 done
 
 
-#~ # merging process
-#~ python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
+# merging process
+python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${STARTING_DATE} -ed ${END_DATE} &
 
 
 wait
