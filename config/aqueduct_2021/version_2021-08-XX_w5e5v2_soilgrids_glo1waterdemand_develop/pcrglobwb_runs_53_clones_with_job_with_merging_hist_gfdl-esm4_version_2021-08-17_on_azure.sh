@@ -22,7 +22,7 @@ INI_FILE=$(pwd)/"setup_05min_historical_version_2021-08-17.ini"
 
 
 # pcrglobwb output folder
-MAIN_OUTPUT_DIR="/datadrive/pgb/pcrglobwb_aqueduct_2021/version_2021-08-17_hist_gfdl-esm4/"
+MAIN_OUTPUT_DIR="/datadrive/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-08-17_hist_gfdl-esm4/"
 
 
 # starting and end dates
