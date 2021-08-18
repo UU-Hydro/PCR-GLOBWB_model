@@ -59,9 +59,9 @@ pwd
 
 #~ # - for testing
 #~ for i in {2..3}
-#~ for i in {2..2}
+for i in {2..2}
 
-for i in {1..53}
+#~ for i in {1..53}
 
 do
 
