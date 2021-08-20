@@ -6,7 +6,7 @@
 
 #~ #SBATCH -t 1:00
 
-#SBATCH -J aqw5e5v2
+#SBATCH -J gmd-paper-water-demand_aqw5e5v2_version_2021-08-20a_gmd-paper-water-demand
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
