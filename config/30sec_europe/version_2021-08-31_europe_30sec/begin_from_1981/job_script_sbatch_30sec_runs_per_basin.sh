@@ -4,9 +4,6 @@
 #SBATCH -t 119:59:00
 #SBATCH -p normal
 
-#~ #SBATCH -t 48:00:00
-#~ #SBATCH -p normal
-
 #~ #SBATCH -p broadwell
 
 #~ #SBATCH -t 59:00
