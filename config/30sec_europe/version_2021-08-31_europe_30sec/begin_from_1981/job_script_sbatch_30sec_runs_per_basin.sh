@@ -2,7 +2,10 @@
 
 #SBATCH -N 1
 
-#SBATCH -t 119:59:00
+#~ #SBATCH -t 119:59:00
+#~ #SBATCH -p normal
+
+#SBATCH -t 59:59:00
 #SBATCH -p normal
 
 #~ #SBATCH -p broadwell
@@ -54,7 +57,7 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 CLONEMAP=${CLONEMAP}
 
 STARTING_DATE="1981-01-01"
-END_DATE="2000-12-31"
+END_DATE="1990-12-31"
 
 GENERAL_OUTPUT_DIR="/projects/0/einf1079/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing_all_europe/begin_from_1981/"
 
