@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 #SBATCH -N 1
-#SBATCH -t 119:59:00
+#SBATCH -t 1:59:00
 #SBATCH -p normal
 
 #SBATCH -J eu1k_mXX
