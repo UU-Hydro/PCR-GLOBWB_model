@@ -14,7 +14,7 @@
 #SBATCH --mail-user=edwinkost@gmail.com
 
 
-#SBATCH --export STARTCLONE=0,ENDCLONE=0
+#SBATCH --export STA=0,END=0
 
 
 set -x
@@ -43,8 +43,8 @@ INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_output_europe_version_20
 DATE_FOR_INITIAL_STATES="1981-12-31"
 
 
-STA=${STARTCLONE}
-END=${ENDCLONE}
+STA=${STA}
+END=${END}
 
 for i in {STA..END}
 
