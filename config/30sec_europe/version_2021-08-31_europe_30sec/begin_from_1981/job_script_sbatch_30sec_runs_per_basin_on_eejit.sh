@@ -37,7 +37,7 @@ END_DATE="2019-12-31"
 
 GENERAL_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing_all_europe/begin_from_1981/"
 
-INI_FILE=${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_1981-2019_on_eejit_with-limited-spinup.ini
+INI_FILE=${SLURM_SUBMIT_DIR}"/setup_30sec_europe_with_30sec_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_1981-2019_on_eejit_with-limited-spinup.ini"
 
 INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing_all_europe/_spinup/begin_from_1981_including_spinup/"
 DATE_FOR_INITIAL_STATES="1981-12-31"
