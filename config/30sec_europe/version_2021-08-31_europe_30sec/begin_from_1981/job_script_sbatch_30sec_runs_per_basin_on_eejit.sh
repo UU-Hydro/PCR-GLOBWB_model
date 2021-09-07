@@ -43,10 +43,10 @@ INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_output_europe_version_20
 DATE_FOR_INITIAL_STATES="1981-12-31"
 
 
-STA=((${STA}))
-END=((${END}))
+STA=${STA}
+END=${END}
 
-for i in {((${STA}))..((${END}))}
+for i in $( eval echo {${STA}..${STA}} )
 
 do
 
