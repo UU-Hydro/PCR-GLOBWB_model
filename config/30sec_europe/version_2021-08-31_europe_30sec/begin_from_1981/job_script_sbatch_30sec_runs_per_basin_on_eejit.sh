@@ -46,7 +46,7 @@ DATE_FOR_INITIAL_STATES="1981-12-31"
 STA=((${STA}))
 END=((${END}))
 
-for i in {${STA}..${END}}
+for i in {((${STA}))..((${END}))}
 
 do
 
