@@ -27,7 +27,7 @@ set -x
 export PCRASTER_NR_WORKER_THREADS=12
 
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
-PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/PCR-GLOBWB_model_edwin-private-development/model/"
+PCRGLOBWB_MODEL_SCRIPT_FOLDER="/quanta1/home/sutan101/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 # - go there
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} 
 
