@@ -52,7 +52,7 @@ do
 
 CLONEMAP=${i}
 
-python deterministic_runner_with_arguments.py ${INII_FILE} -mod ${GENERAL_OUTPUT_DIR}/mask_${CLONEMAP}/ -clonemap ${CLONEMAP} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
+python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${GENERAL_OUTPUT_DIR}/mask_${CLONEMAP}/ -clonemap ${CLONEMAP} -sd ${STARTING_DATE} -ed ${END_DATE} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
 
 wait
 
