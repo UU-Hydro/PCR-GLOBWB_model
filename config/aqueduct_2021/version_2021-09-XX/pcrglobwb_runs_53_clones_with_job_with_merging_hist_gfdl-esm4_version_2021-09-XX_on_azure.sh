@@ -45,7 +45,7 @@ DATE_FOR_INITIAL_STATES="1979-12-31"
 
 
 # number of spinup years
-num_of_sp_years="5"
+NUMBER_OF_SPINUP_YEARS="5"
 
 
 PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
