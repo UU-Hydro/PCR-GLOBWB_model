@@ -504,6 +504,7 @@ def modify_ini_file(original_ini_file,
         msg = "The option 'dailyGroundwaterRechargeIni' is set based on the system argument (-day_gw_rch_ini): " + day_gw_rch_ini 
         print(msg)
     
+
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     # - for a run that is part of a set of parallel (clone) runs
