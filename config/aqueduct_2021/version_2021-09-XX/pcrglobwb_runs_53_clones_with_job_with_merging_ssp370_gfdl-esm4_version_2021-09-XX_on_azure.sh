@@ -22,7 +22,7 @@ INI_FILE=$(pwd)/"setup_05min_version_2021-09-XX_ssp370_gcm_develop.ini"
 
 
 # pcrglobwb output folder
-MAIN_OUTPUT_DIR="/datadrive/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-XX_ssp370_gfdl-esm4/"
+MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-XX_ssp370_gfdl-esm4/"
 
 
 # starting and end dates
