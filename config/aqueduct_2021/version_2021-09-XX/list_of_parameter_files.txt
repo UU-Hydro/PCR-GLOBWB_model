@@ -1,0 +1,126 @@
+
+unset SOURCEDIR
+
+SOURCEDIR="/scratch/depfg/sutan101/data/pcrglobwb_input_arise/develop/"
+
+mkdir historical_and_ssp_files
+cd historical_and_ssp_files
+
+ln -s ${SOURCEDIR}/global_05min/waterUse/irrigated_areas/version_2021-09-13/irrigated_areas_historical_1960-2019.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/irrigated_areas/version_2021-09-13/irrigated_areas_ssp1_2000-2050.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/irrigated_areas/version_2021-09-13/irrigated_areas_ssp3_2000-2050.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/irrigated_areas/version_2021-09-13/irrigated_areas_ssp5_2000-2050.nc
+
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/domestic_water_demands/domestic_water_demand_historical_1960-2019.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/domestic_water_demands/domestic_water_demand_ssp1_2000-2100.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/domestic_water_demands/domestic_water_demand_ssp3_2000-2100.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/domestic_water_demands/domestic_water_demand_ssp5_2000-2100.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/industry_water_demands/industry_water_demand_historical_1960-2019.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/industry_water_demands/industry_water_demand_ssp1_2000-2100.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/industry_water_demands/industry_water_demand_ssp3_2000-2100.nc
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/industry_water_demands/industry_water_demand_ssp5_2000-2100.nc
+
+cd -
+
+mkdir general
+cd general
+
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/meteo/downscaling_from_30min/uniqueIds_30min.nc                                                                      
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/meteo/downscaling_from_30min/temperature_slope.nc                                                                     
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/meteo/downscaling_from_30min/precipitation_slope.nc                                                                   
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/meteo/downscaling_from_30min/temperature_correl.nc                                                                     
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/meteo/downscaling_from_30min/precipitation_correl.nc                                                                   
+
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dem_average_topography_parameters_5min_april_2021_global_covered_with_zero.nc                                                                           
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/topography_parameters_5min_april_2021_global_covered_with_zero.nc
+
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/layerDepth_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/layerDepth_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/WHC_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/WHC_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/psiAir_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/psiAir_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/BCH_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/BCH_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/vmcRes_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/vmcRes_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/vmcSat_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/vmcSat_average_2_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/kSat_average_1_global_05arcmin.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/soil/version_2021-05-XX/kSat_average_2_global_05arcmin.nc
+
+ln -s ${SOURCEDIR}/global_05min/landSurface/impeded_drainage/global_05min_impeded_drainage_permafrost_dsmw_correct_lats.nc
+
+ln -s ${SOURCEDIR}/global_30min_from_gmd_paper_input/waterUse/irrigation/irrigation_efficiency/efficiency.nc
+
+ln -s ${SOURCEDIR}/global_05min/waterUse/waterDemand/version_2021-09-13/livestock_water_demands/livestock_water_demand_05min.nc
+
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/desalination/desalination_water_version_april_2015.nc
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/abstraction_zones/abstraction_zones_60min_05min.nc
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_SWFRAC.nc
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/source_partitioning/surface_water_fraction_for_irrigation/AEI_QUAL.nc
+ln -s ${SOURCEDIR}/global_30min_from_gmd_paper_input/waterUse/source_partitioning/surface_water_fraction_for_non_irrigation/max_city_sw_fraction.nc
+
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/vegf_tall.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/minf_tall.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/maxf_tall.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/rfrac1_tall.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/rfrac2_tall.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/tall_crop_coefficient.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/tall_cover_fraction.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/tall_intercept_capacity.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/vegf_short.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/minf_short.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/maxf_short.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/rfrac1_short.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/rfrac2_short.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/short_crop_coefficient.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/short_cover_fraction.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-05-04/netcdf/short_intercept_capacity.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/irrigated_fractions/version_2021-09-13/fractionPaddy_extrapolated.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/paddy_cropfactor_filled.nc         
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/paddy_groundcover_filled.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/paddy_interceptionstorage_filled.nc        
+ln -s ${SOURCEDIR}/global_05min/landSurface/irrigated_fractions/version_2021-09-13/fractionNonPaddy_extrapolated.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_minSoilDepthFrac_filled.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_maxSoilDepthFrac_filled.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_rootfraction_z1_filled.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_rootfraction_z2_filled.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_maxSoilDepth_filled.map
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_cropfactor_filled.nc         
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_groundcover_filled.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/landCover/version_2021-08-XX/irrigation_land_cover_properties_version_2021-08-XX/nonpaddy_interceptionstorage_filled.nc        
+
+ln -s ${SOURCEDIR}/global_05min/groundwater/properties/version_2021-02-XX/specific_yield_aquifer_05min.map
+ln -s ${SOURCEDIR}/global_05min/groundwater/properties/version_2021-02-XX/k_conductivity_aquifer_05min.map
+ln -s ${SOURCEDIR}/global_05min/groundwater/properties/version_2021-02-XX/recession_coefficient_05min.map
+ln -s ${SOURCEDIR}/global_05min/groundwater/aquifer_thickness_estimate/version_2020-09-XX/thickness_05min_remapbil_to_30sec_filled_with_pcr_correct_lat_upscaled_back_to_05min_with_remapcon.nc
+ln -s ${SOURCEDIR}/global_30min/groundwater/groundwater_pumping_capacity/version_2021-09-13/gw_pumping_capacity_1960-2100.nc
+
+ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/abstraction_zones/abstraction_zones_30min_05min.nc
+
+ln -s ${SOURCEDIR}/global_05min/routing/surface_water_bodies/version_20210330/lddsound_05min_version_20210330.map
+ln -s ${SOURCEDIR}/global_05min/routing/cell_area/cdo_gridarea_clone_global_05min_correct_lats.nc
+ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/gradient_channel_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/bankfull_depth_channel_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/bankfull_width_channel_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/bankfull_width_channel_parameters_5min_april_2021_global_covered_with_zero.nc
+
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0000_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0001_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0005_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0010_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0020_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0030_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0040_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0050_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0060_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0070_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0080_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0090_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0100_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+
+cd -
+
+
+

@@ -18,7 +18,7 @@ set -x
 
 
 # configuration (.ini) file
-INI_FILE=$(pwd)/"setup_05min_version_2021-09-XX_historical_gcm_develop.ini"
+INI_FILE=$(pwd)/"setup_05min_version_2021-09-XX_historical_gcm_develop_with_input_files_in_links.ini"
 
 
 #~ # pcrglobwb output folder
