@@ -101,6 +101,7 @@ ln -s ${SOURCEDIR}/global_05min_from_gmd_paper_input/waterUse/abstraction_zones/
 
 ln -s ${SOURCEDIR}/global_05min/routing/surface_water_bodies/version_20210330/lddsound_05min_version_20210330.map
 ln -s ${SOURCEDIR}/global_05min/routing/cell_area/cdo_gridarea_clone_global_05min_correct_lats.nc
+
 ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/gradient_channel_parameters_5min_april_2021_global_covered_with_zero.nc
 ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/bankfull_depth_channel_parameters_5min_april_2021_global_covered_with_zero.nc
 ln -s ${SOURCEDIR}/global_05min/routing/channel_properties/version_20210401_from_03sec_merit_dem/maps_covered_with_zero/bankfull_width_channel_parameters_5min_april_2021_global_covered_with_zero.nc
@@ -119,6 +120,9 @@ ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_mer
 ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0080_topography_parameters_5min_april_2021_global_covered_with_zero.nc
 ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0090_topography_parameters_5min_april_2021_global_covered_with_zero.nc
 ln -s ${SOURCEDIR}/global_05min/landSurface/topography/version_202104XX_from_merit_dem/maps_covered_with_zero/dzRel0100_topography_parameters_5min_april_2021_global_covered_with_zero.nc
+
+ln -s ${SOURCEDIR}/global_30min_from_gmd_paper_input/routing/kc_surface_water/cropCoefficientForOpenWater.nc
+ln -s ${SOURCEDIR}/global_05min/routing/surface_water_bodies/version_20210330/lakes_and_reservoirs_05min_global_version_20210330.nc
 
 cd -
 
