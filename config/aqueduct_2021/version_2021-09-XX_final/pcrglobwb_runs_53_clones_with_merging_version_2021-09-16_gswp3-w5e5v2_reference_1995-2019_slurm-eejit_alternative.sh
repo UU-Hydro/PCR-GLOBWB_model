@@ -5,7 +5,7 @@
 
 #SBATCH -t 240:00:00
 
-#SBATCH -J gswp3-w5e5_1995-2019
+#SBATCH -J gswp3-w5e5_1995-2019_0p5deg_sw
 
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
@@ -35,7 +35,7 @@ INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16.ini"
 
 
 # pcrglobwb output folder
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-09-18_1deg_sw/begin_from_1995/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-09-18_0p5deg_sw/begin_from_1995/"
 
 #~ MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-XX_ssp370_gfdl-esm4/continue_from_2051/"
 
