@@ -82,8 +82,8 @@ TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_v
 
 
 # initial conditions - example on eejit
-MAIN_INITIAL_STATE_FOLDER="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-XX_ssp370_gfdl-esm4/begin_from_2015/global/states/"
-DATE_FOR_INITIAL_STATES="2019-12-31"
+MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-08-20c_gmd-paper-irrigated-areas/global/states/"
+DATE_FOR_INITIAL_STATES="1999-12-31"
 
 
 # number of spinup years
