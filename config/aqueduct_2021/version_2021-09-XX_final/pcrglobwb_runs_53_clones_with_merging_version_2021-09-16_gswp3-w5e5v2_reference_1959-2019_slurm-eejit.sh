@@ -90,11 +90,15 @@ DATE_FOR_INITIAL_STATES="1999-12-31"
 NUMBER_OF_SPINUP_YEARS="25"
 
 
+# location of your pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
 
 
-# load modules on azure
-source activate pcrglobwb_python3
+# load modules on eejit
+. /quanta1/home/sutan101/load_my_miniconda_and_my_default_env.sh
+
+#~ # load modules on azure
+#~ source activate pcrglobwb_python3
 
 
 pcrcalc
