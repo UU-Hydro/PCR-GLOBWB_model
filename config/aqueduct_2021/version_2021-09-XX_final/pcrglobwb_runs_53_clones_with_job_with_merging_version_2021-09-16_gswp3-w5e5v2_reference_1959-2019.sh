@@ -13,17 +13,17 @@ MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/v
 
 
 # starting and end dates
-STARTING_DATE="2051-01-01"
+STARTING_DATE="2050-01-01"
 END_DATE="2100-12-31"
 
 
 # meteorological forcing files
-RELATIVE_HUMIDITY_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_hurs_global_daily_2015_2100.nc"
-PRECIPITATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_pr_global_daily_2015_2100.nc"
-PRESSURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_ps_global_daily_2015_2100.nc"
-SHORTWAVE_RADIATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_rsds_global_daily_2015_2100.nc"
-WIND_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_sfcwind_global_daily_2015_2100.nc"
-TEMPERATURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_ssp370_tas_global_daily_2015_2100.nc"
+RELATIVE_HUMIDITY_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc"
+PRECIPITATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc"
+PRESSURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc"
+SHORTWAVE_RADIATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc"
+WIND_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc"
+TEMPERATURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
 
 
 # initial conditions - example on eejit
@@ -53,11 +53,12 @@ pwd
 
 
 # run the model for all clones, from 1 to 53
-for i in {1..53}
 
 #~ # - for testing
 #~ for i in {2..2}
 #~ for i in {2..3}
+
+for i in {1..53}
 
 do
 
