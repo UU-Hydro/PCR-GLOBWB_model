@@ -26,7 +26,7 @@ INI_FOLDER=${SLURM_SUBMIT_DIR}
 
 # configuration (.ini) file
 # - historical
-INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16.ini"
+INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16-alternative.ini"
 #~ # - ssp370
 #~ INI_FILE=${INI_FOLDER}/"setup_05min_ssp370_version_2021-09-16.ini"
 
