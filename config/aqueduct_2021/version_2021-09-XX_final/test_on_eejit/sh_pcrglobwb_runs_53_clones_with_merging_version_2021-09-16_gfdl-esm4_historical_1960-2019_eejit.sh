@@ -17,7 +17,7 @@ INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16_global_max_gw_
 # starting and end dates
 # - historical
 STARTING_DATE="1960-01-01"
-END_DATE="1960-01-31"
+END_DATE="2019-01-31"
 
 
 # location/folder, where you will store output files of your 
@@ -42,7 +42,7 @@ DATE_FOR_INITIAL_STATES="1999-12-31"
 
 
 # number of spinup years
-NUMBER_OF_SPINUP_YEARS="0"
+NUMBER_OF_SPINUP_YEARS="25"
 
 
 # location of your pcrglobwb model scripts
