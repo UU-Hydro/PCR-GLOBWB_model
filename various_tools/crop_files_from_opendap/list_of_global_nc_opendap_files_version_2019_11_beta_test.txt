@@ -1,0 +1,11 @@
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/initialConditions/non-natural/consistent_run_201903XX/1999/storLow_grassland_1999-12-31.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/routing/surface_water_bodies/certain_year_only/waterBodies30min_1958.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/routing/ldd_and_cell_area/lddsound_05min_unmask.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/gtopo05min.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/temperature_slope.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/temperature_correl.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/uniqueIds_30min.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_05min/meteo/downscaling_from_30min/precipitation_slope.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_precipitation_cru_era-interim_1979_to_2010.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_temperature_cru_era-interim_1979_to_2010.nc
+https://opendap.4tu.nl/thredds/dodsC/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/global_30min/meteo/forcing/daily_referencePotET_cru_era-interim_1979_to_2010.nc
