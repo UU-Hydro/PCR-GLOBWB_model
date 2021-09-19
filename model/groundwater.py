@@ -648,6 +648,7 @@ class Groundwater(object):
         self.storGroundwaterFossil = pcr.cover( self.storGroundwaterFossil, 0.0)
         self.storGroundwaterFossil = pcr.ifthen(self.landmask,\
                                                 self.storGroundwaterFossil)
+        pcr.report(self.storGroundwaterFossil, "initial_fossil_gw_water.map")                                        
 
     def perturb(self, name, **parameters):
 
