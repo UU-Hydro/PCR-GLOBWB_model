@@ -22,7 +22,7 @@ END_DATE="2019-01-31"
 
 # location/folder, where you will store output files of your 
 # pcrglobwb output folder
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-09-18/begin_from_1959/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-09-20_get_max_gw/begin_from_1960/"
 
 
 # meteorological forcing files
