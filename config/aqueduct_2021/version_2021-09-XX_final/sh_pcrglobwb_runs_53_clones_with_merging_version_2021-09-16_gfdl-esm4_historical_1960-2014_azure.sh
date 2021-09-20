@@ -33,14 +33,14 @@ MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/v
 # meteorological forcing files
 
 # - historical reference - gswp3-w5e5
-RELATIVE_HUMIDITY_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc"
-PRECIPITATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc"
-PRESSURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc"
-SHORTWAVE_RADIATION_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc"
-WIND_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc"
-TEMPERATURE_FORCING_FILE="/mnt/pcrglobwb/pcrglobwb_input/forcing/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
+RELATIVE_HUMIDITY_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc"
+PRECIPITATION_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc"
+PRESSURE_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc"
+SHORTWAVE_RADIATION_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc"
+WIND_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc"
+TEMPERATURE_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
 
-#~ sutan101@gpu038.cluster:/mnt/pcrglobwb/pcrglobwb_input/forcing$ ls -lah *
+#~ sutan101@gpu038.cluster:/mnt/pcrglobwb/forcing$ ls -lah *
 #~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc
 #~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:47 gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc
 #~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc
