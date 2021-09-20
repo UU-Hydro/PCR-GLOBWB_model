@@ -1,7 +1,0 @@
-sutan101@gpu038.cluster:/scratch/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4$ ls -lah *
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:47 gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:43 gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc
--r--r--r-- 1 sutan101 depfg 59G Aug  3 15:44 gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc

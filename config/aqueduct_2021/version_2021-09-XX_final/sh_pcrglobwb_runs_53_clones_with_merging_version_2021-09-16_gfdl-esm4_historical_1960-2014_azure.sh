@@ -50,9 +50,9 @@ TEMPERATURE_FORCING_FILE="/mnt/pcrglobwb/forcing/gfdl-esm4_w5e5_historical_tas_g
 
 
 # initial conditions
-MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021/version_2021-08-20c_gmd-paper-irrigated-areas/global/states/"
-DATE_FOR_INITIAL_STATES="1999-12-31"
-# - PS: for continuing runs (including the transition from the historical to SSP runs), plese use the output files from previous model runs.
+MAIN_INITIAL_STATE_FOLDER="/mnt/pcrglobwb/pcrglobwb_input/initial_conditions/"
+DATE_FOR_INITIAL_STATES="2019-12-31"
+# - PS: for continuing runs (including the transition from the historical to SSP runs), plese use the output files from the previous period model runs.
 
 
 # number of spinup years
