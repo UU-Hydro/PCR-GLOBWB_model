@@ -11,9 +11,7 @@ INI_FOLDER=$(pwd)
 
 # configuration (.ini) file
 # - historical
-INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16.ini"
-#~ # - ssp370
-#~ INI_FILE=${INI_FOLDER}/"setup_05min_ssp370_version_2021-09-16.ini"
+INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16_on_pcrglobwb-azure.ini"
 
 
 # starting and end dates
