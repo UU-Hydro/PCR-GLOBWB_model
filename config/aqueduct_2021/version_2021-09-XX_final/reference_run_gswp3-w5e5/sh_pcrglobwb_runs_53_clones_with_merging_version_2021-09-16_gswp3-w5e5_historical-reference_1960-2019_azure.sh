@@ -19,7 +19,7 @@ INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16.ini"
 # starting and end dates
 # - historical
 STARTING_DATE="1960-01-01"
-END_DATE="2014-12-31"
+END_DATE="2019-12-31"
 # - PS: for continuing runs (including the transition from the historical to SSP runs), plese use the output files from previous model runs.
 
 
