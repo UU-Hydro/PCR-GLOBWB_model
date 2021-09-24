@@ -87,7 +87,7 @@ pwd
 #~ # - for testing
 #~ for i in {2..2}
 
-#~ # - loop through all clones
+# - loop through all clones
 for i in {1..53}
 
 do
