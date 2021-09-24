@@ -53,14 +53,6 @@ TEMPERATURE_FORCING_FILE="/datadrive/pcrglobwb/isimip3a_forcing/copied_on_2021-0
 #~ -r--r--r-- 1 sutan101 depfg  42G Sep 18 00:15 gswp3-w5e5_obsclim_tasmax_global_daily_1901_2019_version_2021-09-XX.nc
 #~ -r--r--r-- 1 sutan101 depfg  42G Sep 18 00:15 gswp3-w5e5_obsclim_tasmin_global_daily_1901_2019_version_2021-09-XX.nc
 
-#~ sutan101@gpu038.cluster:/datadrive/pcrglobwb/isimip3a_forcing/copied_on_2021-09-XX/GSWP3-W5E5/merged$ ls -lah *
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:47 gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:43 gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:44 gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc
-
 
 # initial conditions
 MAIN_INITIAL_STATE_FOLDER="/datadrive/pcrglobwb/pcrglobwb_input/version_2021-09-16/initial_conditions/"
