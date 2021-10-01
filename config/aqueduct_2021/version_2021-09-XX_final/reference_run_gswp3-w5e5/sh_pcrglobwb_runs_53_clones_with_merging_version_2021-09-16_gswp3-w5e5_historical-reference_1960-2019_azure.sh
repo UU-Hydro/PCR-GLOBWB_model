@@ -67,7 +67,7 @@ NUMBER_OF_SPINUP_YEARS="25"
 
 
 # location of your pcrglobwb model scripts
-PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/
+PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/PCR-GLOBWB_model/model/
 
 
 # load the conda enviroment on azure
