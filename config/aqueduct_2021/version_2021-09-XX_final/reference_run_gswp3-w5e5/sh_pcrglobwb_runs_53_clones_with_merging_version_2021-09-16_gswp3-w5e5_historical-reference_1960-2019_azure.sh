@@ -23,7 +23,7 @@ END_DATE="2019-12-31"
 
 # location/folder, where you will store output files of your 
 # - historical
-MAIN_OUTPUT_DIR="/datadrive/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-16/gswp3-w5e5/historical-reference/begin_from_1960/"
+MAIN_OUTPUT_DIR="/datadrive/edwin/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-16/gswp3-w5e5_rerun/historical-reference/begin_from_1960/"
 
 
 # meteorological forcing files
