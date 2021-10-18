@@ -5,7 +5,7 @@
 
 #SBATCH -n 32
 
-#SBATCH -p tcn
+#SBATCH -p thin
 
 #SBATCH -J e1k10kXX
 
