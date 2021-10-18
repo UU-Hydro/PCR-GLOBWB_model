@@ -5,7 +5,7 @@
 
 #SBATCH -n 32
 
-#SBATCH -p normal
+#SBATCH -p tcn
 
 #SBATCH -J e1k10kXX
 
