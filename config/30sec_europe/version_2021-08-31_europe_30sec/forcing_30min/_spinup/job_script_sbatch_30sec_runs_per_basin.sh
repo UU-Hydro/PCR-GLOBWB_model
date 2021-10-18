@@ -43,7 +43,7 @@ GENERAL_OUTPUT_DIR="/scratch-shared/edwinari/pcrglobwb_output_europe_version_202
 
 CLONEMAP=${CLONEMAP}
 
-python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask.ini -mod ${GENERAL_OUTPUT_DIR}/mask_${CLONEMAP}/ -clonemap ${CLONEMAP}
+python deterministic_runner_with_arguments.py ${SLURM_SUBMIT_DIR}/setup_30sec_europe_with_30min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask.ini -mod ${GENERAL_OUTPUT_DIR}/mask_${CLONEMAP}/ -clonemap ${CLONEMAP}
 
 wait
 
