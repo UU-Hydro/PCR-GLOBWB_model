@@ -117,7 +117,7 @@ let NUMOFYEARS=${END_YEAR}-${STARTING_YEAR}+1
 #~ let NUMOFSUBRUNS=${NUMOFYEARS}/3
 
 # we will run for every 10-year period ; NUMOFSUBRUNS = (2019-1981+1) / 10 = 4
-let NUMOFSUBRUNS=3
+let NUMOFSUBRUNS=4
 
 # the run for every period
 for i in $( eval echo {1..$NUMOFSUBRUNS} )
