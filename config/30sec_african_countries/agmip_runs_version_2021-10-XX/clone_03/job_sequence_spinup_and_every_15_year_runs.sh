@@ -140,9 +140,9 @@ fi
 let STAYEAR=${STARTING_YEAR}+${i}*15-15
 let ENDYEAR=${STAYEAR}+15-1
 
-if [ ${ENDYEAR} -gt ${END_YEAR} ]
+if [ ${ENDYEAR} -gt 2019 ]
 then
-let ENDYEAR=${END_YEAR}
+let ENDYEAR=2019
 fi
 
 SUB_JOBNAME=${JOB_NAME}_${STAYEAR}-${ENDYEAR}
