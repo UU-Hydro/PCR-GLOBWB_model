@@ -17,7 +17,7 @@ INI_FILE="setup_30sec_agmip_clone_02_version_2021-10-20.ini"
 GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_02_30sec/"
 
 #~ # - using Jannis output folder
-#~ GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/jhoch/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_01_30sec/"
+#~ GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/jhoch/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_02_30sec/"
 
 
 STARTING_YEAR=1981
