@@ -161,15 +161,19 @@ class Groundwater(object):
         #####################################################################################################################################################
         # try to assign the reccesion coefficient (unit: day-1) from the netcdf file of groundwaterPropertiesNC
         try:
-            msg = "The 'recessionCoeff' will be obtained from the file: "+groundwaterPropertiesNC
-            logger.info(msg)
-            self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
-                                  groundwaterPropertiesNC,'recessionCoeff',\
-                                  cloneMapFileName = self.cloneMap)
+            if groundwaterPropertiesNC == "None":
+                self.recessionCoeff = None
+            else:
+                msg = "The 'recessionCoeff' will be obtained from the file: " + groundwaterPropertiesNC
+                logger.info(msg)
+                self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(\
+                                      groundwaterPropertiesNC,'recessionCoeff',\
+                                      cloneMapFileName = self.cloneMap)
         except:
             self.recessionCoeff = None
-            msg = "The 'recessionCoeff' cannot be read from the file: "+groundwaterPropertiesNC
+            msg = "The 'recessionCoeff' cannot be read from the file: " + groundwaterPropertiesNC
             logger.warning(msg)
+        # TODO: Remove try and except !!!    
 
         # assign the reccession coefficient based on the given pcraster file
         if 'recessionCoeff' in list(iniItems.groundwaterOptions.keys()):
