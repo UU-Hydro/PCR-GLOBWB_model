@@ -10,9 +10,16 @@
 set -x
 
 
-JOB_NAME="w5e5_sen"
-INI_FILE="setup_30sec_senegal-basin_version_2021-07-30.ini"
-GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa/version_2021-07-XX/senegal_30sec/"
+JOB_NAME="agmpc01"
+INI_FILE="setup_30sec_agmip_clone_01_version_2021-10-20.ini"
+
+#~ # - using Edwinś output folder
+GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_01_30sec/"
+
+#~ # - using Jannis output folder
+#~ GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/jhoch/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_01_30sec/"
+
+
 STARTING_YEAR=1981
 END_YEAR=2019
 
