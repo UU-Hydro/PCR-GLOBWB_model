@@ -39,7 +39,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/edwinari/github/edwinkost/PCR-GLOBWB_model_
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} 
 
 
-GENERAL_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_30sec_forcing_all_europe/begin_from_1981/"
+GENERAL_OUTPUT_DIR="/scratch-shared/edwinari/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing_all_europe/begin_from_1981/"
 
 
 INI_FILE=${SLURM_SUBMIT_DIR}"/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_1981-2019.ini"
