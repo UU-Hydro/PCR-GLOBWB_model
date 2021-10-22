@@ -10,7 +10,7 @@
 set -x
 
 
-JOB_NAME="agmpc02"
+JOB_NAME="agmpc07"
 INI_FILE="setup_30sec_agmip_clone_07_version_2021-10-20.ini"
 
 # - using Edwinś output folder
