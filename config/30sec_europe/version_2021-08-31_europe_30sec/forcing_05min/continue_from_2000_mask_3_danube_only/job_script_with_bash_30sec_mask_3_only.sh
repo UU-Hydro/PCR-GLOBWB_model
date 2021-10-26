@@ -53,8 +53,10 @@ INITIAL_STATE_FOLDER="/scratch-shared/edwinari/pcrglobwb_output_europe_version_2
 DATE_FOR_INITIAL_STATES="1999-12-31"
 
 
-CLONEMAP=${CLONEMAP}
+#~ CLONEMAP=${CLONEMAP}
 
+# for clone 3 only
+CLONEMAP=3
 
 python deterministic_runner_with_arguments.py ${INI_FILE} -mod ${GENERAL_OUTPUT_DIR}/mask_${CLONEMAP}/ -clonemap ${CLONEMAP} -misd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} &
 
