@@ -34,6 +34,13 @@ set -x
 export PCRASTER_NR_WORKER_THREADS=60
 
 
+# ini files
+#~ # - with slurm
+#~ INI_FILE=${SLURM_SUBMIT_DIR}"/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_2000-2019.ini"
+# - with bash
+INI_FILE=$(pwd)"/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_2000-2019.ini"
+
+
 # set the folder that contain PCR-GLOBWB model scripts (note that this is not always the latest version)
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/home/edwin/github/edwinkost/PCR-GLOBWB_model_edwin-private-development/model/"
 # - go there
@@ -42,11 +49,6 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 GENERAL_OUTPUT_DIR="/scratch-shared/edwin/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing_all_europe/continue_from_2000/"
 
-# ini files
-#~ # - with slurm
-#~ INI_FILE=${SLURM_SUBMIT_DIR}"/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_2000-2019.ini"
-# - with bash
-INI_FILE=$(pwd)"/setup_30sec_europe_with_05min_forcing_version_2021-06-XX_parallelization_with_clone_and_landmask_2000-2019.ini"
 
 
 INITIAL_STATE_FOLDER="/scratch-shared/edwinari/pcrglobwb_output_europe_version_2021-06-XX/europe_30sec_with_05min_forcing_all_europe/begin_from_1981/"
