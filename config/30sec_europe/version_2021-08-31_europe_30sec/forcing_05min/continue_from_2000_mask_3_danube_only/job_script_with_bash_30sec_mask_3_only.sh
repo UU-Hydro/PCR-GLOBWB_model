@@ -31,7 +31,7 @@ set -x
 . /home/edwin/load_pcrglobwb_python3_default.sh
 
 #~ unset PCRASTER_NR_WORKER_THREADS
-export PCRASTER_NR_WORKER_THREADS=60
+export PCRASTER_NR_WORKER_THREADS=32
 
 
 # ini files
