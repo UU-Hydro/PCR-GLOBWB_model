@@ -1,9 +1,9 @@
 
 source activate pcrglobwb_python3
 
-#~ GCM_CODE="gfdl-esm4" 
-#~ GCM_CODE_SHORT="gfdl"
-#~ python merging_daily_variables.py /ssp_disks/links_to_ssp1/${GCM_CODE_SHORT}/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-16/${GCM_CODE}/ssp126/ 2015 2100 /ssp_disks/links_to_ssp1/${GCM_CODE_SHORT}/pcrglobwb/merged_daily/pcrglobwb_aqueduct_2021/version_2021-09-16/${GCM_CODE}/ssp126/begin_from_2015/global/netcdf_daily/ &
+GCM_CODE="gfdl-esm4" 
+GCM_CODE_SHORT="gfdl"
+python merging_daily_variables.py /ssp_disks/links_to_ssp1/${GCM_CODE_SHORT}/pcrglobwb/pcrglobwb_output/pcrglobwb_aqueduct_2021/version_2021-09-16/${GCM_CODE}/ssp126/ 2015 2100 /ssp_disks/links_to_ssp1/${GCM_CODE_SHORT}/pcrglobwb/merged_daily/pcrglobwb_aqueduct_2021/version_2021-09-16/${GCM_CODE}/ssp126/begin_from_2015/global/netcdf_daily/ &
 
 GCM_CODE="ipsl-cm6a-lr"
 GCM_CODE_SHORT="ipsl"
