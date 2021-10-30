@@ -84,7 +84,8 @@ for i_year in range(0, len(start_years)):
                "referencePotET,baseflow,directRunoff,interflowTotal " + \
                "NETCDF4 True 8 53 all_lats default &"
 
-        if str(year)[3] == "9":
+        run_just_per_year = True
+        if str(year)[3] == "9" or run_just_per_year == True:
             cmd += "wait"
             print(cmd)
             os.system(cmd)
