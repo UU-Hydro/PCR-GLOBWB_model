@@ -13,7 +13,7 @@ set -x
 JOB_NAME="agmpc01"
 INI_FILE="setup_30sec_agmip_clone_01_version_2021-10-20.ini"
 
-#~ # - using Edwinś output folder
+# - using Edwinś output folder
 GENERAL_MAIN_OUTPUT_DIR="/rds/general/user/esutanud/projects/arise/live/HydroModelling/edwin/pcrglobwb_output_africa_agmip/version_2021-10-XX/clone_01_30sec/"
 
 #~ # - using Jannis output folder
