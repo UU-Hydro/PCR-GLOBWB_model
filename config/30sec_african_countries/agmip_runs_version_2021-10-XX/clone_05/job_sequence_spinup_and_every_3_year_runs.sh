@@ -137,8 +137,12 @@ USE_MAXIMUM_STOR_GROUNDWATER_FOSSIL_INI="True"
 fi
 
 # every 10 year period
-let STAYEAR=${STARTING_YEAR}+${i}*10-10
-let ENDYEAR=${STAYEAR}+10-1
+let STAYEAR=${STARTING_YEAR}+${i}*3-3
+let ENDYEAR=${STAYEAR}+3-1
+
+#~ # every 10 year period
+#~ let STAYEAR=${STARTING_YEAR}+${i}*10-10
+#~ let ENDYEAR=${STAYEAR}+10-1
 
 if [ ${ENDYEAR} -gt 2019 ]
 then
