@@ -145,7 +145,7 @@ fi
 
 # every 5 year period
 let STAYEAR=${STARTING_YEAR}+${i}*5-5
-let1 ENDYEAR=${STAYEAR}+5-1
+let ENDYEAR=${STAYEAR}+5-1
 
 if [ ${ENDYEAR} -gt 2019 ]
 then
