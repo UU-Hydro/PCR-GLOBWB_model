@@ -66,6 +66,9 @@ netcdf_suffixes = ('.nc4','.nc')
 
 # maximum number of tries for reading files:
 max_num_of_tries = 5
+# ~ # - set it to infinity - NOT RECOMMENDED
+# ~ max_num_of_tries = float("inf")
+
 
 def getFileList(inputDir, filePattern):
     '''creates a dictionary of  files meeting the pattern specified'''
