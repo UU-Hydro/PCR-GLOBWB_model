@@ -254,6 +254,9 @@ class LandCover(object):
             self.coverFractionNC = None               
             self.interceptCapNC  = None
 
+        if 'coverFractionNC' in list(self.iniItemsLC.keys()) and self.iniItemsLC['coverFractionNC'] == "None": self.coverFractionNC = None 
+        if 'interceptCapNC'  in list(self.iniItemsLC.keys()) and self.iniItemsLC['interceptCapNC' ] == "None": self.interceptCapNC  = None
+        
         # for reporting: output in netCDF files:
         self.report = True
         try:
@@ -986,6 +989,11 @@ class LandCover(object):
 
             self.satDegUppTotal = self.satDegUpp
             self.satDegLowTotal = self.satDegLow
+            
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp + self.storLow, self.parameters.storCapUpp + self.parameters.storCapLow,\
+                  vos.smallNumber, 0.0))
 
         if self.numberOfSoilLayers == 3:
             self.satDegUpp000005 = vos.getValDivZero(\
@@ -1008,6 +1016,12 @@ class LandCover(object):
                   vos.smallNumber,0.)
             self.satDegUppTotal = pcr.ifthen(self.landmask, self.satDegUppTotal)
             self.satDegLowTotal = self.satDegLow030150
+
+            self.satDegTotal = pcr.ifthen(self.landmask, \
+                  vos.getValDivZero(\
+                  self.storUpp000005 + self.storUpp005030 + self.satDegLow030150, self.parameters.storCapUpp000005 + self.parameters.storCapUpp005030 + self.parameters.storCapLow030150,\
+                  vos.smallNumber, 0.0))
+
         
         if self.report == True:
             # writing Output to netcdf files
@@ -1089,10 +1103,13 @@ class LandCover(object):
     def getPotET(self, meteo, currTimeStep):
 
         # get crop coefficient:
-        cropKC = pcr.cover(
-                 vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
-                                    currTimeStep.fulldate, useDoy = 'daily_seasonal',\
-                                    cloneMapFileName = self.cloneMap), 0.0)
+        if self.iniItemsLC['cropCoefficientNC'] == "None":
+            cropKC = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
+        else:
+            cropKC = pcr.cover(
+                     vos.netcdf2PCRobjClone(self.cropCoefficientNC,'kc', \
+                                            currTimeStep.fulldate, useDoy = 'daily_seasonal',\
+                                            cloneMapFileName = self.cloneMap), 0.0)
         self.inputCropKC = cropKC                                               # This line is needed for debugging. (Can we remove this?)
         self.cropKC = pcr.max(cropKC, self.minCropKC)                                
 

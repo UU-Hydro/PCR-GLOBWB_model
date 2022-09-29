@@ -112,7 +112,10 @@ class PCR2netCDF():
         date_time.standard_name = 'time'
         date_time.long_name = 'Days since 1901-01-01'
 
-        date_time.units = 'Days since 1901-01-01' 
+        #~ date_time.units = 'Days since 1901-01-01' 
+        # - fixing for ulysses
+        date_time.units    = 'days since 1901-01-01'
+
         date_time.calendar = 'standard'
 
         lat= rootgrp.createVariable('lat','f4',('lat',))

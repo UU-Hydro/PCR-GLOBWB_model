@@ -137,7 +137,8 @@ class LandSurface(object):
         self.stateVars = ['storUppTotal',
                           'storLowTotal',
                           'satDegUppTotal',
-                          'satDegLowTotal']
+                          'satDegLowTotal',
+                          'satDegTotal']
         #
         # flux variables (unit: m/day)
         self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
@@ -764,10 +765,14 @@ class LandSurface(object):
                 numb_of_lc_types += 1.0
 
         # Fill cells with pristineAreaFrac = 0.0:
-        self.landCoverObj['forest'].fracVegCover    = pcr.ifthenelse(pristineAreaFrac > 0.0, self.landCoverObj['forest'].fracVegCover, 0.0)
-        self.landCoverObj['forest'].fracVegCover    = pcr.min(1.0, self.landCoverObj['forest'].fracVegCover)
-        self.landCoverObj['grassland'].fracVegCover = 1.0 - self.landCoverObj['forest'].fracVegCover
-
+        # - NOTE this only works for certain land cover names. TODO: FIX THIS
+        try:
+            self.landCoverObj['forest'].fracVegCover    = pcr.ifthenelse(pristineAreaFrac > 0.0, self.landCoverObj['forest'].fracVegCover, 0.0)
+            self.landCoverObj['forest'].fracVegCover    = pcr.min(1.0, self.landCoverObj['forest'].fracVegCover)
+            self.landCoverObj['grassland'].fracVegCover = 1.0 - self.landCoverObj['forest'].fracVegCover
+        except:
+            pass
+        
         # recalculate total land cover fractions
         pristineAreaFrac = 0.0
         for coverType in self.coverTypes:         
@@ -1024,9 +1029,27 @@ class LandSurface(object):
                                 currTimeStep.fulldate, useDoy = 'yearly',\
                                 cloneMapFileName = self.cloneMap)
                 else:
-                    routing.WaterBodies.fracWat = vos.readPCRmapClone(\
-                                routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
-                                self.cloneMap,self.tmpDir,self.inputDir)
+                    if routing.WaterBodies.fracWaterInp != "None":
+                        routing.WaterBodies.fracWat = vos.readPCRmapClone(\
+                                    routing.WaterBodies.fracWaterInp+str(currTimeStep.year)+".map",
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+                    else:
+                        routing.WaterBodies.fracWat = pcr.spatial(pcr.scalar(0.0))
+            else:
+                if routing.WaterBodies.useNetCDF:
+                    routing.WaterBodies.fracWat = vos.netcdf2PCRobjClone(\
+                                routing.WaterBodies.ncFileInp,'fracWaterInp', \
+                                currTimeStep.fulldate, useDoy = 'yearly',\
+                                cloneMapFileName = self.cloneMap)
+                else:
+                    if routing.WaterBodies.fracWaterInp != "None":
+                        routing.WaterBodies.fracWat = vos.readPCRmapClone(\
+                                    routing.WaterBodies.fracWaterInp,
+                                    self.cloneMap,self.tmpDir,self.inputDir)
+                    else:
+                        routing.WaterBodies.fracWat = pcr.spatial(pcr.scalar(0.0))
+            # Note that the variable used in the following line is FRACWAT (this may be a 'small' bug fixing to the GMD paper version)
+            FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0); 
         FRACWAT = pcr.cover(FRACWAT, 0.0)
         
         # zero fracwat assumption used for debugging against version 1.0

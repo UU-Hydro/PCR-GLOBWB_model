@@ -47,7 +47,7 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    def __init__(self, configuration, currTimeStep, initialState = None):
+    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
@@ -76,6 +76,11 @@ class PCRGlobWB(object):
         # preparing sub-modules
         self.createSubmodels(initialState)
         
+        # option to save monthly end states
+        self.save_monthly_end_states = False
+        if "save_monthly_end_states" in list(configuration.reportingOptions.keys()):
+            self.save_monthly_end_states = configuration.reportingOptions["save_monthly_end_states"] == "True"
+                    
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
         if configuration.debug_to_version_one: self.debug_to_version_one = True
@@ -88,6 +93,10 @@ class PCRGlobWB(object):
             
             # dump the initial state
             self.dumpState(self.directory_for_initial_maps, "initial")
+
+
+        # get the status whether a run belongs to spinUpRun or not
+        self.spinUpRun = spinUpRun
 
          
     @property
@@ -112,8 +121,15 @@ class PCRGlobWB(object):
         
         state = self.getState()
         
-        landSurfaceState = state['landSurface']
+        meteoState = state['meteo']
+        for variable, map in list(meteoState.items()):
+            vos.writePCRmapToDir(\
+             map,\
+             str(variable)+"_"+
+             specific_date_string+".map",\
+             outputDirectory)
         
+        landSurfaceState = state['landSurface']
         for coverType, coverTypeState in list(landSurfaceState.items()):
             for variable, map in list(coverTypeState.items()):
                 vos.writePCRmapToDir(\
@@ -350,15 +366,19 @@ class PCRGlobWB(object):
     def getState(self):
         result = {}
         
+        result['meteo']       = self.meteo.getState()
+
         result['landSurface'] = self.landSurface.getState()
         result['groundwater'] = self.groundwater.getState()
-        result['routing'] = self.routing.getState()
+        result['routing']     = self.routing.getState()
         
         return result
         
     def getPseudoState(self):
         result = {}
         
+        result['meteo']       = self.meteo.getPseudoState()
+
         result['landSurface'] = self.landSurface.getPseudoState()
         result['groundwater'] = self.groundwater.getPseudoState()
         result['routing'] = self.routing.getPseudoState()
@@ -368,6 +388,9 @@ class PCRGlobWB(object):
     def getAllState(self):
         result = {}
         
+        result['meteo'] = self.meteo.getState()
+        result['meteo'].update(self.meteo.getPseudoState())
+
         result['landSurface'] = self.landSurface.getState()
         result['landSurface'].update(self.landSurface.getPseudoState())
         
@@ -445,13 +468,16 @@ class PCRGlobWB(object):
             landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
             surfaceWaterStoresAtBeginning = self.totalSurfaceWaterStores()     
 
-        self.meteo.update(self._modelTime)                                         
+        self.meteo.update(self.routing, self._modelTime)                                         
         self.landSurface.update(self.meteo, self.groundwater, self.routing, self._modelTime)      
         self.groundwater.update(self.landSurface, self.routing, self._modelTime)
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
         # save/dump states at the end of the year or at the end of model simulation
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
+        # - option to also save model output at the last day of the month
+        save_monthly_end_states = self.save_monthly_end_states 
+        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
+          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
@@ -473,6 +499,10 @@ class PCRGlobWB(object):
 
         if self._modelTime.isLastDayOfMonth():
             # make an empty file to indicate that the calculation for this month has done
-            filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
-            if os.path.exists(filename): os.remove(filename)
-            open(filename, "w").close()    
+            # - this is only needed for runs with merging and modflow processes
+            # - for a spinUpRun, merging will be skipped
+            if self.spinUpRun is not None and self.spinUpRun == False:
+                filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
+                if os.path.exists(filename): os.remove(filename)
+                open(filename, "w").close()    
+

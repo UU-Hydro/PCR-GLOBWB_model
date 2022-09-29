@@ -60,6 +60,16 @@ class Reporting(object):
         # initiate reporting tool/object and its configuration
         self.initiate_reporting()
 
+        # landmask for reporting
+        self.landmask_for_reporting = None
+        if "landmask_for_reporting" in list(configuration.reportingOptions.keys()) and\
+            self.configuration.reportingOptions["landmask_for_reporting"] != "None": 
+            self.landmask_for_reporting = vos.readPCRmapClone(\
+                                                              configuration.reportingOptions['landmask_for_reporting'], \
+                                                              configuration.cloneMap, \
+                                                              configuration.tmpDir, \
+                                                              configuration.globalOptions["inputDir"])
+            
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
         if self.configuration.debug_to_version_one: self.debug_to_version_one = True
@@ -336,7 +346,33 @@ class Reporting(object):
                                             "_annuaMax_output.nc",\
                                             short_name,unit,long_name,standard_name)
 
-        
+        # -- daily upsteam average (through LDD)
+        self.outDailyTotUpsAvgNC = ["None"]
+        try:
+            self.outDailyTotUpsAvgNC = list(set(self.configuration.reportingOptions['outDailyTotUpsAvgNC'].split(",")))
+        except:
+            pass
+        if self.outDailyTotUpsAvgNC[0] != "None":
+
+            for var in self.outDailyTotUpsAvgNC:
+
+                logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
+
+                short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                long_name  = "upstream_average_" + long_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_dailyTotUpsAvg_output.nc",\
+                                            short_name,unit,long_name,standard_name)
+
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\
                                     self.outMonthTotNC +\
@@ -346,7 +382,8 @@ class Reporting(object):
                                     self.outAnnuaTotNC +\
                                     self.outAnnuaAvgNC +\
                                     self.outAnnuaEndNC +\
-                                    self.outMonthMaxNC
+                                    self.outMonthMaxNC +\
+                                    self.outDailyTotUpsAvgNC
 
     def post_processing(self):
 
@@ -354,16 +391,19 @@ class Reporting(object):
         self.additional_post_processing()
         #-RvB 23/02/2017: post-processing for the eartH2Observe project
         self.e2o_post_processing()
+        
+        # reporting, post-processing for the Ulysses project
+        self.ulysses_post_processing()
                 
         if self.debug_to_version_one:
             if self._modelTime.timeStepPCR == 1: self.report_static_maps_for_debugging()
             self.report_forcing_for_debugging()
             self.report_vegetation_phenology_for_debugging()
         
-        # saving some model paramaters 
+        # saving some model paramaters that are constant over time
         if self._modelTime.timeStepPCR == 1:
             # recession coefficient (day-1)
-            pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir + "/globalalpha.map")
+            pcr.report(pcr.ifthen(self._model.routing.landmask, self._model.groundwater.recessionCoeff), self.configuration.mapsDir + "/globalalpha.map")
 
     def report_forcing_for_debugging(self):
 
@@ -627,6 +667,8 @@ class Reporting(object):
         
         self.satDegUpp            = self._model.landSurface.satDegUppTotal
         self.satDegLow            = self._model.landSurface.satDegLowTotal
+
+        self.satDegTotal          = self._model.landSurface.satDegTotal
         
         self.storGroundwater      = self._model.groundwater.storGroundwater
         
@@ -999,7 +1041,13 @@ class Reporting(object):
         if self.outDailyTotNC[0] != "None":
             for var in self.outDailyTotNC:
                 
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
                 short_name = varDicts.netcdf_short_name[var]
+                
                 self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                             "_dailyTot_output.nc",\
@@ -1018,6 +1066,11 @@ class Reporting(object):
                    self._modelTime.day == 1:\
                    vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
 
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
                 # accumulating
                 vars(self)[var+'MonthTot'] += vars(self)[var]
 
@@ -1025,6 +1078,7 @@ class Reporting(object):
                 if self._modelTime.endMonth == True: 
 
                     short_name = varDicts.netcdf_short_name[var]
+
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                                "_monthTot_output.nc",\
@@ -1044,6 +1098,11 @@ class Reporting(object):
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.day == 1:\
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
+
+                    # masking out for reporting
+                    if self.landmask_for_reporting is not None:
+                        vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                     vars(self)[var])
 
                     # accumulating
                     vars(self)[var+'MonthTot'] += vars(self)[var]
@@ -1084,8 +1143,14 @@ class Reporting(object):
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the month
                 if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.day == 1:\
-                   vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
+                   self._modelTime.day == 1:
+                    vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
+                    vars(self)[var+'MonthMax'] = vars(self)[var]
+
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # find the maximum
                 vars(self)[var+'MonthMax'] = pcr.max(vars(self)[var], vars(self)[var+'MonthMax'])
@@ -1111,6 +1176,11 @@ class Reporting(object):
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:\
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # accumulating
                 vars(self)[var+'AnnuaTot'] += vars(self)[var]
@@ -1138,6 +1208,11 @@ class Reporting(object):
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.doy == 1:\
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+
+                    # masking out for reporting
+                    if self.landmask_for_reporting is not None:
+                        vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                     vars(self)[var])
 
                     # accumulating
                     vars(self)[var+'AnnuaTot'] += vars(self)[var]
@@ -1178,8 +1253,14 @@ class Reporting(object):
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the year
                 if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.doy == 1:\
-                   vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
+                   self._modelTime.doy == 1:
+                    vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
+                    vars(self)[var+'AnnuaMax'] = vars(self)[var]
+
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
 
                 # find the maximum
                 vars(self)[var+'AnnuaMax'] = pcr.max(vars(self)[var], vars(self)[var+'AnnuaMax'])
@@ -1195,6 +1276,34 @@ class Reporting(object):
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaMax'),\
                        vos.MV),timeStamp)
        
+        # -- daily upsteam average (through LDD)
+        if self.outDailyTotUpsAvgNC[0] != "None":
+
+            for var in self.outDailyTotUpsAvgNC:
+
+                # calculate upstream area
+                if self._modelTime.timeStepPCR == 1: self.upstream_area = pcr.catchmenttotal(self._model.routing.cellArea, self._model.routing.lddMap)
+
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
+                # calculate upstream average
+                vars(self)[var+'DailyTotUpsAvg'] =  pcr.catchmenttotal(vars(self)[var] * self._model.routing.cellArea, self._model.routing.lddMap) /\
+                                                    self.upstream_area
+
+                short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
+                
+                self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_dailyTotUpsAvg_output.nc",\
+                                            short_name,\
+                  pcr.pcr2numpy(self.__getattribute__(var+'DailyTotUpsAvg'),vos.MV),\
+                                            timeStamp)
+
+
+
     def e2o_post_processing(self):
 
         # RvB 23/02/2017: post-processing of earth2observe variables
@@ -1229,3 +1338,56 @@ class Reporting(object):
                             self._model.landSurface.storLowTotal ) * 1000 # report in kg m-2 (water in RootLayerThick)
         self.TotMoist   =   self.RootMoist # equals RootMoist...
         self.GroundMoist    = self._model.groundwater.storGroundwater * 1000  # self._model.groundwater. # report in kg m-2
+
+    def ulysses_post_processing(self):
+
+        # PGB is assumed to write at least ET, SWE, Qsm, SM, Qr
+        
+        # surface temperature
+        self.ulyssesTsurf = None
+        
+        # total precipitation (kg m-2 s-1)
+        self.ulyssesP     = self._model.meteo.precipitation / 86.4 
+        
+        # total evaporation and transpiration (kg m-2 s-1)
+        # - land only
+        self.ulyssesET       = - (self._model.landSurface.actualET   ) / 86.4
+        # - including water bodies
+        self.ulyssesETall    = - (self._model.landSurface.actualET + 
+                              self._model.routing.waterBodyEvaporation) / 86.4
+        
+        # potential evaporation
+        # - reference potential evaporation
+        self.ulyssessRefPET     = - (self.referencePotET) / 86.4
+        # - with crop coefficient, but land only, excluding water
+        self.ulyssessCropPET    = - (self._model.landSurface.totalPotET) / 86.4
+        # - with crop coefficient, land and water
+        self.ulyssessCropPETall = - (self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap) / 86.4
+
+        
+        # SWE (kg m-2")
+        # - including free water stored above the snow cover
+        self.ulyssesSWE      =   (self._model.landSurface.snowCoverSWE + self._model.landSurface.snowFreeWater)* 1000.
+        # - excluding free water stored above the snow cover
+        self.ulyssesSWE_excluding_free_water = (self._model.landSurface.snowCoverSWE) * 1000.
+        
+        # Qsm = snowmelt (kg m-2 s-1)
+        self.ulyssesQsm      =    self._model.landSurface.snowMelt / 86.4
+        
+        # SM: total volumetric of soil moisture (%) - THIS IS WRONG # TODO: FIX THIS
+        self.ulyssesSM       =    self._model.landSurface.satDegTotal
+        self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
+        self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
+
+        # Qr: total runoff (report in kg m-2 s-1)
+        # - land only, not including local changes in water body
+        self.ulyssesQrRunoff = - self._model.routing.runoff / 86.4 
+        
+        # gridder river discharge
+        self.ulyssesDischarge  = self.discharge
+
+        # TWS (kg m-2)
+        self.ulyssesTWS = self.totalWaterStorageThickness * 1000. 
+
+        # extra variable for ILAMB evaluation
+        self.ulyssesSnowFraction = pcr.ifthenelse(self.ulyssesSWE > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))

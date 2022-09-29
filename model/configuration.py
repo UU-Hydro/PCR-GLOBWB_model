@@ -44,7 +44,11 @@ import disclaimer
 
 class Configuration(object):
 
-    def __init__(self, iniFileName, debug_mode = False, no_modification = True, system_arguments = None, relative_ini_meteo_paths = False):
+    def __init__(self, iniFileName, \
+                       debug_mode = False, \
+                       no_modification = True, \
+                       system_arguments = None, \
+                       relative_ini_meteo_paths = False):
         object.__init__(self)
 
         if iniFileName is None:
@@ -74,10 +78,12 @@ class Configuration(object):
         # option to define an online coupling between PCR-GLOBWB and MODFLOW
         self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
 
-        # if no_modification, set configuration directly (otherwise, the function/method  
+        # if no_modification, set configuration directly
+        # - this will create directories (output, tmp, etc)
+        # - if modification is required, set_configuration must be called separately   
         if no_modification: self.set_configuration(system_arguments)
 
-        # the main output directory (for runs with merging processes)
+        # the main output directory (required for runs with merging processes)
         self.main_output_directory = self.globalOptions['outputDir']
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
@@ -214,9 +220,9 @@ class Configuration(object):
             logger.info('PYTHONPATH=%s', "N/A")        
         # - hostname
         if "HOSTNAME" in os.environ.keys(): 
-            logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])
+            logger.info('HOSTNAME: %s', os.environ["HOSTNAME"])        
         else:
-            logger.info('HOSTNAME: %s', "N/A")
+            logger.info('HOSTNAME: %s', "N/A")        
         # - PCRaster NUMBER_OF_WORKING_THREADS        
         if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys(): 
             logger.info('PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s', os.environ["PCRASTER_NR_WORKER_THREADS"])
@@ -231,7 +237,7 @@ class Configuration(object):
         # copy ini File to logDir:
         
         shutil.copy(self.iniFileName, self.logFileDir + \
-                                     os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.ini')
+                                      os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.ini')
 
     def parse_configuration_file(self, modelFileName):
 
@@ -301,13 +307,16 @@ class Configuration(object):
             shutil.rmtree(self.scriptDir)
         os.makedirs(self.scriptDir)
         
-        # working/starting directory where all s
+        # working/starting directory where all scripts are stored
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
         self.starting_directory = path_of_this_module
                            
         for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+        # ~ for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
+            print(filename)
             shutil.copy(filename, self.scriptDir)
-
+        # TODO: Fix this copying (it does not include subfolders)   
+        
         # making log directory:
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])

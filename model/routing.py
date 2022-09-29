@@ -310,7 +310,7 @@ class Routing(object):
                 logger.info(msg)
             
             # covering the value
-            self.predefinedBankfullCapacity = pcr.cover(self.predefinedBankfullCapacity, 0.0)    
+            self.predefinedBankfullCapacity = pcr.cover(self.predefinedBankfullCapacity, pcr.spatial(pcr.scalar(0.0)))    
 
         # zero fracwat assumption (used for debugging to the version 1)
         self.zeroFracWatAllAndAlways = False
@@ -964,7 +964,7 @@ class Routing(object):
         # - if landSurface.actualET < waterKC * meteo.referencePotET * self.fracWat
         #   then, we add more evaporation
         #
-        if (currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1) and self.no_zero_crop_water_coefficient:
+        if ((currTimeStep.day == 1) or (currTimeStep.timeStepPCR == 1)) and self.no_zero_crop_water_coefficient:
             waterKC = vos.netcdf2PCRobjClone(self.fileCropKC,'kc', \
                                currTimeStep.fulldate, useDoy = 'month',\
                                        cloneMapFileName = self.cloneMap)

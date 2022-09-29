@@ -241,14 +241,28 @@ except:
     pass
 areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
 
-# set clone maps based on the system argument
+if sys.argv[5] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
+if sys.argv[5] == "Global_uly": areas = ['M%07d'%i for i in range(1,number_of_clone_maps+1,1)] 
+
+#~ # set clone maps based on the system argument
 #~ areas = ["M47","M48"]   ### only fot TEST CASE
-try:
-    areas = str(sys.argv[5])
-    areas = list(set(areas.split(",")))
-    if areas[0] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
-except:
-    pass
+
+#~ try:
+    #~ areas = str(sys.argv[5])
+    #~ areas = list(set(areas.split(",")))
+    #~ if areas[0] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
+#~ except:
+    #~ pass
+#~ 
+#~ try:
+    #~ areas = str(sys.argv[5])
+    #~ areas = list(set(areas.split(",")))
+    #~ print(areas)
+    #~ if areas[0] == "Global_uly" or areas == "Global_uly": areas = ['M%07'%i for i in range(1,number_of_clone_maps+1,1)] 
+#~ except:
+    #~ pass
+#~ 
+#~ print(areas) 
 
 #-main script
 #-get clone
