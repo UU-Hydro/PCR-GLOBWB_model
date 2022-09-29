@@ -131,16 +131,19 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
     #     Only works if cells are 'square'.
     #     Only works if cellsizeClone <= cellsizeInput
     # Get netCDF file and variable name:
-    if ncFile in list(filecache.keys()):
-        f = filecache[ncFile]
-        #~ print "Cached: ", ncFile
-    else:
-        f = nc.Dataset(ncFile)
-        filecache[ncFile] = f
-        #~ print "New: ", ncFile
+
+    # - for file without time steps, we should close it (as most likely, it will be used once only). 
+    #~ if ncFile in list(filecache.keys()):
+        #~ f = filecache[ncFile]
+        #~ # print "Cached: ", ncFile
+    #~ else:
+        #~ f = nc.Dataset(ncFile)
+        #~ filecache[ncFile] = f
+        #~ # print "New: ", ncFile
     
-    #print ncFile
-    #f = nc.Dataset(ncFile)  
+    # print ncFile
+    
+    f = nc.Dataset(ncFile)  
     varName = str(varName)
     
     if varName == "automatic":
@@ -243,8 +246,11 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
     #~ print(varName)
     #~ os.system('aguila tmp.map')
     
-    #f.close();
+    # we should close the file
+    f.close();
+
     f = None ; cropData = None 
+
     # PCRaster object
     return (outPCR)
 
