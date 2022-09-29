@@ -183,7 +183,7 @@ class Groundwater(object):
         # calculate the reccession coefficient based on the given parameters
         if (
             self.recessionCoeff is None
-            and 'recessionCoeff' not in iniItems.groundwaterOptions
+            and 'recessionCoeff' not in list(iniItems.groundwaterOptions.keys())
         ):
 
             msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."

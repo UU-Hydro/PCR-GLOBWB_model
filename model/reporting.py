@@ -346,7 +346,33 @@ class Reporting(object):
                                             "_annuaMax_output.nc",\
                                             short_name,unit,long_name,standard_name)
 
-        
+        # -- daily upsteam average (through LDD)
+        self.outDailyTotUpsAvgNC = ["None"]
+        try:
+            self.outDailyTotUpsAvgNC = list(set(self.configuration.reportingOptions['outDailyTotUpsAvgNC'].split(",")))
+        except:
+            pass
+        if self.outDailyTotUpsAvgNC[0] != "None":
+
+            for var in self.outDailyTotUpsAvgNC:
+
+                logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
+
+                short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                long_name  = "upstream_average_" + long_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
+                
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_dailyTotUpsAvg_output.nc",\
+                                            short_name,unit,long_name,standard_name)
+
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\
                                     self.outMonthTotNC +\
@@ -356,7 +382,8 @@ class Reporting(object):
                                     self.outAnnuaTotNC +\
                                     self.outAnnuaAvgNC +\
                                     self.outAnnuaEndNC +\
-                                    self.outMonthMaxNC
+                                    self.outMonthMaxNC +\
+                                    self.outDailyTotUpsAvgNC
 
     def post_processing(self):
 
@@ -1249,6 +1276,34 @@ class Reporting(object):
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaMax'),\
                        vos.MV),timeStamp)
        
+        # -- daily upsteam average (through LDD)
+        if self.outDailyTotUpsAvgNC[0] != "None":
+
+            for var in self.outDailyTotUpsAvgNC:
+
+                # calculate upstream area
+                if self._modelTime.timeStepPCR == 1: self.upstream_area = pcr.catchmenttotal(self._model.routing.cellArea, self._model.routing.lddMap)
+
+                # masking out for reporting
+                if self.landmask_for_reporting is not None:
+                    vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
+                                                 vars(self)[var])
+
+                # calculate upstream average
+                vars(self)[var+'DailyTotUpsAvg'] =  pcr.catchmenttotal(vars(self)[var] * self._model.routing.cellArea, self._model.routing.lddMap) /\
+                                                    self.upstream_area
+
+                short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
+                
+                self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_dailyTotUpsAvg_output.nc",\
+                                            short_name,\
+                  pcr.pcr2numpy(self.__getattribute__(var+'DailyTotUpsAvg'),vos.MV),\
+                                            timeStamp)
+
+
+
     def e2o_post_processing(self):
 
         # RvB 23/02/2017: post-processing of earth2observe variables

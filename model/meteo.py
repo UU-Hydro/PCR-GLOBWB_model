@@ -68,14 +68,26 @@ class Meteo(object):
         # initial conditions (unit: m)
         if iniConditions == None: # when the model just start (reading the initial conditions from file)
 
-            self.avgAnnualPrecipitation    = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualPrecipitationIni'],
-                                                                 self.cloneMap, self.tmpDir, self.inputDir)
+            if 'avgAnnualPrecipitationIni' in list(iniItems.meteoOptions.keys()):
+                self.avgAnnualPrecipitation    = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualPrecipitationIni'],
+                                                                     self.cloneMap, self.tmpDir, self.inputDir)
+            else:                                                         
+                msg = "The initial condition avgAnnualPrecipitationIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
+                self.avgAnnualPrecipitation    = pcr.scalar(0.0)
 
-            self.avgAnnualTemperature      = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualTemperatureIni'],
-                                                                 self.cloneMap, self.tmpDir, self.inputDir)
+            if 'avgAnnualTemperatureIni' in list(iniItems.meteoOptions.keys()):
+                self.avgAnnualTemperature      = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualTemperatureIni'],
+                                                                     self.cloneMap, self.tmpDir, self.inputDir)
+            else:                                                         
+                msg = "The initial condition avgAnnualTemperatureIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
+                self.avgAnnualTemperature      = pcr.scalar(0.0)
 
-            self.avgAnnualDiurnalDeltaTemp = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualDiurnalDeltaTempIni'],
+            if 'avgAnnualDiurnalDeltaTempIni' in list(iniItems.meteoOptions.keys()):
+                self.avgAnnualDiurnalDeltaTemp = vos.readPCRmapClone(iniItems.meteoOptions['avgAnnualDiurnalDeltaTempIni'],
                                                                  self.cloneMap, self.tmpDir, self.inputDir)
+            else:                                                         
+                msg = "The initial condition avgAnnualDiurnalDeltaTempIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
+                self.avgAnnualDiurnalDeltaTemp = pcr.scalar(0.0)
 
         # during/after spinUp
         else:                     
