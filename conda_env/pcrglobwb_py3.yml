@@ -1,3 +1,5 @@
+name: pcrglobwb_python3
+
 channels:
   - conda-forge
 dependencies:
