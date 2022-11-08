@@ -24,7 +24,7 @@ Please follow the following steps required to install PCR-GLOBWB:
 
     `conda env create --name pcrglobwb_python3 -f pcrglobwb_py3.yml`
 
-    The requirements file will create a environment named *pcrglobwb_python3*.
+    This will create a environment named *pcrglobwb_python3*.
 
  3. Activate the environment in a command prompt:
 
