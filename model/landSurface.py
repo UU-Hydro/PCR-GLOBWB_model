@@ -379,6 +379,18 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
+        
+        # option to consider water quality
+        self.consider_water_quality = False
+        if "considerWaterQuality" is in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True":
+            logger.info('Water use in this model run considers water quality.')
+            self.consider_water_quality = True
+            # - input files and values (e.g. thresholds) that are related to water quality 
+            self.inputFileBOD = iniItems.landSurfaceOptions["inputFileBOD"]
+            self.thresholdBODForIrrigation = iniItems.landSurfaceOptions["thresholdBODForIrrigation"]
+             
+        
+        
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
 
