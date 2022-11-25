@@ -936,8 +936,15 @@ class LandCover(object):
                  allocSegments,\
                  desalinationWaterUse,\
                  groundwater_pumping_region_ids,\
-                 regionalAnnualGroundwaterAbstractionLimit):
+                 regionalAnnualGroundwaterAbstractionLimit,
+                 consider_water_quality = False,
+                 inputBOD = 0.0,\
+                 thresholdBODForIrrigation = 0.0):
 
+        self.consider_water_quality = consider_water_quality
+        self.inputBOD = inputBOD
+        self.thresholdBODForIrrigation = thresholdBODForIrrigation
+        
         # get land cover parameters at the first day of the year or the first day of the simulation
         if self.noAnnualChangesInLandCoverParameter == False and\
            (currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1): 
@@ -1843,6 +1850,10 @@ class LandCover(object):
         # if surface water abstraction as the first priority
         if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
         #
+        available_surface_water_volume = pcr.max(0.00, routing.readAvlChannelStorage)
+        if self.consider_water_quality == True:
+            available_surface_water_volume = pcr.ifthenelse(self.inputBOD < self.thresholdBODForIrrigation, available_surface_water_volume, 0.0)
+        
         if self.usingAllocSegments:      # using zone/segment at which supply network is defined
         #  
             logger.debug("Allocation of surface water abstraction.")
@@ -1850,7 +1861,7 @@ class LandCover(object):
             volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
              vos.waterAbstractionAndAllocation(
              water_demand_volume = surface_water_demand*routing.cellArea,\
-             available_water_volume = pcr.max(0.00, routing.readAvlChannelStorage),\
+             available_water_volume = available_surface_water_volume,\
              allocation_zones = allocSegments,\
              zone_area = self.segmentArea,\
              high_volume_treshold = None,\

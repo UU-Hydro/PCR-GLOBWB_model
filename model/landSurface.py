@@ -382,12 +382,12 @@ class LandSurface(object):
         
         # option to consider water quality
         self.consider_water_quality = False
-        if "considerWaterQuality" is in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True":
+        if ("considerWaterQuality" in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True"):
             logger.info('Water use in this model run considers water quality.')
             self.consider_water_quality = True
             # - input files and values (e.g. thresholds) that are related to water quality 
             self.inputFileBOD = iniItems.landSurfaceOptions["inputFileBOD"]
-            self.thresholdBODForIrrigation = iniItems.landSurfaceOptions["thresholdBODForIrrigation"]
+            self.thresholdBODForIrrigation = float(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
              
         
         
@@ -1243,6 +1243,17 @@ class LandSurface(object):
         
     def update(self,meteo,groundwater,routing,currTimeStep):
         
+        # updating any information related to water quality
+        if self.consider_water_quality == True:
+        
+            # - read BOD for every time step 
+            self.inputBOD = vos.netcdf2PCRobjClone(ncFile  = self.inputFileBOD,\
+                            varName = "automatic" , \
+                            dateInput = currTimeStep.fulldate,\
+                            useDoy = "daily",
+                            cloneMapFileName  = self.cloneMap)
+                            
+        
         # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
 
@@ -1445,7 +1456,11 @@ class LandSurface(object):
                                                   currTimeStep,\
                                                   self.allocSegments,\
                                                   self.desalinationWaterUse,\
-                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit)
+                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit,\
+                                                  self.consider_water_quality,
+                                                  self.inputBOD,
+                                                  self.thresholdBODForIrrigation)
+            # TODO: Please organize how we will deal with water quality problems (e.g. self.inputBOD)                                     
             
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
