@@ -34,6 +34,8 @@ logger = logging.getLogger(__name__)
 import virtualOS as vos
 from ncConverter import *
 
+import surfaceWaterQuality as swq
+
 class LandCover(object):
 
     def __init__(self,iniItems,nameOfSectionInIniFile,soil_and_topo_parameters,landmask,irrigationEfficiency,usingAllocSegments = False):
@@ -1846,44 +1848,104 @@ class LandCover(object):
                                                 pcr.max(0.0, surface_water_demand_estimate - remainingIrrigationLivestock))
         correctedSurfaceWaterDemandEstimate   = correctedRemainingIrrigationLivestock + correctedRemainingIndustrialDomestic
         surface_water_demand = correctedSurfaceWaterDemandEstimate
-        #
-        # if surface water abstraction as the first priority
-        if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
-        #
-        available_surface_water_volume = pcr.max(0.00, routing.readAvlChannelStorage)
-        if self.consider_water_quality == True:
-            available_surface_water_volume = pcr.ifthenelse(self.inputBOD < self.thresholdBODForIrrigation, available_surface_water_volume, 0.0)
         
-        if self.usingAllocSegments:      # using zone/segment at which supply network is defined
-        #  
-            logger.debug("Allocation of surface water abstraction.")
-        #  
-            volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
-             vos.waterAbstractionAndAllocation(
-             water_demand_volume = surface_water_demand*routing.cellArea,\
-             available_water_volume = available_surface_water_volume,\
-             allocation_zones = allocSegments,\
-             zone_area = self.segmentArea,\
-             high_volume_treshold = None,\
-             debug_water_balance = True,\
-             extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
-             landmask = self.landmask,
-             ignore_small_values = False,
-             prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
+        # Note the variable "surface_water_demand" is the estimate of surface water demand for all sectors (total) based on Siebert et al.; McDonald et al.; de Graaf et al.
+        
+        
+        if self.consider_water_quality:
+            
+            logger.info("Surface water allocation to meet demand will consider water quality.")
+            
+                    
+            # Input
+            # - available_surface_water (without considering quality)
+            available_surface_water_without_qual = pcr.max(0.00, routing.readAvlChannelStorage)
+            # - list of water_quality_constituents
+            wq_constituent = ["sw_temperatur", "bio_o2_demand", "total_dissolved_solid", "fecal_coliform"]
+            # - list of water demand sectors
+            wd_sector = ["irrigation", "livestock", "industrial", "domestic"]  
 
-            self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
-            self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
-        #  
-        else: 
-            logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
-            self.actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
-                                                     surface_water_demand)                            # unit: m
-            self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                             # unit: m   
-        #  
-        self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
-        self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
-        ################################################################################################################################
-        # - end of Abstraction and Allocation of SURFACE WATER
+            # - the estimates of surface water demand for every sector, after the above schemes (Siebert et al.; McDonald et al.; de Graaf et al.)
+            sectoral_surface_water_demand = {}
+            sectoral_surface_water_demand["irrigation"] = correctedRemainingIrrigationLivestock * vos.getValDivZero(remainingIrrigation, remainingLivestock  + remainingIrrigation)
+            sectoral_surface_water_demand["livestock"]  = pcr.max(0.0, correctedRemainingIrrigationLivestock - sectoral_surface_water_demand["irrigation"])
+            sectoral_surface_water_demand["industrial"] = correctedRemainingIndustrialDomestic  * vos.getValDivZero(remainingIndustry, remainingIndustry + remainingDomestic)
+            sectoral_surface_water_demand["domestic"]   = pcr.max(0.0, correctedRemainingIndustrialDomestic - sectoral_surface_water_demand["industrial"])
+
+            # - current/simulate water_quality_concetration_constituent
+            wq_state = {}
+            wq_state["sw_temperatur"] = 0.0
+            wq_state["bio_o2_demand"] = self.inputBOD
+            wq_state["total_dissolved_solid"] = 0.0
+            wq_state["fecal_coliform"] = 0.0
+            # - water quality thresholds
+            wq_threshold = {}
+            wq_threshold["irrigation"] = {}
+            wq_threshold["irrigation"]["sw_temperatur"]         = 1e20
+            wq_threshold["irrigation"]["bio_o2_demand"]         = 1e20
+            wq_threshold["irrigation"]["total_dissolved_solid"] = 1e20
+            wq_threshold["irrigation"]["fecal_coliform"]        = 1e20
+            wq_threshold["livestock"] = {}
+            wq_threshold["livestock"]["sw_temperatur"]          = 1e20
+            wq_threshold["livestock"]["bio_o2_demand"]          = 1e20
+            wq_threshold["livestock"]["total_dissolved_solid"]  = 1e20
+            wq_threshold["livestock"]["fecal_coliform"]         = 1e20
+            wq_threshold["industrial"] = {}
+            wq_threshold["industrial"]["sw_temperatur"]         = 1e20
+            wq_threshold["industrial"]["bio_o2_demand"]         = 1e20
+            wq_threshold["industrial"]["total_dissolved_solid"] = 1e20
+            wq_threshold["industrial"]["fecal_coliform"]        = 1e20
+            wq_threshold["domestic"] = {}
+            wq_threshold["domestic"]["sw_temperatur"]           = 1e20
+            wq_threshold["domestic"]["bio_o2_demand"]           = 1e20
+            wq_threshold["domestic"]["total_dissolved_solid"]   = 1e20 
+            wq_threshold["domestic"]["fecal_coliform"]          = 1e20
+            
+            # CONTINUE FROM HERE
+            
+            swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold)
+        
+        
+        else:
+            
+            #
+            # if surface water abstraction as the first priority
+            if self.surfaceWaterPiority: surface_water_demand = self.totalGrossDemandAfterDesalination
+            #
+            # ~ available_surface_water_volume = pcr.max(0.00, routing.readAvlChannelStorage)
+            # ~ if self.consider_water_quality == True:
+                # ~ available_surface_water_volume = pcr.ifthenelse(self.inputBOD < self.thresholdBODForIrrigation, available_surface_water_volume, 0.0)
+            
+            if self.usingAllocSegments:      # using zone/segment at which supply network is defined
+            #  
+                logger.debug("Allocation of surface water abstraction.")
+            #  
+                volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
+                 vos.waterAbstractionAndAllocation(
+                 water_demand_volume = surface_water_demand*routing.cellArea,\
+                 available_water_volume = available_surface_water_volume,\
+                 allocation_zones = allocSegments,\
+                 zone_area = self.segmentArea,\
+                 high_volume_treshold = None,\
+                 debug_water_balance = True,\
+                 extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
+                 landmask = self.landmask,
+                 ignore_small_values = False,
+                 prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
+		    
+                self.actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
+                self.allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
+            #  
+            else: 
+                logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
+                self.actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
+                                                         surface_water_demand)                            # unit: m
+                self.allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                             # unit: m   
+            #  
+            self.actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, self.actSurfaceWaterAbstract)
+            self.allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, self.allocSurfaceWaterAbstract)
+            ################################################################################################################################
+            # - end of Abstraction and Allocation of SURFACE WATER
 
         
         # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
