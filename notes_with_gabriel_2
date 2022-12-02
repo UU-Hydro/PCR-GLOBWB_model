@@ -33,8 +33,12 @@ for consti in ['TMP','BOD','TDS','FC']:
     water_quality_concetration_consti = eval(f'self.input{consti}')
     constituent = water_quality_dict[consti]
     
+    # Ordering sectors from less to more stringent
+    thresholds = water_quality_thresholds[constituent]
+    thresholds = sorted(thresholds.items(), key=lambda item: item[1], reverse=True)
+    sector_order = [threshold[0] for threshold in thresholds]
+    
 # Looping for every sector
-    sector_order = f(starting from the lowest threshold)    # ['domestic','manufacturing','livestock','thermoelectric','irrigation']
     for sector in sector_order:
         
     # Defining water quality thresholds
