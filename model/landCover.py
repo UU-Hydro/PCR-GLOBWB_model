@@ -1881,7 +1881,7 @@ class LandCover(object):
             # - water quality thresholds
             wq_threshold = {}
             wq_threshold["sw_temperatur"] = {}
-            wq_threshold["sw_temperatur"]["irrigation"] = 1e20
+            wq_threshold["sw_temperatur"]["irrigation"] = None
             wq_threshold["sw_temperatur"]["livestock"]  = 1e20
             wq_threshold["sw_temperatur"]["industrial"] = 1e20
             wq_threshold["sw_temperatur"]["domestic"]   = 1e20

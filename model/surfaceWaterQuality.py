@@ -22,6 +22,8 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
     # initial values
     # - available surface water before allocation 
     available_surface_water_with_qual = available_surface_water_without_qual
+    # - amount of water that is abstracted from the source
+    totalActSurfaceWaterAbstract = 0.0
     # - remaining water demand and satisfied water demand
     for sector in wd_sector:
         water_demand_remaining[sector] = sectoral_surface_water_demand[sector]
@@ -88,6 +90,9 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
             # - the amount of water that is given to pixels with demand (e.g. pixels with irrigation areas)
             allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, allocSurfaceWaterAbstract)
             
+            # tracking the total amount of water that is abstracted from the source
+            totalActSurfaceWaterAbstract = totalActSurfaceWaterAbstract + actSurfaceWaterAbstract
+            
             
             # calculating remaining water available
             available_surface_water_with_qual = available_surface_water_with_qual - actSurfaceWaterAbstract
@@ -99,8 +104,7 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                 water_demand_remaining[sector] = water_demand_remaining[sector] - current_water_withdrawal
                 water_demand_satisfied[sector] = water_demand_satisfied[sector] + current_water_withdrawal
 
-
-    return()
+    return totalActSurfaceWaterAbstract, water_demand_satisfied
     
     
     
