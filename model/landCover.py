@@ -1880,32 +1880,52 @@ class LandCover(object):
             wq_state["fecal_coliform"] = 0.0
             # - water quality thresholds
             wq_threshold = {}
-            wq_threshold["irrigation"] = {}
-            wq_threshold["irrigation"]["sw_temperatur"]         = 1e20
-            wq_threshold["irrigation"]["bio_o2_demand"]         = 1e20
-            wq_threshold["irrigation"]["total_dissolved_solid"] = 1e20
-            wq_threshold["irrigation"]["fecal_coliform"]        = 1e20
-            wq_threshold["livestock"] = {}
-            wq_threshold["livestock"]["sw_temperatur"]          = 1e20
-            wq_threshold["livestock"]["bio_o2_demand"]          = 1e20
-            wq_threshold["livestock"]["total_dissolved_solid"]  = 1e20
-            wq_threshold["livestock"]["fecal_coliform"]         = 1e20
-            wq_threshold["industrial"] = {}
-            wq_threshold["industrial"]["sw_temperatur"]         = 1e20
-            wq_threshold["industrial"]["bio_o2_demand"]         = 1e20
-            wq_threshold["industrial"]["total_dissolved_solid"] = 1e20
-            wq_threshold["industrial"]["fecal_coliform"]        = 1e20
-            wq_threshold["domestic"] = {}
-            wq_threshold["domestic"]["sw_temperatur"]           = 1e20
-            wq_threshold["domestic"]["bio_o2_demand"]           = 1e20
-            wq_threshold["domestic"]["total_dissolved_solid"]   = 1e20 
-            wq_threshold["domestic"]["fecal_coliform"]          = 1e20
+            wq_threshold["sw_temperatur"] = {}
+            wq_threshold["sw_temperatur"]["irrigation"] = 1e20
+            wq_threshold["sw_temperatur"]["livestock"]  = 1e20
+            wq_threshold["sw_temperatur"]["industrial"] = 1e20
+            wq_threshold["sw_temperatur"]["domestic"]   = 1e20
+            wq_threshold["bio_02_demand"] = {}
+            wq_threshold["bio_02_demand"]["irrigation"] = 1e20
+            wq_threshold["bio_02_demand"]["livestock"]  = 1e20
+            wq_threshold["bio_02_demand"]["industrial"] = 1e20
+            wq_threshold["bio_02_demand"]["domestic"]   = 1e20
+            wq_threshold["total_dissolved_solid"] = {}
+            wq_threshold["total_dissolved_solid"]["irrigation"] = 1e20
+            wq_threshold["total_dissolved_solid"]["livestock"]  = 1e20
+            wq_threshold["total_dissolved_solid"]["industrial"] = 1e20
+            wq_threshold["total_dissolved_solid"]["domestic"]   = 1e20
+            wq_threshold["fecal_coliform"] = {}
+            wq_threshold["fecal_coliform"]["irrigation"] = 1e20
+            wq_threshold["fecal_coliform"]["livestock"]  = 1e20
+            wq_threshold["fecal_coliform"]["industrial"] = 1e20
+            wq_threshold["fecal_coliform"]["domestic"]   = 1e20
+
             
-            # CONTINUE FROM HERE
+            totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
+               swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold)
+        
+            # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
+            ################################################################################################################################
+            # - for irrigation and livestock water demand 
+            satisfiedIrrigationLivestockDemandFromSurfaceWater = sectoral_surface_water_demand_satisfied["irrigation"] + sectoral_surface_water_demand_satisfied["livestock"]
+            # - for irrigation water demand, but not including livestock 
+            satisfiedIrrigationDemandFromSurfaceWater = sectoral_surface_water_demand_satisfied["irrigation"]
+            satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
+            # - for non irrigation water demand: livestock, domestic and industry 
+            satisfiedNonIrrDemandFromSurfaceWater = sectoral_surface_water_demand_satisfied["domestic"] + sectoral_surface_water_demand_satisfied["industrial"] + sectoral_surface_water_demand_satisfied["livestock"]
+            satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
+            # - for livestock                                                                      
+            satisfiedLivestockDemand += sectoral_surface_water_demand_satisfied["livestock"]
+            # - for industrial and domestic demand (excluding livestock)
+            satisfiedIndustrialDomesticDemandFromSurfaceWater = sectoral_surface_water_demand_satisfied["domestic"] + sectoral_surface_water_demand_satisfied["industrial"]
+            # - for domestic                                                                 
+            satisfiedDomesticDemand += sectoral_surface_water_demand_satisfied["domestic"]
+            # - for industry
+            satisfiedIndustryDemand += sectoral_surface_water_demand_satisfied["industrial"]
             
-            swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold)
-        
-        
+            # CONTINUE FROM HERE!             
+
         else:
             
             #
@@ -1948,30 +1968,30 @@ class LandCover(object):
             # - end of Abstraction and Allocation of SURFACE WATER
 
         
-        # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
-        ################################################################################################################################
-        # - for irrigation and livestock water demand 
-        satisfiedIrrigationLivestockDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
-               vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedSurfaceWaterDemandEstimate)
-        # - for irrigation water demand, but not including livestock 
-        satisfiedIrrigationDemandFromSurfaceWater = satisfiedIrrigationLivestockDemandFromSurfaceWater * \
-               vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
-        satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
-        # - for non irrigation water demand: livestock, domestic and industry 
-        satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
-        satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
-        # - for livestock                                                                      
-        satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
-                                                 satisfiedIrrigationDemandFromSurfaceWater)
-        # - for industrial and domestic demand (excluding livestock)
-        satisfiedIndustrialDomesticDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract -\
-                                                                         satisfiedIrrigationLivestockDemandFromSurfaceWater)
-        # - for domestic                                                                 
-        satisfiedDomesticDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingDomestic, \
-                                                                                                         remainingIndustrialDomestic)
-        # - for industry
-        satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingIndustry, \
-                                                                                                         remainingIndustrialDomestic)             
+            # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
+            ################################################################################################################################
+            # - for irrigation and livestock water demand 
+            satisfiedIrrigationLivestockDemandFromSurfaceWater = self.allocSurfaceWaterAbstract * \
+                   vos.getValDivZero(correctedRemainingIrrigationLivestock, correctedSurfaceWaterDemandEstimate)
+            # - for irrigation water demand, but not including livestock 
+            satisfiedIrrigationDemandFromSurfaceWater = satisfiedIrrigationLivestockDemandFromSurfaceWater * \
+                   vos.getValDivZero(remainingIrrigation, remainingIrrigationLivestock)
+            satisfiedIrrigationDemand += satisfiedIrrigationDemandFromSurfaceWater
+            # - for non irrigation water demand: livestock, domestic and industry 
+            satisfiedNonIrrDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract - satisfiedIrrigationDemandFromSurfaceWater)
+            satisfiedNonIrrDemand += satisfiedNonIrrDemandFromSurfaceWater
+            # - for livestock                                                                      
+            satisfiedLivestockDemand += pcr.max(0.0, satisfiedIrrigationLivestockDemandFromSurfaceWater - \
+                                                     satisfiedIrrigationDemandFromSurfaceWater)
+            # - for industrial and domestic demand (excluding livestock)
+            satisfiedIndustrialDomesticDemandFromSurfaceWater = pcr.max(0.0, self.allocSurfaceWaterAbstract -\
+                                                                             satisfiedIrrigationLivestockDemandFromSurfaceWater)
+            # - for domestic                                                                 
+            satisfiedDomesticDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingDomestic, \
+                                                                                                             remainingIndustrialDomestic)
+            # - for industry
+            satisfiedIndustryDemand += satisfiedIndustrialDomesticDemandFromSurfaceWater * vos.getValDivZero(remainingIndustry, \
+                                                                                                             remainingIndustrialDomestic)             
 
 
 
