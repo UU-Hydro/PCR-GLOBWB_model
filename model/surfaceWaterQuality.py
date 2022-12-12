@@ -37,6 +37,7 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                 
         # ordering sectors from less to more stringent
         thresholds = wq_threshold[consti]
+	thresholds = {k: v for k, v in thresholds.items() if v is not None}
         thresholds = sorted(thresholds.items(), key=lambda item: item[1], reverse=True)
         sector_order = [threshold[0] for threshold in thresholds]
         
@@ -98,7 +99,7 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
             available_surface_water_with_qual = available_surface_water_with_qual - actSurfaceWaterAbstract
             
             # looping for every sector to distribute allocSurfaceWaterAbstract
-            for sector in sector_order:
+            for sector in wd_sector:
                 current_water_withdrawal       = allocSurfaceWaterAbstract * vos.getValDivZero(water_demand_remaining[sector], total_water_demand)
                 # - tracking the water demand: satisficed and remaining
                 water_demand_remaining[sector] = water_demand_remaining[sector] - current_water_withdrawal
