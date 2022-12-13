@@ -43,7 +43,7 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
         sector_order = [threshold[0] for threshold in thresholds]
         
         print(sector_order)
-        qu
+        # ~ qu
         
         # looping for every sector
         for sector in sector_order:
