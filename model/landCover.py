@@ -1925,7 +1925,8 @@ class LandCover(object):
             # - for industry
             satisfiedIndustryDemand += sectoral_surface_water_demand_satisfied["industrial"]
             
-            # CONTINUE FROM HERE!             
+            self.allocSurfaceWaterAbstract = sectoral_surface_water_demand_satisfied
+            self.actSurfaceWaterAbstract   = totalActSurfaceWaterAbstract 
 
         else:
             
