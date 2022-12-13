@@ -1874,7 +1874,7 @@ class LandCover(object):
 
             # - current/simulate water_quality_concetration_constituent
             wq_state = {}
-            wq_state["sw_temperatur"] = 0.0
+            wq_state["sw_temperatur"] = 25.0
             wq_state["bio_o2_demand"] = self.inputBOD
             wq_state["total_dissolved_solid"] = 0.0
             wq_state["fecal_coliform"] = 0.0
@@ -1882,28 +1882,29 @@ class LandCover(object):
             wq_threshold = {}
             wq_threshold["sw_temperatur"] = {}
             wq_threshold["sw_temperatur"]["irrigation"] = None
-            wq_threshold["sw_temperatur"]["livestock"]  = 1e20
-            wq_threshold["sw_temperatur"]["industrial"] = 1e20
-            wq_threshold["sw_temperatur"]["domestic"]   = 1e20
+            wq_threshold["sw_temperatur"]["livestock"]  = None
+            wq_threshold["sw_temperatur"]["industrial"] = 30.0
+            wq_threshold["sw_temperatur"]["domestic"]   = None
             wq_threshold["bio_02_demand"] = {}
-            wq_threshold["bio_02_demand"]["irrigation"] = 1e20
-            wq_threshold["bio_02_demand"]["livestock"]  = 1e20
-            wq_threshold["bio_02_demand"]["industrial"] = 1e20
-            wq_threshold["bio_02_demand"]["domestic"]   = 1e20
+            wq_threshold["bio_02_demand"]["irrigation"] = 15.0
+            wq_threshold["bio_02_demand"]["livestock"]  = None
+            wq_threshold["bio_02_demand"]["industrial"] = 30.0
+            wq_threshold["bio_02_demand"]["domestic"]   = 5.0
             wq_threshold["total_dissolved_solid"] = {}
-            wq_threshold["total_dissolved_solid"]["irrigation"] = 1e20
-            wq_threshold["total_dissolved_solid"]["livestock"]  = 1e20
-            wq_threshold["total_dissolved_solid"]["industrial"] = 1e20
-            wq_threshold["total_dissolved_solid"]["domestic"]   = 1e20
+            wq_threshold["total_dissolved_solid"]["irrigation"] = 450.0
+            wq_threshold["total_dissolved_solid"]["livestock"]  = None
+            wq_threshold["total_dissolved_solid"]["industrial"] = 7000.
+            wq_threshold["total_dissolved_solid"]["domestic"]   = 600.
             wq_threshold["fecal_coliform"] = {}
-            wq_threshold["fecal_coliform"]["irrigation"] = 1e20
-            wq_threshold["fecal_coliform"]["livestock"]  = 1e20
-            wq_threshold["fecal_coliform"]["industrial"] = 1e20
-            wq_threshold["fecal_coliform"]["domestic"]   = 1e20
+            wq_threshold["fecal_coliform"]["irrigation"] = None
+            wq_threshold["fecal_coliform"]["livestock"]  = None
+            wq_threshold["fecal_coliform"]["industrial"] = None
+            wq_threshold["fecal_coliform"]["domestic"]   = None
 
             
             totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
-               swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold)
+               swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
+               self.surfaceWaterPiority, self.usingAllocSegments, self.segmentArea, self.landmask, self.prioritizeLocalSourceToMeetWaterDemand, currTimeStep)
         
             # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
             ################################################################################################################################

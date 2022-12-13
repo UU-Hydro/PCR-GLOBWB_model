@@ -15,7 +15,8 @@ import virtualOS as vos
 from ncConverter import *
 
 
-def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold):
+def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
+                                              surfaceWaterPiority, usingAllocSegments, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
     
     # CONTINUE FROM HERE
     
@@ -57,11 +58,11 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
             for sector in wd_sector: total_water_demand = total_water_demand + water_demand_remaining[sector]
             
             # if surface water abstraction as the first priority
-            if self.surfaceWaterPiority: surface_water_demand = total_water_demand
+            if surfaceWaterPiority: surface_water_demand = total_water_demand
             #
             available_surface_water_volume = pcr.max(0.00, available_surface_water_with_qual)
             
-            if self.usingAllocSegments:      # using zone/segment at which supply network is defined
+            if usingAllocSegments:      # using zone/segment at which supply network is defined
             #  
                 logger.debug("Allocation of surface water abstraction.")
             #  
@@ -70,13 +71,13 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                  water_demand_volume = surface_water_demand*routing.cellArea,\
                  available_water_volume = available_surface_water_volume,\
                  allocation_zones = allocSegments,\
-                 zone_area = self.segmentArea,\
+                 zone_area = segmentArea,\
                  high_volume_treshold = None,\
                  debug_water_balance = True,\
                  extra_info_for_water_balance_reporting = str(currTimeStep.fulldate), 
-                 landmask = self.landmask,
+                 landmask = landmask,
                  ignore_small_values = False,
-                 prioritizing_local_source = self.prioritizeLocalSourceToMeetWaterDemand)
+                 prioritizing_local_source = prioritizeLocalSourceToMeetWaterDemand)
 		    
                 actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
                 allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
@@ -85,13 +86,13 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                 logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
                 actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
                                                          surface_water_demand)                            # unit: m
-                allocSurfaceWaterAbstract = self.actSurfaceWaterAbstract                             # unit: m   
+                allocSurfaceWaterAbstract = actSurfaceWaterAbstract                             # unit: m   
             #  
             
             # - the amount of water that is abstracted from the source (e.g. river, reservoir pixels)
-            actSurfaceWaterAbstract   = pcr.ifthen(self.landmask, actSurfaceWaterAbstract)
+            actSurfaceWaterAbstract   = pcr.ifthen(landmask, actSurfaceWaterAbstract)
             # - the amount of water that is given to pixels with demand (e.g. pixels with irrigation areas)
-            allocSurfaceWaterAbstract = pcr.ifthen(self.landmask, allocSurfaceWaterAbstract)
+            allocSurfaceWaterAbstract = pcr.ifthen(landmask, allocSurfaceWaterAbstract)
             
             # tracking the total amount of water that is abstracted from the source
             totalActSurfaceWaterAbstract = totalActSurfaceWaterAbstract + actSurfaceWaterAbstract
