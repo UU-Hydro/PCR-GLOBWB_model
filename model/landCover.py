@@ -1899,31 +1899,31 @@ class LandCover(object):
             wq_threshold["fecal_coliform"]["irrigation"] = None
             wq_threshold["fecal_coliform"]["livestock"]  = None
             wq_threshold["fecal_coliform"]["industrial"] = None
-            wq_threshold["fecal_coliform"]["domestic"]   = 10.0
+            wq_threshold["fecal_coliform"]["domestic"]   = None
 
 
-            # - water quality thresholds
-            wq_threshold = {}
-            wq_threshold["sw_temperatur"] = {}
-            wq_threshold["sw_temperatur"]["irrigation"] = 1000000.
-            wq_threshold["sw_temperatur"]["livestock"]  = 1000000.
-            wq_threshold["sw_temperatur"]["industrial"] = 30.0
-            wq_threshold["sw_temperatur"]["domestic"]   = 1000000.
-            wq_threshold["bio_o2_demand"] = {}
-            wq_threshold["bio_o2_demand"]["irrigation"] = 15.0
-            wq_threshold["bio_o2_demand"]["livestock"]  = 1000000.
-            wq_threshold["bio_o2_demand"]["industrial"] = 30.0
-            wq_threshold["bio_o2_demand"]["domestic"]   = 5.0
-            wq_threshold["total_dissolved_solid"] = {}
-            wq_threshold["total_dissolved_solid"]["irrigation"] = 450.0
-            wq_threshold["total_dissolved_solid"]["livestock"]  = 1000000.
-            wq_threshold["total_dissolved_solid"]["industrial"] = 7000.
-            wq_threshold["total_dissolved_solid"]["domestic"]   = 600.
-            wq_threshold["fecal_coliform"] = {}
-            wq_threshold["fecal_coliform"]["irrigation"] = 1000000.
-            wq_threshold["fecal_coliform"]["livestock"]  = 1000000.
-            wq_threshold["fecal_coliform"]["industrial"] = 1000000.
-            wq_threshold["fecal_coliform"]["domestic"]   = 1000000.
+            # ~ # - water quality thresholds
+            # ~ wq_threshold = {}
+            # ~ wq_threshold["sw_temperatur"] = {}
+            # ~ wq_threshold["sw_temperatur"]["irrigation"] = 1000000.
+            # ~ wq_threshold["sw_temperatur"]["livestock"]  = 1000000.
+            # ~ wq_threshold["sw_temperatur"]["industrial"] = 30.0
+            # ~ wq_threshold["sw_temperatur"]["domestic"]   = 1000000.
+            # ~ wq_threshold["bio_o2_demand"] = {}
+            # ~ wq_threshold["bio_o2_demand"]["irrigation"] = 15.0
+            # ~ wq_threshold["bio_o2_demand"]["livestock"]  = 1000000.
+            # ~ wq_threshold["bio_o2_demand"]["industrial"] = 30.0
+            # ~ wq_threshold["bio_o2_demand"]["domestic"]   = 5.0
+            # ~ wq_threshold["total_dissolved_solid"] = {}
+            # ~ wq_threshold["total_dissolved_solid"]["irrigation"] = 450.0
+            # ~ wq_threshold["total_dissolved_solid"]["livestock"]  = 1000000.
+            # ~ wq_threshold["total_dissolved_solid"]["industrial"] = 7000.
+            # ~ wq_threshold["total_dissolved_solid"]["domestic"]   = 600.
+            # ~ wq_threshold["fecal_coliform"] = {}
+            # ~ wq_threshold["fecal_coliform"]["irrigation"] = 1000000.
+            # ~ wq_threshold["fecal_coliform"]["livestock"]  = 1000000.
+            # ~ wq_threshold["fecal_coliform"]["industrial"] = 1000000.
+            # ~ wq_threshold["fecal_coliform"]["domestic"]   = 1000000.
 
             
             totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
@@ -1949,8 +1949,8 @@ class LandCover(object):
             # - for industry
             satisfiedIndustryDemand += sectoral_surface_water_demand_satisfied["industrial"]
             
-            self.allocSurfaceWaterAbstract = sectoral_surface_water_demand_satisfied
             self.actSurfaceWaterAbstract   = totalActSurfaceWaterAbstract 
+            self.allocSurfaceWaterAbstract = sectoral_surface_water_demand_satisfied["domestic"] + sectoral_surface_water_demand_satisfied["industrial"] + sectoral_surface_water_demand_satisfied["livestock"] + sectoral_surface_water_demand_satisfied["irrigation"]
 
         else:
             
