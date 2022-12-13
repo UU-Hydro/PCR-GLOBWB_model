@@ -18,8 +18,6 @@ from ncConverter import *
 def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
                                               surfaceWaterPriority, usingAllocSegments, allocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
     
-    # CONTINUE FROM HERE
-    
     # initial values
     # - available surface water before allocation 
     available_surface_water_with_qual = available_surface_water_without_qual
@@ -44,6 +42,9 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
         thresholds = sorted(thresholds.items(), key=lambda item: item[1], reverse=True)
         sector_order = [threshold[0] for threshold in thresholds]
         
+        print(sector_order)
+        qu
+        
         # looping for every sector
         for sector in sector_order:
             
@@ -62,6 +63,9 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
             # TODO: Accomodate the option "surfaceWaterPriority"!
             #
             available_surface_water_volume = pcr.max(0.00, available_surface_water_with_qual)
+            
+            msg = "Allocating water that is above the threshold for " + consti + " for the sector " + sector
+            logger.debug(msg)
             
             if usingAllocSegments:      # using zone/segment at which supply network is defined
             #  
