@@ -16,7 +16,7 @@ from ncConverter import *
 
 
 def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
-                                              surfaceWaterPiority, usingAllocSegments, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
+                                              surfaceWaterPiority, usingAllocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
     
     # CONTINUE FROM HERE
     
@@ -68,7 +68,7 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
             #  
                 volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
                  vos.waterAbstractionAndAllocation(
-                 water_demand_volume = surface_water_demand*routing.cellArea,\
+                 water_demand_volume = surface_water_demand*cellArea,\
                  available_water_volume = available_surface_water_volume,\
                  allocation_zones = allocSegments,\
                  zone_area = segmentArea,\
@@ -79,12 +79,12 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                  ignore_small_values = False,
                  prioritizing_local_source = prioritizeLocalSourceToMeetWaterDemand)
 		    
-                actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / routing.cellArea
-                allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / routing.cellArea
+                actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / cellArea
+                allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / cellArea
             #  
             else: 
                 logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
-                actSurfaceWaterAbstract   = pcr.min(routing.readAvlChannelStorage/routing.cellArea,\
+                actSurfaceWaterAbstract   = pcr.min(available_surface_water_volume/cellArea,\
                                                          surface_water_demand)                            # unit: m
                 allocSurfaceWaterAbstract = actSurfaceWaterAbstract                             # unit: m   
             #  

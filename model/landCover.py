@@ -1904,7 +1904,7 @@ class LandCover(object):
             
             totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
                swq.surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
-               self.surfaceWaterPiority, self.usingAllocSegments, self.segmentArea, self.landmask, self.prioritizeLocalSourceToMeetWaterDemand, currTimeStep)
+               self.surfaceWaterPiority, self.usingAllocSegments, routing.cellArea, self.segmentArea, self.landmask, self.prioritizeLocalSourceToMeetWaterDemand, currTimeStep)
         
             # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
             ################################################################################################################################
