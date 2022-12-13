@@ -1885,11 +1885,11 @@ class LandCover(object):
             wq_threshold["sw_temperatur"]["livestock"]  = None
             wq_threshold["sw_temperatur"]["industrial"] = 30.0
             wq_threshold["sw_temperatur"]["domestic"]   = None
-            wq_threshold["bio_02_demand"] = {}
-            wq_threshold["bio_02_demand"]["irrigation"] = 15.0
-            wq_threshold["bio_02_demand"]["livestock"]  = None
-            wq_threshold["bio_02_demand"]["industrial"] = 30.0
-            wq_threshold["bio_02_demand"]["domestic"]   = 5.0
+            wq_threshold["bio_o2_demand"] = {}
+            wq_threshold["bio_o2_demand"]["irrigation"] = 15.0
+            wq_threshold["bio_o2_demand"]["livestock"]  = None
+            wq_threshold["bio_o2_demand"]["industrial"] = 30.0
+            wq_threshold["bio_o2_demand"]["domestic"]   = 5.0
             wq_threshold["total_dissolved_solid"] = {}
             wq_threshold["total_dissolved_solid"]["irrigation"] = 450.0
             wq_threshold["total_dissolved_solid"]["livestock"]  = None
