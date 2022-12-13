@@ -16,7 +16,7 @@ from ncConverter import *
 
 
 def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
-                                              surfaceWaterPriority, usingAllocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
+                                              surfaceWaterPriority, usingAllocSegments, allocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
     
     # CONTINUE FROM HERE
     
