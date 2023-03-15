@@ -12,69 +12,74 @@ import logging
 logger = logging.getLogger(__name__)
 
 import virtualOS as vos
-from ncConverter import *
+#from ncConverter import *
 
-
-def surface_water_allocation_based_on_quality(available_surface_water_without_qual, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
+def surface_water_allocation_based_on_quality(available_surface_water, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
                                               surfaceWaterPriority, usingAllocSegments, allocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
+    '''
+    Where:
+    available_surface_water: maximum value between 0 and routed flow in channel
+    sectoral_surface_water_demand: surface water demand estimations for every sector (irrigation, domestic, industrial, livestock)
+    wd_sector: water demand sectors' names in PCR-GLOBWB (irrigation, domestic, industrial, livestock)
+    wq_constituent: surface water quality constituents' names from DynQual (water temperature, BOD, salinity/TDS, fecal coliforms)
+    wq_state: surface water quality constituents' concentrations from DynQual (water temperature, BOD, salinity/TDS, fecal coliforms)
+    wq_treshold: surface water quality concentration thresholds per constituent and sector
+    '''
     
     # initial values
-    # - available surface water before allocation 
-    available_surface_water_with_qual = available_surface_water_without_qual
-    # - amount of water that is abstracted from the source
+    # - amount of water that is abstracted from the source: initializing dataset
     totalActSurfaceWaterAbstract = 0.0
-    # - remaining water demand and satisfied water demand
+    
+    # - remaining water demand and satisfied water demand: initializing dictionaries
     water_demand_remaining = {}
     water_demand_satisfied  = {}
     for sector in wd_sector:
         water_demand_remaining[sector] = sectoral_surface_water_demand[sector]
         water_demand_satisfied[sector] = 0.0
-        
+    
+    # - replacing None values in wq_threshold dictionary with unreachable value (1e20)
+    for consti in wq_threshold.keys():
+        wq_threshold[consti] = {k:v if v is not None else 1e20 for k,v in wq_threshold[consti].items()}
+    
     # looping for every constituent
     for consti in wq_constituent:
+        sectors = wd_sector.copy()
         
         # water quality concentrations
         water_quality_concetration_consti = wq_state[consti]
-                
-        # ordering sectors from less to more stringent
-        thresholds = wq_threshold[consti]
-        thresholds = {k: v for k, v in thresholds.items() if v is not None}
-        thresholds = sorted(thresholds.items(), key=lambda item: item[1], reverse=True)
-        sector_order = [threshold[0] for threshold in thresholds]
         
-        print(sector_order)
-        # ~ qu
+        # ordering sectors from more stringent to less stringent
+        thresholds = wq_threshold[consti]
+        thresholds = dict(sorted(thresholds.items(), key=lambda item: item[1], reverse=False))
+        sectors_ordered = list(thresholds.keys())
         
         # looping for every sector
-        for sector in sector_order:
+        for sector_order in sectors_ordered:
             
             # defining water quality thresholds
-            threshold_consti_sector = wq_threshold[consti][sector]
+            threshold_consti_sector = wq_threshold[consti][sector_order]
             
             # defining actual water available depending on constituent threshold
-            available_surface_water_with_qual_conti_sector = pcr.ifthenelse(water_quality_concetration_consti < threshold_consti_sector, available_surface_water_with_qual, 0.)
+            available_surface_water_consti_sector = pcr.ifthenelse(water_quality_concetration_consti < threshold_consti_sector, available_surface_water, 0.)
             
             # total remaining water demand
             total_water_demand = 0.0
-            for sector in wd_sector: total_water_demand = total_water_demand + water_demand_remaining[sector]
-            
+            for sector in wd_sector:
+                total_water_demand = total_water_demand + water_demand_remaining[sector]
             surface_water_demand = total_water_demand
-            #
-            # TODO: Accomodate the option "surfaceWaterPriority"!
-            #
-            available_surface_water_volume = pcr.max(0.00, available_surface_water_with_qual)
             
-            msg = "Allocating water that is above the threshold for " + consti + " for the sector " + sector
+            # water allocation scheme
+            # [ TODO ] accomodate the option "surfaceWaterPriority"!!!!
+            msg = "Allocating water that is above the threshold for " + consti + " for the sector " + sector_order
             logger.debug(msg)
             
             if usingAllocSegments:      # using zone/segment at which supply network is defined
-            #  
                 logger.debug("Allocation of surface water abstraction.")
-            #  
+                
                 volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
                  vos.waterAbstractionAndAllocation(
                  water_demand_volume = surface_water_demand*cellArea,\
-                 available_water_volume = available_surface_water_volume,\
+                 available_water_volume = available_surface_water_consti_sector,\
                  allocation_zones = allocSegments,\
                  zone_area = segmentArea,\
                  high_volume_treshold = None,\
@@ -83,39 +88,33 @@ def surface_water_allocation_based_on_quality(available_surface_water_without_qu
                  landmask = landmask,
                  ignore_small_values = False,
                  prioritizing_local_source = prioritizeLocalSourceToMeetWaterDemand)
-		    
+                
                 actSurfaceWaterAbstract   = volActSurfaceWaterAbstract / cellArea
                 allocSurfaceWaterAbstract = volAllocSurfaceWaterAbstract / cellArea
-            #  
-            else: 
-                logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
-                actSurfaceWaterAbstract   = pcr.min(available_surface_water_volume/cellArea,\
-                                                         surface_water_demand)                            # unit: m
-                allocSurfaceWaterAbstract = actSurfaceWaterAbstract                             # unit: m   
-            #  
             
-            # - the amount of water that is abstracted from the source (e.g. river, reservoir pixels)
+            else:
+                logger.debug("Surface water abstraction is only to satisfy local demand (no surface water network).")
+                actSurfaceWaterAbstract   = pcr.min(available_surface_water_volume/cellArea, surface_water_demand)    # unit: m
+                allocSurfaceWaterAbstract = actSurfaceWaterAbstract                                                   # unit: m
+            
+            # - the amount of water that is abstracted from the source (e.g. river, reservoir pixels): outgoing water
             actSurfaceWaterAbstract   = pcr.ifthen(landmask, actSurfaceWaterAbstract)
-            # - the amount of water that is given to pixels with demand (e.g. pixels with irrigation areas)
+            # - the amount of water that is given to pixels with demand (e.g. pixels with irrigation areas): incoming water
             allocSurfaceWaterAbstract = pcr.ifthen(landmask, allocSurfaceWaterAbstract)
             
             # tracking the total amount of water that is abstracted from the source
             totalActSurfaceWaterAbstract = totalActSurfaceWaterAbstract + actSurfaceWaterAbstract
             
-            
             # calculating remaining water available
-            available_surface_water_with_qual = available_surface_water_with_qual - actSurfaceWaterAbstract
+            available_surface_water = available_surface_water - actSurfaceWaterAbstract
             
             # looping for every sector to distribute allocSurfaceWaterAbstract
-            for sector in wd_sector:
-                current_water_withdrawal       = allocSurfaceWaterAbstract * vos.getValDivZero(water_demand_remaining[sector], total_water_demand)
+            for sector in sectors:
+                current_water_withdrawal_sector = allocSurfaceWaterAbstract * vos.getValDivZero(water_demand_remaining[sector], total_water_demand)
+                
                 # - tracking the water demand: satisficed and remaining
-                water_demand_remaining[sector] = water_demand_remaining[sector] - current_water_withdrawal
-                water_demand_satisfied[sector] = water_demand_satisfied[sector] + current_water_withdrawal
+                water_demand_remaining[sector] = water_demand_remaining[sector] - current_water_withdrawal_sector
+                water_demand_satisfied[sector] = water_demand_satisfied[sector] + current_water_withdrawal_sector
+            sectors.remove(sector_order)
 
     return totalActSurfaceWaterAbstract, water_demand_satisfied
-    
-    
-    
-    
-
