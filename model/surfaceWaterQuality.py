@@ -39,6 +39,7 @@ def surface_water_allocation_based_on_quality(available_surface_water, wq_consti
     
     # - replacing None values in wq_threshold dictionary with unreachable value (1e20)
     for consti in wq_threshold.keys():
+        print(consti)
         wq_threshold[consti] = {k:v if v is not None else 1e20 for k,v in wq_threshold[consti].items()}
     
     # looping for every constituent
@@ -60,7 +61,7 @@ def surface_water_allocation_based_on_quality(available_surface_water, wq_consti
             threshold_consti_sector = wq_threshold[consti][sector_order]
             
             # defining actual water available depending on constituent threshold
-            available_surface_water_consti_sector = pcr.ifthenelse(water_quality_concetration_consti < threshold_consti_sector, available_surface_water, 0.)
+            available_surface_water_consti_sector = pcr.ifthenelse((water_quality_concetration_consti < threshold_consti_sector) | (pcr.pcrnot(pcr.defined(water_quality_concetration_consti))), available_surface_water, 0.)
             
             # total remaining water demand
             total_water_demand = 0.0

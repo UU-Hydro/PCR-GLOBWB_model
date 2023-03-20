@@ -931,21 +931,20 @@ class LandCover(object):
                     vars(self)[var] = iniConditions[str(var)]
                 vars(self)[var] = pcr.ifthen(self.landmask,vars(self)[var])
 
-    def updateLC(self,meteo,groundwater,routing,\
-                 capRiseFrac,\
-                 nonIrrGrossDemandDict,swAbstractionFractionDict,\
-                 currTimeStep,\
-                 allocSegments,\
-                 desalinationWaterUse,\
-                 groundwater_pumping_region_ids,\
+    def updateLC(self,meteo,groundwater,routing,
+                 capRiseFrac,
+                 nonIrrGrossDemandDict,swAbstractionFractionDict,
+                 currTimeStep,
+                 allocSegments,
+                 desalinationWaterUse,
+                 groundwater_pumping_region_ids,
                  regionalAnnualGroundwaterAbstractionLimit,
-                 consider_water_quality = False,
-                 inputBOD = 0.0,\
-                 thresholdBODForIrrigation = 0.0):
+                 wq_state, wq_threshold, consider_water_quality=False):
 
+        # assiging water quality input information
         self.consider_water_quality = consider_water_quality
-        self.inputBOD = inputBOD
-        self.thresholdBODForIrrigation = thresholdBODForIrrigation
+        self.wq_state = wq_state
+        self.wq_threshold = wq_threshold
         
         # get land cover parameters at the first day of the year or the first day of the simulation
         if self.noAnnualChangesInLandCoverParameter == False and\
@@ -1858,7 +1857,7 @@ class LandCover(object):
             # - available_surface_water (without considering quality)
             available_surface_water = pcr.max(0.00, routing.readAvlChannelStorage)
             # - list of water_quality_constituents
-            wq_constituent = ["sw_temperatur", "bio_o2_demand", "total_dissolved_solid", "fecal_coliform"]
+            wq_constituent = ["sw_temperature", "bio_o2_demand", "tot_dis_solid", "fecal_coliform"]
             # - list of water demand sectors
             wd_sector = ["irrigation", "livestock", "industrial", "domestic"]
             
@@ -1870,37 +1869,37 @@ class LandCover(object):
             sectoral_surface_water_demand["domestic"]   = pcr.max(0.0, correctedRemainingIndustrialDomestic - sectoral_surface_water_demand["industrial"])
             
             # - current/simulate water_quality_concetration_constituent
-            wq_state = {}
-            wq_state["sw_temperatur"] = 25.0
-            wq_state["bio_o2_demand"] = self.inputBOD
-            wq_state["total_dissolved_solid"] = 0.0
-            wq_state["fecal_coliform"] = 0.0
+#            wq_state = {}
+#            wq_state["sw_temperatur"] = 25.0
+#            wq_state["bio_o2_demand"] = self.inputBOD
+#            wq_state["total_dissolved_solid"] = 0.0
+#            wq_state["fecal_coliform"] = 0.0
             
             # - water quality thresholds
-            wq_threshold = {}
-            wq_threshold["sw_temperatur"] = {}
-            wq_threshold["sw_temperatur"]["irrigation"] = None
-            wq_threshold["sw_temperatur"]["livestock"]  = None
-            wq_threshold["sw_temperatur"]["industrial"] = 30.0
-            wq_threshold["sw_temperatur"]["domestic"]   = None
-            wq_threshold["bio_o2_demand"] = {}
-            wq_threshold["bio_o2_demand"]["irrigation"] = 15.0
-            wq_threshold["bio_o2_demand"]["livestock"]  = None
-            wq_threshold["bio_o2_demand"]["industrial"] = 30.0
-            wq_threshold["bio_o2_demand"]["domestic"]   = 5.0
-            wq_threshold["total_dissolved_solid"] = {}
-            wq_threshold["total_dissolved_solid"]["irrigation"] = 450.0
-            wq_threshold["total_dissolved_solid"]["livestock"]  = None
-            wq_threshold["total_dissolved_solid"]["industrial"] = 7000.
-            wq_threshold["total_dissolved_solid"]["domestic"]   = 600.
-            wq_threshold["fecal_coliform"] = {}
-            wq_threshold["fecal_coliform"]["irrigation"] = None
-            wq_threshold["fecal_coliform"]["livestock"]  = None
-            wq_threshold["fecal_coliform"]["industrial"] = None
-            wq_threshold["fecal_coliform"]["domestic"]   = None
+#            wq_threshold = {}
+#            wq_threshold["sw_temperatur"] = {}
+#            wq_threshold["sw_temperatur"]["irrigation"] = 1e-20  # None
+#            wq_threshold["sw_temperatur"]["livestock"]  = 1e-20  # None
+#            wq_threshold["sw_temperatur"]["industrial"] = 1e-20  # 30.0
+#            wq_threshold["sw_temperatur"]["domestic"]   = 1e-20  # None
+#            wq_threshold["bio_o2_demand"] = {}
+#            wq_threshold["bio_o2_demand"]["irrigation"] = 1e-20  # 15.0
+#            wq_threshold["bio_o2_demand"]["livestock"]  = 1e-20  # None
+#            wq_threshold["bio_o2_demand"]["industrial"] = 1e-20  # 30.0
+#            wq_threshold["bio_o2_demand"]["domestic"]   = 1e-20  # 5.0
+#            wq_threshold["total_dissolved_solid"] = {}
+#            wq_threshold["total_dissolved_solid"]["irrigation"] = 1e-20  # 450.0
+#            wq_threshold["total_dissolved_solid"]["livestock"]  = 1e-20  # None
+#            wq_threshold["total_dissolved_solid"]["industrial"] = 1e-20  # 7000.
+#            wq_threshold["total_dissolved_solid"]["domestic"]   = 1e-20  # 600.
+#            wq_threshold["fecal_coliform"] = {}
+#            wq_threshold["fecal_coliform"]["irrigation"] = 1e-20  # None
+#            wq_threshold["fecal_coliform"]["livestock"]  = 1e-20  # None
+#            wq_threshold["fecal_coliform"]["industrial"] = 1e-20  # None
+#            wq_threshold["fecal_coliform"]["domestic"]   = 1e-20  # None
             
             totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
-               swq.surface_water_allocation_based_on_quality(available_surface_water, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
+               swq.surface_water_allocation_based_on_quality(available_surface_water, wq_constituent, wd_sector, sectoral_surface_water_demand, self.wq_state, self.wq_threshold,
                self.surfaceWaterPiority, self.usingAllocSegments, self.allocSegments, routing.cellArea, self.segmentArea, self.landmask, self.prioritizeLocalSourceToMeetWaterDemand, currTimeStep)
             
             # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply
