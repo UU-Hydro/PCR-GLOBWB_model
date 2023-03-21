@@ -1849,13 +1849,13 @@ class LandCover(object):
         surface_water_demand = correctedSurfaceWaterDemandEstimate
         
         # Note the variable "surface_water_demand" is the estimate of surface water demand for all sectors (total) based on Siebert et al.; McDonald et al.; de Graaf et al.
-        
+        # available_surface_water (without considering quality)
+        available_surface_water = pcr.max(0.00, routing.readAvlChannelStorage)
+            
         if self.consider_water_quality:
             logger.info("Surface water allocation to meet demand will consider water quality.")
             
             # Input
-            # - available_surface_water (without considering quality)
-            available_surface_water = pcr.max(0.00, routing.readAvlChannelStorage)
             # - list of water_quality_constituents
             wq_constituent = ["sw_temperature", "bio_o2_demand", "tot_dis_solid", "fecal_coliform"]
             # - list of water demand sectors
@@ -1935,7 +1935,7 @@ class LandCover(object):
                 volActSurfaceWaterAbstract, volAllocSurfaceWaterAbstract = \
                  vos.waterAbstractionAndAllocation(
                  water_demand_volume = surface_water_demand*routing.cellArea,\
-                 available_water_volume = available_surface_water_volume,\
+                 available_water_volume = available_surface_water,\
                  allocation_zones = allocSegments,\
                  zone_area = self.segmentArea,\
                  high_volume_treshold = None,\

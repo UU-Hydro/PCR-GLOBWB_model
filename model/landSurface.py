@@ -384,6 +384,7 @@ class LandSurface(object):
         #
         # Evaluating if surface water quality will be considered for water allocation
         self.consider_water_quality = False
+        self.wq_threshold = {}
         if ("considerWaterQuality" in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True"):
             logger.info('Water use in this model run considers water quality.')
             self.consider_water_quality = True
@@ -396,7 +397,6 @@ class LandSurface(object):
             
             # - threshold values of water quality constituents 
             # self.thresholdBODForIrrigation = float(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-            self.wq_threshold = {}
             self.wq_threshold["sw_temperature"] = {}
             self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
             self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
@@ -1273,8 +1273,8 @@ class LandSurface(object):
     def update(self,meteo,groundwater,routing,currTimeStep):
         
         # updating any information related to water quality
+        self.wq_state = {}
         if self.consider_water_quality:
-            self.wq_state = {}
             self.wq_state["sw_temperature"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileSWT, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
             self.wq_state["bio_o2_demand"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileBOD, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
             self.wq_state["tot_dis_solid"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileTDS, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
