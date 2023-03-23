@@ -1856,10 +1856,11 @@ class LandCover(object):
             logger.info("Surface water allocation to meet demand will consider water quality.")
             
             # Input
-            # - list of water_quality_constituents
-            wq_constituent = ["sw_temperature", "bio_o2_demand", "tot_dis_solid", "fecal_coliform"]
             # - list of water demand sectors
-            wd_sector = ["irrigation", "livestock", "industrial", "domestic"]
+            # wd_sector = ["irrigation", "domestic", "industrial", "livestock"]
+            # - list of water_quality_constituents
+            # wq_constituent = ["sw_temperature", "bio_o2_demand", "tot_dis_solid", "fecal_coliform"]
+            wq_constituent = list(wq_thresholds[wd_sector[0]].keys())
             
             # - the estimates of surface water demand for every sector, after the above schemes (Siebert et al.; McDonald et al.; de Graaf et al.)
             sectoral_surface_water_demand = {}
@@ -1899,7 +1900,7 @@ class LandCover(object):
 #            wq_threshold["fecal_coliform"]["domestic"]   = 1e-20  # None
             
             totalActSurfaceWaterAbstract, sectoral_surface_water_demand_satisfied = \
-               swq.surface_water_allocation_based_on_quality(available_surface_water, wq_constituent, wd_sector, sectoral_surface_water_demand, self.wq_state, self.wq_threshold,
+               swq.surface_water_allocation_based_on_quality(available_surface_water, sectoral_surface_water_demand, self.wq_state, self.wq_threshold,
                self.surfaceWaterPiority, self.usingAllocSegments, self.allocSegments, routing.cellArea, self.segmentArea, self.landmask, self.prioritizeLocalSourceToMeetWaterDemand, currTimeStep)
             
             # water demand that have been satisfied (unit: m/day) - after desalination and surface water supply

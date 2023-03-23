@@ -14,33 +14,37 @@ logger = logging.getLogger(__name__)
 import virtualOS as vos
 #from ncConverter import *
 
-def surface_water_allocation_based_on_quality(available_surface_water, wq_constituent, wd_sector, sectoral_surface_water_demand, wq_state, wq_threshold,
-                                              surfaceWaterPriority, usingAllocSegments, allocSegments, cellArea, segmentArea, landmask, prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
+def surface_water_allocation_based_on_quality(availableSurfaceWater, sectoralSurfaceWaterDemand, waterQualityStates, waterQualityThresholds,
+                                              surfaceWaterPriority, usingAllocSegments, allocSegments, cellArea, segmentArea, landmask,
+                                              prioritizeLocalSourceToMeetWaterDemand, currTimeStep):
     '''
     Where:
-    available_surface_water: maximum value between 0 and routed flow in channel
-    sectoral_surface_water_demand: surface water demand estimations for every sector (irrigation, domestic, industrial, livestock)
-    wd_sector: water demand sectors' names in PCR-GLOBWB (irrigation, domestic, industrial, livestock)
-    wq_constituent: surface water quality constituents' names from DynQual (water temperature, BOD, salinity/TDS, fecal coliforms)
-    wq_state: surface water quality constituents' concentrations from DynQual (water temperature, BOD, salinity/TDS, fecal coliforms)
-    wq_treshold: surface water quality concentration thresholds per constituent and sector
+    availableSurfaceWater: maximum value between 0 and routed flow in channel
+    sectoralSurfaceWaterDemand: surface water demand estimations for every sector (irrigation, domestic, industrial, livestock)
+    waterQualityStates: surface water quality constituents' concentrations from DynQual (water temperature, BOD, salinity/TDS, fecal coliforms)
+    waterQualityThresholds: surface water quality concentration thresholds per constituent and sector
     '''
     
     # initial values
+    # - list of water demand sectors
+    waterDemandSectors = list(waterQualityThresholds.keys())   # i.e., irrigation, domestic, industrial, livestock
+    
+    # - list of water quality constituents
+    waterQualityConstituents = list(waterQualityThresholds[waterDemandSectors[0]].keys())   # i.e., water temperature, BOD, salinity/TDS, fecal coliforms
+    
     # - amount of water that is abstracted from the source: initializing dataset
-    totalActSurfaceWaterAbstract = 0.0
+    totalActualSurfaceWaterAbstract = 0.0
     
     # - remaining water demand and satisfied water demand: initializing dictionaries
-    water_demand_remaining = {}
-    water_demand_satisfied  = {}
-    for sector in wd_sector:
-        water_demand_remaining[sector] = sectoral_surface_water_demand[sector]
-        water_demand_satisfied[sector] = 0.0
+    waterDemandRemaining = {}
+    waterDemandSatisfied  = {}
+    for sector in waterDemandSectors:
+        waterDemandRemaining[sector] = sectoralSurfaceWaterDemand[sector]
+        waterDemandSatisfied[sector] = 0.0
     
-    # - replacing None values in wq_threshold dictionary with unreachable value (1e20)
-    for consti in wq_threshold.keys():
-        print(consti)
-        wq_threshold[consti] = {k:v if v is not None else 1e20 for k,v in wq_threshold[consti].items()}
+    # - replacing None values in waterQualityThresholds dictionary with unreachable threshold (1e20)
+    for sector in waterDemandSectors:
+        waterQualityThresholds[sector] = {k:v if v is not None else 1e20 for k,v in wq_threshold[sector].items()}
     
     # looping for every constituent
     for consti in wq_constituent:

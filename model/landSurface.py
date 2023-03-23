@@ -380,7 +380,7 @@ class LandSurface(object):
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
         #############################################################################################################################################
-        # Surface water quality option: water allocation based on  
+        # Surface water quality option: Water allocation based on sectoral water quality requirements
         #
         # Evaluating if surface water quality will be considered for water allocation
         self.consider_water_quality = False
@@ -397,26 +397,48 @@ class LandSurface(object):
             
             # - threshold values of water quality constituents 
             # self.thresholdBODForIrrigation = float(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-            self.wq_threshold["sw_temperature"] = {}
-            self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-            self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-            self.wq_threshold["sw_temperature"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-            self.wq_threshold["sw_temperature"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-            self.wq_threshold["bio_o2_demand"] = {}
-            self.wq_threshold["bio_o2_demand"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-            self.wq_threshold["bio_o2_demand"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
-            self.wq_threshold["bio_o2_demand"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
-            self.wq_threshold["bio_o2_demand"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
-            self.wq_threshold["tot_dis_solid"] = {}
-            self.wq_threshold["tot_dis_solid"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-            self.wq_threshold["tot_dis_solid"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-            self.wq_threshold["tot_dis_solid"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-            self.wq_threshold["tot_dis_solid"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-            self.wq_threshold["fecal_coliform"] = {}
-            self.wq_threshold["fecal_coliform"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
-            self.wq_threshold["fecal_coliform"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
-            self.wq_threshold["fecal_coliform"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
-            self.wq_threshold["fecal_coliform"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
+#            self.wq_threshold["sw_temperature"] = {}
+#            self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
+#            self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
+#            self.wq_threshold["sw_temperature"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
+#            self.wq_threshold["sw_temperature"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
+#            self.wq_threshold["bio_o2_demand"] = {}
+#            self.wq_threshold["bio_o2_demand"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
+#            self.wq_threshold["bio_o2_demand"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
+#            self.wq_threshold["bio_o2_demand"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
+#            self.wq_threshold["bio_o2_demand"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
+#            self.wq_threshold["tot_dis_solid"] = {}
+#            self.wq_threshold["tot_dis_solid"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
+#            self.wq_threshold["tot_dis_solid"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
+#            self.wq_threshold["tot_dis_solid"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
+#            self.wq_threshold["tot_dis_solid"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
+#            self.wq_threshold["fecal_coliform"] = {}
+#            self.wq_threshold["fecal_coliform"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
+#            self.wq_threshold["fecal_coliform"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
+#            self.wq_threshold["fecal_coliform"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
+#            self.wq_threshold["fecal_coliform"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
+            
+            self.wq_threshold["irrigation"] = {}
+            self.wq_threshold["irrigation"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
+            self.wq_threshold["irrigation"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
+            self.wq_threshold["irrigation"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
+            self.wq_threshold["irrigation"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
+            self.wq_threshold["livestock"] = {}
+            self.wq_threshold["livestock"]["sw_temperature"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
+            self.wq_threshold["livestock"]["bio_o2_demand"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
+            self.wq_threshold["livestock"]["tot_dis_solid"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
+            self.wq_threshold["livestock"]["fecal_coliform"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
+            self.wq_threshold["domestic"] = {}
+            self.wq_threshold["domestic"]["sw_temperature"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
+            self.wq_threshold["domestic"]["bio_o2_demand"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
+            self.wq_threshold["domestic"]["tot_dis_solid"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
+            self.wq_threshold["domestic"]["fecal_coliform"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
+            self.wq_threshold["industrial"] = {}
+            self.wq_threshold["industrial"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
+            self.wq_threshold["industrial"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
+            self.wq_threshold["industrial"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
+            self.wq_threshold["industrial"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
+        #
         #     
         #############################################################################################################################################
         
