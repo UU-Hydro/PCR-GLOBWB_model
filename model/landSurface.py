@@ -396,7 +396,6 @@ class LandSurface(object):
             self.inputFileFC  = iniItems.landSurfaceOptions["inputFileFecalColiform"]
             
             # - threshold values of water quality constituents 
-            # self.thresholdBODForIrrigation = float(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
 #            self.wq_threshold["sw_temperature"] = {}
 #            self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
 #            self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
@@ -1297,10 +1296,17 @@ class LandSurface(object):
         # updating any information related to water quality
         self.wq_state = {}
         if self.consider_water_quality:
+            # converting .nc files to .map per timestep
             self.wq_state["sw_temperature"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileSWT, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
             self.wq_state["bio_o2_demand"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileBOD, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
             self.wq_state["tot_dis_solid"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileTDS, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
             self.wq_state["fecal_coliform"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileFC , varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
+            
+            # filling nans with zero values
+            self.wq_state["sw_temperature"] = pcr.cover(self.wq_state["sw_temperature"],0.0)
+            self.wq_state["bio_o2_demand"]  = pcr.cover(self.wq_state["bio_o2_demand"], 0.0)
+            self.wq_state["tot_dis_solid"]  = pcr.cover(self.wq_state["tot_dis_solid"], 0.0)
+            self.wq_state["fecal_coliform"] = pcr.cover(self.wq_state["fecal_coliform"],0.0)
         
         # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
