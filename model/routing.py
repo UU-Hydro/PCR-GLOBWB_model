@@ -1604,7 +1604,7 @@ class Routing(object):
         #######################################################################################################################
         
         # evaporation (m/day)
-        self.waterBodyEvaporation = water_body_evaporation_volume / self.cellArea
+        self.waterBodyEvaporation = acc_water_body_evaporation_volume / self.cellArea
         
         # local input to surface water (m3)
         self.local_input_to_surface_water += acc_local_input_to_surface_water
@@ -1882,7 +1882,7 @@ class Routing(object):
         #######################################################################################################################
         
         # evaporation (m/day)
-        self.waterBodyEvaporation = water_body_evaporation_volume / self.cellArea
+        self.waterBodyEvaporation = acc_water_body_evaporation_volume / self.cellArea
         
         # local input to surface water (m3)
         self.local_input_to_surface_water += acc_local_input_to_surface_water
@@ -2143,7 +2143,7 @@ class Routing(object):
         #######################################################################################################################
         
         # evaporation (m/day)
-        self.waterBodyEvaporation = water_body_evaporation_volume / self.cellArea
+        self.waterBodyEvaporation = acc_water_body_evaporation_volume / self.cellArea
         
         # local input to surface water (m3)
         self.local_input_to_surface_water += acc_local_input_to_surface_water
