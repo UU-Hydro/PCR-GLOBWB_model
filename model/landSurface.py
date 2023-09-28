@@ -32,13 +32,14 @@ logger = logging.getLogger(__name__)
 from ncConverter import *
 
 import landCover as lc
+import waterUse  as wu
 import parameterSoilAndTopo as parSoilAndTopo
 
 class LandSurface(object):
-    
+
     def getState(self):
         result = {}
-    
+        
         if self.numberOfSoilLayers == 2:
             for coverType in self.coverTypes:
                 result[coverType] = {}
@@ -56,7 +57,7 @@ class LandSurface(object):
                   self.landCoverObj[coverType].storLow
                 result[coverType]['interflow'    ] = \
                   self.landCoverObj[coverType].interflow
-
+        
         if self.numberOfSoilLayers == 3:
             for coverType in self.coverTypes:
                 result[coverType] = {}
@@ -76,34 +77,34 @@ class LandSurface(object):
                   self.landCoverObj[coverType].storLow030150
                 result[coverType]['interflow'    ] = \
                   self.landCoverObj[coverType].interflow
-              
-        return result
-    
-    def getPseudoState(self):
-        result = {}
         
-        if self.numberOfSoilLayers == 2:
-            result['interceptStor'] = self.interceptStor
-            result['snowCoverSWE']  = self.snowCoverSWE
-            result['snowFreeWater'] = self.snowFreeWater
-            result['topWaterLayer'] = self.topWaterLayer
-            result['storUpp']       = self.storUpp
-            result['storLow']       = self.storLow
+        return result
 
-        if self.numberOfSoilLayers == 3:
-            result['interceptStor'] = self.interceptStor
-            result['snowCoverSWE']  = self.snowCoverSWE
-            result['snowFreeWater'] = self.snowFreeWater
-            result['topWaterLayer'] = self.topWaterLayer
-            result['storUpp000005'] = self.storUpp000005
-            result['storUpp005030'] = self.storUpp005030
-            result['storLow030150'] = self.storLow030150
-        
-        return result
+#    def getPseudoState(self):
+#        result = {}
+#        
+#        if self.numberOfSoilLayers == 2:
+#            result['interceptStor'] = self.interceptStor
+#            result['snowCoverSWE']  = self.snowCoverSWE
+#            result['snowFreeWater'] = self.snowFreeWater
+#            result['topWaterLayer'] = self.topWaterLayer
+#            result['storUpp']       = self.storUpp
+#            result['storLow']       = self.storLow
+#        
+#        if self.numberOfSoilLayers == 3:
+#            result['interceptStor'] = self.interceptStor
+#            result['snowCoverSWE']  = self.snowCoverSWE
+#            result['snowFreeWater'] = self.snowFreeWater
+#            result['topWaterLayer'] = self.topWaterLayer
+#            result['storUpp000005'] = self.storUpp000005
+#            result['storUpp005030'] = self.storUpp005030
+#            result['storLow030150'] = self.storLow030150
+#        
+#        return result
 
     def __init__(self,iniItems,landmask,initialState=None):
         object.__init__(self)
-
+        
         # clone map, temporary directory, absolute path of input directory, and landmask
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
@@ -123,14 +124,14 @@ class LandSurface(object):
         
         # list of aggregated variables that MUST be defined in the module:
         # - aggregated from landCover modules
-        # - some are needed for water balance checking 
+        # - some are needed for water balance checking
         # - some are needed in other modules (e.g. routing, groundwater)
         # - some are needed for initialConditions
         # 
         # main state variables (unit: m)
-        self.mainStates = ['interceptStor',\
-                           'snowCoverSWE' ,\
-                           'snowFreeWater',\
+        self.mainStates = ['interceptStor',
+                           'snowCoverSWE' ,
+                           'snowFreeWater',
                            'topWaterLayer']
         #
         # state variables (unit: m)
@@ -141,7 +142,9 @@ class LandSurface(object):
                           'satDegTotal']
         #
         # flux variables (unit: m/day)
-        self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
+        self.fluxVars  = ['infiltration',
+                          'gwRecharge',
+                          'netLqWaterToSoil',
                           'totalPotET',
                           'actualET',
                           'interceptEvap',
@@ -150,13 +153,25 @@ class LandSurface(object):
                           'actBareSoilEvap',
                           'actTranspiUppTotal',
                           'actTranspiLowTotal',
-                          'actTranspiTotal',                                 
+                          'actTranspiTotal',
                           'directRunoff',
                           'interflow',
                           'interflowTotal',
+                          'landSurfaceRunoff',
+                          'satExcess',
+                          'snowMelt',
+                          
                           'irrGrossDemand',
+                          'irrGrossDemandPaddy',
+                          'irrGrossDemandNonPaddy',
                           'nonIrrGrossDemand',
                           'totalPotentialGrossDemand',
+                          'totalPotentialMaximumGrossDemand',
+                          'totalPotentialMaximumIrrGrossDemand',
+                          'totalPotentialMaximumIrrGrossDemandPaddy',
+                          'totalPotentialMaximumIrrGrossDemandNonPaddy',
+                          'totalPotentialMaximumNonIrrGrossDemand',
+                          
                           'actSurfaceWaterAbstract',
                           'allocSurfaceWaterAbstract',
                           'desalinationAbstraction',
@@ -165,18 +180,9 @@ class LandSurface(object):
                           'allocNonFossilGroundwater',
                           'fossilGroundwaterAbstr',
                           'fossilGroundwaterAlloc',
-                          'landSurfaceRunoff',
-                          'satExcess',
-                          'snowMelt',
                           'totalGroundwaterAbstraction',
                           'totalGroundwaterAllocation',
-                          'totalPotentialMaximumGrossDemand',
-                          'totalPotentialMaximumIrrGrossDemand',
-                          'totalPotentialMaximumIrrGrossDemandPaddy',
-                          'totalPotentialMaximumIrrGrossDemandNonPaddy',
-                          'totalPotentialMaximumNonIrrGrossDemand',
-                          'irrGrossDemandPaddy',
-                          'irrGrossDemandNonPaddy',
+                          
                           'domesticWaterWithdrawal',
                           'industryWaterWithdrawal',
                           'livestockWaterWithdrawal',
@@ -201,32 +207,38 @@ class LandSurface(object):
         self.aggrVars = self.stateVars + self.fluxVars
         if self.numberOfSoilLayers == 2: self.aggrVars += ['satDegUpp','satDegLow']
         if self.numberOfSoilLayers == 3: self.aggrVars += ['satDegUpp000005','satDegUpp005030','satDegLow030150']
-
-        self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
-        # TDOD: Perform water balance checks for aggregates values (from values of each land cover type).   
         
+        self.debugWaterBalance = iniItems.landSurfaceOptions['debugWaterBalance']
+        # TODO: Perform water balance checks for aggregates values (from values of each land cover type).
+        
+        # Move it to waterUse.py .....................................................................................................................
+        #
         # limitAbstraction
         self.limitAbstraction = False
         if iniItems.landSurfaceOptions['limitAbstraction'] == "True": self.limitAbstraction = True
-
-        # landCover types included in the simulation: 
-        self.coverTypes = ["forest","grassland"]
         #
+        #.............................................................................................................................................
+        
+        # landCover types included in the simulation: <------------- Modifications to easily create new coverTypes
+        self.coverTypes = ["forest","grassland"]
+        
         self.includeIrrigation = False
         if iniItems.landSurfaceOptions['includeIrrigation'] == "True":
             self.includeIrrigation = True
             self.coverTypes += ["irrPaddy","irrNonPaddy"]
             logger.info("Irrigation is included/considered in this run.")
-        else:     
+        else:
             logger.info("Irrigation is NOT included/considered in this run.")
-            
+        
         # if user define their land cover types: 
         if 'landCoverTypes' in list(iniItems.landSurfaceOptions.keys()): 
             self.coverTypes = iniItems.landSurfaceOptions['landCoverTypes'].split(",")
-
-        # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply 
-        self.waterDemandOptions(iniItems)
         
+        # Move it to waterUse.py .....................................................................................................................
+        #
+        # water demand options: irrigation efficiency, non irrigation water demand, and desalination supply
+        self.waterDemandOptions(iniItems)
+        self.wu.waterDemandOptions(iniItems)
         # TODO: Make an option so that users can easily perform natural runs (without water user, without reservoirs).
         
         # pre-defined surface water source fraction for satisfying irrigation and livestock water demand
@@ -247,24 +259,24 @@ class LandSurface(object):
                                                  pcr.cover(\
                                                  vos.readPCRmapClone(iniItems.landSurfaceOptions['irrigationSurfaceWaterAbstractionFractionDataQuality'],\
                                                                      self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-                # ignore value with the quality above 5 (very bad) 
+                # ignore value with the quality above 5 (very bad)
                 # - Note: The resulting map has values only in cells with the data auality <= 5.0 
                 self.swAbstractionFractionData = pcr.ifthen(self.swAbstractionFractionDataQuality <= 5.0, \
                                                             self.swAbstractionFractionData)
-
+        
         # maximum pre-defined surface water source fraction for satisfying industrial and domestic water demand:
         # - if not defined (default), set it to the maximum 
         self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
         if 'maximumNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "None" or\
                iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'] != "False":
-
+                
                 logger.info('Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand.')
                 self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(1.0,\
                                                                                pcr.cover(\
                                                                                vos.readPCRmapClone(iniItems.landSurfaceOptions['maximumNonIrrigationSurfaceWaterAbstractionFractionData'],\
                                                                                                    self.cloneMap,self.tmpDir,self.inputDir), 1.0))
-
+        
         # pre-defined surface water source fraction for satisfying industrial and domestic water demand
         self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
         if 'predefinedNonIrrigationSurfaceWaterAbstractionFractionData' in list(iniItems.landSurfaceOptions.keys()) and \
@@ -278,7 +290,7 @@ class LandSurface(object):
                                                                                                   self.cloneMap,self.tmpDir,self.inputDir), 1.0))
             self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.max(0.0, \
                        pcr.min(self.maximumNonIrrigationSurfaceWaterAbstractionFractionData, \
-                            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))                                                                                   
+                            self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData))
         
         # threshold values defining the preference for irrigation water source (unit: fraction/percentage)
         self.treshold_to_maximize_irrigation_surface_water = \
@@ -287,6 +299,8 @@ class LandSurface(object):
         self.treshold_to_minimize_fossil_groundwater_irrigation = \
          vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
                                  self.cloneMap,self.tmpDir,self.inputDir)
+        #
+        #.............................................................................................................................................
         
         # assign the topography and soil parameters
         self.soil_topo_parameters = {}
@@ -299,7 +313,7 @@ class LandSurface(object):
             dictionary_of_land_cover_settings = iniItems.__getattribute__(name_of_section_given_in_ini_file)
             
             if 'usingSpecificSoilTopo' not in list(dictionary_of_land_cover_settings.keys()): dictionary_of_land_cover_settings['usingSpecificSoilTopo'] = "False"            
-            if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":            
+            if dictionary_of_land_cover_settings['usingSpecificSoilTopo'] == "True":
                 
                 msg  = "Using a specific set of soil and topo parameters "
                 msg += "as defined in the "+name_of_section_given_in_ini_file+" of the ini/configuration file." 
@@ -307,23 +321,21 @@ class LandSurface(object):
                 self.soil_topo_parameters[coverType] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
                 self.soil_topo_parameters[coverType].read(iniItems, dictionary_of_land_cover_settings)
             else:
-
                 msg  = "Using the default set of soil and topo parameters "
                 msg += "as defined in the landSurfaceOptions of the ini/configuration file." 
-
-                self.soil_topo_parameters[coverType] = self.soil_topo_parameters['default']            
-
+                self.soil_topo_parameters[coverType] = self.soil_topo_parameters['default']
+            
             logger.info(msg)
- 
-
+        
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
-        for coverType in self.coverTypes: 
-            self.landCoverObj[coverType] = lc.LandCover(iniItems,\
-                                                        str(coverType)+'Options',\
-                                                        self.soil_topo_parameters[coverType],self.landmask,\
-                                                        self.irrigationEfficiency,\
-                                                        self.usingAllocSegments)
+        for coverType in self.coverTypes:
+            self.landCoverObj[coverType] = lc.LandCover(iniItems,
+                                                        str(coverType)+'Options',
+                                                        self.soil_topo_parameters[coverType],
+                                                        self.landmask,
+                                                        self.irrigationEfficiency,
+                                                        self.usingAllocSegments)         # remove self.irrigationEfficiency and self.usingAllocSegments
         
         # rescale landCover Fractions
         # - by default, the land cover fraction will always be corrected (to ensure the total of all fractions = 1.0)
@@ -347,11 +359,11 @@ class LandSurface(object):
         if self.noAnnualChangesInLandCoverParameter == False and self.noLandCoverFractionCorrection == False:
             self.noLandCoverFractionCorrection = True
             msg = "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
-            logger.warning(msg) 
-            logger.warning(msg) 
-            logger.warning(msg) 
-            logger.warning(msg) 
-            logger.warning(msg) 
+            logger.warning(msg)
+            logger.warning(msg)
+            logger.warning(msg)
+            logger.warning(msg)
+            logger.warning(msg)
         
         ######################################################################################################################################################################################### 
         # 29 July 2014: 
@@ -379,68 +391,6 @@ class LandSurface(object):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
 
-        #############################################################################################################################################
-        # Surface water quality option: Water allocation based on sectoral water quality requirements
-        #
-        # Evaluating if surface water quality will be considered for water allocation
-        self.consider_water_quality = False
-        self.wq_threshold = {}
-        if ("considerWaterQuality" in list(iniItems.landSurfaceOptions.keys()) and iniItems.landSurfaceOptions["considerWaterQuality"] == "True"):
-            logger.info('Water use in this model run considers water quality.')
-            self.consider_water_quality = True
-            
-            # - input files with surface water quality concentrations 
-            self.inputFileSWT = iniItems.landSurfaceOptions["inputFileSWTemperature"]
-            self.inputFileBOD = iniItems.landSurfaceOptions["inputFileBiochemOxigenDemand"]
-            self.inputFileTDS = iniItems.landSurfaceOptions["inputFileTotalDissolvedSolid"]
-            self.inputFileFC  = iniItems.landSurfaceOptions["inputFileFecalColiform"]
-            
-            # - threshold values of water quality constituents 
-#            self.wq_threshold["sw_temperature"] = {}
-#            self.wq_threshold["sw_temperature"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-#            self.wq_threshold["sw_temperature"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
-#            self.wq_threshold["sw_temperature"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
-#            self.wq_threshold["sw_temperature"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
-#            self.wq_threshold["bio_o2_demand"] = {}
-#            self.wq_threshold["bio_o2_demand"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-#            self.wq_threshold["bio_o2_demand"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
-#            self.wq_threshold["bio_o2_demand"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
-#            self.wq_threshold["bio_o2_demand"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
-#            self.wq_threshold["tot_dis_solid"] = {}
-#            self.wq_threshold["tot_dis_solid"]["irrigation"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-#            self.wq_threshold["tot_dis_solid"]["livestock"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
-#            self.wq_threshold["tot_dis_solid"]["domestic"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
-#            self.wq_threshold["tot_dis_solid"]["industrial"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
-#            self.wq_threshold["fecal_coliform"] = {}
-#            self.wq_threshold["fecal_coliform"]["irrigation"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
-#            self.wq_threshold["fecal_coliform"]["livestock"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
-#            self.wq_threshold["fecal_coliform"]["domestic"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
-#            self.wq_threshold["fecal_coliform"]["industrial"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
-            
-            self.wq_threshold["irrigation"] = {}
-            self.wq_threshold["irrigation"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIrrigation"])
-            self.wq_threshold["irrigation"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIrrigation"])
-            self.wq_threshold["irrigation"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIrrigation"])
-            self.wq_threshold["irrigation"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIrrigation"])
-            self.wq_threshold["livestock"] = {}
-            self.wq_threshold["livestock"]["sw_temperature"]  = eval(iniItems.landSurfaceOptions["thresholdSWTForLivestock"])
-            self.wq_threshold["livestock"]["bio_o2_demand"]   = eval(iniItems.landSurfaceOptions["thresholdBODForLivestock"])
-            self.wq_threshold["livestock"]["tot_dis_solid"]   = eval(iniItems.landSurfaceOptions["thresholdTDSForLivestock"])
-            self.wq_threshold["livestock"]["fecal_coliform"]  = eval(iniItems.landSurfaceOptions["thresholdFCForLivestock"])
-            self.wq_threshold["domestic"] = {}
-            self.wq_threshold["domestic"]["sw_temperature"]   = eval(iniItems.landSurfaceOptions["thresholdSWTForDomestic"])
-            self.wq_threshold["domestic"]["bio_o2_demand"]    = eval(iniItems.landSurfaceOptions["thresholdBODForDomestic"])
-            self.wq_threshold["domestic"]["tot_dis_solid"]    = eval(iniItems.landSurfaceOptions["thresholdTDSForDomestic"])
-            self.wq_threshold["domestic"]["fecal_coliform"]   = eval(iniItems.landSurfaceOptions["thresholdFCForDomestic"])
-            self.wq_threshold["industrial"] = {}
-            self.wq_threshold["industrial"]["sw_temperature"] = eval(iniItems.landSurfaceOptions["thresholdSWTForIndustrial"])
-            self.wq_threshold["industrial"]["bio_o2_demand"]  = eval(iniItems.landSurfaceOptions["thresholdBODForIndustrial"])
-            self.wq_threshold["industrial"]["tot_dis_solid"]  = eval(iniItems.landSurfaceOptions["thresholdTDSForIndustrial"])
-            self.wq_threshold["industrial"]["fecal_coliform"] = eval(iniItems.landSurfaceOptions["thresholdFCForIndustrial"])
-        #
-        #     
-        #############################################################################################################################################
-        
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
 
@@ -449,7 +399,7 @@ class LandSurface(object):
         
 
     def initiate_old_style_land_surface_reporting(self,iniItems):
-
+        
         self.report = True
         try:
             self.outDailyTotNC = iniItems.landSurfaceOptions['outDailyTotNC'].split(",")
@@ -533,15 +483,14 @@ class LandSurface(object):
 
         # starting year in integer
         starting_year = int(iniItems.globalOptions['startTime'][0:4])
-        #
-        # check if the run start at the first day of the year:
+        
+        # check if the run start at the first day of the year
         start_on_1_Jan = False
         if iniItems.globalOptions['startTime'][-5:] == "01-01": start_on_1_Jan = True
-
+        
         # condition to consider previous year land cover fraction 
         consider_previous_year_land_cover_fraction = False
-
-
+        
         #######################################################################################################################################
         # obtaining initial land cover fractions for runs with dynamicIrrigationArea
         #
@@ -561,10 +510,9 @@ class LandSurface(object):
            self.dynamicIrrigationArea and self.noLandCoverFractionCorrection == False:
             # just using the current year land cover fractions:
             self.scaleDynamicIrrigation(starting_year)                           # the current year land cover fractions
-        #
+        
         #################################################################################################################################
-
-        #######################################################################################################################################
+        
         # obtaining initial land cover fractions for runs with noLandCoverFractionCorrection and annualChangesInLandCoverParameters 
         #
         # For non spin-up runs that start at the first day of the year (1 January), 
@@ -583,24 +531,24 @@ class LandSurface(object):
             # correcting land cover fractions
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
-
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover
+            
             if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
             if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
-
+            
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
-
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover
+            
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions                                                                                                   
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions
             ####################################################################################################################################################################
             
             consider_previous_year_land_cover_fraction = True
-
+        
         # For spin-up runs or for runs that start after 1 January,
         # - we do not have to consider the previous year land cover fractions
         #
@@ -611,27 +559,26 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = one_january_this_year, \
                                                                                                                     get_only_fracVegCover = True)
-
+            
             ####################################################################################################################################################################
             # correcting land cover fractions
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
-
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover
+            
             if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].previousFracVegCover, 1.0)
             
             if 'short_natural' in list(self.landCoverObj.keys()):
                 self.landCoverObj['short_natural'].previousFracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['short_natural'].previousFracVegCover, 1.0)
-
+            
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].previousFracVegCover                                                                                                   
-
+                total_fractions += self.landCoverObj[coverType].previousFracVegCover
+            
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions                                                                                                   
-            ####################################################################################################################################################################
-        
+                self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].previousFracVegCover / total_fractions
+            #####################################################################################################################################################################
         
         # get initial conditions
         # - first, we set all aggregated states to zero (only the ones in mainStates): 
@@ -652,34 +599,34 @@ class LandSurface(object):
                 land_cover_states = vars(self.landCoverObj[coverType])[var]
                 vars(self)[var]  += land_cover_states * land_cover_fraction
 
+    # Move to waterUse.py ............................................................................................................................
+    #
     def waterDemandOptions(self,iniItems):
-
+        
         # domestic water demand (unit: m/day)
-        #
         self.domesticWaterDemandOption = False
         if iniItems.landSurfaceOptions['includeDomesticWaterDemand']  == "True":
             logger.info("Domestic water demand is included in the calculation.")
-            self.domesticWaterDemandOption = True  
+            self.domesticWaterDemandOption = True
         else:
             logger.info("Domestic water demand is NOT included in the calculation.")
-        #
+        
         if self.domesticWaterDemandOption:
             self.domesticWaterDemandFile = vos.getFullPath(\
              iniItems.landSurfaceOptions['domesticWaterDemandFile'],self.inputDir,False)
-
+        
         # industry water demand (unit: m/day)
-        #
         self.industryWaterDemandOption = False
         if iniItems.landSurfaceOptions['includeIndustryWaterDemand']  == "True":
             logger.info("Industry water demand is included in the calculation.")
             self.industryWaterDemandOption = True  
         else:
             logger.info("Industry water demand is NOT included in the calculation.")
-        #
+        
         if self.industryWaterDemandOption:
             self.industryWaterDemandFile = vos.getFullPath(\
              iniItems.landSurfaceOptions['industryWaterDemandFile'],self.inputDir,False)
-
+        
         # livestock water demand (unit: m/day)
         self.livestockWaterDemandOption = False
         if iniItems.landSurfaceOptions['includeLivestockWaterDemand']  == "True":
@@ -687,7 +634,7 @@ class LandSurface(object):
             self.livestockWaterDemandOption = True  
         else:
             logger.info("Livestock water demand is NOT included in the calculation.")
-        #
+        
         if self.livestockWaterDemandOption:
             self.livestockWaterDemandFile = vos.getFullPath(\
              iniItems.landSurfaceOptions['livestockWaterDemandFile'],self.inputDir,False)
@@ -697,23 +644,23 @@ class LandSurface(object):
         if iniItems.landSurfaceOptions['historicalIrrigationArea'] != "None":
             logger.info("Using the dynamicIrrigationArea option. Extent of irrigation areas is based on the file provided in the 'historicalIrrigationArea'.")
             self.dynamicIrrigationArea = True
-        #
+        
         if self.dynamicIrrigationArea:
             self.dynamicIrrigationAreaFile = vos.getFullPath(\
                iniItems.landSurfaceOptions['historicalIrrigationArea'],self.inputDir,False)
         
-        # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
+        # irrigation efficiency map (in percentage)             # TODO: Using the time series of efficiency (considering historical technological development)
         self.irrigationEfficiency = vos.readPCRmapClone(\
                                     iniItems.landSurfaceOptions['irrigationEfficiency'],
                                     self.cloneMap,self.tmpDir,self.inputDir)
-
+        
         extrapolate = True
-        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
-
+        if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+            extrapolate = False
+        
         if extrapolate:
-
              # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
-
+             
              window_size = 1.25 * pcr.clone().cellSize()
              window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
              try:
@@ -725,10 +672,9 @@ class LandSurface(object):
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
-             except:                                                 
+             except:
                  pass
         
-        #~ self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
         self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
@@ -739,52 +685,51 @@ class LandSurface(object):
             logger.info("Monthly desalination water is included.")
             self.includeDesalination = True
             self.desalinationWaterFile = vos.getFullPath(iniItems.landSurfaceOptions['desalinationWater'], self.inputDir)
-        else:    
+        else:
             logger.info("Monthly desalination water is NOT included.")
-
+        
         # zones at which water allocation (surface and groundwater allocation) is determined
         self.usingAllocSegments = False
         self.allocSegments = None
-        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater']  != "None":
-            self.usingAllocSegments = True 
+        if iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'] != "None":
+            self.usingAllocSegments = True
             
             self.allocSegments = vos.readPCRmapClone(\
-             iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
-             self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
+                                  iniItems.landSurfaceOptions['allocationSegmentsForGroundSurfaceWater'],
+                                  self.cloneMap,self.tmpDir,self.inputDir,isLddMap=False,cover=None,isNomMap=True)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
             self.allocSegments = pcr.clump(self.allocSegments)
             
+            # extrapolate values to cover landmask
             extrapolate = True
-            if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
-
+            if "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys() and iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True":
+                extrapolate = False
             if extrapolate:
-                # extrapolate it 
                 self.allocSegments = pcr.cover(self.allocSegments, \
                                                pcr.windowmajority(self.allocSegments, 0.5))
-
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
             cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
+            self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
-
+            
             # cell area (unit: m2)
             cellArea = vos.readPCRmapClone(\
               iniItems.routingOptions['cellAreaMap'],
               self.cloneMap,self.tmpDir,self.inputDir)
             cellArea = pcr.ifthen(self.landmask, cellArea)
-
+            
             # zonal/segment area (unit: m2)
             self.segmentArea = pcr.areatotal(pcr.cover(cellArea, 0.0), self.allocSegments)
             self.segmentArea = pcr.ifthen(self.landmask, self.segmentArea)
-
+        
         else:
-
             logger.info("If there is any, water demand is satisfied by local source only.")
-
+    #
+    #.................................................................................................................................................
 
     def scaleNaturalLandCoverFractions(self): 
         ''' rescales natural land cover fractions (make sure the total = 1)'''
@@ -913,6 +858,8 @@ class LandSurface(object):
         if abs(a) > threshold or abs(b) > threshold:
             logger.error("fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f" %(a,b,c)) 
 
+    # Move to waterUse.py ............................................................................................................................
+    #
     def obtainNonIrrWaterDemand(self,routing,currTimeStep):
         # get NON-Irrigation GROSS water demand and its return flow fraction
 
@@ -1047,6 +994,8 @@ class LandSurface(object):
         nonIrrigationWaterDemandDict['return_flow_fraction']['livestock'] = pcr.cover(pcr.min(1.0, pcr.roundup(self.livestockReturnFlowFraction*1000.)/1000.), 1.0)
         
         return nonIrrigationWaterDemandDict
+    #
+    #.................................................................................................................................................
 
     def calculateCapRiseFrac(self,groundwater,routing,currTimeStep):
         # calculate cell fraction influenced by capillary rise:
@@ -1116,8 +1065,7 @@ class LandSurface(object):
         
         # zero fracwat assumption used for debugging against version 1.0
         if routing.zeroFracWatAllAndAlways: FRACWAT = pcr.scalar(0.0)
-
-
+        
         CRFRAC = pcr.min(                                                                  1.0,1.0 -(self.soil_topo_parameters['default'].dzRel0100-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0100-self.soil_topo_parameters['default'].dzRel0090)       );
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0090,0.9 -(self.soil_topo_parameters['default'].dzRel0090-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0090-self.soil_topo_parameters['default'].dzRel0080),CRFRAC);
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0080,0.8 -(self.soil_topo_parameters['default'].dzRel0080-dzGroundwater)*0.1 /pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0080-self.soil_topo_parameters['default'].dzRel0070),CRFRAC);
@@ -1130,46 +1078,41 @@ class LandSurface(object):
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0010,0.1 -(self.soil_topo_parameters['default'].dzRel0010-dzGroundwater)*0.05/pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0010-self.soil_topo_parameters['default'].dzRel0005),CRFRAC);
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0005,0.05-(self.soil_topo_parameters['default'].dzRel0005-dzGroundwater)*0.04/pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0005-self.soil_topo_parameters['default'].dzRel0001),CRFRAC);
         CRFRAC = pcr.ifthenelse(dzGroundwater < self.soil_topo_parameters['default'].dzRel0001,0.01-(self.soil_topo_parameters['default'].dzRel0001-dzGroundwater)*0.01/pcr.max(0.001,self.soil_topo_parameters['default'].dzRel0001                                               ),CRFRAC);
-
-        #~ print(FRACWAT)
-        
         CRFRAC = pcr.ifthenelse(FRACWAT < 1.0,pcr.max(0.0,CRFRAC-FRACWAT)/(1.0-FRACWAT),0.0);
         
         capRiseFrac = pcr.max(0.0,pcr.min(1.0,CRFRAC))
         
-        #~ capRiseFrac = 0.0
-        
         return capRiseFrac
 
+    # Move to waterUse.py ............................................................................................................................
+    #
     def partitioningGroundSurfaceAbstraction(self,groundwater,routing):
-
         # partitioning abstraction sources: groundwater and surface water
-        # de Graaf et al., 2014 principle: partitioning based on local average baseflow (m3/s) and upstream average discharge (m3/s) 
+        # (de Graaf et al., 2014) partitioning based on local average baseflow (m3/s) and upstream average discharge (m3/s) 
         # - estimates of fractions of groundwater and surface water abstractions 
-        averageBaseflowInput = routing.avgBaseflow
+        averageBaseflowInput  = routing.avgBaseflow
         averageUpstreamInput = pcr.max(routing.avgDischarge, pcr.cover(pcr.upstream(routing.lddMap, routing.avgDischarge), 0.0))
         
         if self.usingAllocSegments:
-            
-            averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
+            averageBaseflowInput  = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
             averageUpstreamInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageUpstreamInput))
             
-            averageBaseflowInput = pcr.cover(pcr.areaaverage(averageBaseflowInput, self.allocSegments), 0.0)
+            averageBaseflowInput  = pcr.cover(pcr.areaaverage(averageBaseflowInput, self.allocSegments), 0.0)
             averageUpstreamInput = pcr.cover(pcr.areamaximum(averageUpstreamInput, self.allocSegments), 0.0)
-
+        
         else:
             logger.debug("Water demand can only be satisfied by local source.")
-
+        
         swAbstractionFraction = vos.getValDivZero(\
                                 averageUpstreamInput, 
                                 averageUpstreamInput+averageBaseflowInput, vos.smallNumber)
         swAbstractionFraction = pcr.roundup(swAbstractionFraction*100.)/100.
         swAbstractionFraction = pcr.max(0.0, swAbstractionFraction)
         swAbstractionFraction = pcr.min(1.0, swAbstractionFraction)
-
+        
         if self.usingAllocSegments:
             swAbstractionFraction = pcr.areamaximum(swAbstractionFraction, self.allocSegments)
-            
+        
         swAbstractionFraction = pcr.cover(swAbstractionFraction, 1.0)
         swAbstractionFraction = pcr.ifthen(self.landmask, swAbstractionFraction)
         
@@ -1191,7 +1134,6 @@ class LandSurface(object):
         #   Principle: Areas with swAbstractionFractionDict['irrigation'] above this treshold will not extract fossil groundwater.
         swAbstractionFractionDict['treshold_to_minimize_fossil_groundwater_irrigation'] = self.treshold_to_minimize_fossil_groundwater_irrigation
         
-
         # the default value of surface water source fraction is None or not defined (in this case, this value will be the 'estimate' and limited with 'max_for_non_irrigation')
         swAbstractionFractionDict['non_irrigation'] = None       
 
@@ -1212,13 +1154,15 @@ class LandSurface(object):
                 swAbstractionFractionDict['non_irrigation'] = pcr.min(\
                                   swAbstractionFractionDict['non_irrigation'], \
                                   swAbstractionFractionDict['max_for_non_irrigation'])                                              
-
-        else:    
-
+        else:
             logger.debug('NOT using/incorporating the predefined fractions of surface water source.')
-
+        
         return swAbstractionFractionDict
+    #
+    #.................................................................................................................................................
 
+    # Move to waterUse.py ............................................................................................................................
+    #
     def partitioningGroundSurfaceAbstractionForIrrigation(self,\
                                                           swAbstractionFractionEstimate,\
                                                           swAbstractionFractionData,\
@@ -1237,10 +1181,11 @@ class LandSurface(object):
         swAbstractionFractionForIrrigation = pcr.ifthen(self.landmask, swAbstractionFractionForIrrigation)
         
         return swAbstractionFractionForIrrigation                  
+    #
+    #.................................................................................................................................................
 
     def scaleDynamicIrrigation(self,yearInInteger):
         # This method is to update fracVegCover of landCover for historical irrigation areas (done at yearly basis).
-        
         
         #~ # Available datasets are only from 1960 to 2010 (status on 24 September 2010)
         #~ yearInInteger = int(yearInInteger)
@@ -1252,7 +1197,6 @@ class LandSurface(object):
         # TODO: Generally, I do not need the aforementioned lines as I have defined the functions "findLastYearInNCTime" and "findFirstYearInNCTime" in the module virtualOS.py
         #       However, Niko still need them for his DA scheme as we somehow his DA scheme cannot handle the netcdf file of historical irrigation areas (and therefore we have to use pcraster map files). 
         
-
         yearInString   = str(yearInInteger) 
         
         # read historical irrigation areas  
@@ -1284,60 +1228,51 @@ class LandSurface(object):
                 self.landCoverObj[coverType].fractionArea = 0.0    # reset 
                 self.landCoverObj[coverType].fractionArea = self.landCoverObj[coverType].irrTypeFracOverIrr * self.irrigationArea # unit: m2
                 self.landCoverObj[coverType].fracVegCover = pcr.min(1.0, self.landCoverObj[coverType].fractionArea/ self.cellArea) 
-
+                
                 # avoid small values
                 self.landCoverObj[coverType].fracVegCover = pcr.rounddown(self.landCoverObj[coverType].fracVegCover * 1000.)/1000.
 
         # rescale land cover fractions (for all land cover types):
         self.scaleModifiedLandCoverFractions()
-        
+
+
+
+
+
+
+
     def update(self,meteo,groundwater,routing,currTimeStep):
-        
-        # updating any information related to water quality
-        self.wq_state = {}
-        if self.consider_water_quality:
-            # converting .nc files to .map per timestep
-            self.wq_state["sw_temperature"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileSWT, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
-            self.wq_state["bio_o2_demand"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileBOD, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
-            self.wq_state["tot_dis_solid"]  = vos.netcdf2PCRobjClone(ncFile=self.inputFileTDS, varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
-            self.wq_state["fecal_coliform"] = vos.netcdf2PCRobjClone(ncFile=self.inputFileFC , varName="automatic", dateInput=currTimeStep.fulldate, useDoy="daily", cloneMapFileName=self.cloneMap)
-            
-            # filling nans with zero values
-            self.wq_state["sw_temperature"] = pcr.cover(self.wq_state["sw_temperature"],0.0)
-            self.wq_state["bio_o2_demand"]  = pcr.cover(self.wq_state["bio_o2_demand"], 0.0)
-            self.wq_state["tot_dis_solid"]  = pcr.cover(self.wq_state["tot_dis_solid"], 0.0)
-            self.wq_state["fecal_coliform"] = pcr.cover(self.wq_state["fecal_coliform"],0.0)
         
         # updating regional groundwater abstraction limit (at the begining of the year or at the beginning of simulation)
         if groundwater.limitRegionalAnnualGroundwaterAbstraction:
-
             logger.debug('Total groundwater abstraction is limited by regional annual pumping capacity.')
-            if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             
+            if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
                 self.groundwater_pumping_region_ids = \
                      vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
                          currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)
                 other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
                 self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
                 self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
-
+                
                 self.regionalAnnualGroundwaterAbstractionLimit = \
                      pcr.ifthen(self.landmask,\
                      pcr.cover(\
                      vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'regional_pumping_limit',\
                          currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap), 0.0))
-            
-                self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit, self.groundwater_pumping_region_ids)
-            
+                
+                self.regionalAnnualGroundwaterAbstractionLimit = pcr.areamaximum(self.regionalAnnualGroundwaterAbstractionLimit,\
+                                                                                 self.groundwater_pumping_region_ids)
+                
                 self.regionalAnnualGroundwaterAbstractionLimit *= 1000. * 1000. * 1000. # unit: m3/year
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.ifthen(self.landmask,\
                                                                          self.regionalAnnualGroundwaterAbstractionLimit)
                 # minimum value (unit: m3/year at the regional scale)
                 minimum_value = 1000.
                 self.regionalAnnualGroundwaterAbstractionLimit  = pcr.max(minimum_value,\
-                                                                  self.regionalAnnualGroundwaterAbstractionLimit)                                                         
+                                                                  self.regionalAnnualGroundwaterAbstractionLimit)
+        
         else:
-            
             logger.debug('Total groundwater abstraction is NOT limited by regional annual pumping capacity.')
             self.groundwater_pumping_region_ids = None
             self.regionalAnnualGroundwaterAbstractionLimit = None
@@ -1351,12 +1286,12 @@ class LandSurface(object):
             
             # scale land cover fraction (due to expansion/reduction of irrigated areas)
             self.scaleDynamicIrrigation(currTimeStep.year)
-
-            ####################################################################################################################################################################
+            
+            ##################################################################################################################################################
             # correcting land cover fractions
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+                total_fractions += self.landCoverObj[coverType].fracVegCover
             
             if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
@@ -1366,13 +1301,12 @@ class LandSurface(object):
             
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+                total_fractions += self.landCoverObj[coverType].fracVegCover
             
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
-            ####################################################################################################################################################################
-
-
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions
+            ##################################################################################################################################################
+        
         # read land cover fractions from netcdf files
         # - assumption: annual resolution
         if self.noAnnualChangesInLandCoverParameter == False and self.dynamicIrrigationArea == False and \
@@ -1380,14 +1314,15 @@ class LandSurface(object):
             msg = 'Read land cover fractions based on the given netcdf file.'
             logger.debug(msg)
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(date_in_string = str(currTimeStep.fulldate), \
-                                                                                                                   get_only_fracVegCover = True)
-
-            ####################################################################################################################################################################
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].get_land_cover_parameters(\
+                                                                                                             date_in_string = str(currTimeStep.fulldate),\
+                                                                                                             get_only_fracVegCover = True)
+            
+            ##################################################################################################################################################
             # correcting land cover fractions
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+                total_fractions += self.landCoverObj[coverType].fracVegCover
             
             if 'grassland' in list(self.landCoverObj.keys()):
                 self.landCoverObj['grassland'].fracVegCover = pcr.ifthenelse(total_fractions > 0.1, self.landCoverObj['grassland'].fracVegCover, 1.0)
@@ -1397,25 +1332,23 @@ class LandSurface(object):
             
             total_fractions = pcr.scalar(0.0)
             for coverType in self.coverTypes:
-                total_fractions += self.landCoverObj[coverType].fracVegCover                                                                                                   
+                total_fractions += self.landCoverObj[coverType].fracVegCover
             
             for coverType in self.coverTypes:
-                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions                                                                                                   
-            ####################################################################################################################################################################
-
-
+                self.landCoverObj[coverType].fracVegCover = self.landCoverObj[coverType].fracVegCover / total_fractions
+            ##################################################################################################################################################
+        
         # transfer some states, due to changes/dynamics in land cover conditions
         # - if considering dynamic/historical irrigation areas (expansion/reduction of irrigated areas)
         # - done at yearly basis, at the beginning of each year
         # - note that this must be done at the beginning of each year, including for the first time step (timeStepPCR == 1)
-        #
+        
         if ((self.dynamicIrrigationArea and self.includeIrrigation) or self.noAnnualChangesInLandCoverParameter == False) and currTimeStep.doy == 1:
             #
             # loop for all main states:
             for var in self.mainStates:
-                
                 logger.info("Transfering states for the variable "+str(var))
-
+                
                 moving_fraction = pcr.scalar(0.0)                       # total land cover fractions that will be transferred
                 moving_states   = pcr.scalar(0.0)                       # total states that will be transferred
                 
@@ -1426,7 +1359,7 @@ class LandSurface(object):
                     
                     moving_fraction += pcr.max(0.0, old_fraction-new_fraction)
                     moving_states   += pcr.max(0.0, old_fraction-new_fraction) * vars(self.landCoverObj[coverType])[var]
-
+                
                 previous_state = pcr.scalar(0.0)
                 rescaled_state = pcr.scalar(0.0)
                 
@@ -1449,10 +1382,10 @@ class LandSurface(object):
                     new_states   = pcr.ifthenelse(new_fraction > 0.0, new_states, pcr.scalar(0.0))
                     
                     vars(self.landCoverObj[coverType])[var] = new_states
-
+                    
                     previous_state += old_fraction * old_states
                     rescaled_state += new_fraction * new_states
-            
+                
                 # check and make sure that previous_state == rescaled_state
                 check_map = previous_state - rescaled_state
                 a,b,c = vos.getMinMaxMean(check_map)
@@ -1461,24 +1394,24 @@ class LandSurface(object):
                     logger.warning("Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
                 else:     
                     logger.info("Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f" %(a,b,c))
-
+        
         # for the last day of the year, we have to save the previous land cover fractions (to be considered in the next time step) 
-        if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:     
+        if self.dynamicIrrigationArea and self.includeIrrigation and currTimeStep.isLastDayOfYear:
             # save the current state of fracVegCover
             for coverType in self.coverTypes:\
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
-                
+        
         #- RvB: irrigation water efficiency
         # added here are the lines required to read in the water efficiency
         # irrigation water efficiency is updated at the start of the year and 
         if self.includeIrrigation and (currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1):
-                    logger.info("Setting irrigation water efficiency")
-                    for coverType in self.coverTypes:
-                        self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
-                
+            logger.info("Setting irrigation water efficiency")
+            for coverType in self.coverTypes:
+                self.landCoverObj[coverType].updateIrrigationWaterEfficiency(currTimeStep)
+        
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater,routing,currTimeStep)
-            
+        
         # get a dictionary containing livestock, domestic and industrial water demand, including their return flow fractions
         self.nonIrrigationWaterDemandDict = self.obtainNonIrrWaterDemand(routing, currTimeStep)
         
@@ -1495,35 +1428,57 @@ class LandSurface(object):
                      vos.netcdf2PCRobjClone(self.desalinationWaterFile,'desalination_water_use',\
                          currTimeStep.fulldate, useDoy = 'monthly', cloneMapFileName = self.cloneMap), 0.0))
                 self.desalinationWaterUse = pcr.max(0.0, desalinationWaterUse)
-        else:    
+        else:
             logger.debug("Monthly desalination water use is NOT included.")
             self.desalinationWaterUse = pcr.scalar(0.0)
         
-        # update (loop per each land cover type):
+        
+        
+        
+        
+        
+        
+        
+       # update/calculate water use
+       # - non irrigation demand (no loop over land cover types needed)
+       # self.non_irrigation_demand = pcr.scalar(0.0)
+       
+       # # - irrigation demand (loop over cover types, but irrigation only
+       # for coverType in self.coverTypes: (but irrigation only):
+           # self.irr_water_demand.calculateIrrigationDemand(meteo, groundwater, routing)
+            
+        
+        
+        # update/calculate hydrological processes (loop per each land cover type):
         for coverType in self.coverTypes:
-            
             logger.info("Updating land cover: "+str(coverType))
-            self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,\
-                                                  self.capRiseFrac,\
-                                                  self.nonIrrigationWaterDemandDict,\
-                                                  self.swAbstractionFractionDict,\
-                                                  currTimeStep,\
-                                                  self.allocSegments,\
-                                                  self.desalinationWaterUse,\
-                                                  self.groundwater_pumping_region_ids,self.regionalAnnualGroundwaterAbstractionLimit,\
-                                                  self.wq_state, self.wq_threshold, self.consider_water_quality)
-            # TODO: Please organize how we will deal with water quality problems (e.g. self.inputBOD)                                     
-            
-        # first, we set all aggregated values/variables to zero: 
+            self.landCoverObj[coverType].updateLC(meteo,groundwater,routing,
+                                                  self.capRiseFrac,
+                                                  self.nonIrrigationWaterDemandDict,
+                                                  self.swAbstractionFractionDict,
+                                                  currTimeStep,
+                                                  self.allocSegments,
+                                                  self.desalinationWaterUse,
+                                                  self.groundwater_pumping_region_ids,
+                                                  self.regionalAnnualGroundwaterAbstractionLimit)
+        
+        
+        
+        
+        
+        
+        
+        
+        # first, we set all aggregated values/variables to zero:
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
-        #
+        
         # get or calculate the values of all aggregated values/variables
         for coverType in self.coverTypes:
-            # calculate the aggregrated or global landSurface values: 
+            # calculate the aggregrated or global landSurface values:
             for var in self.aggrVars:
                 vars(self)[var] += \
                      self.landCoverObj[coverType].fracVegCover * vars(self.landCoverObj[coverType])[var]
-                     
+        
         # total storages (unit: m3) in the entire landSurface module
         if self.numberOfSoilLayers == 2: self.totalSto = \
                         self.snowCoverSWE + self.snowFreeWater + self.interceptStor +\
@@ -1537,11 +1492,10 @@ class LandSurface(object):
                         self.storUpp000005 + self.storUpp005030 +\
                         self.storLow030150
 
-        # old-style reporting (this is useful for debugging)                            
+        # old-style reporting (this is useful for debugging)
         self.old_style_land_surface_reporting(currTimeStep)
 
     def old_style_land_surface_reporting(self,currTimeStep):
-
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
