@@ -8,11 +8,11 @@ Please also see the file README.txt.
 
 Main reference/paper: Sutanudjaja, E. H., van Beek, R., Wanders, N., Wada, Y., Bosmans, J. H. C., Drost, N., van der Ent, R. J., de Graaf, I. E. M., Hoch, J. M., de Jong, K., Karssenberg, D., López López, P., Peßenteiner, S., Schmitz, O., Straatsma, M. W., Vannametee, E., Wisser, D., and Bierkens, M. F. P.: PCR-GLOBWB 2: a 5 arcmin global hydrological and water resources model, Geosci. Model Dev., 11, 2429-2453, https://doi.org/10.5194/gmd-11-2429-2018, 2018.
 
-## Input and output files (including OPeNDAP-based access)
+## Input and output files (including OPeNDAP-based access: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/catalog.html)
 
-PCR-GLOBWB input and output files for the runs made in Sutanudjaja et al. (2018, https://doi.org/10.5194/gmd-11-2429-2018) are available on https://geo.data.uu.nl/research-pcrglobwb/pcr-globwb_gmd_paper_sutanudjaja_et_al_2018/. For requesting access, please send an e-mail to E.H.Sutanudjaja@uu.nl.
+The input files for the runs made in the aformentioned paper (Sutanudjaja et al., 2018) are available on the OPeNDAP server: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/version_2019_11_beta/pcrglobwb2_input/catalog.html. The OPeNDAP protocol (https://www.opendap.org) allow users to access PCR-GLOBWB input files from the remote server and perform PCR-GLOBWB runs **without** the need to download the input files (with total size ~250 GB for the global extent).
 
-The input files (and some output files) are also available on the OPeNDAP server: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/catalog.html. The OPeNDAP protocol (https://www.opendap.org) allow users to access PCR-GLOBWB input files from the remote server and perform PCR-GLOBWB runs **without** the need to download the input files (with total size ~250 GB for the global extent).
+Some output files are also provided: https://opendap.4tu.nl/thredds/catalog/data2/pcrglobwb/version_2019_11_beta/example_output/global_05min_gmd_paper_output/catalog.html. More output files are available on https://geo.data.uu.nl/research-pcrglobwb/pcr-globwb_gmd_paper_sutanudjaja_et_al_2018/ (for requesting access, please send an e-mail to E.H.Sutanudjaja@uu.nl).
 
 ## How to install
 
@@ -59,6 +59,6 @@ Please make sure that the correct conda environment in a command prompt:
 `conda activate pcrglobwb_python3`
 
 
-## Exercise
+## Exercises/cooking recipes 
 
-We have exercise/cooking recipes for running PCR-GLOBWB. You can find these documents in the folder [exercise](exercise) folder within this repository. While these exercises were originally designed for our computing facilities (velocity and eejit servers), they should be adaptable for use on other computing machines.
+We included some exercise/cooking recipes for running PCR-GLOBWB. You can find these documents in the folder [exercise](exercise) within this repository. While these exercises were generally designed for our own computing facilities (e.g. velocity and eejit servers), they should be adaptable for use on other computing machines.
