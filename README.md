@@ -58,8 +58,7 @@ Please make sure that the correct conda environment in a command prompt:
 
 `conda activate pcrglobwb_python3`
 
-Go to to the PCR-GLOBWB *model* directory. You can start a PCR-GLOBWB run using the following command: 
 
-`python deterministic_runner.py <ini_configuration_file>`
+## Exercise
 
-where <ini_configuration_file> is the configuration file of PCR-GLOBWB. 
+We have exercise/cooking recipes for running PCR-GLOBWB. You can find these documents in the folder [exercise](exercise) folder within this repository. While these exercises were originally designed for our computing facilities (velocity and eejit servers), they should be adaptable for use on other computing machines.
