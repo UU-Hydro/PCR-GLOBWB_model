@@ -1374,10 +1374,22 @@ class Reporting(object):
         # Qsm = snowmelt (kg m-2 s-1)
         self.ulyssesQsm      =    self._model.landSurface.snowMelt / 86.4
         
-        # SM: total volumetric of soil moisture (%) - THIS IS WRONG # TODO: FIX THIS
-        self.ulyssesSM       =    self._model.landSurface.satDegTotal
-        self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
-        self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
+        # SM: theta = total volumetric of soil moisture (m3) 
+        # - theta = theta_res + degree_of_saturation * (theta_sat  theta_res)  
+        # - Note for this version, we assume soil properties are the same for all land cover types. Also, now they are valid only for two layers. TODO: Make the following calculations more flexible.  
+        # -- upper soil moisture layer
+        theta_sat_upp = self._model.landSurface.soil_topo_parameters['default'].satVolMoistContUpp
+        theta_res_upp = self._model.landSurface.soil_topo_parameters['default'].resVolMoistContUpp
+        self.ulyssesSMUpp = theta_res_upp + self._model.landSurface.satDegUppTotal * (theta_sat_upp - theta_res_upp) 
+        # -- low soil moisture layer
+        theta_sat_low = self._model.landSurface.soil_topo_parameters['default'].satVolMoistContLow
+        theta_res_low = self._model.landSurface.soil_topo_parameters['default'].resVolMoistContLow
+        self.ulyssesSMLow = theta_res_low + self._model.landSurface.satDegLowTotal * (theta_sat_low - theta_res_low)
+        # -- entire moisture layer
+        thickness_upp = self._model.landSurface.soil_topo_parameters['default'].thickUpp
+        thickness_low = self._model.landSurface.soil_topo_parameters['default'].thickLow
+        self.ulyssesSM = (self.ulyssesSMUpp * thickness_upp + self.ulyssesSMLow * thickness_low) / (thickness_upp + thickness_low)
+
 
         # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
