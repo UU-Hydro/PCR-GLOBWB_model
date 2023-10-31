@@ -1386,8 +1386,8 @@ class Reporting(object):
         theta_res_low = self._model.landSurface.soil_topo_parameters['default'].resVolMoistContLow
         self.ulyssesSMLow = theta_res_low + self._model.landSurface.satDegLowTotal * (theta_sat_low - theta_res_low)
         # -- entire moisture layer
-        thickness_upp = self._model.landSurface.soil_topo_parameters['default'].firstStorDepth
-        thickness_low = self._model.landSurface.soil_topo_parameters['default'].secondStorDepth
+        thickness_upp = self._model.landSurface.soil_topo_parameters['default'].thickUpp
+        thickness_low = self._model.landSurface.soil_topo_parameters['default'].thickLow
         self.ulyssesSM = (self.ulyssesSMUpp * thickness_upp + self.ulyssesSMLow * thickness_low) / (thickness_upp + thickness_low)
 
 
