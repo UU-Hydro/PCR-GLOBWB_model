@@ -1186,7 +1186,10 @@ class Routing(object):
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
         #
         self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
-                                pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
+                                pcr.ifthen(self.WaterBodies.waterBodyOut, self.discharge))
+        self.disChanWaterBody = pcr.cover(self.disChanWaterBody, 0.0)
+        self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
+                                pcr.areamaximum(self.disChanWaterBody,self.WaterBodies.waterBodyIds))
         self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
         self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
         #
@@ -1628,7 +1631,10 @@ class Routing(object):
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
         #
         self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
-                                pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
+                                pcr.ifthen(self.WaterBodies.waterBodyOut, self.discharge))
+        self.disChanWaterBody = pcr.cover(self.disChanWaterBody, 0.0)
+        self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
+                                pcr.areamaximum(self.disChanWaterBody,self.WaterBodies.waterBodyIds))
         self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
         self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
         #
@@ -1903,7 +1909,10 @@ class Routing(object):
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
         #
         self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
-                                pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
+                                pcr.ifthen(self.WaterBodies.waterBodyOut, self.discharge))
+        self.disChanWaterBody = pcr.cover(self.disChanWaterBody, 0.0)
+        self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
+                                pcr.areamaximum(self.disChanWaterBody,self.WaterBodies.waterBodyIds))
         self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
         self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
         #
@@ -2164,7 +2173,10 @@ class Routing(object):
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
         #
         self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
-                                pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
+                                pcr.ifthen(self.WaterBodies.waterBodyOut, self.discharge))
+        self.disChanWaterBody = pcr.cover(self.disChanWaterBody, 0.0)
+        self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
+                                pcr.areamaximum(self.disChanWaterBody,self.WaterBodies.waterBodyIds))
         self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
         self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
         #
