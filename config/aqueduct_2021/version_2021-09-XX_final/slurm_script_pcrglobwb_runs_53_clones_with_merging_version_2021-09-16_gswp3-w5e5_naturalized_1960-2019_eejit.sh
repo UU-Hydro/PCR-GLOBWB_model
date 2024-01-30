@@ -64,7 +64,7 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/UU-Hydro/PCR-GLOBWB_model/model/
 
 
 # load the conda enviroment on eejit
-. load /eejit/home/sutan101/load_anaconda_and_my_default_env.sh
+. /eejit/home/sutan101/load_anaconda_and_my_default_env.sh
 
 
 # unset pcraster working threads 
@@ -82,11 +82,11 @@ pwd
 
 # run the model for all clones, from 1 to 53
 
-# - for testing
-for i in {2..2}
+#~ # - for testing
+#~ for i in {2..2}
 
-#~ # - loop through all clones
-#~ for i in {1..53}
+# - loop through all clones
+for i in {1..53}
 
 do
 
