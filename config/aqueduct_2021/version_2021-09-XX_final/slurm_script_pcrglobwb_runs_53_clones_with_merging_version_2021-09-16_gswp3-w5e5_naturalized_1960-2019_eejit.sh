@@ -70,6 +70,8 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/UU-Hydro/PCR-GLOBWB_model/model/
 # unset pcraster working threads 
 unset PCRASTER_NR_WORKER_THREADS
 
+# - you may have to activate the following
+export OPENBLAS_NUM_THREADS=1
 
 # test pcraster
 pcrcalc
