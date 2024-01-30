@@ -48,7 +48,7 @@ TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_v
 
 
 # initial conditions
-MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_aqueduct/version_2021-09-16/"
+MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_aqueduct/version_2021-09-16/initial_conditions/"
 DATE_FOR_INITIAL_STATES="2019-12-31"
 # - PS: for continuing runs (including the transition from the historical to SSP runs), plese use the output files from the previous period model runs.
 
