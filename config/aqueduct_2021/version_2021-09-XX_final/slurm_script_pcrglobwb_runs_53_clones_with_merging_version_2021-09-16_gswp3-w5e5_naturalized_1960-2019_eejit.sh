@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 128
+#SBATCH -n 96
 
 #~ #SBATCH -t 240:00:00
 
