@@ -6,7 +6,7 @@
 
 #~ #SBATCH -p defq
 
-#SBATCH -J natr-pgb
+#SBATCH -J natr-pgb_continue_from_1965
 
 #~ #SBATCH --exclusive
 
@@ -27,12 +27,12 @@ INI_FILE=${INI_FOLDER}/"setup_05min_historical_version_2021-09-16_naturalized_no
 
 
 # starting and end dates
-STARTING_DATE="1960-01-01"
+STARTING_DATE="1965-01-01"
 END_DATE="2019-12-31"
 
 
 # location/folder, where you will store output files of your 
-MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/begin_from_1960/"
+MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/"
 
 
 # meteorological forcing files
@@ -48,15 +48,18 @@ TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_v
 
 
 # initial conditions
-MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_aqueduct/version_2021-09-16/initial_conditions/"
-DATE_FOR_INITIAL_STATES="2019-12-31"
+#~ MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/data/pcrglobwb_input_aqueduct/version_2021-09-16/initial_conditions/"
+#~ DATE_FOR_INITIAL_STATES="2019-12-31"
 # - PS: for continuing runs (including the transition from the historical to SSP runs), plese use the output files from the previous period model runs.
+
+MAIN_INITIAL_STATE_FOLDER="/scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/begin_from_1960/global/states/"
+DATE_FOR_INITIAL_STATES="1964-12-31"
 
 
 # number of spinup years
-NUMBER_OF_SPINUP_YEARS="25"
-#~ # - PS: For continuing runs, please set it to zero
-#~ NUMBER_OF_SPINUP_YEARS="0"
+#~ NUMBER_OF_SPINUP_YEARS="25"
+# - PS: For continuing runs, please set it to zero
+NUMBER_OF_SPINUP_YEARS="0"
 
 
 # location of your pcrglobwb model scripts
@@ -65,6 +68,9 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/github/UU-Hydro/PCR-GLOBWB_model/model/
 
 # load the conda enviroment on eejit
 . /eejit/home/sutan101/load_anaconda_and_my_default_env.sh
+
+# - using the old conda environment (to test whether pcraster 4.3.0 is faster than 4.4.1)
+conda activate /quanta1/home/sutan101/opt/miniconda3/envs/pcrglobwb_python3
 
 
 # unset pcraster working threads 
