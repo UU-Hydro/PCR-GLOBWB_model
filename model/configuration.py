@@ -186,10 +186,16 @@ class Configuration(object):
         # file name for debug log 
         dbg_filename = self.logFileDir + os.path.basename(self.iniFileName) + '_' +  str(self._timestamp.isoformat()).replace(":",".") + '.dbg'
 
+        # log level based on ini/configuration file:
+        log_level_debug_file = "DEBUG"
+        if "log_level_debug_file" in list(self.globalOptions.keys()):
+            log_level_debug_file = self.globalOptions['log_level_debug_file']        
+
         # create handler, add to root logger
         debug_handler = logging.FileHandler(dbg_filename)
         debug_handler.setFormatter(formatter)
-        debug_handler.setLevel(logging.DEBUG)
+        # ~ debug_handler.setLevel(logging.DEBUG)
+        debug_handler.setLevel(log_level_debug_file)
         logging.getLogger().addHandler(debug_handler)
 
         # print disclaimer
