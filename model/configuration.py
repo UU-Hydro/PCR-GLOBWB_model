@@ -313,7 +313,7 @@ class Configuration(object):
                            
         for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
         # ~ for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
-            print(filename)
+            # ~ print(filename)
             shutil.copy(filename, self.scriptDir)
         # TODO: Fix this copying (it does not include subfolders)   
         
