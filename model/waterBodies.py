@@ -397,9 +397,11 @@ class WaterBodies(object):
                            length_of_time_step = vos.secondsPerDay(),\
                            downstreamDemand = None):
 
-        if self.debugWaterBalance:\
-           preStorage = self.waterBodyStorage    # unit: m
+        # ~ if self.debugWaterBalance:\
+           # ~ preStorage = self.waterBodyStorage    # unit: m
      
+        preStorage = self.waterBodyStorage    # unit: m
+        
         self.timestepsToAvgDischarge = timestepsToAvgDischarge          # TODO: include this one in "currTimeStep"     
         
         # obtain inflow (and update storage)
@@ -416,17 +418,17 @@ class WaterBodies(object):
              length_of_time_step,\
              downstreamDemand)
         
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([          pcr.cover(self.inflow/self.waterBodyArea,0.0)],\
-                                  [pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)],\
-                                  [           pcr.cover(preStorage/self.waterBodyArea,0.0)],\
-                                  [pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0)],\
-                                    'WaterBodyStorage (unit: m)',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=5e-3)
-		    
-            self.waterBodyBalance = (pcr.cover(self.inflow/self.waterBodyArea, 0.0) - pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)) -\
-                                    (pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0) - pcr.cover(preStorage/self.waterBodyArea,0.0))
+        if self.debugWaterBalance:\
+           vos.waterBalanceCheck([          pcr.cover(self.inflow/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)],\
+                                 [           pcr.cover(preStorage/self.waterBodyArea,0.0)],\
+                                 [pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0)],\
+                                   'WaterBodyStorage (unit: m)',\
+                                  True,\
+                                  currTimeStep.fulldate,threshold=5e-3)
+        
+        self.waterBodyBalance = (pcr.cover(self.inflow/self.waterBodyArea, 0.0) - pcr.cover(self.waterBodyOutflow/self.waterBodyArea,0.0)) -\
+                                (pcr.cover(self.waterBodyStorage/self.waterBodyArea,0.0) - pcr.cover(preStorage/self.waterBodyArea,0.0))
                                   
 
     def moveFromChannelToWaterBody(self,\
