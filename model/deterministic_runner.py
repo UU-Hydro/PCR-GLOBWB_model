@@ -164,4 +164,5 @@ def main():
 if __name__ == '__main__':
     # print disclaimer
     disclaimer.print_disclaimer(with_logger = True)
+    print("\n\n\n End of calculation. \n\n\n")
     sys.exit(main())
