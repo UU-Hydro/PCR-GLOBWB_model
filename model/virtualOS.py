@@ -228,77 +228,17 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
 
     # convert to PCR object and close f 
     if specificFillValue != None:
-        regridData = regridData2FinerGrid(factor, cropData, float(specificFillValue))
-        
-        if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-            xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-            yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-            lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-            latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-            lonsRegrid += 0.5 * cellsizeClone
-            latsRegrid -= 0.5 * cellsizeClone
-            
-            # crop to cloneMap:
-            lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-            latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-            xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-            xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-            yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-            yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-            
-            regridData = regridData[..., yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-        
         outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(specificFillValue)), \
                   float(specificFillValue))
     else:
         try:
-            regridData = regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue))
-        
-            if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-                xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-                yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-                lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-                latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-                lonsRegrid += 0.5 * cellsizeClone
-                latsRegrid -= 0.5 * cellsizeClone
-                
-                # crop to cloneMap:
-                lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-                latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-                xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-                xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-                yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-                yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-                
-                regridData = regridData[..., yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-        
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue)), \
                   float(f.variables[varName]._FillValue))
         except:
-            regridData = regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value))
-            
-            if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-                xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-                yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-                lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-                latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-                lonsRegrid += 0.5 * cellsizeClone
-                latsRegrid -= 0.5 * cellsizeClone
-                
-                # crop to cloneMap:
-                lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-                latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-                xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-                xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-                yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-                yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-                
-                regridData = regridData[..., yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-            
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value)), \
                   float(f.variables[varName].missing_value))
 
     #~ # debug:
@@ -911,79 +851,17 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
 
     # convert to PCR object and close f 
     if specificFillValue != None:
-        regridData = regridData2FinerGrid(factor, cropData, float(specificFillValue))
-        
-        if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-            xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-            yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-            lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-            latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-            lonsRegrid += 0.5 * cellsizeClone
-            latsRegrid -= 0.5 * cellsizeClone
-            
-            # crop to cloneMap:
-            lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-            latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-            xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-            xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-            yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-            yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-            
-            regridData = regridData[yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-        
         outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(specificFillValue)), \
                   float(specificFillValue))
     else:
         try:
-            
-            regridData = regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue))
-
-            if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-                xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-                yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-                lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-                latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-                lonsRegrid += 0.5 * cellsizeClone
-                latsRegrid -= 0.5 * cellsizeClone
-                
-                # crop to cloneMap:
-                lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-                latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-                xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-                xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-                yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-                yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-                
-                regridData = regridData[..., yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-            
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue)), \
                   float(f.variables[varName]._FillValue))
         except:
-            
-            regridData = regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value))
-            
-            if regridData.shape[-1] != colsClone or regridData.shape[-2] != rowsClone:
-                xULRegrid = f.variables['lon'][:][xIdxSta] - 0.5 * cellsizeInput
-                yULRegrid = f.variables['lat'][:][yIdxSta] + 0.5 * cellsizeInput
-                lonsRegrid = xULRegrid + np.arange(0, colsInput * factor) * cellsizeClone
-                latsRegrid = yULRegrid - np.arange(0, rowsInput * factor) * cellsizeClone
-                lonsRegrid += 0.5 * cellsizeClone
-                latsRegrid -= 0.5 * cellsizeClone
-                
-                # crop to cloneMap:
-                lonDiffRegrid = abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-                latDiffRegrid = abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-                xIdxSta = int(np.where(lonDiffRegrid == min(lonDiffRegrid))[0])
-                xIdxEnd = int(math.ceil(xIdxSta + colsClone))
-                yIdxSta = int(np.where(latDiffRegrid == min(latDiffRegrid))[0])
-                yIdxEnd = int(math.ceil(yIdxSta + rowsClone))
-                
-                regridData = regridData[..., yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-            
             outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData, \
+                  regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value)), \
                   float(f.variables[varName].missing_value))
 
     #~ pcr.aguila(outPCR)
