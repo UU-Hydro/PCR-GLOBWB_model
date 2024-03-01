@@ -78,6 +78,13 @@ class Groundwater(object):
 
         self.useMODFLOW = False
         if iniItems.groundwaterOptions['useMODFLOW'] == "True": self.useMODFLOW = True
+        
+        
+        # option to use "non_linear_gw_reservoir_without_average" (non linear groundwater reservoir without considering average storGroundwater)
+        # - default is False
+        self.non_linear_gw_reservoir_without_average = False
+        if "non_linear_gw_reservoir_without_average" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["non_linear_gw_reservoir_without_average"] == "True":
+            self.non_linear_gw_reservoir_without_average = True
 
         
         # exponent in baseflow reservoir formula (default is one)
@@ -752,8 +759,11 @@ class Groundwater(object):
 
         
         # groundwater discharge (baseflow) - unit: m.day
-        # - baseflow = (1/J)*<S3>*(S3/<S3>)^gamma
-        baseflow = self.recessionCoeff * self.avgStorGroundwater * ((vos.getValDivZero(self.storGroundwater, self.avgStorGroundwater))**self.baseflow_exponent)
+        if self.non_linear_gw_reservoir_without_average:
+            baseflow = self.recessionCoeff * (self.storGroundwater**self.baseflow_exponent)
+        else:
+            # - baseflow = (1/J)*<S3>*(S3/<S3>)^gamma
+            baseflow = self.recessionCoeff * self.avgStorGroundwater * ((vos.getValDivZero(self.storGroundwater, self.avgStorGroundwater))**self.baseflow_exponent)
         # - use linear reservoir if avgStorGroundwater < 5 mm
         baseflow = pcr.ifthenelse(self.avgStorGroundwater < 0.005, self.recessionCoeff * self.storGroundwater, baseflow)
         #
