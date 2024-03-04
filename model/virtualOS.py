@@ -170,8 +170,6 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         colsClone = attributeClone['cols']
         xULClone = attributeClone['xUL']
         yULClone = attributeClone['yUL']
-        xLRClone = xULClone + colsClone * cellsizeClone
-        yLRClone = yULClone - rowsClone * cellsizeClone
         # get the attributes of input (netCDF) 
         cellsizeInput = f.variables['lat'][0]- f.variables['lat'][1]
         cellsizeInput = float(cellsizeInput)
@@ -179,8 +177,6 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         colsInput = len(f.variables['lon'])
         xULInput = f.variables['lon'][0]-0.5*cellsizeInput
         yULInput = f.variables['lat'][0]+0.5*cellsizeInput
-        xLRInput = xULInput + colsInput * cellsizeInput
-        yLRInput = yULInput - rowsInput * cellsizeInput
         # check whether both maps have the same attributes 
         if cellsizeClone != cellsizeInput: sameClone = False
         if rowsClone != rowsInput: sameClone = False
@@ -189,64 +185,41 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         if yULClone != yULInput: sameClone = False
 
     cropData = f.variables[varName][:,:]       # still original data
-        
-    cellsizeCrop = cellsizeInput
-    colsCrop = cropData.shape[1]
-    rowsCrop = cropData.shape[0]
-    xULCrop = xULInput
-    yULCrop = yULInput
-    xLRCrop = xULCrop + colsCrop * cellsizeCrop 
-    yLRCrop = yULCrop - rowsCrop * cellsizeCrop
     factor = 1                                 # needed in regridData2FinerGrid
-    
     if sameClone == False:
-        if xULInput > xULClone or xLRInput < xLRClone or yULInput < yULClone or yLRInput > yLRClone:
-            raise ValueError(f'The input map (lat {yULInput} : {yLRInput} - lon {xULInput} : {xLRInput}) does not cover the clone map (lat {yULClone} : {yLRClone} - lon {xULClone} : {xLRClone})')
-        
-        # Check if input cellsize is smaller than the clone cellsize
-        if cellsizeInput - cellsizeClone < -cellsizeClone * 1e-2:
-            raise ValueError(f'The input map cell size ({cellsizeInput}) is smaller than the clone map cell size ({cellsizeClone}). This is not supported.')
-        
-        factor = float(cellsizeInput)/float(cellsizeClone)
-        
-        # Check if factor is not clearly a multiple of the clone cell size
-        if abs(factor - round(factor)) > 1e-2:
-            raise ValueError(f'The input map cell size ({cellsizeInput}) is not a multiple of the clone map cell size ({cellsizeClone}). This is not supported.')
-        
-        factor = int(round(factor))
 
-        lats = f.variables["lat"][:]
-        lons = f.variables["lon"][:]
-        if factor == 1:
-            # If cellsize is equal, make sure to take the exact cell
-            latDiff = np.abs(lats - (yULClone - 0.5 * cellsizeClone))
-            yIdxSta = np.argmin(latDiff)
-            latDiff = np.abs(lats - (yLRClone + 0.5 * cellsizeClone))
-            yIdxEnd = np.argmin(latDiff)
-            lonDiff = np.abs(lons - (xULClone + 0.5 * cellsizeClone))
-            xIdxSta = np.argmin(lonDiff)
-            lonDiff = np.abs(lons - (xLRClone - 0.5 * cellsizeClone))
-            xIdxEnd = np.argmin(lonDiff)
-        
-        else:
-             # If cellsize is not equal, make sure to take the outer cells
-            latDiff = np.abs(lats - yULClone)
-            yIdxSta = np.where(latDiff == np.min(latDiff))[0][0] # Take the first (top-most) index
-            latDiff = np.abs(lats - yLRClone)
-            yIdxEnd = np.where(latDiff == np.min(latDiff))[0][-1] # Take the last (bottom-most) index
-            lonDiff = np.abs(lons - xULClone)
-            xIdxSta = np.where(lonDiff == np.min(lonDiff))[0][0] # Take the first (left-most) index
-            lonDiff = np.abs(lons - xLRClone)
-            xIdxEnd = np.where(lonDiff == np.min(lonDiff))[0][-1] # Take the last (right-most) index
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
 
-        cropData = f.variables[varName][yIdxSta:yIdxEnd + 1 ,xIdxSta:xIdxEnd + 1]
+        # crop to cloneMap:
+        minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
 
-        colsCrop = cropData.shape[1]
-        rowsCrop = cropData.shape[0]
-        xULCrop = lons[xIdxSta] - 0.5 * cellsizeCrop
-        yULCrop = lats[yIdxSta] + 0.5 * cellsizeCrop
-        xLRCrop = xULCrop + colsCrop * cellsizeCrop 
-        yLRCrop = yULCrop - rowsCrop * cellsizeCrop
+        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
+
+        #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+
+        #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
+        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
+
+        minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
+
+        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
+
+        #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+
+        #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
+        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
+
+        xULCrop = f.variables['lon'][xIdxSta]-0.5*cellsizeInput
+        yULCrop = f.variables['lat'][yIdxSta]+0.5*cellsizeInput
+        if abs(xULClone - xULCrop) > cellsizeClone * 1e-2 or abs(yULClone - yULCrop) > cellsizeClone * 1e-2:
+            logger.error(f'The the cropped input data corner (XUIL: {xULCrop} - yUL: {yULCrop} - cellsize {cellsizeInput}) does not align with the clone map  (XUIL: {xULClone} - yUL: {yULClone} - cellsize {cellsizeClone}). ' +
+                         'This usually occurs if the clone-map does not align with the input data. ' +
+                         'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
+
+
+        cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
     
@@ -260,51 +233,25 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         #~ outPCR = pcr.numpy2pcr(pcr.Scalar, \
                   #~ regridData2FinerGrid(factor,cropData,MV), \
                   #~ float(f.variables[varName]._FillValue))
-                  
+
+    # convert to PCR object and close f 
     if specificFillValue != None:
-        fillvalue = float(specificFillValue)
+        fillValue = float(specificFillValue)
     else:
         try:
-            fillvalue = float(f.variables[varName]._FillValue)
+            fillValue = float(f.variables[varName]._FillValue)
         except:
-            fillvalue = float(f.variables[varName].missing_value)
-    regridData = regridData2FinerGrid(factor, cropData, fillvalue)
-
-    cellsizeRegrid = cellsizeClone
-    rowsRegrid = regridData.shape[0]
-    colsRegrid = regridData.shape[1]
-    xULRegrid = xULCrop
-    yULRegrid = yULCrop
-    xLRRegrid = xULRegrid + colsRegrid * cellsizeRegrid
-    yLRRegrid = yULRegrid - rowsRegrid * cellsizeRegrid
+            fillValue = float(f.variables[varName].missing_value)
+            
+    regridData = regridData2FinerGrid(factor, cropData, fillValue)
+    if regridData.shape[0] % factor != 0 or regridData.shape[1] % factor != 0:
+        logger.error(f'The the regridded input data shape ({regridData.shape}) does not align with the clone map shape (rows: {rowsClone} - cols: {colsClone}). ' +
+                        'This usually occurs if the clone-map does not align with the input data. ' +
+                        'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
     
-    if rowsRegrid != rowsClone or colsRegrid != colsClone:
-        lonsRegrid = xULRegrid + np.arange(colsRegrid) * cellsizeRegrid + 0.5 * cellsizeRegrid
-        latsRegrid = yULRegrid - np.arange(rowsRegrid) * cellsizeRegrid - 0.5 * cellsizeRegrid
-        
-        latDiffRegrid = np.abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-        yIdxStaRegrid = np.argmin(latDiffRegrid)
-        latDiffRegrid = np.abs(latsRegrid - (yLRClone + 0.5 * cellsizeClone))
-        yIdxEndRegrid = np.argmin(latDiffRegrid)
-        lonDiffRegrid = np.abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-        xIdxStaRegrid = np.argmin(lonDiffRegrid)
-        lonDiffRegrid = np.abs(lonsRegrid - (xLRClone - 0.5 * cellsizeClone))
-        xIdxEndRegrid = np.argmin(lonDiffRegrid)
-        
-        regridData = regridData[yIdxStaRegrid:yIdxEndRegrid + 1, xIdxStaRegrid:xIdxEndRegrid + 1]        
-        
-        colsRegrid = regridData.shape[1]
-        rowsRegrid = regridData.shape[0]
-        xULRegrid = lonsRegrid[xIdxStaRegrid] - 0.5 * cellsizeRegrid
-        yULRegrid = latsRegrid[yIdxStaRegrid] + 0.5 * cellsizeRegrid
-        xLRRegrid = xULRegrid + colsRegrid * cellsizeRegrid 
-        yLRRegrid = yULRegrid - rowsRegrid * cellsizeRegrid
-        
-    logger.debug(f'clone bounds: lon {xULClone} : {xLRClone} - lat {yULClone} : {yLRClone}')
-    logger.debug(f'crop bounds: lon {xULCrop} : {xLRCrop} - lat {yULCrop} : {yLRCrop}')
-    logger.debug(f'regrid bounds: lon {xULRegrid} : {xLRRegrid} - lat {yULRegrid} : {yLRRegrid}')
-    
-    outPCR = pcr.numpy2pcr(pcr.Scalar, regridData, fillvalue)
+    outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                regridData, \
+                fillValue)
 
     #~ # debug:
     #~ pcr.report(outPCR,"tmp.map")
@@ -835,8 +782,6 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         colsClone = attributeClone['cols']
         xULClone = attributeClone['xUL']
         yULClone = attributeClone['yUL']
-        xLRClone = xULClone + colsClone * cellsizeClone
-        yLRClone = yULClone - rowsClone * cellsizeClone
         # get the attributes of input (netCDF) 
         cellsizeInput = f.variables['lat'][0]- f.variables['lat'][1]
         cellsizeInput = float(cellsizeInput)
@@ -844,8 +789,6 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         colsInput = len(f.variables['lon'])
         xULInput = f.variables['lon'][0]-0.5*cellsizeInput
         yULInput = f.variables['lat'][0]+0.5*cellsizeInput
-        xLRInput = xULInput + colsInput * cellsizeInput
-        yLRInput = yULInput - rowsInput * cellsizeInput
         # check whether both maps have the same attributes 
         if cellsizeClone != cellsizeInput: sameClone = False
         if rowsClone != rowsInput: sameClone = False
@@ -863,74 +806,54 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     else:
         # standard nc file
         cropData = f.variables[varName][int(idx),:,:]       # still original data
-        
-    cellsizeCrop = cellsizeInput
-    colsCrop = cropData.shape[1]
-    rowsCrop = cropData.shape[0]
-    xULCrop = xULInput
-    yULCrop = yULInput
-    xLRCrop = xULCrop + colsCrop * cellsizeCrop 
-    yLRCrop = yULCrop - rowsCrop * cellsizeCrop
-    factor = 1                                 # needed in regridData2FinerGrid
-    
-    if sameClone == False:
-        if xULInput > xULClone or xLRInput < xLRClone or yULInput < yULClone or yLRInput > yLRClone:
-            raise ValueError(f'The input map (lat {yULInput} : {yLRInput} - lon {xULInput} : {xLRInput}) does not cover the clone map (lat {yULClone} : {yLRClone} - lon {xULClone} : {xLRClone})')
-        
-        # Check if input cellsize is smaller than the clone cellsize
-        if cellsizeInput - cellsizeClone < -cellsizeClone * 1e-2:
-            raise ValueError(f'The input map cell size ({cellsizeInput}) is smaller than the clone map cell size ({cellsizeClone}). This is not supported.')
-        
-        factor = float(cellsizeInput)/float(cellsizeClone)
-        
-        # Check if factor is not clearly a multiple of the clone cell size
-        if abs(factor - round(factor)) > 1e-2:
-            raise ValueError(f'The input map cell size ({cellsizeInput}) is not a multiple of the clone map cell size ({cellsizeClone}). This is not supported.')
-        
-        factor = int(round(factor))
 
-        lats = f.variables["lat"][:]
-        lons = f.variables["lon"][:]
-        if factor == 1:
-            # If cellsize is equal, make sure to take the exact cell
-            latDiff = np.abs(lats - (yULClone - 0.5 * cellsizeClone))
-            yIdxSta = np.argmin(latDiff)
-            latDiff = np.abs(lats - (yLRClone + 0.5 * cellsizeClone))
-            yIdxEnd = np.argmin(latDiff)
-            lonDiff = np.abs(lons - (xULClone + 0.5 * cellsizeClone))
-            xIdxSta = np.argmin(lonDiff)
-            lonDiff = np.abs(lons - (xLRClone - 0.5 * cellsizeClone))
-            xIdxEnd = np.argmin(lonDiff)
-        
-        else:
-             # If cellsize is not equal, make sure to take the outer cells
-            latDiff = np.abs(lats - yULClone)
-            yIdxSta = np.where(latDiff == np.min(latDiff))[0][-1] # Take the last (bottom-most) index
-            latDiff = np.abs(lats - yLRClone)
-            yIdxEnd = np.where(latDiff == np.min(latDiff))[0][0] # Take the first (top-most) index
-            lonDiff = np.abs(lons - xULClone)
-            xIdxSta = np.where(lonDiff == np.min(lonDiff))[0][-1] # Take the last (right-most) index
-            lonDiff = np.abs(lons - xLRClone)
-            xIdxEnd = np.where(lonDiff == np.min(lonDiff))[0][0] # Take the first (left-most) index
-        
+
+    factor = 1                                 # needed in regridData2FinerGrid
+    if sameClone == False:
+
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
+
+        # crop to cloneMap:
+        minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
+
+        xIdxSta = int(np.argmin(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
+
+        #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+
+        #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
+        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
+
+        minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
+
+        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
+
+        #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
+        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+
+        #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
+        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
+
+        xULCrop = f.variables['lon'][xIdxSta]-0.5*cellsizeInput
+        yULCrop = f.variables['lat'][yIdxSta]+0.5*cellsizeInput
+        if abs(xULClone - xULCrop) > cellsizeClone * 1e-2 or abs(yULClone - yULCrop) > cellsizeClone * 1e-2:
+            logger.error(f'The the cropped input data corner (XUIL: {xULCrop} - yUL: {yULCrop} - cellsize {cellsizeInput}) does not align with the clone map  (XUIL: {xULClone} - yUL: {yULClone} - cellsize {cellsizeClone}). ' +
+                         'This usually occurs if the clone-map does not align with the input data. ' +
+                         'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
+
         # retrieve data from netCDF for slice
+
         if f.variables[varName].ndim == 4:
             # not standard NC format
             logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
             #-file with additional layer
-            cropData = f.variables[varName][int(idx),0,yIdxSta:yIdxEnd + 1,xIdxSta:xIdxEnd + 1]     # selection of original data
+            cropData = f.variables[varName][int(idx),0,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]     # selection of original data
         else:
             # standard nc file
-            cropData = f.variables[varName][int(idx),  yIdxSta:yIdxEnd + 1,xIdxSta:xIdxEnd + 1]       # selection of original data
+            cropData = f.variables[varName][int(idx),  yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]       # selection of original data
 
-        colsCrop = cropData.shape[1]
-        rowsCrop = cropData.shape[0]
-        xULCrop = lons[xIdxSta] - 0.5 * cellsizeCrop
-        yULCrop = lats[yIdxSta] + 0.5 * cellsizeCrop
-        xLRCrop = xULCrop + colsCrop * cellsizeCrop 
-        yLRCrop = yULCrop - rowsCrop * cellsizeCrop
-        
         # get resampling factor
+        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
 
@@ -944,50 +867,25 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
                   #~ regridData2FinerGrid(factor,cropData,MV), \
                   #~ float(f.variables[varName]._FillValue))
 
+
+    # convert to PCR object and close f 
     if specificFillValue != None:
-        fillvalue = float(specificFillValue)
+        fillValue = float(specificFillValue)
     else:
         try:
-            fillvalue = float(f.variables[varName]._FillValue)
+            fillValue = float(f.variables[varName]._FillValue)
         except:
-            fillvalue = float(f.variables[varName].missing_value)
-    regridData = regridData2FinerGrid(factor, cropData, fillvalue)
+            fillValue = float(f.variables[varName].missing_value)
+            
+    regridData = regridData2FinerGrid(factor, cropData, fillValue)
+    if regridData.shape[0] % factor != 0 or regridData.shape[1] % factor != 0:
+        logger.error(f'The the regridded input data shape ({regridData.shape}) does not align with the clone map shape (rows: {rowsClone} - cols: {colsClone}). ' +
+                        'This usually occurs if the clone-map does not align with the input data. ' +
+                        'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
     
-    cellsizeRegrid = cellsizeClone
-    rowsRegrid = regridData.shape[0]
-    colsRegrid = regridData.shape[1]
-    xULRegrid = xULCrop
-    yULRegrid = yULCrop
-    xLRRegrid = xULRegrid + colsRegrid * cellsizeRegrid
-    yLRRegrid = yULRegrid - rowsRegrid * cellsizeRegrid
-    
-    if rowsRegrid != rowsClone or colsRegrid != colsClone:
-        lonsRegrid = xULRegrid + np.arange(colsRegrid) * cellsizeRegrid + 0.5 * cellsizeRegrid
-        latsRegrid = yULRegrid - np.arange(rowsRegrid) * cellsizeRegrid - 0.5 * cellsizeRegrid
-        
-        latDiffRegrid = np.abs(latsRegrid - (yULClone - 0.5 * cellsizeClone))
-        yIdxStaRegrid = np.argmin(latDiffRegrid)
-        latDiffRegrid = np.abs(latsRegrid - (yLRClone + 0.5 * cellsizeClone))
-        yIdxEndRegrid = np.argmin(latDiffRegrid)
-        lonDiffRegrid = np.abs(lonsRegrid - (xULClone + 0.5 * cellsizeClone))
-        xIdxStaRegrid = np.argmin(lonDiffRegrid)
-        lonDiffRegrid = np.abs(lonsRegrid - (xLRClone - 0.5 * cellsizeClone))
-        xIdxEndRegrid = np.argmin(lonDiffRegrid)
-        
-        regridData = regridData[yIdxStaRegrid:yIdxEndRegrid + 1, xIdxStaRegrid:xIdxEndRegrid + 1]        
-        
-        colsRegrid = regridData.shape[1]
-        rowsRegrid = regridData.shape[0]
-        xULRegrid = lonsRegrid[xIdxStaRegrid] - 0.5 * cellsizeRegrid
-        yULRegrid = latsRegrid[yIdxStaRegrid] + 0.5 * cellsizeRegrid
-        xLRRegrid = xULRegrid + colsRegrid * cellsizeRegrid 
-        yLRRegrid = yULRegrid - rowsRegrid * cellsizeRegrid
-        
-    logger.debug(f'clone bounds: lon {xULClone} : {xLRClone} - lat {yULClone} : {yLRClone}')
-    logger.debug(f'crop bounds: lon {xULCrop} : {xLRCrop} - lat {yULCrop} : {yLRCrop}')
-    logger.debug(f'regrid bounds: lon {xULRegrid} : {xLRRegrid} - lat {yULRegrid} : {yLRRegrid}')
-    
-    outPCR = pcr.numpy2pcr(pcr.Scalar, regridData, fillvalue)
+    outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                regridData, \
+                fillValue)
 
     #~ pcr.aguila(outPCR)
     
