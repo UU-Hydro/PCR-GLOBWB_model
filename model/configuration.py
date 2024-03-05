@@ -75,11 +75,6 @@ class Configuration(object):
         self.continueFromPreviousRun = False
         if '-continue-previous' in system_arguments:
             self.continueFromPreviousRun = True
-            # statesFolder= Path(self.globalOptions['outputDir']) / 'states'
-            # # glob states folder for all waterStorage.map files
-            # file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
-            # dates = [datetime.datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
-            # self.continueStatesStart = max(dates)
             
             netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
             file_paths = list(netcdfFolder.glob('*daily*.nc'))
@@ -88,21 +83,11 @@ class Configuration(object):
                 if len(file_paths) == 0:
                     file_paths = list(netcdfFolder.glob('*year*.nc'))
             file_paths.sort()
-
-            # open the last file
             dataset = netCDF4.Dataset(file_paths[-1])
-
-            # read the 'time' variable
             time_var = dataset.variables['time']
-
-            # convert numbers to dates
             dates = netCDF4.num2date(time_var[:], time_var.units)
-
-            # get the last date
             self.continueFromPreviousRunNCdate = dates[-1]
-            # close the dataset
             dataset.close()
-            
             
         # added this option to be able to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False

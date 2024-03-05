@@ -194,8 +194,7 @@ class PCR2netCDF():
         rootgrp.close()
 
     def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
-        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: 
-            return
+        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: return
         
         rootgrp = nc.Dataset(ncFileName,'a')
 

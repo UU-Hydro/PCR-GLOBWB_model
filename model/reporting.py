@@ -395,7 +395,6 @@ class Reporting(object):
                                     self.outAnnuaEndNC +\
                                     self.outMonthMaxNC +\
                                     self.outDailyTotUpsAvgNC
-                                        
 
     def post_processing(self):
 

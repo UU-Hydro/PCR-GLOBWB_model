@@ -46,7 +46,6 @@ import disclaimer
 from pathlib import Path
 from datetime import datetime
 
-
 class DeterministicRunner(DynamicModel):
 
     def __init__(self, configuration, modelTime, initialState = None, system_argument = None, spinUpRun = False):
@@ -373,8 +372,8 @@ class DeterministicRunner(DynamicModel):
  
  
 def modify_ini_file(original_ini_file,
-                    system_argument,
-                    continueFromPreviousRun): 
+                    continueFromPreviousRun,
+                    system_argument): 
 
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
     
@@ -598,8 +597,8 @@ def main():
         continueFromPreviousRun = False
         if '-continue-previous' in sys.argv: continueFromPreviousRun = True
         iniFileName = modify_ini_file(original_ini_file = iniFileName, \
-                                      system_argument = sys.argv,
-                                      continueFromPreviousRun = continueFromPreviousRun)
+                                      continueFromPreviousRun = continueFromPreviousRun,
+                                      system_argument = sys.argv)
     
     # debug option
     debug_mode = False
