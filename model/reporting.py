@@ -76,7 +76,6 @@ class Reporting(object):
 
     def initiate_reporting(self):
         
-        # if self.configuration.continueFromPreviousRun == False:
         # output directory storing netcdf files:
         self.outNCDir  = str(self.configuration.outNCDir)
 
