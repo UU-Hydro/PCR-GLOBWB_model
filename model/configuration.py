@@ -62,7 +62,13 @@ class Configuration(object):
 
         # debug option
         self.debug_mode = debug_mode
-
+        
+        #continue from previous run 
+        self.continueFromPreviousRun = False
+        
+        if '-continueFromPreviousRun' in system_arguments:
+            self.continueFromPreviousRun = True
+            
         # save cwd for later use, it may be changed later by some util functions
         self._cwd = os.getcwd()
         
@@ -295,9 +301,10 @@ class Configuration(object):
         
         self.outNCDir = vos.getFullPath("netcdf/", \
                                          self.globalOptions['outputDir'])
-        if os.path.exists(self.outNCDir):
+        if os.path.exists(self.outNCDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.outNCDir)
-        os.makedirs(self.outNCDir)
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.outNCDir)
 
         # making backup for the python scripts used:
         self.scriptDir = vos.getFullPath("scripts/", \
@@ -320,25 +327,28 @@ class Configuration(object):
         # making log directory:
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
-        cleanLogDir = True
-        if os.path.exists(self.logFileDir) and cleanLogDir:
+        if os.path.exists(self.logFileDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.logFileDir)
-        os.makedirs(self.logFileDir)
+        
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.logFileDir)
 
         # making endStateDir directory:
         self.endStateDir = vos.getFullPath("states/", \
                                            self.globalOptions['outputDir'])
-        if os.path.exists(self.endStateDir):
+        if os.path.exists(self.endStateDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.endStateDir)
-        os.makedirs(self.endStateDir)
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.endStateDir)
 
         # making pcraster maps directory:
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
-        cleanMapDir = True
-        if os.path.exists(self.mapsDir) and cleanMapDir:
+        
+        if os.path.exists(self.mapsDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.mapsDir)
-        os.makedirs(self.mapsDir)
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
         os.chdir(self.mapsDir)
