@@ -317,7 +317,7 @@ class DeterministicRunner(DynamicModel):
         else:
             self.model.update(report_water_balance = True)
 		
-        # do any needed reporting for this time step        
+        # do any needed reporting for this time step
         self.reporting.report()
 
         # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow) 

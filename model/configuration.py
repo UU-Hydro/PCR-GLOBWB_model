@@ -34,6 +34,8 @@ import shutil
 import glob
 import subprocess
 import platform
+from pathlib import Path
+import netCDF4
 
 import logging
 logger = logging.getLogger(__name__)
@@ -63,18 +65,44 @@ class Configuration(object):
         # debug option
         self.debug_mode = debug_mode
         
-        #continue from previous run 
-        self.continueFromPreviousRun = False
-        
-        if '-continueFromPreviousRun' in system_arguments:
-            self.continueFromPreviousRun = True
-            
         # save cwd for later use, it may be changed later by some util functions
         self._cwd = os.getcwd()
         
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
 
+        #continue from previous run 
+        self.continueFromPreviousRun = False
+        if '-continueFromPreviousRun' in system_arguments:
+            self.continueFromPreviousRun = True
+            statesFolder= Path(self.globalOptions['outputDir']) / 'states'
+            # glob states folder for all waterStorage.map files
+            file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
+            dates = [datetime.datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
+            self.continueStatesStart = max(dates)
+            
+            netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
+            file_paths = list(netcdfFolder.glob('*daily*.nc'))
+            if len(file_paths) == 0:
+                file_paths = list(netcdfFolder.glob('*month*.nc'))
+                #get last written nectdf timestamp
+            file_paths.sort()
+
+            # open the last file
+            dataset = netCDF4.Dataset(file_paths[-1])
+
+            # read the 'time' variable
+            time_var = dataset.variables['time']
+
+            # convert numbers to dates
+            dates = netCDF4.num2date(time_var[:], time_var.units)
+
+            # get the last date
+            self.continueFromPreviousRunNCdate = dates[-1]
+            # close the dataset
+            dataset.close()
+            
+            
         # added this option to be able to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False
         if relative_ini_meteo_paths:

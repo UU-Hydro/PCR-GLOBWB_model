@@ -43,6 +43,7 @@ class PCR2netCDF():
     def __init__(self,iniItems,specificAttributeDictionary=None):
                 
         # cloneMap
+        self.iniItems = iniItems
         pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
         
@@ -174,40 +175,55 @@ class PCR2netCDF():
         rootgrp.close()
 
     def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt = None):
-
-        rootgrp = nc.Dataset(ncFileName,'a')
-
-        date_time = rootgrp.variables['time']
-        if posCnt == None: posCnt = len(date_time)
-        date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
-
-        # flip variable if necessary (to follow cf_convention)
-        if self.netcdf_y_orientation_follow_cf_convention: varField = np.flipud(varField)
         
-        rootgrp.variables[shortVarName][posCnt,:,:] = varField
-
-        rootgrp.sync()
-        rootgrp.close()
-
-    def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
-
-        rootgrp = nc.Dataset(ncFileName,'a')
-
-        date_time = rootgrp.variables['time']
-        if posCnt == None: posCnt = len(date_time)
-
-        for shortVarName in shortVarNameList:
+        writeData = False
+        if self.iniItems.continueFromPreviousRun == True: 
+            if timeStamp > self.iniItems.continueFromPreviousRunNCdate:
+                writeData = True
+        else:
+            writeData = True
             
+        if writeData == True:
+            rootgrp = nc.Dataset(ncFileName,'a')
+
+            date_time = rootgrp.variables['time']
+            if posCnt == None: posCnt = len(date_time)
             date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
-            varField = varFieldList[shortVarName]
-            
+
             # flip variable if necessary (to follow cf_convention)
             if self.netcdf_y_orientation_follow_cf_convention: varField = np.flipud(varField)
             
             rootgrp.variables[shortVarName][posCnt,:,:] = varField
 
-        rootgrp.sync()
-        rootgrp.close()
+            rootgrp.sync()
+            rootgrp.close()
+
+    def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
+        writeData = False
+        if self.iniItems.continueFromPreviousRun == True: 
+            if timeStamp > self.iniItems.continueFromPreviousRunNCdate:
+                writeData = True
+        else:
+            writeData = True
+            
+        if writeData == True:
+            rootgrp = nc.Dataset(ncFileName,'a')
+
+            date_time = rootgrp.variables['time']
+            if posCnt == None: posCnt = len(date_time)
+
+            for shortVarName in shortVarNameList:
+                
+                date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
+                varField = varFieldList[shortVarName]
+                
+                # flip variable if necessary (to follow cf_convention)
+                if self.netcdf_y_orientation_follow_cf_convention: varField = np.flipud(varField)
+                
+                rootgrp.variables[shortVarName][posCnt,:,:] = varField
+
+            rootgrp.sync()
+            rootgrp.close()
 
     def close(self, ncFileName):
 
