@@ -26,6 +26,7 @@ import os
 import sys
 import shutil
 import datetime
+import signal
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel
@@ -51,6 +52,23 @@ class DeterministicRunner(DynamicModel):
         self.modelTime = modelTime        
         self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
         self.reporting = Reporting(configuration, self.model, modelTime)
+        
+        if "-dump-signal" in system_argument and spinUpRun == False:
+            dump_signal = signal.SIGINT
+            
+            dump_signal_index = system_argument.index("-dump-signal") + 1
+            if dump_signal_index < len(system_argument):
+                argument_dump_signal = system_argument[system_argument.index("-dump-signal") + 1]
+                if not argument_dump_signal.startswith("-"):
+                    try:
+                        dump_signal = signal.Signals[argument_dump_signal]
+                    except KeyError:
+                        logger.error("Unknown signal name: " + argument_dump_signal)
+                        sys.exit(1)
+            
+            singal_handle = lambda signal_number, current_stack_frame: self.set_model_dump_and_exit()
+            signal.signal(dump_signal, singal_handle)
+            logger.info(f"Dump signal set to {dump_signal.name} ({dump_signal.value}). PCR-GLOBWB will dump its states when this signal is received.")
         
         # the model paramaters may be modified
         self.parameter_adjusment = False
@@ -367,6 +385,8 @@ class DeterministicRunner(DynamicModel):
         if status: self.count_check = 0            
         return status
  
+    def set_model_dump_and_exit(self) -> None:
+        self.model.dump_and_exit = True
  
 def modify_ini_file(original_ini_file,
                     system_argument): 
