@@ -547,14 +547,22 @@ def modify_ini_file(original_ini_file,
     statesFolder = main_output_dir + '/states'
     new_file_content = [] 
     for line in file_content:
-        if 'naturalVegetationAndRainFedCropsOptions' in line:
+        
+        if '[naturalVegetationAndRainFedCropsOptions]' in line:
             lcType = 'naturalVegetationAndRainFedCrops'
-        if 'irrPaddyOptions' in line:
+            
+        if '[irrPaddyOptions]' in line:
             lcType = 'irrPaddy'
 
-        if 'irrNonPaddyOptions' in line:
+        if '[irrPaddyOptions]' in line:
             lcType = 'irrNonPaddy'
             
+        if '[forestOptions]' in line:
+            lcType = 'forest'
+
+        if '[grasslandOptions]' in line:
+            lcType = 'grassland'
+
         if 'startTime' in line:
             statesFolder= Path(statesFolder)
             # glob states folder for all waterStorage.map files
@@ -576,6 +584,8 @@ def modify_ini_file(original_ini_file,
                 
             else:
                 line = f'{result} = {statesFolder}/{result[:-3]}_{latest_date}.map'
+        if 'maxSpinUpsInYears' in line and '=' in line:
+            line = 'maxSpinUpsInYears = 0'
             
         new_file_content.append(line) 
     

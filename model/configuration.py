@@ -77,11 +77,11 @@ class Configuration(object):
             self.continueFromPreviousRun = True
             
             netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
-            file_paths = list(netcdfFolder.glob('*daily*.nc'))
+            file_paths = list(netcdfFolder.glob('*year*.nc'))
             if len(file_paths) == 0:
                 file_paths = list(netcdfFolder.glob('*month*.nc'))
                 if len(file_paths) == 0:
-                    file_paths = list(netcdfFolder.glob('*year*.nc'))
+                    file_paths = list(netcdfFolder.glob('*daily*.nc'))
             file_paths.sort()
             dataset = netCDF4.Dataset(file_paths[-1])
             time_var = dataset.variables['time']
