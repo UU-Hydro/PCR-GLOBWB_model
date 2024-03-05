@@ -64,7 +64,7 @@ class Configuration(object):
 
         # debug option
         self.debug_mode = debug_mode
-        
+
         # save cwd for later use, it may be changed later by some util functions
         self._cwd = os.getcwd()
         
@@ -73,19 +73,20 @@ class Configuration(object):
 
         #continue from previous run 
         self.continueFromPreviousRun = False
-        if '-continueFromPreviousRun' in system_arguments:
+        if '-continue-previous' in system_arguments:
             self.continueFromPreviousRun = True
-            statesFolder= Path(self.globalOptions['outputDir']) / 'states'
-            # glob states folder for all waterStorage.map files
-            file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
-            dates = [datetime.datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
-            self.continueStatesStart = max(dates)
+            # statesFolder= Path(self.globalOptions['outputDir']) / 'states'
+            # # glob states folder for all waterStorage.map files
+            # file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
+            # dates = [datetime.datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
+            # self.continueStatesStart = max(dates)
             
             netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
             file_paths = list(netcdfFolder.glob('*daily*.nc'))
             if len(file_paths) == 0:
                 file_paths = list(netcdfFolder.glob('*month*.nc'))
-                #get last written nectdf timestamp
+                if len(file_paths) == 0:
+                    file_paths = list(netcdfFolder.glob('*year*.nc'))
             file_paths.sort()
 
             # open the last file
@@ -355,7 +356,8 @@ class Configuration(object):
         # making log directory:
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
-        if os.path.exists(self.logFileDir) and self.continueFromPreviousRun == False:
+        cleanLogDir = True
+        if os.path.exists(self.logFileDir) and cleanLogDir and self.continueFromPreviousRun == False:
             shutil.rmtree(self.logFileDir)
         
         if self.continueFromPreviousRun == False:
@@ -372,10 +374,10 @@ class Configuration(object):
         # making pcraster maps directory:
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
-        
-        if os.path.exists(self.mapsDir) and self.continueFromPreviousRun == False:
+        cleanMapDir = True
+        if os.path.exists(self.mapsDir) and cleanMapDir and self.continueFromPreviousRun == False: 
             shutil.rmtree(self.mapsDir)
-        if self.continueFromPreviousRun == False:
+        if self.continueFromPreviousRun == False: 
             os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
