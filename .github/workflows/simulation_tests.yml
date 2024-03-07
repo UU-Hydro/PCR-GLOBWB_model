@@ -19,4 +19,4 @@ jobs:
           auto-activate-base: false
       - name: Run PCR-GLOBWB
         run: |
-          sudo ./ci/run_model.sh ./ci/sample_data/configuration/30min/configuration_Po_30min.ini pcrglobwb_model
+          sudo bash ./ci/run_model.sh ./ci/sample_data/configuration/30min/configuration_Po_30min.ini pcrglobwb_model
