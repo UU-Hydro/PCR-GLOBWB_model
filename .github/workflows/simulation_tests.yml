@@ -1,0 +1,22 @@
+name: Simulation tests
+
+on: [pull_request]
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.head_ref }}
+      - name: Setup Conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: pcrglobwb_model
+          environment-file: conda_env/pcrglobwb_py3.yml
+          auto-activate-base: false
+      - name: Run PCR-GLOBWB
+        run: |
+          ./ci/run_model.sh ./ci/sample_data/configuration/30min/configuration_Po_30min.ini pcrglobwb_model
