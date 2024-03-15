@@ -19,10 +19,10 @@
 cd /eejit/home/sutan101/github/UU-Hydro/PCR-GLOBWB_model/model/
 
 # merging monthly total files
-python merge_netcdf_general.py /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/ /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/global/netcdf_1979-2019/ outMonthTotNC 1979-01-31 2019-12-31 referencePotET,gwRecharge,directRunoff,interflowTotal,baseflow,storGroundwater NETCDF4 True 8 53 all_lats &
+python merge_netcdf_general.py /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/ /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/global/netcdf_1979-2019/ outMonthTotNC 1979-01-31 2019-12-31 referencePotET,gwRecharge,directRunoff,interflowTotal,baseflow NETCDF4 True 8 53 all_lats &
 
 # merging monthly average files
-python merge_netcdf_general.py /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/ /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/global/netcdf_1979-2019/ outMonthAvgNC 1979-01-31 2019-12-31 channelStorage,discharge NETCDF4 True 8 53 all_lats &
+python merge_netcdf_general.py /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/ /scratch/depfg/sutan101/pcrglobwb_aqueduct_2021_naturalized/version_2021-09-16_naturalized/gswp3-w5e5/historical-reference/continue_from_1965/global/netcdf_1979-2019/ outMonthAvgNC 1979-01-31 2019-12-31 channelStorage,discharge,storGroundwater NETCDF4 True 8 53 all_lats &
 
 wait
 
