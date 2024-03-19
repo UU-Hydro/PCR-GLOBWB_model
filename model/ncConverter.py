@@ -43,6 +43,7 @@ class PCR2netCDF():
     def __init__(self,iniItems,specificAttributeDictionary=None):
                 
         # cloneMap
+        self.iniItems = iniItems
         pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
         
@@ -174,7 +175,10 @@ class PCR2netCDF():
         rootgrp.close()
 
     def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt = None):
-
+        
+        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: 
+            return
+            
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
@@ -190,7 +194,8 @@ class PCR2netCDF():
         rootgrp.close()
 
     def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
-
+        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: return
+        
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']

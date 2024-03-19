@@ -34,6 +34,8 @@ import shutil
 import glob
 import subprocess
 import platform
+from pathlib import Path
+import netCDF4
 
 import logging
 logger = logging.getLogger(__name__)
@@ -69,6 +71,24 @@ class Configuration(object):
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
 
+        #continue from previous run 
+        self.continueFromPreviousRun = False
+        if '-continue-previous' in system_arguments:
+            self.continueFromPreviousRun = True
+            
+            netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
+            file_paths = list(netcdfFolder.glob('*year*.nc'))
+            if len(file_paths) == 0:
+                file_paths = list(netcdfFolder.glob('*month*.nc'))
+                if len(file_paths) == 0:
+                    file_paths = list(netcdfFolder.glob('*daily*.nc'))
+            file_paths.sort()
+            dataset = netCDF4.Dataset(file_paths[-1])
+            time_var = dataset.variables['time']
+            dates = netCDF4.num2date(time_var[:], time_var.units)
+            self.continueFromPreviousRunNCdate = dates[-1]
+            dataset.close()
+            
         # added this option to be able to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False
         if relative_ini_meteo_paths:
@@ -295,9 +315,10 @@ class Configuration(object):
         
         self.outNCDir = vos.getFullPath("netcdf/", \
                                          self.globalOptions['outputDir'])
-        if os.path.exists(self.outNCDir):
+        if os.path.exists(self.outNCDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.outNCDir)
-        os.makedirs(self.outNCDir)
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.outNCDir)
 
         # making backup for the python scripts used:
         self.scriptDir = vos.getFullPath("scripts/", \
@@ -321,24 +342,28 @@ class Configuration(object):
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
         cleanLogDir = True
-        if os.path.exists(self.logFileDir) and cleanLogDir:
+        if os.path.exists(self.logFileDir) and cleanLogDir and self.continueFromPreviousRun == False:
             shutil.rmtree(self.logFileDir)
-        os.makedirs(self.logFileDir)
+        
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.logFileDir)
 
         # making endStateDir directory:
         self.endStateDir = vos.getFullPath("states/", \
                                            self.globalOptions['outputDir'])
-        if os.path.exists(self.endStateDir):
+        if os.path.exists(self.endStateDir) and self.continueFromPreviousRun == False:
             shutil.rmtree(self.endStateDir)
-        os.makedirs(self.endStateDir)
+        if self.continueFromPreviousRun == False:
+            os.makedirs(self.endStateDir)
 
         # making pcraster maps directory:
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
         cleanMapDir = True
-        if os.path.exists(self.mapsDir) and cleanMapDir:
+        if os.path.exists(self.mapsDir) and cleanMapDir and self.continueFromPreviousRun == False: 
             shutil.rmtree(self.mapsDir)
-        os.makedirs(self.mapsDir)
+        if self.continueFromPreviousRun == False: 
+            os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
         os.chdir(self.mapsDir)

@@ -27,6 +27,7 @@ import sys
 import shutil
 import datetime
 import signal
+from datetime import timedelta
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel
@@ -43,6 +44,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 import disclaimer
+from pathlib import Path
+from datetime import datetime
 
 class DeterministicRunner(DynamicModel):
 
@@ -389,6 +392,7 @@ class DeterministicRunner(DynamicModel):
         self.model.dump_and_exit = True
  
 def modify_ini_file(original_ini_file,
+                    continueFromPreviousRun,
                     system_argument): 
 
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
@@ -397,7 +401,7 @@ def modify_ini_file(original_ini_file,
     file_ini = open(original_ini_file, "rt")
     file_ini_content = file_ini.read()
     file_ini.close()
-    
+        
     # system argument for replacing outputDir (-mod) ; this is always required
     main_output_dir = system_argument[system_argument.index("-mod") + 1]
     file_ini_content = file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
@@ -533,19 +537,83 @@ def modify_ini_file(original_ini_file,
         output_folder_with_clone_code = "M%07i" %int(clone_code)
         folder_for_ini_files = os.path.join(main_output_dir, output_folder_with_clone_code, "ini_files") 
     
-   # create folder
-    if os.path.exists(folder_for_ini_files): shutil.rmtree(folder_for_ini_files)
-    os.makedirs(folder_for_ini_files)
-    
+    # create folder
+    if os.path.exists(folder_for_ini_files) and continueFromPreviousRun == False: shutil.rmtree(folder_for_ini_files)
+    if continueFromPreviousRun == False: os.makedirs(folder_for_ini_files)
+    if continueFromPreviousRun == True: os.makedirs(folder_for_ini_files, exist_ok=True)
     # save/copy the original ini file
-    shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
+    if continueFromPreviousRun == False: shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
     
+    if continueFromPreviousRun == False: 
+        # save the new ini file
+        new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
+        new_ini_file = open(new_ini_file_name, "w")
+        new_ini_file.write(file_ini_content)
+        new_ini_file.close()
+        return new_ini_file_name
+
+    temp_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_usedTemp")
+    temp_ini_file = open(temp_ini_file_name, "w")
+    temp_ini_file.write(file_ini_content)
+    temp_ini_file.close()
+
     # save the new ini file
-    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
+    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_usedCONTINUE")
     new_ini_file = open(new_ini_file_name, "w")
-    new_ini_file.write(file_ini_content)
-    new_ini_file.close()
+    
+    with open(temp_ini_file_name, "r") as file:
+        file_content = file.readlines()
+        
+    statesFolder = main_output_dir + '/states'
+    new_file_content = [] 
+    for line in file_content:
+        
+        if '[naturalVegetationAndRainFedCropsOptions]' in line:
+            lcType = 'naturalVegetationAndRainFedCrops'
             
+        if '[irrPaddyOptions]' in line:
+            lcType = 'irrPaddy'
+
+        if '[irrPaddyOptions]' in line:
+            lcType = 'irrNonPaddy'
+            
+        if '[forestOptions]' in line:
+            lcType = 'forest'
+
+        if '[grasslandOptions]' in line:
+            lcType = 'grassland'
+
+        if 'startTime' in line:
+            statesFolder= Path(statesFolder)
+            # glob states folder for all waterStorage.map files
+            file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
+            dates = [datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
+
+            latest_date = max(dates)
+            newStartDate = latest_date + timedelta(days=1)
+            latest_date = latest_date.strftime("%Y-%m-%d")
+            newStartDate = newStartDate.strftime("%Y-%m-%d")
+
+            line = f'startTime = {newStartDate}\n'
+        if 'Ini' in line and '=' in line:
+            
+            result = line.split()[0]
+            options = ['interceptStor', 'interflow', 'snowCoverSWE', 'snowFreeWater', 'storUpp', 'storLow', 'topWaterLayer']
+            if any(option in line for option in options):
+                line = f'{result} = {statesFolder}/{result[:-3]}_{lcType}_{latest_date}.map'
+                
+            else:
+                line = f'{result} = {statesFolder}/{result[:-3]}_{latest_date}.map'
+        if 'maxSpinUpsInYears' in line and '=' in line:
+            line = 'maxSpinUpsInYears = 0'
+            
+        new_file_content.append(line) 
+    
+    new_ini_file.write('\n'.join(new_file_content))
+    new_ini_file.close()
+    os.remove(temp_ini_file_name)
+    
+    
     return new_ini_file_name
 
 
@@ -556,7 +624,10 @@ def main():
     
     # modify ini file and return it in a new location 
     if "-mod" in sys.argv:
+        continueFromPreviousRun = False
+        if '-continue-previous' in sys.argv: continueFromPreviousRun = True
         iniFileName = modify_ini_file(original_ini_file = iniFileName, \
+                                      continueFromPreviousRun = continueFromPreviousRun,
                                       system_argument = sys.argv)
     
     # debug option
@@ -572,7 +643,8 @@ def main():
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
-                                  no_modification = False)      
+                                  no_modification = False,
+                                  system_arguments = sys.argv)      
 
     
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
