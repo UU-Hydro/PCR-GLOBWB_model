@@ -47,6 +47,13 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
+    @staticmethod
+    def getStateNames(numberOfSoilLayers: int):
+        return {'meteo': meteo.Meteo.getStateNames(),
+                'landSurface': landSurface.LandSurface.getStateNames(numberOfSoilLayers),
+                'groundwater': groundwater.Groundwater.getStateNames(),
+                'routing': routing.Routing.getStateNames()}
+    
     def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None):
         self._configuration = configuration
         self._modelTime = currTimeStep

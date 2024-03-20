@@ -38,6 +38,18 @@ from ncConverter import *
 
 class Groundwater(object):
 
+    @staticmethod
+    def getStateNames():
+        return ['storGroundwater', 
+                'storGroundwaterFossil', 
+                'avgTotalGroundwaterAbstraction', 
+                'avgTotalGroundwaterAllocationLong', 
+                'avgTotalGroundwaterAllocationShort', 
+                'avgNonFossilGroundwaterAllocationLong', 
+                'avgNonFossilGroundwaterAllocationShort', 
+                'avgStorGroundwater', 'relativeGroundwaterHead', 
+                'baseflow',]
+
     def getState(self):
         result = {}
         result['storGroundwater']                        = self.storGroundwater                # unit: m

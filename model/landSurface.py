@@ -36,6 +36,27 @@ import parameterSoilAndTopo as parSoilAndTopo
 
 class LandSurface(object):
     
+    @staticmethod
+    def getStateNames(numberOfSoilLayers: int):
+        result = []
+        if numberOfSoilLayers == 2:
+            result += ['interceptStor',
+                       'snowCoverSWE',
+                       'snowFreeWater',
+                       'topWaterLayer',
+                       'storUpp',
+                       'storLow',]
+        if numberOfSoilLayers == 3:
+            result += ['interceptStor',
+                       'snowCoverSWE',
+                       'snowFreeWater',
+                       'topWaterLayer',
+                       'storUpp000005',
+                       'storUpp005030',
+                       'storLow030150',]
+        return result
+        
+    
     def getState(self):
         result = {}
     

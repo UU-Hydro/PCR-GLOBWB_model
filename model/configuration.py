@@ -34,8 +34,6 @@ import shutil
 import glob
 import subprocess
 import platform
-from pathlib import Path
-import netCDF4
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,6 +47,7 @@ class Configuration(object):
     def __init__(self, iniFileName, \
                        debug_mode = False, \
                        no_modification = True, \
+                       continueFromPreviousRun: bool = False, \
                        system_arguments = None, \
                        relative_ini_meteo_paths = False):
         object.__init__(self)
@@ -62,6 +61,9 @@ class Configuration(object):
         # get the full path of iniFileName
         self.iniFileName = os.path.abspath(iniFileName)
 
+        # Continue from previous run
+        self.continueFromPreviousRun = continueFromPreviousRun
+
         # debug option
         self.debug_mode = debug_mode
 
@@ -71,24 +73,6 @@ class Configuration(object):
         # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
 
-        #continue from previous run 
-        self.continueFromPreviousRun = False
-        if '-continue-previous' in system_arguments:
-            self.continueFromPreviousRun = True
-            
-            netcdfFolder= Path(self.globalOptions['outputDir']) / 'netcdf'
-            file_paths = list(netcdfFolder.glob('*year*.nc'))
-            if len(file_paths) == 0:
-                file_paths = list(netcdfFolder.glob('*month*.nc'))
-                if len(file_paths) == 0:
-                    file_paths = list(netcdfFolder.glob('*daily*.nc'))
-            file_paths.sort()
-            dataset = netCDF4.Dataset(file_paths[-1])
-            time_var = dataset.variables['time']
-            dates = netCDF4.num2date(time_var[:], time_var.units)
-            self.continueFromPreviousRunNCdate = dates[-1]
-            dataset.close()
-            
         # added this option to be able to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False
         if relative_ini_meteo_paths:

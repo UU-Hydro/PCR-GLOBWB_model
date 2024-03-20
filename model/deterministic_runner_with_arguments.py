@@ -48,17 +48,11 @@ from pathlib import Path
 from datetime import datetime
 
 class DeterministicRunner(DynamicModel):
-
-    def __init__(self, configuration, modelTime, initialState = None, system_argument = None, spinUpRun = False):
-        DynamicModel.__init__(self)
-
-        self.modelTime = modelTime        
-        self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
-        self.reporting = Reporting(configuration, self.model, modelTime)
+    
+    def determine_dump_signal(self, system_argument: list) -> signal.Signals:
+        dump_signal = signal.SIGUSR1 # Default dump signal is SIGUSR1
         
-        if "-dump-signal" in system_argument and spinUpRun == False:
-            dump_signal = signal.SIGINT
-            
+        if "-dump-signal" in system_argument:
             dump_signal_index = system_argument.index("-dump-signal") + 1
             if dump_signal_index < len(system_argument):
                 argument_dump_signal = system_argument[system_argument.index("-dump-signal") + 1]
@@ -68,9 +62,19 @@ class DeterministicRunner(DynamicModel):
                     except KeyError:
                         logger.error("Unknown signal name: " + argument_dump_signal)
                         sys.exit(1)
-            
-            singal_handle = lambda signal_number, current_stack_frame: self.set_model_dump_and_exit()
-            signal.signal(dump_signal, singal_handle)
+        return dump_signal
+
+    def __init__(self, configuration, modelTime, initialState = None, system_argument = None, spinUpRun = False):
+        DynamicModel.__init__(self)
+
+        self.modelTime = modelTime        
+        self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
+        self.reporting = Reporting(configuration, self.model, modelTime)
+        
+        if "-dump-signal" in system_argument and spinUpRun == False:
+            dump_signal = self.determine_dump_signal(system_argument)
+            signal_handle = lambda signal_number, current_stack_frame: self.set_model_dump_and_exit()
+            signal.signal(dump_signal, signal_handle)
             logger.info(f"Dump signal set to {dump_signal.name} ({dump_signal.value}). PCR-GLOBWB will dump its states when this signal is received.")
         
         # the model paramaters may be modified
@@ -401,7 +405,7 @@ def modify_ini_file(original_ini_file,
     file_ini = open(original_ini_file, "rt")
     file_ini_content = file_ini.read()
     file_ini.close()
-        
+    
     # system argument for replacing outputDir (-mod) ; this is always required
     main_output_dir = system_argument[system_argument.index("-mod") + 1]
     file_ini_content = file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
@@ -537,86 +541,89 @@ def modify_ini_file(original_ini_file,
         output_folder_with_clone_code = "M%07i" %int(clone_code)
         folder_for_ini_files = os.path.join(main_output_dir, output_folder_with_clone_code, "ini_files") 
     
-    # create folder
-    if os.path.exists(folder_for_ini_files) and continueFromPreviousRun == False: shutil.rmtree(folder_for_ini_files)
-    if continueFromPreviousRun == False: os.makedirs(folder_for_ini_files)
-    if continueFromPreviousRun == True: os.makedirs(folder_for_ini_files, exist_ok=True)
+   # create folder
+    if os.path.exists(folder_for_ini_files): shutil.rmtree(folder_for_ini_files)
+    os.makedirs(folder_for_ini_files)
+    
     # save/copy the original ini file
-    if continueFromPreviousRun == False: shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
+    shutil.copy(original_ini_file, os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".original"))
     
-    if continueFromPreviousRun == False: 
-        # save the new ini file
-        new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
-        new_ini_file = open(new_ini_file_name, "w")
-        new_ini_file.write(file_ini_content)
-        new_ini_file.close()
-        return new_ini_file_name
-
-    temp_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_usedTemp")
-    temp_ini_file = open(temp_ini_file_name, "w")
-    temp_ini_file.write(file_ini_content)
-    temp_ini_file.close()
-
     # save the new ini file
-    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_usedCONTINUE")
+    new_ini_file_name = os.path.join(folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used")
     new_ini_file = open(new_ini_file_name, "w")
-    
-    with open(temp_ini_file_name, "r") as file:
-        file_content = file.readlines()
-        
-    statesFolder = main_output_dir + '/states'
-    new_file_content = [] 
-    for line in file_content:
-        
-        if '[naturalVegetationAndRainFedCropsOptions]' in line:
-            lcType = 'naturalVegetationAndRainFedCrops'
-            
-        if '[irrPaddyOptions]' in line:
-            lcType = 'irrPaddy'
-
-        if '[irrPaddyOptions]' in line:
-            lcType = 'irrNonPaddy'
-            
-        if '[forestOptions]' in line:
-            lcType = 'forest'
-
-        if '[grasslandOptions]' in line:
-            lcType = 'grassland'
-
-        if 'startTime' in line:
-            statesFolder= Path(statesFolder)
-            # glob states folder for all waterStorage.map files
-            file_paths = list(statesFolder.glob('waterBodyStorage_*.map'))
-            dates = [datetime.strptime(os.path.basename(path).split('_')[-1].split('.')[0], "%Y-%m-%d") for path in file_paths]
-
-            latest_date = max(dates)
-            newStartDate = latest_date + timedelta(days=1)
-            latest_date = latest_date.strftime("%Y-%m-%d")
-            newStartDate = newStartDate.strftime("%Y-%m-%d")
-
-            line = f'startTime = {newStartDate}\n'
-        if 'Ini' in line and '=' in line:
-            
-            result = line.split()[0]
-            options = ['interceptStor', 'interflow', 'snowCoverSWE', 'snowFreeWater', 'storUpp', 'storLow', 'topWaterLayer']
-            if any(option in line for option in options):
-                line = f'{result} = {statesFolder}/{result[:-3]}_{lcType}_{latest_date}.map'
-                
-            else:
-                line = f'{result} = {statesFolder}/{result[:-3]}_{latest_date}.map'
-        if 'maxSpinUpsInYears' in line and '=' in line:
-            line = 'maxSpinUpsInYears = 0'
-            
-        new_file_content.append(line) 
-    
-    new_ini_file.write('\n'.join(new_file_content))
+    new_ini_file.write(file_ini_content)
     new_ini_file.close()
-    os.remove(temp_ini_file_name)
-    
-    
+            
     return new_ini_file_name
 
+def find_continue_date(configuration) -> datetime:
+    state_files = [f for f in configuration.endStateDir if f.endswith('.map')]
+    if len(state_files) == 0:
+        return None
+    
+    # NOTE: the following assumes that all state files are present for the same date
+    # This may be incorrect if the model failed during the writing of the state files
+    # TODO: check if the state files are consistent
+    state_dates = [f.stem.split("_")[-1] for f in state_files]
+    state_dates = [datetime.strptime(d, "%Y-%m-%d") for d in state_dates]
+    
+    # Select the final state date as the continue date
+    # Except for cases where yearly or monthly outputs are required
+    # In those cases, the continue date is the last date of the last year or month
+    continue_date = max(state_dates)
+    
+    requires_annual_output = False
+    requires_monthly_output = False
+    for variable in configuration.reportingOptions:
+        if 'outAnnua' in variable:
+            requires_annual_output = True
+        if 'outMonth' in variable:
+            requires_monthly_output = True
+    
+    if requires_annual_output:
+        continue_date = datetime(continue_date.year, 1, 1)
+        if continue_date not in state_dates:
+            return None
+    elif requires_monthly_output:
+        continue_date = datetime(continue_date.year, continue_date.month, 1)
+        if continue_date not in state_dates:
+            return None
+    
+    return continue_date
 
+def load_continue_state_files(configuration) -> dict:
+    continue_date = configuration.globalOptions['startTime']
+    numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
+    component_state_names = PCRGlobWB.getStateNames(numberOfSoilLayers=numberOfSoilLayers)
+    
+    landcover_types = []
+    for section in configuration.allSections:
+        if 'naturalVegetationAndRainFedCrops' in section or 'irrPaddy' in section or 'irrNonPaddy' in section or 'forest' in section or 'grassland' in section:
+            landcover_types.append(section.split('Options')[0])
+    
+    states = {}
+    for component, state_names in component_state_names.items():
+        component_states = {}
+        
+        if component != 'landSurface':
+            for state_name in state_names:
+                state_file = configuration.endStateDir / f"{state_name}_{continue_date.strftime('%Y-%m-%d')}.map"
+                if state_file.exists():
+                    component_states[state_name] = pcr.readmap(str(state_file))
+        else:
+            for landcover_type in landcover_types:
+                landcover_states = {}
+                
+                for state_name in state_names:
+                    state_file = configuration.endStateDir / f"{state_name}_{landcover_type}_{continue_date.strftime('%Y-%m-%d')}.map"
+                    if state_file.exists():
+                        landcover_states[state_name] = pcr.readmap(str(state_file))
+            component_states[landcover_type] = landcover_states
+                        
+        states[component] = component_states
+    
+    return states
+        
 def main():
     
     # get the full path of configuration/ini file given in the system argument
@@ -624,11 +631,11 @@ def main():
     
     # modify ini file and return it in a new location 
     if "-mod" in sys.argv:
-        continueFromPreviousRun = False
-        if '-continue-previous' in sys.argv: continueFromPreviousRun = True
         iniFileName = modify_ini_file(original_ini_file = iniFileName, \
-                                      continueFromPreviousRun = continueFromPreviousRun,
                                       system_argument = sys.argv)
+        
+    continueFromPreviousRun = False
+    if '-continue-previous' in sys.argv: continueFromPreviousRun = True
     
     # debug option
     debug_mode = False
@@ -643,9 +650,17 @@ def main():
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
-                                  no_modification = False,
-                                  system_arguments = sys.argv)      
+                                  continueFromPreviousRun = continueFromPreviousRun, \
+                                  no_modification = False)      
 
+    if continueFromPreviousRun:
+        continueDate = find_continue_date(configuration)
+        if continueDate is None:
+            continueFromPreviousRun = False
+            logger.warning("continueFromPreviousRun: Could not find a valid continue date. Starting from the beginning.")
+        else:
+            configuration.globalOptions['startTime'] = continueDate.strftime("%Y-%m-%d")
+            logger.info(f"continueFromPreviousRun: Continuing from previous run at {continueDate.strftime('%Y-%m-%d')}")
     
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
     if this_run_is_part_of_a_set_of_parallel_run:
@@ -677,7 +692,7 @@ def main():
     # spinning-up 
     noSpinUps = int(configuration.globalOptions['maxSpinUpsInYears'])
     initial_state = None
-    if noSpinUps > 0:
+    if noSpinUps > 0 and not continueFromPreviousRun:
         
         logger.info('Spin-Up #Total Years: '+str(noSpinUps))
 
@@ -703,6 +718,11 @@ def main():
             initial_state = deterministic_runner.model.getState()
             
         # TODO: for a parallel run call merging when the spinUp is done and isolate the states in a separate directory/folder
+        
+    if continueFromPreviousRun:
+        # Gather the initial states from the last state file
+        initial_state = load_continue_state_files(configuration)
+        logger.info(f"continueFromPreviousRun: Loaded previous initial states for {configuration.globalOptions['startTime']}")
 
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],

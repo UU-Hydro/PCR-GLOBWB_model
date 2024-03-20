@@ -36,6 +36,9 @@ import numpy as np
 import pcraster as pcr
 import virtualOS as vos
 
+import logging
+logger = logging.getLogger(__name__)
+
 # TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
 
 class PCR2netCDF():
@@ -43,7 +46,6 @@ class PCR2netCDF():
     def __init__(self,iniItems,specificAttributeDictionary=None):
                 
         # cloneMap
-        self.iniItems = iniItems
         pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
         
@@ -175,14 +177,17 @@ class PCR2netCDF():
         rootgrp.close()
 
     def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt = None):
-        
-        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: 
-            return
-            
+
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
-        if posCnt == None: posCnt = len(date_time)
+        if posCnt == None:
+            if timeStamp in date_time:
+                # In case we continue a previous run, we may need to overwrite some values
+                logger.debug("Overwriting existing time stamp in netcdf file: " + str(timeStamp))
+                posCnt = np.where(date_time == timeStamp)[0][0]
+            else:
+                posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
 
         # flip variable if necessary (to follow cf_convention)
@@ -194,12 +199,17 @@ class PCR2netCDF():
         rootgrp.close()
 
     def dataList2NetCDF(self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt = None):
-        if self.iniItems.continueFromPreviousRun == True and timeStamp < self.iniItems.continueFromPreviousRunNCdate: return
-        
+
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
-        if posCnt == None: posCnt = len(date_time)
+        if posCnt == None:
+            if timeStamp in date_time:
+                # In case we continue a previous run, we may need to overwrite some values
+                logger.debug("Overwriting existing time stamp in netcdf file: " + str(timeStamp))
+                posCnt = np.where(date_time == timeStamp)[0][0]
+            else:
+                posCnt = len(date_time)
 
         for shortVarName in shortVarNameList:
             
