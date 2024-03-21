@@ -103,6 +103,7 @@ class Reporting(object):
                 
                 logger.info("Creating the netcdf file for daily reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_dailyTot_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -112,11 +113,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_dailyTot_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
         #
         # - MONTHly output in netCDF files:
         # -- cummulative
@@ -133,6 +132,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for monthly accumulation reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_monthTot_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_monthly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -142,11 +142,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthTot_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
         #
         # -- average
         self.outMonthAvgNC = ["None"]
@@ -166,6 +164,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for monthly average reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_monthAvg_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -175,11 +174,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
 
         #
         # -- last day of the month
@@ -194,6 +191,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for monthly end reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_monthEnd_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -203,11 +201,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthEnd_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
         #
         # -- maximum of the month
         self.outMonthMaxNC = ["None"]
@@ -221,6 +217,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_monthMax_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -230,11 +227,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthMax_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
 
         #
         # - YEARly output in netCDF files:
@@ -253,6 +248,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for annual accumulation reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_annuaTot_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_yearly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -262,11 +258,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaTot_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
         #
         # -- average
         self.outAnnuaAvgNC = ["None"]
@@ -286,6 +280,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for annual average reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_annuaAvg_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -295,11 +290,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
         #
         # -- last day of the year
         self.outAnnuaEndNC = ["None"]
@@ -313,6 +306,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for annual end reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_annuaEnd_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -322,11 +316,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaEnd_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
 
         # -- maximum of the year
         self.outAnnuaMaxNC = ["None"]
@@ -340,6 +332,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_annuaMax_output.nc"
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -349,11 +342,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaMax_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
 
         # -- daily upsteam average (through LDD)
         self.outDailyTotUpsAvgNC = ["None"]
@@ -367,6 +358,7 @@ class Reporting(object):
 
                 logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
 
+                file_name = self.outNCDir+"/"+ str(var)+ "_dailyTotUpsAvg_output.nc"
                 short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -377,11 +369,9 @@ class Reporting(object):
                     standard_name= varDicts.netcdf_standard_name[var]
                 
                 # creating netCDF files:
-                if self.configuration.continueFromPreviousRun == False:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_dailyTotUpsAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                if os.path.exists(file_name) and self.configuration.continueFromPreviousRun:
+                    continue
+                self.netcdfObj.createNetCDF(file_name, short_name,unit,long_name,standard_name)
 
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\

@@ -39,7 +39,7 @@ from ncConverter import *
 class Groundwater(object):
 
     @staticmethod
-    def getStateNames():
+    def getStateNames() -> list[str]:
         return ['storGroundwater', 
                 'storGroundwaterFossil', 
                 'avgTotalGroundwaterAbstraction', 

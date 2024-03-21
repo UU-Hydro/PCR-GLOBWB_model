@@ -182,11 +182,10 @@ class PCR2netCDF():
 
         date_time = rootgrp.variables['time']
         if posCnt == None:
-            if timeStamp in date_time:
-                # In case we continue a previous run, we may need to overwrite some values
-                logger.debug("Overwriting existing time stamp in netcdf file: " + str(timeStamp))
-                posCnt = np.where(date_time == timeStamp)[0][0]
-            else:
+            try:
+            # In case we continue a previous run, we may need to overwrite some values
+                posCnt = nc.date2index(timeStamp,date_time,date_time.calendar,select='exact')
+            except (IndexError, ValueError):
                 posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
 
@@ -204,11 +203,10 @@ class PCR2netCDF():
 
         date_time = rootgrp.variables['time']
         if posCnt == None:
-            if timeStamp in date_time:
+            try:
                 # In case we continue a previous run, we may need to overwrite some values
-                logger.debug("Overwriting existing time stamp in netcdf file: " + str(timeStamp))
-                posCnt = np.where(date_time == timeStamp)[0][0]
-            else:
+                posCnt = nc.date2index(timeStamp,date_time,date_time.calendar,select='exact')
+            except (IndexError, ValueError):
                 posCnt = len(date_time)
 
         for shortVarName in shortVarNameList:

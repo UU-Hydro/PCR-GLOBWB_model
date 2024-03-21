@@ -285,7 +285,7 @@ class Configuration(object):
             except: 
                 pass # for new outputDir (not exist yet)
         try: 
-            os.makedirs(self.globalOptions['outputDir'])
+            os.makedirs(self.globalOptions['outputDir'], exist_ok=True)
         except: 
             pass # for new outputDir (not exist yet)
 
@@ -295,14 +295,13 @@ class Configuration(object):
         
         if os.path.exists(self.tmpDir):
             shutil.rmtree(self.tmpDir)
-        os.makedirs(self.tmpDir)
+        os.makedirs(self.tmpDir, exist_ok=True)
         
         self.outNCDir = vos.getFullPath("netcdf/", \
                                          self.globalOptions['outputDir'])
-        if os.path.exists(self.outNCDir) and self.continueFromPreviousRun == False:
+        if os.path.exists(self.outNCDir) and not self.continueFromPreviousRun:
             shutil.rmtree(self.outNCDir)
-        if self.continueFromPreviousRun == False:
-            os.makedirs(self.outNCDir)
+        os.makedirs(self.outNCDir, exist_ok=True)
 
         # making backup for the python scripts used:
         self.scriptDir = vos.getFullPath("scripts/", \
@@ -310,7 +309,7 @@ class Configuration(object):
 
         if os.path.exists(self.scriptDir):
             shutil.rmtree(self.scriptDir)
-        os.makedirs(self.scriptDir)
+        os.makedirs(self.scriptDir, exist_ok=True)
         
         # working/starting directory where all scripts are stored
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
@@ -326,28 +325,24 @@ class Configuration(object):
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
         cleanLogDir = True
-        if os.path.exists(self.logFileDir) and cleanLogDir and self.continueFromPreviousRun == False:
+        if os.path.exists(self.logFileDir) and cleanLogDir and not self.continueFromPreviousRun:
             shutil.rmtree(self.logFileDir)
-        
-        if self.continueFromPreviousRun == False:
-            os.makedirs(self.logFileDir)
+        os.makedirs(self.logFileDir, exist_ok=True)
 
         # making endStateDir directory:
         self.endStateDir = vos.getFullPath("states/", \
                                            self.globalOptions['outputDir'])
-        if os.path.exists(self.endStateDir) and self.continueFromPreviousRun == False:
+        if os.path.exists(self.endStateDir) and not self.continueFromPreviousRun:
             shutil.rmtree(self.endStateDir)
-        if self.continueFromPreviousRun == False:
-            os.makedirs(self.endStateDir)
+        os.makedirs(self.endStateDir, exist_ok=True)
 
         # making pcraster maps directory:
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
         cleanMapDir = True
-        if os.path.exists(self.mapsDir) and cleanMapDir and self.continueFromPreviousRun == False: 
+        if os.path.exists(self.mapsDir) and cleanMapDir and not self.continueFromPreviousRun: 
             shutil.rmtree(self.mapsDir)
-        if self.continueFromPreviousRun == False: 
-            os.makedirs(self.mapsDir)
+        os.makedirs(self.mapsDir, exist_ok=True)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
         os.chdir(self.mapsDir)

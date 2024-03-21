@@ -44,7 +44,7 @@ import waterBodies
 class Routing(object):
     
     @staticmethod
-    def getStateNames():
+    def getStateNames() -> list[str]:
         return ['timestepsToAvgDischarge',
                 'channelStorage',
                 'readAvlChannelStorage',

@@ -28,6 +28,7 @@ import shutil
 import datetime
 import signal
 from datetime import timedelta
+import calendar
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel
@@ -557,7 +558,7 @@ def modify_ini_file(original_ini_file,
     return new_ini_file_name
 
 def find_continue_date(configuration) -> datetime:
-    state_files = [f for f in configuration.endStateDir if f.endswith('.map')]
+    state_files = [f for f in Path(configuration.endStateDir).glob("*.map") if f.is_file()]
     if len(state_files) == 0:
         return None
     
@@ -581,18 +582,36 @@ def find_continue_date(configuration) -> datetime:
             requires_monthly_output = True
     
     if requires_annual_output:
-        continue_date = datetime(continue_date.year, 1, 1)
+        if continue_date.month == 12 or continue_date.day == 31:
+            return continue_date
+        
+        continue_year = continue_date.year - 1
+        continue_month = 12
+        continue_day = 31
+        
+        continue_date = datetime(continue_year, continue_month, continue_day)
         if continue_date not in state_dates:
             return None
+        
     elif requires_monthly_output:
-        continue_date = datetime(continue_date.year, continue_date.month, 1)
+        if continue_date.day == calendar.monthrange(continue_date.year, continue_date.month)[1]:
+            return continue_date
+        
+        continue_year = continue_date.year
+        continue_month = continue_date.month - 1
+        if continue_month < 1:
+            continue_year = continue_year - 1
+            continue_month = 12
+        continue_day = calendar.monthrange(continue_year, continue_month)[1]
+        
+        continue_date = datetime(continue_date.year, continue_date.month - 1, 1)
         if continue_date not in state_dates:
             return None
     
     return continue_date
 
-def load_continue_state_files(configuration) -> dict:
-    continue_date = configuration.globalOptions['startTime']
+def load_continue_state_files(configuration,
+                              continueDate: datetime) -> dict:
     numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
     component_state_names = PCRGlobWB.getStateNames(numberOfSoilLayers=numberOfSoilLayers)
     
@@ -607,7 +626,7 @@ def load_continue_state_files(configuration) -> dict:
         
         if component != 'landSurface':
             for state_name in state_names:
-                state_file = configuration.endStateDir / f"{state_name}_{continue_date.strftime('%Y-%m-%d')}.map"
+                state_file = Path(configuration.endStateDir) / f"{state_name}_{datetime.strftime(continueDate, '%Y-%m-%d')}.map"
                 if state_file.exists():
                     component_states[state_name] = pcr.readmap(str(state_file))
         else:
@@ -615,15 +634,16 @@ def load_continue_state_files(configuration) -> dict:
                 landcover_states = {}
                 
                 for state_name in state_names:
-                    state_file = configuration.endStateDir / f"{state_name}_{landcover_type}_{continue_date.strftime('%Y-%m-%d')}.map"
+                    state_file = Path(configuration.endStateDir) / f"{state_name}_{landcover_type}_{datetime.strftime(continueDate, '%Y-%m-%d')}.map"
                     if state_file.exists():
                         landcover_states[state_name] = pcr.readmap(str(state_file))
-            component_states[landcover_type] = landcover_states
+                        
+                component_states[landcover_type] = landcover_states
                         
         states[component] = component_states
     
     return states
-        
+
 def main():
     
     # get the full path of configuration/ini file given in the system argument
@@ -653,14 +673,6 @@ def main():
                                   continueFromPreviousRun = continueFromPreviousRun, \
                                   no_modification = False)      
 
-    if continueFromPreviousRun:
-        continueDate = find_continue_date(configuration)
-        if continueDate is None:
-            continueFromPreviousRun = False
-            logger.warning("continueFromPreviousRun: Could not find a valid continue date. Starting from the beginning.")
-        else:
-            configuration.globalOptions['startTime'] = continueDate.strftime("%Y-%m-%d")
-            logger.info(f"continueFromPreviousRun: Continuing from previous run at {continueDate.strftime('%Y-%m-%d')}")
     
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
     if this_run_is_part_of_a_set_of_parallel_run:
@@ -682,6 +694,14 @@ def main():
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)
     
+    if continueFromPreviousRun:
+        continueDate = find_continue_date(configuration)
+        if continueDate is None:
+            continueFromPreviousRun = False
+            logger.warning("continueFromPreviousRun: Could not find a valid continue date. Starting from the beginning.")
+        else:
+            configuration.globalOptions['startTime'] = (continueDate + timedelta(days = 1)).strftime("%Y-%m-%d")
+            logger.info(f"continueFromPreviousRun: Continuing from previous run at {configuration.globalOptions['startTime']}")
 
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
@@ -721,8 +741,8 @@ def main():
         
     if continueFromPreviousRun:
         # Gather the initial states from the last state file
-        initial_state = load_continue_state_files(configuration)
-        logger.info(f"continueFromPreviousRun: Loaded previous initial states for {configuration.globalOptions['startTime']}")
+        initial_state = load_continue_state_files(configuration, continueDate)
+        logger.info(f"continueFromPreviousRun: Loaded previous initial states for {str(continueDate)}")
 
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
