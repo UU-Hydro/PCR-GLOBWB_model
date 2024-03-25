@@ -17,6 +17,9 @@ jobs:
           activate-environment: pcrglobwb_model
           environment-file: conda_env/pcrglobwb_py3.yml
           auto-activate-base: false
+      - name: Download example data
+        run: |
+          git clone https://github.com/UU-Hydro/PCR-GLOBWB_input_example.git ./ci/example_input
       - name: Run PCR-GLOBWB
         run: |
-          sudo bash ./ci/run_model.sh ./ci/sample_data/configuration/30min/configuration_Po_30min.ini pcrglobwb_model
+          python ./model/deterministic_runner_with_arguments.py ./ci/example_configuration.ini -mod $(pwd)/ci
