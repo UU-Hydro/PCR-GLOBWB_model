@@ -15,9 +15,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           environment-file: conda_env/pcrglobwb_py3.yml
+          activate-environment: pcrglobwb_model
       - name: Download example data
         run: |
           git clone https://github.com/UU-Hydro/PCR-GLOBWB_input_example.git ./ci/example_input
       - name: Run PCR-GLOBWB
         run: |
-          python ./model/deterministic_runner_with_arguments.py ./ci/example_configuration.ini -mod $(pwd)/ci
+          conda run -n pcrglobwb_model python ./model/deterministic_runner_with_arguments.py ./ci/example_configuration.ini -mod $(pwd)/ci
