@@ -14,9 +14,7 @@ jobs:
       - name: Setup Conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: pcrglobwb_model
           environment-file: conda_env/pcrglobwb_py3.yml
-          auto-activate-base: false
       - name: Download example data
         run: |
           git clone https://github.com/UU-Hydro/PCR-GLOBWB_input_example.git ./ci/example_input
