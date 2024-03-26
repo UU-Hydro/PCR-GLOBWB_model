@@ -34,16 +34,12 @@ jobs:
           configuration_file=./CI/configuration/RhineMeuse_30min_natural.ini
           simulation_dir=$(pwd)/CI/
 
-          conda activate pcrglobwb_model
-          python $runner_file $configuration_file -mod $simulation_dir
-          conda deactivate
+          conda run -n pcrglobwb_model python $runner_file $configuration_file -mod $simulation_dir
 
       - name: Run continuous integration
         run: |
           runner_file=./run_continuous-integration.sh
 
           cd ./CI/
-          conda activate pcrglobwb_ci
-          bash $runner_file
-          conda deactivate
+          conda run -n pcrglobwb_ci bash $runner_file
           cd ..
