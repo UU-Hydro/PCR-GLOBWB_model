@@ -31,7 +31,7 @@ jobs:
       - name: Run model
         run: |
           runner_file=./model/deterministic_runner_with_arguments.py
-          configuration_file=./CI/configuration/RhineMeuse_30min_natural.ini
+          configuration_file=./CI/simulation/configuration/RhineMeuse_30min_natural.ini
           simulation_dir=$(pwd)/CI/
 
           conda run -n pcrglobwb_model python $runner_file $configuration_file -mod $simulation_dir
