@@ -30,7 +30,7 @@ set -x
 
 
 # configuration (.ini) file
-INI_FILE="/home/edwindql/github/UU-Hydro/PCR-GLOBWB_model/config/multiple_drains/parallel_runs_on_snellius/setup_05min_non-linear-gw_based-on_aqueduct-2021.ini"
+INI_FILE="/home/edwindql/github/UU-Hydro/PCR-GLOBWB_model/config/multiple_drains/parallel_runs_on_snellius/setup_05min_modified_based-on_aqueduct-2021.ini"
 
 
 # starting and end dates
