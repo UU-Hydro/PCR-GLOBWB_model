@@ -83,12 +83,12 @@ NUMBER_OF_SPINUP_YEARS="25"
 
 
 # location of your pcrglobwb model scripts
-PCRGLOBWB_MODEL_SCRIPT_FOLDER=~/PCR-GLOBWB_model/model/
+PCRGLOBWB_MODEL_SCRIPT_FOLDER=/home/edwindql/github/UU-Hydro/PCR-GLOBWB_model/model/
 
 
 # load the conda enviroment 
-# - using the one from /home/edwin/
-. /home/edwin/load_all_default.sh
+# - source from from /home/edwin/
+. /home/edwindql/load_all_default.sh
 
 
 # unset pcraster working threads (due to a limited number of cores on the Azure VM)
