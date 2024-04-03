@@ -42,7 +42,7 @@ END_DATE="2019-12-31"
 
 # location/folder, where you will store output files of your 
 # - historical
-MAIN_OUTPUT_DIR="/scrcatch-shared/edwindql/pcrglobwb_test_parallel/"
+MAIN_OUTPUT_DIR="/scratch-shared/edwindql/pcrglobwb_test_parallel/"
 
 
 # meteorological forcing files
