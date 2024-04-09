@@ -26,6 +26,9 @@ import os
 import sys
 import shutil
 import datetime
+import signal
+from datetime import timedelta
+import calendar
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel
@@ -42,8 +45,25 @@ import logging
 logger = logging.getLogger(__name__)
 
 import disclaimer
+from pathlib import Path
+from datetime import datetime
 
 class DeterministicRunner(DynamicModel):
+    
+    def determine_dump_signal(self, system_argument: list) -> signal.Signals:
+        dump_signal = signal.SIGUSR1 # Default dump signal is SIGUSR1
+        
+        if "-dump-signal" in system_argument:
+            dump_signal_index = system_argument.index("-dump-signal") + 1
+            if dump_signal_index < len(system_argument):
+                argument_dump_signal = system_argument[system_argument.index("-dump-signal") + 1]
+                if not argument_dump_signal.startswith("-"):
+                    try:
+                        dump_signal = signal.Signals[argument_dump_signal]
+                    except KeyError:
+                        logger.error("Unknown signal name: " + argument_dump_signal)
+                        sys.exit(1)
+        return dump_signal
 
     def __init__(self, configuration, modelTime, initialState = None, system_argument = None, spinUpRun = False):
         DynamicModel.__init__(self)
@@ -51,6 +71,12 @@ class DeterministicRunner(DynamicModel):
         self.modelTime = modelTime        
         self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
         self.reporting = Reporting(configuration, self.model, modelTime)
+        
+        if "-dump-signal" in system_argument and spinUpRun == False:
+            dump_signal = self.determine_dump_signal(system_argument)
+            signal_handle = lambda signal_number, current_stack_frame: self.set_model_dump_and_exit()
+            signal.signal(dump_signal, signal_handle)
+            logger.info(f"Dump signal set to {dump_signal.name} ({dump_signal.value}). PCR-GLOBWB will dump its states when this signal is received.")
         
         # the model paramaters may be modified
         self.parameter_adjusment = False
@@ -367,8 +393,11 @@ class DeterministicRunner(DynamicModel):
         if status: self.count_check = 0            
         return status
  
+    def set_model_dump_and_exit(self) -> None:
+        self.model.dump_and_exit = True
  
 def modify_ini_file(original_ini_file,
+                    continueFromPreviousRun,
                     system_argument): 
 
     # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
@@ -528,6 +557,92 @@ def modify_ini_file(original_ini_file,
             
     return new_ini_file_name
 
+def find_continue_date(configuration) -> datetime:
+    state_files = [f for f in Path(configuration.endStateDir).glob("*.map") if f.is_file()]
+    if len(state_files) == 0:
+        return None
+    
+    # NOTE: the following assumes that all state files are present for the same date
+    # This may be incorrect if the model failed during the writing of the state files
+    # TODO: check if the state files are consistent
+    state_dates = [f.stem.split("_")[-1] for f in state_files]
+    state_dates = [datetime.strptime(d, "%Y-%m-%d") for d in state_dates]
+    
+    # Select the final state date as the continue date
+    # Except for cases where yearly or monthly outputs are required
+    # In those cases, the continue date is the last date of the last year or month
+    continue_date = max(state_dates)
+    
+    requires_annual_output = False
+    requires_monthly_output = False
+    for variable in configuration.reportingOptions:
+        if 'outAnnua' in variable:
+            requires_annual_output = True
+        if 'outMonth' in variable:
+            requires_monthly_output = True
+    
+    if requires_annual_output:
+        if continue_date.month == 12 or continue_date.day == 31:
+            return continue_date
+        
+        continue_year = continue_date.year - 1
+        continue_month = 12
+        continue_day = 31
+        
+        continue_date = datetime(continue_year, continue_month, continue_day)
+        if continue_date not in state_dates:
+            return None
+        
+    elif requires_monthly_output:
+        if continue_date.day == calendar.monthrange(continue_date.year, continue_date.month)[1]:
+            return continue_date
+        
+        continue_year = continue_date.year
+        continue_month = continue_date.month - 1
+        if continue_month < 1:
+            continue_year = continue_year - 1
+            continue_month = 12
+        continue_day = calendar.monthrange(continue_year, continue_month)[1]
+        
+        continue_date = datetime(continue_date.year, continue_date.month - 1, 1)
+        if continue_date not in state_dates:
+            return None
+    
+    return continue_date
+
+def load_continue_state_files(configuration,
+                              continueDate: datetime) -> dict:
+    numberOfSoilLayers = int(configuration.landSurfaceOptions['numberOfUpperSoilLayers'])
+    component_state_names = PCRGlobWB.getStateNames(numberOfSoilLayers=numberOfSoilLayers)
+    
+    landcover_types = []
+    for section in configuration.allSections:
+        if 'naturalVegetationAndRainFedCrops' in section or 'irrPaddy' in section or 'irrNonPaddy' in section or 'forest' in section or 'grassland' in section:
+            landcover_types.append(section.split('Options')[0])
+    
+    states = {}
+    for component, state_names in component_state_names.items():
+        component_states = {}
+        
+        if component != 'landSurface':
+            for state_name in state_names:
+                state_file = Path(configuration.endStateDir) / f"{state_name}_{datetime.strftime(continueDate, '%Y-%m-%d')}.map"
+                if state_file.exists():
+                    component_states[state_name] = pcr.readmap(str(state_file))
+        else:
+            for landcover_type in landcover_types:
+                landcover_states = {}
+                
+                for state_name in state_names:
+                    state_file = Path(configuration.endStateDir) / f"{state_name}_{landcover_type}_{datetime.strftime(continueDate, '%Y-%m-%d')}.map"
+                    if state_file.exists():
+                        landcover_states[state_name] = pcr.readmap(str(state_file))
+                        
+                component_states[landcover_type] = landcover_states
+                        
+        states[component] = component_states
+    
+    return states
 
 def main():
     
@@ -538,6 +653,9 @@ def main():
     if "-mod" in sys.argv:
         iniFileName = modify_ini_file(original_ini_file = iniFileName, \
                                       system_argument = sys.argv)
+        
+    continueFromPreviousRun = False
+    if '-continue-previous' in sys.argv: continueFromPreviousRun = True
     
     # debug option
     debug_mode = False
@@ -552,6 +670,7 @@ def main():
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
+                                  continueFromPreviousRun = continueFromPreviousRun, \
                                   no_modification = False)      
 
     
@@ -575,6 +694,14 @@ def main():
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)
     
+    if continueFromPreviousRun:
+        continueDate = find_continue_date(configuration)
+        if continueDate is None:
+            continueFromPreviousRun = False
+            logger.warning("continueFromPreviousRun: Could not find a valid continue date. Starting from the beginning.")
+        else:
+            configuration.globalOptions['startTime'] = (continueDate + timedelta(days = 1)).strftime("%Y-%m-%d")
+            logger.info(f"continueFromPreviousRun: Continuing from previous run at {configuration.globalOptions['startTime']}")
 
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
@@ -585,7 +712,7 @@ def main():
     # spinning-up 
     noSpinUps = int(configuration.globalOptions['maxSpinUpsInYears'])
     initial_state = None
-    if noSpinUps > 0:
+    if noSpinUps > 0 and not continueFromPreviousRun:
         
         logger.info('Spin-Up #Total Years: '+str(noSpinUps))
 
@@ -611,6 +738,11 @@ def main():
             initial_state = deterministic_runner.model.getState()
             
         # TODO: for a parallel run call merging when the spinUp is done and isolate the states in a separate directory/folder
+        
+    if continueFromPreviousRun:
+        # Gather the initial states from the last state file
+        initial_state = load_continue_state_files(configuration, continueDate)
+        logger.info(f"continueFromPreviousRun: Loaded previous initial states for {str(continueDate)}")
 
     # Running the deterministic_runner (excluding DA scheme)
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],

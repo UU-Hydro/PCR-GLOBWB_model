@@ -43,6 +43,21 @@ import waterBodies
 
 class Routing(object):
     
+    @staticmethod
+    def getStateNames() -> list[str]:
+        return ['timestepsToAvgDischarge',
+                'channelStorage',
+                'readAvlChannelStorage',
+                'avgDischargeLong',
+                'm2tDischargeLong',
+                'avgBaseflowLong',
+                'riverbedExchange',
+                'waterBodyStorage',
+                'avgLakeReservoirOutflowLong',
+                'avgLakeReservoirInflowShort',
+                'avgDischargeShort',
+                'subDischarge',]
+    
     #TODO: remove
     def getPseudoState(self):
         result = {}

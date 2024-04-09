@@ -41,6 +41,12 @@ import evaporation.shortwave_radiation as sw_rad
 
 class Meteo(object):
 
+    @staticmethod
+    def getStateNames() -> list[str]:
+        return ['avgAnnualPrecipitation', 
+                'avgAnnualTemperature', 
+                'avgAnnualDiurnalDeltaTemp',]
+
     def getState(self):
 
         result = {}
