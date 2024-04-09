@@ -1,0 +1,45 @@
+name: Simulation tests
+
+on: [pull_request]
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout model repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.head_ref }}
+
+      - name: Clone continuous integration repository
+        run: |
+          git clone https://github.com/UU-Hydro/PCR-GLOBWB_continuous-integration.git ./CI
+
+      - name: Setup model environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: conda_env/pcrglobwb_py3.yml
+          activate-environment: pcrglobwb_model
+
+      - name: Setup continuous integration environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: CI/environment.yml
+          activate-environment: pcrglobwb_ci
+
+      - name: Run model
+        run: |
+          runner_file=./model/deterministic_runner_with_arguments.py
+          configuration_file=./CI/simulation/configuration/RhineMeuse_30min_natural.ini
+          simulation_dir=$(pwd)/CI/simulation/
+
+          conda run -n pcrglobwb_model python $runner_file $configuration_file -mod $simulation_dir
+
+      - name: Run continuous integration
+        run: |
+          runner_file=./run_continuous-integration.sh
+
+          cd ./CI/
+          conda run -n pcrglobwb_ci bash $runner_file
+          cd ..
