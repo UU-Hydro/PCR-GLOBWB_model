@@ -1,0 +1,34 @@
+name: Code formatting
+
+on: 
+  push:
+    branches: [master]
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.head_ref }}
+      - name: "Run isort"
+        uses: isort/isort-action@v1
+        with:
+          configuration: ""
+        continue-on-error: true
+      - name: Run Black
+        id: black
+        uses: psf/black@stable
+        with:
+          options: "--verbose"
+          src: "."
+        continue-on-error: true
+      - name: Commit changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "automatically generated isort and black linting"
+          git push
