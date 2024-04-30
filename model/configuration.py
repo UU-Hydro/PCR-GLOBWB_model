@@ -47,7 +47,6 @@ class Configuration(object):
     def __init__(self, iniFileName, \
                        debug_mode = False, \
                        no_modification = True, \
-                       continueFromPreviousRun: bool = False, \
                        system_arguments = None, \
                        relative_ini_meteo_paths = False):
         object.__init__(self)
@@ -60,9 +59,6 @@ class Configuration(object):
         
         # get the full path of iniFileName
         self.iniFileName = os.path.abspath(iniFileName)
-
-        # Continue from previous run
-        self.continueFromPreviousRun = continueFromPreviousRun
 
         # debug option
         self.debug_mode = debug_mode
@@ -285,7 +281,7 @@ class Configuration(object):
             except: 
                 pass # for new outputDir (not exist yet)
         try: 
-            os.makedirs(self.globalOptions['outputDir'], exist_ok=True)
+            os.makedirs(self.globalOptions['outputDir'])
         except: 
             pass # for new outputDir (not exist yet)
 
@@ -295,13 +291,13 @@ class Configuration(object):
         
         if os.path.exists(self.tmpDir):
             shutil.rmtree(self.tmpDir)
-        os.makedirs(self.tmpDir, exist_ok=True)
+        os.makedirs(self.tmpDir)
         
         self.outNCDir = vos.getFullPath("netcdf/", \
                                          self.globalOptions['outputDir'])
-        if os.path.exists(self.outNCDir) and not self.continueFromPreviousRun:
+        if os.path.exists(self.outNCDir):
             shutil.rmtree(self.outNCDir)
-        os.makedirs(self.outNCDir, exist_ok=True)
+        os.makedirs(self.outNCDir)
 
         # making backup for the python scripts used:
         self.scriptDir = vos.getFullPath("scripts/", \
@@ -309,7 +305,7 @@ class Configuration(object):
 
         if os.path.exists(self.scriptDir):
             shutil.rmtree(self.scriptDir)
-        os.makedirs(self.scriptDir, exist_ok=True)
+        os.makedirs(self.scriptDir)
         
         # working/starting directory where all scripts are stored
         path_of_this_module = os.path.abspath(os.path.dirname(__file__))
@@ -325,24 +321,24 @@ class Configuration(object):
         self.logFileDir = vos.getFullPath("log/", \
                                           self.globalOptions['outputDir'])
         cleanLogDir = True
-        if os.path.exists(self.logFileDir) and cleanLogDir and not self.continueFromPreviousRun:
+        if os.path.exists(self.logFileDir) and cleanLogDir:
             shutil.rmtree(self.logFileDir)
-        os.makedirs(self.logFileDir, exist_ok=True)
+        os.makedirs(self.logFileDir)
 
         # making endStateDir directory:
         self.endStateDir = vos.getFullPath("states/", \
                                            self.globalOptions['outputDir'])
-        if os.path.exists(self.endStateDir) and not self.continueFromPreviousRun:
+        if os.path.exists(self.endStateDir):
             shutil.rmtree(self.endStateDir)
-        os.makedirs(self.endStateDir, exist_ok=True)
+        os.makedirs(self.endStateDir)
 
         # making pcraster maps directory:
         self.mapsDir = vos.getFullPath("maps/", \
                                        self.globalOptions['outputDir'])
         cleanMapDir = True
-        if os.path.exists(self.mapsDir) and cleanMapDir and not self.continueFromPreviousRun: 
+        if os.path.exists(self.mapsDir) and cleanMapDir:
             shutil.rmtree(self.mapsDir)
-        os.makedirs(self.mapsDir, exist_ok=True)
+        os.makedirs(self.mapsDir)
         
         # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
         os.chdir(self.mapsDir)

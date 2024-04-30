@@ -47,18 +47,9 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    @staticmethod
-    def getStateNames(numberOfSoilLayers: int):
-        return {'meteo': meteo.Meteo.getStateNames(),
-                'landSurface': landSurface.LandSurface.getStateNames(numberOfSoilLayers),
-                'groundwater': groundwater.Groundwater.getStateNames(),
-                'routing': routing.Routing.getStateNames()}
-    
     def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None):
         self._configuration = configuration
         self._modelTime = currTimeStep
-        
-        self.dump_and_exit = False # Flag to dump states at the end of the timestep and exit the model
         
         pcr.setclone(configuration.cloneMap)
 
@@ -486,13 +477,9 @@ class PCRGlobWB(object):
         # - option to also save model output at the last day of the month
         save_monthly_end_states = self.save_monthly_end_states 
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
-          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states) or self.dump_and_exit:
+          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
-            
-        if self.dump_and_exit:
-            logger.info("Exiting PCR-GLOBWB after receiving the signal to dump states and exit.")
-            sys.exit("Exiting PCR-GLOBWB after receiving the signal to dump states and exit.")
 
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
         if self._configuration.online_coupling_between_pcrglobwb_and_modflow:

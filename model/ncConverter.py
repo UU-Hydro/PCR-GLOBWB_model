@@ -36,9 +36,6 @@ import numpy as np
 import pcraster as pcr
 import virtualOS as vos
 
-import logging
-logger = logging.getLogger(__name__)
-
 # TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
 
 class PCR2netCDF():
@@ -181,12 +178,7 @@ class PCR2netCDF():
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
-        if posCnt == None:
-            try:
-            # In case we continue a previous run, we may need to overwrite some values
-                posCnt = nc.date2index(timeStamp,date_time,date_time.calendar,select='exact')
-            except (IndexError, ValueError):
-                posCnt = len(date_time)
+        if posCnt == None: posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp,date_time.units,date_time.calendar)
 
         # flip variable if necessary (to follow cf_convention)
@@ -202,12 +194,7 @@ class PCR2netCDF():
         rootgrp = nc.Dataset(ncFileName,'a')
 
         date_time = rootgrp.variables['time']
-        if posCnt == None:
-            try:
-                # In case we continue a previous run, we may need to overwrite some values
-                posCnt = nc.date2index(timeStamp,date_time,date_time.calendar,select='exact')
-            except (IndexError, ValueError):
-                posCnt = len(date_time)
+        if posCnt == None: posCnt = len(date_time)
 
         for shortVarName in shortVarNameList:
             
