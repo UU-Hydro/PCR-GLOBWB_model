@@ -1,8 +1,8 @@
 ---
-name: Bug report
+name: Unexpected report
 about: Create a report to help us improve
-title: "[BUG]: report title"
-labels: bug
+title: "[UNEXPECTED]: report title"
+labels: unexpected
 assignees: ''
 
 ---
@@ -12,7 +12,7 @@ assignees: ''
  - PCR-GLOBWB [e.g. v2.4.0_alpha]
 
 **Description**
-A clear and detailed description of the bug
+A clear and detailed description of the unexpected behavior
 
 **Expected behavior**
 A clear and detailed description of the expected outcome
