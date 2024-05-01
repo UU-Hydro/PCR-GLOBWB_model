@@ -5,7 +5,7 @@ dependencies:
   - numpy
   - pip
   - python-dateutil
-  - six  
+  - six
   - zlib
   - pcraster
   - pip:
@@ -14,5 +14,6 @@ dependencies:
 # - cdo
   - nco
 # - ncview
-  
+# - pre-commit
+
 # Note: You may want to exclude cdsapi, cdo, and ncview.

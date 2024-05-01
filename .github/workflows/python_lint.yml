@@ -1,0 +1,37 @@
+name: python_lint
+
+on: [push]
+
+jobs:
+  assert_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout model repository
+        uses: actions/checkout@v4
+
+      - name: select only changed python files
+        id: changed_files
+        uses: tj-actions/changed-files@v39
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+             **.py
+
+      - name: run black
+        if: always() && steps.changed_files.outputs.any_changed == 'true'
+        uses: psf/black@stable
+        with:
+          src: ${{ steps.changed_files.outputs.all_modified_files }}
+
+      - name: run isort
+        if: always() && steps.changed_files.outputs.any_changed == 'true'
+        uses: isort/isort-action@v1
+        with:
+          sort-paths: ${{ steps.changed_files.outputs.all_modified_files }}
+
+      - name: run flake8
+        if: always() && steps.changed_files.outputs.any_changed == 'true'
+        uses: py-actions/flake8@v2
+        with:
+          path: ${{ steps.changed_files.outputs.all_modified_files }}
+          args: --select=F401
