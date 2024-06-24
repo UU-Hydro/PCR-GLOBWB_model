@@ -30,8 +30,8 @@ import itertools
 
 from six.moves import map
 
-from pcraster.framework import *
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 import logging
 logger = logging.getLogger(__name__)
@@ -197,7 +197,7 @@ class Routing(object):
                                     vos.readPCRmapClone(\
                                     iniItems.routingOptions['channelLength'],
                                     self.cloneMap,self.tmpDir,self.inputDir), self.channelLength)
-        
+
         # dist2celllength in m/arcDegree (needed in the accuTravelTime function): 
         if iniItems.routingOptions["routingMethod"] == "accuTravelTime":
             nrCellsDownstream  = pcr.ldddist(self.lddMap,\
@@ -236,9 +236,11 @@ class Routing(object):
 
         # empirical values for minimum number of sub-time steps:
         design_flood_speed = 5.00 # m/s
-        design_length_of_sub_time_step   = pcr.cellvalue(
-                                           pcr.mapminimum(
-                                           self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        # LUE TODO support cellvalue
+        # design_length_of_sub_time_step   = pcr.cellvalue(
+        #                                    pcr.mapminimum(
+        #                                    self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        design_length_of_sub_time_step   = pcr.mapminimum(self.courantNumber * self.channelLength / design_flood_speed).get()
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
@@ -384,7 +386,9 @@ class Routing(object):
 
         # make sure that timestepsToAvgDischarge is consistent (or the same) for the entire map:
         try:
-            self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            # LUE TODO: support computing with future<scalar> (the new Scalar type)
+            # self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge).get()
         except:    
             pass # We have to use 'try/except' because 'pcr.mapmaximum' cannot handle scalar value
 

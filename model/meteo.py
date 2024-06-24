@@ -26,8 +26,8 @@ import os
 import calendar
 import math
 
-from pcraster.framework import *
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 import logging
 logger = logging.getLogger(__name__)

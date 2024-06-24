@@ -26,7 +26,8 @@ import re
 import types
 
 import netCDF4 as nc
-import pcraster as pcr
+import modelling_framework
+pcr, _ = modelling_framework.load()
 
 import logging
 logger = logging.getLogger(__name__)
@@ -215,7 +216,9 @@ class LandCover(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            # TODO LUE: support future<scalar> + scalar
+            # cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            cell_ids = pcr.mapmaximum(self.allocSegments).get() + 100 + pcr.uniqueid(pcr.boolean(1.0))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
@@ -1369,7 +1372,9 @@ class LandCover(object):
         deltaSnowCover = \
             pcr.ifthenelse(meteo.temperature <= self.freezingT, \
             self.refreezingCoeff*self.snowFreeWater, \
-           -pcr.min(self.snowCoverSWE, \
+           # TODO LUE support negate
+           # -pcr.min(self.snowCoverSWE, \
+           -1.0 * pcr.min(self.snowCoverSWE, \
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor)*1.0*1.0)                      # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],
                                                                         #                      -min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()))
@@ -1455,10 +1460,14 @@ class LandCover(object):
             self.effSatLow = pcr.cover(self.effSatLow, 1.0)
             
             # matricSuction (m)
+            # TODO LUE support negate
+             # (pcr.max(0.01,self.effSatUpp)**-self.parameters.poreSizeBetaUpp)
             self.matricSuctionUpp = self.parameters.airEntryValueUpp*\
-             (pcr.max(0.01,self.effSatUpp)**-self.parameters.poreSizeBetaUpp)
+             (pcr.max(0.01,self.effSatUpp)** (-1.*self.parameters.poreSizeBetaUpp))
+            # TODO LUE support negate
+             # (pcr.max(0.01,self.effSatLow)**-self.parameters.poreSizeBetaLow)       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
             self.matricSuctionLow = self.parameters.airEntryValueLow*\
-             (pcr.max(0.01,self.effSatLow)**-self.parameters.poreSizeBetaLow)       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
+             (pcr.max(0.01,self.effSatLow)** (-1.*self.parameters.poreSizeBetaLow))       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
                                                                                     # PSI2= PSI_A2[TYPE]*max(0.01,THEFF2)**-BCH2[TYPE]; 
 
             # kUnsat (m.day-1): unsaturated hydraulic conductivity

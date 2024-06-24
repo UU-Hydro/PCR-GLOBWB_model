@@ -24,7 +24,8 @@ import sys
 import math
 import datetime
 
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 from calendar import isleap
 from copy import deepcopy

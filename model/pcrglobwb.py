@@ -28,7 +28,8 @@ import sys
 import math
 import gc
 
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 import virtualOS as vos
 import meteo
@@ -475,6 +476,7 @@ class PCRGlobWB(object):
     
     def update(self, report_water_balance = False):
         logger.info("Updating model for time %s", self._modelTime)
+        print("a")
         
         if (report_water_balance):
             landWaterStoresAtBeginning    = self.totalLandWaterStores()    # not including surface water bodies
@@ -484,6 +486,7 @@ class PCRGlobWB(object):
         self.landSurface.update(self.meteo, self.groundwater, self.routing, self._modelTime)      
         self.groundwater.update(self.landSurface, self.routing, self._modelTime)
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
+        print("b")
 
         # save/dump states at the end of the year or at the end of model simulation
         # - option to also save model output at the last day of the month
@@ -493,10 +496,12 @@ class PCRGlobWB(object):
             logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
             self.dumpState(self._configuration.endStateDir)
 
+        print("c")
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
         if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
         
+        print("d")
         if (report_water_balance):
             landWaterStoresAtEnd    = self.totalLandWaterStores()          # not including surface water bodies
             surfaceWaterStoresAtEnd = self.totalSurfaceWaterStores()     
@@ -509,6 +514,7 @@ class PCRGlobWB(object):
             self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
                                 surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)
 
+        print("e")
         if self._modelTime.isLastDayOfMonth():
             # make an empty file to indicate that the calculation for this month has done
             # - this is only needed for runs with merging and modflow processes

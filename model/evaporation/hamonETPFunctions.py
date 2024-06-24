@@ -22,7 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 import math
 
 import virtualOS as vos

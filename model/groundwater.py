@@ -27,8 +27,8 @@ import subprocess
 import os
 import types
 
-from pcraster.framework import *
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 import logging
 logger = logging.getLogger(__name__)
@@ -256,14 +256,19 @@ class Groundwater(object):
             if extrapolateGroundwaterThickness:
                 # extrapolation of totalGroundwaterThickness
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                # TODO LUE window lengths must end up being an odd integral number of cells
                 totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            # TODO LUE pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            pcr.windowaverage(totalGroundwaterThickness, 1.50))
                 totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            # TODO LUE pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            pcr.windowaverage(totalGroundwaterThickness, 1.50))
                 totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            # TODO LUE pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                                            pcr.windowaverage(totalGroundwaterThickness, 1.50))
                 totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 1.00))
+                                            # TODO LUE pcr.windowaverage(totalGroundwaterThickness, 1.00))
+                                            pcr.windowaverage(totalGroundwaterThickness, 1.50))
 
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
 
@@ -370,7 +375,9 @@ class Groundwater(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            # TODO LUE: support future<scalar> + scalar
+            # cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            cell_ids = pcr.mapmaximum(self.allocSegments).get() + 100 + pcr.uniqueid(pcr.boolean(1.0))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)

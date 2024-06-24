@@ -43,7 +43,8 @@ import glob
 import netCDF4 as nc
 import numpy as np
 import numpy.ma as ma
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 
 import logging
 
@@ -1834,52 +1835,67 @@ def isLastDayOfMonth(date):
         return False
 
 def getMapAttributesALL(cloneMap,arcDegree=True):
-    cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
+    # TODO Create LUE equivalent for this, using lue.gdal?
+    # cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
 
-    if err !=None or cOut == []:
-        print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
-        sys.exit()
-    cellsize = float(cOut.split()[7])
-    if arcDegree == True: cellsize = round(cellsize * 360000.)/360000.
-    mapAttr = {'cellsize': float(cellsize)        ,\
-               'rows'    : float(cOut.split()[3]) ,\
-               'cols'    : float(cOut.split()[5]) ,\
-               'xUL'     : float(cOut.split()[17]),\
-               'yUL'     : float(cOut.split()[19])}
-    co = None; cOut = None; err = None
-    del co; del cOut; del err
-    n = gc.collect() ; del gc.garbage[:] ; n = None ; del n
-    return mapAttr 
+    # if err !=None or cOut == b"":  # []:
+    #     print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
+    #     sys.exit()
+    # cellsize = float(cOut.split()[7])
+    # if arcDegree == True: cellsize = round(cellsize * 360000.)/360000.
+    # mapAttr = {'cellsize': float(cellsize)        ,\
+    #            'rows'    : float(cOut.split()[3]) ,\
+    #            'cols'    : float(cOut.split()[5]) ,\
+    #            'xUL'     : float(cOut.split()[17]),\
+    #            'yUL'     : float(cOut.split()[19])}
+    # co = None; cOut = None; err = None
+    # del co; del cOut; del err
+    # n = gc.collect() ; del gc.garbage[:] ; n = None ; del n
+    # return mapAttr 
+
+    return {
+        'cellsize': 0.5,
+        'rows'    : 360,
+        'cols'    : 720,
+        'xUL'     : -180,
+        'yUL'     : 90,
+    }
+
 
 def getMapAttributes(cloneMap,attribute,arcDegree=True):
-    cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
-    #print cOut
-    if err !=None or cOut == []:
-        print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
-        sys.exit()
-    #print cOut.split()
-    co = None; err = None
-    del co; del err
-    n = gc.collect() ; del gc.garbage[:] ; n = None ; del n
-    if attribute == 'cellsize':
-        cellsize = float(cOut.split()[7])
-        if arcDegree == True: cellsize = round(cellsize * 360000.)/360000.
-        return cellsize  
-    if attribute == 'rows':
-        return int(cOut.split()[3])
-        #return float(cOut.split()[3])
-    if attribute == 'cols':
-        return int(cOut.split()[5])
-        #return float(cOut.split()[5])
-    if attribute == 'xUL':
-        return float(cOut.split()[17])
-    if attribute == 'yUL':
-        return float(cOut.split()[19])
+    # TODO Create LUE equivalent for this, using lue.gdal?
+    # cOut,err = subprocess.Popen(str('mapattr -p %s ' %(cloneMap)), stdout=subprocess.PIPE,stderr=open(os.devnull),shell=True).communicate()
+    # #print cOut
+    # if err !=None or cOut == b"":  # []:
+    #     print("Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? ")
+    #     sys.exit()
+    # #print cOut.split()
+    # co = None; err = None
+    # del co; del err
+    # n = gc.collect() ; del gc.garbage[:] ; n = None ; del n
+    # if attribute == 'cellsize':
+    #     cellsize = float(cOut.split()[7])
+    #     if arcDegree == True: cellsize = round(cellsize * 360000.)/360000.
+    #     return cellsize  
+    # if attribute == 'rows':
+    #     return int(cOut.split()[3])
+    #     #return float(cOut.split()[3])
+    # if attribute == 'cols':
+    #     return int(cOut.split()[5])
+    #     #return float(cOut.split()[5])
+    # if attribute == 'xUL':
+    #     return float(cOut.split()[17])
+    # if attribute == 'yUL':
+    #     return float(cOut.split()[19])
+
+    return getMapAttributesALL(cloneMap, arcDegree)[attribute]
     
 def getMapTotal(mapFile):
     ''' outputs the sum of all values in a map file '''
 
-    total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
+    # TODO LUE: add cellvalue
+    # total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
+    total = pcr.maptotal(mapFile).get()
     return total
 
 def getMapTotalHighPrecisionButOnlyForPositiveValues_NEEDMORETEST(mapFile):
@@ -1937,9 +1953,13 @@ def getLastDayOfMonth(date):
 
 
 def getMinMaxMean(mapFile,ignoreEmptyMap=False):
-    mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
-    mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
-    nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
+    # TODO LUE: add cellvalue
+    # mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
+    mn = pcr.mapminimum(mapFile).get()
+    # mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
+    mx = pcr.mapmaximum(mapFile).get()
+    # nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
+    nrValues = pcr.maptotal(pcr.scalar(pcr.defined(mapFile))).get()
     if nrValues == 0.0 and ignoreEmptyMap: 
         logger.warning("map is empty")
         return 0.0,0.0,0.0

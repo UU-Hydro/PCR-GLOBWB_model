@@ -33,7 +33,8 @@ import glob
 import subprocess
 import netCDF4 as nc
 import numpy as np
-import pcraster as pcr
+import modelling_framework
+pcr, pcrfw = modelling_framework.load()
 import virtualOS as vos
 
 # TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
