@@ -206,15 +206,21 @@ class WaterBodies(object):
         # correcting water body ids
         self.waterBodyIds = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
-                            pcr.subcatchment(ldd,self.waterBodyOut))
+                            pcr.subcatchment(ldd, self.waterBodyOut))
         
         # boolean map for water body outlets:   
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyOut) > 0.,\
                             pcr.spatial(pcr.boolean(1)))
 
+        # make sure that we use only ids greater than zero
+        self.waterBodyIds = pcr.ifthen(\
+                            pcr.scalar(self.waterBodyIds) > 0.,\
+                            self.waterBodyIds)
+        self.waterBodyOut = pcr.ifthen(pcr.defined(self.waterBodyIds), self.waterBodyOut)
+
         # note that we have to report the following, so that we can use the files as the input and skip the operations for areaorder and subcatchment
-        pcr.report(self.waterBodyIds, "water_body_ids_scalar.map")                    
+        pcr.report(self.waterBodyIds, "water_body_ids_nominal.map")                    
         pcr.report(self.waterBodyOut, "water_body_outlets_boolean.map")                    
 
         # reservoir surface area (m2):
