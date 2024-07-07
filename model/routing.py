@@ -192,19 +192,21 @@ class Routing(object):
                                     self.cloneMap,self.tmpDir,self.inputDir), self.channelLength)
         
         # dist2celllength in m/arcDegree (needed in the accuTravelTime function): 
-        nrCellsDownstream  = pcr.ldddist(self.lddMap,\
-                                         pcr.nominal(self.lddMap) == 5, 1.)
-        distanceDownstream = pcr.ldddist(self.lddMap,\
-                                         pcr.nominal(self.lddMap) == 5,\
-                                         self.channelLength)
-        channelLengthDownstream = \
-                (self.channelLength + distanceDownstream)/\
-                (nrCellsDownstream + 1)                 # unit: m
-        self.dist2celllength  = channelLengthDownstream /\
-                                  self.cellSizeInArcDeg # unit: m/arcDegree
+        if iniItems.routingOptions["routingMethod"] == "accuTravelTime":
+            nrCellsDownstream  = pcr.ldddist(self.lddMap,\
+                                             pcr.nominal(self.lddMap) == 5, 1.)
+            distanceDownstream = pcr.ldddist(self.lddMap,\
+                                             pcr.nominal(self.lddMap) == 5,\
+                                             self.channelLength)
+            channelLengthDownstream = \
+                    (self.channelLength + distanceDownstream)/\
+                    (nrCellsDownstream + 1)                 # unit: m
+            self.dist2celllength  = channelLengthDownstream /\
+                                      self.cellSizeInArcDeg # unit: m/arcDegree
+		    
+            self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
 
-        self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
-
+        
         # the channel gradient must be >= minGradient 
         minGradient   = 0.00005   # 0.000005
         self.gradient = pcr.max(minGradient,\
