@@ -214,6 +214,8 @@ class WaterBodies(object):
                             pcr.spatial(pcr.boolean(1)))
 
         # note that we have to report the following, so that we can use the files as the input and skip the operations for areaorder and subcatchment
+        pcr.report(self.waterBodyIds, "water_body_ids_scalar.map")                    
+        pcr.report(self.waterBodyOut, "water_body_outlets_boolean.map")                    
 
         # reservoir surface area (m2):
         if self.useNetCDF:
