@@ -201,8 +201,8 @@ class WaterBodies(object):
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
         
-        # note that I report the following, so that we can use the file as the input for the water body outlet position
-        pcr.report(self.waterBodyOut, "water_body_outlet_boolean.map")                    
+        # ~ # note that I report the following, so that we can use the file as the input for the water body outlet position
+        # ~ pcr.report(self.waterBodyOut, "water_body_outlet_ids.map")                    
         
         # TODO: Please also consider endorheic lakes!                    
 
