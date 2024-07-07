@@ -49,24 +49,24 @@ class WaterBodies(object):
                 
         # Read the ldd map.
         skip_ldd_repair_and_ldd_mask = False
-        if "skip_ldd_repair_and_ldd_mask" in configuration.routingOptions.keys() and configuration.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+        if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
             skip_ldd_repair_and_ldd_mask = True
         if skip_ldd_repair_and_ldd_mask:    
-            lddMap_file = vos.getFullPath(inputPath        = configuration.routingOptions['lddMap'],\
-                                          absolutePath     = configuration.globalOptions['inputDir'],\
+            lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
+                                          absolutePath     = iniItems.globalOptions['inputDir'],\
                                           completeFileName = True) 
             self.lddMap = pcr.readmap(lddMap_file)
         else:
             self.lddMap = vos.readPCRmapClone(\
-                      configuration.routingOptions['lddMap'],
-                      configuration.cloneMap,configuration.tmpDir, configuration.globalOptions['inputDir'], True)
+                      iniItems.routingOptions['lddMap'],
+                      iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
             # ensure ldd map is correct, and actually of type "ldd"
             self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
-        if configuration.globalOptions['landmask'] != "None":
+        if iniItems.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\
-            configuration.globalOptions['landmask'],
-            configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
+            iniItems.globalOptions['landmask'],
+            iniItems.cloneMap,iniItems.tmpDir,iniItems.globalOptions['inputDir'])
         else:
             self.landmask = pcr.defined(self.lddMap)
         
