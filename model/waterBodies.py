@@ -201,9 +201,6 @@ class WaterBodies(object):
                             pcr.scalar(self.waterBodyIds) > 0.,\
                             self.waterBodyOut)
         
-        # ~ # note that I report the following, so that we can use the file as the input for the water body outlet position
-        # ~ pcr.report(self.waterBodyOut, "water_body_outlet_ids.map")                    
-        
         # TODO: Please also consider endorheic lakes!                    
 
         # correcting water body ids
@@ -215,6 +212,8 @@ class WaterBodies(object):
         self.waterBodyOut = pcr.ifthen(\
                             pcr.scalar(self.waterBodyOut) > 0.,\
                             pcr.spatial(pcr.boolean(1)))
+
+        # note that we have to report the following, so that we can use the files as the input and skip the operations for areaorder and subcatchment
 
         # reservoir surface area (m2):
         if self.useNetCDF:
