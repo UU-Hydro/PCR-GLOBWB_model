@@ -190,15 +190,15 @@ class WaterBodies(object):
         # water body outlets (correcting outlet positions)
         if "correct_water_body_outlets" in iniItems.routingOptions.keys():
 
-            file_for_correct_water_body_outlets = vos.getFullPath(inputPath        = iniItems.routingOptions['correct_water_body_outlets'],\
-                                                                  absolutePath     = iniItems.globalOptions['inputDir'],\
+            file_for_correct_water_body_outlets = vos.getFullPath(inputPath        = self.iniItems.routingOptions['correct_water_body_outlets'],\
+                                                                  absolutePath     = self.iniItems.globalOptions['inputDir'],\
                                                                   completeFileName = True)
             self.waterBodyOut = pcr.readmap(file_for_correct_water_body_outlets)
 
-            file_for_correct_water_body_ids     = vos.getFullPath(inputPath        = iniItems.routingOptions['correct_water_body_ids'],\
-                                                                  absolutePath     = iniItems.globalOptions['inputDir'],\
+            file_for_correct_water_body_ids     = vos.getFullPath(inputPath        = self.iniItems.routingOptions['correct_water_body_ids'],\
+                                                                  absolutePath     = self.iniItems.globalOptions['inputDir'],\
                                                                   completeFileName = True)
-            self.waterBodyIds = pcr.readmap(file_for_correct_water_body_ids) 
+            self.waterBodyIds = pcr.readmap(file_for_correct_water_body_ids)
             
         else:
         
