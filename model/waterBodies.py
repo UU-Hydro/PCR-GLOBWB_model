@@ -200,6 +200,8 @@ class WaterBodies(object):
                                                                   completeFileName = True)
             self.waterBodyIds = pcr.readmap(file_for_correct_water_body_ids)
             
+            piet
+            
         else:
         
             wbCatchment = pcr.catchmenttotal(pcr.scalar(1),ldd)
