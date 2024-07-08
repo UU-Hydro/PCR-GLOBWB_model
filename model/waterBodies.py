@@ -188,7 +188,7 @@ class WaterBodies(object):
                             pcr.nominal(self.waterBodyIds))    
 
         # water body outlets (correcting outlet positions)
-        if "correct_water_body_outlets" in iniItems.routingOptions.keys():
+        if "correct_water_body_outlets" in self.iniItems.routingOptions.keys():
 
             file_for_correct_water_body_outlets = vos.getFullPath(inputPath        = self.iniItems.routingOptions['correct_water_body_outlets'],\
                                                                   absolutePath     = self.iniItems.globalOptions['inputDir'],\
