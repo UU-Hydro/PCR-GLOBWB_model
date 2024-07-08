@@ -200,7 +200,7 @@ class WaterBodies(object):
                                                                   completeFileName = True)
             self.waterBodyIds = pcr.readmap(file_for_correct_water_body_ids)
             
-            piet
+            # ~ pietje
             
         else:
         
