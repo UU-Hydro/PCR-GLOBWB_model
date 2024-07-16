@@ -126,11 +126,11 @@ def load(name: str = ""):
 
         ### pcr.ldd = ldd
 
-        # TODO Move to LUE
-        def lddrepair(ldd):
-            return ldd
+        ### # TODO Move to LUE
+        ### def lddrepair(ldd):
+        ###     return ldd
 
-        pcr.lddrepair = lddrepair
+        ### pcr.lddrepair = lddrepair
 
         # TODO Move to LUE
         def setglobaloption(option):
