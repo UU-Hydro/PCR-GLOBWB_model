@@ -193,7 +193,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         # crop to cloneMap:
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
 
-        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
+        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
 
         #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
         #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
@@ -203,13 +203,21 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
 
         minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
 
-        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
+        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
 
         #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
         #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
         #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
+
+        xULCrop = f.variables['lon'][xIdxSta]-0.5*cellsizeInput
+        yULCrop = f.variables['lat'][yIdxSta]+0.5*cellsizeInput
+        if abs(xULClone - xULCrop) > cellsizeClone * 1e-2 or abs(yULClone - yULCrop) > cellsizeClone * 1e-2:
+            logger.error(f'The the cropped input data corner (XUIL: {xULCrop} - yUL: {yULCrop} - cellsize {cellsizeInput}) does not align with the clone map  (XUIL: {xULClone} - yUL: {yULClone} - cellsize {cellsizeClone}). ' +
+                         'This usually occurs if the clone-map does not align with the input data. ' +
+                         'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
+
 
         cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
 
@@ -228,18 +236,22 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
 
     # convert to PCR object and close f 
     if specificFillValue != None:
-        outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(specificFillValue)), \
-                  float(specificFillValue))
+        fillValue = float(specificFillValue)
     else:
         try:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue)), \
-                  float(f.variables[varName]._FillValue))
+            fillValue = float(f.variables[varName]._FillValue)
         except:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value)), \
-                  float(f.variables[varName].missing_value))
+            fillValue = float(f.variables[varName].missing_value)
+            
+    regridData = regridData2FinerGrid(factor, cropData, fillValue)
+    if regridData.shape[0] % factor != 0 or regridData.shape[1] % factor != 0:
+        logger.error(f'The the regridded input data shape ({regridData.shape}) does not align with the clone map shape (rows: {rowsClone} - cols: {colsClone}). ' +
+                        'This usually occurs if the clone-map does not align with the input data. ' +
+                        'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
+    
+    outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                regridData, \
+                fillValue)
 
     #~ # debug:
     #~ pcr.report(outPCR,"tmp.map")
@@ -804,7 +816,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         # crop to cloneMap:
         minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
 
-        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
+        xIdxSta = int(np.argmin(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
 
         #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
         #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
@@ -814,13 +826,20 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
 
         minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
 
-        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
+        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
 
         #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
         #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
 
         #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
         yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
+
+        xULCrop = f.variables['lon'][xIdxSta]-0.5*cellsizeInput
+        yULCrop = f.variables['lat'][yIdxSta]+0.5*cellsizeInput
+        if abs(xULClone - xULCrop) > cellsizeClone * 1e-2 or abs(yULClone - yULCrop) > cellsizeClone * 1e-2:
+            logger.error(f'The the cropped input data corner (XUIL: {xULCrop} - yUL: {yULCrop} - cellsize {cellsizeInput}) does not align with the clone map  (XUIL: {xULClone} - yUL: {yULClone} - cellsize {cellsizeClone}). ' +
+                         'This usually occurs if the clone-map does not align with the input data. ' +
+                         'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
 
         # retrieve data from netCDF for slice
 
@@ -851,18 +870,22 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
 
     # convert to PCR object and close f 
     if specificFillValue != None:
-        outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(specificFillValue)), \
-                  float(specificFillValue))
+        fillValue = float(specificFillValue)
     else:
         try:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(f.variables[varName]._FillValue)), \
-                  float(f.variables[varName]._FillValue))
+            fillValue = float(f.variables[varName]._FillValue)
         except:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, \
-                  regridData2FinerGrid(factor, cropData, float(f.variables[varName].missing_value)), \
-                  float(f.variables[varName].missing_value))
+            fillValue = float(f.variables[varName].missing_value)
+            
+    regridData = regridData2FinerGrid(factor, cropData, fillValue)
+    if regridData.shape[0] % factor != 0 or regridData.shape[1] % factor != 0:
+        logger.error(f'The the regridded input data shape ({regridData.shape}) does not align with the clone map shape (rows: {rowsClone} - cols: {colsClone}). ' +
+                        'This usually occurs if the clone-map does not align with the input data. ' +
+                        'Please make sure to have the clone-map corners align with whole degrees of latitude and longitude.')
+    
+    outPCR = pcr.numpy2pcr(pcr.Scalar, \
+                regridData, \
+                fillValue)
 
     #~ pcr.aguila(outPCR)
     
