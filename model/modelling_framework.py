@@ -94,6 +94,13 @@ def load(name: str = ""):
         ) = pcr.VALUESCALE
 
         # TODO Move to LUE
+        # TODO LUE to_numpy is a synchronization point!
+        def pcr2numpy(array, no_data_value):
+            return lfr.to_numpy(array, no_data_value)
+
+        pcr.pcr2numpy = pcr2numpy
+
+        # TODO Move to LUE
         def numpy2pcr(data_type, array, no_data_value):
             assert (
                 data_type == pcr.Ldd
@@ -101,11 +108,17 @@ def load(name: str = ""):
                 or data_type == pcr.Scalar
                 and array.dtype == np.float32
             ), f"{data_type} vs {array.dtype}"
-            return lfr.from_numpy(
+
+            # TODO LUE get rid of the wait, if possible
+            # Why is the wait needed? OK, don't change the array while LUE is working with
+            # it, but this should not result in a segfault.
+            array = lfr.from_numpy(
                 array,
                 partition_shape=pcr.configuration.partition_shape,
                 no_data_value=no_data_value,
             )
+            lfr.wait(array)
+            return array
 
         pcr.numpy2pcr = numpy2pcr
 
@@ -147,6 +160,16 @@ def load(name: str = ""):
             )
 
         pcr.ycoordinate = ycoordinate
+
+        # TODO Move to LUE
+        def xcoordinate(expression):
+            # TODO
+            return (
+                lfr.cast(lfr.cell_index(pcr.defined(expression), 1), np.float32)
+                * pcr.configuration.cell_size
+            )
+
+        pcr.xcoordinate = xcoordinate
 
         # TODO Move to LUE
         def clone():

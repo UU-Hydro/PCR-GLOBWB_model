@@ -23,7 +23,6 @@ class Progressor(lfr.Progressor):
         self.progressbar = tqdm.tqdm(
             total=nr_time_steps,
             colour="#5e81ac",
-            # leave=False,
         )
 
     def initialize(self):
@@ -43,7 +42,7 @@ class DeterministicRunner(lfr.Model):
 
         self.modelTime = modelTime
         self.model = PCRGlobWB(configuration, modelTime, initialState)
-        # TODO LUE self.reporting = Reporting(configuration, self.model, modelTime)
+        self.reporting = Reporting(configuration, self.model, modelTime)
 
     def initialize(self):
         pass
@@ -59,7 +58,7 @@ class DeterministicRunner(lfr.Model):
         self.model.update(report_water_balance=True)
 
         # do any needed reporting for this time step
-        # TODO self.reporting.report()
+        self.reporting.report()
 
 
 @lfr.runtime_scope
@@ -103,7 +102,8 @@ def main():
 
     progressor = Progressor(currTimeStep.nrOfTimeSteps)
 
-    lfr.run_deterministic(model, progressor, currTimeStep.nrOfTimeSteps)
+    # TODO LUE increase rate_limit
+    lfr.run_deterministic(model, progressor, currTimeStep.nrOfTimeSteps, rate_limit=1)
 
 
 if __name__ == "__main__":
