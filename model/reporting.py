@@ -40,8 +40,7 @@ import shutil
 import logging
 logger = logging.getLogger(__name__)
 
-import modelling_framework
-pcr, _ = modelling_framework.load()
+from pcraster_provider import pcr
 
 from ncConverter import *
 

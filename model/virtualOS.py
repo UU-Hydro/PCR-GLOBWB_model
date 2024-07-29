@@ -43,8 +43,7 @@ import glob
 import netCDF4 as nc
 import numpy as np
 import numpy.ma as ma
-import modelling_framework
-pcr, pcrfw = modelling_framework.load()
+from pcraster_provider import pcr
 
 import logging
 

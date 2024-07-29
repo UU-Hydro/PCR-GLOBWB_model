@@ -24,8 +24,7 @@
 
 import os
 
-import modelling_framework
-pcr, _ = modelling_framework.load()
+from pcraster_provider import pcr
 import virtualOS as vos
 
 class SoilAndTopoParameters(object):

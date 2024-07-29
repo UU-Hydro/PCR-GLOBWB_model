@@ -28,8 +28,7 @@ import sys
 import math
 import gc
 
-import modelling_framework
-pcr, pcrfw = modelling_framework.load()
+from pcraster_provider import pcr
 
 import virtualOS as vos
 import meteo

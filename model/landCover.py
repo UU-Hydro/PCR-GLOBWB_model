@@ -26,8 +26,7 @@ import re
 import types
 
 import netCDF4 as nc
-import modelling_framework
-pcr, _ = modelling_framework.load()
+from pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)

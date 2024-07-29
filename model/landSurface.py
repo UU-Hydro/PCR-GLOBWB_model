@@ -23,8 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import types
-import modelling_framework
-pcr, _ = modelling_framework.load()
+from pcraster_provider import pcr
 import virtualOS as vos
 
 import logging

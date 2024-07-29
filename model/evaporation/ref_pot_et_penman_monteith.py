@@ -6,8 +6,7 @@
 import os
 import sys
 
-import modelling_framework
-pcr, pcrfw = modelling_framework.load()
+from pcraster_provider import pcr, pcrfw
 
 #~ import shortwave_radiation
 
