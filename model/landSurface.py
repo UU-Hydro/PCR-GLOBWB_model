@@ -704,9 +704,11 @@ class LandSurface(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            # TODO: Add support for future + scalar to LUE
-            # cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            cell_ids = pcr.mapmaximum(self.allocSegments).get() + 100 + pcr.uniqueid(pcr.boolean(1.0))
+            if pcr.provider_name == "pcraster":
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            else:
+                # TODO LUE: Add support for future + scalar
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)).get() + pcr.scalar(100.0) + pcr.scalar(pcr.uniqueid(pcr.boolean(1.0)))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)
@@ -1242,9 +1244,11 @@ class LandSurface(object):
                 self.groundwater_pumping_region_ids = \
                      vos.netcdf2PCRobjClone(groundwater.pumpingCapacityNC,'region_ids',\
                          currTimeStep.fulldate, useDoy = 'yearly', cloneMapFileName = self.cloneMap)
-                # TODO: Add support for future + scalar to LUE
-                # other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
-                other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids).get() + 1000. + pcr.scalar(pcr.uniqueid(self.landmask))
+                if pcr.provider_name == "pcraster":
+                    other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
+                else:
+                    # TODO LUE: support future + scalar
+                    other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids).get() + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
                 self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
                 self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
 

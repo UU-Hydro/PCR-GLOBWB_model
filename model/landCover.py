@@ -215,9 +215,11 @@ class LandCover(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            # TODO LUE: support future<scalar> + scalar
-            # cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
-            cell_ids = pcr.mapmaximum(self.allocSegments).get() + 100 + pcr.uniqueid(pcr.boolean(1.0))
+            if pcr.provider_name == "pcraster":
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            else:
+                # TODO LUE: support future + scalar
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)).get() + pcr.scalar(100.0) + pcr.scalar(pcr.uniqueid(pcr.boolean(1.0)))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)

@@ -48,6 +48,8 @@ class DeterministicRunner(lfr.Model):
         pass
 
     def simulate(self, time_step):
+        # TODO
+        return
 
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(time_step)
@@ -105,7 +107,7 @@ def main():
     progressor = Progressor(currTimeStep.nrOfTimeSteps)
 
     # TODO LUE increase rate_limit
-    lfr.run_deterministic(model, progressor, currTimeStep.nrOfTimeSteps, rate_limit=1)
+    lfr.run_deterministic(model, progressor, currTimeStep.nrOfTimeSteps, rate_limit=2)
 
 
 if __name__ == "__main__":

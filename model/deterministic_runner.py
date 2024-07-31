@@ -54,6 +54,8 @@ class DeterministicRunner(DynamicModel):
         pass
 
     def dynamic(self):
+        # TODO
+        return
 
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())

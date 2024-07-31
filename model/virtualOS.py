@@ -1892,9 +1892,11 @@ def getMapAttributes(cloneMap,attribute,arcDegree=True):
 def getMapTotal(mapFile):
     ''' outputs the sum of all values in a map file '''
 
-    # TODO LUE: add cellvalue
-    # total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
-    total = pcr.maptotal(mapFile).get()
+    if pcr.provider_name == "pcraster":
+        total, valid = pcr.cellvalue(pcr.maptotal(mapFile),1)
+    else:
+        # TODO LUE: add cellvalue
+        total = pcr.maptotal(mapFile).get()
     return total
 
 def getMapTotalHighPrecisionButOnlyForPositiveValues_NEEDMORETEST(mapFile):
@@ -1952,13 +1954,15 @@ def getLastDayOfMonth(date):
 
 
 def getMinMaxMean(mapFile,ignoreEmptyMap=False):
-    # TODO LUE: add cellvalue
-    # mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
-    mn = pcr.mapminimum(mapFile).get()
-    # mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
-    mx = pcr.mapmaximum(mapFile).get()
-    # nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
-    nrValues = pcr.maptotal(pcr.scalar(pcr.defined(mapFile))).get()
+    if pcr.provider_name == "pcraster":
+        mn = pcr.cellvalue(pcr.mapminimum(mapFile),1)[0]
+        mx = pcr.cellvalue(pcr.mapmaximum(mapFile),1)[0]
+        nrValues = pcr.cellvalue(pcr.maptotal(pcr.scalar(pcr.defined(mapFile))), 1 )[0] #/ getNumNonMissingValues(mapFile)
+    else:
+        # TODO LUE: add cellvalue
+        mn = pcr.mapminimum(mapFile).get()
+        mx = pcr.mapmaximum(mapFile).get()
+        nrValues = pcr.maptotal(pcr.scalar(pcr.defined(mapFile))).get()
     if nrValues == 0.0 and ignoreEmptyMap: 
         logger.warning("map is empty")
         return 0.0,0.0,0.0
