@@ -158,25 +158,33 @@ class SoilAndTopoParameters(object):
 
                     # extrapolation 
                     # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE window lengths must end up being an odd
-                                      #      integral number of cells
-                                      pcr.windowaverage(vars(self)[var], 1.50))
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE: pcr.windowaverage(vars(self)[var], 1.00))
-                                      pcr.windowaverage(vars(self)[var], 1.50))
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE: pcr.windowaverage(vars(self)[var], 1.00))
-                                      pcr.windowaverage(vars(self)[var], 1.50))
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE: pcr.windowaverage(vars(self)[var], 1.00))
-                                      pcr.windowaverage(vars(self)[var], 1.50))
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE: pcr.windowaverage(vars(self)[var], 1.00))
-                                      pcr.windowaverage(vars(self)[var], 1.50))
-                    vars(self)[var] = pcr.cover(vars(self)[var],
-                                      # TODO LUE: pcr.windowaverage(vars(self)[var], 1.00))
-                                      pcr.windowaverage(vars(self)[var], 1.50))
+                    if pcr.provider_name == "pcraster":
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 0.75))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.00))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.00))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.00))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.00))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.00))
+                    else:
+                        # TODO LUE window lengths must end up being an odd integral number of cells...
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
+                        vars(self)[var] = pcr.cover(vars(self)[var],
+                                          pcr.windowaverage(vars(self)[var], 1.50))
 
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.01)
             
@@ -266,26 +274,33 @@ class SoilAndTopoParameters(object):
 
                      # extrapolation 
                      # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
-                     # TODO LUE window lengths must end up being an odd
-                     #      integral number of cells
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 0.75))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 1.05))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 1.05))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 1.05))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 1.05))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
-                     vars(self)[temp] = pcr.cover(vars(self)[temp],
-                                        # TODO LUE pcr.windowaverage(vars(self)[temp], 1.05))
-                                        pcr.windowaverage(vars(self)[temp], 1.50))
+                     if pcr.provider_name == "pcraster":
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 0.75))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.05))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.05))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.05))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.05))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.05))
+                     else:
+                         # TODO LUE window lengths must end up being an odd integral number of cells...
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
+                         vars(self)[temp] = pcr.cover(vars(self)[temp],
+                                            pcr.windowaverage(vars(self)[temp], 1.50))
                 
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
 

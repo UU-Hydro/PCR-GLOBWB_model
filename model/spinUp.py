@@ -27,8 +27,6 @@ import glob
 import shutil
 import math
 
-import pcraster as pcr
-
 import virtualOS as vos
 
 import logging

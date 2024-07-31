@@ -196,7 +196,7 @@ class Routing(object):
                                     vos.readPCRmapClone(\
                                     iniItems.routingOptions['channelLength'],
                                     self.cloneMap,self.tmpDir,self.inputDir), self.channelLength)
-
+        
         # dist2celllength in m/arcDegree (needed in the accuTravelTime function): 
         if iniItems.routingOptions["routingMethod"] == "accuTravelTime":
             nrCellsDownstream  = pcr.ldddist(self.lddMap,\

@@ -1373,9 +1373,7 @@ class LandCover(object):
         deltaSnowCover = \
             pcr.ifthenelse(meteo.temperature <= self.freezingT, \
             self.refreezingCoeff*self.snowFreeWater, \
-           # TODO LUE support negate
-           # -pcr.min(self.snowCoverSWE, \
-           -1.0 * pcr.min(self.snowCoverSWE, \
+           -pcr.min(self.snowCoverSWE, \
                     pcr.max(meteo.temperature - self.freezingT, 0.0) * \
                     self.degreeDayFactor)*1.0*1.0)                      # DSC[TYPE] = if(TA<=TT,CFR*SCF_L[TYPE],
                                                                         #                      -min(SC_L[TYPE],max(TA-TT,0)*CFMAX*Duration*timeslice()))
@@ -1461,14 +1459,10 @@ class LandCover(object):
             self.effSatLow = pcr.cover(self.effSatLow, 1.0)
             
             # matricSuction (m)
-            # TODO LUE support negate
-             # (pcr.max(0.01,self.effSatUpp)**-self.parameters.poreSizeBetaUpp)
             self.matricSuctionUpp = self.parameters.airEntryValueUpp*\
-             (pcr.max(0.01,self.effSatUpp)** (-1.*self.parameters.poreSizeBetaUpp))
-            # TODO LUE support negate
-             # (pcr.max(0.01,self.effSatLow)**-self.parameters.poreSizeBetaLow)       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
+             (pcr.max(0.01,self.effSatUpp)**-self.parameters.poreSizeBetaUpp)
             self.matricSuctionLow = self.parameters.airEntryValueLow*\
-             (pcr.max(0.01,self.effSatLow)** (-1.*self.parameters.poreSizeBetaLow))       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
+             (pcr.max(0.01,self.effSatLow)**-self.parameters.poreSizeBetaLow)       # PSI1= PSI_A1[TYPE]*max(0.01,THEFF1)**-BCH1[TYPE]; 
                                                                                     # PSI2= PSI_A2[TYPE]*max(0.01,THEFF2)**-BCH2[TYPE]; 
 
             # kUnsat (m.day-1): unsaturated hydraulic conductivity
