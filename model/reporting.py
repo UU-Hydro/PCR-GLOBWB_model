@@ -40,7 +40,7 @@ import shutil
 import logging
 logger = logging.getLogger(__name__)
 
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 
 from ncConverter import *
 

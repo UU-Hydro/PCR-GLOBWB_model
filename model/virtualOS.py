@@ -43,7 +43,7 @@ import glob
 import netCDF4 as nc
 import numpy as np
 import numpy.ma as ma
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 

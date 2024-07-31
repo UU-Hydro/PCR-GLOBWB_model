@@ -28,7 +28,7 @@ import sys
 import math
 import gc
 
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 
 import virtualOS as vos
 import meteo

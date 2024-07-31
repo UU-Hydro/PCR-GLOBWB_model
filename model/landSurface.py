@@ -23,7 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import types
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 import virtualOS as vos
 
 import logging

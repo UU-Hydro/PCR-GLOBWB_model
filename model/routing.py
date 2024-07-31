@@ -30,7 +30,7 @@ import itertools
 
 from six.moves import map
 
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)

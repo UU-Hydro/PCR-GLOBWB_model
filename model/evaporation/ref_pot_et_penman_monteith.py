@@ -6,7 +6,7 @@
 import os
 import sys
 
-from pcraster_provider import pcr, pcrfw
+from lue.framework.pcraster_provider import pcr, pcrfw
 
 #~ import shortwave_radiation
 

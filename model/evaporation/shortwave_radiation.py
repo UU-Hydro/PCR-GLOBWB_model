@@ -24,7 +24,7 @@ import sys
 import math
 import datetime
 
-from pcraster_provider import pcr
+from lue.framework.pcraster_provider import pcr
 
 from calendar import isleap
 from copy import deepcopy
