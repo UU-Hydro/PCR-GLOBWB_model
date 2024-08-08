@@ -22,7 +22,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 import math
 
 import virtualOS as vos

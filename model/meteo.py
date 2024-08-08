@@ -26,8 +26,7 @@ import os
 import calendar
 import math
 
-from pcraster.framework import *
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)

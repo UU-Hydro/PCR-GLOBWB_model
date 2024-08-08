@@ -28,7 +28,7 @@ import sys
 import math
 import gc
 
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import virtualOS as vos
 import meteo
@@ -518,3 +518,6 @@ class PCRGlobWB(object):
                 if os.path.exists(filename): os.remove(filename)
                 open(filename, "w").close()    
 
+        if pcr.provider_name == "lue":
+            # TODO LUE: Assuming this is a good "result" of a single update
+            return self.routing.WaterBodies.waterBodyBalance.future()

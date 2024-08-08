@@ -29,8 +29,7 @@ import sys
 import shutil
 import datetime
 
-import pcraster as pcr
-from pcraster.framework import DynamicModel
+from lue.framework.pcraster_provider import pcr, pcrfw
 
 from ncConverter import *
 import virtualOS as vos
@@ -40,13 +39,13 @@ import variable_list as varDicts
 import logging
 logger = logging.getLogger(__name__)
 
-class PCRGlobWBVersionOne(DynamicModel):
+class PCRGlobWBVersionOne(pcrfw.DynamicModel):
 
     def __init__(self, configuration, \
                        modelTime, \
                        landmask, \
                        cellArea):
-        DynamicModel.__init__(self)
+        pcrfw.DynamicModel.__init__(self)
         
         # configuration (based on the ini file)
         self.configuration = configuration
