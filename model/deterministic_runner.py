@@ -25,8 +25,6 @@
 import os
 import sys
 
-# from pcraster.framework import DynamicModel
-# from pcraster.framework import DynamicFramework
 from lue.framework.pcraster_provider import pcr, pcrfw
 
 from configuration import Configuration
@@ -55,8 +53,6 @@ class DeterministicRunner(pcrfw.DynamicModel):
         pass
 
     def dynamic(self):
-        # TODO
-        return
 
         # re-calculate current model time using current pcraster timestep value
         self.modelTime.update(self.currentTimeStep())
@@ -70,7 +66,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
         #do any needed reporting for this time step        
         self.reporting.report()
 
-        # return state
+        return state
 
 @pcr.runtime_scope
 def main():
@@ -144,7 +140,10 @@ def main():
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state)
     dynamic_framework = pcrfw.DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
-    dynamic_framework.run()
+    if pcr.provider_name == "lue":
+        dynamic_framework.run(rate_limit=2)
+    else:
+        dynamic_framework.run()
 
 
     # for debugging to PCR-GLOBWB version one

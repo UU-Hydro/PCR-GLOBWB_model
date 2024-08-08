@@ -518,5 +518,6 @@ class PCRGlobWB(object):
                 if os.path.exists(filename): os.remove(filename)
                 open(filename, "w").close()    
 
-        # TODO LUE: Assuming this is a good "result" of a single update
-        return self.routing.WaterBodies.waterBodyBalance
+        if pcr.provider_name == "lue":
+            # TODO LUE: Assuming this is a good "result" of a single update
+            return self.routing.WaterBodies.waterBodyBalance.future()

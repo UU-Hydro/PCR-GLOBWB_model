@@ -1248,7 +1248,7 @@ class LandSurface(object):
                     other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids) + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
                 else:
                     # TODO LUE: support future + scalar
-                    other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids).get() + pcr.scalar(1000.) + pcr.uniqueid(self.landmask)
+                    other_ids = pcr.mapmaximum(self.groundwater_pumping_region_ids).get() + pcr.scalar(1000.) + pcr.scalar(pcr.uniqueid(self.landmask))
                 self.groundwater_pumping_region_ids = pcr.cover(self.groundwater_pumping_region_ids, other_ids)
                 self.groundwater_pumping_region_ids = pcr.ifthen(self.landmask, pcr.nominal(self.groundwater_pumping_region_ids))
 

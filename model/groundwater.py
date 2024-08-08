@@ -255,7 +255,9 @@ class Groundwater(object):
             if extrapolateGroundwaterThickness:
                 # extrapolation of totalGroundwaterThickness
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py
-                if pcr.provider_name == "pcraster":
+                # TODO LUE To be able to compare results the original windows lengths are
+                #      skipped. Remove "and False" once checks are done!
+                if pcr.provider_name == "pcraster" and False:
                     totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
                                                 pcr.windowaverage(totalGroundwaterThickness, 0.75))
                     totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
