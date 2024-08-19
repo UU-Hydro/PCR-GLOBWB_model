@@ -158,7 +158,9 @@ class SoilAndTopoParameters(object):
 
                     # extrapolation 
                     # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
-                    if pcr.provider_name == "pcraster":
+                    # TODO LUE To be able to compare results the original windows lengths are
+                    #      skipped. Remove "and False" once checks are done!
+                    if pcr.provider_name == "pcraster" and False:
                         vars(self)[var] = pcr.cover(vars(self)[var],
                                           pcr.windowaverage(vars(self)[var], 0.75))
                         vars(self)[var] = pcr.cover(vars(self)[var],
@@ -274,7 +276,9 @@ class SoilAndTopoParameters(object):
 
                      # extrapolation 
                      # - TODO: Make a general extrapolation option as a function in the virtualOS.py 
-                     if pcr.provider_name == "pcraster":
+                     # TODO LUE To be able to compare results the original windows lengths are
+                     #      skipped. Remove "and False" once checks are done!
+                     if pcr.provider_name == "pcraster" and False:
                          vars(self)[temp] = pcr.cover(vars(self)[temp],
                                             pcr.windowaverage(vars(self)[temp], 0.75))
                          vars(self)[temp] = pcr.cover(vars(self)[temp],

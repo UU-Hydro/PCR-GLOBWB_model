@@ -241,7 +241,7 @@ class Routing(object):
                                                self.courantNumber * self.channelLength / design_flood_speed),1)[0]
         else:
             # LUE TODO support cellvalue
-            design_length_of_sub_time_step   = pcr.mapminimum(self.courantNumber * self.channelLength / design_flood_speed).get()
+            design_length_of_sub_time_step   = pcr.mapminimum(self.courantNumber * self.channelLength / design_flood_speed).future.get()
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
@@ -391,7 +391,7 @@ class Routing(object):
                 self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
             else:
                 # LUE TODO: support computing with future<scalar> (the new Scalar type)
-                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge).get()
+                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge).future.get()
         except:    
             pass # We have to use 'try/except' because 'pcr.mapmaximum' cannot handle scalar value
 
@@ -732,7 +732,7 @@ class Routing(object):
             number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
         else:
             # TODO LUE support cellvalue, or calc with scalars
-            number_of_loops = max(1.0, pcr.mapmaximum(number_of_sub_time_steps).get())     # minimum number of sub_time_steps = 1 
+            number_of_loops = max(1.0, pcr.mapmaximum(number_of_sub_time_steps).future.get())     # minimum number of sub_time_steps = 1 
         number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
@@ -2122,7 +2122,7 @@ class Routing(object):
                 # TODO LUE: Support spatial alpha
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
                                                   pcr.spatial(0.0), 
-                                                  pcr.mapminimum(alpha).get(), self.beta, \
+                                                  pcr.mapminimum(alpha).future.get(), self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
