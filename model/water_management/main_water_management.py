@@ -495,8 +495,8 @@ class WaterManagement(object):
             vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation, 0.0)
             
             pcr.aguila(total_remaining_demand_volume)
-            pcr.aguila(sectoral_remaining_demand_volume[sector_name])
-            pcr.aguila(totalVolWaterAllocation)
+            # ~ pcr.aguila(sectoral_remaining_demand_volume[sector_name])
+            # ~ pcr.aguila(totalVolWaterAllocation)
             
             pietje
             
