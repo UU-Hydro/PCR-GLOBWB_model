@@ -494,8 +494,8 @@ class WaterManagement(object):
             allocated_demand_per_sector[sector_name] = pcr.ifthenelse(total_remaining_demand_volume > 0.0, \
             vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation, 0.0)
             
-            pcr.aguila(total_remaining_demand_volume)
-            # ~ pcr.aguila(sectoral_remaining_demand_volume[sector_name])
+            # ~ pcr.aguila(total_remaining_demand_volume)
+            pcr.aguila(sectoral_remaining_demand_volume[sector_name])
             # ~ pcr.aguila(totalVolWaterAllocation)
             
             pietje
