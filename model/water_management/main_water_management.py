@@ -585,8 +585,8 @@ class WaterManagement(object):
         # remaining desalination water use - unit: m3
         self.volRemainingDesalinationWaterUse = pcr.max(0.0, volDesalinationWaterUse - volDesalinationAbstraction)
         
-        # ~ pcr.aguila(self.desalinationAllocation)
-        # ~ pcr.aguila(self.desalinationAbstraction)
+        pcr.aguila(self.desalinationAllocation)
+        pcr.aguila(self.desalinationAbstraction)
         
 
                                                      
