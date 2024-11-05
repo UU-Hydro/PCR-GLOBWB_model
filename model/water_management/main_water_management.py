@@ -707,9 +707,9 @@ class WaterManagement(object):
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
 
-        pcr.aguila(self.allocSurfaceWaterAbstract)
-        pcr.aguila(self.actSurfaceWaterAbstract  )
-        pietje
+        # ~ pcr.aguila(self.allocSurfaceWaterAbstract)
+        # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
+        # ~ pietje
 
     def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater, currTimeStep):
         
@@ -1065,7 +1065,7 @@ class WaterManagement(object):
                 # fossil groundwater allocation (unit: m3/day)
                 self.fossilGroundwaterAllocVol = self.fossilGroundwaterAbstrVol
                 
-                pietje
+                # ~ pietje
 
         
             if groundwater.limitFossilGroundwaterAbstraction and self.limitAbstraction == False:
