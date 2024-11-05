@@ -121,7 +121,15 @@ class WaterManagement(object):
 
 
         self.source_names = ["desalinated_water", "surface_water", "renewable_groundwater", "nonrenewable_groundwater"]
-        self.sector_names = ["domestic", "industry", "manufacture", "thermoelectric", "livestock", "irrigation"]   
+        
+        self.sector_names = ["domestic", "industry", "manufacture", "thermoelectric", "livestock", "irrigation"]
+        if iniItems.waterDemandOptions["includeDomesticWaterDemand"] == "False": self.sector_names.remove("domestic")
+        if iniItems.waterDemandOptions["includeIndustryWaterDemand"] == "False": self.sector_names.remove("industry")
+        if iniItems.waterDemandOptions["includeLivestockWaterDemand"] == "False": self.sector_names.remove("livestock")
+        if iniItems.waterDemandOptions["includeManufactureWaterDemand"] == "False": self.sector_names.remove("manufacture")
+        if iniItems.waterDemandOptions["includeThermoelectricWaterDemand"] == "False": self.sector_names.remove("thermoelectric")
+        if iniItems.waterDemandOptions["includeIrrigation"] == "False": self.sector_names.remove("irrigation")
+           
         
         
         # instantiate the following variable: 
