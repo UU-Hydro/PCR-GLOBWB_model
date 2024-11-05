@@ -585,10 +585,9 @@ class WaterManagement(object):
         # remaining desalination water use - unit: m3
         self.volRemainingDesalinationWaterUse = pcr.max(0.0, volDesalinationWaterUse - volDesalinationAbstraction)
         
-        pcr.aguila(self.desalinationAllocation)
-        pcr.aguila(self.desalinationAbstraction)
-        
-        pietje
+        # ~ pcr.aguila(self.desalinationAllocation)
+        # ~ pcr.aguila(self.desalinationAbstraction)
+        # ~ pietje
 
                                                      
 
@@ -708,8 +707,9 @@ class WaterManagement(object):
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
 
-        # ~ pcr.aguila(self.allocSurfaceWaterAbstract)
-        # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
+        pcr.aguila(self.allocSurfaceWaterAbstract)
+        pcr.aguila(self.actSurfaceWaterAbstract  )
+        pietje
 
     def abstraction_and_allocation_from_groundwater(self, remaining_gross_sectoral_water_demands, routing, groundwater, currTimeStep):
         
