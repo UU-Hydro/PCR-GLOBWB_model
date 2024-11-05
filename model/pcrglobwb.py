@@ -442,24 +442,29 @@ class PCRGlobWB(object):
         
         # for the entire stores from snow + interception + soil + groundwater, but excluding river/routing
         # 
-        # - incoming fluxes (unit: m3)
-        precipitation           = pcr.ifthen(self.landmask, self.meteo.precipitation * self.routing.cellArea)
-        satisfiedIrrGrossDemand = pcr.ifthen(self.landmask, self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"])
-        surfaceWaterInf         = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf * self.routing.cellArea)
+        # - incoming fluxes (unit: m)
+        precipitation           = pcr.ifthen(self.landmask, self.meteo.precipitation)
+        satisfiedIrrGrossDemand = pcr.ifthen(self.landmask, self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"] / self.routing.cellArea)
+        surfaceWaterInf         = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
         # 
-        # - outgoing fluxes (unit: m3)
-        actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET * self.routing.cellArea)
-        runoff                  = pcr.ifthen(self.landmask, self.routing.runoff * self.routing.cellArea)
-        nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs * self.routing.cellArea)   
+        # - outgoing fluxes (unit: m)
+        actualET                = pcr.ifthen(self.landmask, self.landSurface.actualET)
+        runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
+        nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
         # 
+        
+        
         vos.waterBalanceCheck([precipitation, surfaceWaterInf, satisfiedIrrGrossDemand],\
                               [actualET, runoff, nonFossilGroundwaterAbs],\
-                              [storesAtBeginning * self.routing.cellArea],\
-                              [storesAtEnd * self.routing.cellArea],\
+                              [storesAtBeginning],\
+                              [storesAtEnd],\
                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
                                True,\
-                               self._modelTime.fulldate,threshold=1e-3 * (1.0e8))
+                               self._modelTime.fulldate,threshold=1e-3)
     
+        pcr.aguila(satisfiedIrrGrossDemand)
+        pietje
+
     def read_forcings(self):
         logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
