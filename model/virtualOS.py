@@ -77,13 +77,11 @@ def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
     # save the variable to a pcraster file and visualize it using aguila
     pcr.report(pcr_field, file_name)
     # ~ cmd = "aguila " + str(file_name) + " & "
+    # ~ os.system(cmd)
     cmd = "aguila " + str(file_name)
     print(cmd)
-
-    proc = Popen([cmd], shell=True,
-                        stdin=None, stdout=None, stderr=None, close_fds=True)
-
-    # ~ os.system(cmd)
+    proc = subprocess.Popen([cmd], shell = True,
+                                   stdin = None, stdout = None, stderr = None, close_fds = True)
     
     # remove the pcraster file
     cmd = 'rm ' + file_name
