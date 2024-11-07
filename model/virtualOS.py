@@ -76,7 +76,7 @@ def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
     
     # save the variable to a pcraster file and visualize it using aguila
     pcr.report(pcr_field, file_name)
-    cmd = "aguila " + str(file_name)
+    cmd = "aguila " + str(file_name) + " & "
     os.system(cmd)
     
     # remove the pcraster file
