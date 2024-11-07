@@ -635,7 +635,7 @@ class WaterManagement(object):
             else:
                 remainingIrrigationLivestock += remaining_gross_sectoral_water_demands[sector_name]
         # - total remaining demand, from all sectors - unit: m3/day
-        remainingTotalDemand = remainingIndustrialDomestic + remainingIndustrialDomestic        
+        remainingTotalDemand = remainingIndustrialDomestic + remainingIrrigationLivestock        
        
         # - surface water demand estimate (so far, only from sectors outside irrigation and livestock) - unit: m3/day
         surface_water_demand_estimate = swAbstractionFraction_industrial_domestic * remainingIndustrialDomestic
@@ -743,7 +743,7 @@ class WaterManagement(object):
             else:
                 remainingIrrigationLivestock += remaining_gross_sectoral_water_demands[sector_name]
         # - total remaining demand, from all sectors
-        remainingTotalDemand = remainingIndustrialDomestic + remainingIndustrialDomestic        
+        remainingTotalDemand = remainingIndustrialDomestic + remainingIrrigationLivestock        
         
 
         # Abstraction and Allocation of GROUNDWATER (ALL: renewable (non-fossil) and non-renewable (fossil))
