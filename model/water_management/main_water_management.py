@@ -490,7 +490,11 @@ class WaterManagement(object):
              self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["nonrenewable_groundwater"][sector_name]
              self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
 
-
+       
+        os.system("killall aguila")
+        vos.aguila_with_var_name(self.satisfied_gross_sectoral_water_demands["irrigation"], "satisfied_irrigation_demand_volume.map")
+        pietje
+        
         #   - the updated self.available_renewable_groundwater   
         #   - the updated self.available_nonrenewable_groundwater
 
