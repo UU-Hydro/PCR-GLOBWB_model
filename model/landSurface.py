@@ -1331,15 +1331,17 @@ class LandSurface(object):
 
         # ~ pcr.aguila(total_satisfied_irrigation_water_volume)
 
-        self.satisfied_irrigation_water_volume = {}
-        self.satisfied_irrigation_water_height = {}
+        # calculate the total fraction of irrigated areas within the cell
+        total_cell_fraction_of_irrigated_areas = pcr.ifthen(self.landmask, pcr.scalar(0.0))
         for coverType in self.coverTypes: 
-            
-            # calculate the total fraction of irrigated areas within the cell
-            total_cell_fraction_of_irrigated_areas = pcr.ifthen(self.landmask, pcr.scalar(0.0))
             if coverType.startswith("irr"):
                 total_cell_fraction_of_irrigated_areas = total_cell_fraction_of_irrigated_areas + self.landCoverObj[coverType].fracVegCover
             
+
+        self.satisfied_irrigation_water_volume = {}
+        self.satisfied_irrigation_water_height = {}
+        for coverType in self.coverTypes: 
+
             # for irrigation land cover types
             if coverType.startswith("irr"):
                 
