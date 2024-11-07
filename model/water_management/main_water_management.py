@@ -706,12 +706,12 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of SURFACE WATER
 
 
-        os.system("killall aguila; sleep 1s")
+        # ~ os.system("killall aguila; sleep 1s")
 
         # allocate the "surface water Allocation" to each sector - unit: m3
         self.allocated_demand_per_sector["surface_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volSurfaceWaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
 
-        pietje
+        # ~ pietje
 
         # allocate the "surface water Abastraction" to each sector - unit: m3
         self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
@@ -887,10 +887,13 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of RENEWABLE GROUNDWATER
 
 
+        os.system("killall aguila; sleep 1s")
 
         # allocate the "renewable groundwater Allocation" to each sector - unit: m3/day
         self.allocated_demand_per_sector["renewable_groundwater"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volRenewGroundwaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
         
+        input("Press Enter to continue...")        
+
         # allocate the "renewable groundwater Abstraction" to each sector - unit: m3/day
         self.allocated_withdrawal_per_sector["renewable_groundwater"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volRenewGroundwaterAbstraction, totalVolZoneAbstraction = volZoneRenewGroundwaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["renewable_groundwater"], allocation_zones = self.allocationSegmentsForGroundwaterSource)
         
