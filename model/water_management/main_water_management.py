@@ -506,7 +506,7 @@ class WaterManagement(object):
             print(sector_name)
             
             vos.aguila_with_var_name(sectoral_remaining_demand_volume[sector_name], "sectoral_remaining_demand_volume_" + sector_name + ".map")
-            # ~ pcr.aguila(totalVolWaterAllocation)
+            vos.aguila_with_var_name(allocated_demand_per_sector[sector_name]     , "allocated_demand_per_sector_"      + sector_name + ".map")
             
         
         vos.aguila_with_var_name(total_remaining_demand_volume, "total_remaining_demand_volume.map")
