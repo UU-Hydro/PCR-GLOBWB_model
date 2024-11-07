@@ -416,7 +416,8 @@ class WaterManagement(object):
         # - both have the unit m3
         self.satisfied_gross_sectoral_water_demands = {}
         self.remaining_gross_sectoral_water_demands = {}
-        for sector_name in vol_gross_sectoral_water_demands.keys():
+        # ~ for sector_name in vol_gross_sectoral_water_demands.keys():
+        for sector_name in self.sector_names:
              self.satisfied_gross_sectoral_water_demands[sector_name] = pcr.scalar(0.0) 
              self.remaining_gross_sectoral_water_demands[sector_name] = vol_gross_sectoral_water_demands[sector_name]
         
@@ -435,7 +436,8 @@ class WaterManagement(object):
         # update the following after abstraction and allocation of desalinated water
         #   - the updated self.remaining_gross_sectoral_water_demands (after desalinated_water use)
         #   - the updated self.satisfied_gross_sectoral_water_demands (after desalinated_water use)
-        for sector_name in vol_gross_sectoral_water_demands.keys():
+        # ~ for sector_name in vol_gross_sectoral_water_demands.keys():
+        for sector_name in self.sector_names:
              self.satisfied_gross_sectoral_water_demands[sector_name] += self.allocated_demand_per_sector["desalinated_water"][sector_name]  
              self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["desalinated_water"][sector_name]
              self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
