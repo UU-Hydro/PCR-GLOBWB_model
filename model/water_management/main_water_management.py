@@ -502,13 +502,13 @@ class WaterManagement(object):
             allocated_demand_per_sector[sector_name] = pcr.ifthenelse(total_remaining_demand_volume > 0.0, \
             vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation, 0.0)
             
-            # ~ print(sector_name)
+            print(sector_name)
             
-            # ~ vos.aguila_with_var_name(sectoral_remaining_demand_volume[sector_name], "sectoral_remaining_demand_volume_" + sector_name + ".map")
-            # ~ vos.aguila_with_var_name(allocated_demand_per_sector[sector_name]     , "allocated_demand_per_sector_"      + sector_name + ".map")
+            vos.aguila_with_var_name(sectoral_remaining_demand_volume[sector_name], "sectoral_remaining_demand_volume_" + sector_name + ".map")
+            vos.aguila_with_var_name(allocated_demand_per_sector[sector_name]     , "allocated_demand_per_sector_"      + sector_name + ".map")
         
-        # ~ vos.aguila_with_var_name(total_remaining_demand_volume, "total_remaining_demand_volume.map")
-        # ~ vos.aguila_with_var_name(totalVolWaterAllocation, "totalVolWaterAllocation.map")
+        vos.aguila_with_var_name(total_remaining_demand_volume, "total_remaining_demand_volume.map")
+        vos.aguila_with_var_name(totalVolWaterAllocation, "totalVolWaterAllocation.map")
         
         # ~ pietje
             
