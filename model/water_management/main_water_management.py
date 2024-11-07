@@ -737,7 +737,7 @@ class WaterManagement(object):
         self.actSurfaceWaterAbstract   = volSurfaceWaterAbstraction / self.cellArea
 
         # remaining surface water that can be extracted - unit: m3
-        self.volRemainingSurfaceWater = pcr.max(0.0,  available_surface_water_volume - volSurfaceWaterAbstraction)
+        volRemainingSurfaceWater = pcr.max(0.0,  available_surface_water_volume - volSurfaceWaterAbstraction)
         
 
         # pass the estimates in swAbstractionFractionDict for other modules
