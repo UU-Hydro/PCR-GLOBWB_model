@@ -83,9 +83,9 @@ def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
     proc = subprocess.Popen([cmd], shell = True,
                                    stdin = None, stdout = None, stderr = None, close_fds = True)
     
-    # remove the pcraster file
-    cmd = 'rm ' + file_name
-    os.system(cmd)
+    # ~ # remove the pcraster file
+    # ~ cmd = 'rm ' + file_name
+    # ~ os.system(cmd)
     
 
 def get_var_name(var):
