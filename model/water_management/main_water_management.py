@@ -457,7 +457,7 @@ class WaterManagement(object):
                                                            currTimeStep                           = currTimeStep)
 
         os.system("killall aguila")
-        vos.aguila_with_var_name(self.satisfied_gross_sectoral_water_demands["irrigation"], "satisfied_irrigation_demand_volume.map")
+        vos.aguila_with_var_name(self.allocated_demand_per_sector["surface_water"]["irrigation"], "satisfied_irrigation_demand_volume_from_surface_water.map")
         pietje
 
         # update the following after abstraction and allocation of surface water
