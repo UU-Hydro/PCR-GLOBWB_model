@@ -3888,7 +3888,7 @@ class LandCover(object):
         os.system("killall aguila")
         pcr.aguila(satisfied_irrigation_water_height)
         
-        pietje
+        if self.name == "irrNonPaddy": pietje
         
         # calculate directRunoff and infiltration, based on the improved Arno scheme (Hageman and Gates, 2003):
         # and update topWaterLayer (after directRunoff and infiltration).  
