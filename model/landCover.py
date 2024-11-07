@@ -3885,6 +3885,8 @@ class LandCover(object):
         # - this will include adding water for irrigation 
         self.calculateOpenWaterEvap(satisfied_irrigation_water_height)
         
+        pcr.aguila(satisfied_irrigation_water_height)
+        
         # calculate directRunoff and infiltration, based on the improved Arno scheme (Hageman and Gates, 2003):
         # and update topWaterLayer (after directRunoff and infiltration).  
         self.calculateDirectRunoff()
