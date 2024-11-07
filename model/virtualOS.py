@@ -70,6 +70,25 @@ max_num_of_tries = 5
 # ~ max_num_of_tries = float("inf")
 
 
+def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
+
+    if tmp_directory is not None: file_name = tmp_directory + "/" file_name + ".tmp.map"
+    
+    # save the variable to a pcraster file and visualize it using aguila
+    pcr.report(pcr_field, file_name)
+    cmd = "aguila " + str(file_name)
+    os.system(cmd)
+    
+    # remove the pcraster file
+    cmd = 'rm ' + file_name
+    os.system(cmd)
+    
+
+def get_var_name(var):
+    for name, value in globals().items():
+        if value is var:
+            return name
+
 def getFileList(inputDir, filePattern):
     '''creates a dictionary of  files meeting the pattern specified'''
     fileNameList = glob.glob(os.path.join(inputDir, filePattern))
@@ -2778,3 +2797,8 @@ def rad2deg(a):
     return a * 180.0 / pi
 
 # julian day and relative julian day
+
+
+
+
+
