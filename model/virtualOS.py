@@ -72,7 +72,7 @@ max_num_of_tries = 5
 
 def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
 
-    if tmp_directory is not None: file_name = tmp_directory + "/" file_name + ".tmp.map"
+    if tmp_directory is not None: file_name = tmp_directory + "/" + file_name + ".tmp.map"
     
     # save the variable to a pcraster file and visualize it using aguila
     pcr.report(pcr_field, file_name)
