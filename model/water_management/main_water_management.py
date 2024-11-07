@@ -442,9 +442,9 @@ class WaterManagement(object):
              self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["desalinated_water"][sector_name]
              self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
         
-        os.system("killall aguila")
-        vos.aguila_with_var_name(self.satisfied_gross_sectoral_water_demands["irrigation"], "satisfied_irrigation_demand_volume.map")
-        pietje
+        # ~ os.system("killall aguila")
+        # ~ vos.aguila_with_var_name(self.satisfied_gross_sectoral_water_demands["irrigation"], "satisfied_irrigation_demand_volume.map")
+        # ~ pietje
         
         # abstract and allocate surface water
         # - this will return the following:
@@ -464,6 +464,10 @@ class WaterManagement(object):
              self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["surface_water"][sector_name]
              self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
              
+        os.system("killall aguila")
+        vos.aguila_with_var_name(self.satisfied_gross_sectoral_water_demands["irrigation"], "satisfied_irrigation_demand_volume.map")
+        pietje
+
         # abstract and allocate groundwater
         # - this will return the following:
         #   - self.allocated_demand_per_sector["renewable_groundwater"]
