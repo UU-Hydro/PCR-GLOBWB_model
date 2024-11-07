@@ -458,9 +458,7 @@ class WaterManagement(object):
              self.satisfied_gross_sectoral_water_demands[sector_name] += self.allocated_demand_per_sector["surface_water"][sector_name]  
              self.remaining_gross_sectoral_water_demands[sector_name] -= self.allocated_demand_per_sector["surface_water"][sector_name]
              self.remaining_gross_sectoral_water_demands[sector_name]  = pcr.max(0.0, self.remaining_gross_sectoral_water_demands[sector_name])
-
-
-
+             
         # abstract and allocate groundwater
         # - this will return the following:
         #   - self.allocated_demand_per_sector["renewable_groundwater"]
@@ -502,17 +500,15 @@ class WaterManagement(object):
             allocated_demand_per_sector[sector_name] = pcr.ifthenelse(total_remaining_demand_volume > 0.0, \
             vos.getValDivZero(sectoral_remaining_demand_volume[sector_name], total_remaining_demand_volume) * totalVolWaterAllocation, 0.0)
             
-            # ~ pcr.aguila(total_remaining_demand_volume)
-            print(sector_name)
+            # ~ print(sector_name)
             
-            vos.aguila_with_var_name(sectoral_remaining_demand_volume[sector_name], "sectoral_remaining_demand_volume_" + sector_name + ".map")
-            vos.aguila_with_var_name(allocated_demand_per_sector[sector_name]     , "allocated_demand_per_sector_"      + sector_name + ".map")
-            
+            # ~ vos.aguila_with_var_name(sectoral_remaining_demand_volume[sector_name], "sectoral_remaining_demand_volume_" + sector_name + ".map")
+            # ~ vos.aguila_with_var_name(allocated_demand_per_sector[sector_name]     , "allocated_demand_per_sector_"      + sector_name + ".map")
         
-        vos.aguila_with_var_name(total_remaining_demand_volume, "total_remaining_demand_volume.map")
-        vos.aguila_with_var_name(totalVolWaterAllocation, "totalVolWaterAllocation.map")
+        # ~ vos.aguila_with_var_name(total_remaining_demand_volume, "total_remaining_demand_volume.map")
+        # ~ vos.aguila_with_var_name(totalVolWaterAllocation, "totalVolWaterAllocation.map")
         
-        pietje
+        # ~ pietje
             
         return allocated_demand_per_sector    
 
@@ -708,9 +704,12 @@ class WaterManagement(object):
         # - end of Abstraction and Allocation of SURFACE WATER
 
 
+        os.system("killall aguila; sleep 1s")
+
         # allocate the "surface water Allocation" to each sector - unit: m3
         self.allocated_demand_per_sector["surface_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volSurfaceWaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
 
+        pietje
 
         # allocate the "surface water Abastraction" to each sector - unit: m3
         self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
