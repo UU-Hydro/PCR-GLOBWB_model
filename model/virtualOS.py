@@ -76,13 +76,13 @@ def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
     
     # save the variable to a pcraster file and visualize it using aguila
     pcr.report(pcr_field, file_name)
-    cmd = "aguila " + str(file_name) + " & sleep 0.5s &"
+    cmd = "aguila " + str(file_name) + " & "
     print(cmd)
     os.system(cmd)
     
-    # remove the pcraster file
-    cmd = 'rm ' + file_name
-    os.system(cmd)
+    # ~ # remove the pcraster file
+    # ~ cmd = 'rm ' + file_name
+    # ~ os.system(cmd)
     
 
 def get_var_name(var):
