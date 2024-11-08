@@ -734,8 +734,6 @@ class WaterManagement(object):
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
 
-        pietje
-
         # allocate the "surface water Abastraction" to each sector - unit: m3
         self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
         
@@ -750,8 +748,6 @@ class WaterManagement(object):
 
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
-
-        os.system("killall aguila; sleep 1s")
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
         
