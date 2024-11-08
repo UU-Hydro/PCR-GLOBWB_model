@@ -536,17 +536,18 @@ class WaterManagement(object):
 
     def allocate_withdrawal_to_each_sector(self, totalVolCellWaterAbstraction, totalVolZoneAbstraction, cellAllocatedDemandPerSector, allocation_zones = None):
 
-        # for the case without allocation zone
-        allocated_withdrawal_per_sector = cellAllocatedDemandPerSector
-
         # for the case with allocation zone
         if allocation_zones is not None:
             zonal_allocated_withdrawal_per_sector = {}
             for sector_name in self.sector_names:
                 
                 zonal_allocated_withdrawal_per_sector[sector_name] = pcr.areatotal(cellAllocatedDemandPerSector[sector_name], allocation_zones)   
-                allocated_withdrawal_per_sector[sector_name] = totalVolCellWaterAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
+                cellAllocatedDemandPerSector[sector_name] = totalVolCellWaterAbstraction * vos.getValDivZero(zonal_allocated_withdrawal_per_sector[sector_name], totalVolZoneAbstraction)
         
+        else:
+            # for the case without allocation zone
+            allocated_withdrawal_per_sector = cellAllocatedDemandPerSector
+
         return allocated_withdrawal_per_sector    
 
 
@@ -734,8 +735,8 @@ class WaterManagement(object):
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
 
-        # ~ # allocate the "surface water Abastraction" to each sector - unit: m3
-        # ~ self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
+        # allocate the "surface water Abastraction" to each sector - unit: m3
+        self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
         
