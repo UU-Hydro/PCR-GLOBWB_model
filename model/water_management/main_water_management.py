@@ -747,6 +747,8 @@ class WaterManagement(object):
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
 
+        os.system("killall aguila; sleep 1s")
+
         pcr.aguila(self.allocSurfaceWaterAbstract)
         # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
         pietje
