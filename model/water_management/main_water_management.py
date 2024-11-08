@@ -456,9 +456,9 @@ class WaterManagement(object):
                                                            groundwater                            = groundwater,\
                                                            currTimeStep                           = currTimeStep)
 
-        os.system("killall aguila")
-        vos.aguila_with_var_name(self.allocated_demand_per_sector["surface_water"]["irrigation"], "satisfied_irrigation_demand_volume_from_surface_water.map")
-        pietje
+        # ~ os.system("killall aguila")
+        # ~ vos.aguila_with_var_name(self.allocated_demand_per_sector["surface_water"]["irrigation"], "satisfied_irrigation_demand_volume_from_surface_water.map")
+        # ~ pietje
 
         # update the following after abstraction and allocation of surface water
         #   - the updated self.remaining_gross_sectoral_water_demands
@@ -747,7 +747,7 @@ class WaterManagement(object):
         # pass the estimates in swAbstractionFractionDict for other modules
         self.swAbstractionFractionDict = swAbstractionFractionDict
 
-        # ~ pcr.aguila(self.allocSurfaceWaterAbstract)
+        pcr.aguila(self.allocSurfaceWaterAbstract)
         # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
         # ~ pietje
 
