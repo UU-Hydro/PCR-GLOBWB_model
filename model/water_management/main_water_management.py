@@ -727,17 +727,14 @@ class WaterManagement(object):
 
         # ~ os.system("killall aguila; sleep 1s")
 
-        os.system("killall aguila; sleep 1s")
-
-        pcr.aguila(self.allocSurfaceWaterAbstract)
-        # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
-        pietje
-
-
         # allocate the "surface water Allocation" to each sector - unit: m3
         self.allocated_demand_per_sector["surface_water"] = self.allocate_satisfied_demand_to_each_sector(totalVolWaterAllocation = volSurfaceWaterAllocation, sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands, total_remaining_demand_volume = remainingTotalDemand)
 
-        # ~ pietje
+        os.system("killall aguila; sleep 1s")
+
+        pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
+
+        pietje
 
         # allocate the "surface water Abastraction" to each sector - unit: m3
         self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
@@ -756,6 +753,8 @@ class WaterManagement(object):
 
         os.system("killall aguila; sleep 1s")
 
+        pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
+        
         # ~ pcr.aguila(self.allocSurfaceWaterAbstract)
         # ~ pcr.aguila(self.actSurfaceWaterAbstract  )
         pietje
