@@ -734,11 +734,18 @@ class WaterManagement(object):
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
 
-        # allocate the "surface water Abastraction" to each sector - unit: m3
-        self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
+        # ~ # allocate the "surface water Abastraction" to each sector - unit: m3
+        # ~ self.allocated_withdrawal_per_sector["surface_water"] = self.allocate_withdrawal_to_each_sector(totalVolCellWaterAbstraction = volSurfaceWaterAbstraction, totalVolZoneAbstraction = volZoneSurfaceWaterAbstraction, cellAllocatedDemandPerSector = self.allocated_demand_per_sector["surface_water"], allocation_zones = self.allocationSegmentsForSurfaceWaterSource)
 
         pcr.aguila(self.allocated_demand_per_sector["surface_water"]["irrigation"])
         
+
+
+
+
+
+
+
         # make the total surface water Allocation and Abstraction available for other modules, unit m/day
         self.allocSurfaceWaterAbstract = volSurfaceWaterAllocation  / self.cellArea
         self.actSurfaceWaterAbstract   = volSurfaceWaterAbstraction / self.cellArea
