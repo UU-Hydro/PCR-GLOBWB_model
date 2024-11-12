@@ -143,7 +143,7 @@ class LandSurface(object):
                           'satDegUppTotal',
                           'satDegLowTotal',
                           'satDegTotal']
-        #i
+        #
         # flux variables (unit: m/day)
         self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
                           'totalPotET',
@@ -1358,7 +1358,7 @@ class LandSurface(object):
                 # - in water slice/height (m)
                 self.satisfied_irrigation_water_height[coverType] = pcr.ifthenelse(self.landCoverObj[coverType].fracVegCover > 0.0, self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover), pcr.scalar(0.0))
 
-                pcr.aguila(self.satisfied_irrigation_water_height[coverType])
+                # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
                 
                 # ~ self.satisfied_irrigation_water_volume[coverType] = pcr.cover(self.satisfied_irrigation_water_volume[coverType], 0.0)
                 # ~ self.satisfied_irrigation_water_height[coverType] = pcr.cover(self.satisfied_irrigation_water_height[coverType], 0.0)

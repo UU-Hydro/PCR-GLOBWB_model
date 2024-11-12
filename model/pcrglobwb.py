@@ -213,7 +213,22 @@ class PCRGlobWB(object):
 
             self.precipitationAcc  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0))) 
 
-            for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))            
+            list_of_land_surface_variables = self.landSurface.fluxVars + [
+                          'desalinationAbstraction',
+                          'desalinationAllocation',
+                          'actSurfaceWaterAbstract',
+                          'allocSurfaceWaterAbstract',
+                          'nonFossilGroundwaterAbs',
+                          'allocNonFossilGroundwater',
+                          'fossilGroundwaterAbstr',
+                          'fossilGroundwaterAlloc',
+                          'totalGroundwaterAbstraction',
+                          'totalGroundwaterAllocation',
+                          'nonIrrReturnFlow',
+             ]
+            
+            # ~ for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))            
+            for var in list_of_land_surface_variables: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))            
 
             self.baseflowAcc                  = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
 
@@ -244,7 +259,8 @@ class PCRGlobWB(object):
             
         # accumulating until the last day of the year:
         self.precipitationAcc   += self.meteo.precipitation
-        for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] += vars(self.landSurface)[var]            
+        # ~ for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] += vars(self.landSurface)[var]            
+        for var in list_of_land_surface_variables: vars(self)[var+'Acc'] += vars(self.landSurface)[var]            
 
         self.baseflowAcc         += self.groundwater.baseflow
 
@@ -462,7 +478,7 @@ class PCRGlobWB(object):
                                True,\
                                self._modelTime.fulldate,threshold=1e-3)
     
-        pcr.aguila(satisfiedIrrGrossDemand)
+        # ~ pcr.aguila(satisfiedIrrGrossDemand)
         # ~ pietje
 
     def read_forcings(self):
