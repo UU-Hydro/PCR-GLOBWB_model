@@ -1394,6 +1394,9 @@ class LandSurface(object):
         # - non-renewable groundwater abstraction, unit m/day, total for all sectors
         self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
         self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
+        
+        # - total groundwater abstraction in water slice/height (m/day)
+        self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
 
        
         # ~ # TODO: Fix the following water balance checks, or shall we put it within the water management module
