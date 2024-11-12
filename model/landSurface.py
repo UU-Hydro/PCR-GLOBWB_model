@@ -1395,8 +1395,9 @@ class LandSurface(object):
         self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
         self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
         
-        # - total groundwater abstraction in water slice/height (m/day)
+        # - total groundwater abstraction and allocation in water slice/height (m/day)
         self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
+        self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
 
        
         # ~ # TODO: Fix the following water balance checks, or shall we put it within the water management module
