@@ -312,7 +312,8 @@ class PCRGlobWB(object):
                             'surfaceWaterInf',
                             'runoff',
                             'unmetDemand']
-            variableList += self.landSurface.fluxVars
+            # ~ variableList += self.landSurface.fluxVars
+            variableList += self.list_of_land_surface_variables
 
             # ~ variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']                
             # ~ # FIXME: During the development of new water use module, we disactivated the total accumulation value for 'irrigationEvaporationWaterUse'
