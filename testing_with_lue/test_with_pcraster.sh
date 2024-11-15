@@ -35,5 +35,5 @@ ini_in="../config/lue/setup_30min_on_velocity_for_lue.ini"
 rm -fr $output_dir
 
 LUE_PCRASTER_PROVIDER_NAME=pcraster \
-     python model/deterministic_runner.py $ini_in
+     python ../model/deterministic_runner.py $ini_in
 
