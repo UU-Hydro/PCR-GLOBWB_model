@@ -6,8 +6,7 @@
 import os
 import sys
 
-import pcraster as pcr
-import pcraster.framework as pcrm
+from lue.framework.pcraster_provider import pcr, pcrfw
 
 #~ import shortwave_radiation
 
@@ -123,7 +122,7 @@ def updateShortWaveRadiation(shortWaveRadiation, albedo= 0.00,\
 	'''returns the net shortwave radiation'''
 	return (1-albedo)*fraction*shortWaveRadiation
 
-class penmanMonteithET(pcrm.StaticModel):
+class penmanMonteithET(pcrfw.StaticModel):
 	"""Class with the Penman-Monteith equation for potential evaporation. \
 Constants are set in the init section and can override default values.
 
@@ -150,7 +149,7 @@ are included with the following default, constant values:
 	vegetationHeight = 0.12;# vegetation height [m] for FAO reference crop
 
 	'''
-		pcrm.StaticModel.__init__(self)
+		pcrfw.StaticModel.__init__(self)
 		#-missing value
 		self.MV= -999.9
 		#-constants
@@ -286,23 +285,23 @@ def main():
 		msg = 'processing month %2d' % month
 		print(msg)
 		#-read files
-		cloudiness= 0.001*pcr.readmap(pcrm.generateNameT(cloudinessFileRoot,month))
-		temperature= 0.1*pcr.readmap(pcrm.generateNameT(temperatureFileRoot,month))
-		vapourPressure= 10.*pcr.readmap(pcrm.generateNameT(vapourPressureFileRoot,month))
-		shortWaveRadiation= pcr.readmap(pcrm.generateNameT(shortWaveRadiationFileRoot,month))
-		windSpeed= pcr.readmap(pcrm.generateNameT(windSpeedFileRoot,month))
+		cloudiness= 0.001*pcr.readmap(pcrfw.generateNameT(cloudinessFileRoot,month))
+		temperature= 0.1*pcr.readmap(pcrfw.generateNameT(temperatureFileRoot,month))
+		vapourPressure= 10.*pcr.readmap(pcrfw.generateNameT(vapourPressureFileRoot,month))
+		shortWaveRadiation= pcr.readmap(pcrfw.generateNameT(shortWaveRadiationFileRoot,month))
+		windSpeed= pcr.readmap(pcrfw.generateNameT(windSpeedFileRoot,month))
 		#-compute fraction short- and longwave radiation
 		fractionShortWaveRadiation= getShortWaveRadiationFraction(cloudiness)
 		shortWaveRadiation= updateShortWaveRadiation(shortWaveRadiation,penMonModel.albedo,fractionShortWaveRadiation)
 		longWaveRadiation= getLongWaveRadiation(temperature,vapourPressure,fractionShortWaveRadiation)
-		pcr.report(shortWaveRadiation,os.path.join(outputPath,pcrm.generateNameT('rads',month)))
-		pcr.report(longWaveRadiation, os.path.join(outputPath,pcrm.generateNameT('radl',month)))
+		pcr.report(shortWaveRadiation,os.path.join(outputPath,pcrfw.generateNameT('rads',month)))
+		pcr.report(longWaveRadiation, os.path.join(outputPath,pcrfw.generateNameT('radl',month)))
 		#-compute evaporation
 		penMonModel.updatePotentialEvaporation(pcr.max(0,shortWaveRadiation-longWaveRadiation),\
 			temperature,windSpeed,penMonModel.atmosphericPressure,\
 			unsatVapPressure=vapourPressure)
 		pcr.report(penMonModel.potentialEvaporation,\
-			os.path.join(outputPath,pcrm.generateNameT('etpot',month)))
+			os.path.join(outputPath,pcrfw.generateNameT('etpot',month)))
 
 if __name__ == "__main__":
 	print(main.__doc__)

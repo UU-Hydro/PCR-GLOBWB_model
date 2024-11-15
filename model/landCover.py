@@ -26,7 +26,7 @@ import re
 import types
 
 import netCDF4 as nc
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)
@@ -215,7 +215,11 @@ class LandCover(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            if pcr.provider_name == "pcraster":
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            else:
+                # TODO LUE: support future + scalar
+                cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.scalar(pcr.uniqueid(pcr.boolean(1.0)))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)

@@ -30,8 +30,7 @@ import itertools
 
 from six.moves import map
 
-from pcraster.framework import *
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)
@@ -236,9 +235,13 @@ class Routing(object):
 
         # empirical values for minimum number of sub-time steps:
         design_flood_speed = 5.00 # m/s
-        design_length_of_sub_time_step   = pcr.cellvalue(
-                                           pcr.mapminimum(
-                                           self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        if pcr.provider_name == "pcraster":
+            design_length_of_sub_time_step   = pcr.cellvalue(
+                                               pcr.mapminimum(
+                                               self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        else:
+            # LUE TODO support cellvalue
+            design_length_of_sub_time_step   = pcr.mapminimum(self.courantNumber * self.channelLength / design_flood_speed).future.get()
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
@@ -384,7 +387,11 @@ class Routing(object):
 
         # make sure that timestepsToAvgDischarge is consistent (or the same) for the entire map:
         try:
-            self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            if pcr.provider_name == "pcraster":
+                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            else:
+                # LUE TODO: support computing with future<scalar> (the new Scalar type)
+                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge).future.get()
         except:    
             pass # We have to use 'try/except' because 'pcr.mapmaximum' cannot handle scalar value
 
@@ -721,7 +728,11 @@ class Routing(object):
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundup(number_of_sub_time_steps)
         #
-        number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
+        if pcr.provider_name == "pcraster":
+            number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
+        else:
+            # TODO LUE support cellvalue, or calc with scalars
+            number_of_loops = max(1.0, pcr.mapmaximum(number_of_sub_time_steps).future.get())     # minimum number of sub_time_steps = 1 
         number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
@@ -2102,9 +2113,17 @@ class Routing(object):
 
             # discharge (m3/s) based on the KINEMATIC WAVE approximation
             #~ logger.debug('start pcr.kinematic')
-            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              alpha, self.beta, \
-                                              1, length_of_sub_time_step, self.channelLength)
+            if pcr.provider_name == "pcraster":
+                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                                  alpha, self.beta, \
+                                                  1, length_of_sub_time_step, self.channelLength)
+            else:
+                # TODO LUE: Support scalar q
+                # TODO LUE: Support spatial alpha
+                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                                                  pcr.spatial(0.0), 
+                                                  pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 
