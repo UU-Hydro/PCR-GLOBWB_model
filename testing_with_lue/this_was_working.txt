@@ -22,14 +22,11 @@
 
 #~ Kor
 
+. /home/sutan101/load_all_default.sh
+
 
 
 set -eu
-
-module load foss2023a
-module load PCRaster/4.4.1-foss-2023a-Python-3.11.3
-module load netcdf4-python
-module load LUE/development-foss-2023a
 
 # Run this script with PCRaster package in environment. This should work:
 # python -c "import pcraster, lue.framework.pcraster_provider"
@@ -41,4 +38,6 @@ rm -fr $output_dir
 
 LUE_PCRASTER_PROVIDER_NAME=pcraster \
      python ../model/deterministic_runner.py $ini_in
+
+
 
