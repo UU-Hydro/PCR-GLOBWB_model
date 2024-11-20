@@ -51,7 +51,6 @@ libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
 
 # Common
------------------------------------------------------------------------
 input_dir="$input_prefix/hydroworld/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input"
 output_dir="$scratch_prefix/pcr_globwb/lue/30min_global"
 
