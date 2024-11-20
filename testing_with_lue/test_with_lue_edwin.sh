@@ -39,17 +39,7 @@ libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="360,720" \
-     python ../model/deterministic_runner.py ../config/lue/setup_30min_on_velocity_for_lue_with_lue.ini \
+     python /home/sutan101/github/UU-Hydro/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/UU-Hydro/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_with_lue.ini \
          --hpx:threads=1
 
-output_dir="/scratch/sutan101/pcr_globwb/lue/30min_global/"
-
-rm -fr $output_dir
-
-# Common
-input_dir="$input_prefix/hydroworld/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input"
-output_dir="$scratch_prefix/pcr_globwb/lue/30min_global"
-
-ini_in="../config/lue/setup_30min_on_velocity_for_lue_with_lue.ini"
-ini_out="$HOME/tmp/setup_30min_on_velocity_for_lue.ini"
 
