@@ -35,7 +35,7 @@ module load LUE/development-foss-2023a
 # python -c "import pcraster, lue.framework.pcraster_provider"
 
 output_dir="/scratch/sutan101/pgb_lue_test/with_pcraster/"
-ini_in="../config/lue/setup_30min_on_velocity_for_lue.ini"
+ini_in="../config/lue/setup_30min_on_velocity_for_lue_with_pcraster.ini"
 
 rm -fr $output_dir
 
