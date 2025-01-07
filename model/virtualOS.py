@@ -45,6 +45,8 @@ import numpy as np
 import numpy.ma as ma
 from lue.framework.pcraster_provider import pcr
 
+import lue.framework as lfr
+
 import logging
 
 from six.moves import range
@@ -2790,6 +2792,34 @@ def plot_variable(pcr_variable, filename = None):
     
     cmd = 'rm '+str(filename)
     os.system(cmd)
+
+def plot_variable_for_lue(pcr_variable, filename = None, remove_file = True):
+
+    if filename == None: filename = get_random_word(8) + ".tif"
+    
+    # ~ pcr.report(pcr_variable, filename)
+    
+    written = lfr.to_gdal(pcr_variable, filename)
+    written.wait()
+    
+    os.system("pwd")
+    # ~ os.system("sleep 1s")
+
+    # converting to a pcraster and using only   
+    cmd = 'pcrcalc ' + filename + '.map = "if(abs(' + filename + ') ge 0.0, ' + filename + ')"'
+    print(cmd)
+    os.system(cmd)
+    cmd = 'mapattr -s -P yb2t ' + filename + '.map'
+    print(cmd)
+    os.system(cmd)
+    
+    cmd = 'aguila ' + str(filename) + '.map' 
+    print(cmd)
+    os.system(cmd)
+    
+    if remove_file:
+        cmd = 'rm ' + str(filename) + "*"
+        os.system(cmd)
 
 # conversions to and from radians
 def deg2rad(a):

@@ -140,6 +140,9 @@ class PCRGlobWB(object):
              str(variable)+"_"+
              specific_date_string+".map",\
              outputDirectory)
+            
+            vos.plot_variable_for_lue(map, variable)
+
         
         landSurfaceState = state['landSurface']
         for coverType, coverTypeState in list(landSurfaceState.items()):
@@ -149,6 +152,8 @@ class PCRGlobWB(object):
                  str(variable)+"_"+coverType+"_"+
                  specific_date_string+".map",\
                  outputDirectory)
+
+            vos.plot_variable_for_lue(map, variable)
                 
         groundWaterState = state['groundwater']
         for variable, map in list(groundWaterState.items()):
@@ -158,6 +163,8 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
 
+            vos.plot_variable_for_lue(map, variable)
+
         routingState = state['routing']
         for variable, map in list(routingState.items()):
             vos.writePCRmapToDir(\
@@ -166,6 +173,8 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
+            vos.plot_variable_for_lue(map, variable)
+
     def calculateAndDumpMonthlyValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
 
         logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
