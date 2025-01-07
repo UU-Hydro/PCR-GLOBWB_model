@@ -738,6 +738,7 @@ class Routing(object):
         
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundup(number_of_sub_time_steps)
+        number_of_sub_time_steps = pcr.mapmaximum(number_of_sub_time_steps).future.get()
         #
         if pcr.provider_name == "pcraster":
             number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
