@@ -163,7 +163,7 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
 
-            vos.plot_variable_for_lue(map, variable)
+            # ~ vos.plot_variable_for_lue(map, variable)
 
         routingState = state['routing']
         for variable, map in list(routingState.items()):
