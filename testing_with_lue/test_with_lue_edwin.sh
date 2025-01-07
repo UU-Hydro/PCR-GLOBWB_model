@@ -49,4 +49,4 @@ module load LUE/development-foss-2023a
 # python -c "import pcraster, lue.framework.pcraster_provider"
 
 LUE_PCRASTER_PROVIDER_NAME=pcraster \
-     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini
+     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini debug
