@@ -27,8 +27,7 @@ import subprocess
 import os
 import types
 
-from pcraster.framework import *
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)
@@ -256,14 +255,27 @@ class Groundwater(object):
             if extrapolateGroundwaterThickness:
                 # extrapolation of totalGroundwaterThickness
                 # - TODO: Make a general extrapolation option as a function in the virtualOS.py
-                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
-                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
-                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 0.75))
-                totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
-                                            pcr.windowaverage(totalGroundwaterThickness, 1.00))
+                # TODO LUE To be able to compare results the original windows lengths are
+                #      skipped. Remove "and False" once checks are done!
+                if pcr.provider_name == "pcraster" and False:
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 0.75))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 1.00))
+                else:
+                    # TODO LUE window lengths must end up being an odd integral number of cells...
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 1.50))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 1.50))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 1.50))
+                    totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness,
+                                                pcr.windowaverage(totalGroundwaterThickness, 1.50))
 
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
 
@@ -370,7 +382,11 @@ class Groundwater(object):
             
             # clump it and cover the rests with cell ids 
             self.allocSegments = pcr.clump(self.allocSegments)
-            cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            if pcr.provider_name == "pcraster":
+              cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.uniqueid(pcr.boolean(1.0))
+            else:
+              # TODO LUE: support future + scalar
+              cell_ids = pcr.mapmaximum(pcr.scalar(self.allocSegments)) + pcr.scalar(100.0) + pcr.scalar(pcr.uniqueid(pcr.boolean(1.0)))
             self.allocSegments = pcr.cover(self.allocSegments, pcr.nominal(cell_ids))                               
             self.allocSegments = pcr.clump(self.allocSegments)
             self.allocSegments = pcr.ifthen(self.landmask, self.allocSegments)

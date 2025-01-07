@@ -33,7 +33,7 @@ import glob
 import subprocess
 import netCDF4 as nc
 import numpy as np
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 import virtualOS as vos
 
 # TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files

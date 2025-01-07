@@ -25,8 +25,7 @@
 import os
 import sys
 
-from pcraster.framework import DynamicModel
-from pcraster.framework import DynamicFramework
+from lue.framework.pcraster_provider import pcr, pcrfw
 
 from configuration import Configuration
 from currTimeStep import ModelTime
@@ -41,10 +40,10 @@ logger = logging.getLogger(__name__)
 import oldcalc_framework
 import disclaimer
 
-class DeterministicRunner(DynamicModel):
+class DeterministicRunner(pcrfw.DynamicModel):
 
     def __init__(self, configuration, modelTime, initialState = None):
-        DynamicModel.__init__(self)
+        pcrfw.DynamicModel.__init__(self)
 
         self.modelTime = modelTime        
         self.model = PCRGlobWB(configuration, modelTime, initialState)
@@ -61,12 +60,15 @@ class DeterministicRunner(DynamicModel):
         # update model (will pick up current model time from model time object)
         
         self.model.read_forcings()
-        self.model.update(report_water_balance=True)
+        state = self.model.update(report_water_balance=True)
         
 
         #do any needed reporting for this time step        
         self.reporting.report()
 
+        return state
+
+@pcr.runtime_scope
 def main():
 
     # print disclaimer
@@ -121,7 +123,7 @@ def main():
             
             all_state_begin = deterministic_runner.model.getAllState() 
             
-            dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+            dynamic_framework = pcrfw.DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
             dynamic_framework.setQuiet(True)
             dynamic_framework.run()
             
@@ -136,9 +138,12 @@ def main():
                                       configuration.globalOptions['endTime'])
     logger.info('Transient simulation run started.')
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state)
-    dynamic_framework = DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
+    dynamic_framework = pcrfw.DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
-    dynamic_framework.run()
+    if pcr.provider_name == "lue":
+        dynamic_framework.run(rate_limit=2)
+    else:
+        dynamic_framework.run()
 
 
     # for debugging to PCR-GLOBWB version one
@@ -157,9 +162,11 @@ def main():
                                                               currTimeStep, \
                                                               deterministic_runner.model.routing.landmask, \
                                                               deterministic_runner.model.routing.cellArea)
-        dynamic_framework = DynamicFramework(pcrglobwb_one, currTimeStep.nrOfTimeSteps)
+        dynamic_framework = pcrfw.DynamicFramework(pcrglobwb_one, currTimeStep.nrOfTimeSteps)
         dynamic_framework.setQuiet(True)
         dynamic_framework.run()
+
+    print("\n\n\n End of calculation. \n\n\n")
         
 if __name__ == '__main__':
     # print disclaimer

@@ -30,8 +30,7 @@ import itertools
 
 from six.moves import map
 
-from pcraster.framework import *
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)
@@ -100,24 +99,31 @@ class Routing(object):
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
 
-        # local drainage direction:
-        self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
-                                              self.cloneMap,self.tmpDir,self.inputDir,True)
-        self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-        self.lddMap = pcr.lddrepair(self.lddMap)
-
-        # landmask:
+        # Read the ldd map.
+        skip_ldd_repair_and_ldd_mask = False
+        if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+            skip_ldd_repair_and_ldd_mask = True
+        if skip_ldd_repair_and_ldd_mask:    
+            lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
+                                          absolutePath     = iniItems.globalOptions['inputDir'],\
+                                          completeFileName = True) 
+            self.lddMap = pcr.readmap(lddMap_file)
+        else:
+            self.lddMap = vos.readPCRmapClone(\
+                      iniItems.routingOptions['lddMap'],
+                      iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
+            # ensure ldd map is correct, and actually of type "ldd"
+            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+ 
         if iniItems.globalOptions['landmask'] != "None":
-           self.landmask = vos.readPCRmapClone(\
-           iniItems.globalOptions['landmask'],
-           self.cloneMap,self.tmpDir,self.inputDir)
-        else:       
-           self.landmask = pcr.defined(self.lddMap)
-        self.landmask = pcr.ifthen(pcr.defined(self.lddMap), self.landmask)
-        self.landmask = pcr.cover(self.landmask, pcr.boolean(0))   
-
-        # ldd mask 
-        self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
+            self.landmask = vos.readPCRmapClone(\
+            iniItems.globalOptions['landmask'],
+            iniItems.cloneMap,iniItems.tmpDir,iniItems.globalOptions['inputDir'])
+        else:
+            self.landmask = pcr.defined(self.lddMap)
+        
+        # masking the lddMap to the landmask only
+        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
 
         # cell area (unit: m2)
         self.cellArea = vos.readPCRmapClone(\
@@ -192,19 +198,21 @@ class Routing(object):
                                     self.cloneMap,self.tmpDir,self.inputDir), self.channelLength)
         
         # dist2celllength in m/arcDegree (needed in the accuTravelTime function): 
-        nrCellsDownstream  = pcr.ldddist(self.lddMap,\
-                                         pcr.nominal(self.lddMap) == 5, 1.)
-        distanceDownstream = pcr.ldddist(self.lddMap,\
-                                         pcr.nominal(self.lddMap) == 5,\
-                                         self.channelLength)
-        channelLengthDownstream = \
-                (self.channelLength + distanceDownstream)/\
-                (nrCellsDownstream + 1)                 # unit: m
-        self.dist2celllength  = channelLengthDownstream /\
-                                  self.cellSizeInArcDeg # unit: m/arcDegree
+        if iniItems.routingOptions["routingMethod"] == "accuTravelTime":
+            nrCellsDownstream  = pcr.ldddist(self.lddMap,\
+                                             pcr.nominal(self.lddMap) == 5, 1.)
+            distanceDownstream = pcr.ldddist(self.lddMap,\
+                                             pcr.nominal(self.lddMap) == 5,\
+                                             self.channelLength)
+            channelLengthDownstream = \
+                    (self.channelLength + distanceDownstream)/\
+                    (nrCellsDownstream + 1)                 # unit: m
+            self.dist2celllength  = channelLengthDownstream /\
+                                      self.cellSizeInArcDeg # unit: m/arcDegree
+		    
+            self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
 
-        self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
-
+        
         # the channel gradient must be >= minGradient 
         minGradient   = 0.00005   # 0.000005
         self.gradient = pcr.max(minGradient,\
@@ -227,9 +235,13 @@ class Routing(object):
 
         # empirical values for minimum number of sub-time steps:
         design_flood_speed = 5.00 # m/s
-        design_length_of_sub_time_step   = pcr.cellvalue(
-                                           pcr.mapminimum(
-                                           self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        if pcr.provider_name == "pcraster":
+            design_length_of_sub_time_step   = pcr.cellvalue(
+                                               pcr.mapminimum(
+                                               self.courantNumber * self.channelLength / design_flood_speed),1)[0]
+        else:
+            # LUE TODO support cellvalue
+            design_length_of_sub_time_step   = pcr.mapminimum(self.courantNumber * self.channelLength / design_flood_speed).future.get()
         self.limit_num_of_sub_time_steps = np.ceil(
                                            vos.secondsPerDay() / design_length_of_sub_time_step)
         #
@@ -375,7 +387,11 @@ class Routing(object):
 
         # make sure that timestepsToAvgDischarge is consistent (or the same) for the entire map:
         try:
-            self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            if pcr.provider_name == "pcraster":
+                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
+            else:
+                # LUE TODO: support computing with future<scalar> (the new Scalar type)
+                self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge).future.get()
         except:    
             pass # We have to use 'try/except' because 'pcr.mapmaximum' cannot handle scalar value
 
@@ -464,7 +480,7 @@ class Routing(object):
 
             # a dictionary contains areaFractions (dimensionless): fractions of flooded/innundated areas  
             areaFractions = list(map(float, str(iniItems.routingOptions['relativeElevationLevels']).split(',')))
-            print(areaFractions)
+            # ~ print(areaFractions)
             # number of levels/intervals
             nrZLevels     = len(areaFractions)
             # - TODO: Read areaFractions and nrZLevels automatically. 
@@ -712,7 +728,11 @@ class Routing(object):
         number_of_sub_time_steps = 1.25 * number_of_sub_time_steps + 1
         number_of_sub_time_steps = pcr.roundup(number_of_sub_time_steps)
         #
-        number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
+        if pcr.provider_name == "pcraster":
+            number_of_loops = max(1.0, pcr.cellvalue(pcr.mapmaximum(number_of_sub_time_steps),1)[1])     # minimum number of sub_time_steps = 1 
+        else:
+            # TODO LUE support cellvalue, or calc with scalars
+            number_of_loops = max(1.0, pcr.mapmaximum(number_of_sub_time_steps).future.get())     # minimum number of sub_time_steps = 1 
         number_of_loops = int(max(self.limit_num_of_sub_time_steps, number_of_loops))
         
         # actual length of sub-time step (s)
@@ -2093,9 +2113,17 @@ class Routing(object):
 
             # discharge (m3/s) based on the KINEMATIC WAVE approximation
             #~ logger.debug('start pcr.kinematic')
-            self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
-                                              alpha, self.beta, \
-                                              1, length_of_sub_time_step, self.channelLength)
+            if pcr.provider_name == "pcraster":
+                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
+                                                  alpha, self.beta, \
+                                                  1, length_of_sub_time_step, self.channelLength)
+            else:
+                # TODO LUE: Support scalar q
+                # TODO LUE: Support spatial alpha
+                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                                                  pcr.spatial(0.0), 
+                                                  pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 

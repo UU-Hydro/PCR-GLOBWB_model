@@ -25,8 +25,7 @@
 import os
 import types
 
-from pcraster.framework import *
-import pcraster as pcr
+from lue.framework.pcraster_provider import pcr
 
 import logging
 logger = logging.getLogger(__name__)
@@ -47,14 +46,31 @@ class WaterBodies(object):
         
         self.iniItems = iniItems
                 
-        # local drainage direction:
-        if lddMap is None:
-            self.lddMap = vos.readPCRmapClone(iniItems.routingOptions['lddMap'],
-                                                  self.cloneMap,self.tmpDir,self.inputDir,True)
+        # Read the ldd map.
+        skip_ldd_repair_and_ldd_mask = False
+        if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+            skip_ldd_repair_and_ldd_mask = True
+        if skip_ldd_repair_and_ldd_mask:    
+            lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
+                                          absolutePath     = iniItems.globalOptions['inputDir'],\
+                                          completeFileName = True) 
+            self.lddMap = pcr.readmap(lddMap_file)
+        else:
+            self.lddMap = vos.readPCRmapClone(\
+                      iniItems.routingOptions['lddMap'],
+                      iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
+            # ensure ldd map is correct, and actually of type "ldd"
             self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-            self.lddMap = pcr.lddrepair(self.lddMap)
-        else:    
-            self.lddMap = lddMap
+ 
+        if iniItems.globalOptions['landmask'] != "None":
+            self.landmask = vos.readPCRmapClone(\
+            iniItems.globalOptions['landmask'],
+            iniItems.cloneMap,iniItems.tmpDir,iniItems.globalOptions['inputDir'])
+        else:
+            self.landmask = pcr.defined(self.lddMap)
+        
+        # masking the lddMap to the landmask only
+        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
 
         # the following is needed for a modflowOfflineCoupling run
         if 'modflowOfflineCoupling' in list(iniItems.globalOptions.keys()) and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
@@ -171,30 +187,56 @@ class WaterBodies(object):
                             pcr.nominal(self.waterBodyIds))    
 
         # water body outlets (correcting outlet positions)
-        wbCatchment = pcr.catchmenttotal(pcr.scalar(1),ldd)
-        self.waterBodyOut = pcr.ifthen(wbCatchment ==\
-                            pcr.areamaximum(wbCatchment, \
-                            self.waterBodyIds),\
-                            self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one cells that have largest upstream areas      
-        # - make sure that there is only one outlet for each water body 
-        self.waterBodyOut = pcr.ifthen(\
-                            pcr.areaorder(pcr.scalar(self.waterBodyOut), \
-                            self.waterBodyOut) == 1., self.waterBodyOut)
-        self.waterBodyOut = pcr.ifthen(\
-                            pcr.scalar(self.waterBodyIds) > 0.,\
-                            self.waterBodyOut)
-        
-        # TODO: Please also consider endorheic lakes!                    
+        if "correct_water_body_outlets" in self.iniItems.routingOptions.keys():
 
-        # correcting water body ids
-        self.waterBodyIds = pcr.ifthen(\
-                            pcr.scalar(self.waterBodyIds) > 0.,\
-                            pcr.subcatchment(ldd,self.waterBodyOut))
+            file_for_correct_water_body_outlets = vos.getFullPath(inputPath        = self.iniItems.routingOptions['correct_water_body_outlets'],\
+                                                                  absolutePath     = self.iniItems.globalOptions['inputDir'],\
+                                                                  completeFileName = True)
+            self.waterBodyOut = pcr.readmap(file_for_correct_water_body_outlets)
+
+            file_for_correct_water_body_ids     = vos.getFullPath(inputPath        = self.iniItems.routingOptions['correct_water_body_ids'],\
+                                                                  absolutePath     = self.iniItems.globalOptions['inputDir'],\
+                                                                  completeFileName = True)
+            self.waterBodyIds = pcr.readmap(file_for_correct_water_body_ids)
+            
+            # ~ pietje
+            
+        else:
         
-        # boolean map for water body outlets:   
-        self.waterBodyOut = pcr.ifthen(\
-                            pcr.scalar(self.waterBodyOut) > 0.,\
-                            pcr.spatial(pcr.boolean(1)))
+            wbCatchment = pcr.catchmenttotal(pcr.scalar(1),ldd)
+            self.waterBodyOut = pcr.ifthen(wbCatchment ==\
+                                pcr.areamaximum(wbCatchment, \
+                                self.waterBodyIds),\
+                                self.waterBodyIds) # = outlet ids           # This may give more than two outlets, particularly if there are more than one cells that have largest upstream areas      
+            # - make sure that there is only one outlet for each water body 
+            self.waterBodyOut = pcr.ifthen(\
+                                pcr.areaorder(pcr.scalar(self.waterBodyOut), \
+                                self.waterBodyOut) == 1., self.waterBodyOut)
+            self.waterBodyOut = pcr.ifthen(\
+                                pcr.scalar(self.waterBodyIds) > 0.,\
+                                self.waterBodyOut)
+            
+            # TODO: Please also consider endorheic lakes!                    
+		    
+            # correcting water body ids
+            self.waterBodyIds = pcr.ifthen(\
+                                pcr.scalar(self.waterBodyIds) > 0.,\
+                                pcr.subcatchment(ldd, self.waterBodyOut))
+            
+            # boolean map for water body outlets:   
+            self.waterBodyOut = pcr.ifthen(\
+                                pcr.scalar(self.waterBodyOut) > 0.,\
+                                pcr.spatial(pcr.boolean(1)))
+		    
+            # make sure that we use only ids greater than zero
+            self.waterBodyIds = pcr.ifthen(\
+                                pcr.scalar(self.waterBodyIds) > 0.,\
+                                self.waterBodyIds)
+            self.waterBodyOut = pcr.ifthen(pcr.defined(self.waterBodyIds), self.waterBodyOut)
+
+            # ~ # note that we have to report the following, so that we can use the files as the input and skip the operations for areaorder and subcatchment
+            # ~ pcr.report(self.waterBodyIds, "water_body_ids_nominal.map")                    
+            # ~ pcr.report(self.waterBodyOut, "water_body_outlets_boolean.map")                    
 
         # reservoir surface area (m2):
         if self.useNetCDF:
@@ -397,9 +439,11 @@ class WaterBodies(object):
                            length_of_time_step = vos.secondsPerDay(),\
                            downstreamDemand = None):
 
-        if self.debugWaterBalance:\
-           preStorage = self.waterBodyStorage    # unit: m
+        # ~ if self.debugWaterBalance:\
+           # ~ preStorage = self.waterBodyStorage    # unit: m
      
+        preStorage = self.waterBodyStorage    # unit: m
+        
         self.timestepsToAvgDischarge = timestepsToAvgDischarge          # TODO: include this one in "currTimeStep"     
         
         # obtain inflow (and update storage)
