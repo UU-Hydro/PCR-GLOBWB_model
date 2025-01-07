@@ -719,18 +719,20 @@ class Routing(object):
                              (self.water_height > self.critical_water_height) & \
                              (self.lddMap != pcr.ldd(5))
         #
-        # ~ number_of_sub_time_steps = vos.secondsPerDay() /\
-                                   # ~ pcr.cover(
-                                   # ~ pcr.areaminimum(\
-                                   # ~ pcr.ifthen(critical_condition, \
-                                              # ~ length_of_sub_time_step),self.landmask),\
-                                             # ~ vos.secondsPerDay()/self.limit_num_of_sub_time_steps)   
-        
-        number_of_sub_time_steps = vos.secondsPerDay() /\
+        if pcr.provider_name == "pcraster":
+            number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
                                    pcr.areaminimum(\
                                    pcr.ifthen(critical_condition, \
-                                              length_of_sub_time_step),self.landmask).future.get(),\
+                                              length_of_sub_time_step),self.landmask),\
+                                             vos.secondsPerDay()/self.limit_num_of_sub_time_steps)   
+        else:
+            areaminimum = pcr.ifthen(self.landmask, pcr.mapminimum(\
+                                   pcr.ifthen(critical_condition, \
+                                              length_of_sub_time_step)).future.get())
+            number_of_sub_time_steps = vos.secondsPerDay() /\
+                                   pcr.cover(
+                                   areaminimum,\
                                              vos.secondsPerDay()/self.limit_num_of_sub_time_steps)   
 
         
