@@ -141,7 +141,7 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
             
-            vos.plot_variable_for_lue(map, variable)
+            # ~ vos.plot_variable_for_lue(map, variable)
 
         
         landSurfaceState = state['landSurface']
@@ -153,7 +153,7 @@ class PCRGlobWB(object):
                  specific_date_string+".map",\
                  outputDirectory)
 
-            vos.plot_variable_for_lue(map, variable)
+            # ~ vos.plot_variable_for_lue(map, variable)
                 
         groundWaterState = state['groundwater']
         for variable, map in list(groundWaterState.items()):
@@ -173,7 +173,7 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
-            vos.plot_variable_for_lue(map, variable)
+            # ~ vos.plot_variable_for_lue(map, variable)
 
     def calculateAndDumpMonthlyValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
 
