@@ -2,11 +2,12 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.6
-  - pcraster
+  - numpy<2.0
   - pip
   - python-dateutil
   - six  
   - zlib
+  - pcraster
   - pip:
     - netcdf4>=1.5.3
 #   - cdsapi
