@@ -672,7 +672,7 @@ class Meteo(object):
             outgoing_net_longwave_radiation  = self.longwave_radiation
             
             # calculate net radiation (unit: W.m**-2)
-            self.net_radiation = pcr.max(0.0, incoming_net_shortwave radiation - outgoing_net_longwave_radiation)
+            self.net_radiation = pcr.max(0.0, incoming_net_shortwave_radiation - outgoing_net_longwave_radiation)
 
             # referencePotET in m.day-1
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(netRadiation        = self.net_radiation, 
