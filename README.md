@@ -26,6 +26,8 @@ Please follow the following steps required to install PCR-GLOBWB:
 
     This will create a environment named *pcrglobwb_python3*.
 
+Note: We recommend using a NumPy version below 2.0, as there are compatibility issues between PCRaster and NumPy versions 2.0 and above. 
+
  3. Activate the environment in a command prompt:
 
     `conda activate pcrglobwb_python3`
