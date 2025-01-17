@@ -666,7 +666,7 @@ class Meteo(object):
             
             # incoming_net_shortwave radiation for the FAO reference grass (albedo = 0.23)
             albedo_fao_green_grass_reference_crop = 0.23
-            incoming_net_shortwave radiation      = self.shortwave_radiation * (1.0 - albedo_fao_green_grass_reference_crop)
+            incoming_net_shortwave_radiation      = self.shortwave_radiation * (1.0 - albedo_fao_green_grass_reference_crop)
             
             # outgoing_net_longwave_radiation
             outgoing_net_longwave_radiation  = self.longwave_radiation
