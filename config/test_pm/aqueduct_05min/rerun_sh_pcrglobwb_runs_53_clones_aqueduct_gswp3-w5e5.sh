@@ -34,20 +34,25 @@ MAIN_OUTPUT_DIR="/scratch/depfg/sutan101/test_pm_pcrglobwb2_output_05min_global/
 # meteorological forcing files
 
 # - historical reference - gswp3-w5e5
-RELATIVE_HUMIDITY_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc"
-PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc"
-PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc"
-SHORTWAVE_RADIATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc"
-WIND_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc"
-TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
+RELATIVE_HUMIDITY_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_hurs_global_daily_1901_2019_version_2021-09-XX.nc"
+PRECIPITATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_pr_global_daily_1901_2019_version_2021-09-XX.nc"
+PRESSURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_ps_global_daily_1901_2019_version_2021-09-XX.nc"
+SHORTWAVE_RADIATION_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_rsds_global_daily_1901_2019_version_2021-09-XX.nc"
+WIND_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_sfcwind_global_daily_1901_2019_version_2021-09-XX.nc"
+TEMPERATURE_FORCING_FILE="/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged/gswp3-w5e5_obsclim_tas_global_daily_1901_2019_version_2021-09-XX.nc"
 
-#~ sutan101@gpu038.cluster:/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged$ ls -lah *
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:47 gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:43 gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:45 gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc
-#~ -r--r--r-- 1 sutan101 depfg 59G Aug  3 15:44 gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc
+#~ sutan101@node038.cluster:/scratch/depfg/sutan101/data/isimip_forcing/isimip3a_version_2021-09-XX/copied_on_2021-09-XX/GSWP3-W5E5/merged$ ls -lah g*daily*
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_hurs_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_huss_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_pr_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_prsn_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_ps_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_rlds_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_rsds_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_sfcwind_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_tas_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_tasmax_global_daily_1901_2019_version_2021-09-XX.nc
+#~ -rw-r--r-- 1 sutan101 depfg 42G Dec 12  2022 gswp3-w5e5_obsclim_tasmin_global_daily_1901_2019_version_2021-09-XX.nc
 
 
 # initial conditions
