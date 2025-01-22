@@ -2143,8 +2143,11 @@ class Routing(object):
             
             
             # make sure that we do not get negative channel storage
+            # ~ self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
+                                # ~ pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
+            ldd_for_upstream  = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
-                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(ldd_for_upstream, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
 
 
             # update channelStorage (m3) after lateral flows in channels
