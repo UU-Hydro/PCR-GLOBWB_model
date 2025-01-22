@@ -717,7 +717,7 @@ class Routing(object):
         #
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
-                             (pcr.ldd(self.lddMap) != pcr.ldd(5))
+                             (self.lddMap != pcr.ldd(5))
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
@@ -2079,12 +2079,9 @@ class Routing(object):
 
             # update channelStorage (m3) after waterBodyOutflow (m3) - Note that local_input_to_surface_water does not include waterBodyOutflow.            
             # - update channelStorage (m3)  - after waterBodyOutflow (m3)
-            #~ storage_change_in_volume = waterBodyOutflow                                                  # NOT CORRECT
-            #~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow    # NOT CORRECT
-
-            # ~ storage_change_in_volume    = pcr.upstream(self.lddMap, waterBodyOutflow)                       # PS: I think this is the correct one. 
-            ldd_for_upstream = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
-            storage_change_in_volume    = pcr.upstream(ldd_for_upstream, waterBodyOutflow)                      # PS: I think this is the correct one. 
+            #~ storage_change_in_volume = waterBodyOutflow                                                 # NOT CORRECT
+            #~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow   # NOT CORRECT
+            storage_change_in_volume    = pcr.upstream(self.lddMap, waterBodyOutflow)                      # PS: I think this is the correct one. 
             channelStorageForRouting   += storage_change_in_volume 
 
             # estimate of water height (m)
@@ -2123,16 +2120,10 @@ class Routing(object):
             else:
                 # TODO LUE: Support scalar q
                 # TODO LUE: Support spatial alpha
-                # ~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
-                                                  # ~ pcr.spatial(0.0), 
-                                                  # ~ pcr.mapminimum(alpha).future.get(), self.beta, \
-                                                  # ~ 1, length_of_sub_time_step, self.channelLength)
-                ldd_for_kinematic = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
-                self.subDischarge = pcr.kinematic(ldd_for_kinematic, dischargeInitial,
+                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
                                                   pcr.spatial(0.0), 
                                                   pcr.mapminimum(alpha).future.get(), self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
-
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 
@@ -2143,17 +2134,12 @@ class Routing(object):
             
             
             # make sure that we do not get negative channel storage
-            # ~ self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
-                                # ~ pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
-            ldd_for_upstream  = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
-                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(ldd_for_upstream, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
+                                pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
 
 
             # update channelStorage (m3) after lateral flows in channels
-            # ~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
-            ldd_for_upstream  = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
-            storage_change_in_volume  = pcr.upstream(ldd_for_upstream, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
             channelStorageForRouting += storage_change_in_volume 
 
 

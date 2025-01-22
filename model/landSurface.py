@@ -1089,11 +1089,8 @@ class LandSurface(object):
         # de Graaf et al., 2014 principle: partitioning based on local average baseflow (m3/s) and upstream average discharge (m3/s) 
         # - estimates of fractions of groundwater and surface water abstractions 
         averageBaseflowInput = routing.avgBaseflow
-        # ~ averageUpstreamInput = pcr.max(routing.avgDischarge, pcr.cover(pcr.upstream(routing.lddMap, routing.avgDischarge), 0.0))
+        averageUpstreamInput = pcr.max(routing.avgDischarge, pcr.cover(pcr.upstream(routing.lddMap, routing.avgDischarge), 0.0))
         
-        ldd_for_upstream = pcr.ifthen(self.landmask, pcr.ldd(routing.lddMap))
-        averageUpstreamInput = pcr.max(routing.avgDischarge, pcr.cover(pcr.upstream(ldd_for_upstream, routing.avgDischarge), 0.0))
-
         if self.usingAllocSegments:
             
             averageBaseflowInput = pcr.max(0.0, pcr.ifthen(self.landmask, averageBaseflowInput))
