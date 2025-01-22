@@ -1993,13 +1993,12 @@ class Routing(object):
         self.water_height = channelStorageForRouting /\
                            (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
 
-        if pcr.provider_name == "lue":
-            written = lfr.to_gdal(self.water_height, "wait.tif")
-            written.wait()
-
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
 
+        if pcr.provider_name == "lue":
+            written = lfr.to_gdal(pcr.spatial(pcr.scalar(number_of_loops)), "wait.tif")
+            written.wait()
 
         #######################################################################################################################
         for i_loop in range(number_of_loops):
