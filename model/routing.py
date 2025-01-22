@@ -1996,9 +1996,9 @@ class Routing(object):
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
 
-        if pcr.provider_name == "lue":
-            written = lfr.to_gdal(pcr.spatial(pcr.scalar(number_of_loops)), "wait.tif")
-            written.wait()
+        # ~ if pcr.provider_name == "lue":
+            # ~ written = lfr.to_gdal(pcr.spatial(pcr.scalar(number_of_loops)), "wait.tif")
+            # ~ written.wait()
 
         #######################################################################################################################
         for i_loop in range(number_of_loops):
