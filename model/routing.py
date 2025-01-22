@@ -2079,9 +2079,12 @@ class Routing(object):
 
             # update channelStorage (m3) after waterBodyOutflow (m3) - Note that local_input_to_surface_water does not include waterBodyOutflow.            
             # - update channelStorage (m3)  - after waterBodyOutflow (m3)
-            #~ storage_change_in_volume = waterBodyOutflow                                                 # NOT CORRECT
-            #~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow   # NOT CORRECT
-            storage_change_in_volume    = pcr.upstream(self.lddMap, waterBodyOutflow)                      # PS: I think this is the correct one. 
+            #~ storage_change_in_volume = waterBodyOutflow                                                  # NOT CORRECT
+            #~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow    # NOT CORRECT
+
+            # ~ storage_change_in_volume    = pcr.upstream(self.lddMap, waterBodyOutflow)                       # PS: I think this is the correct one. 
+            ldd_for_upstream = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
+            storage_change_in_volume    = pcr.upstream(ldd_for_upstream, waterBodyOutflow)                      # PS: I think this is the correct one. 
             channelStorageForRouting   += storage_change_in_volume 
 
             # estimate of water height (m)
