@@ -628,7 +628,7 @@ class WaterBodies(object):
         # ~ avgOutflow = pcr.ifthenelse(\
                      # ~ avgOutflow > 0.,\
                      # ~ avgOutflow, pcr.downstream(self.lddMap, avgOutflow))
-        ldd_for_downstream = pcr.ifthen(self.landmask, pcr.ldd(routing.lddMap))
+        ldd_for_downstream = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
                      avgOutflow, pcr.downstream(ldd_for_downstream, avgOutflow))
