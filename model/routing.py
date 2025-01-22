@@ -2123,10 +2123,16 @@ class Routing(object):
             else:
                 # TODO LUE: Support scalar q
                 # TODO LUE: Support spatial alpha
-                self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                # ~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                                                  # ~ pcr.spatial(0.0), 
+                                                  # ~ pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  # ~ 1, length_of_sub_time_step, self.channelLength)
+                ldd_for_kinematic = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
+                self.subDischarge = pcr.kinematic(ldd_for_kinematic, dischargeInitial,
                                                   pcr.spatial(0.0), 
                                                   pcr.mapminimum(alpha).future.get(), self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
+
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 
