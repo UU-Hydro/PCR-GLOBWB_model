@@ -32,6 +32,8 @@ from six.moves import map
 
 from lue.framework.pcraster_provider import pcr
 
+import lue.framework as lfr
+
 import logging
 logger = logging.getLogger(__name__)
 
