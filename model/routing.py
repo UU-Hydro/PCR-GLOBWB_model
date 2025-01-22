@@ -2151,7 +2151,9 @@ class Routing(object):
 
 
             # update channelStorage (m3) after lateral flows in channels
-            storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            # ~ storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
+            ldd_for_upstream  = pcr.ifthen(self.landmask, pcr.ldd(self.lddMap))
+            storage_change_in_volume  = pcr.upstream(ldd_for_upstream, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
             channelStorageForRouting += storage_change_in_volume 
 
 
