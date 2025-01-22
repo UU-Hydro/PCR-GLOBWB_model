@@ -717,7 +717,7 @@ class Routing(object):
         #
         critical_condition = (length_of_sub_time_step < vos.secondsPerDay())  & \
                              (self.water_height > self.critical_water_height) & \
-                             (self.lddMap != pcr.ldd(5))
+                             (pcr.ldd(self.lddMap) != pcr.ldd(5))
         #
         number_of_sub_time_steps = vos.secondsPerDay() /\
                                    pcr.cover(
