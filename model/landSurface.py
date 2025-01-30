@@ -1386,11 +1386,11 @@ class LandSurface(object):
             # update the modeltime of qualloc
             self.qualloc_model_time.update(currTimeStep.timeStepPCR())
             
-            # make sure that all variables needed for qualloc is defined
-            self.qualloc_model.
+            # make sure that all variables needed for qualloc is defined - UNTIL THIS PART
+            self.qualloc_model.irrigation_gross_demand = vol_gross_sectoral_water_demands["irrigation"] 
             
             # update the qualloc 
-            self.qualloc_model.update()
+            self.qualloc_model.calculate()
             
         else:
             self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
