@@ -32,8 +32,8 @@ from model_time import match_date_by_julian_number
 logger = logging.getLogger(__name__)
 
 # path out for debugging
-path = '/scratch/carde003/qualloc/_debug'
-verbose = False
+path = '/scratch/carde003/qualloc/__debug'
+verbose = True
 
 ########
 # TODO #
@@ -82,8 +82,8 @@ forcing_variables = { \
                       'precipitation'             : 'precipitation', \
                       'referencePotET'            : 'refpot_evaporation', \
                       'groundwater_recharge'      : 'groundwater_recharge', \
-                      'direct_runoff'              : 'direct_runoff', \
-                      'interflow'                  : 'interflow', \
+                      'direct_runoff'             : 'direct_runoff', \
+                      'interflow'                 : 'interflow', \
                       'irrigation_gross_demand'   : 'irrigation_water_demand', \
                       'domesticGrossDemand'       : 'domestic_water_demand', \
                       'domesticNettoDemand'       : 'domestic_water_demand', \
@@ -575,6 +575,7 @@ class qualloc_model(object):
         
         # initialize the water management module
         self.water_management = water_management( \
+                    landmask                           = self.landmask, \
                     time_increment                     = self.model_configuration.water_management\
                                                                                ['time_increment'], \
                     time_step_length                   = self.model_time.time_step_length, \
@@ -976,11 +977,14 @@ class qualloc_model(object):
                                     region_ratios          = regional_pumping_capacity['region_ratios'], \
                                     time_step_length       = self.model_time.time_step_length, \
                                     date                   = self.model_time.date)
-                
-                # [ DELETEME ] verbose <------------------------------------------------------------------------------------------------------------------
-                if verbose:
-                    pcr.report(self.water_management.groundwater_withdrawal_capacity, f'{path}/{dt}_{source_name}_withdrawal_capacity.map')
-                # ----------------------------------------------------------------------------------------------------------------------------------------
+        
+        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
+        if verbose:
+            if self.model_flags['surfacewater_pumping_capacity_flag'] or not isinstance(self.water_management.surfacewater_withdrawal_capacity, NoneType):
+                pcr.report(self.water_management.surfacewater_withdrawal_capacity, f'{path}/{dt}_surfacewater_withdrawal_capacity.map')
+            if self.model_flags['groundwater_pumping_capacity_flag'] or not isinstance(self.water_management.groundwater_withdrawal_capacity, NoneType):
+                pcr.report(self.water_management.groundwater_withdrawal_capacity, f'{path}/{dt}_groundwater_withdrawal_capacity.map')
+        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # ********************
         # * water management *
@@ -993,7 +997,6 @@ class qualloc_model(object):
             self.water_management.get_longterm_availability_for_date( \
                               date              = self.model_time.date, \
                               cellarea          = self.cellarea, \
-                              landmask          = self.landmask, \
                               ldd               = self.surfacewater.ldd, \
                               waterdepth        = self.surfacewater.storage, \
                               mannings_n        = self.surfacewater.mannings_n, \
@@ -1080,7 +1083,6 @@ class qualloc_model(object):
                               availability   = {'surfacewater': surfacewater_availability, \
                                                 'groundwater' : groundwater_availability}, \
                               prioritization = prioritization, \
-                              landmask       = self.landmask, \
                               date           = self.model_time.date)
         
         # dictionaries with the actual renewable and non-renewable withdrawals
@@ -1198,7 +1200,8 @@ class qualloc_model(object):
                      source_name                        = source_name, \
                      renewable_withdrawal_per_sector    = renewable_withdrawal_per_sector, \
                      nonrenewable_withdrawal_per_sector = nonrenewable_withdrawal_per_sector, \
-                     source_names_to_be_processed       = source_names_to_be_processed)
+                     source_names_to_be_processed       = source_names_to_be_processed, \
+                     date = self.model_time.date)
         
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
         if verbose:
@@ -1288,7 +1291,8 @@ class qualloc_model(object):
                      source_name                        = source_name, \
                      renewable_withdrawal_per_sector    = renewable_withdrawal_per_sector, \
                      nonrenewable_withdrawal_per_sector = nonrenewable_withdrawal_per_sector, \
-                     source_names_to_be_processed       = source_names_to_be_processed)
+                     source_names_to_be_processed       = source_names_to_be_processed, \
+                     date = self.model_time.date)
         
         if pcr.cellvalue(pcr.mapminimum(renewable_withdrawal), 1)[0] < -1:
             pcr.aguila(renewable_withdrawal, nonrenewable_withdrawal)

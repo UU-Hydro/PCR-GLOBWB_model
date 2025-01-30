@@ -700,6 +700,188 @@ latex_symbol[netcdf_variable_name]          = None
 pcr_short_name[netcdf_variable_name]        = 'allo_tot'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
+# sectoral demands: domestic_gross_demand
+netcdf_variable_name                        = 'domestic_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'domdmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: domestic_net_demand
+netcdf_variable_name                        = 'domestic_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'domdmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: irrigation_gross_demand
+netcdf_variable_name                        = 'irrigation_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'irrdmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: irrigation_net_demand
+netcdf_variable_name                        = 'irrigation_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'irrdmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: livestock_gross_demand
+netcdf_variable_name                        = 'livestock_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'livdmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: livestock_net_demand
+netcdf_variable_name                        = 'livestock_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'livdmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: industry_gross_demand
+netcdf_variable_name                        = 'industry_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'inddmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: industry_net_demand
+netcdf_variable_name                        = 'industry_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'inddmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: manufacture_gross_demand
+netcdf_variable_name                        = 'manufacture_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'mandmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: manufacture_net_demand
+netcdf_variable_name                        = 'manufacture_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'mandmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: thermoelectric_gross_demand
+netcdf_variable_name                        = 'thermoelectric_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'thrdmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: thermoelectric_net_demand
+netcdf_variable_name                        = 'thermoelectric_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'thrdmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: environment_gross_demand
+netcdf_variable_name                        = 'environment_gross_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'envdmgr'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# sectoral demands: environment_net_demand
+netcdf_variable_name                        = 'environment_net_demand'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'envdmnt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
 # long-term surface water discharge 
 netcdf_variable_name                        = 'surfacewater_longterm_discharge'
 netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
@@ -763,6 +945,32 @@ description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
 pcr_short_name[netcdf_variable_name]        = 'gw_pw_lt'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# surface water withdrawal capacity 
+netcdf_variable_name                        = 'surfacewater_withdrawal_capacity'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'sw_wcap'
+pcr_datatype[netcdf_variable_name]          = 'Scalar'
+
+# groundwater withdrawal capacity 
+netcdf_variable_name                        = 'groundwater_withdrawal_capacity'
+netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
+netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
+netcdf_units[netcdf_variable_name]          = 'm3/day'
+netcdf_is_timed[netcdf_variable_name]       = True
+netcdf_is_spatial[netcdf_variable_name]     = True
+description[netcdf_variable_name]           = None
+comment[netcdf_variable_name]               = None
+latex_symbol[netcdf_variable_name]          = None
+pcr_short_name[netcdf_variable_name]        = 'gw_wcap'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # addition of the allocated water demand
@@ -858,7 +1066,7 @@ for pcr_var_key, netcdf_variable_name in { \
         'cdomdw' : 'consumption_domestic_allocated_to_desalinated_water', \
         'cinddw' : 'consumption_industry_allocated_to_desalinated_water', \
         'cirrdw' : 'consumption_irrigation_allocated_to_desalinated_water', \
-        'clivdw' : 'consumption_livestock_allocated_to_nonrenewable_groundwater', \
+        'clivdw' : 'consumption_livestock_allocated_to_desalinated_groundwater', \
         'cmandw' : 'consumption_manufacture_allocated_to_desalinated_water', \
         'cthedw' : 'consumption_thermoelectric_allocated_to_desalinated_water', \
         'cenvdw' : 'consumption_environment_allocated_to_desalinated_water', \

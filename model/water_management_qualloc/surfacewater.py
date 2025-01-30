@@ -261,6 +261,10 @@ class surfacewater(object):
                                                  total_runoff, \
                                                  potential_withdrawal)
         
+        # cover actual withdrawals to land mask extension
+        actual_withdrawal = pcr.ifthen(pcr.defined(self.ldd), \
+                                       actual_withdrawal)
+        
         # convert discharge from days to senconds (units: m3/s)
         self.discharge = self.discharge / time_step_seconds
         

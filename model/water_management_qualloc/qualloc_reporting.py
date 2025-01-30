@@ -557,6 +557,15 @@ class qualloc_reporting(object):
         self.total_withdrawal   = model.water_management.total_withdrawal
         self.total_allocation   = model.water_management.total_allocation
         
+        # sectoral demands
+        for sector_name in model.water_management.sector_names:
+            setattr(self, \
+                    sector_name+'_gross_demand', \
+                    getattr(model.water_management, 'gross_demand')[sector_name])
+            setattr(self, \
+                    sector_name+'_net_demand', \
+                    getattr(model.water_management, 'net_demand')[sector_name])
+        
         # potential, actual and unused withdrawals
         self.potential_withdrawal_renewable_groundwater     = model.water_management.\
                                                               potential_renewable_withdrawal['groundwater']
@@ -584,6 +593,10 @@ class qualloc_reporting(object):
                                                               unused_renewable_withdrawal['surfacewater']
         self.unused_withdrawal_nonrenewable_surfacewater    = model.water_management.\
                                                               unused_nonrenewable_withdrawal['surfacewater']
+        
+        # withdrawals capacities
+        self.groundwater_withdrawal_capacity  = model.water_management.groundwater_withdrawal_capacity
+        self.surfacewater_withdrawal_capacity = model.water_management.surfacewater_withdrawal_capacity
         
         # allocated quantities - bulk added from the dictionaries in the 
         # for withdrawal, demand, consumption and return flows

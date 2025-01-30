@@ -331,8 +331,9 @@ class water_quality(object):
             
             # set variable
             suitability_per_sector[sector_name] = \
-                                pcr.cover(suitability, \
-                                          suitability_per_sector[sector_name])
+                                pcr.ifthen(self.landmask, \
+                                           pcr.cover(suitability, \
+                                                     suitability_per_sector[sector_name]))
         
         # return overall suitability per sector
         return suitability_per_sector
