@@ -38,6 +38,8 @@ import water_demand.main_water_demand as water_demand
 
 import water_management.main_water_management as water_management
 
+import water_management_qualloc as qualloc_wm
+
 class LandSurface(object):
     
     def getState(self):
@@ -402,6 +404,62 @@ class LandSurface(object):
         # instantiate water management
         self.water_management = water_management.WaterManagement(iniItems, landmask)
 
+        # option to use qualloc
+        self.using_qualloc = False
+        if iniItems.waterManagementOptions["using_qualloc"] == "True":
+            
+            self.using_qualloc = True
+            
+            # initialization of the qualloc
+            
+            # - get the configuration file of qualloc
+            qualloc_config_file = iniItems.waterManagementOptions["configuration_file_for_qualloc"] 
+
+            # - set the configuration object
+            # -- object to handle configuration/ini file
+            sections = ['general', 'time', 'forcing', 'groundwater', 'surfacewater', \
+                        'water_management','water_quality']
+            groups= []
+            model_configuration = configuration_parser(cfgfilename = qualloc_config_file, \
+                                                       sections    = sections, \
+                                                       groups      = groups, \
+                                                       subst_args  = subst_args)
+	        self.qualloc_model_configuration = model_configuration
+
+            # initialize the time object:
+            # note that thisis called pcr_time here and is recast
+            # to model_time in the dynamic model and dependent modules
+            time_increment = model_configuration.time['time_increment']
+            startyear      = int(model_configuration.time['startyear'])
+            endyear        = int(model_configuration.time['endyear'])
+            
+            # check on values
+            if not time_increment in allowed_time_increments:
+                message_str = ''
+                message_str = str.join(' ', \
+                               ('time increment %s is invalid,' % time_increment,\
+                                'any of the following allowed:', \
+                                str.join(', ', allowed_time_increments)))
+                logger.error(message_str)
+                sys.exit()
+            
+            # initialize the time increment
+            pcr_time = model_time(startyear, endyear, time_increment)
+            self.qualloc_model_time = pcr_time
+            
+            # dummy values for the model flags and initial conditions
+            # initial conditions are initialized from the configuration file at the
+            # start if set to None; otherwise, the existing warm states are used
+            model_flags = {}
+            initial_conditions = None
+
+            # setting up the qualloc model, including set its initial conditions
+            self.qualloc_model = qualloc_model(self.qualloc_model_configuration, \
+                                               self.qualloc_model_time, \
+                                               model_flags, \
+                                               initial_conditions)
+            self.qualloc_model.initialize()
+            
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
         
@@ -1320,9 +1378,23 @@ class LandSurface(object):
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
         # - note: the water_management calculation should be done in volume (m3)
-        self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
-        # - This will be replaced by pcrLite
+
+        # ~ self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
+        # ~ # - This will be replaced by QUAlloc
         
+        if self.using_qualloc:
+            # update the modeltime of qualloc
+            self.qualloc_model_time.update(currTimeStep.timeStepPCR())
+            
+            # make sure that all variables needed for qualloc is defined
+            self.qualloc_model.
+            
+            # update the qualloc 
+            self.qualloc_model.update()
+            
+        else:
+            self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
+
 
         # allocate the satisfied irrigation gross demands to every land cover:
         total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
