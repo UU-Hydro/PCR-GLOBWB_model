@@ -2121,9 +2121,23 @@ class Routing(object):
             # discharge (m3/s) based on the KINEMATIC WAVE approximation
             #~ logger.debug('start pcr.kinematic')
             if pcr.provider_name == "pcraster":
+                
+                # write input for lue debugging
+                pcr.report(self.lddMap, "ldd.map")
+                pcr.report(dischargeInitial, "dischargeInitial.map")
+                pcr.report(alpha, "alpha.map")
+                pcr.report(self.beta, "beta.map")
+                pcr.report(self.channelLength, "channelLength.map")
+                
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                                   alpha, self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
+                
+                # write output for lue debugging
+                pcr.report(self.subDischarge, "subDischarge.map")
+
+                pietje
+                                                  
             else:
                 # TODO LUE: Support scalar q
                 # TODO LUE: Support spatial alpha

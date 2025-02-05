@@ -33,20 +33,20 @@ module load LUE/development-foss-2023a
 #~ module load LUE/0.3.9-foss-2023a
 
 
-# Run this script with LUE package in environment. This should work:
-# python -c "import lue"
+#~ # Run this script with LUE package in environment. This should work:
+#~ # python -c "import lue"
 
-libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
+#~ libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
-LD_PRELOAD=$libtcmalloc \
-LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="360,720" \
-     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini debug \
-         --hpx:threads=1
+#~ LD_PRELOAD=$libtcmalloc \
+#~ LUE_PCRASTER_PROVIDER_NAME=lue \
+#~ LUE_PARTITION_SHAPE="360,720" \
+     #~ python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini debug \
+         #~ --hpx:threads=1
 
 
-#~ # Run this script with PCRaster package in environment. This should work:
-#~ # python -c "import pcraster, lue.framework.pcraster_provider"
+# Run this script with PCRaster package in environment. This should work:
+# python -c "import pcraster, lue.framework.pcraster_provider"
 
-#~ LUE_PCRASTER_PROVIDER_NAME=pcraster \
-     #~ python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini debug
+LUE_PCRASTER_PROVIDER_NAME=pcraster \
+     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue.ini debug
