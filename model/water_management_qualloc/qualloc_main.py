@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # path out for debugging
 path = '/scratch/carde003/qualloc/__debug'
-verbose = True
+verbose = False
 
 ########
 # TODO #
@@ -824,11 +824,20 @@ class qualloc_model(object):
         return None
     
     def update(self):
-        
         # ***********
         # * forcing *
         # ***********
+        self.update_reading_hydrology()
+        self.update_reading_water_quality()
+        self.update_reading_pumping_capacity()
         
+        # ********************
+        # * water management *
+        # ********************
+        self.update_calculate()
+    
+    
+    def update_reading_hydrology(self):
         date = self.model_time.date
         
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
@@ -879,6 +888,9 @@ class qualloc_model(object):
             # log message
             logger.debug('information on %s read for %s' % \
                          (forcing_variable.lower(), self.model_time.date))
+        
+    def update_reading_water_quality(self):
+        date = self.model_time.date
         
         # [ forcing: water quality ] ...............................................................
         # read in water quality forcing datasets
@@ -933,6 +945,9 @@ class qualloc_model(object):
             # set variable
             setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
+    def update_reading_pumping_capacity(self):
+        date = self.model_time.date
+        
         # [ forcing: withdrawal capacity ] .........................................................
         # read in regional water pumping capacity (if activated)
         for source_name in self.water_management.source_names:
@@ -985,7 +1000,10 @@ class qualloc_model(object):
             if self.model_flags['groundwater_pumping_capacity_flag'] or not isinstance(self.water_management.groundwater_withdrawal_capacity, NoneType):
                 pcr.report(self.water_management.groundwater_withdrawal_capacity, f'{path}/{dt}_groundwater_withdrawal_capacity.map')
         # --------------------------------------------------------------------------------------------------------------------------------------------
-        
+    
+    
+    
+    def update_calculating(self):
         # ********************
         # * water management *
         # ********************
