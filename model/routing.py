@@ -2128,7 +2128,7 @@ class Routing(object):
                 pcr.report(alpha, "alpha.map")
                 pcr.report(self.channelLength, "channelLength.map")
                 
-                print(beta)
+                print(self.beta)
                 print(length_of_sub_time_step)
                 
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
