@@ -2122,31 +2122,44 @@ class Routing(object):
             #~ logger.debug('start pcr.kinematic')
             if pcr.provider_name == "pcraster":
                 
-                # write input for lue debugging
-                pcr.report(self.lddMap, "ldd.map")
-                pcr.report(dischargeInitial, "dischargeInitial.map")
-                pcr.report(alpha, "alpha.map")
-                pcr.report(self.channelLength, "channelLength.map")
+                # ~ # write input for lue debugging
+                # ~ pcr.report(self.lddMap, "ldd.map")
+                # ~ pcr.report(dischargeInitial, "dischargeInitial.map")
+                # ~ pcr.report(alpha, "alpha.map")
+                # ~ pcr.report(self.channelLength, "channelLength.map")
                 
-                print(self.beta)
-                print(length_of_sub_time_step)
+                # ~ print(self.beta)
+                # ~ print(length_of_sub_time_step)
+                
+                alpha_hack = 0.5 * (pcr.mapminimum(alpha) + pcr.mapmaximum(alpha))
+                alpha = alpha_hack
                 
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                                   alpha, self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
                 
-                # write output for lue debugging
-                pcr.report(self.subDischarge, "subDischarge.map")
+                # ~ # write output for lue debugging
+                # ~ pcr.report(self.subDischarge, "subDischarge.map")
 
-                pietje
+                # ~ pietje
                                                   
             else:
                 # TODO LUE: Support scalar q
                 # TODO LUE: Support spatial alpha
+                # ~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                                                  # ~ pcr.spatial(0.0), 
+                                                  # ~ pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  # ~ 1, length_of_sub_time_step, self.channelLength)
+
+                alpha_hack = 0.5 * (pcr.mapminimum(alpha).future.get() + pcr.mapmaximum(alpha).future.get())
+                alpha = alpha_hack
+
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
                                                   pcr.spatial(0.0), 
-                                                  pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  alpha, self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
+
+
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 
