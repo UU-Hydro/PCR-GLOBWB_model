@@ -905,7 +905,25 @@ class qualloc_model(object):
         # returns None
         return None
     
-    def update(self):
+    def update(self, online_coupling_to_quantity = False, \
+                     
+                     groundwater_recharge        = None, \
+                     irrigation_gross_demand     = None, \
+                     domesticGrossDemand         = None, \
+                     domesticNettoDemand         = None, \
+                     industryGrossDemand         = None, \
+                     industryNettoDemand         = None, \
+                     livestockGrossDemand        = None, \
+                     livestockNettoDemand        = None, \
+                     manufactureGrossDemand      = None, \
+                     manufactureNettoDemand      = None, \
+                     thermoelectricGrossDemand   = None, \
+                     thermoelectricNettoDemand   = None, \
+                     environment_gross_demand    = None, \
+                     desalinated_water_use       = None, \
+                     
+                     online_coupling_to_quality = False, \
+                     ):
         
         # **************************************************************
         # * forcing                                                    *
@@ -918,125 +936,170 @@ class qualloc_model(object):
         # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # [ forcing: hydrology ] ...................................................................
-        # read in forcing datasets
-        for forcing_variable in forcing_variables.keys():
+
+        if online_coupling_to_quantity == False:
             
-            # get the field
-            var_out = read_file_entry( \
-                filename                 = self.forcing_info[forcing_variable]['ncfilename'], \
-                variablename            = forcing_variable, \
-                inputpath               = self.forcing_info[forcing_variable]['inputpath'], \
-                clone_attributes        = self.model_configuration.clone_attributes, \
-                datatype                = self.forcing_info[forcing_variable]['datatype'], \
-                date                    = date, \
-                date_selection_method   = self.forcing_info[forcing_variable]['date_selection_method'], \
-                allow_year_substitution = self.forcing_info[forcing_variable]['allow_year_substitution'], \
-                )
-            
-            # clip to land mask
-            var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
-            
-            # update totals to rates (from m/month to m/day)
-            # in standard setup:
-            #     input forcing variables (m/month): precipitation, referencePotET, groundwater_recharge, direct_runoff, interflow, irrigation
-            #     input water demands (m/day): domestic, industry, livestock, manufacture, thermoelectric, environment, desalinated
-            #     all variables must be in m/day
-            if self.forcing_info[forcing_variable]['total_to_rate']: \
-                           var_out = var_out / self.model_time.time_step_length
-            
-            # set the variable
-            setattr(self, forcing_variable.lower(), var_out)
-            
-            # log message
-            logger.debug('information on %s read for %s' % \
-                         (forcing_variable.lower(), date))
-        
-        # [ forcing: water quality ] ...............................................................
-        # read in water quality forcing datasets
-        constituent_shortterm_quality = {}
-        
-        for source_name in self.water_management.source_names:
-            constituent_shortterm_quality[source_name] = {}
-            for constituent_name in self.water_quality.constituent_names:
-                # get the key
-                key = '%s_%s' % (source_name, constituent_name)
+            # read in forcing datasets
+            for forcing_variable in forcing_variables.keys():
                 
-                # get value if dataset is available
-                if self.model_flags['water_quality_flag']:
-                    # get the field
-                    var_out = read_file_entry( \
-                        filename                 = self.water_quality_forcing_info[key]['ncfilename'], \
-                        variablename            = self.water_quality_forcing_info[key]['ncvariable'], \
-                        inputpath               = self.water_quality_forcing_info[key]['inputpath'], \
-                        clone_attributes        = self.model_configuration.clone_attributes, \
-                        datatype                = pcr.Scalar, \
-                        date                    = date, \
-                        date_selection_method   = 'nearest', \
-                        allow_year_substitution = False, \
-                        )
-                    
-                    msg_str = 'information on %s %s short-term quality read for %s' % \
-                               (source_name, constituent_name, date)
+                # get the field
+                var_out = read_file_entry( \
+                    filename                 = self.forcing_info[forcing_variable]['ncfilename'], \
+                    variablename            = forcing_variable, \
+                    inputpath               = self.forcing_info[forcing_variable]['inputpath'], \
+                    clone_attributes        = self.model_configuration.clone_attributes, \
+                    datatype                = self.forcing_info[forcing_variable]['datatype'], \
+                    date                    = date, \
+                    date_selection_method   = self.forcing_info[forcing_variable]['date_selection_method'], \
+                    allow_year_substitution = self.forcing_info[forcing_variable]['allow_year_substitution'], \
+                    )
                 
-                # set zero value if dataset is not available
-                else:
-                    var_out = pcr.spatial(pcr.scalar(0))
-                    msg_str = 'no %s %s short-term quality is given for %s; a value of zero is considered' % \
-                               (source_name, constituent_name, date)
-                    
-                # cover NaN to zero concentration values and clip map to land mask
+                # clip to land mask
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
-                # set the variable in dictionary
-                constituent_shortterm_quality[source_name][constituent_name] = var_out
+                # update totals to rates (from m/month to m/day)
+                # in standard setup:
+                #     input forcing variables (m/month): precipitation, referencePotET, groundwater_recharge, direct_runoff, interflow, irrigation
+                #     input water demands (m/day): domestic, industry, livestock, manufacture, thermoelectric, environment, desalinated
+                #     all variables must be in m/day
+                if self.forcing_info[forcing_variable]['total_to_rate']: \
+                               var_out = var_out / self.model_time.time_step_length
                 
-                # set variable
-                setattr(self, key, var_out)
+                # set the variable
+                setattr(self, forcing_variable.lower(), var_out)
                 
                 # log message
-                logger.debug(msg_str)
-                
-                # [ DELETEME ] verbose <--------------------------------------------------------------------------------------------------------------
-                if verbose:
-                    pcr.report(constituent_shortterm_quality[source_name][constituent_name], f'{path}/{dt}_shortterm_{source_name}_{constituent_name}.map')
-                # ------------------------------------------------------------------------------------------------------------------------------------
+                logger.debug('information on %s read for %s' % \
+                             (forcing_variable.lower(), date))
             
-            # set variable
-            setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
-        
-        # [ forcing: withdrawal capacity ] .........................................................
-        # read in regional water pumping capacity (if activated)
-        for source_name in self.water_management.source_names:
-            flag_name = '%s_pumping_capacity_flag' % source_name
-            file_name = '%s_regional_pumping_capacity' % source_name
+
+        else:
+
+            # [ forcing: hydrology ] ...................................................................
+            self.precipitation             = None
+            self.referencePotET            = None
+            self.direct_runoff             = None
+            self.interflow                 = None
+            self.groundwater_recharge      = groundwater_recharge
+            self.irrigation_gross_demand   = irrigation_gross_demand  
+            self.domesticGrossDemand       = domesticGrossDemand      
+            self.domesticNettoDemand       = domesticNettoDemand      
+            self.industryGrossDemand       = industryGrossDemand      
+            self.industryNettoDemand       = industryNettoDemand      
+            self.livestockGrossDemand      = livestockGrossDemand     
+            self.livestockNettoDemand      = livestockNettoDemand     
+            self.manufactureGrossDemand    = manufactureGrossDemand   
+            self.manufactureNettoDemand    = manufactureNettoDemand   
+            self.thermoelectricGrossDemand = thermoelectricGrossDemand
+            self.thermoelectricNettoDemand = thermoelectricNettoDemand
+            self.environment_gross_demand  = environment_gross_demand 
+            self.desalinated_water_use     = desalinated_water_use    
+
+
+# UNTIL THIS PART
+
+        if online_coupling_to_quality == False:
+
             
-            if self.model_flags[flag_name]:
-                regional_pumping_capacity = {}
-                
-                # read in the regional water pumping capacity and IDs
-                for var, dtype in [('regional_pumping_limit',pcr.Scalar),\
-                                   ('region_ids',pcr.Nominal),\
-                                   ('region_ratios',pcr.Scalar)]:
-                    var_out = read_file_entry( \
-                            filename                 = self.model_configuration.water_management[file_name], \
-                            variablename            = var, \
-                            inputpath               = self.model_configuration.general['inputpath'], \
-                            clone_attributes        = self.model_configuration.clone_attributes, \
-                            datatype                = dtype, \
-                            date                    = datetime.datetime(date.year,1,1), \
-                            date_selection_method   = 'exact', \
-                            allow_year_substitution = True)
+            # [ forcing: water quality ] ...............................................................
+            water_quality_forcing_variables = { \
+            'surfacewater_temperature' : 'waterTemperature', \
+            'surfacewater_organic'     : 'organic', \
+            'surfacewater_salinity'    : 'salinity', \
+            'surfacewater_pathogen'    : 'pathogen', \
+            'groundwater_temperature'  : None, \
+            'groundwater_organic'      : None, \
+            'groundwater_salinity'     : None, \
+            'groundwater_pathogen'     : None, \
+            }
+
+
+            # [ forcing: water quality ] ...............................................................
+            # read in water quality forcing datasets
+            constituent_shortterm_quality = {}
+            
+            for source_name in self.water_management.source_names:
+                constituent_shortterm_quality[source_name] = {}
+                for constituent_name in self.water_quality.constituent_names:
+                    # get the key
+                    key = '%s_%s' % (source_name, constituent_name)
                     
-                    # cover NaN to zero values and clip map to land mask
+                    # get value if dataset is available
+                    if self.model_flags['water_quality_flag']:
+                        # get the field
+                        var_out = read_file_entry( \
+                            filename                 = self.water_quality_forcing_info[key]['ncfilename'], \
+                            variablename            = self.water_quality_forcing_info[key]['ncvariable'], \
+                            inputpath               = self.water_quality_forcing_info[key]['inputpath'], \
+                            clone_attributes        = self.model_configuration.clone_attributes, \
+                            datatype                = pcr.Scalar, \
+                            date                    = date, \
+                            date_selection_method   = 'nearest', \
+                            allow_year_substitution = False, \
+                            )
+                        
+                        msg_str = 'information on %s %s short-term quality read for %s' % \
+                                   (source_name, constituent_name, date)
+                    
+                    # set zero value if dataset is not available
+                    else:
+                        var_out = pcr.spatial(pcr.scalar(0))
+                        msg_str = 'no %s %s short-term quality is given for %s; a value of zero is considered' % \
+                                   (source_name, constituent_name, date)
+                        
+                    # cover NaN to zero concentration values and clip map to land mask
                     var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                     
+                    # set the variable in dictionary
+                    constituent_shortterm_quality[source_name][constituent_name] = var_out
+                    
                     # set variable
-                    regional_pumping_capacity[var] = var_out
+                    setattr(self, key, var_out)
+                    
+                    # log message
+                    logger.debug(msg_str)
+                    
+                    # [ DELETEME ] verbose <--------------------------------------------------------------------------------------------------------------
+                    if verbose:
+                        pcr.report(constituent_shortterm_quality[source_name][constituent_name], f'{path}/{dt}_shortterm_{source_name}_{constituent_name}.map')
+                    # ------------------------------------------------------------------------------------------------------------------------------------
                 
                 # set variable
-                setattr(self, '%s_pumping_capacity' % source_name, regional_pumping_capacity)
+                setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
+            
+            # [ forcing: withdrawal capacity ] .........................................................
+            # read in regional water pumping capacity (if activated)
+            for source_name in self.water_management.source_names:
+                flag_name = '%s_pumping_capacity_flag' % source_name
+                file_name = '%s_regional_pumping_capacity' % source_name
+                
+                if self.model_flags[flag_name]:
+                    regional_pumping_capacity = {}
+                    
+                    # read in the regional water pumping capacity and IDs
+                    for var, dtype in [('regional_pumping_limit',pcr.Scalar),\
+                                       ('region_ids',pcr.Nominal),\
+                                       ('region_ratios',pcr.Scalar)]:
+                        var_out = read_file_entry( \
+                                filename                 = self.model_configuration.water_management[file_name], \
+                                variablename            = var, \
+                                inputpath               = self.model_configuration.general['inputpath'], \
+                                clone_attributes        = self.model_configuration.clone_attributes, \
+                                datatype                = dtype, \
+                                date                    = datetime.datetime(date.year,1,1), \
+                                date_selection_method   = 'exact', \
+                                allow_year_substitution = True)
+                        
+                        # cover NaN to zero values and clip map to land mask
+                        var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
+                        
+                        # set variable
+                        regional_pumping_capacity[var] = var_out
+                    
+                    # set variable
+                    setattr(self, '%s_pumping_capacity' % source_name, regional_pumping_capacity)
         
-        
+
         
         # **************************************************************
         # * long-term                                                  *
