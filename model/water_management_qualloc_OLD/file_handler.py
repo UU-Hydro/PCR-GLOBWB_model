@@ -390,7 +390,75 @@ def close_nc_cache():
 ###############################################################################
 
 def main():
-    pass
+
+    # inputpath = 'C:\\Users\\Rens van Beek\\Dropbox\\CalerosWorkSpace\\caleros_new_development'
+  
+    clone_filename = 'F:\Temp\dropbox\Dropbox\Comparison_Prado_Alcoy\Alcoy\clone_rot.map'
+     
+    clone_attributes = spatialAttributes(clone_filename)
+    setClone(clone_attributes)
+   
+    inputpath = 'F:\Temp\dropbox\Dropbox\CalerosWorkSpace\caleros_new_development'
+
+    inputpath = os.path.abspath(inputpath)
+
+    ncfilename = '..\\meteo_info\\airtemp_almudaina_average.nc'
+    
+    variablename = 'air_temperature'
+
+    ncfilename = compose_filename(ncfilename, inputpath)
+
+    for day in range(365):
+        
+        date = datetime.datetime(1996, 5, 1) + datetime.timedelta(day)
+
+        x = nc_info.read_nc_field(ncfilename, \
+                          variablename, \
+                          clone_attributes = clone_attributes, \
+                          date = date, \
+                          date_selection_method = 'exact',
+                          allow_year_substitution = True, \
+                          )
+        print ('\n%f' % x)
+
+    # get a map
+    mapfilename = 'F:\\Temp\\dropbox\\Dropbox\\Comparison_Prado_Alcoy\\Alcoy\\dem_%s.map'
+    variablename = 'elevation'
+
+    pcr.aguila(read_file_entry( \
+                    mapfilename,
+                    variablename, \
+                    file_subst_args = 'rot', \
+                    clone_attributes = clone_attributes, \
+                    date = date, \
+                    ))
+
+    variablenames = ['precipitation_amount', \
+                     'precipitation_duration', \
+                     'maximum_precipitation_rate', \
+                     'time_maximum_precipitation_rate', \
+                     ]
+
+    ncfilename = '..\\meteo_info\\precip_almudaina_average.nc'
+ 
+    for day in range(365):
+        
+        date = datetime.datetime(1996, 5, 1) + datetime.timedelta(day)
+
+        for variablename in variablenames:
+
+            x = read_file_entry(ncfilename, \
+                              variablename, \
+                              inputpath = inputpath, \
+                              clone_attributes = clone_attributes, \
+                              date = date, \
+                              date_selection_method = 'exact',
+                              allow_year_substitution = True, \
+                              )
+            print ('\n%s: %f' % (variablename, x))
+
+
 
 if __name__ == "__main__":
+
     main()

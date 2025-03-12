@@ -200,7 +200,7 @@ class water_quality(object):
                                                (message_str, sub_message_str))
                     
                     elif self.time_increment == 'yearly':
-                        # set the long-term annual water quality
+                        # set the long-term total water quality
                         var_str = '%s_annual_%s' % (source_name, constituent_name)
                         constituent_state = getattr(self, var_str)
                 
@@ -219,11 +219,11 @@ class water_quality(object):
 
 
 
-    def update_longterm_quality(self, \
+    def update_longterm_quality_for_date(self, \
                                           source_names, \
                                           date):
         '''
-        update_longterm_quality: 
+        update_longterm_quality_for_date: 
                                   function that updates the quality
                                   per zone as a function of the date.
         '''

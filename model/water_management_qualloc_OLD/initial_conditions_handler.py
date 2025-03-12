@@ -101,10 +101,8 @@ def test_timed_netcdf(filename, path = '', \
     # return the output
     return timed_netcdf, nc_dates
 
-def get_initial_conditions (model_configuration, \
-                            date, \
-                            ini_identifiers = ['_ini'], \
-                            files_to_exclude = []):
+def get_initial_conditions (model_configuration, date, \
+                 ini_identifiers = ['_ini'], sections_to_exclude = []):
 
     '''
 
@@ -116,7 +114,7 @@ appropriate key and value pairs.
 
     Input:
     ======
-    model_configuration    : class holding all the information that was parsed
+    model_configuration:    class holding all the information that was parsed
                             from the configuration file that are organized as
                             dictionaries with key, value pairs; values are
                             strings that can refer to files with spatio-
@@ -126,13 +124,11 @@ appropriate key and value pairs.
     date:                   start date of the simulation which is used to find,
                             if relevant, the necessary temporal information in
                             the file;
-    ini_identifiers        : list of possible suffixes identifying spinup values
+    ini_identifiers:        list of possible suffixes identifying spinup values
                             in the model configuration object; input is optional
                             and the default identifier is '_ini', which should
                             be added to the key identifier, e.g. 
                             soil_moisture_ini.
-    files_to_exclude       : list of files in the configuration file that must
-                            be disregarded as initial conditions will be not be used
 
     Output:
     =======
@@ -158,14 +154,14 @@ appropriate key and value pairs.
     for section_name, section_info in vars(model_configuration).items():
 
         # process if this is a dictionary
-        if isinstance(section_info, dict):
+        if isinstance(section_info, dict) and not section_name in sections_to_exclude:
             
             # get the key value pair and process if it is identified as an
             # initial setting
             for key, entry in section_info.items():
                 
                 # check if an initial conditions is specified
-                if len(key) > 4 and key not in files_to_exclude:
+                if len(key) > 4:
                     
                     # get suffix and variable name
                     suffix = key[-4:]

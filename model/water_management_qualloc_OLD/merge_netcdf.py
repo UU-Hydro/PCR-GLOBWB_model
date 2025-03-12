@@ -430,7 +430,6 @@ netcdfList = list(set(netcdfList.split(",")))
 #if file_type == "outAnnuaMaxNC": netcdfList = ['%s_annuaMax_output.nc'%var for var in netcdfList]
 
 if file_type == "outMonthTotNC": netcdfList = ['%s_monthly_tot.nc'%var for var in netcdfList]
-if file_type == "outMonthAvgNC": netcdfList = ['%s_monthly_avg.nc'%var for var in netcdfList]
 
 # netcdf format and zlib option:
 ncFormat   = str(sys.argv[7])

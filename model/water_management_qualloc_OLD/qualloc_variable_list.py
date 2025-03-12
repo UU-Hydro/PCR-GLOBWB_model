@@ -710,7 +710,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'dom_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'domdmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: domestic_net_demand
@@ -723,7 +723,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'dom_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'domdmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: irrigation_gross_demand
@@ -736,7 +736,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'irr_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'irrdmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: irrigation_net_demand
@@ -749,7 +749,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'irr_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'irrdmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: livestock_gross_demand
@@ -762,7 +762,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'liv_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'livdmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: livestock_net_demand
@@ -775,7 +775,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'liv_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'livdmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: industry_gross_demand
@@ -788,7 +788,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'ind_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'inddmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: industry_net_demand
@@ -801,7 +801,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'ind_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'inddmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: manufacture_gross_demand
@@ -814,7 +814,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'man_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'mandmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: manufacture_net_demand
@@ -827,7 +827,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'man_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'mandmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: thermoelectric_gross_demand
@@ -840,7 +840,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'thr_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'thrdmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: thermoelectric_net_demand
@@ -853,7 +853,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'thr_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'thrdmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: environment_gross_demand
@@ -866,7 +866,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'env_dm_gr'
+pcr_short_name[netcdf_variable_name]        = 'envdmgr'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # sectoral demands: environment_net_demand
@@ -879,7 +879,7 @@ netcdf_is_spatial[netcdf_variable_name]     = True
 description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'env_dm_nt'
+pcr_short_name[netcdf_variable_name]        = 'envdmnt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # long-term surface water discharge 
@@ -919,97 +919,6 @@ description[netcdf_variable_name]           = None
 comment[netcdf_variable_name]               = None
 latex_symbol[netcdf_variable_name]          = None
 pcr_short_name[netcdf_variable_name]        = 'st_av_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term domestic gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_domestic'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'dom_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term irrigation gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_irrigation'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'irr_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term livestock gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_livestock'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'liv_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term industry gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_industry'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'ind_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term manufacture gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_manufacture'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'man_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term thermoelectric gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_thermoelectric'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'thr_dm_lt'
-pcr_datatype[netcdf_variable_name]          = 'Scalar'
-
-# long-term environment gross demand
-netcdf_variable_name                        = 'gross_demand_longterm_environment'
-netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-netcdf_units[netcdf_variable_name]          = 'm3/day'
-netcdf_is_timed[netcdf_variable_name]       = True
-netcdf_is_spatial[netcdf_variable_name]     = True
-description[netcdf_variable_name]           = None
-comment[netcdf_variable_name]               = None
-latex_symbol[netcdf_variable_name]          = None
-pcr_short_name[netcdf_variable_name]        = 'env_dm_lt'
 pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 # long-term surface water potential withdrawal 

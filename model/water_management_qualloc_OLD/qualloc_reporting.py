@@ -686,6 +686,12 @@ dictionaries with the dates provided.
         self.variablenames = dict((module, list(initial_conditions[module].keys())) \
                                    for module in modules)
         
+        # include remaining state variables
+        if model_flags['groundwater_pumping_capacity_flag']:
+            self.variablenames['water_management'] += ['groundwater_longterm_potential_withdrawal']
+        if model_flags['surfacewater_pumping_capacity_flag']:
+            self.variablenames['water_management'] += ['surfacewater_longterm_potential_withdrawal']
+        
         # reporting initialized
         return None
 
