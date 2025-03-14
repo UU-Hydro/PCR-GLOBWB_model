@@ -586,9 +586,9 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     
     #~ print ncFile
     
-    if ncFile.endswith(",random"):
+    if ncFile.endswith(",random") or ncFile.endswith(",random/"):
         
-        ncFile_split = ncFile.split(",")
+        ncFile_split = ncFile.replace("/","").split(",")
         
         type_of_random_function = ncFile_split[len(ncFile_split) - 2]
         max_value  = float(ncFile_split[len(ncFile_split) - 3])
