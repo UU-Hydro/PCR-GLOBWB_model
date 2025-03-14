@@ -586,7 +586,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     
     #~ print ncFile
     
-    if ncFile.endswith(".random"):
+    if ncFile.endswith(",random"):
         
         ncFile_split = ncFile.split(",")
         
