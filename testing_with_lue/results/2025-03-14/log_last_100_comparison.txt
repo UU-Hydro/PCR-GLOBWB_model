@@ -1,0 +1,203 @@
+==> /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/log/setup_30min_on_velocity_for_lue.ini_2025-03-06T11.55.42.217080.log <==
+2025-03-06 12:59:10,429 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/topWaterLayer_forest_2000-12-31.map
+2025-03-06 12:59:10,438 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storUpp_forest_2000-12-31.map
+2025-03-06 12:59:10,447 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storLow_forest_2000-12-31.map
+2025-03-06 12:59:10,456 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/interflow_forest_2000-12-31.map
+2025-03-06 12:59:10,464 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/interceptStor_grassland_2000-12-31.map
+2025-03-06 12:59:10,472 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/snowCoverSWE_grassland_2000-12-31.map
+2025-03-06 12:59:10,480 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/snowFreeWater_grassland_2000-12-31.map
+2025-03-06 12:59:10,490 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/topWaterLayer_grassland_2000-12-31.map
+2025-03-06 12:59:10,499 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storUpp_grassland_2000-12-31.map
+2025-03-06 12:59:10,509 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storLow_grassland_2000-12-31.map
+2025-03-06 12:59:10,517 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/interflow_grassland_2000-12-31.map
+2025-03-06 12:59:10,525 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storGroundwater_2000-12-31.map
+2025-03-06 12:59:10,534 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/storGroundwaterFossil_2000-12-31.map
+2025-03-06 12:59:10,543 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgTotalGroundwaterAbstraction_2000-12-31.map
+2025-03-06 12:59:10,551 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgTotalGroundwaterAllocationLong_2000-12-31.map
+2025-03-06 12:59:10,558 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgTotalGroundwaterAllocationShort_2000-12-31.map
+2025-03-06 12:59:10,567 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgNonFossilGroundwaterAllocationLong_2000-12-31.map
+2025-03-06 12:59:10,575 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgNonFossilGroundwaterAllocationShort_2000-12-31.map
+2025-03-06 12:59:10,583 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgStorGroundwater_2000-12-31.map
+2025-03-06 12:59:10,591 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/relativeGroundwaterHead_2000-12-31.map
+2025-03-06 12:59:10,600 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/baseflow_2000-12-31.map
+2025-03-06 12:59:10,608 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/timestepsToAvgDischarge_2000-12-31.map
+2025-03-06 12:59:10,617 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/channelStorage_2000-12-31.map
+2025-03-06 12:59:10,625 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/readAvlChannelStorage_2000-12-31.map
+2025-03-06 12:59:10,633 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgDischargeLong_2000-12-31.map
+2025-03-06 12:59:10,642 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/m2tDischargeLong_2000-12-31.map
+2025-03-06 12:59:10,653 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgBaseflowLong_2000-12-31.map
+2025-03-06 12:59:10,662 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/riverbedExchange_2000-12-31.map
+2025-03-06 12:59:10,671 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/waterBodyStorage_2000-12-31.map
+2025-03-06 12:59:10,680 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgLakeReservoirOutflowLong_2000-12-31.map
+2025-03-06 12:59:10,689 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgLakeReservoirInflowShort_2000-12-31.map
+2025-03-06 12:59:10,698 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/avgDischargeShort_2000-12-31.map
+2025-03-06 12:59:10,707 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/lue/states/subDischarge_2000-12-31.map
+2025-03-06 12:59:10,736 pcrglobwb INFO 
+2025-03-06 12:59:10,736 pcrglobwb INFO The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).
+2025-03-06 12:59:10,762 pcrglobwb INFO Total area = 1.351049e+08 km2
+2025-03-06 12:59:10,766 pcrglobwb INFO Delta total storage days 1 to 366 in 2000 = 1.345408e+03 km3 = 9.958244e+00 mm
+2025-03-06 12:59:10,769 pcrglobwb INFO Accumulated precipitation days 1 to 366 in 2000 = 1.117065e+05 km3 = 8.268128e+02 mm
+2025-03-06 12:59:10,771 pcrglobwb INFO Accumulated baseflow days 1 to 366 in 2000 = 2.865957e+04 km3 = 2.121283e+02 mm
+2025-03-06 12:59:10,772 pcrglobwb INFO Accumulated surfaceWaterInf days 1 to 366 in 2000 = 5.590971e-01 km3 = 4.138244e-03 mm
+2025-03-06 12:59:10,773 pcrglobwb INFO Accumulated runoff days 1 to 366 in 2000 = 4.895433e+04 km3 = 3.623430e+02 mm
+2025-03-06 12:59:10,774 pcrglobwb INFO Accumulated unmetDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,775 pcrglobwb INFO Accumulated infiltration days 1 to 366 in 2000 = 8.858437e+04 km3 = 6.556709e+02 mm
+2025-03-06 12:59:10,776 pcrglobwb INFO Accumulated gwRecharge days 1 to 366 in 2000 = 2.871465e+04 km3 = 2.125360e+02 mm
+2025-03-06 12:59:10,777 pcrglobwb INFO Accumulated netLqWaterToSoil days 1 to 366 in 2000 = 9.993074e+04 km3 = 7.396528e+02 mm
+2025-03-06 12:59:10,778 pcrglobwb INFO Accumulated totalPotET days 1 to 366 in 2000 = 1.208457e+05 km3 = 8.944584e+02 mm
+2025-03-06 12:59:10,779 pcrglobwb INFO Accumulated actualET days 1 to 366 in 2000 = 6.139830e+04 km3 = 4.544490e+02 mm
+2025-03-06 12:59:10,780 pcrglobwb INFO Accumulated interceptEvap days 1 to 366 in 2000 = 1.046568e+04 km3 = 7.746336e+01 mm
+2025-03-06 12:59:10,781 pcrglobwb INFO Accumulated openWaterEvap days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,782 pcrglobwb INFO Accumulated actSnowFreeWaterEvap days 1 to 366 in 2000 = 3.967038e+02 km3 = 2.936265e+00 mm
+2025-03-06 12:59:10,783 pcrglobwb INFO Accumulated actBareSoilEvap days 1 to 366 in 2000 = 1.420727e+04 km3 = 1.051573e+02 mm
+2025-03-06 12:59:10,784 pcrglobwb INFO Accumulated actTranspiUppTotal days 1 to 366 in 2000 = 1.860028e+04 km3 = 1.376728e+02 mm
+2025-03-06 12:59:10,785 pcrglobwb INFO Accumulated actTranspiLowTotal days 1 to 366 in 2000 = 1.772815e+04 km3 = 1.312177e+02 mm
+2025-03-06 12:59:10,786 pcrglobwb INFO Accumulated actTranspiTotal days 1 to 366 in 2000 = 3.632844e+04 km3 = 2.688906e+02 mm
+2025-03-06 12:59:10,787 pcrglobwb INFO Accumulated directRunoff days 1 to 366 in 2000 = 1.134645e+04 km3 = 8.398252e+01 mm
+2025-03-06 12:59:10,788 pcrglobwb INFO Accumulated interflow days 1 to 366 in 2000 = 8.947971e+03 km3 = 6.622979e+01 mm
+2025-03-06 12:59:10,789 pcrglobwb INFO Accumulated interflowTotal days 1 to 366 in 2000 = 8.947971e+03 km3 = 6.622979e+01 mm
+2025-03-06 12:59:10,790 pcrglobwb INFO Accumulated irrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,791 pcrglobwb INFO Accumulated nonIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,792 pcrglobwb INFO Accumulated totalPotentialGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,793 pcrglobwb INFO Accumulated actSurfaceWaterAbstract days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,794 pcrglobwb INFO Accumulated allocSurfaceWaterAbstract days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,795 pcrglobwb INFO Accumulated desalinationAbstraction days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,796 pcrglobwb INFO Accumulated desalinationAllocation days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,797 pcrglobwb INFO Accumulated nonFossilGroundwaterAbs days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,798 pcrglobwb INFO Accumulated allocNonFossilGroundwater days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,799 pcrglobwb INFO Accumulated fossilGroundwaterAbstr days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,800 pcrglobwb INFO Accumulated fossilGroundwaterAlloc days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,801 pcrglobwb INFO Accumulated landSurfaceRunoff days 1 to 366 in 2000 = 2.029447e+04 km3 = 1.502127e+02 mm
+2025-03-06 12:59:10,802 pcrglobwb INFO Accumulated satExcess days 1 to 366 in 2000 = 4.972691e-01 km3 = 3.680614e-03 mm
+2025-03-06 12:59:10,803 pcrglobwb INFO Accumulated snowMelt days 1 to 366 in 2000 = 6.392312e+03 km3 = 4.731368e+01 mm
+2025-03-06 12:59:10,804 pcrglobwb INFO Accumulated totalGroundwaterAbstraction days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,805 pcrglobwb INFO Accumulated totalGroundwaterAllocation days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,806 pcrglobwb INFO Accumulated totalPotentialMaximumGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,807 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,807 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemandPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,808 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemandNonPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,809 pcrglobwb INFO Accumulated totalPotentialMaximumNonIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,810 pcrglobwb INFO Accumulated irrGrossDemandPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,811 pcrglobwb INFO Accumulated irrGrossDemandNonPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,812 pcrglobwb INFO Accumulated domesticWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,813 pcrglobwb INFO Accumulated industryWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,814 pcrglobwb INFO Accumulated livestockWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,815 pcrglobwb INFO Accumulated nonIrrReturnFlow days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,816 pcrglobwb INFO Accumulated irrigationTranspirationDeficit days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,817 pcrglobwb INFO Accumulated actTranspiUpp days 1 to 366 in 2000 = 1.860028e+04 km3 = 1.376728e+02 mm
+2025-03-06 12:59:10,818 pcrglobwb INFO Accumulated actTranspiLow days 1 to 366 in 2000 = 1.772815e+04 km3 = 1.312177e+02 mm
+2025-03-06 12:59:10,819 pcrglobwb INFO Accumulated netPercUpp days 1 to 366 in 2000 = 5.576557e+04 km3 = 4.127575e+02 mm
+2025-03-06 12:59:10,820 pcrglobwb INFO Accumulated waterBalance days 1 to 366 in 2000 = -5.852433e-03 km3 = -4.331768e-05 mm
+2025-03-06 12:59:10,821 pcrglobwb INFO Accumulated absWaterBalance days 1 to 366 in 2000 = 4.693046e+00 km3 = 3.473630e-02 mm
+2025-03-06 12:59:10,822 pcrglobwb INFO Accumulated irrigationEvaporationWaterUse days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,823 pcrglobwb INFO Accumulated nonIrrigationWaterUse days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-06 12:59:10,823 pcrglobwb INFO 
+2025-03-06 12:59:10,823 pcrglobwb INFO The following summary is for surface water bodies.
+2025-03-06 12:59:10,825 pcrglobwb INFO Delta surface water storage days 1 to 366 in 2000 = -3.795506e+03 km3 = -2.809303e+01 mm
+2025-03-06 12:59:10,826 pcrglobwb INFO Accumulated waterBodyEvaporation days 1 to 366 in 2000 = 2.626398e+01 km3 = 1.943969e-01 mm
+2025-03-06 12:59:10,827 pcrglobwb INFO Accumulated surfaceWaterInput days 1 to 366 in 2000 = 4.892832e+04 km3 = 3.621505e+02 mm
+2025-03-06 12:59:10,827 pcrglobwb INFO Accumulated dischargeAtPitTotal days 1 to 366 in 2000 = 5.272352e+04 km3 = 3.902413e+02 mm
+2025-03-06 12:59:10,828 pcrglobwb INFO Accumulated surfaceWaterBalance days 1 to 366 in 2000 = -3.114271e-01 km3 = -2.305076e-03 mm
+2025-03-06 12:59:10,835 reporting INFO reporting for time 2000-12-31
+
+==> /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/log/setup_30min_on_velocity_for_lue.ini_2025-03-05T00.55.26.658298.log <==
+2025-03-05 01:54:22,955 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/topWaterLayer_forest_2000-12-31.map
+2025-03-05 01:54:22,963 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storUpp_forest_2000-12-31.map
+2025-03-05 01:54:22,971 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storLow_forest_2000-12-31.map
+2025-03-05 01:54:22,978 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/interflow_forest_2000-12-31.map
+2025-03-05 01:54:22,987 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/interceptStor_grassland_2000-12-31.map
+2025-03-05 01:54:22,995 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/snowCoverSWE_grassland_2000-12-31.map
+2025-03-05 01:54:23,003 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/snowFreeWater_grassland_2000-12-31.map
+2025-03-05 01:54:23,012 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/topWaterLayer_grassland_2000-12-31.map
+2025-03-05 01:54:23,020 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storUpp_grassland_2000-12-31.map
+2025-03-05 01:54:23,028 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storLow_grassland_2000-12-31.map
+2025-03-05 01:54:23,036 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/interflow_grassland_2000-12-31.map
+2025-03-05 01:54:23,044 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storGroundwater_2000-12-31.map
+2025-03-05 01:54:23,052 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/storGroundwaterFossil_2000-12-31.map
+2025-03-05 01:54:23,061 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgTotalGroundwaterAbstraction_2000-12-31.map
+2025-03-05 01:54:23,069 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgTotalGroundwaterAllocationLong_2000-12-31.map
+2025-03-05 01:54:23,076 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgTotalGroundwaterAllocationShort_2000-12-31.map
+2025-03-05 01:54:23,084 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgNonFossilGroundwaterAllocationLong_2000-12-31.map
+2025-03-05 01:54:23,092 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgNonFossilGroundwaterAllocationShort_2000-12-31.map
+2025-03-05 01:54:23,100 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgStorGroundwater_2000-12-31.map
+2025-03-05 01:54:23,108 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/relativeGroundwaterHead_2000-12-31.map
+2025-03-05 01:54:23,115 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/baseflow_2000-12-31.map
+2025-03-05 01:54:23,123 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/timestepsToAvgDischarge_2000-12-31.map
+2025-03-05 01:54:23,131 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/channelStorage_2000-12-31.map
+2025-03-05 01:54:23,138 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/readAvlChannelStorage_2000-12-31.map
+2025-03-05 01:54:23,146 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgDischargeLong_2000-12-31.map
+2025-03-05 01:54:23,154 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/m2tDischargeLong_2000-12-31.map
+2025-03-05 01:54:23,162 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgBaseflowLong_2000-12-31.map
+2025-03-05 01:54:23,169 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/riverbedExchange_2000-12-31.map
+2025-03-05 01:54:23,178 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/waterBodyStorage_2000-12-31.map
+2025-03-05 01:54:23,186 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgLakeReservoirOutflowLong_2000-12-31.map
+2025-03-05 01:54:23,195 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgLakeReservoirInflowShort_2000-12-31.map
+2025-03-05 01:54:23,203 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/avgDischargeShort_2000-12-31.map
+2025-03-05 01:54:23,210 virtualOS DEBUG Writing a pcraster map to : /scratch/sutan101/test_pgb_for_lue_development_no_window_zonal/pcraster/states/subDischarge_2000-12-31.map
+2025-03-05 01:54:23,285 pcrglobwb INFO 
+2025-03-05 01:54:23,285 pcrglobwb INFO The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages).
+2025-03-05 01:54:23,287 pcrglobwb INFO Total area = 1.350993e+08 km2
+2025-03-05 01:54:23,290 pcrglobwb INFO Delta total storage days 1 to 366 in 2000 = 1.345408e+03 km3 = 9.958659e+00 mm
+2025-03-05 01:54:23,294 pcrglobwb INFO Accumulated precipitation days 1 to 366 in 2000 = 1.117060e+05 km3 = 8.268435e+02 mm
+2025-03-05 01:54:23,296 pcrglobwb INFO Accumulated baseflow days 1 to 366 in 2000 = 2.865981e+04 km3 = 2.121387e+02 mm
+2025-03-05 01:54:23,297 pcrglobwb INFO Accumulated surfaceWaterInf days 1 to 366 in 2000 = 5.590975e-01 km3 = 4.138417e-03 mm
+2025-03-05 01:54:23,299 pcrglobwb INFO Accumulated runoff days 1 to 366 in 2000 = 4.895441e+04 km3 = 3.623586e+02 mm
+2025-03-05 01:54:23,301 pcrglobwb INFO Accumulated unmetDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,302 pcrglobwb INFO Accumulated infiltration days 1 to 366 in 2000 = 8.858422e+04 km3 = 6.556969e+02 mm
+2025-03-05 01:54:23,304 pcrglobwb INFO Accumulated gwRecharge days 1 to 366 in 2000 = 2.871470e+04 km3 = 2.125451e+02 mm
+2025-03-05 01:54:23,306 pcrglobwb INFO Accumulated netLqWaterToSoil days 1 to 366 in 2000 = 9.993031e+04 km3 = 7.396802e+02 mm
+2025-03-05 01:54:23,307 pcrglobwb INFO Accumulated totalPotET days 1 to 366 in 2000 = 1.208462e+05 km3 = 8.944984e+02 mm
+2025-03-05 01:54:23,309 pcrglobwb INFO Accumulated actualET days 1 to 366 in 2000 = 6.139822e+04 km3 = 4.544672e+02 mm
+2025-03-05 01:54:23,311 pcrglobwb INFO Accumulated interceptEvap days 1 to 366 in 2000 = 1.046568e+04 km3 = 7.746653e+01 mm
+2025-03-05 01:54:23,312 pcrglobwb INFO Accumulated openWaterEvap days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,314 pcrglobwb INFO Accumulated actSnowFreeWaterEvap days 1 to 366 in 2000 = 3.967039e+02 km3 = 2.936386e+00 mm
+2025-03-05 01:54:23,316 pcrglobwb INFO Accumulated actBareSoilEvap days 1 to 366 in 2000 = 1.420725e+04 km3 = 1.051615e+02 mm
+2025-03-05 01:54:23,317 pcrglobwb INFO Accumulated actTranspiUppTotal days 1 to 366 in 2000 = 1.860036e+04 km3 = 1.376791e+02 mm
+2025-03-05 01:54:23,319 pcrglobwb INFO Accumulated actTranspiLowTotal days 1 to 366 in 2000 = 1.772823e+04 km3 = 1.312236e+02 mm
+2025-03-05 01:54:23,321 pcrglobwb INFO Accumulated actTranspiTotal days 1 to 366 in 2000 = 3.632859e+04 km3 = 2.689028e+02 mm
+2025-03-05 01:54:23,322 pcrglobwb INFO Accumulated directRunoff days 1 to 366 in 2000 = 1.134659e+04 km3 = 8.398697e+01 mm
+2025-03-05 01:54:23,324 pcrglobwb INFO Accumulated interflow days 1 to 366 in 2000 = 8.948020e+03 km3 = 6.623289e+01 mm
+2025-03-05 01:54:23,326 pcrglobwb INFO Accumulated interflowTotal days 1 to 366 in 2000 = 8.948020e+03 km3 = 6.623289e+01 mm
+2025-03-05 01:54:23,327 pcrglobwb INFO Accumulated irrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,329 pcrglobwb INFO Accumulated nonIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,331 pcrglobwb INFO Accumulated totalPotentialGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,332 pcrglobwb INFO Accumulated actSurfaceWaterAbstract days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,334 pcrglobwb INFO Accumulated allocSurfaceWaterAbstract days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,336 pcrglobwb INFO Accumulated desalinationAbstraction days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,337 pcrglobwb INFO Accumulated desalinationAllocation days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,339 pcrglobwb INFO Accumulated nonFossilGroundwaterAbs days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,341 pcrglobwb INFO Accumulated allocNonFossilGroundwater days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,342 pcrglobwb INFO Accumulated fossilGroundwaterAbstr days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,344 pcrglobwb INFO Accumulated fossilGroundwaterAlloc days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,346 pcrglobwb INFO Accumulated landSurfaceRunoff days 1 to 366 in 2000 = 2.029461e+04 km3 = 1.502199e+02 mm
+2025-03-05 01:54:23,347 pcrglobwb INFO Accumulated satExcess days 1 to 366 in 2000 = 4.972701e-01 km3 = 3.680774e-03 mm
+2025-03-05 01:54:23,349 pcrglobwb INFO Accumulated snowMelt days 1 to 366 in 2000 = 6.392317e+03 km3 = 4.731568e+01 mm
+2025-03-05 01:54:23,350 pcrglobwb INFO Accumulated totalGroundwaterAbstraction days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,352 pcrglobwb INFO Accumulated totalGroundwaterAllocation days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,354 pcrglobwb INFO Accumulated totalPotentialMaximumGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,355 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,357 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemandPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,359 pcrglobwb INFO Accumulated totalPotentialMaximumIrrGrossDemandNonPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,360 pcrglobwb INFO Accumulated totalPotentialMaximumNonIrrGrossDemand days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,362 pcrglobwb INFO Accumulated irrGrossDemandPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,364 pcrglobwb INFO Accumulated irrGrossDemandNonPaddy days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,365 pcrglobwb INFO Accumulated domesticWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,367 pcrglobwb INFO Accumulated industryWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,369 pcrglobwb INFO Accumulated livestockWaterWithdrawal days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,370 pcrglobwb INFO Accumulated nonIrrReturnFlow days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,372 pcrglobwb INFO Accumulated irrigationTranspirationDeficit days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,374 pcrglobwb INFO Accumulated actTranspiUpp days 1 to 366 in 2000 = 1.860036e+04 km3 = 1.376791e+02 mm
+2025-03-05 01:54:23,375 pcrglobwb INFO Accumulated actTranspiLow days 1 to 366 in 2000 = 1.772823e+04 km3 = 1.312236e+02 mm
+2025-03-05 01:54:23,377 pcrglobwb INFO Accumulated netPercUpp days 1 to 366 in 2000 = 5.576570e+04 km3 = 4.127755e+02 mm
+2025-03-05 01:54:23,379 pcrglobwb INFO Accumulated waterBalance days 1 to 366 in 2000 = -5.852383e-03 km3 = -4.331910e-05 mm
+2025-03-05 01:54:23,380 pcrglobwb INFO Accumulated absWaterBalance days 1 to 366 in 2000 = 4.693046e+00 km3 = 3.473774e-02 mm
+2025-03-05 01:54:23,382 pcrglobwb INFO Accumulated irrigationEvaporationWaterUse days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,384 pcrglobwb INFO Accumulated nonIrrigationWaterUse days 1 to 366 in 2000 = 0.000000e+00 km3 = 0.000000e+00 mm
+2025-03-05 01:54:23,384 pcrglobwb INFO 
+2025-03-05 01:54:23,384 pcrglobwb INFO The following summary is for surface water bodies.
+2025-03-05 01:54:23,387 pcrglobwb INFO Delta surface water storage days 1 to 366 in 2000 = -3.825564e+03 km3 = -2.831667e+01 mm
+2025-03-05 01:54:23,389 pcrglobwb INFO Accumulated waterBodyEvaporation days 1 to 366 in 2000 = 3.327141e+01 km3 = 2.462737e-01 mm
+2025-03-05 01:54:23,390 pcrglobwb INFO Accumulated surfaceWaterInput days 1 to 366 in 2000 = 4.892114e+04 km3 = 3.621123e+02 mm
+2025-03-05 01:54:23,391 pcrglobwb INFO Accumulated dischargeAtPitTotal days 1 to 366 in 2000 = 5.274671e+04 km3 = 3.904290e+02 mm
+2025-03-05 01:54:23,391 pcrglobwb INFO Accumulated surfaceWaterBalance days 1 to 366 in 2000 = 2.359296e-03 km3 = 1.746342e-05 mm
+2025-03-05 01:54:23,487 reporting INFO reporting for time 2000-12-31
