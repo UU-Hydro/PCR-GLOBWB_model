@@ -588,6 +588,9 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     
     if ncFile.endswith(",random") or ncFile.endswith(",random/"):
         
+        msg = "Dummy input file: " +  str(ncFile)   
+        logger.debug(msg)
+        
         ncFile_split = ncFile.replace("/","").split(",")
         
         type_of_random_function = ncFile_split[len(ncFile_split) - 2]
@@ -606,6 +609,8 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         
         pcr.aguila(outPCR)
         
+        pietje 
+                
         return outPCR
         
         
