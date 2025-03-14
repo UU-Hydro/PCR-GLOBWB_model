@@ -596,7 +596,7 @@ def create_a_random_field(ncFile):
         if type_of_random_function == "uniform": outPCR = constant + pcr.uniform(pcr.boolean(1.0)) * factor
         if type_of_random_function == "normal":  outPCR = constant +  pcr.normal(pcr.boolean(1.0)) * factor
 
-        pcr.aguila(outPCR)
+        # ~ pcr.aguila(outPCR)
         
         outPCR = pcr.min(pcr.max(min_value, outPCR), max_value)
         
