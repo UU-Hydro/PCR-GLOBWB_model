@@ -586,6 +586,24 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     
     #~ print ncFile
     
+    if ncFile.endswith(".random"):
+        
+        ncFile_split = ncFile.split(",")
+        
+        type_of_random_function = ncFile_split[len(ncFile_split) - 2]
+        max_value  = float(ncFile_split[len(ncFile_split) - 3])
+        min_value  = float(ncFile_split[len(ncFile_split) - 4])
+        factor     = float(ncFile_split[len(ncFile_split) - 5])
+        constant   = float(ncFile_split[len(ncFile_split) - 6])
+        
+        if type_of_random_function == "uniform": outPCR = constant + pcr.mapuniform() * factor
+        if type_of_random_function == "normal":  outPCR = constant + pcr.mapnormal()  * factor
+
+        outPCR = pcr.min(pcr.max(min_value), max_value)
+        
+        return outPCR
+        
+        
     if varName != "automatic": logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in list(filecache.keys()):
