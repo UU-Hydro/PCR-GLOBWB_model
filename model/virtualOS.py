@@ -596,7 +596,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         factor     = float(ncFile_split[len(ncFile_split) - 5])
         constant   = float(ncFile_split[len(ncFile_split) - 6])
         
-        msg = "Generating a random field (type, constant or mean, factor or std_dev, min_value, max_value): " +  str(ncFile_split[len(ncFile_split)-6:len(ncFile_split)-2])   
+        msg = "Generating a random field (constant or mean, factor or std_dev, min_value, max_value, type): " +  str(ncFile_split[len(ncFile_split)-6:len(ncFile_split)-1])   
         logger.debug(msg)
 
         if type_of_random_function == "uniform": outPCR = constant + pcr.mapuniform() * factor
