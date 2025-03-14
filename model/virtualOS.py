@@ -605,7 +605,7 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         if type_of_random_function == "uniform": outPCR = constant + pcr.mapuniform() * factor
         if type_of_random_function == "normal":  outPCR = constant + pcr.mapnormal()  * factor
 
-        outPCR = pcr.min(pcr.max(min_value), max_value)
+        outPCR = pcr.min(pcr.max(min_value, outPCR), max_value)
         
         pcr.aguila(outPCR)
         
