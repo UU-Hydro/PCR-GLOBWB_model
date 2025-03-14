@@ -594,10 +594,10 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         ncFile_split = ncFile.replace("/","").split(",")
         
         type_of_random_function = ncFile_split[len(ncFile_split) - 2].replace(" ","")
-        max_value  = float(ncFile_split[len(ncFile_split) - 3]).replace(" ","")
-        min_value  = float(ncFile_split[len(ncFile_split) - 4]).replace(" ","")
-        factor     = float(ncFile_split[len(ncFile_split) - 5]).replace(" ","")
-        constant   = float(ncFile_split[len(ncFile_split) - 6]).replace(" ","")
+        max_value  = float(ncFile_split[len(ncFile_split) - 3].replace(" ",""))
+        min_value  = float(ncFile_split[len(ncFile_split) - 4].replace(" ",""))
+        factor     = float(ncFile_split[len(ncFile_split) - 5].replace(" ",""))
+        constant   = float(ncFile_split[len(ncFile_split) - 6].replace(" ",""))
         
         msg = "Generating a random field (constant or mean, factor or std_dev, min_value, max_value, type): " +  str(ncFile_split[len(ncFile_split)-6:len(ncFile_split)-1])   
         logger.debug(msg)
