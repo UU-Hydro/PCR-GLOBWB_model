@@ -607,9 +607,8 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
 
         outPCR = pcr.min(pcr.max(min_value, outPCR), max_value)
         
-        pcr.aguila(outPCR)
-        
-        pietje 
+        # ~ pcr.aguila(outPCR)
+        # ~ pietje 
                 
         return outPCR
         
