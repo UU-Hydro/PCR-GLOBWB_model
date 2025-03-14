@@ -127,6 +127,11 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
+    ncFile = ncFile
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
+
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
     # --- with clone checking
@@ -570,23 +575,9 @@ def singleTryNetcdf2PCRobjClone_version_until_2020_07_14(ncFile,\
     return (outPCR)
 
 
-def singleTryNetcdf2PCRobjClone(ncFile,\
-                                varName = "automatic" ,
-                                dateInput = None,\
-                                useDoy = None,\
-                                cloneMapFileName  = None,\
-                                LatitudeLongitude = True,\
-                                specificFillValue = None):
-    # 
-    # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
-    # --- with clone checking
-    #     Only works if cells are 'square'.
-    #     Only works if cellsizeClone <= cellsizeInput
-    # Get netCDF file and variable name:
-    
-    #~ print ncFile
-    
-    if ncFile.endswith(",random") or ncFile.endswith(",random/"):
+def create_a_random_field(ncFile):
+
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
         
         msg = "Dummy input file: " +  str(ncFile)   
         logger.debug(msg)
@@ -613,7 +604,31 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         # ~ pietje 
                 
         return outPCR
-        
+    
+    else:   
+    
+        return None
+
+def singleTryNetcdf2PCRobjClone(ncFile,\
+                                varName = "automatic" ,
+                                dateInput = None,\
+                                useDoy = None,\
+                                cloneMapFileName  = None,\
+                                LatitudeLongitude = True,\
+                                specificFillValue = None):
+    # 
+    # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
+    # --- with clone checking
+    #     Only works if cells are 'square'.
+    #     Only works if cellsizeClone <= cellsizeInput
+    # Get netCDF file and variable name:
+    
+    #~ print ncFile
+    
+    ncFile = ncFile
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
         
     if varName != "automatic": logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
@@ -1590,6 +1605,11 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
     #                   resampling will be done.   
     logger.debug('read file/value: '+str(v))
     
+    ncFile = v
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
+
     if v == "None":
         #~ PCRmap = str("None")
         PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
