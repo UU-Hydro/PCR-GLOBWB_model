@@ -38,10 +38,12 @@ module load LUE/development-foss-2023a
 
 libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
+pcrglobwbdebugmode="debug"
+
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="360,720" \
-     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field_develop.ini nodebug \
+     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field_develop.ini ${pcrglobwbdebugmode} \
          --hpx:threads=1 \
          --lue:dummy1=0 \
          --lue:dummy2=-1 \
