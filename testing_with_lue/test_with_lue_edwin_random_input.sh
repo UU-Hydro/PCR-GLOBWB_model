@@ -52,12 +52,13 @@ module load LUE/development-foss-2023a
      #~ python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field.ini debug
 
 LUE_PCRASTER_PROVIDER_NAME=pcraster \
-     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field.ini debug \
+     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field_develop.ini debug \
          --hpx:threads=1 \
          --lue:dummy1=0 \
          --lue:dummy2=-1 \
          --lue:dummy3=1 \
          --lue:dummy4=None \
+         --end
          
          
      
