@@ -162,6 +162,8 @@ class WaterBodies(object):
                 self.fracWat = vos.readPCRmapClone(\
                                self.fracWaterInp+str(year_used)+".map",
                                self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                self.fracWat = pcr.spatial(pcr.scalar(0.0))                    
         
         self.fracWat = pcr.cover(self.fracWat, pcr.spatial(pcr.scalar(0.0)))
         self.fracWat = pcr.max(0.0, self.fracWat)
@@ -180,7 +182,9 @@ class WaterBodies(object):
             if self.waterBodyIdsInp != "None":
                 self.waterBodyIds = vos.readPCRmapClone(\
                     self.waterBodyIdsInp+str(year_used)+".map",\
-                    self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
+                    self.cloneMap,self.tmpDir, self.inputDir, False, None, True)
+            else:
+                self.waterBodyIds = pcr.spatial(pcr.nominal(-99))                    
         #
         self.waterBodyIds = pcr.ifthen(\
                             pcr.scalar(self.waterBodyIds) > 0.,\
@@ -284,6 +288,9 @@ class WaterBodies(object):
                 self.waterBodyTyp = vos.readPCRmapClone(
                     self.waterBodyTypInp+str(year_used)+".map",\
                     self.cloneMap,self.tmpDir,self.inputDir,False,None,True)
+            else:
+                # assuming all negative (not being defined and used)
+                self.waterBodyTyp = pcr.nominal(-99)
 
         # excluding wetlands (waterBodyTyp = 0) in all functions related to lakes/reservoirs 
         #
@@ -321,6 +328,9 @@ class WaterBodies(object):
                 self.resMaxCap = 1000. * 1000. * vos.readPCRmapClone(\
                     self.resMaxCapInp+str(year_used)+".map", \
                     self.cloneMap,self.tmpDir,self.inputDir)
+            else:
+                self.resMaxCap = pcr.scalar(0.0)
+
 
         self.resMaxCap = pcr.ifthen(self.resMaxCap > 0.,\
                                     self.resMaxCap)

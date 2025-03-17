@@ -48,5 +48,16 @@ module load LUE/development-foss-2023a
 # Run this script with PCRaster package in environment. This should work:
 # python -c "import pcraster, lue.framework.pcraster_provider"
 
+#~ LUE_PCRASTER_PROVIDER_NAME=pcraster \
+     #~ python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field.ini debug
+
 LUE_PCRASTER_PROVIDER_NAME=pcraster \
-     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field.ini debug
+     python /home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py /home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field.ini debug \
+         --hpx:threads=1 \
+         --lue:dummy1=0 \
+         --lue:dummy2=-1 \
+         --lue:dummy3=1 \
+         --lue:dummy4=None \
+         
+         
+     
