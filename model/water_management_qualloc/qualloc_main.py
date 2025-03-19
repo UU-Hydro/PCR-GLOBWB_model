@@ -905,25 +905,32 @@ class qualloc_model(object):
         # returns None
         return None
     
-    def update(self, online_coupling_to_quantity = False, \
-                     
-                     groundwater_recharge        = None, \
-                     irrigation_gross_demand     = None, \
-                     domesticGrossDemand         = None, \
-                     domesticNettoDemand         = None, \
-                     industryGrossDemand         = None, \
-                     industryNettoDemand         = None, \
-                     livestockGrossDemand        = None, \
-                     livestockNettoDemand        = None, \
-                     manufactureGrossDemand      = None, \
-                     manufactureNettoDemand      = None, \
-                     thermoelectricGrossDemand   = None, \
-                     thermoelectricNettoDemand   = None, \
-                     environment_gross_demand    = None, \
-                     desalinated_water_use       = None, \
-                     
-                     online_coupling_to_quality = False, \
-                     ):
+    def update(self,\
+               online_coupling_to_quantity = False, \
+               groundwater_recharge        = None, \
+               irrigation_gross_demand     = None, \
+               domesticGrossDemand         = None, \
+               domesticNettoDemand         = None, \
+               industryGrossDemand         = None, \
+               industryNettoDemand         = None, \
+               livestockGrossDemand        = None, \
+               livestockNettoDemand        = None, \
+               manufactureGrossDemand      = None, \
+               manufactureNettoDemand      = None, \
+               thermoelectricGrossDemand   = None, \
+               thermoelectricNettoDemand   = None, \
+               environment_gross_demand    = None, \
+               
+               online_coupling_to_quality = False, \
+               surfacewater_temperature   = None, \
+               surfacewater_organic       = None, \
+               surfacewater_salinity      = None, \
+               surfacewater_pathogen      = None, \
+               groundwater_temperature    = None, \
+               groundwater_organic        = None, \
+               groundwater_salinity       = None, \
+               groundwater_pathogen       = None, \
+               ):
         
         # **************************************************************
         # * forcing                                                    *
@@ -937,14 +944,14 @@ class qualloc_model(object):
         
         # [ forcing: hydrology ] ...................................................................
 
+        # stand-alone QUAlloc version
         if online_coupling_to_quantity == False:
-            
             # read in forcing datasets
             for forcing_variable in forcing_variables.keys():
                 
                 # get the field
                 var_out = read_file_entry( \
-                    filename                 = self.forcing_info[forcing_variable]['ncfilename'], \
+                    filename                = self.forcing_info[forcing_variable]['ncfilename'], \
                     variablename            = forcing_variable, \
                     inputpath               = self.forcing_info[forcing_variable]['inputpath'], \
                     clone_attributes        = self.model_configuration.clone_attributes, \
@@ -971,29 +978,29 @@ class qualloc_model(object):
                 # log message
                 logger.debug('information on %s read for %s' % \
                              (forcing_variable.lower(), date))
-            
-
+        
+        # coupled QUAlloc version: PCR-GLOBWB
         else:
-
-            # [ forcing: hydrology ] ...................................................................
+            # set in forcing variables
+            for forcing_variable in forcing_variables.keys():
+                
             self.precipitation             = None
             self.referencePotET            = None
             self.direct_runoff             = None
             self.interflow                 = None
             self.groundwater_recharge      = groundwater_recharge
-            self.irrigation_gross_demand   = irrigation_gross_demand  
-            self.domesticGrossDemand       = domesticGrossDemand      
-            self.domesticNettoDemand       = domesticNettoDemand      
-            self.industryGrossDemand       = industryGrossDemand      
-            self.industryNettoDemand       = industryNettoDemand      
-            self.livestockGrossDemand      = livestockGrossDemand     
-            self.livestockNettoDemand      = livestockNettoDemand     
-            self.manufactureGrossDemand    = manufactureGrossDemand   
-            self.manufactureNettoDemand    = manufactureNettoDemand   
+            self.irrigation_gross_demand   = irrigation_gross_demand
+            self.domesticGrossDemand       = domesticGrossDemand
+            self.domesticNettoDemand       = domesticNettoDemand
+            self.industryGrossDemand       = industryGrossDemand
+            self.industryNettoDemand       = industryNettoDemand
+            self.livestockGrossDemand      = livestockGrossDemand
+            self.livestockNettoDemand      = livestockNettoDemand
+            self.manufactureGrossDemand    = manufactureGrossDemand
+            self.manufactureNettoDemand    = manufactureNettoDemand
             self.thermoelectricGrossDemand = thermoelectricGrossDemand
             self.thermoelectricNettoDemand = thermoelectricNettoDemand
-            self.environment_gross_demand  = environment_gross_demand 
-            self.desalinated_water_use     = desalinated_water_use    
+            self.environment_gross_demand  = environment_gross_demand
 
 
 # UNTIL THIS PART
@@ -1068,6 +1075,31 @@ class qualloc_model(object):
                 setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
             
             # [ forcing: withdrawal capacity ] .........................................................
+            # INCLUDE READING OF DESALINATED WATER!!!!!!!!!!!
+            # read in forcing datasets
+            for forcing_variable in forcing_variables.keys():
+            # get the field
+            var_out = read_file_entry( \
+                filename                = self.forcing_info['desalinated_water_use']['ncfilename'], \
+                variablename            = 'desalinated_water_use', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = self.forcing_info[forcing_variable]['datatype'], \
+                date                    = date, \
+                date_selection_method   = self.forcing_info[forcing_variable]['date_selection_method'], \
+                allow_year_substitution = self.forcing_info[forcing_variable]['allow_year_substitution'], \
+                )
+            
+            # clip to land mask
+            var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
+            
+           # set the variable
+            setattr(self, forcing_variable.lower(), var_out)
+            
+            # log message
+            logger.debug('information on %s read for %s' % \
+                         (forcing_variable.lower(), date))
+            
             # read in regional water pumping capacity (if activated)
             for source_name in self.water_management.source_names:
                 flag_name = '%s_pumping_capacity_flag' % source_name
@@ -1081,7 +1113,7 @@ class qualloc_model(object):
                                        ('region_ids',pcr.Nominal),\
                                        ('region_ratios',pcr.Scalar)]:
                         var_out = read_file_entry( \
-                                filename                 = self.model_configuration.water_management[file_name], \
+                                filename                = self.model_configuration.water_management[file_name], \
                                 variablename            = var, \
                                 inputpath               = self.model_configuration.general['inputpath'], \
                                 clone_attributes        = self.model_configuration.clone_attributes, \
