@@ -982,7 +982,7 @@ class qualloc_model(object):
         # coupled QUAlloc version: PCR-GLOBWB
         else:
             # set in forcing variables
-            for forcing_variable in forcing_variables.keys():
+            #for forcing_variable in forcing_variables.keys():
                 
             self.precipitation             = None
             self.referencePotET            = None
@@ -1001,27 +1001,11 @@ class qualloc_model(object):
             self.thermoelectricGrossDemand = thermoelectricGrossDemand
             self.thermoelectricNettoDemand = thermoelectricNettoDemand
             self.environment_gross_demand  = environment_gross_demand
-
-
-# UNTIL THIS PART
-
+        
+        # [ forcing: water quality ] ...............................................................
+        
         if online_coupling_to_quality == False:
-
             
-            # [ forcing: water quality ] ...............................................................
-            water_quality_forcing_variables = { \
-            'surfacewater_temperature' : 'waterTemperature', \
-            'surfacewater_organic'     : 'organic', \
-            'surfacewater_salinity'    : 'salinity', \
-            'surfacewater_pathogen'    : 'pathogen', \
-            'groundwater_temperature'  : None, \
-            'groundwater_organic'      : None, \
-            'groundwater_salinity'     : None, \
-            'groundwater_pathogen'     : None, \
-            }
-
-
-            # [ forcing: water quality ] ...............................................................
             # read in water quality forcing datasets
             constituent_shortterm_quality = {}
             
@@ -1073,11 +1057,23 @@ class qualloc_model(object):
                 
                 # set variable
                 setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
-            
-            # [ forcing: withdrawal capacity ] .........................................................
-            # INCLUDE READING OF DESALINATED WATER!!!!!!!!!!!
-            # read in forcing datasets
-            for forcing_variable in forcing_variables.keys():
+
+        # coupled QUAlloc version: DynQual
+        else:
+            # set in forcing variables
+            self.surfacewater_temperature  = surfacewater_temperature
+            self.surfacewater_organic      = None
+            self.surfacewater_salinity     = None
+            self.surfacewater_pathogen     = None
+            self.groundwater_temperature   = None
+            self.groundwater_organic       = None
+            self.groundwater_salinity      = None
+            self.groundwater_pathogen      = None
+
+        # [ forcing: withdrawal capacity ] .........................................................
+        # INCLUDE READING OF DESALINATED WATER!!!!!!!!!!!
+        # read in forcing datasets
+        for forcing_variable in forcing_variables.keys():
             # get the field
             var_out = read_file_entry( \
                 filename                = self.forcing_info['desalinated_water_use']['ncfilename'], \
@@ -1130,8 +1126,6 @@ class qualloc_model(object):
                     
                     # set variable
                     setattr(self, '%s_pumping_capacity' % source_name, regional_pumping_capacity)
-        
-
         
         # **************************************************************
         # * long-term                                                  *
