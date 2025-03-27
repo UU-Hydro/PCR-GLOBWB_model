@@ -796,7 +796,7 @@ See doc string of class for detailed info.
         
         # scale the regional pumping capacity to the extension of the land mask
         # and convert units of regional pumping limit:
-        # from billion cubic meters per year to cubic meters per day
+        # from billion cubic meters to cubic meters (per year)
         # (units: m3/year)
         regional_pumping_limit = regional_pumping_limit * region_ratios * 1000000000
         
@@ -837,7 +837,6 @@ See doc string of class for detailed info.
     
     def get_longterm_availability_for_date(self, \
                                             date, \
-                                            cellarea, \
                                             ldd, \
                                             waterdepth, \
                                             mannings_n, \
@@ -855,7 +854,6 @@ See doc string of class for detailed info.
         input:
         =====
         date                      : string, date of the update
-        cellarea                  : PCRaster map with area of cell (units: m2)
         ldd                       : PCRaster map with flow directions
         waterdepth                : PCRaster map with water depth to start iteration (units: m)
         mannings_n                : PCRaster map with Manning's coefficient (units: m^-1/3*s)
@@ -935,7 +933,7 @@ See doc string of class for detailed info.
         # the cell upstream and the total runoff of the same cell
         # (units: m3/s)
         discharge = pcr.upstream(ldd, surfacewater_discharge) + \
-                    surfacewater_runoff * cellarea / time_step_seconds
+                    surfacewater_runoff * self.cellarea / time_step_seconds
         
         # get the average daily water depth corresponding to this discharge
         # (units: m per day)
@@ -951,7 +949,7 @@ See doc string of class for detailed info.
         
         # [ groundwater ]
         # get the groundwater availability (units: m3/day)
-        groundwater_availability = groundwater_storage * cellarea
+        groundwater_availability = groundwater_storage * self.cellarea
         
         # patch to exclude non-zero availability
         groundwater_availability  = pcr.ifthen(groundwater_availability  >= 0, \
@@ -2209,11 +2207,8 @@ See doc string of class for detailed info.
     
     
     def update_surfacewater_potential_withdrawals(self, \
-                                                   total_runoff, \
-                                                   surfacewater_storage, \
-                                                   fraction_water, \
+                                                   surfacewater_available, \
                                                    longterm_potential_withdrawal_per_sector, \
-                                                   cellarea, \
                                                    date = None):
         '''
         update_surfacewater_potential_withdrawals:
@@ -2223,28 +2218,23 @@ See doc string of class for detailed info.
         
         input:
         =====
-        total_runoff                  : PCRaster map with available runoff as the sum of the different
-                                       surface water components (units: m/day)
-        surfacewater_storage         : PCRaster map with surface water storage at the start of the time-step
+        surfacewater_available       : PCRaster map with surface water availableas the sum of the surface water
+                                       storage at the start of the time-step over the fraction of water and the 
+                                       total runoff (sum of the different surface water components)
                                        (units: m per day)
-        fraction_water               : PCRaster map with fraction of the area of a pixel covered by water
-                                       (unitless)
         longterm_potential_withdrawal_per_sector :
                                        dictionary with sector names (string) as keys and PCRaster maps
                                        with sum of renewable and non-renewable potential withdrawals per
                                        sector obtained considering long-term water quality as values
                                        (units: m3/day)
-        cellarea                     : PCRaster map with cell area (units: m2)
         date                         : string, date under evaluation
         
         output:
         ======
-        actual_withdrawal_per_sector : dictionary with sector names (string) as keys and PCRaster maps 
-                                       with actual water withdrawal from sectoral demands based on water
-                                       availability (units: m/period)
-        channel_runoff_per_sector     : dictionary with sector names (string) as keys and PCRaster maps 
-                                       with channel runoff with actual evapotranspiration from channel based
-                                       on water availability (units: m/period)
+        potential_withdrawal_per_sector : 
+                                       dictionary with sector names (string) as keys and PCRaster maps 
+                                       with potential water withdrawal per sector based on short-term water
+                                       quality and current surface water availability (units: m3/day)
         '''
         
         source_name = 'surfacewater'
@@ -2258,7 +2248,7 @@ See doc string of class for detailed info.
         # get the short-term potential surface water availability
         # (units: m3/day)
         potential_surfacewater_availability = \
-                 (surfacewater_storage * fraction_water + total_runoff ) * cellarea
+                                       surfacewater_available * self.cellarea
         
         # get the short-term potential surface water withdrawals
         # by updating the long-term potential surface water withdrawals 
@@ -2304,16 +2294,13 @@ See doc string of class for detailed info.
     
     
     
-    def update_groundwater_actual_withdrawals(self, \
-                                              groundwater_storage, \
-                                              total_recharge, \
-                                              total_base_flow, \
-                                              longterm_potential_withdrawal_per_sector, \
-                                              cellarea, \
-                                              time_step_length, \
-                                              date=None):
+    def update_groundwater_potential_withdrawals(self, \
+                                                  groundwater_available, \
+                                                  longterm_potential_withdrawal_per_sector, \
+                                                  time_step_length, \
+                                                  date=None):
         '''
-        update_groundwater_actual_withdrawals:
+        update_groundwater_potential_withdrawals:
                                              function to update the potential groundwater withdrawals
                                              considering the short-term water quality and distributing
                                              among renewable and non-renewable sources based on the
@@ -2321,40 +2308,29 @@ See doc string of class for detailed info.
         
         input:
         =====
-        groundwater_storage                : PCRaster map with groundwater storage of the previous time-
+        groundwater_available              : PCRaster map with groundwater storage of the previous time-
                                              step (units: m)
-        total_recharge                     : PCRaster map with groundwater recharge accumulated at the
-                                             end of the period (units: m/period)
-        total_base_flow                     : PCRaster map with groundwater base flow accumulated at the
-                                             end of the period (units: m/period)
         longterm_potential_withdrawal_per_sector : 
                                              dictionary with sector names (string) as keys and PCRaster maps
                                              with sum of renewable and non-renewable potential withdrawals per
                                              sector obtained considering long-term water quality as values
-                                             (units: m/period)
-        cellarea                           : PCRaster map with area of cells (units: m2)
+                                             (units: m3/day)
         time_step_length                   : integer, number of days in period (e.g., 30 days/month)
         
         output:
         ======
-        storage                            : PCRaster map with groundwater renewable storage before 
-                                             water withdrawals (units m)
-        renewable_withdrawal_per_sector    : PCRaster map with renewable withdrawals per sector
-                                             (units: m3/day)
-        nonrenewable_withdrawal_per_sector : PCRaster map with non-renewable withdrawals per sector
-                                             (units: m3/day)
+        potential_withdrawal_per_sector    : dictionary with sector names (string) as keys and PCRaster maps
+                                             with sum of renewable and non-renewable potential withdrawals per
+                                             sector obtained considering short-term water quality as values
+                                             (units: m/period)
         '''
         source_name = 'groundwater'
         
         # [ groundwater availability ]
-        # update the storage at the beginning of the time-step
-        # with the total recharge and total base flow at the end of the time-step
-        # (units: m at the end of the period)
-        storage = groundwater_storage + total_recharge - total_base_flow
-        
         # get the short-term groundwater availability
         # (units: m3 at the end of the period)
-        groundwater_availability = pcr.max(0, storage * cellarea)
+        groundwater_availability = pcr.max(0,
+                                           groundwater_available * self.cellarea)
         
         # [ short-term potential withdrawal ]
         # get suitability per sector considering short-term groundwater quality
@@ -2373,61 +2349,20 @@ See doc string of class for detailed info.
                   * time_step_length) \
                  for sector_name in self.sector_names)
         
-        # aggregate total potential withdrawals from all sectors
-        # (units: m3/period)
-        potential_withdrawal = \
-                 sum_list(list(potential_withdrawal_per_sector.values()))
-        
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
         if verbose:
             dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
             pcr.report(groundwater_availability / time_step_length, f'{path}/{dt}_shortterm_actual_renewable_availability_groundwater.map')
-            pcr.report(potential_withdrawal / time_step_length, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_[quality].map')
+            pcr.report(sum_list(list(potential_withdrawal_per_sector.values())) / time_step_length, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_[quality].map')
             for sector_name in self.sector_names:
                 pcr.report(suitability_per_sector[sector_name], f'{path}/{dt}_shortterm_suitability_groundwater_{sector_name}.map')
                 pcr.report(potential_withdrawal_per_sector[sector_name] / time_step_length, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_{sector_name}_[quality].map')
         # --------------------------------------------------------------------------------------------------------------------------------------------
         
-        # [ actual withdrawals ]
-        # calculate the renewable and non-renewable withdrawals
+        # return potential groundwater withdrawals per sector and the 
+        # groundwater availability for current time-step
         # (units: m3/period)
-        renewable_withdrawal = \
-                  pcr.min(groundwater_availability, \
-                          potential_withdrawal)
-        
-        nonrenewable_withdrawal = \
-                  pcr.max(0, \
-                          potential_withdrawal - renewable_withdrawal)
-        
-        # convert renewable and non-renewable withdrawals
-        # (units: m3/day)
-        renewable_withdrawal    = renewable_withdrawal / time_step_length
-        nonrenewable_withdrawal = nonrenewable_withdrawal / time_step_length
-        
-        # re-distribute renewable withdrawals by sector
-        # (units: m3/day)
-        renewable_withdrawal_per_sector = \
-             dict((sector_name, \
-                   renewable_withdrawal * \
-                    pcr_return_val_div_zero(potential_withdrawal_per_sector[sector_name], \
-                                            potential_withdrawal, \
-                                            very_small_number)) \
-                  for sector_name in self.sector_names)
-        
-        # re-distribute non-renewable withdrawals by sector (units: m3/day)
-        nonrenewable_withdrawal_per_sector = \
-             dict((sector_name, \
-                   nonrenewable_withdrawal * \
-                    pcr_return_val_div_zero(potential_withdrawal_per_sector[sector_name], \
-                                            potential_withdrawal, \
-                                            very_small_number)) \
-                  for sector_name in self.sector_names)
-        
-        # return actual withdrawals from renewable and non-renewable sources,
-        # per sector (units: m3/day) and renewable groundwater storage (units: m)
-        return renewable_withdrawal_per_sector, nonrenewable_withdrawal_per_sector, \
-               renewable_withdrawal, nonrenewable_withdrawal, storage
-                        
+        return potential_withdrawal_per_sector, groundwater_availability
     
     
     

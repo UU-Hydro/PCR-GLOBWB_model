@@ -55,13 +55,14 @@ class groundwater(object):
         # initial groundwater storage (units: m/day)
         self.storage = storage_ini
         # recharge (units: m/day)
-        self.recharge       = pcr.ifthen(pcr.defined(self.alpha), \
+        self.total_recharge = pcr.ifthen(pcr.defined(self.alpha), \
                                          pcr.scalar(0)) 
         # base flow (units: m/period)
         self.total_base_flow = pcr.ifthen(pcr.defined(self.alpha), \
                                          pcr.scalar(total_base_flow_ini))
         # set the state names
-        self.report_state_info = {'total_base_flow'     : 'total_base_flow', \
+        self.report_state_info = {'total_recharge'     : 'total_recharge', \
+                                  'total_base_flow'     : 'total_base_flow', \
                                   'groundwater_storage' : 'storage'}
         
         # returns none

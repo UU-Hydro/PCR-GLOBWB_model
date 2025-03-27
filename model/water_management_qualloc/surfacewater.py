@@ -68,6 +68,7 @@ class surfacewater(object):
         self.beta              = 0.60
         
         # set the channel properties
+        self.cellarea         = cellarea           # m2
         self.ldd              = pcr.lddrepair(ldd) # dimensionless
         self.fraction_water   = fraction_water     # m2/m2
         self.water_cropfactor = water_cropfactor   # dimensionless
@@ -147,8 +148,7 @@ class surfacewater(object):
             waterdepth = pcr.max(0.001, wetted_area / self.channel_width)
             
             # compare the water depth
-            conv_value  = pcr.cellvalue(pcr.mapmaximum(pcr.abs(waterdepth -  waterdepth_old)), \
-                                        1)[0]
+            conv_value  = pcr.cellvalue(pcr.mapmaximum(pcr.abs(waterdepth -  waterdepth_old)),1)[0]
             convergence = conv_value < self.convergence_limit
             
             # update icnt
@@ -211,19 +211,18 @@ class surfacewater(object):
         # add the total return flow to the total runoff (units: m/day)
         total_runoff = total_runoff + return_flow
         
-        # limit total runoff to positive values
-        total_runoff = pcr.max(0, \
-                              total_runoff)
+        # set variable
+        # after limiting total runoff to positive values
+        self.total_runoff = pcr.max(0, \
+                                   total_runoff)
         
         # return total runoff (units: m/day)
-        return total_runoff
+        return None
     
     
     
     def update(self, \
-                total_runoff, \
                 potential_withdrawal, \
-                cellarea, \
                 time_step_seconds = 86400, \
                 ):
         '''
@@ -232,12 +231,8 @@ class surfacewater(object):
         
         input:
         =====
-        total_runoff          : PCRaster map of sum of all components contributing to runoff
-                               (i.e., base flow, overland direct_runoff and interflow, 
-                               over channel channel runoff, return flows) (units: m/day)
         potential_withdrawal : PCRaster map of sum of water withdrawals from all sector
                                (units: m3/day)
-        cellarea             : PCRaster map of cell area (units: m2)
         time_step_seconds    : integer, number of second in a day (i.e., 86400 sec/day)
         
         output:
@@ -250,7 +245,7 @@ class surfacewater(object):
         
         # convert runoff units from water slice to volume per day
         # (units: m3/day)
-        total_runoff  = total_runoff * cellarea
+        total_runoff  = self.total_runoff * self.cellarea
         
         # get actual withdrawal and the discharge (units: m3/day)
         actual_withdrawal = pcr.accuthresholdstate(self.ldd, \
@@ -273,7 +268,7 @@ class surfacewater(object):
                                                                self.storage)
         
         # return discharge (units: m3/s) and actual withdrawal (units: m3/day)
-        return self.discharge, actual_withdrawal
+        return actual_withdrawal
     
     
     
