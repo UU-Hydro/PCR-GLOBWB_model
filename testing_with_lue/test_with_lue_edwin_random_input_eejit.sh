@@ -44,7 +44,7 @@ LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="360,720" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
-         --hpx:threads=1 \
+         --hpx:threads=8 \
          --lue:dummy1=0 \
          --lue:dummy2=-1 \
          --lue:dummy3=1 \
