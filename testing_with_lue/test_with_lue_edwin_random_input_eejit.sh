@@ -51,7 +51,7 @@ cd -
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="2000,8000" \
+LUE_PARTITION_SHAPE="1000,8000" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
          --hpx:threads=8 \
          --lue:dummy1=0 \
