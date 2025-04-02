@@ -8,12 +8,12 @@
 import os, sys
 
 import logging
-import qualloc_variable_list as variable_attr
+from . import qualloc_variable_list as variable_attr
 
 import pcraster as pcr
 
-from netCDF_recipes import netCDF_output_handler
-from allocation import get_key
+from .netCDF_recipes import netCDF_output_handler
+from .allocation import get_key
 
 logger = logging.getLogger(__name__)
 

@@ -5,9 +5,9 @@
 ###########
 import logging
 import pcraster as pcr
-from model_time      import match_date_by_julian_number, get_weights_from_dates
-from basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
-from allocation      import get_zonal_total
+from .model_time      import match_date_by_julian_number, get_weights_from_dates
+from .basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
+from .allocation      import get_zonal_total
 
 ####################
 # global variables #

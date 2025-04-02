@@ -1,33 +1,33 @@
 #!/usr/bin/env python
 #  -*- coding: utf-8 -*-
-###############################################################################
-#                                                                             #
-# CALEROS Landscape Development Model:                                        #
-#                                                                             #
-# Copyright (c) 2019 Ludovicus P.H. (Rens) van Beek - r.vanbeek@uu.nl         #
-# Department of Physical Geography, Faculty of Geosciences,                   #
-# Utrecht University, Utrecht, The Netherlands.                               #
-#                                                                             #
-# This program is free software: you can redistribute it and/or modify        #
-# it under the terms of the GNU General Public License as published by        #
-# the Free Software Foundation, either version 3 of the License, or           #
-# (at your option) any later version.                                         #
-#                                                                             #
-# This program is distributed in the hope that it will be useful,             #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
-# GNU General Public License for more details.                                #
-#                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#                                                                             #
-# configuration: module with class and additional functions to handle         #
-# the input from the configuration file and initialize the run, including     #
-# setting up paths, loggers and reporting.
-# output files for dynamic modelling.                                         #
-# This development is part of the CALEROS landscape development.              #
-#                                                                             #
-###############################################################################
+########################################################################
+#                                                                      #
+# CALEROS Landscape Development Model:                                 #
+#                                                                      #
+# Copyright (c) 2019 Ludovicus P.H. (Rens) van Beek - r.vanbeek@uu.nl  #
+# Department of Physical Geography, Faculty of Geosciences,            #
+# Utrecht University, Utrecht, The Netherlands.                        #
+#                                                                      #
+# This program is free software: you can redistribute it and/or modify #
+# it under the terms of the GNU General Public License as published by #
+# the Free Software Foundation, either version 3 of the License, or    #
+# (at your option) any later version.                                  #
+#                                                                      #
+# This program is distributed in the hope that it will be useful,      #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of       #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
+# GNU General Public License for more details.                         #
+#                                                                      #
+# You should have received a copy of the GNU General Public License    #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.#
+#                                                                      #
+# configuration: module with class and additional functions to handle   #
+# the input from the configuration file and initialize the run, including#
+# setting up paths, loggers and reporting.                             #
+# output files for dynamic modelling.                                   #
+# This development is part of the CALEROS landscape development.       #
+#                                                                      #
+########################################################################
 """
 configuration:  
 """
@@ -46,7 +46,7 @@ if sys.version[0] == '2':
 else:
     from six.moves.configparser import RawConfigParser as ConfigParser
 
-from basic_functions import get_decision, \
+from .basic_functions import get_decision, \
                             convert_string_to_list
 
 # global
@@ -144,7 +144,7 @@ the CALEROS model.
 
         # read configuration from given file
         self.parse_configuration_file(self.cfgfilename, self.groups, \
-                  self.sections, subst_args)
+                                    self.sections, subst_args)
 
         # with the configuration set, create all necessary directories
         self.create_output_directories()
@@ -377,8 +377,9 @@ directories using information from the model configuration.
                 files_exist = files_exist or (len(os.listdir(subdirectory)) > 0)
         
         # decide on progressing if files exist
+        
         possible_outcomes = {'yes': True, 'no': False}
-        if files_exist:
+        if files_exist and self.general['overwrite_output'] == 'False':
             question_str = str.join(' ', \
                     ('WARNING: Output directory already exists.', \
                      'Continuing will overwrite existing data:', \

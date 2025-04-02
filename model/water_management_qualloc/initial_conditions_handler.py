@@ -23,9 +23,9 @@ from copy import deepcopy
 
 # specific packages
 # only file handler is required
-from model_time     import match_date_by_julian_number
-from netCDF_recipes import get_nc_dates
-from file_handler   import file_is_nc, compose_filename, read_file_entry
+from .model_time     import match_date_by_julian_number
+from .netCDF_recipes import get_nc_dates
+from .file_handler   import file_is_nc, compose_filename, read_file_entry
 
 ########
 # TODO #

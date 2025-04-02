@@ -35,10 +35,15 @@ import landCover as lc
 import parameterSoilAndTopo as parSoilAndTopo
 
 import water_demand.main_water_demand as water_demand
-
 import water_management.main_water_management as water_management
 
-import water_management_qualloc as qualloc_wm
+# initialization of the qualloc
+from water_management_qualloc.qualloc_main import qualloc_model
+from water_management_qualloc.qualloc_reporting import qualloc_reporting
+from water_management_qualloc.model_configuration import configuration_parser
+from water_management_qualloc.model_time import model_time
+
+
 
 class LandSurface(object):
     
@@ -156,7 +161,7 @@ class LandSurface(object):
                           'actBareSoilEvap',
                           'actTranspiUppTotal',
                           'actTranspiLowTotal',
-                          'actTranspiTotal',                                 
+                          'actTranspiTotal',
                           'directRunoff',
                           'interflow',
                           'interflowTotal',
@@ -401,39 +406,41 @@ class LandSurface(object):
         # instantiate water demand
         self.water_demand = water_demand.WaterDemand(iniItems, landmask, self.coverTypes, self.landCoverObj)
         
-        # instantiate water management
-        self.water_management = water_management.WaterManagement(iniItems, landmask)
 
         # option to use qualloc
         self.using_qualloc = False
-        if iniItems.waterManagementOptions["using_qualloc"] == "True":
+        if iniItems.waterManagementOptions["using_qualloc"] == "False":
             
+            # instantiate water management
+            self.water_management = water_management.WaterManagement(iniItems, landmask)
+            
+        else:
+        
             self.using_qualloc = True
-            
-            # initialization of the qualloc
             
             # - get the configuration file of qualloc
             qualloc_config_file = iniItems.waterManagementOptions["configuration_file_for_qualloc"] 
 
             # - set the configuration object
             # -- object to handle configuration/ini file
-            sections = ['general', 'time', 'forcing', 'groundwater', 'surfacewater', \
-                        'water_management','water_quality']
-            groups= []
+            sections   = ['general', 'time', 'forcing', 'groundwater', 'surfacewater', 'water_management','water_quality']
+            groups     = []
+            subst_args = []
             model_configuration = configuration_parser(cfgfilename = qualloc_config_file, \
                                                        sections    = sections, \
                                                        groups      = groups, \
                                                        subst_args  = subst_args)
-	        self.qualloc_model_configuration = model_configuration
+            self.qualloc_model_configuration = model_configuration
 
             # initialize the time object:
             # note that thisis called pcr_time here and is recast
             # to model_time in the dynamic model and dependent modules
+            allowed_time_increments = ['monthly','daily']
             time_increment = model_configuration.time['time_increment']
             startyear      = int(model_configuration.time['startyear'])
             endyear        = int(model_configuration.time['endyear'])
             
-            # check on values
+            # check on valuesr
             if not time_increment in allowed_time_increments:
                 message_str = ''
                 message_str = str.join(' ', \
@@ -458,7 +465,11 @@ class LandSurface(object):
                                                self.qualloc_model_time, \
                                                model_flags, \
                                                initial_conditions)
-            self.qualloc_model.initialize()
+            # set the initial conditions for the qualloc 
+            self.qualloc_model.initialize(online_coupling = self.using_qualloc)
+            
+            # set the reporting for the qualloc 
+            self.qualloc_reporting = qualloc_reporting(self.qualloc_model_configuration)
             
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
@@ -1368,9 +1379,8 @@ class LandSurface(object):
         # -- irrigation demand (m3)
         vol_gross_sectoral_water_demands["irrigation"] = pcr.scalar(0.0)
         for coverType in self.coverTypes: 
-            if coverType.startswith("irr"): vol_gross_sectoral_water_demands["irrigation"] += self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
-        
-        self.check_irrigation_water_demand_volume = vol_gross_sectoral_water_demands["irrigation"] 
+            if coverType.startswith("irr"):
+                vol_gross_sectoral_water_demands["irrigation"] += self.water_demand.water_demand_irrigation[coverType].irrGrossDemand * routing.cellArea * self.landCoverObj[coverType].fracVegCover 
         
         # pool the demands and do the allocation on the available storages at the land surface level / water allocation model and then pass the withdrawals to the surface and groundwater
         # - input: - sectoral water demands (calculated in "self.water_demand.update")
@@ -1378,19 +1388,51 @@ class LandSurface(object):
         # - output: - water abstraction from surface water, groundwater and etc
         #           - water allocation, including irrigation supply - this will be given to the next time step
         # - note: the water_management calculation should be done in volume (m3)
-
-        # ~ self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
-        # ~ # - This will be replaced by QUAlloc
         
         if self.using_qualloc:
-            # update the modeltime of qualloc
-            self.qualloc_model_time.update(currTimeStep.timeStepPCR())
+            # calculate total groundwater recharge
+            gwRecharge = pcr.spatial(pcr.scalar(0.0))
+            for coverType in self.coverTypes: gwRecharge += self.landCoverObj[coverType].gwRecharge
+            
+            # update the model time of qualloc
+            self.qualloc_model_time.update(currTimeStep.timeStepPCR)
+            self.qualloc_model.update(online_coupling_to_quantity     = self.using_qualloc, \
+                                      irrigation_gross_demand         = vol_gross_sectoral_water_demands["irrigation"] / routing.cellArea, \
+                                      domesticGrossDemand             = self.water_demand.water_demand_domestic.domesticGrossDemand, \
+                                      domesticNettoDemand             = self.water_demand.water_demand_domestic.domesticNettoDemand, \
+                                      industryGrossDemand             = self.water_demand.water_demand_industry.industryGrossDemand, \
+                                      industryNettoDemand             = self.water_demand.water_demand_industry.industryNettoDemand, \
+                                      livestockGrossDemand            = self.water_demand.water_demand_livestock.livestockGrossDemand, \
+                                      livestockNettoDemand            = self.water_demand.water_demand_livestock.livestockNettoDemand, \
+                                      manufactureGrossDemand          = self.water_demand.water_demand_manufacture.manufactureGrossDemand, \
+                                      manufactureNettoDemand          = self.water_demand.water_demand_manufacture.manufactureNettoDemand, \
+                                      thermoelectricGrossDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand, \
+                                      thermoelectricNettoDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, \
+                                      environment_gross_demand        = pcr.spatial(pcr.scalar(0.0)), \
+                                      surfacewater_storage            = routing.channelStorage / routing.cellArea, \
+                                      surfacewater_storage_average    = pcr.spatial(pcr.scalar(0.0)), \
+                                      surfacewater_discharge_average  = pcr.spatial(pcr.scalar(0.0)), \
+                                      surfacewater_totalrunoff_average = pcr.spatial(pcr.scalar(0.0)), \
+                                      groundwater_recharge            = gwRecharge, \
+                                      groundwater_storage             = groundwater.storGroundwater, \
+                                      groundwater_storage_average     = pcr.spatial(pcr.scalar(0.0)), \
+                                      
+                                      online_coupling_to_quality      = False, \
+                                      surfacewater_temperature        = None, \
+                                      surfacewater_organic            = None, \
+                                      surfacewater_salinity           = None, \
+                                      surfacewater_pathogen           = None, \
+                                      groundwater_temperature         = None, \
+                                      groundwater_organic             = None, \
+                                      groundwater_salinity            = None, \
+                                      groundwater_pathogen            = None, \
+                                      )
             
             # make sure that all variables needed for qualloc is defined - UNTIL THIS PART
-            self.qualloc_model.irrigation_gross_demand = vol_gross_sectoral_water_demands["irrigation"] 
+            #self.qualloc_model.irrigation_gross_demand = vol_gross_sectoral_water_demands["irrigation"] 
             
             # update the qualloc 
-            self.qualloc_model.calculate()
+            #self.qualloc_model.calculate()
             
         else:
             self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)

@@ -96,11 +96,12 @@ class Groundwater(object):
         #####################################################################################################################################################
         # limitAbstraction options
         self.limitAbstraction = False
-        if iniItems.waterManagementOptions['limitAbstraction'] == "True": self.limitAbstraction = True
+        if iniItems.waterManagementOptions['using_qualloc'] == "False" or iniItems.waterManagementOptions['limitAbstraction'] == "True":
+            self.limitAbstraction = True
 
         # option for limitting fossil groundwater abstractions:
         self.limitFossilGroundwaterAbstraction = False
-        if iniItems.waterManagementOptions['limitFossilGroundWaterAbstraction'] == "True":
+        if iniItems.waterManagementOptions['using_qualloc'] == "False" or iniItems.waterManagementOptions['limitFossilGroundWaterAbstraction'] == "True":
             self.limitFossilGroundwaterAbstraction = True
 
         # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater, the concept of fossil groundwater is abandoned)
@@ -109,7 +110,7 @@ class Groundwater(object):
             self.limitFossilGroundwaterAbstraction = False
 
         # option for limitting regional groundwater abstractions
-        if iniItems.waterManagementOptions['pumpingCapacityNC'] != "None":
+        if iniItems.waterManagementOptions['using_qualloc'] == "False" or iniItems.waterManagementOptions['pumpingCapacityNC'] != "None":
             logger.info('Limit for annual regional groundwater abstraction is used.')
             self.limitRegionalAnnualGroundwaterAbstraction = True
             self.pumpingCapacityNC = vos.getFullPath(\

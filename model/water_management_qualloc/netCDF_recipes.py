@@ -39,7 +39,7 @@ import netCDF4 as nc
 from types import BuiltinMethodType
 from copy import copy, deepcopy
 
-from spatialDataSet2PCR import compareSpatialAttributes, spatialAttributes, spatialDataSet
+from .spatialDataSet2PCR import compareSpatialAttributes, spatialAttributes, spatialDataSet
 
 logger = logging.getLogger(__name__)
 

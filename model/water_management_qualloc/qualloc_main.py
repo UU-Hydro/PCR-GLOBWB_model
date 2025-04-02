@@ -11,29 +11,29 @@ import logging
 
 import pcraster as pcr
 from copy import deepcopy
-from spatialDataSet2PCR import spatialAttributes, setClone
+from .spatialDataSet2PCR import spatialAttributes, setClone
 
 # modules from the QUAlloc model
-from basic_functions import sum_list, pcr_return_val_div_zero
-from file_handler import compose_filename, read_file_entry, close_nc_cache
-from initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
-from qualloc_reporting import  qualloc_report_initial_conditions
+from .basic_functions import sum_list, pcr_return_val_div_zero
+from .file_handler import compose_filename, read_file_entry, close_nc_cache
+from .initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
+from .qualloc_reporting import  qualloc_report_initial_conditions
 
-from groundwater      import groundwater
-from surfacewater     import surfacewater
-from water_management import water_management, water_management_missing_value, very_small_number
-from water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
+from .groundwater      import groundwater
+from .surfacewater     import surfacewater
+from .water_management import water_management, water_management_missing_value, very_small_number
+from .water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
 
 # test
-from allocation import get_key
-from model_time import match_date_by_julian_number
+from .allocation import get_key
+from .model_time import match_date_by_julian_number
 
 # global variables
 logger = logging.getLogger(__name__)
 
 # path out for debugging
 path = '/scratch/carde003/qualloc/_debug'
-verbose = True
+verbose = False
 
 ########
 # TODO #
@@ -213,31 +213,31 @@ class qualloc_model(object):
                    ):
         
         # stand-alone QUAlloc version
-        if online_coupling == False:
-            # read in the land mask
-            self.landmask = read_file_entry( \
-                    filename                 = self.model_configuration.general['clone'], \
-                    variablename            = 'landmask', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Boolean, \
-                    )
-            
-            # read in the cell area
-            self.cellarea = read_file_entry( \
-                    filename                 = self.model_configuration.general['cellarea'], \
-                    variablename            = 'cellarea', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
+        #if online_coupling == False:
+        # read in the land mask
+        self.landmask = read_file_entry( \
+                filename                 = self.model_configuration.general['clone'], \
+                variablename            = 'landmask', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Boolean, \
+                )
+        
+        # read in the cell area
+        self.cellarea = read_file_entry( \
+                filename                 = self.model_configuration.general['cellarea'], \
+                variablename            = 'cellarea', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
         
         # coupled QUAlloc version
-        else:
-            # import the land mask and cell area (m2)
-            # from PCR-GLOBWB2
-            self.landmask = landmask
-            self.cellarea = cellarea
+        #else:
+        #    # import the land mask and cell area (m2)
+        #    # from PCR-GLOBWB2
+        #    self.landmask = landmask
+        #    self.cellarea = cellarea
         
         # **********************
         # * initial conditions *
@@ -248,10 +248,10 @@ class qualloc_model(object):
         
         # coupled QUAlloc version
         # purge forcing variables
-        if online_coupling == True:
-            files_to_exclude.append('total_base_flow_ini')
-            files_to_exclude.append('groundwater_storage_ini')
-            files_to_exclude.append('surfacewater_storage_ini')
+        #if online_coupling:
+        #    files_to_exclude.append('total_base_flow_ini')
+        #    files_to_exclude.append('groundwater_storage_ini')
+        #    files_to_exclude.append('surfacewater_storage_ini')
         
         # verify use of pumping capacity
         if not self.model_flags['groundwater_pumping_capacity_flag'] or \
@@ -287,7 +287,7 @@ class qualloc_model(object):
         # this contains all the necessary dynamic input that varies for the
         # selected time step
         inputpath               = self.model_configuration.general['inputpath']
-        allow_year_substitution = True       #False
+        allow_year_substitution = True       # False
         date_selection_method   = 'exact'    #'nearest'
         datatype                = pcr.Scalar
         
@@ -298,12 +298,20 @@ class qualloc_model(object):
                               self.model_configuration.forcing['rates'], str)
         
         # purge forcing variables
+        # unused variables: sectors
         del_keys = []
         for forcing_variable, ncfileroot in forcing_variables.items():
             if f'{ncfileroot}_ncfile' not in self.model_configuration.forcing.keys():
                 del_keys.append(forcing_variable)
         for del_key in del_keys:
             forcing_variables.pop(del_key, None)
+        
+        # coupled QUAlloc version
+        if online_coupling:
+            del_keys = ['precipitation','referencePotET','direct_runoff','interflow']
+            for del_key in del_keys:
+                if del_key in forcing_variables.keys():
+                    forcing_variables.pop(del_key, None)
         
         # add to cache forcing information
         self.forcing_info = {}
@@ -323,21 +331,13 @@ class qualloc_model(object):
             # set the information
             self.forcing_info[forcing_variable] = \
                             { \
-                             'ncfilename'              : ncfilename, \
+                             'ncfilename'               : ncfilename, \
                              'inputpath'               : inputpath, \
                              'datatype'                : datatype, \
                              'date_selection_method'   : date_selection_method, \
                              'allow_year_substitution' : allow_year_substitution, \
                              'total_to_rate'           : total_to_rate, \
                             }
-        
-        # coupled QUAlloc version
-        # purge forcing variables
-        if online_coupling == True:
-            del_keys = ['precipitation', 'referencePotET', 'direct_runoff', 'interflow']
-            for del_key in del_keys:
-                if del_key in forcing_variables.keys():
-                    forcing_variables.pop(del_key, None)
         
         logger.info('forcing information initialized')
         
@@ -346,37 +346,38 @@ class qualloc_model(object):
         # ***************
         #
         # stand-alone QUAlloc version
-        if online_coupling == False:
-            # read in the groundwater alpha
-            self.initial_conditions['groundwater']['groundwater_storage'] = pcr.ifthen(self.landmask, \
-                        pcr.cover(self.initial_conditions['groundwater']['groundwater_storage'], 0))
-            alpha = read_file_entry( \
-                    filename                 = self.model_configuration.groundwater['alpha'], \
-                    variablename            = 'alpha', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            alpha_default = read_file_entry( \
-                    filename                 = self.model_configuration.groundwater['alpha_default'], \
-                    variablename            = 'alpha', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            alpha = pcr.ifthen(self.landmask, pcr.cover(alpha, alpha_default))
-            
-            # define initial values:
-            # total base flow and groundwater storage
-            total_base_flow_ini      = self.initial_conditions['groundwater']['total_base_flow']
-            groundwater_storage_ini = self.initial_conditions['groundwater']['groundwater_storage']
+        #if online_coupling == False:
+        # read in the groundwater alpha
+        self.initial_conditions['groundwater']['groundwater_storage'] = \
+                pcr.ifthen(self.landmask, \
+                           pcr.cover(self.initial_conditions['groundwater']['groundwater_storage'], 0))
+        alpha = read_file_entry( \
+                filename                 = self.model_configuration.groundwater['alpha'], \
+                variablename            = 'alpha', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        alpha_default = read_file_entry( \
+                filename                 = self.model_configuration.groundwater['alpha_default'], \
+                variablename            = 'alpha', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        alpha = pcr.ifthen(self.landmask, pcr.cover(alpha, alpha_default))
+        
+        # define initial values:
+        # total base flow and groundwater storage
+        total_base_flow_ini      = self.initial_conditions['groundwater']['total_base_flow']
+        groundwater_storage_ini = self.initial_conditions['groundwater']['groundwater_storage']
         
         # coupled QUAlloc version
-        else:
-            alpha                   = groundwater_alpha
-            alpha_default           = groundwater_alpha
-            total_base_flow_ini      = total_base_flow_ini
-            groundwater_storage_ini = groundwater_storage_ini
+        #else:
+        #    alpha                   = groundwater_alpha
+        #    alpha_default           = groundwater_alpha
+        #    total_base_flow_ini      = total_base_flow_ini
+        #    groundwater_storage_ini = groundwater_storage_ini
         
         # initialize the groundwater module
         self.groundwater = groundwater(alpha              = alpha, \
@@ -397,72 +398,72 @@ class qualloc_model(object):
         # and the initial surface water storage
         
         # stand-alone QUAlloc version
-        if online_coupling == False:
-            self.initial_conditions['surfacewater']['surfacewater_storage'] = \
-                    pcr.ifthen(self.landmask, \
-                               pcr.cover(self.initial_conditions['surfacewater']['surfacewater_storage'], 0))
-            surfacewater_storage_ini = self.initial_conditions['surfacewater']['surfacewater_storage']
-            
-            ldd = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['ldd'], \
-                    variablename            = 'ldd', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Ldd, \
-                    )
-            fraction_water = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['fraction_water'], \
-                    variablename            = 'fraction_water', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            water_cropfactor=  read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['water_cropfactor'], \
-                    variablename            = 'water_cropfactor', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            channel_gradient = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['channel_gradient'], \
-                    variablename            = 'channel_gradient', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            channel_width = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['channel_width'], \
-                    variablename            = 'channel_width', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            channel_length = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['channel_length'], \
-                    variablename            = 'channel_length', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
-            mannings_n = read_file_entry( \
-                    filename                = self.model_configuration.surfacewater['mannings_n'], \
-                    variablename            = 'mannings_n', \
-                    inputpath               = self.model_configuration.general['inputpath'], \
-                    clone_attributes        = self.model_configuration.clone_attributes, \
-                    datatype                = pcr.Scalar, \
-                    )
+        #if online_coupling == False:
+        self.initial_conditions['surfacewater']['surfacewater_storage'] = \
+                pcr.ifthen(self.landmask, \
+                           pcr.cover(self.initial_conditions['surfacewater']['surfacewater_storage'], 0))
+        surfacewater_storage_ini = self.initial_conditions['surfacewater']['surfacewater_storage']
+        
+        ldd = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['ldd'], \
+                variablename            = 'ldd', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Ldd, \
+                )
+        fraction_water = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['fraction_water'], \
+                variablename            = 'fraction_water', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        water_cropfactor=  read_file_entry( \
+                filename                = self.model_configuration.surfacewater['water_cropfactor'], \
+                variablename            = 'water_cropfactor', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        channel_gradient = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['channel_gradient'], \
+                variablename            = 'channel_gradient', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        channel_width = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['channel_width'], \
+                variablename            = 'channel_width', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        channel_length = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['channel_length'], \
+                variablename            = 'channel_length', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
+        mannings_n = read_file_entry( \
+                filename                = self.model_configuration.surfacewater['mannings_n'], \
+                variablename            = 'mannings_n', \
+                inputpath               = self.model_configuration.general['inputpath'], \
+                clone_attributes        = self.model_configuration.clone_attributes, \
+                datatype                = pcr.Scalar, \
+                )
         
         # coupled QUAlloc version
-        else:
-            ldd                      = ldd
-            fraction_water           = fraction_water
-            water_cropfactor         = water_cropfactor
-            channel_gradient         = channel_gradient
-            channel_width            = channel_width
-            channel_length           = channel_length
-            mannings_n               = mannings_n
-            surfacewater_storage_ini = surfacewater_storage_ini
+        #else:
+        #    ldd                      = ldd
+        #    fraction_water           = fraction_water
+        #    water_cropfactor         = water_cropfactor
+        #    channel_gradient         = channel_gradient
+        #    channel_width            = channel_width
+        #    channel_length           = channel_length
+        #    mannings_n               = mannings_n
+        #    surfacewater_storage_ini = surfacewater_storage_ini
         
         # initialize the surface water module
         self.surfacewater = surfacewater( \
@@ -1060,6 +1061,7 @@ class qualloc_model(object):
         # coupled QUAlloc version: PCR-GLOBWB
         else:
             # set in forcing variables
+            # units (m/day)
             for forcing_variable in forcing_variables.keys():
                 # get the field
                 var_out = eval(forcing_variable)

@@ -4,8 +4,8 @@
 import logging
 
 import pcraster as pcr
-from basic_functions import pcr_return_val_div_zero, pcr_get_map_value
-from model_time      import match_date_by_julian_number
+from .basic_functions import pcr_return_val_div_zero, pcr_get_map_value
+from .model_time      import match_date_by_julian_number
 
 # global attributes
 

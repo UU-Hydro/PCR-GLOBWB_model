@@ -5,14 +5,14 @@ import sys
 import logging
 import pcraster as pcr
 
-from copy            import deepcopy
-from basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-from model_time      import match_date_by_julian_number, get_weights_from_dates
-from allocation      import get_key, get_zonal_fraction, get_zonal_total, \
+from copy             import deepcopy
+from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
+from .model_time      import match_date_by_julian_number, get_weights_from_dates
+from .allocation      import get_key, get_zonal_fraction, get_zonal_total, \
                             obtain_allocation_ratio, \
                             allocate_demand_to_availability_with_options, \
                             allocate_demand_to_withdrawals
-from water_quality   import water_quality
+from .water_quality   import water_quality
 
 # global attributes
 # set the logger

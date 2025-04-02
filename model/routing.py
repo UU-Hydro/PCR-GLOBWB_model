@@ -245,7 +245,7 @@ class Routing(object):
                                                minimum_number_of_sub_time_step, \
                                                self.limit_num_of_sub_time_steps)                                 
         # 
-        self.limit_num_of_sub_time_steps = np.int(self.limit_num_of_sub_time_steps)
+        self.limit_num_of_sub_time_steps = int(self.limit_num_of_sub_time_steps)
         
         # critical water height (m) used to select stable length of sub time step in kinematic wave methods/approaches
         self.critical_water_height = 0.25;  # used in Van Beek et al. (2011)
