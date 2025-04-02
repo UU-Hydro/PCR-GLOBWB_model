@@ -44,6 +44,11 @@ pcrglobwbdebugmode="debug"
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 mapattr -s -P yb2t -R 1000 -C 2000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
+# prepare the ldd map
+cd /scratch/depfg/sutan101/clone_map_for_lue/
+pcrcalc --clone clone_map_for_lue_test.map ldd_for_lue_test.map = "ldd(5.0)"
+cd -
+
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="1000,2000" \

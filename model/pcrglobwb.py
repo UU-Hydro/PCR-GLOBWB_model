@@ -67,10 +67,7 @@ class PCRGlobWB(object):
                       configuration.routingOptions['lddMap'],
                       configuration.cloneMap,configuration.tmpDir, configuration.globalOptions['inputDir'], True)
             # ensure ldd map is correct, and actually of type "ldd"
-            try:
-                self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
-            except:
-                self.lddMap = pcr.ldd(self.lddMap)    
+            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         if configuration.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\
@@ -80,11 +77,7 @@ class PCRGlobWB(object):
             self.landmask = pcr.defined(self.lddMap)
         
         # masking the lddMap to the landmask only
-        if skip_ldd_repair_and_ldd_mask == False:
-            try:
-                self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
-            except:
-                self.lddMap = pcr.ldd(self.lddMap)    
+        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
         
         # defining catchment areas
         self.catchment_class = 1.0
