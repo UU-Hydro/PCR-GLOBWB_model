@@ -40,9 +40,13 @@ pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/de
 pcrglobwbini="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field_develop_eejit.ini"
 pcrglobwbdebugmode="debug"
 
+# prepare the clone map
+rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+mapattr -s -P yb2t -R 10000 -C 20000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="360,720" \
+LUE_PARTITION_SHAPE="5000,10000" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
          --hpx:threads=8 \
          --lue:dummy1=0 \
@@ -50,6 +54,17 @@ LUE_PARTITION_SHAPE="360,720" \
          --lue:dummy3=1 \
          --lue:dummy4=None \
          --end
+
+#~ LD_PRELOAD=$libtcmalloc \
+#~ LUE_PCRASTER_PROVIDER_NAME=lue \
+#~ LUE_PARTITION_SHAPE="360,720" \
+     #~ python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
+         #~ --hpx:threads=8 \
+         #~ --lue:dummy1=0 \
+         #~ --lue:dummy2=-1 \
+         #~ --lue:dummy3=1 \
+         #~ --lue:dummy4=None \
+         #~ --end
 
 # Run this script with PCRaster package in environment. This should work:
 # python -c "import pcraster, lue.framework.pcraster_provider"
@@ -68,3 +83,22 @@ LUE_PARTITION_SHAPE="360,720" \
          
          
      
+
+#~ sutan101@gpu008.cluster:/scratch/depfg/sutan101/clone_map_for_lue$ mapattr -p ldd_africa_3sec.map
+#~ mapattr version: 4.4.1 (linux/x86_64)
+#~ attributes  ldd_africa_3sec.map
+#~ rows        87600
+#~ columns     84000
+#~ cell_length 0.000833333
+#~ data_type   ldd
+#~ cell_repr   small
+#~ projection  yb2t
+#~ angle(deg)  0
+#~ xUL         -18
+#~ yUL         38
+#~ min_val     1
+#~ max_val     9
+#~ version     2
+#~ file_id     0
+#~ native      y
+#~ attr_tab    n
