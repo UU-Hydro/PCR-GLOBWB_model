@@ -42,7 +42,7 @@ pcrglobwbdebugmode="debug"
 
 # prepare the clone map
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
-mapattr -s -P yb2t -R 1000 -C 2000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+mapattr -s -P yb2t -R 2000 -C 8000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
 # prepare the ldd map
 cd /scratch/depfg/sutan101/clone_map_for_lue/
