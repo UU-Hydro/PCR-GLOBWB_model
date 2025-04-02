@@ -44,14 +44,14 @@ pcrglobwbdebugmode="debug"
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 mapattr -s -P yb2t -R 2000 -C 8000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
-# prepare the ldd map
+# prepare the ldd map - now everything just a pit/sink
 cd /scratch/depfg/sutan101/clone_map_for_lue/
 pcrcalc --clone clone_map_for_lue_test.map ldd_for_lue_test.map = "ldd(5.0)"
 cd -
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="1000,2000" \
+LUE_PARTITION_SHAPE="2000,8000" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
          --hpx:threads=8 \
          --lue:dummy1=0 \
@@ -59,6 +59,8 @@ LUE_PARTITION_SHAPE="1000,2000" \
          --lue:dummy3=1 \
          --lue:dummy4=None \
          --end
+
+
 
 #~ LD_PRELOAD=$libtcmalloc \
 #~ LUE_PCRASTER_PROVIDER_NAME=lue \
