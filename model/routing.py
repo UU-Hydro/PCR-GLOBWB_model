@@ -222,6 +222,10 @@ class Routing(object):
 
         # initiate/create WaterBody class
         self.WaterBodies = waterBodies.WaterBodies(iniItems, self.landmask, self.lddMap)
+        
+        print(self.WaterBodies.lddMap)
+        
+        pietje
 
         # crop evaporation coefficient for surface water bodies
         self.no_zero_crop_water_coefficient = True
