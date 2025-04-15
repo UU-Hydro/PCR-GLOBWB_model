@@ -47,7 +47,7 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None, ldd_lue):
+    def __init__(self, configuration, currTimeStep, initialState, spinUpRun, ldd_lue):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
