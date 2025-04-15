@@ -47,7 +47,7 @@ import disclaimer
 
 class DeterministicRunner(pcrfw.DynamicModel):
 
-    def __init__(self, configuration, modelTime, initialState = None, \
+    def __init__(self, configuration, modelTime, initialState, \
                  count: int,
                  nr_workers: int,
                  array_shape: tuple[int, int],
