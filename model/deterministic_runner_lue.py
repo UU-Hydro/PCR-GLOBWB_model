@@ -164,9 +164,9 @@ def main(
         run.start()
 
         if pcr.provider_name == "lue":
-            dynamicModel.run(rate_limit=2)
+            dynamic_framework.run(rate_limit=2)
         else:
-            dynamicModel.run()
+            dynamic_framework.run()
 
         # lfr.wait(generation) # dynamic() waits instead at last timestep...
         run.stop()
