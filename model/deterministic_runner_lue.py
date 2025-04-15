@@ -67,6 +67,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
         if pcr.provider_name == "lue":
 	    
+            pcr.setclone(configuration.cloneMap)
+
             # overrule whatever was used with setclone, we want this:
             pcr.configuration.partition_shape = partition_shape
             pcr.configuration.array_shape = array_shape
