@@ -62,5 +62,5 @@ LUE_PARTITION_SHAPE="360,720" \
          --lue:nr_workers=1 \
          --lue:array_shape="360,720" \
          --lue:partition_shape="360,720" \
-         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/" \
+         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
          --end
