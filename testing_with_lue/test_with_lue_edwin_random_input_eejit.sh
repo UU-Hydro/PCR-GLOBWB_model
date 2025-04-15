@@ -36,13 +36,17 @@ module load LUE/development-foss-2024a
 
 libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
-pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner.py"
+pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner_lue.py"
 pcrglobwbini="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_30min_on_velocity_for_lue_random_field_develop_eejit.ini"
 pcrglobwbdebugmode="debug"
 
+#~ # prepare the clone map
+#~ rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+#~ mapattr -s -P yb2t -R 10000 -C 20000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+
 # prepare the clone map
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
-mapattr -s -P yb2t -R 10000 -C 20000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
+mapattr -s -P yb2t -R 360 -C 720 -B -x -180 -y 90 -l 0.5 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
 # prepare the ldd map - now everything just a pit/sink
 cd /scratch/depfg/sutan101/clone_map_for_lue/
@@ -51,14 +55,27 @@ cd -
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="6000,7000" \
+LUE_PARTITION_SHAPE="360,720" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
-         --hpx:threads=8 \
-         --lue:dummy1=0 \
-         --lue:dummy2=-1 \
-         --lue:dummy3=1 \
-         --lue:dummy4=None \
+         --hpx:threads=1 \
+         --lue:count=1 \
+         --lue:nr_workers=1 \
+         --lue:array_shape=[360, 720] \
+         --lue:partition_shape=[360, 720] \
+         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/" \
          --end
+
+
+#~ LD_PRELOAD=$libtcmalloc \
+#~ LUE_PCRASTER_PROVIDER_NAME=lue \
+#~ LUE_PARTITION_SHAPE="6000,7000" \
+     #~ python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
+         #~ --hpx:threads=8 \
+         #~ --lue:dummy1=0 \
+         #~ --lue:dummy2=-1 \
+         #~ --lue:dummy3=1 \
+         #~ --lue:dummy4=None \
+         #~ --end
 
 
 

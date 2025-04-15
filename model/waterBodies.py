@@ -38,6 +38,8 @@ class WaterBodies(object):
     def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False, lddMap = None):
         object.__init__(self)
 
+        self.lddMap = lddMap
+        
         # clone map file names, temporary directory and global/absolute path of input directory
         self.cloneMap = iniItems.cloneMap
         self.tmpDir   = iniItems.tmpDir
@@ -46,21 +48,21 @@ class WaterBodies(object):
         
         self.iniItems = iniItems
                 
-        # Read the ldd map.
-        skip_ldd_repair_and_ldd_mask = False
-        if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
-            skip_ldd_repair_and_ldd_mask = True
-        if skip_ldd_repair_and_ldd_mask:    
-            lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
-                                          absolutePath     = iniItems.globalOptions['inputDir'],\
-                                          completeFileName = True) 
-            self.lddMap = pcr.readmap(lddMap_file)
-        else:
-            self.lddMap = vos.readPCRmapClone(\
-                      iniItems.routingOptions['lddMap'],
-                      iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
-            # ensure ldd map is correct, and actually of type "ldd"
-            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        # ~ # Read the ldd map. - Why do we need this?
+        # ~ skip_ldd_repair_and_ldd_mask = False
+        # ~ if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+            # ~ skip_ldd_repair_and_ldd_mask = True
+        # ~ if skip_ldd_repair_and_ldd_mask:    
+            # ~ lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
+                                          # ~ absolutePath     = iniItems.globalOptions['inputDir'],\
+                                          # ~ completeFileName = True) 
+            # ~ self.lddMap = pcr.readmap(lddMap_file)
+        # ~ else:
+            # ~ self.lddMap = vos.readPCRmapClone(\
+                      # ~ iniItems.routingOptions['lddMap'],
+                      # ~ iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
+            # ~ # ensure ldd map is correct, and actually of type "ldd"
+            # ~ self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         if iniItems.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\
@@ -69,8 +71,8 @@ class WaterBodies(object):
         else:
             self.landmask = pcr.defined(self.lddMap)
         
-        # masking the lddMap to the landmask only
-        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
+        # ~ # masking the lddMap to the landmask only - Why do we need this?
+        # ~ if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
 
         # the following is needed for a modflowOfflineCoupling run
         if 'modflowOfflineCoupling' in list(iniItems.globalOptions.keys()) and iniItems.globalOptions['modflowOfflineCoupling'] == "True" and 'routingOptions' not in iniItems.allSections: 
