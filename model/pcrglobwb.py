@@ -58,7 +58,7 @@ class PCRGlobWB(object):
             
             print(self.lddMap)
             
-            pietje
+            # ~ pietje
             
         else:
         
