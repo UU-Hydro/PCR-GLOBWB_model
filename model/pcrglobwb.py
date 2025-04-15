@@ -54,6 +54,7 @@ class PCRGlobWB(object):
         if ldd_lue is not None:
         
             self.lddMap = ldd_lue
+            self.landmask = pcr.defined(self.lddMap)
         
         else:
         
