@@ -47,7 +47,7 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None, ldd_lue = None):
+    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None, ldd_lue):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
@@ -55,6 +55,10 @@ class PCRGlobWB(object):
         
             self.lddMap = ldd_lue
             self.landmask = pcr.defined(self.lddMap)
+            
+            print(self.lddMap)
+            
+            pietje
             
         else:
         
