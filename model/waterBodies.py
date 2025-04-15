@@ -643,7 +643,7 @@ class WaterBodies(object):
                      avgOutflow,
                      pcr.max(avgChannelDischarge, self.avgInflow))
 
-        print(self.lddMap)
+        # ~ print(self.lddMap)
 
         avgOutflow = pcr.ifthenelse(\
                      avgOutflow > 0.,\
