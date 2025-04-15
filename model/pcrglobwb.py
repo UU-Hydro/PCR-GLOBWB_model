@@ -56,7 +56,7 @@ class PCRGlobWB(object):
             self.lddMap = ldd_lue
             self.landmask = pcr.defined(self.lddMap)
             
-            print(self.lddMap)
+            # ~ print(self.lddMap)
             
             # ~ pietje
             
