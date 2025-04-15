@@ -64,12 +64,12 @@ class WaterBodies(object):
             # ~ # ensure ldd map is correct, and actually of type "ldd"
             # ~ self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
-        if iniItems.globalOptions['landmask'] != "None":
-            self.landmask = vos.readPCRmapClone(\
-            iniItems.globalOptions['landmask'],
-            iniItems.cloneMap,iniItems.tmpDir,iniItems.globalOptions['inputDir'])
-        else:
-            self.landmask = pcr.defined(self.lddMap)
+        # ~ if iniItems.globalOptions['landmask'] != "None": - Why do we need this?
+            # ~ self.landmask = vos.readPCRmapClone(\
+            # ~ iniItems.globalOptions['landmask'],
+            # ~ iniItems.cloneMap,iniItems.tmpDir,iniItems.globalOptions['inputDir'])
+        # ~ else:
+            # ~ self.landmask = pcr.defined(self.lddMap)
         
         # ~ # masking the lddMap to the landmask only - Why do we need this?
         # ~ if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
