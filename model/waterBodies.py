@@ -35,7 +35,7 @@ import virtualOS as vos
 
 class WaterBodies(object):
 
-    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies = False, lddMap = None):
+    def __init__(self, iniItems, landmask, onlyNaturalWaterBodies, lddMap):
         object.__init__(self)
 
         self.lddMap = lddMap

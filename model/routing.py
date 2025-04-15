@@ -221,11 +221,10 @@ class Routing(object):
                         pcr.cover(self.gradient, minGradient))
 
         # initiate/create WaterBody class
-        self.WaterBodies = waterBodies.WaterBodies(iniItems, self.landmask, self.lddMap)
+        self.WaterBodies = waterBodies.WaterBodies(iniItems, self.landmask, False, self.lddMap)
         
-        print(self.WaterBodies.lddMap)
-        
-        pietje
+        # ~ print(self.WaterBodies.lddMap)
+        # ~ pietje
 
         # crop evaporation coefficient for surface water bodies
         self.no_zero_crop_water_coefficient = True
