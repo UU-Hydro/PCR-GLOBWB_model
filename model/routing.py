@@ -78,7 +78,7 @@ class Routing(object):
 
         return result
 
-    def __init__(self,iniItems,initialConditions,lddMap):
+    def __init__(self, iniItems, initialConditions, lddMap):
         object.__init__(self)
 
         self.lddMap = lddMap
