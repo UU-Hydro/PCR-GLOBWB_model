@@ -64,3 +64,38 @@ LUE_PARTITION_SHAPE="360,720" \
          --lue:partition_shape="360,720" \
          --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
          --end
+
+
+#~ sutan101@node026.cluster:/scratch/depfg/pcraster/lue_pycatch_input$ ls -lah
+#~ total 9.2G
+#~ drwxr-xr-x  2 schmi109 depfg    7 Mar 31 15:45 .
+#~ drwxr-xr-x 15 schmi109 depfg   19 Mar 31 15:44 ..
+#~ -rwxr-xr-x  1 schmi109 depfg 115K Mar 31 15:44 airTemperatureArnaJulAugSep0506.tss
+#~ -rw-r--r--  1 schmi109 depfg 8.0G Mar 31 15:45 elv.tiff
+#~ -rwxr-xr-x  1 schmi109 depfg 128K Mar 31 15:44 incomingShortwaveRadiationArnasJulAugSep0506.tss
+#~ -rw-r--r--  1 schmi109 depfg 1.3G Mar 31 15:44 ldd.tiff
+#~ -rw-r--r--  1 schmi109 depfg 215K Mar 31 15:44 rainfallFluxTwoCatchsJulAugSep0506.tss
+#~ -rwxr-xr-x  1 schmi109 depfg 118K Mar 31 15:44 relativeHumidityArnasJulAugSep0506.tss
+#~ -rwxr-xr-x  1 schmi109 depfg 118K Mar 31 15:44 windVelocityArnasJulAugSep0506.tss
+#~ (pcrglobwb_python3_pcraster44_v2025-01-16b)
+#~ sutan101@node026.cluster:/scratch/depfg/pcraster/lue_pycatch_input$ gdalinfo ldd.tiff
+#~ Driver: GTiff/GeoTIFF
+#~ Files: ldd.tiff
+#~ Size is 84000, 87600
+#~ Origin = (-18.000000000000000,38.000000000000000)
+#~ Pixel Size = (0.000833333333333,-0.000833333333333)
+#~ Metadata:
+  #~ PCRASTER_VALUESCALE=VS_LDD
+#~ Image Structure Metadata:
+  #~ COMPRESSION=ZSTD
+  #~ INTERLEAVE=BAND
+#~ Corner Coordinates:
+#~ Upper Left  ( -18.0000000,  38.0000000)
+#~ Lower Left  ( -18.0000000, -35.0000000)
+#~ Upper Right (  52.0000000,  38.0000000)
+#~ Lower Right (  52.0000000, -35.0000000)
+#~ Center      (  17.0000000,   1.5000000)
+#~ Band 1 Block=84000x1 Type=Byte, ColorInterp=Gray
+  #~ NoData Value=255
+#~ (pcrglobwb_python3_pcraster44_v2025-01-16b)
+#~ sutan101@node026.cluster:/scratch/depfg/pcraster/lue_pycatch_input$
