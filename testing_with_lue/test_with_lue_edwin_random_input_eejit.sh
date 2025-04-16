@@ -81,7 +81,7 @@ LUE_PARTITION_SHAPE="1200,1200" \
          --lue:count=2 \
          --lue:nr_workers=1 \
          --lue:array_shape="1200,1200" \
-         --lue:partition_shape="120,240" \
+         --lue:partition_shape="1200,1200" \
          --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
          --end
 
