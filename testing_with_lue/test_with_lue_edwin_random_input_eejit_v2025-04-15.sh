@@ -48,10 +48,13 @@ pcrglobwbdebugmode="nodebug"
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 mapattr -s -P yb2t -R 360 -C 720 -B -x -180 -y 90 -l 0.5 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
-# prepare the ldd map - now everything just a pit/sink
-cd /scratch/depfg/sutan101/clone_map_for_lue/
-pcrcalc --clone clone_map_for_lue_test.map ldd_for_lue_test.map = "ldd(5.0)"
-cd -
+#~ # prepare the ldd map - now everything just a pit/sink
+#~ cd /scratch/depfg/sutan101/clone_map_for_lue/
+#~ pcrcalc --clone clone_map_for_lue_test.map ldd_for_lue_test.map = "ldd(5.0)"
+#~ cd -
+
+# prepare the ldd map
+cp /scratch/depfg/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_30min/routing/ldd_and_cell_area/lddsound_30min.map /scratch/depfg/sutan101/clone_map_for_lue/ldd_for_lue_test.map
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
