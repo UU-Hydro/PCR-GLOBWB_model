@@ -75,13 +75,13 @@ cp /scratch/depfg/sutan101/ldd_for_lue/ldd_test_repaired.map /scratch/depfg/suta
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="1200,1200" \
+LUE_PARTITION_SHAPE="120,240" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
          --hpx:threads=6 \
          --lue:count=2 \
          --lue:nr_workers=1 \
          --lue:array_shape="1200,1200" \
-         --lue:partition_shape="1200,1200" \
+         --lue:partition_shape="120,240" \
          --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
          --end
 
