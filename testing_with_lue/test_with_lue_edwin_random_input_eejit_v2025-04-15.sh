@@ -38,7 +38,7 @@ libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
 pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner_lue.py"
 pcrglobwbini="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_for_lue_experiment_v2025-04-15.ini"
-pcrglobwbdebugmode="nodebug"
+pcrglobwbdebugmode="debug"
 
 #~ # prepare the clone map
 #~ rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
