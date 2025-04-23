@@ -169,37 +169,6 @@ class LandSurface(object):
                           'satExcess',
                           'snowMelt',
                           'irrigationTranspirationDeficit',
-
-                          # the following variables are now calculated within the 'new' water demand and water management modules
-
-                          # ~ 'desalinationAbstraction',
-                          # ~ 'desalinationAllocation',
-                          # ~ 'actSurfaceWaterAbstract',
-                          # ~ 'allocSurfaceWaterAbstract',
-                          # ~ 'nonFossilGroundwaterAbs',
-                          # ~ 'allocNonFossilGroundwater',
-                          # ~ 'fossilGroundwaterAbstr',
-                          # ~ 'fossilGroundwaterAlloc',
-                          # ~ 'totalGroundwaterAbstraction',
-                          # ~ 'totalGroundwaterAllocation',
-                          # ~ 'nonIrrReturnFlow',
-
-                          # the following variables were abandoned due to developments of new water use and water management modules
-
-                          # ~ 'irrGrossDemand',
-                          # ~ 'nonIrrGrossDemand',
-                          # ~ 'totalPotentialGrossDemand',
-                          # ~ 'totalPotentialMaximumGrossDemand',
-                          # ~ 'totalPotentialMaximumIrrGrossDemand',
-                          # ~ 'totalPotentialMaximumIrrGrossDemandPaddy',
-                          # ~ 'totalPotentialMaximumIrrGrossDemandNonPaddy',
-                          # ~ 'totalPotentialMaximumNonIrrGrossDemand',
-                          # ~ 'irrGrossDemandPaddy',
-                          # ~ 'irrGrossDemandNonPaddy',
-                          # ~ 'domesticWaterWithdrawal',
-                          # ~ 'industryWaterWithdrawal',
-                          # ~ 'livestockWaterWithdrawal',
-
                           ]
         #
         # specific variables for 2 and 3 layer soil models:
@@ -310,7 +279,6 @@ class LandSurface(object):
          # ~ vos.readPCRmapClone(iniItems.landSurfaceOptions['treshold_to_minimize_fossil_groundwater_irrigation'],\
                                  # ~ self.cloneMap,self.tmpDir,self.inputDir)
         
-
         # assign the topography and soil parameters
         self.soil_topo_parameters = {}
         # - default values used for all land cover types 
@@ -330,15 +298,13 @@ class LandSurface(object):
                 self.soil_topo_parameters[coverType] = parSoilAndTopo.SoilAndTopoParameters(iniItems,self.landmask)
                 self.soil_topo_parameters[coverType].read(iniItems, dictionary_of_land_cover_settings)
             else:
-
+                
                 msg  = "Using the default set of soil and topo parameters "
                 msg += "as defined in the landSurfaceOptions of the ini/configuration file." 
-
+                
                 self.soil_topo_parameters[coverType] = self.soil_topo_parameters['default']            
-
             logger.info(msg)
- 
-
+        
         # instantiate self.landCoverObj[coverType]
         self.landCoverObj = {}
         for coverType in self.coverTypes: 
@@ -399,23 +365,19 @@ class LandSurface(object):
                 if coverType.startswith('irr'):
                     self.landCoverObj[coverType].irrTypeFracOverIrr = vos.getValDivZero(self.landCoverObj[coverType].fracVegCover,\
                                                                                         totalIrrAreaFrac, vos.smallNumber) 
-
+        
         # get the initial conditions (for every land cover type)
         self.getInitialConditions(iniItems, initialState)
-
+        
         # instantiate water demand
         self.water_demand = water_demand.WaterDemand(iniItems, landmask, self.coverTypes, self.landCoverObj)
         
-
-        # option to use qualloc
+        # option to use QUAlloc
         self.using_qualloc = False
         if iniItems.waterManagementOptions["using_qualloc"] == "False":
-            
             # instantiate water management
             self.water_management = water_management.WaterManagement(iniItems, landmask)
-            
         else:
-        
             self.using_qualloc = True
             
             # - get the configuration file of qualloc
@@ -423,60 +385,54 @@ class LandSurface(object):
 
             # - set the configuration object
             # -- object to handle configuration/ini file
-            sections   = ['general', 'time', 'forcing', 'groundwater', 'surfacewater', 'water_management','water_quality']
+            sections   = ['general','time','forcing','groundwater','surfacewater','water_management','water_quality']
             groups     = []
             subst_args = []
-            model_configuration = configuration_parser(cfgfilename = qualloc_config_file, \
-                                                       sections    = sections, \
-                                                       groups      = groups, \
-                                                       subst_args  = subst_args)
-            self.qualloc_model_configuration = model_configuration
-
-            # initialize the time object:
-            # note that thisis called pcr_time here and is recast
-            # to model_time in the dynamic model and dependent modules
-            allowed_time_increments = ['monthly','daily']
-            time_increment = model_configuration.time['time_increment']
-            startyear      = int(model_configuration.time['startyear'])
-            endyear        = int(model_configuration.time['endyear'])
+            #model_configuration = configuration_parser(cfgfilename = qualloc_config_file, \
+            #                                           sections    = sections, \
+            #                                           groups      = groups, \
+            #                                           subst_args  = subst_args)
             
-            # check on valuesr
-            if not time_increment in allowed_time_increments:
-                message_str = ''
-                message_str = str.join(' ', \
-                               ('time increment %s is invalid,' % time_increment,\
-                                'any of the following allowed:', \
-                                str.join(', ', allowed_time_increments)))
-                logger.error(message_str)
-                sys.exit()
+            self.qualloc_model_configuration = configuration_parser(\
+                                                 cfgfilename  = qualloc_config_file, \
+                                                 sections    = sections, \
+                                                 groups      = groups, \
+                                                 subst_args  = subst_args)
             
             # initialize the time increment
-            pcr_time = model_time(startyear, endyear, time_increment)
-            self.qualloc_model_time = pcr_time
+            time_increment = 'daily'   # self.qualloc_model_configuration.time['time_increment']
+            startyear      = int(self.qualloc_model_configuration.time['startyear'])
+            endyear        = int(self.qualloc_model_configuration.time['endyear'])
+            self.qualloc_model_time = model_time(startyear, endyear, time_increment)
             
             # dummy values for the model flags and initial conditions
             # initial conditions are initialized from the configuration file at the
             # start if set to None; otherwise, the existing warm states are used
             model_flags = {}
             initial_conditions = None
-
-            # setting up the qualloc model, including set its initial conditions
+            
+            # inititialize the QUAlloc model
             self.qualloc_model = qualloc_model(self.qualloc_model_configuration, \
                                                self.qualloc_model_time, \
                                                model_flags, \
                                                initial_conditions)
-            # set the initial conditions for the qualloc 
             self.qualloc_model.initialize(online_coupling = self.using_qualloc)
             
-            # set the reporting for the qualloc 
+            # inititialize the reporting for QUAlloc
             self.qualloc_reporting = qualloc_reporting(self.qualloc_model_configuration)
-            
+            self.qualloc_reporting.initialize()
+        
+        # option to use DynQual
+        self.using_dynqual = False
+        if "using_dynqual" in iniItems.waterManagementOptions.keys() and\
+           iniItems.waterManagementOptions["using_dynqual"] == "True":
+            self.using_dynqual = True
+        
         # initiate old style reporting (this is useful for debuging)
         self.initiate_old_style_land_surface_reporting(iniItems)
-        
+
 
     def initiate_old_style_land_surface_reporting(self,iniItems):
-
         self.report = True
         try:
             self.outDailyTotNC = iniItems.landSurfaceOptions['outDailyTotNC'].split(",")
@@ -1390,11 +1346,7 @@ class LandSurface(object):
         # - note: the water_management calculation should be done in volume (m3)
         
         if self.using_qualloc:
-            # calculate total groundwater recharge
-            gwRecharge = pcr.spatial(pcr.scalar(0.0))
-            for coverType in self.coverTypes: gwRecharge += self.landCoverObj[coverType].gwRecharge
-            
-            # update the model time of qualloc
+            # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
             self.qualloc_model.update(online_coupling_to_quantity     = self.using_qualloc, \
                                       irrigation_gross_demand         = vol_gross_sectoral_water_demands["irrigation"] / routing.cellArea, \
@@ -1408,14 +1360,15 @@ class LandSurface(object):
                                       manufactureNettoDemand          = self.water_demand.water_demand_manufacture.manufactureNettoDemand, \
                                       thermoelectricGrossDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand, \
                                       thermoelectricNettoDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, \
-                                      environment_gross_demand        = pcr.spatial(pcr.scalar(0.0)), \
+                                      environment_gross_demand        = None, \
                                       surfacewater_storage            = routing.channelStorage / routing.cellArea, \
-                                      surfacewater_storage_average    = pcr.spatial(pcr.scalar(0.0)), \
-                                      surfacewater_discharge_average  = pcr.spatial(pcr.scalar(0.0)), \
-                                      surfacewater_totalrunoff_average = pcr.spatial(pcr.scalar(0.0)), \
-                                      groundwater_recharge            = gwRecharge, \
+                                      surfacewater_storage_average    = routing.avgChannelStorage / routing.cellArea, \
+                                      surfacewater_discharge_average  = routing.avgDischargeShort, \
+                                      surfacewater_totalrunoff_average = routing.avgTotalRunoff, \
+                                      groundwater_recharge            = groundwater.gwRecharge, \
+                                      groundwater_baseflow             = groundwater.baseflow, \
                                       groundwater_storage             = groundwater.storGroundwater, \
-                                      groundwater_storage_average     = pcr.spatial(pcr.scalar(0.0)), \
+                                      groundwater_storage_average     = routing.avgStorGroundwater, \
                                       
                                       online_coupling_to_quality      = False, \
                                       surfacewater_temperature        = None, \
@@ -1428,128 +1381,203 @@ class LandSurface(object):
                                       groundwater_pathogen            = None, \
                                       )
             
-            # make sure that all variables needed for qualloc is defined - UNTIL THIS PART
-            #self.qualloc_model.irrigation_gross_demand = vol_gross_sectoral_water_demands["irrigation"] 
+            # allocate the satisfied irrigation gross demands
+            # (units: m3)
+            self.total_satisfied_irrigation_water_volume = \
+                self.qualloc_model.water_management.allocated_demand_per_sector['renewable_surfacewater']['irrigation'] + \
+                self.qualloc_model.water_management.allocated_demand_per_sector['renewable_groundwater']['irrigation'] + \
+                self.qualloc_model.water_management.allocated_demand_per_sector['nonrenewable_groundwater']['irrigation'] + \
+                self.qualloc_model.water_management.allocated_demand_per_sector_desalwater['irrigation']
             
-            # update the qualloc 
-            #self.qualloc_model.calculate()
+            # get the following variables to be passed to other modules
+            # - desalination water abstraction and allocation, total for all sectors 
+            #   (units: m/day)
+            self.desalinationAbstraction   = self.qualloc_model.water_management.allocated_withdrawal_desalwater / self.cellArea
+            self.desalinationAllocation    = self.qualloc_model.water_management.allocated_demand_desalwater / self.cellArea
             
+            # - surface water abstraction and allocation, total for all sectors
+            #   (units: m/day)
+            self.actSurfaceWaterAbstract   = \
+                 sum(list(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_surfacewater'].values())) / self.cellArea
+            self.allocSurfaceWaterAbstract = \
+                 sum(list(self.qualloc_model.water_management.allocated_demand_per_sector['renewable_surfacewater'].values())) / self.cellArea
+            
+            # - renewable groundwater abstraction and allocation, total for all sectors
+            #   (units: m/day)
+            self.nonFossilGroundwaterAbs   = \
+                 sum(list(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_groundwater'].values())) / self.cellArea
+            self.allocNonFossilGroundwater = \
+                 sum(list(self.qualloc_model.water_management.allocated_demand_per_sector['renewable_groundwater'].values())) / self.cellArea
+            
+            # - non-renewable groundwater abstraction, total for all sectors
+            #   (units: m/day)
+            self.fossilGroundwaterAbstr    = \
+                 sum(list(self.qualloc_model.water_management.allocated_withdrawal_per_sector['nonrenewable_groundwater'].values())) / self.cellArea
+            self.fossilGroundwaterAlloc    = \
+                 sum(list(self.qualloc_model.water_management.allocated_demand_per_sector['nonrenewable_groundwater'].values())) / self.cellArea
+            
+            # - total groundwater abstraction and allocation in water-slice
+            #   (units: m/day)
+            self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
+            self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
+            
+            # calculate the non-irrigation related variables
+            # - volume (unit: m3/day)
+            nonIrrReturnFlowVolume       = pcr.spatial(pcr.scalar(0.0))
+            nonIrrWaterConsumptionVolume = pcr.spatial(pcr.scalar(0.0))
+            
+            for sector_name in self.qualloc_model.water_management.sector_names:
+                if sector_name != 'irrigation':
+                    # return flows from desalinated water
+                    nonIrrReturnFlowVolume       += self.qualloc_model.water_management.return_flow_demand_per_sector_desalwater[sector_name]
+                    # water consumption from desalinated water
+                    nonIrrWaterConsumptionVolume += self.qualloc_model.water_management.consumed_demand_per_sector_desalwater[sector_name]
+                    
+                    for withdrawal_name in self.qualloc_model.water_management.withdrawal_names:
+                        for source_name in self.qualloc_model.water_management.source_names:
+                            key = '%s_%s'   % (withdrawal_name, source_name)
+                            
+                            # return flows from surface and groundwater
+                            nonIrrReturnFlowVolume += \
+                                self.qualloc_model.water_management.return_flow_demand_per_sector[key][sector_name]
+                            # water consumption from surface and groundwater
+                            nonIrrWaterConsumptionVolume += \
+                                self.qualloc_model.water_management.consumed_demand_per_sector[key][sector_name]
+            
+            # - water-slice (unit: m/day)
+            #   return flows
+            self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
+            #   water consumption
+            self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
+            
+            # variable to reduce capillary rise in order to ensure there is always enough water to supply non fossil groundwater abstraction 
+            # - unit: m
+            self.reducedCapRise = self.nonFossilGroundwaterAbs
+            
+            
+            # do the reporting for qualloc
+            self.qualloc_reporting.report(self.qualloc_model_time, self.qualloc_model)
+            
+            if self.qualloc_model_time.report_flags['yearly']:
+                # additional processing at the end of year:
+                # report the states, so the run can be restarted
+                # as a safeguard and to reduce the initial states, write any outstanding soil production
+                self.qualloc_model.finalize_year()
+            
+            # last time step
+            if self.qualloc_model_time.last_time_step:
+                
+                # close down all files open for input and output
+                self.qualloc_model.finalize_run()
+                self.qualloc_reporting.close()
+        
+        
         else:
-            self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, groundwater = groundwater, routing = routing, currTimeStep = currTimeStep)
-
-
-        # allocate the satisfied irrigation gross demands to every land cover:
-        total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands['irrigation']
+            # update the water management module for the current date
+            self.water_management.update(vol_gross_sectoral_water_demands = vol_gross_sectoral_water_demands, \
+                                         groundwater = groundwater, \
+                                         routing = routing, \
+                                         currTimeStep = currTimeStep)
+            
+            # allocate the satisfied irrigation gross demands
+            # (units: m3)
+            self.total_satisfied_irrigation_water_volume = self.water_management.satisfied_gross_sectoral_water_demands["irrigation"]
+            
+            # get the following variables to be passed to other modules
+            # - desalination water abstraction and allocation, unit m/day, total for all sectors 
+            self.desalinationAbstraction   = self.water_management.desalinationAbstraction  
+            self.desalinationAllocation    = self.water_management.desalinationAllocation   
+            
+            # - surface water abstraction and allocation, unit m/day, total for all sectors 
+            self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
+            self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract  
+            
+            # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
+            self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
+            self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
+            
+            # - non-renewable groundwater abstraction, unit m/day, total for all sectors
+            self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
+            self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
+            
+            # - total groundwater abstraction and allocation in water slice/height (m/day)
+            self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
+            self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
+            
+            # calculate the non irrigation return flow
+            # - volume (unit: m3/day)
+            nonIrrReturnFlowVolume = self.water_demand.water_demand_domestic.domesticReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["domestic"] +\
+                                     self.water_demand.water_demand_industry.industryReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["industry"] +\
+                                     self.water_demand.water_demand_manufacture.manufactureReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["manufacture"] +\
+                                     self.water_demand.water_demand_thermoelectric.thermoelectricReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] +\
+                                     self.water_demand.water_demand_livestock.livestockReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["livestock"]
+            # - water-slice (unit: m/day)
+            self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
+            
+            # calculate the non irrigation consumption
+            # - volume (unit: m3/day)
+            nonIrrWaterConsumptionVolume = (self.water_management.satisfied_gross_sectoral_water_demands["domestic"] +\
+                                            self.water_management.satisfied_gross_sectoral_water_demands["industry"] +\
+                                            self.water_management.satisfied_gross_sectoral_water_demands["manufacture"] +\
+                                            self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] +\
+                                            self.water_management.satisfied_gross_sectoral_water_demands["livestock"]) - nonIrrReturnFlowVolume
+            # - water-slice (unit: m/day)
+            self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
+            
+            # variable to reduce capillary rise in order to ensure there is always enough water to supply non fossil groundwater abstraction 
+            # - unit: m
+            self.reducedCapRise = self.water_management.reducedCapRise
         
-        # ~ os.system("killall aguila")
-        # ~ vos.aguila_with_var_name(self.check_irrigation_water_demand_volume, "irrigation_demand_volume.map")
-        # ~ vos.aguila_with_var_name(total_satisfied_irrigation_water_volume, "satisfied_irrigation_demand_volume.map")
-        
-        # ~ pietje
-
-        self.check_satisfied_irrigation_water_demand_volume = total_satisfied_irrigation_water_volume 
-
-        # ~ pcr.aguila(total_satisfied_irrigation_water_volume)
-
         # calculate the total fraction of irrigated areas within the cell
         total_cell_fraction_of_irrigated_areas = pcr.ifthen(self.landmask, pcr.scalar(0.0))
         for coverType in self.coverTypes: 
             if coverType.startswith("irr"):
                 total_cell_fraction_of_irrigated_areas = total_cell_fraction_of_irrigated_areas + self.landCoverObj[coverType].fracVegCover
-            
-
+        
+        # distribute the allocated irrigation water supplied
         self.satisfied_irrigation_water_volume = {}
         self.satisfied_irrigation_water_height = {}
         for coverType in self.coverTypes: 
-
+            
             # for irrigation land cover types
             if coverType.startswith("irr"):
                 
                 # - in volume (m3)
-                self.satisfied_irrigation_water_volume[coverType] = pcr.ifthenelse(total_cell_fraction_of_irrigated_areas > 0, total_satisfied_irrigation_water_volume * self.landCoverObj[coverType].fracVegCover / total_cell_fraction_of_irrigated_areas,\
-                                                                                                                               pcr.scalar(0.0))
+                self.satisfied_irrigation_water_volume[coverType] = \
+                            pcr.ifthenelse(total_cell_fraction_of_irrigated_areas > 0.0, \
+                                           self.total_satisfied_irrigation_water_volume * self.landCoverObj[coverType].fracVegCover / total_cell_fraction_of_irrigated_areas, \
+                                           pcr.scalar(0.0))
                 
                 # - in water slice/height (m)
-                self.satisfied_irrigation_water_height[coverType] = pcr.ifthenelse(self.landCoverObj[coverType].fracVegCover > 0.0, self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover), pcr.scalar(0.0))
-
-                # ~ pcr.aguila(self.satisfied_irrigation_water_height[coverType])
-                
-                # ~ self.satisfied_irrigation_water_volume[coverType] = pcr.cover(self.satisfied_irrigation_water_volume[coverType], 0.0)
-                # ~ self.satisfied_irrigation_water_height[coverType] = pcr.cover(self.satisfied_irrigation_water_height[coverType], 0.0)
-
-
+                self.satisfied_irrigation_water_height[coverType] = \
+                            pcr.ifthenelse(self.landCoverObj[coverType].fracVegCover > 0.0, \
+                                           self.satisfied_irrigation_water_volume[coverType] / (routing.cellArea * self.landCoverObj[coverType].fracVegCover), \
+                                           pcr.scalar(0.0))
+            
             # for non irrigation land cover types
             else:
-
                 self.satisfied_irrigation_water_volume[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
                 self.satisfied_irrigation_water_height[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
-                
-
+        
+        # TODO: Fix the following water balance checks, or shall we put it within the water management module
+        # if self.debugWaterBalance:
+        #    os.waterBalanceCheck([self.desalinationAllocation, \
+        #                          self.allocSurfaceWaterAbstract, \
+        #                          self.allocNonFossilGroundwater, \
+        #                          self.fossilGroundwaterAlloc], \
+        #                          [landSurface.totalPotentialGrossDemand], \
+        #                          [pcr.scalar(0.)], \
+        #                          [pcr.scalar(0.)], \
+        #                          'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
+        #                           True, \
+        #                           currTimeStep.fulldate,threshold = 1e-3)
+        
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
         # - we also need the variable 'reducedCapRise = volRenewGroundwaterAbstraction / self.cellArea' from every land cover type
         self.land_surface_hydrology_update(meteo, groundwater, routing, currTimeStep)
-
-
-        # get the following variables to be passed to other modules
-        # - desalination water abstraction and allocation, unit m/day, total for all sectors 
-        self.desalinationAbstraction   = self.water_management.desalinationAbstraction  
-        self.desalinationAllocation    = self.water_management.desalinationAllocation   
-        # 
-        # - surface water abstraction and allocation, unit m/day, total for all sectors 
-        self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
-        self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract  
         
-        # ~ self.actSurfaceWaterAbstract   = 0.0
-        
-        # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
-        self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
-        self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
-        # - non-renewable groundwater abstraction, unit m/day, total for all sectors
-        self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
-        self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
-        
-        # - total groundwater abstraction and allocation in water slice/height (m/day)
-        self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
-        self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
-
-       
-        # ~ # TODO: Fix the following water balance checks, or shall we put it within the water management module
-        # ~ if self.debugWaterBalance:
-            # ~ vos.waterBalanceCheck([self.desalinationAllocation,\
-                                   # ~ self.allocSurfaceWaterAbstract, \
-                                   # ~ self.allocNonFossilGroundwater, \
-                                   # ~ self.fossilGroundwaterAlloc, \
-                                   # ~ ],\
-                                  # ~ [landSurface.totalPotentialGrossDemand],\
-                                  # ~ [pcr.scalar(0.)],\
-                                  # ~ [pcr.scalar(0.)],\
-                                  # ~ 'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.',\
-                                   # ~ True,\
-                                   # ~ currTimeStep.fulldate,threshold=1e-3)
-
-
-        # calculate the non irrigation return flow
-        # - in the volume unit (m3/day)
-        nonIrrReturnFlowVolume = self.water_demand.water_demand_domestic.domesticReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["domestic"] +\
-                                 self.water_demand.water_demand_industry.industryReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["industry"] +\
-                                 self.water_demand.water_demand_manufacture.manufactureReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["manufacture"] +\
-                                 self.water_demand.water_demand_thermoelectric.thermoelectricReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] +\
-                                 self.water_demand.water_demand_livestock.livestockReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["livestock"]
-        # - unit m/day
-        self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
-
-        # calculate the non irrigation consumption
-        # - in the volume unit (m3/day)
-        nonIrrWaterConsumptionVolume = (self.water_management.satisfied_gross_sectoral_water_demands["domestic"] +\
-                                        self.water_management.satisfied_gross_sectoral_water_demands["industry"] +\
-                                        self.water_management.satisfied_gross_sectoral_water_demands["manufacture"] +\
-                                        self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] +\
-                                        self.water_management.satisfied_gross_sectoral_water_demands["livestock"]) - nonIrrReturnFlowVolume
-        self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
-                                        
-
-        # old-style reporting (this is useful for debugging)                            
+        # old-style reporting (this is useful for debugging)
         self.old_style_land_surface_reporting(currTimeStep)
 
 
@@ -1620,7 +1648,7 @@ class LandSurface(object):
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[coverType].fracVegCover
 
     def land_surface_hydrology_update(self, meteo, groundwater, routing, currTimeStep):
-		
+        
         # calculate cell fraction influenced by capillary rise:
         self.capRiseFrac = self.calculateCapRiseFrac(groundwater, routing, currTimeStep)
             
@@ -1635,8 +1663,8 @@ class LandSurface(object):
                 self.landCoverObj[coverType].irrigationEfficiencyUsed = self.water_demand.water_demand_irrigation[coverType].irrigationEfficiency
             
             # calculate the hydrology model part
-            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType], self.water_management.reducedCapRise)
-            
+            self.landCoverObj[coverType].land_surface_hydrology_update_for_every_lc(self.capRiseFrac, currTimeStep, groundwater, self.satisfied_irrigation_water_height[coverType], self.reducedCapRise)
+        
         # first, we set all aggregated values/variables to zero: 
         for var in self.aggrVars: vars(self)[var] = pcr.scalar(0.0)
         #

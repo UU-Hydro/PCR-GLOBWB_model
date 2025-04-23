@@ -68,6 +68,7 @@ datatypes = { \
 # intervals that give the periods and the corresponding adjectives
 
 intervals  = { \
+             'daily'     : 'day', \
              'weekly'    : 'week', \
              'monthly'   : 'month', \
              'yearly'    : 'year', \
@@ -99,7 +100,7 @@ class qualloc_reporting(object):
                      ]
         
         # create a list of report intervals and initialize all as None
-        self.report_intervals = ['daily_tot']
+        self.report_intervals = []
         for interval in intervals.keys():
             for statistic in statistics:
                 report_interval = '%s_%s' % (interval, statistic)
@@ -187,7 +188,7 @@ class qualloc_reporting(object):
                 vars(self)[key] = int(0)
             
             else:
-                vars(self)[key] = pcr.spatial(pcr.scalar(0))                                  
+                vars(self)[key] = pcr.spatial(pcr.scalar(0))
         
         # log the message string
         for interval in interval_list:
@@ -541,7 +542,7 @@ class qualloc_reporting(object):
                     getattr(model, forcing_variable.lower()))
         
         # groundwater variables
-        self.groundwater_recharge = model.groundwater.recharge
+        self.groundwater_recharge = model.groundwater.total_recharge
         self.groundwater_storage  = model.groundwater.storage
         
         # surface water variables

@@ -997,6 +997,7 @@ class qualloc_model(object):
                surfacewater_discharge_average  = None, \
                surfacewater_totalrunoff_average = None, \
                groundwater_recharge            = None, \
+               groundwater_baseflow             = None, \
                groundwater_storage             = None, \
                groundwater_storage_average     = None, \
                
@@ -1294,14 +1295,14 @@ class qualloc_model(object):
                                                        'groundwater' : groundwater_availability}, \
                                   demand            = gross_demand_per_sector, \
                                   date              = date)
-            
-            # dictionaries with the actual renewable and non-renewable withdrawals
-            # have been initialized with the allocation of the demand to the poten-
-            # tial withdrawals; actual withdrawals are updated iteratively and any
-            # unmet demand is subdivided to the other sources within the same zone.
-            # these are updated using the remaining entries in the source names
-            # set the source names to process the unmet demand
-            source_names_to_be_processed = self.water_management.sources_unmet_demand[:]
+        
+        # dictionaries with the actual renewable and non-renewable withdrawals
+        # have been initialized with the allocation of the demand to the poten-
+        # tial withdrawals; actual withdrawals are updated iteratively and any
+        # unmet demand is subdivided to the other sources within the same zone.
+        # these are updated using the remaining entries in the source names
+        # set the source names to process the unmet demand
+        source_names_to_be_processed = self.water_management.sources_unmet_demand[:]
         
         
         # ******************************************************************************************
@@ -1606,7 +1607,7 @@ class qualloc_model(object):
         # coupled QUAlloc version
         else:
             # set groundwater storage for the current date
-            self.groundwater.storage(groundwater_storage)
+            self.groundwater.storage = deepcopy(groundwater_storage)
             
             # set average groundwater storage over the last month
             storage = deepcopy(groundwater_storage_average)

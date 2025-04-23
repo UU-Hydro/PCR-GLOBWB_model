@@ -1491,7 +1491,7 @@ See doc string of class for detailed info.
         
         # [ ends water distribution ] .......................................................................................
         
-        # set potential renewable withdrawals per sector, met demands per sector
+        # set desalinated withdrawals and allocation per sector and total
         # (units: m3/day)
         self.allocated_withdrawal_per_sector_desalwater = \
                                  dict((sector_name, \
@@ -1501,6 +1501,11 @@ See doc string of class for detailed info.
                                  dict((sector_name, \
                                        allocated_demand_per_sector[sector_name]) \
                                       for sector_name in self.sector_names)
+        
+        self.allocated_withdrawal_desalwater = \
+             sum_list(list(self.allocated_withdrawal_per_sector_desalwater.values()))
+        self.allocated_demand_desalwater = \
+             sum_list(list(self.allocated_demand_per_sector_desalwater.values()))
         
         # update gross sectoral demands substracting the met demand per sector
         # using desalinated water;
@@ -1998,7 +2003,7 @@ See doc string of class for detailed info.
             iter_allocation = iter_allocation + 1
             exit_condition  = (pcr.cellvalue(pcr.mapmaximum(pcr.scalar(update_mask)), 1)[0] == 0) | \
                               (iter_allocation > max_iter_allocation)
-            
+        
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
             if verbose:
                 print('  exit condition -> \n   - surfacewater : demands = %s - availability = %s -> overall = %s\n   - groundwater  : demands = %s - availability = %s -> overall = %s\n   - final overall : %s' % \

@@ -34,7 +34,9 @@ import virtualOS as vos
 import meteo
 import landSurface
 import groundwater
+
 import routing
+# ~ import routing_dynqual as routing
 
 
 import logging
@@ -271,7 +273,7 @@ class PCRGlobWB(object):
 
         self.waterBalance = \
           (landWaterStoresAtBeginning - landWaterStoresAtEnd +\
-           self.meteo.precipitation + self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"] / self.routing.cellArea + self.groundwater.surfaceWaterInf -\
+           self.meteo.precipitation + self.landSurface.total_satisfied_irrigation_water_volume / self.routing.cellArea + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
         self.waterBalanceAcc    += self.waterBalance
@@ -461,7 +463,7 @@ class PCRGlobWB(object):
         # 
         # - incoming fluxes (unit: m)
         precipitation           = pcr.ifthen(self.landmask, self.meteo.precipitation)
-        satisfiedIrrGrossDemand = pcr.ifthen(self.landmask, self.landSurface.water_management.satisfied_gross_sectoral_water_demands["irrigation"] / self.routing.cellArea)
+        satisfiedIrrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.total_satisfied_irrigation_water_volume / self.routing.cellArea)
         surfaceWaterInf         = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
         # 
         # - outgoing fluxes (unit: m)

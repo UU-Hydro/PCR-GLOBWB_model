@@ -101,7 +101,7 @@ class IrrigationWaterDemand(object):
                                         self.ini_items_for_irrigation_efficiency,
                                         self.cloneMap, self.tmpDir, self.inputDir)
         # - for the case with netcdf file
-        if 'nc' in os.path.splitext(self.ini_items_for_irrigation_efficiency)[1]:
+        elif 'nc' in os.path.splitext(self.ini_items_for_irrigation_efficiency)[1]:
             try:
                 # - netCDF file with time dimension
                 ncFileIn = vos.getFullPath(self.ini_items_for_irrigation_efficiency, self.inputDir)

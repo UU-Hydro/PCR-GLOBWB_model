@@ -52,7 +52,9 @@ class Groundwater(object):
         
         # states that needed for the coupling between PCR-GLOBWB and MODFLOW:
         result['relativeGroundwaterHead'] = self.relativeGroundwaterHead                       # unit: m
-        result['baseflow']                = self.baseflow                                      # unit: m/day
+        result['baseflow']                = self.baseflow                                        # unit: m/day
+        
+        result['gwRecharge'] = self.gwRecharge                                                 # unit: m/day
 
         return result
 
@@ -425,7 +427,6 @@ class Groundwater(object):
         # initial conditions (unit: m)
         if iniConditions == None: # when the model just start (reading the initial conditions from file)
 
-            # UNTIL THIS PART
             if "estimateStorGroundwaterIniFromRecharge" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["estimateStorGroundwaterIniFromRecharge"] == "True":
                 iniItems.groundwaterOptions['storGroundwaterIni']      = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"
                 self.iniItems.groundwaterOptions['storGroundwaterIni'] = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"    
@@ -492,6 +493,10 @@ class Groundwater(object):
                 msg = "This run uses storGroundwaterIni = avgStorGroundwaterIni."
                 logger.warning(msg)
                 self.avgStorGroundwater = self.storGroundwater
+           
+            self.gwRecharge = vos.readPCRmapClone(\
+                                               iniItems.groundwaterOptions['gwRechargeIni'],
+                                               self.cloneMap,self.tmpDir,self.inputDir)     
 
 
         else:                     # during/after spinUp
@@ -506,6 +511,8 @@ class Groundwater(object):
             self.baseflow                    = iniConditions['groundwater']['baseflow']
             
             self.avgStorGroundwater          = iniConditions['groundwater']['avgStorGroundwater']
+            self.gwRecharge                  = iniConditions['groundwater']['gwRecharge']
+
 
         # initial condition for storGroundwaterFossil (unit: m)
         #
@@ -576,6 +583,8 @@ class Groundwater(object):
         self.baseflow = pcr.cover(self.baseflow, 0.0)
         self.baseflow = pcr.ifthen(self.landmask, self.baseflow)
 
+        self.gwRecharge = pcr.ifthen(self.landmask, pcr.cover(self.gwRecharge, 0.0))
+        
         # storGroundwaterFossil can be negative (particularly if limitFossilGroundwaterAbstraction == False)
         self.storGroundwaterFossil = pcr.cover( self.storGroundwaterFossil, 0.0)
         self.storGroundwaterFossil = pcr.ifthen(self.landmask,\
@@ -603,6 +612,9 @@ class Groundwater(object):
 
         self.calculate_statistics(routing)
 
+        # make the gwRecharge available for this groundwater module
+        self.gwRecharge = landSurface.gwRecharge
+        
         # old-style reporting
         self.old_style_groundwater_reporting(currTimeStep)              # TODO: remove this one
 
