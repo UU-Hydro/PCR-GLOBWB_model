@@ -216,6 +216,9 @@ if __name__ == '__main__':
     # ~ # according to Oliver, this should be changed.
     # ~ centre = (array_shape[0] // 2, array_shape[1] // 2)
 
+    c1, c2 = vars(args)["lue:centre"].replace("[","").replace("]","").split(",")
+    centre = (int(c1),int(c2))
+
     sys.exit(main(count, nr_workers, array_shape, partition_shape, result_pathname, centre))
 
 # ~ if __name__ == '__main__':
