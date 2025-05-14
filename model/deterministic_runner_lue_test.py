@@ -65,7 +65,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
         self.partition_shape = partition_shape
         self.result_pathname = result_pathname
 
-        if ldd_lue is None and pcr.provider_name == "lue":
+        if pcr.provider_name == "lue":
 	    
             pcr.setclone(configuration.cloneMap)
 
@@ -76,6 +76,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
             hyperslab_shape = array_shape
             hyperslab = lfr.Hyperslab(center=centre, shape=hyperslab_shape)
 		    
+        if ldd_lue is None and pcr.provider_name == "lue":
+
             ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = self.partition_shape, hyperslab = hyperslab)
             ldd_lue.future().get()
 
