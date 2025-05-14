@@ -36,22 +36,13 @@ module load LUE/development-foss-2024a
 
 libtcmalloc=$(find $EBROOTGPERFTOOLS -name libtcmalloc_minimal.so.4)
 
-pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner_lue.py"
+pcrglobwbrunner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/deterministic_runner_lue_test.py"
 pcrglobwbini="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_for_lue_experiment_v2025-04-15.ini"
 pcrglobwbdebugmode="nodebug"
-
-#~ # prepare the clone map
-#~ rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
-#~ mapattr -s -P yb2t -R 10000 -C 20000 -B -x -18 -y 38 -l 0.000833333 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 
 # prepare the clone map
 rm /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
 mapattr -s -P yb2t -R 360 -C 720 -B -x -180 -y 90 -l 0.5 /scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map
-
-#~ # prepare the ldd map - now everything just a pit/sink
-#~ cd /scratch/depfg/sutan101/clone_map_for_lue/
-#~ pcrcalc --clone clone_map_for_lue_test.map ldd_for_lue_test.map = "ldd(5.0)"
-#~ cd -
 
 # prepare the ldd map
 cp /scratch/depfg/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019_11_beta_extended/pcrglobwb2_input/global_30min/routing/ldd_and_cell_area/lddsound_30min.map /scratch/depfg/sutan101/clone_map_for_lue/ldd_for_lue_test.map
@@ -66,4 +57,5 @@ LUE_PARTITION_SHAPE="360,720" \
          --lue:array_shape="360,720" \
          --lue:partition_shape="360,720" \
          --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
+         --lue:centre="180,360" 
          --end
