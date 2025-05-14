@@ -62,7 +62,7 @@ class PCRGlobWB(object):
             
         else:
         
-            pcr.setclone(configuration.cloneMap)
+            # ~ pcr.setclone(configuration.cloneMap)
             
             # Read the ldd map.
             skip_ldd_repair_and_ldd_mask = False
@@ -138,6 +138,10 @@ class PCRGlobWB(object):
         self.shortNames = ['f','g','p','n']
         
     def dumpState(self, outputDirectory, specific_date_string = None):
+
+        pass
+
+    def dumpStateNOTUSED(self, outputDirectory, specific_date_string = None):
         #write all state to disk to facilitate restarting
 
         if specific_date_string == None: specific_date_string = str(self._modelTime.fulldate)
