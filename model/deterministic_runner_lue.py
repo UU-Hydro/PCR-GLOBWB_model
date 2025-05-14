@@ -183,8 +183,8 @@ if __name__ == '__main__':
     parser.add_argument('--lue:nr_workers'     )
     parser.add_argument('--lue:array_shape'    )
     parser.add_argument('--lue:partition_shape')
-    parser.add_argument('--lue:result'         )
     parser.add_argument('--lue:centre'         )
+    parser.add_argument('--lue:result'         )
 
     args, unknown = parser.parse_known_args()
 
