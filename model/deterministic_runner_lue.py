@@ -184,6 +184,7 @@ if __name__ == '__main__':
     parser.add_argument('--lue:array_shape'    )
     parser.add_argument('--lue:partition_shape')
     parser.add_argument('--lue:result'         )
+    parser.add_argument('--lue:centre'         )
 
     args, unknown = parser.parse_known_args()
 
@@ -195,8 +196,11 @@ if __name__ == '__main__':
     partition_shape = (int(s1),int(s2))
     result_pathname = vars(args)["lue:result"]
 
-    # according to Oliver, this should be changed.
-    centre = (array_shape[0] // 2, array_shape[1] // 2)
+    # ~ # according to Oliver, this should be changed.
+    # ~ centre = (array_shape[0] // 2, array_shape[1] // 2)
+
+    c1, c2 = vars(args)["lue:centre"].replace("[","").replace("]","").split(",")
+    centre = (int(c1),int(c2))
 
     sys.exit(main(count, nr_workers, array_shape, partition_shape, result_pathname, centre))
 
