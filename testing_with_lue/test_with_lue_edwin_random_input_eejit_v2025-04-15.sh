@@ -49,13 +49,13 @@ cp /scratch/depfg/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="36,72" \
+LUE_PARTITION_SHAPE="360,720" \
      python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
-         --lue:array_shape="36,72" \
-         --lue:partition_shape="36,72" \
-         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
+         --lue:array_shape="360,720" \
+         --lue:partition_shape="360,720" \
          --lue:centre="180,360" \
+         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
          --end
