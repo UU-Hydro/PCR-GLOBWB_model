@@ -54,8 +54,8 @@ LUE_PARTITION_SHAPE="360,720" \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
-         --lue:array_shape="360,720" \
-         --lue:partition_shape="360,720" \
+         --lue:array_shape="36,72" \
+         --lue:partition_shape="36,72" \
          --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
-         --lue:centre="180,360" 
+         --lue:centre="180,360" \
          --end
