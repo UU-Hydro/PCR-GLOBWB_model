@@ -147,11 +147,12 @@ def main(
     # - set initial_state to None, so it will be based on the configuration .ini file
     initial_state = None
     
-    # Running the deterministic_runner (excluding DA scheme)
+    # get the number of time steps
     currTimeStep.getStartEndTimeSteps(configuration.globalOptions['startTime'],
                                       configuration.globalOptions['endTime'])
 
-    logger.info('Transient simulation run started.')
+
+    # initializing the deterministic runner, including reading ldd
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, count, nr_workers, array_shape, partition_shape, result_pathname, centre)
     dynamic_framework = pcrfw.DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
     dynamic_framework.setQuiet(True)
