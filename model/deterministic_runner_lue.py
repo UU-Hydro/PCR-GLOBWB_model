@@ -81,7 +81,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
-        self.reporting = Reporting(configuration, self.model, modelTime)
+        # ~ self.reporting = Reporting(configuration, self.model, modelTime)
         
     def initial(self): 
         pass
@@ -97,8 +97,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
         state = self.model.update(report_water_balance=True)
         
 
-        #do any needed reporting for this time step        
-        self.reporting.report()
+        # ~ #do any needed reporting for this time step        
+        # ~ self.reporting.report()
 
         return state
 
