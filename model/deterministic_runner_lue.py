@@ -129,6 +129,7 @@ def main(
         output_directory = sys.argv[4]
         clone_map        = sys.argv[6]
         ldd_map          = sys.argv[8]
+        pietje
 
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
@@ -137,6 +138,8 @@ def main(
     if no_modification == False:
         configuration.main_output_directory = output_directory
         configuration.globalOptions['outputDir'] = output_directory
+        configuration.globalOptions['cloneMap']  = clone_map
+        configuration.routingOptions['lddMap']   = ldd_map
         configuration.set_configuration()
     
     # timeStep info: year, month, day, doy, hour, etc
