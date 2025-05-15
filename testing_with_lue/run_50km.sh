@@ -25,7 +25,7 @@ cp /scratch/depfg/hydrowld/data/hydroworld/pcrglobwb2_input_release/version_2019
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="36,72" \
-     python ${pcrglobwbrunner} ${pcrglobwbini} ${pcrglobwbdebugmode} \
+     python ${pcrglobwb_runner} ${pcrglobwb_ini} ${pcrglobwb_debug_mode} \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
