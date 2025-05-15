@@ -137,11 +137,10 @@ class PCRGlobWB(object):
         # short name for every land cover type (needed for file name)
         self.shortNames = ['f','g','p','n']
         
-    def dumpState(self, outputDirectory, specific_date_string = None):
-
+    def dumpStateDummy(self, outputDirectory, specific_date_string = None):
         pass
 
-    def dumpStateNOTUSED(self, outputDirectory, specific_date_string = None):
+    def dumpState(self, outputDirectory, specific_date_string = None):
         #write all state to disk to facilitate restarting
 
         if specific_date_string == None: specific_date_string = str(self._modelTime.fulldate)
@@ -497,7 +496,7 @@ class PCRGlobWB(object):
         logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
     
-    def update(self, report_water_balance = False):
+    def update(self, report_water_balance = False, lue_scalability_experiment = False):
         logger.info("Updating model for time %s", self._modelTime)
         
         if (report_water_balance):
@@ -509,13 +508,15 @@ class PCRGlobWB(object):
         self.groundwater.update(self.landSurface, self.routing, self._modelTime)
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
-        # save/dump states at the end of the year or at the end of model simulation
-        # - option to also save model output at the last day of the month
-        save_monthly_end_states = self.save_monthly_end_states 
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
-          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
-            logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
-            self.dumpState(self._configuration.endStateDir)
+        if lue_scalability_experiment is False:
+        
+            # save/dump states at the end of the year or at the end of model simulation
+            # - option to also save model output at the last day of the month
+            save_monthly_end_states = self.save_monthly_end_states 
+            if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
+              (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
+                logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+                self.dumpState(self._configuration.endStateDir)
 
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
         if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
@@ -533,7 +534,7 @@ class PCRGlobWB(object):
             self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
                                 surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)
 
-        if self._modelTime.isLastDayOfMonth():
+        if self._modelTime.isLastDayOfMonth() and lue_scalability_experiment is False:
             # make an empty file to indicate that the calculation for this month has done
             # - this is only needed for runs with merging and modflow processes
             # - for a spinUpRun, merging will be skipped

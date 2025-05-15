@@ -47,7 +47,7 @@ import disclaimer
 
 class DeterministicRunner(pcrfw.DynamicModel):
 
-    def __init__(self, configuration, modelTime, initialState, \
+    def __init__(self, configuration, modelTime, initialState, lue_scalability_experiment,\
                  count: int,
                  nr_workers: int,
                  array_shape: tuple[int, int],
@@ -55,15 +55,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
                  result_pathname: str,
                  centre: tuple[int, int]    
                  ):
-
-
+        
         pcrfw.DynamicModel.__init__(self)
-
-        self.count = count
-        self.nr_workers = nr_workers
-        self.array_shape = array_shape
-        self.partition_shape = partition_shape
-        self.result_pathname = result_pathname
 
         if pcr.provider_name == "lue":
 	    
@@ -74,14 +67,18 @@ class DeterministicRunner(pcrfw.DynamicModel):
             pcr.configuration.array_shape = array_shape
 		    
             hyperslab_shape = array_shape
-            hyperslab = lfr.Hyperslab(center=centre, shape=hyperslab_shape)
+            hyperslab = lfr.Hyperslab(center = centre, shape = hyperslab_shape)
 		    
-            ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = self.partition_shape, hyperslab = hyperslab)
+            ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
             ldd_lue.future().get()
 
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
-        # ~ self.reporting = Reporting(configuration, self.model, modelTime)
+        
+        self.lue_scalability_experiment = False
+        self.lue_scalability_experiment = lue_scalability_experiment
+        
+        if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
         
     def initial(self): 
         pass
@@ -95,7 +92,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
         
         self.model.read_forcings()
         state = self.model.update(report_water_balance = False)
-        
+
+        if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
         # ~ #do any needed reporting for this time step        
         # ~ self.reporting.report()
