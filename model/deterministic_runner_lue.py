@@ -78,7 +78,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
         # skip any reporting during LUE scalability experiment
         self.lue_scalability_experiment = False
-        if configuration.routingOptions['lue_scalability_experiment'] == "True": self.lue_scalability_experiment = True
+        if configuration.globalOptions['lue_scalability_experiment'] == "True": self.lue_scalability_experiment = True
         
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
         
