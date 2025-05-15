@@ -47,7 +47,7 @@ import disclaimer
 
 class DeterministicRunner(pcrfw.DynamicModel):
 
-    def __init__(self, configuration, modelTime, initialState, lue_scalability_experiment,\
+    def __init__(self, configuration, modelTime, initialState, \
                  count: int,
                  nr_workers: int,
                  array_shape: tuple[int, int],
@@ -76,7 +76,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
         
         self.lue_scalability_experiment = False
-        self.lue_scalability_experiment = lue_scalability_experiment
+        if configuration.routingOptions['lue_scalability_experiment'] == "True": self.lue_scalability_experiment = True
         
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
         
@@ -89,14 +89,10 @@ class DeterministicRunner(pcrfw.DynamicModel):
         self.modelTime.update(self.currentTimeStep())
 
         # update model (will pick up current model time from model time object)
-        
         self.model.read_forcings()
-        state = self.model.update(report_water_balance = False)
+        state = self.model.update(report_water_balance = False, self.lue_scalability_experiment)
 
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
-
-        # ~ #do any needed reporting for this time step        
-        # ~ self.reporting.report()
 
         return state
 
@@ -124,10 +120,12 @@ def main(
     # no modification in the given ini file, use it as it is
     no_modification = True
     
-    # use the output directory as given in the system argument
+    # use the output directory, clone and ldd maps, as given in the system arguments
     if len(sys.argv) > 3 and sys.argv[3] == "--output_dir": 
-        no_modification = False
+        no_modification  = False
         output_directory = sys.argv[4]
+        clone_map        = sys.argv[6]
+        ldd_map          = sys.argv[8]
 
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
@@ -194,10 +192,6 @@ if __name__ == '__main__':
     s1, s2 = vars(args)["lue:partition_shape"].replace("[","").replace("]","").split(",")
     partition_shape = (int(s1),int(s2))
     result_pathname = vars(args)["lue:result"]
-
-    # ~ # according to Oliver, this should be changed.
-    # ~ centre = (array_shape[0] // 2, array_shape[1] // 2)
-
     c1, c2 = vars(args)["lue:centre"].replace("[","").replace("]","").split(",")
     centre = (int(c1),int(c2))
 
