@@ -142,7 +142,6 @@ def main(
         configuration.routingOptions['lddMap']   = ldd_map
         configuration.set_configuration()
         print(configuration.globalOptions['cloneMap'])
-        pietje
     
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
