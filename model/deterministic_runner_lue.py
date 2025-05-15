@@ -75,6 +75,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
         
+
+        # skip any reporting during LUE scalability experiment
         self.lue_scalability_experiment = False
         if configuration.routingOptions['lue_scalability_experiment'] == "True": self.lue_scalability_experiment = True
         
@@ -90,8 +92,9 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
         # update model (will pick up current model time from model time object)
         self.model.read_forcings()
-        state = self.model.update(report_water_balance = False, self.lue_scalability_experiment)
+        state = self.model.update(report_water_balance = False, lue_scalability_experiment = self.lue_scalability_experiment)
 
+        # skip any reporting during LUE scalability experiment
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
         return state
