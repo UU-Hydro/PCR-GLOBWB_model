@@ -26,9 +26,9 @@ LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="36,72" \
      python ${pcrglobwb_runner} ${pcrglobwb_ini} ${pcrglobwb_debug_mode} \
-         --output_dir="/scratch/depfg/sutan101/test_lue_experiment/" \
-         --clone_map="" \
-         --ldd_map="s" \
+         --output_dir "/scratch/depfg/sutan101/test_lue_experiment/" \
+         --clone_map "/scratch/depfg/sutan101/clone_map_for_lue/clone_map_for_lue_test.map" \
+         --ldd_map "/scratch/depfg/sutan101/clone_map_for_lue/ldd_for_lue_test.map" \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
