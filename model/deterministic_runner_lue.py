@@ -129,7 +129,7 @@ def main(
         output_directory = sys.argv[4]
         clone_map        = sys.argv[6]
         ldd_map          = sys.argv[8]
-        pietje
+        print(clone_map)
 
     # object to handle configuration/ini file
     configuration = Configuration(iniFileName = iniFileName, \
@@ -141,6 +141,8 @@ def main(
         configuration.globalOptions['cloneMap']  = clone_map
         configuration.routingOptions['lddMap']   = ldd_map
         configuration.set_configuration()
+        print(configuration.globalOptions['cloneMap'])
+        pietje
     
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
