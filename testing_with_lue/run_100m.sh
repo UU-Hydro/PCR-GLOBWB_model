@@ -15,7 +15,7 @@ pcrglobwb_runner="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/model/d
 pcrglobwb_ini="/eejit/home/sutan101/github/edwinkost/PCR-GLOBWB_model/config/lue/setup_100m_for_lue_experiment_v2025-05-15.ini"
 pcrglobwb_debug_mode="debug"
 
-output_dir="/scratch/depfg/sutan101/test_lue_experiment/"
+output_dir="/scratch/depfg/sutan101/test_lue_experiment/100m/"
 clone_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 ldd_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 
