@@ -53,5 +53,5 @@ LUE_PARTITION_SHAPE="100,200" \
          --lue:array_shape="100,200" \
          --lue:partition_shape="100,200" \
          --lue:centre="43800,42000" \
-         --lue:result="/scratch/depfg/sutan101/test_lue_experiment/test.txt" \
+         --lue:result=${output_dir}/"lue_experiment.txt" \
          --end
