@@ -6,14 +6,17 @@
 ###########
 #-standard modules
 import os, sys
-
 import logging
-from . import qualloc_variable_list as variable_attr
-
 import pcraster as pcr
 
-from .netCDF_recipes import netCDF_output_handler
-from .allocation import get_key
+try:
+    from . import qualloc_variable_list as variable_attr
+    from .netCDF_recipes import netCDF_output_handler
+    from .allocation import get_key
+except:
+    import qualloc_variable_list as variable_attr
+    from netCDF_recipes import netCDF_output_handler
+    from allocation import get_key
 
 logger = logging.getLogger(__name__)
 
@@ -223,7 +226,7 @@ class qualloc_reporting(object):
                 if not isinstance(value, NoneType):
                     
                     # make the returned value a list
-                    if not isinstance(value, list):    
+                    if not isinstance(value, list):
                         value = [value]
                     
                     # and set the attribute
@@ -658,8 +661,7 @@ class qualloc_report_initial_conditions(object):
 qualloc_report_initial_conditions: class that can be used to report the initial \
 conditions as netCDF dependent whether they are single PCRaster fields or \
 dictionaries with the dates provided.
-
-"""    
+"""
 
     def __init__(self, model_configuration, initial_conditions, model_flags):
 

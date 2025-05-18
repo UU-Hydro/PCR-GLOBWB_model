@@ -11,22 +11,32 @@ import logging
 
 import pcraster as pcr
 from copy import deepcopy
-from .spatialDataSet2PCR import spatialAttributes, setClone
 
 # modules from the QUAlloc model
-from .basic_functions import sum_list, pcr_return_val_div_zero
-from .file_handler import compose_filename, read_file_entry, close_nc_cache
-from .initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
-from .qualloc_reporting import  qualloc_report_initial_conditions
+try:
+    from .spatialDataSet2PCR import spatialAttributes, setClone
+    from .basic_functions import sum_list, pcr_return_val_div_zero
+    from .file_handler import compose_filename, read_file_entry, close_nc_cache
+    from .initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
+    from .qualloc_reporting import  qualloc_report_initial_conditions
+    
+    from .groundwater      import groundwater
+    from .surfacewater     import surfacewater
+    from .water_management import water_management, water_management_missing_value, very_small_number
+    from .water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
 
-from .groundwater      import groundwater
-from .surfacewater     import surfacewater
-from .water_management import water_management, water_management_missing_value, very_small_number
-from .water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
+except:
+    from spatialDataSet2PCR import spatialAttributes, setClone
+    from basic_functions import sum_list, pcr_return_val_div_zero
+    from file_handler import compose_filename, read_file_entry, close_nc_cache
+    from initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
+    from qualloc_reporting import  qualloc_report_initial_conditions
+    
+    from groundwater      import groundwater
+    from surfacewater     import surfacewater
+    from water_management import water_management, water_management_missing_value, very_small_number
+    from water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
 
-# test
-from .allocation import get_key
-from .model_time import match_date_by_julian_number
 
 # global variables
 logger = logging.getLogger(__name__)
@@ -200,7 +210,7 @@ class qualloc_model(object):
                    landmask                 = None, \
                    cellarea                 = None, \
                    groundwater_alpha        = None, \
-                   total_base_flow_ini       = None, \
+                   total_base_flow_ini      = None, \
                    groundwater_storage_ini  = None, \
                    ldd                      = None, \
                    fraction_water           = None, \
@@ -216,7 +226,7 @@ class qualloc_model(object):
         #if online_coupling == False:
         # read in the land mask
         self.landmask = read_file_entry( \
-                filename                 = self.model_configuration.general['clone'], \
+                filename                = self.model_configuration.general['clone'], \
                 variablename            = 'landmask', \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
@@ -225,7 +235,7 @@ class qualloc_model(object):
         
         # read in the cell area
         self.cellarea = read_file_entry( \
-                filename                 = self.model_configuration.general['cellarea'], \
+                filename                = self.model_configuration.general['cellarea'], \
                 variablename            = 'cellarea', \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
@@ -1095,7 +1105,7 @@ class qualloc_model(object):
                     if online_coupling_to_quality == False:
                         # get the field
                         var_out = read_file_entry( \
-                                  filename                 = self.water_quality_forcing_info[key]['ncfilename'], \
+                                  filename                = self.water_quality_forcing_info[key]['ncfilename'], \
                                   variablename            = self.water_quality_forcing_info[key]['ncvariable'], \
                                   inputpath               = self.water_quality_forcing_info[key]['inputpath'], \
                                   clone_attributes        = self.model_configuration.clone_attributes, \
@@ -1104,22 +1114,32 @@ class qualloc_model(object):
                                   date_selection_method   = 'nearest', \
                                   allow_year_substitution = False, \
                                   )
-                        msg_str = 'information on %s %s short-term quality read for %s' % \
-                                   (source_name, constituent_name, date)
+                        # log message
+                        logger.debug('information on %s %s short-term quality read for %s' % \
+                                     (source_name, constituent_name, date))
                     
                     # coupled QUAlloc version: DynQual
                     else:
                         # get the field
                         var_out = eval(key)
                         msg_str = 'information on %s %s short-term quality imported from DynQual for %s' % \
-                                   (forcing_variable.lower(), date)
+                                     (source_name, constituent_name, date)
+                        
+                        # verify if variable is not None, else make it zeros
+                        if isinstance(var_out, NoneType):
+                            var_out = pcr.spatial(pcr.scalar(0))
+                            msg_str = 'no %s %s short-term quality is given for %s; a value of zero is considered' % \
+                                      (source_name, constituent_name, date)
+                        
+                        # log message
+                        logger.debug(msg_str)
                 
                 # set zero value if dataset is not available
                 else:
                     var_out = pcr.spatial(pcr.scalar(0))
-                    msg_str = 'no %s %s short-term quality is given for %s; a value of zero is considered' % \
-                               (source_name, constituent_name, date)
-                    
+                    logger.debug('no %s %s short-term quality is given for %s; a value of zero is considered' % \
+                                 (source_name, constituent_name, date))
+                
                 # cover NaN to zero concentration values and clip map to land mask
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
@@ -1128,10 +1148,7 @@ class qualloc_model(object):
                 
                 # set variable
                 setattr(self, key, var_out)
-                
-                # log message
-                logger.debug(msg_str)
-                
+        
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
@@ -1152,7 +1169,7 @@ class qualloc_model(object):
             
             # read in the desalinated water use
             var_out = read_file_entry( \
-                      filename                 = self.model_configuration.water_management[file_name], \
+                      filename                = self.model_configuration.water_management[file_name], \
                       variablename            = file_name, \
                       inputpath               = self.model_configuration.general['inputpath'], \
                       clone_attributes        = self.model_configuration.clone_attributes, \
@@ -1571,8 +1588,8 @@ class qualloc_model(object):
         
         # [ actual withdrawals ] .......................................
         #
-        # get the short-term potential surface water withdrawal per sector
-        # based on water quality and actual surface water availability
+        # get the short-term potential groundwater withdrawal per sector
+        # based on water quality and actual groundwater availability
         # (units: m3/period)
         potential_withdrawal_per_sector, groundwater_availability = \
             self.water_management.update_groundwater_potential_withdrawals( \
@@ -1612,7 +1629,6 @@ class qualloc_model(object):
             # set average groundwater storage over the last month
             storage = deepcopy(groundwater_storage_average)
         
-        
         # **************************************************************
         # * re-distribute withdrawals                                  *
         # **************************************************************
@@ -1646,10 +1662,6 @@ class qualloc_model(object):
                      source_names_to_be_processed       = source_names_to_be_processed, \
                      date = self.model_time.date)
         
-        if pcr.cellvalue(pcr.mapminimum(renewable_withdrawal), 1)[0] < -1:
-            pcr.aguila(renewable_withdrawal, nonrenewable_withdrawal)
-            sys.exit()
-        
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
         if verbose:
             pcr.report(potential_withdrawal, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater.map')
@@ -1670,7 +1682,9 @@ class qualloc_model(object):
         # allocate the actual withdrawals to the demands,
         # get the consumption and the return flows
         self.water_management.allocate_withdrawal_to_demand_for_date( \
-                                            date = self.model_time.date)
+                   date         = self.model_time.date, \
+                   availability = {'surfacewater':surfacewater_available * self.cellarea,\
+                                   'groundwater' :groundwater_available  * self.cellarea})
         
         # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
         if verbose:
@@ -1754,12 +1768,11 @@ class qualloc_model(object):
 
     def update_initial_conditions(self, date):
         '''
-update_initial_conditions: function that updates the initial conditions from \
-the different modules that are required to start with a warm state.
-
-Returns None
-
-'''
+        update_initial_conditions: function that updates the initial conditions from \
+        the different modules that are required to start with a warm state.
+        Returns None
+        '''
+        
         # get the warm states
         for module_name in self.modules:
             
@@ -1784,19 +1797,15 @@ Returns None
         return None
 
     def report_initial_conditions(self, date):
-
         '''
-
-report_initial_conditions: functions that report the initial conditions to file.
-
-Returns None
-
-'''
-
+        report_initial_conditions: functions that report the initial conditions to file.
+        Returns None
+        '''
+        
         # report the initial conditions
         self.report_initial_conditions_to_file.report(date, \
                                                      self.initial_conditions)
-
+        
         # return None
         return None
 

@@ -7,8 +7,10 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics
-
+try:
+    from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics
+except:
+    from basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics
 
 # global variables
 

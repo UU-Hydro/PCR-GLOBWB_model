@@ -1,18 +1,28 @@
 # water management module of the QUAlloc model
 
 # modules
+import os
 import sys
 import logging
 import pcraster as pcr
+from copy import deepcopy
 
-from copy             import deepcopy
-from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-from .model_time      import match_date_by_julian_number, get_weights_from_dates
-from .allocation      import get_key, get_zonal_fraction, get_zonal_total, \
-                            obtain_allocation_ratio, \
-                            allocate_demand_to_availability_with_options, \
-                            allocate_demand_to_withdrawals
-from .water_quality   import water_quality
+try:
+    from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
+    from .model_time      import match_date_by_julian_number, get_weights_from_dates
+    from .allocation      import get_key, get_zonal_fraction, get_zonal_total, \
+                                obtain_allocation_ratio, \
+                                allocate_demand_to_availability_with_options, \
+                                allocate_demand_to_withdrawals
+    from .water_quality   import water_quality
+except:
+    from basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
+    from model_time      import match_date_by_julian_number, get_weights_from_dates
+    from allocation      import get_key, get_zonal_fraction, get_zonal_total, \
+                                obtain_allocation_ratio, \
+                                allocate_demand_to_availability_with_options, \
+                                allocate_demand_to_withdrawals
+    from water_quality   import water_quality
 
 # global attributes
 # set the logger
@@ -35,7 +45,7 @@ water_management_missing_value = -9.99
 
 # path out for debugging
 path = '/scratch/carde003/qualloc/_debug'
-verbose = True
+verbose = False
 
 ########
 # TODO #
@@ -66,6 +76,90 @@ if len(critical_improvements) > 0:
 #############
 # functions #
 #############
+
+def water_balance_check(states_ini, \
+                        states_end, \
+                        cellarea, \
+                        process_name, \
+                        var_name, \
+                        date, \
+                        zones = None, \
+                        flag_volume  = False, \
+                        flag_warning = True, \
+                        flag_debug = False, \
+                        threshold = -1):
+    """
+    water_balance_check :
+                   function to evaluate the water balance for a list of
+                   input and output map files
+    
+    input:
+    =====
+    states_ini   : list of variable names of the initial state of variables
+                   before processing, to be aggregated (units: m3/day)
+    states_end   : list of variable names of the final state of variables
+                   after processing, to be aggregated (units: m3/day)
+    cellarea     : PCRaster map with cell area (units: m2)
+    process_name : string with the name of the process evaluated
+    date         : string with the current date
+    zones        : PCRaster map with allocation zones per water source used to
+                   aggregate water volumes if flag_volume = True
+    flag_volume  : boolean to specify if water balance is based on volume
+                   (False, default) or on water-slice (True, divided by the
+                   cell area)
+    flag_warning : boolean to specify if QUAlloc must get halted if water balance
+                   does not close (False) or only print a warning (True, default)
+    flag_debug   : boolean to specify if map is reported (True) in case the water
+                   balance does not close or not (False, default)
+    threshold    : float, minimum value allowed to determined if the water balance
+                   is closed (units: m3)
+    """
+    
+    in_map  = pcr.spatial(pcr.scalar(0.0))
+    out_map = pcr.spatial(pcr.scalar(0.0))
+    
+    # aggregate all water from each side of the process
+    for state_ini in states_ini:
+        in_map  += state_ini
+    for state_end in states_end:
+        out_map += state_end
+    
+    # convert to water-slice if specified (False by default)
+    if not flag_volume:
+        in_map    /= cellarea
+        out_map   /= cellarea
+        threshold /= 1e5
+    
+    # aggregate water volumes over the allocation zones
+    unit = 'm'
+    if flag_volume:
+        in_map  = get_zonal_total(in_map,  zones)
+        out_map = get_zonal_total(out_map, zones)
+        unit    = 'm3'
+    
+    # estimate the difference 
+    diff = in_map - out_map
+    vmin = pcr.cellvalue(pcr.mapminimum(diff),1)[0]
+    
+    if vmin >= threshold:
+        msg = "[ %s ] Water Balance OK in %s: %s (Min %f %s)" %(date, process_name, var_name, vmin, unit)
+        logger.info(msg)
+    
+    else:
+        msg  = "\n########################################################################################################################################\n"
+        msg += "WARNING !!!!!!!! Water Balance Error in %s: %s Min %f %s [ %s ]" %(process_name, var_name, vmin, unit, date)
+        msg += "\n########################################################################################################################################\n"
+        logger.error(msg)
+        
+        if flag_debug:
+            dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+            filename = 'wb_%s_%s.map' % (process_name, dt)
+            #pcr.report(diff, filename)
+            pcr.aguila(diff)
+        
+        if not flag_warning:
+            sys.exit()
+
 
 def estimate_waterdepth_from_discharge(discharge, \
                                        waterdepth, \
@@ -1038,18 +1132,18 @@ See doc string of class for detailed info.
                                        date):
         '''
         get_longterm_demands_for_date:
-                                    function to obtaine the long-term sectoral gross water demands
-                                    for current date
+                                  function to obtain the long-term sectoral gross water demands
+                                  for current date
         
         input:
         =====
-        date                      : string, date of the update
+        date                    : string, date of the update
         
         output:
         ======
-        gross_demand_per_sector   : dictionary with sector names as keys (string) and PCRaster maps
-                                    with long-term sectoral gross water demand as values in m3/day 
-                                    for the current day
+        gross_demand_per_sector : dictionary with sector names as keys (string) and PCRaster maps
+                                  with long-term sectoral gross water demand as values in m3/day 
+                                  for the current day
         '''
         
         # set the message string to log the information
@@ -1213,6 +1307,13 @@ See doc string of class for detailed info.
         #   if short-term gross demands are larger than long-term expectations,
         #   the system cannot supply this water regardless its existence due to
         #   infrastructure limitations
+        
+        # store the long-term variables to perform the water balance check
+        longterm_potential_withdrawals_per_sector = \
+                 {'renewable'    : self.potential_renewable_withdrawal_per_sector, \
+                  'nonrenewable' : self.potential_nonrenewable_withdrawal_per_sector}
+        
+        # re-distribute water
         for sector_name in self.sector_names:
             
             # inititalize dictionaries
@@ -1327,9 +1428,45 @@ See doc string of class for detailed info.
                       % (date)
         logger.debug(message_str)
         
+        # [ water balance check ] ...........................................................................................
+        # evaluate the water balance comparing per source:
+        # 1) long-term potential water withdrawals
+        # 2) short-term potential water withdrawals
+        for withdrawal_name in self.withdrawal_names:
+            for source_name in self.source_names:
+                water_balance_check( \
+                      states_ini   = [longterm_potential_withdrawals_per_sector\
+                                      [withdrawal_name][source_name][sector_name] \
+                                      for sector_name in self.sector_names], \
+                      states_end   = [getattr(self, 'potential_%s_withdrawal' % \
+                                      withdrawal_name)[source_name]], \
+                      cellarea     = self.cellarea, \
+                      var_name     = '%s %s' % (withdrawal_name, source_name), \
+                      process_name = 'Short-term availability', \
+                      date         = date, \
+                      
+                      flag_warning = False, \
+                      flag_debug   = True)
+        
+        # evaluate the water balance comparing per source:
+        # 1) pumping capacity
+        # 2) short-term potential water withdrawals
+        for source_name in self.source_names:
+            if self.pumping_capacity_flag[source_name]:
+                water_balance_check( \
+                      states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+                      states_end   = [self.potential_renewable_withdrawal[source_name], \
+                                      self.potential_nonrenewable_withdrawal[source_name]], \
+                      cellarea     = self.cellarea, \
+                      var_name     = source_name, \
+                      process_name = 'Pumping capacity (short-term)', \
+                      date         = date, \
+                      
+                      flag_warning = False, \
+                      flag_debug   = True)
+        
         # return None
         return None
-        
     
     
     
@@ -1728,6 +1865,9 @@ See doc string of class for detailed info.
         message_str = str.join('\n', \
                                (message_str, sub_message_str))
         
+        # log the message
+        logger.info(message_str)
+        
         # [ potential withdrawal ] ..........................................................................................
         #
         # set the ideal surface water and groundwater potential withdrawal
@@ -1742,8 +1882,62 @@ See doc string of class for detailed info.
                              self.potential_renewable_withdrawal['groundwater'] + \
                              sum_list(list(unmet_demand_per_sector.values()))
         
-        # log the message
-        logger.info(message_str)
+        # [ water balance check ] ...........................................................................................
+        
+        # evaluate the water balance comparing per sector:
+        # 1) long-term gross demands
+        # 2) long-term potential water withdrawals
+        for sector_name in self.sector_names:
+            water_balance_check( \
+                  states_ini    = [demand[sector_name]], \
+                  states_end   = [self.potential_renewable_withdrawal_per_sector['surfacewater'][sector_name],
+                                  self.potential_renewable_withdrawal_per_sector['groundwater'][sector_name],
+                                  self.potential_nonrenewable_withdrawal_per_sector['surfacewater'][sector_name],
+                                  self.potential_nonrenewable_withdrawal_per_sector['groundwater'][sector_name]], \
+                  cellarea     = self.cellarea, \
+                  var_name     = sector_name, \
+                  process_name = 'Long-term gross demand', \
+                  date         = date, \
+                  zones        = zones_per_sector['surfacewater'][sector_name], \
+                  flag_volume  = True, \
+                  
+                  flag_warning = False, \
+                  flag_debug   = True)
+        
+        # evaluate the water balance comparing per source:
+        # 1) long-term waer availabiliy
+        # 2) long-term potential water withdrawals
+        for source_name in self.source_names:
+            water_balance_check( \
+                  states_ini   = [availability[source_name]], \
+                  states_end   = [self.potential_renewable_withdrawal_per_sector[source_name][sector_name] \
+                                  for sector_name in self.sector_names], \
+                  cellarea     = self.cellarea, \
+                  var_name     = source_name, \
+                  process_name = 'Long-term availability', \
+                  date         = date, \
+                  
+                  flag_warning = False, \
+                  flag_debug   = True)
+        
+        # evaluate the water balance comparing per source:
+        # 1) pumping capacity
+        # 2) long-term potential water withdrawals
+        for source_name in self.source_names:
+            if self.pumping_capacity_flag[source_name]:
+                water_balance_check( \
+                  states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+                  states_end   = [self.potential_renewable_withdrawal_per_sector[source_name][sector_name] \
+                                  for sector_name in self.sector_names] + \
+                                 [self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name] \
+                                  for sector_name in self.sector_names], \
+                  cellarea     = self.cellarea, \
+                  var_name     = source_name, \
+                  process_name = 'Pumping capacity (long-term)', \
+                  date         = date, \
+                  
+                  flag_warning = False, \
+                  flag_debug   = True)
         
         # returns none
         return None
@@ -2402,12 +2596,12 @@ See doc string of class for detailed info.
                                        ential non-renewable withdrawals.
         '''
         
-        # [ actual withdrawals ]
+        # [ actual withdrawals ] .......................................
         self.set_actual_withdrawals(source_name, \
                                     renewable_withdrawal_per_sector, \
                                     nonrenewable_withdrawal_per_sector)
         
-        # [ unmet demand ]
+        # [ unmet demand ] .............................................
         # set the unmet demand per sector as the difference of what was potentially 
         # withdrawn and what is actually withdrawn
         unmet_withdrawal_per_sector = \
@@ -2432,7 +2626,7 @@ See doc string of class for detailed info.
         for source_name in source_names_to_be_processed:
             source_names.append(source_name)
         
-        # [ update non-renewable withdrawals ]
+        # [ update non-renewable withdrawals ] .........................
         # allocate unmet withdrawals to non-renewable groundwater source
         if 'groundwater' in source_names:
             message_str = 'Non-renewable withdrawals are assigned to the following sources: groundwater' \
@@ -2447,6 +2641,24 @@ See doc string of class for detailed info.
                                                 'groundwater'  : self.groundwater_withdrawal_points})
             # log message
             logger.debug(message_str)
+        
+        # [ water balance check ] ......................................
+            # evaluate the water balance comparing per source:
+            # 1) pumping capacity
+            # 2) short-term potential water withdrawals
+            for source_name in self.source_names:
+                if self.pumping_capacity_flag[source_name]:
+                    water_balance_check( \
+                          states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+                          states_end   = [self.potential_renewable_withdrawal[source_name], \
+                                          self.potential_nonrenewable_withdrawal[source_name]], \
+                          cellarea     = self.cellarea, \
+                          var_name     = source_name, \
+                          process_name = 'Pumping capacity (redistribution)', \
+                          date         = date, \
+                          
+                          flag_warning = False, \
+                          flag_debug   = True)
         
         # returns None
         return None
@@ -2497,17 +2709,22 @@ See doc string of class for detailed info.
     
     
     
-    def allocate_withdrawal_to_demand_for_date(self, date):
+    def allocate_withdrawal_to_demand_for_date(self, \
+                                               date, \
+                                               availability):
         
         '''
         allocate_demand_to_withdrawals:
-               function that internally allocates the gross demand to the sources
-               on a cell-by-cell basis given the actual withdrawals and updates
-               the consumption and return flows  
+                       function that internally allocates the gross demand to the
+                       sources on a cell-by-cell basis given the actual withdrawals
+                       and updates the consumption and return flows
         
         input:
         =====
-        date : string, date of the update
+        date         : string, date of the update
+        availability : dictionary with sources (string) as keys and PCRaster maps 
+                       with current surface water and groundwater availability
+                       (units: m3/day)
         '''
         # set the message string to log the information
         message_str = 'Actual water withdrawals allocated to the demand for %s.' % date
@@ -2531,7 +2748,7 @@ See doc string of class for detailed info.
                     nonrenewable_withdrawal_per_sector = self.actual_nonrenewable_withdrawal_per_sector, \
                     zones_per_sector                   = {'surfacewater' : self.surfacewater_allocation_zones, \
                                                           'groundwater'  : self.groundwater_allocation_zones}, \
-                    use_local_first                     = self.use_local_first, \
+                    use_local_first                    = self.use_local_first, \
                     )
         
         # update the message_str
@@ -2618,6 +2835,97 @@ See doc string of class for detailed info.
         logger.info(message_str)
         # add the final message
         logger.info('return flows and consumption added on the basis of the allocated demand')
+        
+        
+        # [ water balance check ] ...........................................................................................
+        
+        #allocated_withdrawal_per_sector = \
+        #     {'renewable'   :{'surfacewater':self.allocated_withdrawal_per_sector['renewable_surfacewater'],
+        #                      'groundwater' :self.allocated_withdrawal_per_sector['renewable_groundwater']}, \
+        #      'nonrenewable':{'surfacewater':self.allocated_withdrawal_per_sector['nonrenewable_surfacewater'],
+        #                      'groundwater' :self.allocated_withdrawal_per_sector['nonrenewable_groundwater']}}
+        
+        # evaluate the water balance based on the short-term gross demands
+        for sector_name in self.sector_names:
+            water_balance_check( \
+                  states_ini   = [self.gross_demand[sector_name]], \
+                  states_end   = [self.allocated_demand_per_sector['renewable_surfacewater'][sector_name],
+                                  self.allocated_demand_per_sector['renewable_groundwater'][sector_name],
+                                  self.allocated_demand_per_sector['nonrenewable_surfacewater'][sector_name],
+                                  self.allocated_demand_per_sector['nonrenewable_groundwater'][sector_name],
+                                  self.allocated_demand_per_sector_desalwater[sector_name]], \
+                  cellarea     = self.cellarea, \
+                  var_name     = sector_name, \
+                  process_name = 'Short-term allocated demand', \
+                  date         = date, \
+                  zones        = self.surfacewater_allocation_zones[sector_name], \
+                  flag_volume  = True, \
+                  
+                  flag_warning = False)
+        
+        # evaluate the water balance based on the short-term potential water withdrawals
+        #for source_name in self.source_names:
+        #    water_balance_check( \
+        #          states_ini   = [availability[source_name]], \
+        #          states_end   = [self.allocated_withdrawal_per_sector['renewable_%s' % source_name][sector_name] \
+        #                          for sector_name in self.sector_names], \
+        #          cellarea     = self.cellarea, \
+        #          var_name     = source_name, \
+        #          process_name = 'Short-term allocated withdrawal', \
+        #          date         = date, \
+        #          
+        #          flag_warning = False, \
+        #          flag_debug   = True)
+        
+        # evaluate the water balance based on the pumping capacity
+        #for source_name in self.source_names:
+        #    if self.pumping_capacity_flag[source_name]:
+        #        water_balance_check( \
+        #            states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+        #            states_end   = [self.allocated_withdrawal_per_sector['renewable_%s' % source_name][sector_name] \
+        #                            for sector_name in self.sector_names] + \
+        #                           [self.allocated_withdrawal_per_sector['nonrenewable_%s' % source_name][sector_name] \
+        #                            for sector_name in self.sector_names], \
+        #            cellarea     = self.cellarea, \
+        #            var_name     = source_name, \
+        #            process_name = 'Pumping capacity (allocated withdrawal)', \
+        #            date         = date, \
+        #            
+        #            flag_warning = False, \
+        #            flag_debug   = True)
+        
+        
+        # evaluate the water balance based on the short-term potential water withdrawals
+        for source_name in self.source_names:
+            water_balance_check( \
+                    states_ini   = [availability[source_name]], \
+                    states_end   = [self.actual_renewable_withdrawal_per_sector[source_name][sector_name] \
+                                    for sector_name in self.sector_names], \
+                    cellarea     = self.cellarea, \
+                    var_name     = source_name, \
+                    process_name = 'Short-term allocated withdrawal', \
+                    date         = date, \
+                    
+                    flag_warning = False, \
+                    flag_debug   = True)
+        
+        # evaluate the water balance based on the pumping capacity
+        for source_name in self.source_names:
+            if self.pumping_capacity_flag[source_name]:
+                water_balance_check( \
+                    states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+                    states_end   = [self.actual_renewable_withdrawal_per_sector[source_name][sector_name] \
+                                    for sector_name in self.sector_names] + \
+                                   [self.actual_nonrenewable_withdrawal_per_sector[source_name][sector_name] \
+                                    for sector_name in self.sector_names], \
+                    cellarea     = self.cellarea, \
+                    var_name     = source_name, \
+                    process_name = 'Pumping capacity (allocated withdrawal)', \
+                    date         = date, \
+                    
+                    flag_warning = False, \
+                    flag_debug   = True)
+        
         
         # returns None
         return None

@@ -14,26 +14,21 @@ requires a configuration file that is entered on the command line.
 ###########
 # modules #
 ###########
-#-general modules and packages
+# general modules and packages
 import os
 import sys
 import optparse
 import logging
 
 import pcraster as pcr
-
 from pcraster.multicore import set_nr_worker_threads
 from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
-
-
 # specific packages
-
 from model_configuration import configuration_parser
 from model_time import model_time
 from qualloc_main import qualloc_model
-
 from qualloc_reporting import qualloc_reporting
 
 ########

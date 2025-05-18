@@ -49,17 +49,22 @@ import variable_list as varDicts
 class Reporting(object):
 
     def __init__(self, configuration, model, modelTime):
-
+        
         # model (e.g. PCR-GLOBWB) and modelTime object
         self._model = model
         self._modelTime = modelTime
-
+        
+        self.offlineRun = configuration.routingOptions['offlineRun'] #for offline DynQual runs
+        self.quality = configuration.routingOptions['quality'] #for water quality modelling
+        self.calculateLoads = configuration.routingOptions['calculateLoads'] #for calculating pollutant loads in model run
+        self.loadsPerSector = configuration.routingOptions['loadsPerSector'] #for calculating pollutant loads per sector
+        
         # configuration/setting from the ini file
         self.configuration = configuration
         
         # initiate reporting tool/object and its configuration
         self.initiate_reporting()
-
+        
         # landmask for reporting
         self.landmask_for_reporting = None
         if "landmask_for_reporting" in list(configuration.reportingOptions.keys()) and\
@@ -69,7 +74,7 @@ class Reporting(object):
                                                               configuration.cloneMap, \
                                                               configuration.tmpDir, \
                                                               configuration.globalOptions["inputDir"])
-            
+        
         # option for debugging to PCR-GLOBWB version 1.0
         self.debug_to_version_one = False
         if self.configuration.debug_to_version_one: self.debug_to_version_one = True
@@ -88,7 +93,7 @@ class Reporting(object):
             specificAttributeDictionary= None
         #-initialize netcdfObj    
         self.netcdfObj = PCR2netCDF(self.configuration, specificAttributeDictionary)
-
+        
         # initiating netcdf files for reporting
         #
         # - daily output in netCDF files:
@@ -102,7 +107,7 @@ class Reporting(object):
             for var in self.outDailyTotNC:
                 
                 logger.info("Creating the netcdf file for daily reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -116,7 +121,58 @@ class Reporting(object):
                                             str(var)+\
                                             "_dailyTot_output.nc",\
                                             short_name,unit,long_name,standard_name)
-        #
+        
+        # -- weekly average
+        self.outWeekTotNC = ["None"]
+        try:
+            self.outWeekTotNC = configuration.reportingOptions['outWeekTotNC'].split(",")
+        except:
+            pass
+        if self.outWeekTotNC[0] != "None":
+            for var in self.outWeekTotNC:
+                # initiating monthlyVarTot (accumulator variable):
+                vars(self)[var+'WeekTot'] = None
+                
+                logger.info("Creating the netcdf file for weekly accumulation reporting for variable %s.", str(var))
+                
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_monthly_total_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name  
+                
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_weekTot_output.nc",\
+                                            short_name,unit,long_name)
+        
+        self.outWeekAvgNC = ["None"]
+        try:
+            self.outWeekAvgNC = list(set(self.configuration.reportingOptions['outWeekAvgNC'].split(",")))
+        except:
+            pass
+        
+        if self.outWeekAvgNC[0] != "None":
+            for var in self.outWeekAvgNC:
+                # initiating monthlyTotAvg (accumulator variable)
+                vars(self)[var+'WeekTot'] = None
+                
+                # initiating monthlyVarAvg:
+                vars(self)[var+'WeekAvg'] = None
+                
+                logger.info("Creating the netcdf file for weekly average reporting for variable %s.", str(var))
+                
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_weekAvg_output.nc",\
+                                            short_name,unit,long_name)
+        
         # - MONTHly output in netCDF files:
         # -- cummulative
         self.outMonthTotNC = ["None"]
@@ -126,12 +182,11 @@ class Reporting(object):
             pass
         if self.outMonthTotNC[0] != "None":
             for var in self.outMonthTotNC:
-
                 # initiating monthlyVarTot (accumulator variable):
                 vars(self)[var+'MonthTot'] = None
-
+                
                 logger.info("Creating the netcdf file for monthly accumulation reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_monthly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -145,7 +200,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_monthTot_output.nc",\
                                             short_name,unit,long_name,standard_name)
-        #
+        
         # -- average
         self.outMonthAvgNC = ["None"]
         try:
@@ -153,17 +208,15 @@ class Reporting(object):
         except:
             pass
         if self.outMonthAvgNC[0] != "None":
-
             for var in self.outMonthAvgNC:
-
                 # initiating monthlyTotAvg (accumulator variable)
                 vars(self)[var+'MonthTot'] = None
-
+                
                 # initiating monthlyVarAvg:
                 vars(self)[var+'MonthAvg'] = None
-
+                
                 logger.info("Creating the netcdf file for monthly average reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -177,8 +230,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_monthAvg_output.nc",\
                                             short_name,unit,long_name,standard_name)
-
-        #
+        
         # -- last day of the month
         self.outMonthEndNC = ["None"]
         try:
@@ -186,11 +238,9 @@ class Reporting(object):
         except:
             pass
         if self.outMonthEndNC[0] != "None":
-
             for var in self.outMonthEndNC:
-
                 logger.info("Creating the netcdf file for monthly end reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -204,7 +254,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_monthEnd_output.nc",\
                                             short_name,unit,long_name,standard_name)
-        #
+        
         # -- maximum of the month
         self.outMonthMaxNC = ["None"]
         try:
@@ -212,11 +262,9 @@ class Reporting(object):
         except:
             pass
         if self.outMonthMaxNC[0] != "None":
-
             for var in self.outMonthMaxNC:
-
                 logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -230,8 +278,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_monthMax_output.nc",\
                                             short_name,unit,long_name,standard_name)
-
-        #
+        
         # - YEARly output in netCDF files:
         # -- cummulative
         self.outAnnuaTotNC = ["None"]
@@ -240,14 +287,12 @@ class Reporting(object):
         except:
             pass
         if self.outAnnuaTotNC[0] != "None":
-
             for var in self.outAnnuaTotNC:
-
                 # initiating yearly accumulator variable:
                 vars(self)[var+'AnnuaTot'] = None
-
+                
                 logger.info("Creating the netcdf file for annual accumulation reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_yearly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -261,7 +306,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_annuaTot_output.nc",\
                                             short_name,unit,long_name,standard_name)
-        #
+        
         # -- average
         self.outAnnuaAvgNC = ["None"]
         try:
@@ -269,17 +314,15 @@ class Reporting(object):
         except:
             pass
         if self.outAnnuaAvgNC[0] != "None":
-
             for var in self.outAnnuaAvgNC:
-
                 # initiating annualyVarAvg:
                 vars(self)[var+'AnnuaAvg'] = None
-
+                
                 # initiating annualyTotAvg (accumulator variable)
                 vars(self)[var+'AnnuaTot'] = None
-
+                
                 logger.info("Creating the netcdf file for annual average reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -293,7 +336,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_annuaAvg_output.nc",\
                                             short_name,unit,long_name,standard_name)
-        #
+        
         # -- last day of the year
         self.outAnnuaEndNC = ["None"]
         try:
@@ -301,11 +344,9 @@ class Reporting(object):
         except:
             pass
         if self.outAnnuaEndNC[0] != "None":
-
             for var in self.outAnnuaEndNC:
-
                 logger.info("Creating the netcdf file for annual end reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -319,7 +360,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_annuaEnd_output.nc",\
                                             short_name,unit,long_name,standard_name)
-
+        
         # -- maximum of the year
         self.outAnnuaMaxNC = ["None"]
         try:
@@ -327,11 +368,9 @@ class Reporting(object):
         except:
             pass
         if self.outAnnuaMaxNC[0] != "None":
-
             for var in self.outAnnuaMaxNC:
-
                 logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -345,7 +384,7 @@ class Reporting(object):
                                             str(var)+\
                                             "_annuaMax_output.nc",\
                                             short_name,unit,long_name,standard_name)
-
+        
         # -- daily upsteam average (through LDD)
         self.outDailyTotUpsAvgNC = ["None"]
         try:
@@ -353,11 +392,9 @@ class Reporting(object):
         except:
             pass
         if self.outDailyTotUpsAvgNC[0] != "None":
-
             for var in self.outDailyTotUpsAvgNC:
-
                 logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
-
+                
                 short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
                 unit       = varDicts.netcdf_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
@@ -372,9 +409,11 @@ class Reporting(object):
                                             str(var)+\
                                             "_dailyTotUpsAvg_output.nc",\
                                             short_name,unit,long_name,standard_name)
-
+        
         # list of variables that will be reported:
         self.variables_for_report = self.outDailyTotNC +\
+                                    self.outWeekTotNC +\
+                                    self.outWeekAvgNC +\
                                     self.outMonthTotNC +\
                                     self.outMonthAvgNC +\
                                     self.outMonthEndNC +\
@@ -385,8 +424,9 @@ class Reporting(object):
                                     self.outMonthMaxNC +\
                                     self.outDailyTotUpsAvgNC
 
-    def post_processing(self):
 
+    def post_processing(self):
+        
         self.basic_post_processing() 
         self.additional_post_processing()
         #-RvB 23/02/2017: post-processing for the eartH2Observe project
@@ -394,7 +434,7 @@ class Reporting(object):
         
         # reporting, post-processing for the Ulysses project
         self.ulysses_post_processing()
-                
+        
         if self.debug_to_version_one:
             if self._modelTime.timeStepPCR == 1: self.report_static_maps_for_debugging()
             self.report_forcing_for_debugging()
@@ -405,8 +445,9 @@ class Reporting(object):
             # recession coefficient (day-1)
             pcr.report(pcr.ifthen(self._model.routing.landmask, self._model.groundwater.recessionCoeff), self.configuration.mapsDir + "/globalalpha.map")
 
-    def report_forcing_for_debugging(self):
 
+    def report_forcing_for_debugging(self):
+        
         # prepare forcing directory
         if self._modelTime.timeStepPCR == 1: 
             self.directory_for_forcing_maps = vos.getFullPath("meteo/", self.configuration.mapsDir)
@@ -416,23 +457,23 @@ class Reporting(object):
         # writing precipitation time series maps
         file_name = self.directory_for_forcing_maps +\
                     pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['precipitation'] , self._modelTime.timeStepPCR)
-        pcr.report(self._model.meteo.precipitation, file_name) 
-
+        pcr.report(self._model.meteo.precipitation, file_name)
+        
         # writing temperature time series maps
         file_name = self.directory_for_forcing_maps +\
                     pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['temperature']   , self._modelTime.timeStepPCR)
-        pcr.report(self._model.meteo.temperature, file_name) 
-
+        pcr.report(self._model.meteo.temperature, file_name)
+        
         # writing referencePotET time series maps
         file_name = self.directory_for_forcing_maps +\
                     pcr.framework.frameworkBase.generateNameT("/"+varDicts.pcr_short_name['referencePotET'], self._modelTime.timeStepPCR)
-        pcr.report(self._model.meteo.referencePotET, file_name) 
+        pcr.report(self._model.meteo.referencePotET, file_name)
 
 
     def report_vegetation_phenology_for_debugging(self):
-
-        # CF_SHORTSTACK = maps\cover_fraction/cv_s;  # fractional vegetation cover (-) per vegetation type
-        # CF_TALLSTACK  = maps\cover_fraction/cv_t;         
+        
+        # CF_SHORTSTACK = maps\cover_fraction/cv_s  # fractional vegetation cover (-) per vegetation type
+        # CF_TALLSTACK  = maps\cover_fraction/cv_t
         
         # prepare directory
         if self._modelTime.timeStepPCR == 1: 
@@ -444,16 +485,15 @@ class Reporting(object):
         file_name = self.directory_for_cover_fraction_maps +\
                     pcr.framework.frameworkBase.generateNameT("/cv_s", self._modelTime.timeStepPCR)
         pcr.report(self._model.landSurface.landCoverObj["grassland"].coverFraction, file_name) 
-
+        
         # writing CF_TALLSTACK maps
         file_name = self.directory_for_cover_fraction_maps +\
                     pcr.framework.frameworkBase.generateNameT("/cv_t", self._modelTime.timeStepPCR)
         pcr.report(self._model.landSurface.landCoverObj["forest"].coverFraction, file_name) 
-
-
+        
         # SMAX_SHORTSTACK = maps\interception_capacity_input\smax_s     # interception storage (m) per vegetation type
         # SMAX_TALLSTACK  = maps\interception_capacity_input\smax_t
-
+        
         # prepare directory
         if self._modelTime.timeStepPCR == 1: 
             self.directory_for_interception_capacity_input_maps = vos.getFullPath("interception_capacity_input/", self.configuration.mapsDir)
@@ -469,17 +509,16 @@ class Reporting(object):
         file_name = self.directory_for_interception_capacity_input_maps +\
                     pcr.framework.frameworkBase.generateNameT("/smax_t", self._modelTime.timeStepPCR)
         pcr.report(self._model.landSurface.landCoverObj["forest"].interceptCapInput, file_name) 
-
-
+        
         # KC_SHORTSTACK = maps\crop_coefficient\kc_s; # crop factor (-) per vegetation type
         # KC_TALLSTACK  = maps\crop_coefficient\kc_t;
-
+        
         # prepare directory
         if self._modelTime.timeStepPCR == 1: 
             self.directory_for_crop_coefficient_maps = vos.getFullPath("crop_coefficient/", self.configuration.mapsDir)
             if os.path.exists(self.directory_for_crop_coefficient_maps): shutil.rmtree(self.directory_for_crop_coefficient_maps)
             os.makedirs(self.directory_for_crop_coefficient_maps)
-
+        
         # writing KC_SHORTSTACK
         file_name = self.directory_for_crop_coefficient_maps +\
                     pcr.framework.frameworkBase.generateNameT("/kc_s", self._modelTime.timeStepPCR)
@@ -492,41 +531,37 @@ class Reporting(object):
 
 
     def report_static_maps_for_debugging(self):
-
+        
         # LANDMASK = $1\maps\catclone.map;                                 # clone map representing landmask of earth surface
         # CELLAREA = $1\maps\cellarea30.map;                               # surface (m2) of cell covered by total land surface
-
-        pcr.report(self._model.routing.landmask, self.configuration.mapsDir+"/catclone.map") 
-        pcr.report(self._model.routing.cellArea, self.configuration.mapsDir+"/cellarea30.map") 
-
-
+        
+        pcr.report(self._model.routing.landmask, self.configuration.mapsDir+"/catclone.map")
+        pcr.report(self._model.routing.cellArea, self.configuration.mapsDir+"/cellarea30.map")
+        
         # LSLOPE   = $1\maps\globalbcat.map;                               # slope length (m)
         # TANSLOPE = $1\maps\globalgradslope.map;                          # gradient of slope (m/m)
         # B_ORO    = $1\maps\globalboro.map;                               # shape coefficient related to orography
-
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].slopeLength  , self.configuration.mapsDir+"/globalbcat.map") 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].tanslope     , self.configuration.mapsDir+"/globalgradslope.map") 
-        pcr.report(self._model.landSurface.soil_topo_parameters['default'].orographyBeta, self.configuration.mapsDir+"/globalboro.map") 
-
-
+        
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].slopeLength  , self.configuration.mapsDir+"/globalbcat.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].tanslope     , self.configuration.mapsDir+"/globalgradslope.map")
+        pcr.report(self._model.landSurface.soil_topo_parameters['default'].orographyBeta, self.configuration.mapsDir+"/globalboro.map")
+        
         # LDD      = maps\lddsound_30min.map;                              # local drainage direction map
-
         pcr.report(self._model.routing.lddMap, self.configuration.mapsDir+"/lddsound_30min.map") 
-
-
-        # DZREL0001 = $1\maps\hydro1k_dzrel0001.map;                       # maps of relative elevation above floodplain, in percent
-        # DZREL0005 = $1\maps\hydro1k_dzrel0005.map;
-        # DZREL0010 = $1\maps\hydro1k_dzrel0010.map;
-        # DZREL0020 = $1\maps\hydro1k_dzrel0020.map;
-        # DZREL0030 = $1\maps\hydro1k_dzrel0030.map;
-        # DZREL0040 = $1\maps\hydro1k_dzrel0040.map;
-        # DZREL0050 = $1\maps\hydro1k_dzrel0050.map;
-        # DZREL0060 = $1\maps\hydro1k_dzrel0060.map;
-        # DZREL0070 = $1\maps\hydro1k_dzrel0070.map;
-        # DZREL0080 = $1\maps\hydro1k_dzrel0080.map;
-        # DZREL0090 = $1\maps\hydro1k_dzrel0090.map;
-        # DZREL0100 = $1\maps\hydro1k_dzrel0100.map;
-
+        
+        # DZREL0001 = $1\maps\hydro1k_dzrel0001.map                       # maps of relative elevation above floodplain, in percent
+        # DZREL0005 = $1\maps\hydro1k_dzrel0005.map
+        # DZREL0010 = $1\maps\hydro1k_dzrel0010.map
+        # DZREL0020 = $1\maps\hydro1k_dzrel0020.map
+        # DZREL0030 = $1\maps\hydro1k_dzrel0030.map
+        # DZREL0040 = $1\maps\hydro1k_dzrel0040.map
+        # DZREL0050 = $1\maps\hydro1k_dzrel0050.map
+        # DZREL0060 = $1\maps\hydro1k_dzrel0060.map
+        # DZREL0070 = $1\maps\hydro1k_dzrel0070.map
+        # DZREL0080 = $1\maps\hydro1k_dzrel0080.map
+        # DZREL0090 = $1\maps\hydro1k_dzrel0090.map
+        # DZREL0100 = $1\maps\hydro1k_dzrel0100.map
+        
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0001, self.configuration.mapsDir+"/hydro1k_dzrel0001.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0005, self.configuration.mapsDir+"/hydro1k_dzrel0005.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].dzRel0010, self.configuration.mapsDir+"/hydro1k_dzrel0010.map")
@@ -544,20 +579,16 @@ class Reporting(object):
         #   SHORT = sv,
         #   TALL  = tv];                            # array of cover type: 1) short, 2) tall
         # COVERTABLE = maps\param_permafrost.tbl;   # table with parameterization per cover type
-        
         # VEGFRAC[COVERTYPE] = index(COVERTABLE);   # subdivision in cover type
         version_one_cover_type = {}
         version_one_cover_type['grassland'] = "short"
-        version_one_cover_type['forest']    = "tall" 
-
-
+        version_one_cover_type['forest']    = "tall"
+        
         # VEGFRAC   sv  maps\vegf_short.map
         # VEGFRAC   tv  maps\vegf_tall.map
-
         for coverType in ['forest','grassland']:
-            pcr.report(self._model.landSurface.landCoverObj[coverType].fracVegCover, self.configuration.mapsDir+"/vegf_"+version_one_cover_type[coverType]+".map") 
-
-
+            pcr.report(self._model.landSurface.landCoverObj[coverType].fracVegCover, self.configuration.mapsDir+"/vegf_"+version_one_cover_type[coverType]+".map")
+        
         # THETASAT1     sv  maps\fao30_ths30.map                      # THETASAT1   tv  maps\fao30_ths30.map
         # THETASAT2     sv  maps\fao30_ths100.map                     # THETASAT2   tv  maps\fao30_ths100.map
         # THETARES1     sv  maps\fao30_thr30.map                      # THETARES1   tv  maps\fao30_thr30.map
@@ -568,7 +599,6 @@ class Reporting(object):
         # PSI_A2        sv  maps\fao30_psis100.map                    # PSI_A2      tv  maps\fao30_psis100.map
         # BCH1          sv  maps\fao30_beta30.map                     # BCH1        tv  maps\fao30_beta30.map
         # BCH2          sv  maps\fao30_beta100.map                    # BCH2        tv  maps\fao30_beta100.map
-
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].satVolMoistContUpp, self.configuration.mapsDir+"/fao30_ths30.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].satVolMoistContLow, self.configuration.mapsDir+"/fao30_ths100.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].resVolMoistContUpp, self.configuration.mapsDir+"/fao30_thr30.map")
@@ -579,67 +609,57 @@ class Reporting(object):
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].poreSizeBetaLow   , self.configuration.mapsDir+"/fao30_beta100.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].kSatUpp           , self.configuration.mapsDir+"/fao30_ks30.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].kSatLow           , self.configuration.mapsDir+"/fao30_ks100.map")
-
-
+        
         # Z1            sv  maps\fao30_z1_permafrost.map              # Z1          tv  maps\fao30_z1_permafrost.map
         # Z2            sv  maps\fao30_z2_permafrost.map              # Z2          tv  maps\fao30_z2_permafrost.map
         # SC1           sv  maps\fao30_sc1_permafrost.map             # SC1         tv  maps\fao30_sc1_permafrost.map
         # SC2           sv  maps\fao30_sc2_permafrost.map             # SC2         tv  maps\fao30_sc2_permafrost.map
-
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].thickUpp               , self.configuration.mapsDir+"/fao30_z1_permafrost.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].thickLow               , self.configuration.mapsDir+"/fao30_z2_permafrost.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].storCapUpp             , self.configuration.mapsDir+"/fao30_sc1_permafrost.map")
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].storCapLow             , self.configuration.mapsDir+"/fao30_sc2_permafrost.map")
-
+        
         # WMAX          sv  maps\fao30_sc_permafrost.map              # WMAX        tv  maps\fao30_sc_permafrost.map
-
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].rootZoneWaterStorageCap, self.configuration.mapsDir+"/fao30_sc_permafrost.map")
-
-
+        
         # P2_IMP        sv  maps\fao30_p2imp_permafrost.map           # P2_IMP      tv  maps\fao30_p2imp_permafrost.map
-
         pcr.report(self._model.landSurface.soil_topo_parameters['default'].percolationImp             , self.configuration.mapsDir+"/fao30_p2imp_permafrost.map")
-
-
+        
         # MINFRAC       sv  maps\minf_short.map                       # MINFRAC     tv  maps\minf_tall.map
         # MAXFRAC       sv  maps\maxf_short.map                       # MAXFRAC     tv  maps\maxf_tall.map
         # RFRAC1        sv  maps\rfrac1_short.map                     # RFRAC1      tv  maps\rfrac1_tall.map
         # RFRAC2        sv  maps\rfrac2_short.map                     # RFRAC2      tv  maps\rfrac2_tall.map
-        
         for coverType in ['forest','grassland']:
             pcr.report(self._model.landSurface.landCoverObj[coverType].minSoilDepthFrac, self.configuration.mapsDir+"/minf_"+version_one_cover_type[coverType]+".map") 
             pcr.report(self._model.landSurface.landCoverObj[coverType].maxSoilDepthFrac, self.configuration.mapsDir+"/maxf_"+version_one_cover_type[coverType]+".map") 
             pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction1   , self.configuration.mapsDir+"/rfrac1_"+version_one_cover_type[coverType]+".map") 
             pcr.report(self._model.landSurface.landCoverObj[coverType].rootFraction2   , self.configuration.mapsDir+"/rfrac2_"+version_one_cover_type[coverType]+".map") 
-
         
         # KQ3            = maps\globalalpha.map;    # recession coefficient for store 3 (day-1): drainage
         # SPECYIELD3     = maps\specificyield.map;  # specific yield for aquifer
-
         pcr.report(self._model.groundwater.recessionCoeff, self.configuration.mapsDir+"/globalalpha.map")
         pcr.report(self._model.groundwater.specificYield , self.configuration.mapsDir+"/specificyield.map")
 
 
     def basic_post_processing(self):
-
-        # forcing 
-        self.precipitation  = pcr.ifthen(self._model.routing.landmask, self._model.meteo.precipitation) 
+        # forcing
+        self.precipitation  = pcr.ifthen(self._model.routing.landmask, self._model.meteo.precipitation)
         self.temperature    = pcr.ifthen(self._model.routing.landmask, self._model.meteo.temperature)
-        self.referencePotET = pcr.ifthen(self._model.routing.landmask, self._model.meteo.referencePotET) 
-
+        self.referencePotET = pcr.ifthen(self._model.routing.landmask, self._model.meteo.referencePotET)
+        
         # potential and actual evaporation from land surface part (m)
-        self.totalLandSurfacePotET = self._model.landSurface.totalPotET 
+        self.totalLandSurfacePotET = self._model.landSurface.totalPotET
         self.totLandSurfaceActuaET = self._model.landSurface.actualET
-        #
+        
         self.fractionLandSurfaceET = vos.getValDivZero(self.totLandSurfaceActuaET,\
                                                        self.totalLandSurfacePotET,\
                                                        vos.smallNumber)
         
         self.interceptStor = self._model.landSurface.interceptStor
-
+        
         self.snowCoverSWE  = self._model.landSurface.snowCoverSWE
         self.snowFreeWater = self._model.landSurface.snowFreeWater
-
+        
         self.topWaterLayer = self._model.landSurface.topWaterLayer
         self.storUppTotal  = self._model.landSurface.storUppTotal
         self.storLowTotal  = self._model.landSurface.storLowTotal
@@ -660,10 +680,10 @@ class Reporting(object):
         self.gwRecharge           = self._model.landSurface.gwRecharge
         self.gwNetCapRise         = pcr.ifthenelse(self._model.landSurface.gwRecharge < 0.0, self.gwRecharge*(-1.0), 0.0)
         
-        # ~ # water demand (m)
-        # ~ self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
-        # ~ self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
-        # ~ self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
+        # water demand (m)
+        self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
+        self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
+        self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
         
         self.satDegUpp            = self._model.landSurface.satDegUppTotal
         self.satDegLow            = self._model.landSurface.satDegLowTotal
@@ -687,7 +707,7 @@ class Reporting(object):
         # total evaporation (m), from land and water fractions
         self.totalEvaporation = self._model.landSurface.actualET + \
                                 self._model.routing.waterBodyEvaporation
-        #
+        
         self.fractionTotalEvaporation = vos.getValDivZero(self.totalEvaporation,\
                                         self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap,\
                                         vos.smallNumber)
@@ -713,29 +733,30 @@ class Reporting(object):
             self.storUpp000005  = self._model.landSurface.storUpp000005
             self.storUpp005030  = self._model.landSurface.storUpp005030
             self.storLow030150  = self._model.landSurface.storLow030150
-        
+
+
     def additional_post_processing(self):
         # In this method/function, users can add their own post-processing.
         
         # reporting water balance from the land surface part (excluding surface water bodies)
         if "land_surface_water_balance" in self.variables_for_report: self.land_surface_water_balance = self._model.waterBalance
-
+        
         # accumulated directRunoff (m3/s) along the drainage network
         if "accuDirectRunoff" in self.variables_for_report:
             self.accuDirectRunoff = pcr.catchmenttotal(self.directRunoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # accumulated interflowTotal (m3/s) along the drainage network
         if "accuInterflowTotal" in self.variables_for_report:
             self.accuInterflowTotal = pcr.catchmenttotal(self.interflowTotal * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # accumulated baseflow (m3/s) along the drainage network
         if "accuBaseflow" in self.variables_for_report:
             self.accuBaseflow = pcr.catchmenttotal(self.baseflow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # accumulated runoff (m3/s) along the drainage network
         if "accuRunoff" in self.variables_for_report:
             self.accuRunoff = pcr.catchmenttotal(self.runoff * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # accumulated surface water abstraction along the drainage network (m3/s)
         if "accuSurfaceWaterAbstraction" in self.variables_for_report:
             self.accuSurfaceWaterAbstraction = pcr.catchmenttotal(self.surfaceWaterAbstraction * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
@@ -745,22 +766,22 @@ class Reporting(object):
         
         # total runoff (m) from local land surface runoff and local changes in water bodies 
         self.totalRunoff = self.runoff + self.local_water_body_flux     # actually this is equal to self._model.routing.local_input_to_surface_water / self._model.routing.cellArea
-
+        
         # water body evaporation (m) - from surface water fractions only
         self.waterBodyActEvaporation = self._model.routing.waterBodyEvaporation
         self.waterBodyPotEvaporation = self._model.routing.waterBodyPotEvap
-        #
+        
         self.fractionWaterBodyEvaporation = vos.getValDivZero(self.waterBodyActEvaporation,\
                                                               self.waterBodyPotEvaporation,\
                                                               vos.smallNumber)
-
+        
         # accumulated water body actual evaporation along the drainage network (m3/s)
         if "accuWaterBodyActEvaporation" in self.variables_for_report: 
             self.accuWaterBodyActEvaporation = pcr.catchmenttotal(self.waterBodyActEvaporation * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # land surface evaporation (m)
         self.actualET = self._model.landSurface.actualET
-
+        
         # fossil groundwater storage
         self.storGroundwaterFossil = self._model.groundwater.storGroundwaterFossil
         
@@ -771,7 +792,7 @@ class Reporting(object):
         # accumulated total groundwater storage along the drainage network (m3):
         if "accuStorGroundwaterTotalVolume" in self.variables_for_report: 
             self.accuStorGroundwaterTotalVolume = pcr.catchmenttotal(self.storGroundwaterTotal * self._model.routing.cellArea, self._model.routing.lddMap)
-
+        
         # total active storage thickness (m) for the entire water column - not including fossil groundwater
         # - including: interception, snow, soil and non fossil groundwater 
         self.totalActiveStorageThickness = pcr.ifthen(\
@@ -779,50 +800,48 @@ class Reporting(object):
                                            self._model.routing.channelStorage / self._model.routing.cellArea + \
                                            self._model.landSurface.totalSto + \
                                            self._model.groundwater.storGroundwater)
-
+        
         # total water storage thickness (m) for the entire water column: 
         # - including: interception, snow, soil, non fossil groundwater and fossil groundwater
         # - this is usually used for GRACE comparison  
         self.totalWaterStorageThickness  = self.totalActiveStorageThickness + \
                                            self._model.groundwater.storGroundwaterFossil
-
+        
         # total water storage volume (m3) for the entire water column: 
         self.totalWaterStorageVolume = self.totalWaterStorageThickness * self._model.routing.cellArea
         
         # surfaceWaterStorage (unit: m) - negative values may be reported
         self.surfaceWaterStorage = self._model.routing.channelStorage / self._model.routing.cellArea
-
+        
         # estimate of river/surface water levels (above channel/surface water bottom elevation)
         self.surfaceWaterLevel = pcr.ifthenelse(self.dynamicFracWat > 0., self._model.routing.channelStorage / \
                                                                          (self.dynamicFracWat * self._model.routing.cellArea), 
                                                                           0.0)
         self.surfaceWaterLevel = pcr.max(0.0, pcr.ifthen(self._model.routing.landmask, self.surfaceWaterLevel)) 
-
-
-        # ~ # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
-        # ~ self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                          # ~ vos.getValDivZero(\
-                                          # ~ self._model.landSurface.allocSurfaceWaterAbstract, self.totalGrossDemand, vos.smallNumber))
-        # ~ self.fracSurfaceWaterAllocation = pcr.ifthenelse(self.totalGrossDemand < vos.smallNumber, 1.0, self.fracSurfaceWaterAllocation)
-        # ~ #
-        # ~ self.fracNonFossilGroundwaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                                  # ~ vos.getValDivZero(\
-                                                  # ~ self._model.groundwater.allocNonFossilGroundwater, self.totalGrossDemand, vos.smallNumber))
-        # ~ #
-        # ~ self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                              # ~ vos.getValDivZero(\
-                                              # ~ self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
-        # ~ #
-        # ~ self.fracDesalinatedWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
-                                              # ~ vos.getValDivZero(\
-                                              # ~ self._model.landSurface.desalinationAllocation, self.totalGrossDemand, vos.smallNumber))
-        # ~ #
-        # ~ self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
-                                              # ~ self.fracNonFossilGroundwaterAllocation + \
-                                              # ~ self.fracOtherWaterSourceAllocation + \
-                                              # ~ self.fracDesalinatedWaterAllocation
-
-
+        
+        # Menno's post proccessing: fractions of water sources (allocated for) satisfying water demand in each cell
+        self.fracSurfaceWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                          vos.getValDivZero(\
+                                          self._model.landSurface.allocSurfaceWaterAbstract, self.totalGrossDemand, vos.smallNumber))
+        self.fracSurfaceWaterAllocation = pcr.ifthenelse(self.totalGrossDemand < vos.smallNumber, 1.0, self.fracSurfaceWaterAllocation)
+        
+        self.fracNonFossilGroundwaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                                  vos.getValDivZero(\
+                                                  self._model.groundwater.allocNonFossilGroundwater, self.totalGrossDemand, vos.smallNumber))
+        
+        self.fracOtherWaterSourceAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                              vos.getValDivZero(\
+                                              self._model.groundwater.unmetDemand, self.totalGrossDemand, vos.smallNumber))
+        
+        self.fracDesalinatedWaterAllocation = pcr.ifthen(self._model.routing.landmask, \
+                                              vos.getValDivZero(\
+                                              self._model.landSurface.desalinationAllocation, self.totalGrossDemand, vos.smallNumber))
+        
+        self.totalFracWaterSourceAllocation = self.fracSurfaceWaterAllocation + \
+                                              self.fracNonFossilGroundwaterAllocation + \
+                                              self.fracOtherWaterSourceAllocation + \
+                                              self.fracDesalinatedWaterAllocation
+        
         # Stefanie's post processing:
         # -  reporting lake and reservoir storage (unit: m3)
         self.waterBodyStorage = pcr.ifthen(self._model.routing.landmask, \
@@ -832,11 +851,85 @@ class Reporting(object):
                                            self._model.routing.WaterBodies.waterBodyStorage), 0.0))     # Note: This value is after lake/reservoir outflow.
         # - snowMelt (m)
         self.snowMelt = self._model.landSurface.snowMelt
-
+        
         # channel storage (unit: m3)
         self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
                               pcr.cover(self._model.routing.channelStorage, 0.0)) 
         
+        # DynQual
+        if self._model.routing.quality:
+            # water temperature (K)
+            self.waterTemp = self._model.routing.waterTemp
+            
+            # water height (m)
+            self.waterHeight = self._model.routing.water_height
+            
+            # ice thickness (m)
+            self.iceThickness = self._model.routing.iceThickness
+            
+            # Aspects related to powerplant flows (m3 day-1)
+            self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 day-1 (temperature-dependent technologies)
+            self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q #water temperature dependent demands in m3 day-1 (temperature-dependent technologies)
+            self.powerplants_fw_rf   = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf #powerplant return flows in m3 day-1 (temperature-dependent technologies)
+            self.PowTwload           = self._model.routing.PowTwload #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
+            
+            # Aspects related to salinity pollution
+            self.TDSload = self._model.routing.TDSload #in grams
+            self.routedTDS = self._model.routing.routedTDS #in grams
+            self.salinity = self._model.routing.salinity #in mg l-1  
+            
+            if self.loadsPerSector == "True":
+                #-TDS
+                self.Dom_TDSload = self._model.routing.Dom_TDSload
+                self.Man_TDSload = self._model.routing.Man_TDSload
+                self.USR_TDSload = self._model.routing.USR_TDSload
+                self.Irr_TDSload = self._model.routing.Irr_TDSload
+                
+                self.routedDomTDS = self._model.routing.routedDomTDS
+                self.routedManTDS = self._model.routing.routedManTDS
+                self.routedUSRTDS = self._model.routing.routedUSRTDS
+                self.routedIrrTDS = self._model.routing.routedIrrTDS
+            
+            # Aspects related to organic pollution
+            self.BODload = self._model.routing.BODload #in grams
+            self.routedBOD = self._model.routing.routedBOD #in grams
+            self.organic = self._model.routing.organic #in mg/l
+            
+            if self.loadsPerSector == "True":
+                #-BOD
+                self.Dom_BODload = self._model.routing.Dom_BODload
+                self.Man_BODload = self._model.routing.Man_BODload
+                self.USR_BODload = self._model.routing.USR_BODload
+                self.intLiv_BODload = self._model.routing.intLiv_BODload
+                self.extLiv_BODload = self._model.routing.extLiv_BODload
+                
+                self.routedDomBOD = self._model.routing.routedDomBOD
+                self.routedManBOD = self._model.routing.routedManBOD
+                self.routedUSRBOD = self._model.routing.routedUSRBOD
+                self.routedintLivBOD = self._model.routing.routedintLivBOD
+                self.routedextLivBOD = self._model.routing.routedextLivBOD
+            
+            # Aspects related to dissolved oxygen
+            self.dissolved_oxygen = self._model.routing.dissolved_oxygen #in mg/l
+            
+            # Aspects related to pathogen pollution
+            self.FCload = self._model.routing.FCload #in million cfu
+            self.routedFC = self._model.routing.routedFC #in million cfu
+            self.pathogen = self._model.routing.pathogen # in cfu/100ml
+            
+            if self.loadsPerSector  == "True":
+                #-FC
+                self.Dom_FCload = self._model.routing.Dom_FCload
+                self.Man_FCload = self._model.routing.Man_FCload
+                self.USR_FCload = self._model.routing.USR_FCload
+                self.intLiv_FCload = self._model.routing.intLiv_FCload
+                self.extLiv_FCload = self._model.routing.extLiv_FCload
+                
+                self.routedDomFC = self._model.routing.routedDomFC
+                self.routedManFC = self._model.routing.routedManFC
+                self.routedUSRFC = self._model.routing.routedUSRFC
+                self.routedintLivFC = self._model.routing.routedintLivFC
+                self.routedextLivFC = self._model.routing.routedextLivFC
         
         # Some examples to report variables from certain land cover types:
         # - unit: m/day - values are average over the entire cell area
@@ -861,11 +954,11 @@ class Reporting(object):
                                                   self._model.landSurface.landCoverObj['irrPaddy'].fracVegCover + \
                                                   self._model.landSurface.landCoverObj['irrNonPaddy'].actTranspiTotal * \
                                                   self._model.landSurface.landCoverObj['irrNonPaddy'].fracVegCover        
-
+        
         # Total groundwater abstraction (m) (assuming otherWaterSourceAbstraction as fossil groundwater abstraction
         self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbstraction +\
                                            self.fossilGroundwaterAbstraction
-
+        
         # net liquid water passing to the soil 
         self.net_liquid_water_to_soil = self._model.landSurface.netLqWaterToSoil
         
@@ -876,11 +969,10 @@ class Reporting(object):
         # accumulated non irrigation return flow along the drainage network (m3/s)
         if "accuNonIrrReturnFlow" in self.variables_for_report:
             self.accuNonIrrReturnFlow = pcr.catchmenttotal(self.nonIrrReturnFlow * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
-        # ~ # total potential water demand - not considering water availability
-        # ~ self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
         
-
+        # total potential water demand - not considering water availability
+        #self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
+        
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # NOTE: Before 24 May 2015, the stupid Edwin forgot to divide this variable with self._model.routing.cellArea
@@ -890,41 +982,29 @@ class Reporting(object):
         # surface water infiltration (to groundwater) (unit: m/day)
         self.surfaceWaterInf = self._model.routing.riverbedExchange / self._model.routing.cellArea
         # - "surfaceWaterInf" is a better name than groundwaterAbsReturnFlow 
-
+        
         # accumulated surface water infiltration along the drainage network (m3/s)
         if "accuSurfaceWaterInf" in self.variables_for_report:
             self.accuSurfaceWaterInf = pcr.catchmenttotal(self.surfaceWaterInf * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         # net groundwater discharge (m/day)
         self.netGroundwaterDischarge = self.baseflow - self.surfaceWaterInf
-
+        
         # accumulated net groundwater discharge along the drainage network (m3/s)
         if "accuNetGroundwaterDischarge" in self.variables_for_report:
             self.accuNetGroundwaterDischarge = pcr.catchmenttotal(self.netGroundwaterDischarge * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
-
+        
         #-----------------------------------------------------------------------
         # NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
         # because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
         #
-        # flood innundation depth (unit: m) above the floodplain
-        #~ if self._model.routing.floodPlain:\
-           #~ self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
-                      #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0,
-                                     #~ self._model.routing.floodDepth))
-        #                        
-        # flood volume (unit: m3): excess above the channel storage capacity
-        #~ if self._model.routing.floodPlain:\
-           #~ self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
-                      #~ pcr.ifthenelse(pcr.cover(pcr.scalar(self._model.routing.WaterBodies.waterBodyIds), 0.0) > 0.0, 0.0, \
-                      #~ pcr.max(0.0, self._model.routing.channelStorage - self._model.routing.channelStorageCapacity)))
-        #              
         # flood innundation depth (unit: m) above the floodplain
         self.floodDepth = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
         if self._model.routing.floodPlain:
            self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
                       pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
                                 self._model.routing.floodDepth, 0.0))
-        #               
+        #
         # flood volume (unit: m3): excess above the channel storage capacity
         self.floodVolume = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
         if self._model.routing.floodPlain:
@@ -933,7 +1013,6 @@ class Reporting(object):
                                   pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
         #-----------------------------------------------------------------------
         
-
         # channel storage (unit: m3)
         self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
                               pcr.cover(self._model.routing.channelStorage, 0.0))
@@ -944,63 +1023,58 @@ class Reporting(object):
                 self._model.routing.landmask,
                 pcr.cover(self._model.routing.floodInundationVolume, 0.0),
             )
-
-        # ~ # water withdrawal for irrigation sectors
-        # ~ self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
-        # ~ self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
-        # ~ self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
-        # ~ # water withdrawal for livestock, industry and domestic water demands
-        # ~ self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
-        # ~ self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
-        # ~ self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
-
+        # water withdrawal for irrigation sectors
+        #self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
+        #self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
+        #self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
-        # ~ ######################################################################################################################################################################
-        # ~ # All water withdrawal variables in volume unit (m3): 
-        # ~ waterWithdrawalVariables = [
-                                    # ~ 'totalGroundwaterAbstraction',\
-                                    # ~ 'surfaceWaterAbstraction',\
-                                    # ~ 'desalinationAbstraction',\
-                                    # ~ 'domesticWaterWithdrawal',\
-                                    # ~ 'industryWaterWithdrawal',\
-                                    # ~ 'livestockWaterWithdrawal',\
-                                    # ~ 'irrigationWaterWithdrawal',\
-                                    # ~ 'irrGrossDemand',\
-                                    # ~ 'nonIrrGrossDemand',\
-                                    # ~ 'totalGrossDemand'\
-                                    # ~ ]
-        # ~ for var in waterWithdrawalVariables:
-                # ~ volVariable = var + 'Volume'
-                # ~ vars(self)[volVariable] = None 
-                # ~ vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
-        # ~ ######################################################################################################################################################################
-                                                         
-
-        # ~ ##########################################################################################################################################################################################
-        # ~ # Consumptive water use (unit: m3/day) for livestock, domestic and industry 
-        # ~ self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume 
-        # ~ self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
-        # ~ self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
-        # ~ ##########################################################################################################################################################################################
-
-
-        # ~ ######################################################################################################################################################################
-        # ~ # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
-        # ~ # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
-        # ~ #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
-        # ~ self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
-        # ~ self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
-        # ~ # - additional values (may be needed) 
-        # ~ self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
-        # ~ self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
-        # ~ ######################################################################################################################################################################
-
-
+        # water withdrawal for livestock, industry and domestic water demands
+        self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
+        self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
+        self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
+        
+        ######################################################################################################################################################################
+        # All water withdrawal variables in volume unit (m3): 
+        waterWithdrawalVariables = [
+                                    'totalGroundwaterAbstraction',\
+                                    'surfaceWaterAbstraction',\
+                                    'desalinationAbstraction',\
+                                    'domesticWaterWithdrawal',\
+                                    'industryWaterWithdrawal',\
+                                    'livestockWaterWithdrawal',\
+                                    #'irrigationWaterWithdrawal',\
+                                    'irrGrossDemand',\
+                                    'nonIrrGrossDemand',\
+                                    'totalGrossDemand'\
+                                    ]
+        for var in waterWithdrawalVariables:
+                volVariable = var + 'Volume'
+                vars(self)[volVariable] = None 
+                vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
+        ######################################################################################################################################################################
+        
+        ##########################################################################################################################################################################################
+        # Consumptive water use (unit: m3/day) for livestock, domestic and industry 
+        #self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume 
+        #self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
+        #self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
+        ##########################################################################################################################################################################################
+        
+        ######################################################################################################################################################################
+        # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
+        # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
+        #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
+        self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
+        self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
+        # - additional values (may be needed) 
+        self.netLqWaterToSoil_at_irrigation_volume = self.netLqWaterToSoil_at_irrigation * self._model.routing.cellArea
+        self.transpiration_from_irrigation_volume  = self.transpiration_from_irrigation  * self._model.routing.cellArea
+        ######################################################################################################################################################################
+        
         # fluxes from water bodies (lakes and reservoirs) - unit: m3/s
         self.lake_and_reservoir_inflow = self._model.routing.WaterBodies.inflowInM3PerSec
-
-
+        
         # an estimate of total groundwater storage (m3) and thickness (m) 
         # - these values can be negative
         if "groundwaterVolumeEstimate" or "groundwaterThicknessEstimate" in self.variables_for_report:
@@ -1023,31 +1097,28 @@ class Reporting(object):
                                              self._model.routing.cellArea 
             
             self.accuGroundwaterVolumeEstimate = pcr.catchmenttotal(self.groundwaterVolumeEstimate, self._model.routing.lddMap)
-            
 
 
     def report(self):
-
         # recap all variables
         self.post_processing()
-
+        
         # time stamp for reporting
         timeStamp = datetime.datetime(self._modelTime.year,\
                                       self._modelTime.month,\
                                       self._modelTime.day,\
                                       0)
-
+        
         logger.info("reporting for time %s", self._modelTime.currTime)
-
+        
         # writing daily output to netcdf files
         if self.outDailyTotNC[0] != "None":
             for var in self.outDailyTotNC:
-                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 short_name = varDicts.netcdf_short_name[var]
                 
                 self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
@@ -1056,31 +1127,86 @@ class Reporting(object):
                                             short_name,\
                   pcr.pcr2numpy(self.__getattribute__(var),vos.MV),\
                                             timeStamp)
-
+        
+        # - weekly total
+        if self.outWeekTotNC[0] != "None":
+            for var in self.outWeekTotNC:
+                # introduce accumulator at the beginning of simulation or
+                if self._modelTime.timeStepPCR == 1 or self._modelTime.doy == 1:
+                    vars(self)[var+'WeekTot'] = pcr.scalar(0.0)
+                
+                # accumulating
+                valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                vars(self)[var+'WeekTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                vars(self)[var+'_ndays_week'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
+                
+                # calculating total & reporting (53 weeks per year):
+                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear == True: 
+                    
+                    short_name = varDicts.netcdf_short_name[var]
+                    self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                               str(var)+\
+                                               "_weekTot_output.nc",\
+                                               short_name,\
+                      pcr.pcr2numpy(self.__getattribute__(var+'WeekTot'),\
+                       vos.MV),timeStamp)
+                    vars(self)[var+'WeekTot'] = pcr.scalar(0.0)
+        
+        # - weekly average
+        if self.outWeekAvgNC[0] != "None":
+            for var in self.outWeekAvgNC:
+                
+                # introduce accumulator at the beginning of simulation or
+                if self._modelTime.timeStepPCR == 1 or self._modelTime.doy == 1:
+                    vars(self)[var+'WeekTot'] = pcr.scalar(0.0)
+                    vars(self)[var+'_ndays_week'] = pcr.scalar(0.0)
+                
+                # accumulating
+                valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                vars(self)[var+'WeekTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                vars(self)[var+'_ndays_week'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
+                
+                # calculating average & reporting (53 weeks per year):
+                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear == True: 
+                    
+                    vars(self)[var+'WeekAvg'] = pcr.ifthenelse(vars(self)[var+'_ndays_week'] > 0.0,\
+                                                  vars(self)[var+'WeekTot'] / vars(self)[var+'_ndays_week'], pcr.scalar(vos.MV))
+                    
+                    short_name = varDicts.netcdf_short_name[var]
+                    self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
+                                               str(var)+\
+                                               "_weekAvg_output.nc",\
+                                               short_name,\
+                      pcr.pcr2numpy(self.__getattribute__(var+'WeekAvg'),\
+                       vos.MV),timeStamp)
+                    
+                    vars(self)[var+'WeekTot'] = pcr.scalar(0.0)
+                    vars(self)[var+'_ndays_week'] = pcr.scalar(0.0)
+        
         # writing monthly output to netcdf files
         # - cummulative
         if self.outMonthTotNC[0] != "None":
             for var in self.outMonthTotNC:
-
+                
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the month
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.day == 1:\
                    vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
-
+                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 # accumulating
                 vars(self)[var+'MonthTot'] += vars(self)[var]
-
+                
                 # reporting at the end of the month:
                 if self._modelTime.endMonth == True: 
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
-
+                    
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
                                                "_monthTot_output.nc",\
@@ -1091,30 +1217,29 @@ class Reporting(object):
         # - average
         if self.outMonthAvgNC[0] != "None":
             for var in self.outMonthAvgNC:
-
+                
                 # only if a accumulator variable has not been defined: 
                 if var not in self.outMonthTotNC: 
-
+                    
                     # introduce accumulator at the beginning of simulation or
                     #     reset accumulator at the beginning of the month
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.day == 1:\
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
-
+                    
                     # masking out for reporting
                     if self.landmask_for_reporting is not None:
                         vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                      vars(self)[var])
-
+                    
                     # accumulating
                     vars(self)[var+'MonthTot'] += vars(self)[var]
-
+                
                 # calculating average & reporting at the end of the month:
                 if self._modelTime.endMonth == True:
-
                     vars(self)[var+'MonthAvg'] = vars(self)[var+'MonthTot']/\
                                                  self._modelTime.day  
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1122,14 +1247,14 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var+'MonthAvg'),\
                        vos.MV),timeStamp)
-        #
+        
         # - last day of the month
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
-
+                
                 # reporting at the end of the month:
                 if self._modelTime.endMonth == True: 
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1137,29 +1262,29 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
-        #
+        
         # - maximum
         if self.outMonthMaxNC[0] != "None":
             for var in self.outMonthMaxNC:
-
+                
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the month
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.day == 1:
                     vars(self)[var+'MonthMax'] = pcr.scalar(0.0)
                     vars(self)[var+'MonthMax'] = vars(self)[var]
-
+                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 # find the maximum
                 vars(self)[var+'MonthMax'] = pcr.max(vars(self)[var], vars(self)[var+'MonthMax'])
-
+                
                 # reporting at the end of the month:
                 if self._modelTime.endMonth == True: 
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
@@ -1167,29 +1292,29 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var+'MonthMax'),\
                        vos.MV),timeStamp)
-
+        
         # writing yearly output to netcdf files
         # - cummulative
         if self.outAnnuaTotNC[0] != "None":
             for var in self.outAnnuaTotNC:
-
+                
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the year
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:\
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
-
+                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 # accumulating
                 vars(self)[var+'AnnuaTot'] += vars(self)[var]
-
+                
                 # reporting at the end of the year:
                 if self._modelTime.endYear == True: 
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1197,34 +1322,34 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaTot'),\
                        vos.MV),timeStamp)
-
+        
         # - average
         if self.outAnnuaAvgNC[0] != "None":
             for var in self.outAnnuaAvgNC:
-
+                
                 # only if a accumulator variable has not been defined: 
                 if var not in self.outAnnuaTotNC: 
-
+                    
                     # introduce accumulator at the beginning of simulation or
                     #     reset accumulator at the beginning of the year
                     if self._modelTime.timeStepPCR == 1 or \
                        self._modelTime.doy == 1:\
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
-
+                    
                     # masking out for reporting
                     if self.landmask_for_reporting is not None:
                         vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                      vars(self)[var])
-
+                    
                     # accumulating
                     vars(self)[var+'AnnuaTot'] += vars(self)[var]
-
+                
                 # calculating average & reporting at the end of the year:
                 if self._modelTime.endYear == True:
-
+                    
                     vars(self)[var+'AnnuaAvg'] = vars(self)[var+'AnnuaTot']/\
                                                  self._modelTime.doy  
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1232,14 +1357,14 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaAvg'),\
                        vos.MV),timeStamp)
-        #
+        
         # -last day of the year
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
-
+                
                 # calculating average & reporting at the end of the year:
                 if self._modelTime.endYear == True:
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1247,29 +1372,29 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var),\
                        vos.MV),timeStamp)
-        #
+        
         # - maximum
         if self.outAnnuaMaxNC[0] != "None":
             for var in self.outAnnuaMaxNC:
-
+                
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the year
                 if self._modelTime.timeStepPCR == 1 or \
                    self._modelTime.doy == 1:
                     vars(self)[var+'AnnuaMax'] = pcr.scalar(0.0)
                     vars(self)[var+'AnnuaMax'] = vars(self)[var]
-
+                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 # find the maximum
                 vars(self)[var+'AnnuaMax'] = pcr.max(vars(self)[var], vars(self)[var+'AnnuaMax'])
-
+                
                 # reporting at the end of the year:
                 if self._modelTime.endYear == True: 
-
+                    
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                             str(var)+\
@@ -1277,24 +1402,23 @@ class Reporting(object):
                                                short_name,\
                       pcr.pcr2numpy(self.__getattribute__(var+'AnnuaMax'),\
                        vos.MV),timeStamp)
-       
+        
         # -- daily upsteam average (through LDD)
         if self.outDailyTotUpsAvgNC[0] != "None":
-
             for var in self.outDailyTotUpsAvgNC:
-
+                
                 # calculate upstream area
                 if self._modelTime.timeStepPCR == 1: self.upstream_area = pcr.catchmenttotal(self._model.routing.cellArea, self._model.routing.lddMap)
-
+                
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
                     vars(self)[var] = pcr.ifthen(self.landmask_for_reporting, \
                                                  vars(self)[var])
-
+                
                 # calculate upstream average
                 vars(self)[var+'DailyTotUpsAvg'] =  pcr.catchmenttotal(vars(self)[var] * self._model.routing.cellArea, self._model.routing.lddMap) /\
                                                     self.upstream_area
-
+                
                 short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
                 
                 self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
@@ -1305,11 +1429,8 @@ class Reporting(object):
                                             timeStamp)
 
 
-
     def e2o_post_processing(self):
-
         # RvB 23/02/2017: post-processing of earth2observe variables
-        
         # fluxes (/86.4 to go from "m day-1" to "kg m-2 s-1")
         self.Precip     =   self._model.meteo.precipitation / 86.4 # report in kg m-2 s-1
         self.Evap       = - (self._model.landSurface.actualET + 
@@ -1342,7 +1463,6 @@ class Reporting(object):
         self.GroundMoist    = self._model.groundwater.storGroundwater * 1000  # self._model.groundwater. # report in kg m-2
 
     def ulysses_post_processing(self):
-
         # PGB is assumed to write at least ET, SWE, Qsm, SM, Qr
         
         # surface temperature
@@ -1365,7 +1485,6 @@ class Reporting(object):
         self.ulyssessCropPET    = - (self._model.landSurface.totalPotET) / 86.4
         # - with crop coefficient, land and water
         self.ulyssessCropPETall = - (self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap) / 86.4
-
         
         # SWE (kg m-2")
         # - including free water stored above the snow cover
@@ -1380,16 +1499,16 @@ class Reporting(object):
         self.ulyssesSM       =    self._model.landSurface.satDegTotal
         self.ulyssesSMUpp    = self._model.landSurface.satDegUppTotal
         self.ulyssesSMLow    = self._model.landSurface.satDegLowTotal
-
+        
         # Qr: total runoff (report in kg m-2 s-1)
         # - land only, not including local changes in water body
         self.ulyssesQrRunoff = - self._model.routing.runoff / 86.4 
         
         # gridder river discharge
         self.ulyssesDischarge  = self.discharge
-
+        
         # TWS (kg m-2)
         self.ulyssesTWS = self.totalWaterStorageThickness * 1000. 
-
+        
         # extra variable for ILAMB evaluation
         self.ulyssesSnowFraction = pcr.ifthenelse(self.ulyssesSWE > 0.0, pcr.scalar(1.0), pcr.scalar(0.0))

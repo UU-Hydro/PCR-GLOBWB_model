@@ -49,7 +49,7 @@ class IrrigationWaterDemand(object):
         
         # configuration for this land cover type
         self.iniItemsIrrLC = iniItems.__getattribute__(nameOfSectionInIniFileThatIsRellevantForThisIrrLC)
-
+        
         # - name of this land cover type
         self.name = self.iniItemsIrrLC['name']
         
@@ -62,7 +62,7 @@ class IrrigationWaterDemand(object):
         # crop depletion factor
         self.cropDeplFactor = vos.readPCRmapClone(self.iniItemsIrrLC['cropDeplFactor'], self.cloneMap, \
                                                   self.tmpDir, self.inputDir)
-             
+        
         # number of soil layers
         self.numberOfLayers = landCoverObject.numberOfLayers
         
@@ -92,9 +92,7 @@ class IrrigationWaterDemand(object):
 
 
     def get_irrigation_efficiency(self, currTimeStep):
-
-        # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development).         
-        
+        # irrigation efficiency map (in percentage)                     # TODO: Using the time series of efficiency (considering historical technological development)
         # - for the case with pcraster map
         if self.ini_items_for_irrigation_efficiency.endswith(".map"):
             self.irrigationEfficiency = vos.readPCRmapClone(\
@@ -109,7 +107,7 @@ class IrrigationWaterDemand(object):
                                                                    currTimeStep, \
                                                                    useDoy = 'yearly',\
                                                                    cloneMapFileName = self.cloneMap)
-
+            
             except:
                 # - netCDF file without time dimension
                 msg = "The file " + (ncFileIn) + " has no time dimension. Constant values will be used."
@@ -121,16 +119,12 @@ class IrrigationWaterDemand(object):
         else:
         # - for the case with floating value
              self.irrigationEfficiency = float(self.ini_items_for_irrigation_efficiency)
-
-
+        
         extrapolate = True
         if "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys() and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True": extrapolate = False
-
-
+        
         if extrapolate:
-
              # extrapolate efficiency map:   # TODO: Make a better extrapolation algorithm (considering cell size, etc.). 
-
              window_size = 1.25 * pcr.clone().cellSize()
              window_size = min(window_size, min(pcr.clone().nrRows(), pcr.clone().nrCols())*pcr.clone().cellSize())
              try:
@@ -142,7 +136,7 @@ class IrrigationWaterDemand(object):
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 0.75))
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.00))
                  self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, pcr.windowaverage(self.irrigationEfficiency, 1.50))
-             except:                                                 
+             except:
                  pass
         
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
@@ -152,14 +146,13 @@ class IrrigationWaterDemand(object):
 
 
     def estimate_paddy_infiltration_loss(self, iniPaddyOptions):
-        
         # Due to compaction infiltration/percolation loss rate can be much smaller than original soil saturated conductivity
         # - Wada et al. (2014) assume it will be 10 times smaller
         if self.numberOfLayers == 2:\
            design_percolation_loss = self.parameters.kSatUpp/10.           # unit: m/day 
         if self.numberOfLayers == 3:\
            design_percolation_loss = self.parameters.kSatUpp000005/10.     # unit: m/day 
-
+        
         # However, it can also be much smaller especially in well-puddled paddy fields and should avoid salinization problems.
         # - Default minimum and maximum percolation loss values based on FAO values Reference: http://www.fao.org/docrep/s2022e/s2022e08.htm
         min_percolation_loss = 0.006
@@ -181,16 +174,14 @@ class IrrigationWaterDemand(object):
            design_percolation_loss = pcr.min(self.parameters.kSatUpp000005, design_percolation_loss)
         
         # PS: The 'design_percolation_loss' is the maximum loss occuring in paddy fields.
-        return design_percolation_loss      
+        return design_percolation_loss
 
 
     def calculateTotAvlWaterCapacityInRootZone(self):
-
         # total water capacity in the root zone (upper soil layers)
         # Note: This is dependent on the land cover type.
-
+        
         if self.numberOfLayers == 2: 
-
             self.totAvlWater = \
                                (pcr.max(0.,\
                                self.parameters.effSatAtFieldCapUpp - self.parameters.effSatAtWiltPointUpp))*\
@@ -204,9 +195,8 @@ class IrrigationWaterDemand(object):
                                                                                      # And Rens support this. 
             self.totAvlWater = pcr.min(self.totAvlWater, \
                             self.parameters.storCapUpp + self.parameters.storCapLow)
-
+        
         if self.numberOfLayers == 3: 
-
             self.totAvlWater = \
                                (pcr.max(0.,\
                                self.parameters.effSatAtFieldCapUpp000005 - self.parameters.effSatAtWiltPointUpp000005))*\
@@ -227,14 +217,12 @@ class IrrigationWaterDemand(object):
                                self.parameters.storCapUpp000005 + \
                                self.parameters.storCapUpp005030 + \
                                self.parameters.storCapLow030150)
-        
-        
-                               
+
+
 
     def get_readily_available_water_within_the_root_zone(self):
-
+        
         if self.numberOfLayers == 2: 
-
             effSatUpp = vos.getValDivZero(self.storUpp, self.parameters.storCapUpp)
             effSatLow = vos.getValDivZero(self.storLow, self.parameters.storCapLow)
             effSatUpp = pcr.min(1., effSatUpp)
@@ -251,9 +239,8 @@ class IrrigationWaterDemand(object):
                                (self.parameters.satVolMoistContLow - self.parameters.resVolMoistContLow )*\
                         pcr.min(self.parameters.thickLow,\
                         pcr.max(self.maxRootDepth-self.parameters.thickUpp,0.))       
-
+        
         if self.numberOfLayers == 3: 
-
             # effective degree of saturation (-)
             effSatUpp000005 = vos.getValDivZero(self.storUpp000005, self.parameters.storCapUpp000005)
             effSatUpp005030 = vos.getValDivZero(self.storUpp005030, self.parameters.storCapUpp005030)
@@ -278,20 +265,21 @@ class IrrigationWaterDemand(object):
                                (self.parameters.satVolMoistContLow030150 -   self.parameters.resVolMoistContLow030150 )*\
                         pcr.min(self.parameters.thickLow030150,\
                         pcr.max(self.maxRootDepth-self.parameters.thickUpp005030,0.))
-
+        
         return readAvlWater
 
 
 
-
     def update(self, meteo, landSurface, groundwater, routing, currTimeStep):
-		
+        
         # get variables/values from the landSurface.landCoverObj
         self.cropKC        = landSurface.landCoverObj[self.name].cropKC
         self.topWaterLayer = landSurface.landCoverObj[self.name].topWaterLayer
+        
         if self.numberOfLayers == 2:
             self.adjRootFrUpp = landSurface.landCoverObj[self.name].adjRootFrUpp
             self.adjRootFrLow = landSurface.landCoverObj[self.name].adjRootFrLow
+        
         if self.numberOfLayers == 3:
             self.adjRootFrUpp000005 = landSurface.landCoverObj[self.name].adjRootFrUpp000005
             self.adjRootFrUpp005030 = landSurface.landCoverObj[self.name].adjRootFrUpp005030
@@ -302,15 +290,15 @@ class IrrigationWaterDemand(object):
             self.storUpp          = landSurface.landCoverObj[self.name].storUpp
             self.storLow          = landSurface.landCoverObj[self.name].storLow
             self.soilWaterStorage = self.storUpp + self.storLow
-
+        
         if self.numberOfLayers == 3: 
             self.storUpp000005    = landSurface.landCoverObj[self.name].storUpp000005
             self.storUpp005030    = landSurface.landCoverObj[self.name].storUpp005030
             self.storLow030150    = landSurface.landCoverObj[self.name].storLow030150
-            self.soilWaterStorage = self.storUpp000005 + self.storUpp005030 + self.storLow030150  
+            self.soilWaterStorage = self.storUpp000005 + self.storUpp005030 + self.storLow030150
         
         # get_readily_available_water_within_the_root_zone
-        self.readAvlWater  = self.get_readily_available_water_within_the_root_zone()      
+        self.readAvlWater  = self.get_readily_available_water_within_the_root_zone()
         
         # get also the following variables from the landSurface.landCoverObj
         self.netLqWaterToSoil  = landSurface.landCoverObj[self.name].netLqWaterToSoil
@@ -318,15 +306,14 @@ class IrrigationWaterDemand(object):
         self.totalPotET        = landSurface.landCoverObj[self.name].totalPotET
         self.potBareSoilEvap   = landSurface.landCoverObj[self.name].potBareSoilEvap
         self.potTranspiration  = landSurface.landCoverObj[self.name].potTranspiration
-
+        
         # get irrigation efficiency
         # - this will be done on the yearly basis
         if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
             # - this will return self.irrigationEfficiency
             self.get_irrigation_efficiency(currTimeStep)
-		
-
-		# for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
+        
+        # for non paddy and paddy irrigation fields - TODO: to split between paddy and non-paddy fields
         # irrigation water demand (unit: m/day) for paddy and non-paddy
         self.irrGrossDemand = pcr.scalar(0.)
         if (self.name == 'irrPaddy' or self.name == 'irr_paddy'): 
@@ -336,37 +323,27 @@ class IrrigationWaterDemand(object):
                                 (self.topWaterLayer )), 0.)                # a function of cropKC (evaporation and transpiration),
                                                                            #               topWaterLayer (water available in the irrigation field)
         
-        if (self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name ==  "irr_non_paddy_crops") and self.includeIrrigation:
-
-            #~ adjDeplFactor = \
-                     #~ pcr.max(0.1,\
-                     #~ pcr.min(0.8,(self.cropDeplFactor + \
-                                  #~ 40.*(0.005-self.totalPotET))))        # from Wada et al. (2014)
+        if (self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name == "irr_non_paddy_crops") and \
+            self.includeIrrigation:
             adjDeplFactor = \
                      pcr.max(0.1,\
                      pcr.min(0.8,(self.cropDeplFactor + \
                                   0.04*(5.-self.totalPotET*1000.))))       # original formula based on Allen et al. (1998)
-                                                                           # see: http://www.fao.org/docrep/x0490e/x0490e0e.htm#
-            #
-            #~ # alternative 1: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity) - NOT USED
-            #~ self.irrGrossDemand = \
-                 #~ pcr.ifthenelse( self.cropKC > 0.20, \
-                 #~ pcr.ifthenelse( self.readAvlWater < \
-                                  #~ adjDeplFactor*self.totAvlWater, \
-                #~ pcr.max(0.0,  self.totAvlWater-self.readAvlWater),0.),0.)  # a function of cropKC and totalPotET (evaporation and transpiration),
-                                                                           #~ #               readAvlWater (available water in the root zone)
+                                                                           # see: http://www.fao.org/docrep/x0490e/x0490e0e.html
             
-            # alternative 2: irrigation demand (to fill the entire totAvlWater, maintaining the field capacity, 
-            #                                   but with the correction of totAvlWater based on the rooting depth)
+            # irrigation demand
+            # (to fill the entire totAvlWater, maintaining the field capacity,
+            #  but with the correction of totAvlWater based on the rooting depth)
             # - as the proxy of rooting depth, we use crop coefficient 
             self.irrigation_factor = pcr.ifthenelse(self.cropKC > 0.0,\
                                        pcr.min(1.0, self.cropKC / 1.0), 0.0)
+            
             self.irrGrossDemand = \
                  pcr.ifthenelse( self.cropKC > 0.20, \
                  pcr.ifthenelse( self.readAvlWater < \
                                  adjDeplFactor*self.irrigation_factor*self.totAvlWater, \
                  pcr.max(0.0, self.totAvlWater*self.irrigation_factor-self.readAvlWater),0.),0.)
-
+            
             # irrigation demand is implemented only if there is deficit in transpiration and/or evaporation
             deficit_factor = 1.00
             evaporationDeficit   = pcr.max(0.0, (self.potBareSoilEvap  + self.potTranspiration)*deficit_factor -\
@@ -375,13 +352,13 @@ class IrrigationWaterDemand(object):
                                    self.potTranspiration*deficit_factor -\
                                    self.estimateTranspirationAndBareSoilEvap(returnTotalEstimation = True, returnTotalTranspirationOnly = True))
             deficit = pcr.max(evaporationDeficit, transpirationDeficit)
-            #
+            
             # treshold to initiate irrigation
             deficit_treshold = 0.20 * self.totalPotET
             need_irrigation = pcr.ifthenelse(deficit > deficit_treshold, pcr.boolean(1),\
                               pcr.ifthenelse(self.soilWaterStorage == 0.000, pcr.boolean(1), pcr.boolean(0)))
             need_irrigation = pcr.cover(need_irrigation, pcr.boolean(0.0))
-            #
+            
             self.irrGrossDemand = pcr.ifthenelse(need_irrigation, self.irrGrossDemand, 0.0)
 
             # demand is limited by potential evaporation for the next coming days
@@ -392,20 +369,22 @@ class IrrigationWaterDemand(object):
                                   pcr.max(min_irrigation_interval, \
                                   pcr.ifthenelse(self.totalPotET > 0.0, \
                                   pcr.roundup((self.irrGrossDemand + pcr.max(self.readAvlWater, self.soilWaterStorage))/ self.totalPotET), 1.0)))
+            
             # - irrigation demand - limited by potential evaporation for the next coming days
             self.irrGrossDemand = pcr.min(pcr.max(0.0,\
                                           self.totalPotET * irrigation_interval - pcr.max(self.readAvlWater, self.soilWaterStorage)),\
                                           self.irrGrossDemand)
-
+            
             # assume that smart farmers do not irrigate higher than infiltration capacities
             if self.numberOfLayers == 2: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp)
             if self.numberOfLayers == 3: self.irrGrossDemand = pcr.min(self.irrGrossDemand, self.parameters.kSatUpp000005)
-
+        
         # irrigation efficiency, minimum demand for start irrigating and maximum value to cap excessive demand 
         if self.includeIrrigation:
-
+            
             # irrigation efficiency                                                               # TODO: Improve the concept of irrigation efficiency
             self.irrigationEfficiencyUsed  = pcr.min(1.0, pcr.max(0.10, self.irrigationEfficiency))
+            
             # demand, including its inefficiency
             self.irrGrossDemand = pcr.cover(self.irrGrossDemand / pcr.min(1.0, self.irrigationEfficiencyUsed), 0.0)
             
@@ -420,34 +399,31 @@ class IrrigationWaterDemand(object):
             if self.name == 'irrPaddy' or\
                self.name == 'irr_paddy': minimum_demand = pcr.min(self.minTopWaterLayer, 0.025)      # TODO: set the minimum demand in the ini/configuration file.
             self.irrGrossDemand = pcr.ifthenelse(self.irrGrossDemand > minimum_demand, \
-                                                 self.irrGrossDemand , 0.0)                          
-                                                                                                     
+                                                 self.irrGrossDemand , 0.0)
+            
             maximum_demand = 0.025  # unit: m/day                                                    # TODO: set the maximum demand in the ini/configuration file.  
             if self.name == 'irrPaddy' or\
                self.name == 'irr_paddy': maximum_demand = pcr.min(self.minTopWaterLayer, 0.025)      # TODO: set the minimum demand in the ini/configuration file.
-            self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)                       
-                                                                                                     
-            # ignore small irrigation demand (less than 1 mm)                                        
-            self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.                   
-                                                                                                     
+            self.irrGrossDemand = pcr.min(maximum_demand, self.irrGrossDemand)
+            
+            # ignore small irrigation demand (less than 1 mm)
+            self.irrGrossDemand = pcr.rounddown( self.irrGrossDemand *1000.)/1000.
+            
             # irrigation demand is only calculated for areas with fracVegCover > 0                   # DO WE NEED THIS ? 
             self.irrGrossDemand = pcr.ifthenelse(self.fracVegCover >  0.0, self.irrGrossDemand, 0.0)
-
+        
         # total irrigation gross demand (m) per cover types (not limited by available water)
         self.totalPotentialMaximumIrrGrossDemandPaddy    = 0.0
         self.totalPotentialMaximumIrrGrossDemandNonPaddy = 0.0
-
+        
         if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.totalPotentialMaximumIrrGrossDemandPaddy = self.irrGrossDemand
         if self.name == 'irrNonPaddy' or self.name == 'irr_non_paddy' or self.name == 'irr_non_paddy_crops': self.totalPotentialMaximumIrrGrossDemandNonPaddy = self.irrGrossDemand
 
-        
 
     def estimateTranspirationAndBareSoilEvap(self, returnTotalEstimation = False, returnTotalTranspirationOnly = False):
-
+        
         # TRANSPIRATION
-        #
         # - fractions for distributing transpiration (based on rott fraction and actual layer storages)
-        #
         if self.numberOfLayers == 2:
             dividerTranspFracs = pcr.max( 1e-9, self.adjRootFrUpp*self.storUpp +\
                                                 self.adjRootFrLow*self.storLow )
@@ -484,13 +460,12 @@ class IrrigationWaterDemand(object):
                                 self.storLow030150) > 0.,\
                                 self.adjRootFrLow030150*self.storLow030150/ dividerTranspFracs, \
                                 self.adjRootFrLow030150)
-
+        
         relActTranspiration = pcr.scalar(1.0) # no reduction in case of returnTotalEstimation
-
+        
         # note, for irrigation water demand calculation, returnTotalEstimation is always True, so the following is actually not being used
         if returnTotalEstimation == False:
             # reduction factor for transpiration
-            #
             # - relActTranspiration = fraction actual transpiration over potential transpiration 
             relActTranspiration = (self.parameters.rootZoneWaterStorageCap  + \
                        self.arnoBeta*self.rootZoneWaterStorageRange*(1.- \
@@ -509,24 +484,6 @@ class IrrigationWaterDemand(object):
         # an idea by Edwin - 23 March 2015: no transpiration reduction in irrigated areas:
         if self.name.startswith('irr') and self.includeIrrigation: relActTranspiration = pcr.scalar(1.0)
         
-
-        #~ #######################################################################################################################################
-        #~ # estimates of actual transpiration fluxes - OLD METHOD (not used anymore, after Rens provided his original script, 30 July 2015)
-        #~ if self.numberOfLayers == 2:
-            #~ actTranspiUpp = \
-              #~ relActTranspiration*transpFracUpp*self.potTranspiration
-            #~ actTranspiLow = \
-              #~ relActTranspiration*transpFracLow*self.potTranspiration
-        #~ if self.numberOfLayers == 3:
-            #~ actTranspiUpp000005 = \
-              #~ relActTranspiration*transpFracUpp000005*self.potTranspiration
-            #~ actTranspiUpp005030 = \
-              #~ relActTranspiration*transpFracUpp005030*self.potTranspiration
-            #~ actTranspiLow030150 = \
-              #~ relActTranspiration*transpFracLow030150*self.potTranspiration
-        #~ #######################################################################################################################################
-        
-
         # partitioning potential tranpiration (based on Rens's oldcalc script provided 30 July 2015)
         if self.numberOfLayers == 2:
             potTranspirationUpp = pcr.min(transpFracUpp*self.potTranspiration, self.potTranspiration)
@@ -535,7 +492,7 @@ class IrrigationWaterDemand(object):
             potTranspirationUpp000005 = pcr.min(transpFracUpp000005*self.potTranspiration, self.potTranspiration)
             potTranspirationUpp005030 = pcr.min(transpFracUpp005030*self.potTranspiration, pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005))
             potTranspirationLow030150 = pcr.max(0.0, self.potTranspiration - potTranspirationUpp000005 - potTranspirationUpp005030)
-            
+        
         # estimate actual transpiration fluxes
         if self.numberOfLayers == 2:
             actTranspiUpp = pcr.cover(relActTranspiration*potTranspirationUpp, 0.0)
@@ -544,11 +501,10 @@ class IrrigationWaterDemand(object):
             actTranspiUpp000005 = pcr.cover(relActTranspiration*potTranspirationUpp000005, 0.0)
             actTranspiUpp005030 = pcr.cover(relActTranspiration*potTranspirationUpp005030, 0.0)
             actTranspiLow030150 = pcr.cover(relActTranspiration*potTranspirationLow030150, 0.0)
-
-
+        
         # BARE SOIL EVAPORATION
-        #        
-        # actual bare soil evaporation (potential) # no reduction in case of returnTotalEstimation
+        # actual bare soil evaporation (potential)
+        # no reduction in case of returnTotalEstimation
         actBareSoilEvap = self.potBareSoilEvap
         if self.numberOfLayers == 2 and returnTotalEstimation == False:
             actBareSoilEvap =     self.satAreaFrac * pcr.min(\
@@ -563,12 +519,12 @@ class IrrigationWaterDemand(object):
                                    self.potBareSoilEvap,self.kUnsatUpp000005)
         actBareSoilEvap = pcr.max(0.0, actBareSoilEvap)
         actBareSoilEvap = pcr.min(actBareSoilEvap,self.potBareSoilEvap) 
-        actBareSoilEvap = pcr.cover(actBareSoilEvap, 0.0)                           
-
+        actBareSoilEvap = pcr.cover(actBareSoilEvap, 0.0)
+        
         # no bare soil evaporation in the inundated paddy field 
         if self.name == 'irrPaddy' or self.name == "irr_paddy":
             # no bare soil evaporation if topWaterLayer is above treshold
-            #~ treshold = 0.0005 # unit: m ; 
+            # treshold = 0.0005 # unit: m
             treshold = self.potBareSoilEvap + self.potTranspiration                # an idea by Edwin on 23 march 2015
             actBareSoilEvap = pcr.ifthenelse(self.topWaterLayer > treshold, 0.0, actBareSoilEvap)
         
@@ -581,6 +537,7 @@ class IrrigationWaterDemand(object):
                     return actBareSoilEvap+ actTranspiUpp+ actTranspiLow
             else:
                 return actBareSoilEvap, actTranspiUpp, actTranspiLow 
+        
         if self.numberOfLayers == 3:
             if returnTotalEstimation:
                 if returnTotalTranspirationOnly:

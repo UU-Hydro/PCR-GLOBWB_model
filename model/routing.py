@@ -33,7 +33,7 @@ import types
 import itertools
 
 from six.moves import map
-
+from copy import deepcopy
 from pcraster.framework import *
 import pcraster as pcr
 
@@ -46,6 +46,14 @@ from ncConverter import *
 import waterBodies
 
 class Routing(object):
+    
+    def getPseudoState(self):
+        result = {}
+        return result
+
+    def getVariables(self, names):
+        result = {}
+        return result
     
     def getState(self):
         result = {}
@@ -66,9 +74,10 @@ class Routing(object):
         
         # QUAlloc
         # for long-term water availability
-        result['avgChannelStorage']           = self.avgChannelStorage       #  m3     ; running average of channel storage for the short term period (e.g. 30 days)
-        result['avgTotalRunoff']              = self.avgTotalRunoff          #  m/day  ; running average of total runoff for the short term period (e.g. 30 days)
-        result['avgStorGroundwater']          = self.avgStorGroundwater      #  m      ; running average of groundwater storage for the short term period (e.g. 30 days)
+        if self.using_qualloc:
+            result['avgChannelStorage']       = self.avgChannelStorage       #  m3     ; running average of channel storage for the short term period (e.g. 30 days)
+            result['avgTotalRunoff']          = self.avgTotalRunoff          #  m/day  ; running average of total runoff for the short term period (e.g. 30 days)
+            result['avgStorGroundwater']      = self.avgStorGroundwater      #  m      ; running average of groundwater storage for the short term period (e.g. 30 days)
         
         # DynQual [added by EdGab]
         # for irrigation return flows
@@ -76,7 +85,7 @@ class Routing(object):
             result['avg_irrGrossDemand']      = self.avg_irrGrossDemand     #  m/day  ; average irrigation gross demand    
             result['avg_netLqWaterToSoil']    = self.avg_netLqWaterToSoil   #  m/day  ; average net liquid transferred to the soil
         except:
-            logger.info("Irrigation return flows not estimated")        
+            logger.info("Irrigation return flows not estimated")
         
         # Water quality elements
         try:
@@ -85,6 +94,10 @@ class Routing(object):
             result['routedTDS']               = self.routedTDS              #  g TDS  ; routed TDS load (for conversion to salinity pollution in mg/L)
             result['routedBOD']               = self.routedBOD              #  g BOD  ; routed BOD load (for conversion to organic pollution mg/L)
             result['routedFC']                = self.routedFC               #  cfu    ; routed FC load (for conversion to pathogen pollution in cfu/100mL)
+            
+            result['salinity']                = self.salinity               #  mg L-1      ; TDS concentration
+            result['organic']                 = self.organic                #  mg L-1      ; BOD concentration
+            result['pathogen']                = self.pathogen               #  cfu 100mL-1 ; FC concentration
             
             try:
                 #- Route pollutants individually per sector (for analysis of sectoral contributions)
@@ -117,26 +130,35 @@ class Routing(object):
     
     def __init__(self,iniItems,initialConditions,lddMap):
         object.__init__(self)
-
+        
         self.lddMap = lddMap
-
+        
         self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions['inputDir']
-
+        
         # option to activate water balance check
         self.debugWaterBalance = True
         if iniItems.routingOptions['debugWaterBalance'] == "False":
             self.debugWaterBalance = False
-
+        
         self.method = iniItems.routingOptions['routingMethod']
-
-        # option to include lakes and reservoirs                    
+        
+        # option to include lakes and reservoirs
         self.includeWaterBodies = True
         if 'includeWaterBodies' in list(iniItems.routingOptions.keys()): 
             if iniItems.routingOptions['includeWaterBodies'] == "False" or\
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
+        
+        # [added by Gab] dictionary of sectors evaluated
+        self.includeSectors = {}
+        self.includeSectors['industry'] = False
+        self.includeSectors['manufacture'] = False
+        if iniItems.waterDemandOptions['includeIndustryWaterDemand'] == "True":
+            self.includeSectors['industry'] = True
+        elif iniItems.waterDemandOptions['includeManufactureWaterDemand'] == "True":
+            self.includeSectors['manufacture'] = True
         
         # [added by EdGab] it seems like these variables are not used
         self.includeLakes = True
@@ -148,7 +170,7 @@ class Routing(object):
                           self.cloneMap, self.tmpDir, self.inputDir, True)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         self.lddMap = pcr.lddrepair(self.lddMap)
-
+        
         # landmask
         if iniItems.globalOptions['landmask'] != "None":
            self.landmask = vos.readPCRmapClone(\
@@ -158,37 +180,37 @@ class Routing(object):
            self.landmask = pcr.defined(self.lddMap)
         self.landmask = pcr.ifthen(pcr.defined(self.lddMap), self.landmask)
         self.landmask = pcr.cover(self.landmask, pcr.boolean(0))   
-
+        
         # ldd mask 
         self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
-
+        
         # cell area (unit: m2)
         self.cellArea = vos.readPCRmapClone(\
                             iniItems.routingOptions['cellAreaMap'],
                             self.cloneMap, self.tmpDir, self.inputDir)
-
+        
         # model resolution in arc-degree unit
         self.cellSizeInArcDeg = vos.getMapAttributes(self.cloneMap,"cellsize")  
-
+        
         # maximum number of days (timesteps) to calculate long term average flow values (default: 5 years = 5 * 365 days = 1825)
         self.maxTimestepsToAvgDischargeLong  = 1825.
-
+        
         # maximum number of days (timesteps) to calculate short term average values (default: 1 month = 1 * 30 days = 30)
-        self.maxTimestepsToAvgDischargeShort = 30.                            
-
+        self.maxTimestepsToAvgDischargeShort = 30.
+        
         routingParameters = ['gradient','manningsN']
         for var in routingParameters:
             input = iniItems.routingOptions[str(var)]
             vars(self)[var] = vos.readPCRmapClone(input,\
                                   self.cloneMap, self.tmpDir, self.inputDir)
-
+        
         # parameters needed to estimate channel dimensions/parameters   
         # - used in the method/function 'getRoutingParamAvgDischarge' 
         self.eta = 0.25
         self.nu  = 0.40
         self.tau = 8.00
         self.phi = 0.58
-
+        
         # option to use minimum channel width (m)
         self.minChannelWidth = pcr.scalar(0.0)
         if "minimumChannelWidth" in list(iniItems.routingOptions.keys()):
@@ -205,7 +227,7 @@ class Routing(object):
                self.predefinedChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelWidth'],
                                              self.cloneMap,self.tmpDir,self.inputDir), 0.0)
-
+        
         # option to use constant/pre-defined channel depth (m)
         self.predefinedChannelDepth = None
         if "constantChannelDepth" in list(iniItems.routingOptions.keys()):
@@ -214,13 +236,13 @@ class Routing(object):
                                              iniItems.routingOptions['constantChannelDepth'],
                                              self.cloneMap,self.tmpDir,self.inputDir), 0.0)
         
-        # an assumption for broad sheet flow in kinematic wave methods/approaches        
+        # an assumption for broad sheet flow in kinematic wave methods/approaches
         self.beta = 0.6 
         
         # channelLength = approximation of channel length (unit: m)
         # This is approximated by cell diagonal. 
         cellSizeInArcMin    =  self.cellSizeInArcDeg*60.
-        verticalSizeInMeter =  cellSizeInArcMin*1852.                            
+        verticalSizeInMeter =  cellSizeInArcMin*1852.
         #
         self.cellLengthFD  = ((self.cellArea/verticalSizeInMeter)**(2)+\
                                             (verticalSizeInMeter)**(2))\
@@ -246,17 +268,17 @@ class Routing(object):
                 (nrCellsDownstream + 1)                 # unit: m
         self.dist2celllength  = channelLengthDownstream /\
                                   self.cellSizeInArcDeg # unit: m/arcDegree
-
-        self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream                            
-
+        
+        self.distance_to_pit = 0.5 * self.channelLength + distanceDownstream
+        
         # the channel gradient must be >= minGradient 
         minGradient   = 0.00005   # 0.000005
         self.gradient = pcr.max(minGradient,\
                         pcr.cover(self.gradient, minGradient))
-
+        
         # initiate/create WaterBody class
         self.WaterBodies = waterBodies.WaterBodies(iniItems,self.landmask)
-
+        
         # crop evaporation coefficient for surface water bodies
         self.no_zero_crop_water_coefficient = True
         if iniItems.routingOptions['cropCoefficientWaterNC'] == "None":
@@ -302,10 +324,6 @@ class Routing(object):
         self.minCropWaterKC = 0.00
         if 'minCropWaterKC' in list(iniItems.routingOptions.keys()):
             self.minCropWaterKC = float(iniItems.routingOptions['minCropWaterKC'])
-        
-        # get the initialConditions
-        # [EdGab: consider moving this line to the bottom of the function]
-        self.getICs(iniItems, initialConditions)
         
         # flood plain options:
         #################################################################################
@@ -375,7 +393,7 @@ class Routing(object):
         except:
           self.quality = False
           logger.info("Water quality modelling not initiated.")
-
+        
         print("waterTemperature =",self.quality)
         print("Salinity = ", self.quality)
         print("Organic = ", self.quality)
@@ -483,6 +501,8 @@ class Routing(object):
                 if iniItems.routingOptions['loadsPerSector'] == "True":
                     self.loadsPerSector = True
                     logger.info("Option to report loads per sector enabled")
+                else:
+                    self.loadsPerSector = False
                 
             else:
                 self.calculateLoads = False
@@ -531,7 +551,7 @@ class Routing(object):
                 self.Goat_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"goat_FCload",self.cloneMap) # cfu/stock/day
                 self.Horse_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"horse_FCload",self.cloneMap) # cfu/stock/day
                 self.Pig_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"pig_FCload",self.cloneMap) # cfu/stock/day
-                self.Sheep_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"sheep_FCload",self.cloneMap) # cfu/stock/day    
+                self.Sheep_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"sheep_FCload",self.cloneMap) # cfu/stock/day
                 
                 #Irrigation
                 self.Irr_EfflConcNC = vos.getFullPath(iniItems.routingOptions["Irr_EfflConcNC"], self.inputDir) #average soil concentration averaged over the topsoil and subsoil 
@@ -547,9 +567,13 @@ class Routing(object):
                 self.FCloadNC = vos.getFullPath(iniItems.routingOptions["FCloadNC"], self.inputDir)
         
         # QUAlloc
-        self.using_qualloc == False
+        self.using_qualloc = False
         if iniItems.waterManagementOptions['using_qualloc'] == "True":
-            self.using_qualloc == True
+            self.using_qualloc = True
+        
+        # get the initialConditions
+        # [EdGab: consider moving this line to the top of the function]
+        self.getICs(iniItems, initialConditions)
         
         # initiate old style reporting
         # This is still very useful during the 'debugging' process. 
@@ -588,6 +612,10 @@ class Routing(object):
                 self.routedTDS = vos.readPCRmapClone(iniItems.routingOptions['routedTDSIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
                 self.routedBOD = vos.readPCRmapClone(iniItems.routingOptions['routedBODIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for organic pollution
                 self.routedFC = vos.readPCRmapClone(iniItems.routingOptions['routedFCIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
+                
+                self.salinity = vos.readPCRmapClone(iniItems.routingOptions['salinityIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
+                self.organic  = vos.readPCRmapClone(iniItems.routingOptions['organicIni'],self.cloneMap,self.tmpDir,self.inputDir)  #initial conditions for organic pollution
+                self.pathogen = vos.readPCRmapClone(iniItems.routingOptions['pathogenIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
                 
                 # Initial conditions for calculating average irrigation demand and net liquid transferred to the soil for irrigation return flow calculations
                 if self.calculateLoads and self.offlineRun == False:
@@ -633,7 +661,6 @@ class Routing(object):
                 self.avgTotalRunoff           = iniConditions['routing']['avgTotalRunoff']
                 self.avgStorGroundwater      = iniConditions['routing']['avgStorGroundwater']
             
-
             # DynQual
             # Initial conditions needed for water quality module
             if self.quality:
@@ -643,9 +670,13 @@ class Routing(object):
                 self.routedBOD               = iniConditions['routing']['routedBOD']
                 self.routedFC                = iniConditions['routing']['routedFC']
                 
+                self.salinity                = iniConditions['routing']['salinity']
+                self.organic                 = iniConditions['routing']['organic']
+                self.pathogen                = iniConditions['routing']['pathogen']
+                
                 # Initial conditions for calculating average irrigation demand and net liquid transferred to the soil for irrigation return flow calculations                
-                if self.calculateLoads and self.offlineRun == False:    
-                    self.avg_irrGrossDemand   = iniConditions['routing']['avg_irrGrossDemand']      
+                if self.calculateLoads and self.offlineRun == False:
+                    self.avg_irrGrossDemand   = iniConditions['routing']['avg_irrGrossDemand']
                     self.avg_netLqWaterToSoil = iniConditions['routing']['avg_netLqWaterToSoil']
                     
                     #Per water quality sector
@@ -663,14 +694,15 @@ class Routing(object):
                         self.routedintLivFC  = iniConditions['routing']['routedintLivFC']
                         self.routedextLivBOD = iniConditions['routing']['routedextLivBOD']
                         self.routedextLivFC  = iniConditions['routing']['routedextLivFC']
-                        self.routedIrrTDS    = iniConditions['routing']['routedIrrTDS']                                                                                    
+                        self.routedIrrTDS    = iniConditions['routing']['routedIrrTDS']
+        
         # Get values associated with landmask
         self.channelStorage        = pcr.ifthen(self.landmask, pcr.cover(self.channelStorage,        0.0))
         self.readAvlChannelStorage = pcr.ifthen(self.landmask, pcr.cover(self.readAvlChannelStorage, 0.0))
         self.avgDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.avgDischarge,          0.0))
         self.m2tDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.m2tDischarge,          0.0))
         self.avgDischargeShort     = pcr.ifthen(self.landmask, pcr.cover(self.avgDischargeShort,     0.0))
-        self.avgBaseflow            = pcr.ifthen(self.landmask, pcr.cover(self.avgBaseflow,            0.0))
+        self.avgBaseflow            = pcr.ifthen(self.landmask, pcr.cover(self.avgBaseflow,          0.0))
         self.riverbedExchange      = pcr.ifthen(self.landmask, pcr.cover(self.riverbedExchange,      0.0))
         self.subDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.subDischarge ,         0.0))
         
@@ -694,6 +726,9 @@ class Routing(object):
             self.routedTDS = pcr.ifthen(self.landmask, pcr.cover(self.routedTDS, 0.0))
             self.routedBOD = pcr.ifthen(self.landmask, pcr.cover(self.routedBOD, 0.0))
             self.routedFC = pcr.ifthen(self.landmask, pcr.cover(self.routedFC,  0.0))
+            self.salinity = pcr.ifthen(self.landmask, pcr.cover(self.salinity, 0.0))
+            self.organic  = pcr.ifthen(self.landmask, pcr.cover(self.organic, 0.0))
+            self.pathogen = pcr.ifthen(self.landmask, pcr.cover(self.pathogen,  0.0))
             
             #Per water quality sector
             if self.calculateLoads and self.offlineRun == False: 
@@ -1083,15 +1118,15 @@ class Routing(object):
         #     also to estimate the channel wetted area (for the calculation of alpha and dischargeInitial)
         self.water_height = pcr.min(self.max_water_height, \
                                     channelStorageForRouting /\
-                                    (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
+                                    (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea))
 
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
 
         for i_loop in range(number_of_loops):
             
-            msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
-            logger.info(msg)
+            #msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
+            #logger.info(msg)
             
             # alpha parameter and initial discharge variable needed for kinematic wave
             alpha, dischargeInitial = \
@@ -1151,6 +1186,7 @@ class Routing(object):
             # total discharge_volume (m3) until this present i_loop
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
             discharge_volume += self.subDischarge * length_of_sub_time_step
+            
             # [added by EdGab]
             if self.quality:
                 self.channelStorageNow = pcr.max(0.0, channelStorageForRouting)
@@ -1205,7 +1241,11 @@ class Routing(object):
         
         # channel depth (unit: m)
         self.channelDepth = pcr.max(0.0, self.yMean)
-        #
+        
+        # [added by EdGab] set a water height for the first time-step
+        if currTimeStep.timeStepPCR == 1:
+            _, self.water_height = self.returnFloodedFraction(self.channelStorage)
+        
         # option to use constant channel depth (m)
         if self.predefinedChannelDepth is not None:
             self.channelDepth = pcr.cover(self.predefinedChannelDepth, self.channelDepth)
@@ -1217,7 +1257,7 @@ class Routing(object):
             else:
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
-                        
+        
         # fraction of channel (dimensionless)
         # - mininum inundated fraction
         self.channelFraction = pcr.max(0.0, pcr.min(1.0,\
@@ -1298,9 +1338,9 @@ class Routing(object):
         self.totalRunoff = self.local_input_to_surface_water / self.cellArea
         
         # calculate the statistics of long and short term flow values
-        self.calculate_statistics(groundwater)
+        self.calculate_statistics(groundwater, landSurface)
         
-        # old-style reporting                             
+        # old-style reporting
         self.old_style_routing_reporting(currTimeStep)                 # TODO: remove this one
 
 
@@ -1381,13 +1421,13 @@ class Routing(object):
         self.remainWaterBodyPotEvap = pcr.max(0.0, self.waterBodyPotEvap - self.waterBodyEvaporation)
         
     def calculate_extra_evaporation(self):
-		# limited to self.remainWaterBodyPotEvap: remaining potential evaporation (m) from water bodies
-
+        # limited to self.remainWaterBodyPotEvap: remaining potential evaporation (m) from water bodies
+        
         # evaporation volume from water bodies (m3) - limited to available channelStorage
         volLocEvapWaterBody = pcr.min(\
                               pcr.max(0.0,self.channelStorage),
                               self.remainWaterBodyPotEvap * self.dynamicFracWat * self.cellArea)
-
+        
         # update channelStorage (m3) after evaporation from water bodies
         self.channelStorage = self.channelStorage -\
                               volLocEvapWaterBody
@@ -1398,11 +1438,13 @@ class Routing(object):
 
         # remaining potential evaporation (m) from water bodies
         self.remainWaterBodyPotEvap = pcr.max(0.0, self.remainWaterBodyPotEvap - volLocEvapWaterBody / self.cellArea)
-    def calculate_exchange_to_groundwater(self,groundwater,currTimeStep):
 
+
+    def calculate_exchange_to_groundwater(self,groundwater,currTimeStep):
+        
         if self.debugWaterBalance:\
            preStorage = self.channelStorage                            # unit: m3
-
+        
         # riverbed infiltration (m3/day):
         #
         # - current implementation based on Inge's principle (later, will be based on groundater head (MODFLOW) and can be negative)
@@ -1453,51 +1495,103 @@ class Routing(object):
                                   currTimeStep.fulldate,threshold=1e-4)
 
 
-    def simple_update(self,landSurface,groundwater,currTimeStep,meteo):
+    def return_flows_to_wastewater_treatment_plants(self, currTimeStep, landSurface):
+        
+        # wastewater treatment plants: IDs
+        self.WWt_plantID = vos.netcdf2PCRobjClone(\
+                                 self.WWtPlantsNC, \
+                                 'plant_id',\
+                                 str(currTimeStep.fulldate), 
+                                 useDoy = None,
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True,\
+                                 specificFillValue = None) #wastewater treatment plant [point] locations
+        self.WWt_plantID = pcr.nominal(self.WWt_plantID)
+        
+        # wastewater treatment plants: service areas
+        self.WWt_zoneID = vos.netcdf2PCRobjClone(\
+                                 self.WWtPlantsNC,\
+                                 'zone_id',\
+                                 str(currTimeStep.fulldate),\
+                                 useDoy = None,\
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True,\
+                                 specificFillValue = None) #wastewater treatment plant service zones
+        self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
+        
+        # define return flow as sum of domestic and manufacturing return flows only
+        self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolumePerSector['domestic'] + \
+                                landSurface.nonIrrReturnFlowVolumePerSector['manufacture']
+        
+        # re-direction of return flow to the water treatment plants locations
+        self.nonIrrReturnFlow = pcr.ifthenelse(
+            self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
+            self.nonIrrReturnFlow,
+            pcr.ifthenelse(
+                self.WWt_zoneID == self.WWt_plantID, #Accumulate water over wastewater treatment zone to plant location
+                pcr.areatotal(
+                    pcr.ifthenelse(self.WWt_zoneID != 0, 
+                                   self.nonIrrReturnFlow,
+                                   0), 
+                    self.WWt_zoneID 
+                ), #Removal at wastewater treatment plant
+                0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
+            )
+        ) #m3 day
+        
+        # return flow from non irrigation water demand
+        # - calculated in the landSurface.py module
+        # (units: m3)
+        self.nonIrrReturnFlow = self.nonIrrReturnFlow + \
+                                landSurface.nonIrrReturnFlowVolumePerSector['livestock'] + \
+                                landSurface.nonIrrReturnFlowVolumePerSector['thermoelectric'] + \
+                                landSurface.nonIrrReturnFlowVolumePerSector['industry']
 
+
+
+    def simple_update(self, landSurface, groundwater, currTimeStep, meteo):
+        
         # updating timesteps to calculate long and short term statistics values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
-
+        
         if self.debugWaterBalance:\
            preStorage = self.channelStorage                                                         # unit: m3
-
+        
         # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
         self.local_input_to_surface_water = pcr.scalar(0.0)          # initiate the variable, start from zero
-
+        
         # runoff from landSurface cells (unit: m/day)
         self.runoff = landSurface.landSurfaceRunoff +\
-                      groundwater.baseflow   
+                      groundwater.baseflow
         
         # update channelStorage (unit: m3) after runoff
         self.channelStorage += self.runoff * self.cellArea
         self.local_input_to_surface_water += self.runoff * self.cellArea
-
+        
         # update channelStorage (unit: m3) after actSurfaceWaterAbstraction 
         self.channelStorage -= landSurface.actSurfaceWaterAbstract * self.cellArea
         self.local_input_to_surface_water -= landSurface.actSurfaceWaterAbstract * self.cellArea
-
+        
         # reporting channelStorage after surface water abstraction (unit: m3)
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
-
-        # return flow from (m) non irrigation water demand
-        # - calculated in the landSurface.py module 
-        nonIrrReturnFlowVol   = landSurface.nonIrrReturnFlow*self.cellArea
-        self.channelStorage  += nonIrrReturnFlowVol
-        self.local_input_to_surface_water += nonIrrReturnFlowVol
-
-        # ~ # During the new development of water use module, we move the variable nonIrrWaterConsumption outside the routing.py
-        # ~ # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
-        # ~ self.nonIrrWaterConsumption = pcr.max(0.0,\
-                                      # ~ landSurface.nonIrrGrossDemand - \
-                                      # ~ landSurface.nonIrrReturnFlow)
+        
+        # re-direction of return flow to the water treatment plants locations (unit: m3)
+        if self.quality and self.calculateLoads:
+            self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
+        else:
+            self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume
+        
+        # include return flows to channel storage (unit: m3)
+        self.channelStorage  += self.nonIrrReturnFlow
+        self.local_input_to_surface_water += self.nonIrrReturnFlow
         
         # calculate evaporation from water bodies - this will return self.waterBodyEvaporation (unit: m)
         self.calculate_evaporation(landSurface, groundwater, currTimeStep, meteo)
         
         if self.debugWaterBalance:\
            vos.waterBalanceCheck([self.runoff,\
-                                  landSurface.nonIrrReturnFlow],\
+                                  self.nonIrrReturnFlow / self.cellArea],\
                                  [landSurface.actSurfaceWaterAbstract,self.waterBodyEvaporation],\
                                  [           preStorage/self.cellArea],\
                                  [  self.channelStorage/self.cellArea],\
@@ -1509,18 +1603,17 @@ class Routing(object):
         ##########################################################################################################################
         if self.debugWaterBalance: \
            preStorage = self.channelStorage                                  # unit: m3
-
+        
         # at cells where lakes and/or reservoirs defined, move channelStorage to waterBodyStorage
-        #
         storageAtLakeAndReservoirs = \
          pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
                                self.channelStorage)
         storageAtLakeAndReservoirs = pcr.cover(storageAtLakeAndReservoirs,0.0)
-        #
+        
         # - move only non negative values and use rounddown values
         storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
         self.channelStorage -= storageAtLakeAndReservoirs                    # unit: m3
-
+        
         # update waterBodyStorage (inflow, storage and outflow)
         self.WaterBodies.update(storageAtLakeAndReservoirs,\
                                 self.timestepsToAvgDischarge,\
@@ -1530,10 +1623,17 @@ class Routing(object):
                                 self.avgDischarge,\
                                 vos.secondsPerDay(),\
                                 self.downstreamDemand)
-
+        
         # waterBodyStorage (m3) after outflow:                               # values given are per water body id (not per cell)
         self.waterBodyStorage = pcr.ifthen(self.landmask,
-                                self.WaterBodies.waterBodyStorage)
+                                           self.WaterBodies.waterBodyStorage)
+        
+        if self.quality:
+            self.waterBodyStorageTimeBefore = self.waterBodyStorage + self.WaterBodies.waterBodyOutflow
+            self.waterBodyOutFlowDay = pcr.cover(\
+                           pcr.ifthen(\
+                           self.WaterBodies.waterBodyOut,
+                           self.WaterBodies.waterBodyOutflow), 0.0)  
         
         # transfer outflow from lakes and/or reservoirs to channelStorages
         waterBodyOutflow = pcr.cover(\
@@ -1549,9 +1649,9 @@ class Routing(object):
             waterBodyOutflow = pcr.areaaverage(waterBodyOutflow, self.WaterBodies.waterBodyIds)
             waterBodyOutflow = pcr.ifthen(\
                                pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
-                               waterBodyOutflow)                                 
+                               waterBodyOutflow)
         self.waterBodyOutflow = pcr.cover(waterBodyOutflow, 0.0)             # unit: m3/day
-
+        
         # update channelStorage (m3) after waterBodyOutflow (m3)
         self.channelStorage += self.waterBodyOutflow
         # Note that local_input_to_surface_water does not include waterBodyOutflow
@@ -1565,17 +1665,40 @@ class Routing(object):
                                   True,\
                                   currTimeStep.fulldate,threshold=1e-3)
         
+        if self.quality:
+            # Input data provided at daily resolution, unless otherwise adjusted in function
+            self.readExtensiveMeteo(currTimeStep)
+            
+            # Input data for pollutant loadings typically provided at monthly resolution
+            if currTimeStep.day == 1:
+                #self.readPowerplantData(currTimeStep)
+                
+                if self.calculateLoads:
+                    self.readPollutantLoadingsInputData(currTimeStep)  
+            
+            # Pollutant loadings calculated (or read in) at daily resolution, unless otherwise adjusted in function
+            if self.calculateLoads:
+                self.calculatePollutantLoadings(currTimeStep,landSurface,groundwater)
+            else:
+                self.readPollutantLoadings(currTimeStep)  
+            
+            #self.calculatePowerplantDemands(currTimeStep)
+            self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
+            self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
+            
+            self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
+            self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
+            self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
+            self.qualityWaterBody()
+        
         # ROUTING OPERATION:
         ##########################################################################################################################
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
-        #
         if self.method == "accuTravelTime":          self.accuTravelTime()      
-        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave()         
-        #
+        if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave(meteo, landSurface, groundwater)
         #
         # channel discharge (m3/s): for current time step
-        #
         self.discharge = self.Q / vos.secondsPerDay()
         self.discharge = pcr.max(0., self.discharge)                   # reported channel discharge cannot be negative
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
@@ -1587,14 +1710,19 @@ class Routing(object):
         #
         self.disChanWaterBody = pcr.max(0.,self.disChanWaterBody)      # reported channel discharge cannot be negative
         #
-        #
         ##########################################################################################################################
+        
+        if self.quality:
+            self.qualityWaterBodyAverage(currTimeStep)    
         
         # return waterBodyStorage to channelStorage  
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
+        
+        if self.quality:
+            self.estimate_concentrations()
 
-    def calculate_alpha_and_initial_discharge_for_kinematic_wave(self, channelStorage, water_height, innundatedFraction, floodDepth): 
 
+    def calculate_alpha_and_initial_discharge_for_kinematic_wave(self, channelStorage, water_height, innundatedFraction, floodDepth):
         # calculate alpha (dimensionless), which is the roughness coefficient 
         # - for kinewatic wave (see: http://pcraster.geo.uu.nl/pcraster/4.0.0/doc/manual/op_kinematic.html)
         # - based on wetted area (m2) and wetted perimeter (m), as well as self.beta (dimensionless)
@@ -1645,8 +1773,8 @@ class Routing(object):
         
         if self.floodPlain:
             
-            msg = 'Calculate channel inundated fraction and flood inundation depth above the floodplain.'
-            logger.info(msg)
+            #msg = 'Calculate channel inundated fraction and flood inundation depth above the floodplain.'
+            #logger.info(msg)
             
             # given the flood channel volume: channelStorage
             # - return the flooded fraction and the associated water height
@@ -1731,15 +1859,15 @@ class Routing(object):
     def kinematic_wave_update(self, landSurface, groundwater, currTimeStep, meteo): 
 
         logger.info("Using the fully kinematic wave method! ")
-
+        
         # updating timesteps to calculate long and short term statistics 
         # values of avgDischarge, avgInflow, avgOutflow, etc.
         self.timestepsToAvgDischarge += 1.
-
+        
         # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
         self.local_input_to_surface_water = pcr.scalar(0.0)             # initiate the variable, start from zero
-
+        
         # For simplification, surface water abstraction 
         #                     is done outside the sub daily time steps.
         #
@@ -1749,22 +1877,11 @@ class Routing(object):
         #
         # reporting channelStorage after surface water abstraction (unit: m3)
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
-
         
-        # return flow from (m) non irrigation water demand
-        # - calculated in the landSurface.py module: landSurface.nonIrrReturnFlow
-
-        # During the new development of water use module, we move the variable nonIrrWaterConsumption outside the routing.py
-        # ~ # water consumption for non irrigation water demand (m) - this water is removed from the system/water balance
-        # ~ self.nonIrrWaterConsumption = pcr.max(0.0,\
-                                      # ~ landSurface.nonIrrGrossDemand - \
-                                      # ~ landSurface.nonIrrReturnFlow)
-
-        # runoff from landSurface cells (unit: m/day)                   
+        # runoff from landSurface cells (unit: m/day)
         self.runoff = landSurface.landSurfaceRunoff +\
                       groundwater.baseflow                              # values are over the entire cell area
         
-
         # route only non negative channelStorage (otherwise stay):
         # - note that, the following includes storages in 
         channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
@@ -1776,11 +1893,10 @@ class Routing(object):
         # - here it is needed to estimate the length of sub-time step
         self.water_height = channelStorageForRouting /\
                            (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
-
+        
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
-
-
+        
         #######################################################################################################################
         for i_loop in range(number_of_loops):
             
@@ -1789,29 +1905,28 @@ class Routing(object):
             
             if self.debugWaterBalance:\
                 preStorage = pcr.ifthen(self.landmask,\
-                             channelStorageForRouting)
-
+                                        channelStorageForRouting)
+            
             # initiating accumulated values:
             if i_loop == 0:
-                acc_local_input_to_surface_water    = pcr.scalar(0.0)   # unit: m3                            
+                acc_local_input_to_surface_water    = pcr.scalar(0.0)   # unit: m3
                 acc_water_body_evaporation_volume   = pcr.scalar(0.0)   # unit: m3
                 acc_discharge_volume                = pcr.scalar(0.0)   # unit: m3
-                
-
+            
             # update channelStorageForRouting after runoff and return flow from non irrigation demand
             channelStorageForRouting          += (self.runoff + landSurface.nonIrrReturnFlow) * \
                                                   self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
             acc_local_input_to_surface_water  += (self.runoff + landSurface.nonIrrReturnFlow) * \
                                                   self.cellArea * length_of_sub_time_step/vos.secondsPerDay()  # unit: m3
-
+            
             # potential evaporation within the sub-time step ; unit: m, values are over the entire cell area 
-            #
             water_body_potential_evaporation   = self.calculate_potential_evaporation(landSurface,currTimeStep,meteo) *\
                                                  length_of_sub_time_step/vos.secondsPerDay()
+            
             # - accumulating potential evaporation
             if i_loop == 0:
                 self.waterBodyPotEvap = pcr.scalar(0.0)
-            self.waterBodyPotEvap += water_body_potential_evaporation                                 
+            self.waterBodyPotEvap += water_body_potential_evaporation
             
             # update channelStorageForRouting after evaporation
             water_body_evaporation_volume      = pcr.min(pcr.max(channelStorageForRouting, 0.0), \
@@ -1829,17 +1944,17 @@ class Routing(object):
                                        'channelStorageForRouting (local fluxes)',\
                                        True,\
                                        currTimeStep.fulldate,threshold=5e-5)
-
-
+            
             # at cells where lakes or reservoirs defined, move channelStorageForRouting (m3) to waterBodyStorage
             storageAtLakeAndReservoirs = \
              pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,
                                    channelStorageForRouting)
             storageAtLakeAndReservoirs = pcr.cover(storageAtLakeAndReservoirs, 0.0)
+            
             # - move only non negative values and use rounddown values
             storageAtLakeAndReservoirs = pcr.max(0.00, pcr.rounddown(storageAtLakeAndReservoirs))
             channelStorageForRouting = pcr.max(0.0, channelStorageForRouting - storageAtLakeAndReservoirs)
-            #
+            
             # update waterBodyStorage (inflow, storage and outflow)
             self.WaterBodies.update(storageAtLakeAndReservoirs,\
                                     self.timestepsToAvgDischarge,\
@@ -1849,27 +1964,27 @@ class Routing(object):
                                     self.avgDischarge,\
                                     length_of_sub_time_step,\
                                     self.downstreamDemand)
-            #
+            
             # - waterBodyOutflow (m3/length_of_sub_time_step) from lakes or reservoirs at outlet cells
             waterBodyOutflow = pcr.cover(\
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut,
                                self.WaterBodies.waterBodyOutflow), 0.0)
             waterBodyOutflow = pcr.ifthen(self.landmask, waterBodyOutflow)
-            #
+            
             # - waterBodyOutflow in m3/s at lake/reservoir outlet cells
             waterBodyOutflowInM3PerSec = waterBodyOutflow / length_of_sub_time_step
-            #
+            
             # - waterBodyStorage (m3) after outflow (values given are per water body id (not per cell))
             self.waterBodyStorage = pcr.ifthen(self.landmask, self.WaterBodies.waterBodyStorage)
-
+            
             # update channelStorage (m3) after waterBodyOutflow (m3) - Note that local_input_to_surface_water does not include waterBodyOutflow.            
             # - update channelStorage (m3)  - after waterBodyOutflow (m3)
             #~ storage_change_in_volume = waterBodyOutflow                                                 # NOT CORRECT
             #~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow   # NOT CORRECT
             storage_change_in_volume    = pcr.upstream(self.lddMap, waterBodyOutflow)                      # PS: I think this is the correct one. 
             channelStorageForRouting   += storage_change_in_volume 
-
+            
             # estimate of water height (m)
             # - here it is needed to estimate the channel wetted area (for the calculation of alpha and dischargeInitial)
             # - this water height is only for the one in channels (it does not include the one for lake and reservoirs)
@@ -1877,84 +1992,75 @@ class Routing(object):
                                (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
             # PS: Disactivate this line gives negative channelStorage (most likely due too high water heights in lakes and reservoirs).                  
                                
-
+            
             # alpha parameter and initial/estimate discharge variable - needed for kinematic wave calculation 
             alpha, dischargeInitial = \
                    self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
                                                                                  self.water_height, \
                                                                                  self.innundatedFraction, self.floodDepth) 
-
+            
             # for lakes and reservoir outlet cells, set discharge estimate (dischargeInitial) to waterBodyOutflowInM3PerSec
             dischargeInitial = pcr.cover(\
                                pcr.ifthen(\
                                self.WaterBodies.waterBodyOut, waterBodyOutflowInM3PerSec), dischargeInitial)
-
+            
             # also for the ones with zero channelStorageForRouting
             dischargeInitial = pcr.ifthenelse(channelStorageForRouting > 0.0, dischargeInitial, 0.0)
             
             # discharge estimate (dischargeInitial) in m3/s
             dischargeInitial = pcr.cover(dischargeInitial, 0.0)
             dischargeInitial = pcr.ifthen(self.landmask, dischargeInitial)
-
-
+            
             # discharge (m3/s) based on the KINEMATIC WAVE approximation
-            #~ logger.debug('start pcr.kinematic')
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
-            #~ logger.debug('done')
-
-
+            
             # for lakes and reservoir cells, set discharge to zero
             self.subDischarge = pcr.cover(\
                                 pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0., pcr.scalar(0.0)), self.subDischarge)
             
-            
             # make sure that we do not get negative channel storage
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
                                 pcr.max(0.0, channelStorageForRouting + pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step)))/length_of_sub_time_step
-
-
+            
             # update channelStorage (m3) after lateral flows in channels
             storage_change_in_volume  = pcr.upstream(self.lddMap, self.subDischarge * length_of_sub_time_step) - self.subDischarge * length_of_sub_time_step 
-            channelStorageForRouting += storage_change_in_volume 
-
-
-            # return waterBodyStorage to channelStorage  
+            channelStorageForRouting += storage_change_in_volume
+            
+            # return waterBodyStorage to channelStorage
             channelStorageForRouting = self.return_water_body_storage_to_channel(channelStorageForRouting)
             
-
             # include waterBodyOutflowInM3PerSec to subDischarge
-            self.subDischarge += waterBodyOutflowInM3PerSec                             
+            self.subDischarge += waterBodyOutflowInM3PerSec
             self.subDischarge = pcr.ifthen(self.landmask, self.subDischarge)
-
+            
             # total discharge_volume (m3) until this present i_loop
             acc_discharge_volume += self.subDischarge * length_of_sub_time_step
-
-
+            
             # update flood fraction and flood depth
             self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorageForRouting)
             
             # update dynamicFracWat: fraction of surface water bodies (dimensionless) including lakes and reservoirs
             # - lake and reservoir surface water fraction
             self.dynamicFracWat = pcr.cover(\
-                             pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
+                                            pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
+            
             # - fraction of channel (including its excess above bankfull capacity) 
             self.dynamicFracWat += pcr.max(0.0, 1.0 - self.dynamicFracWat) * pcr.max(self.channelFraction, self.innundatedFraction)
+            
             # - maximum value of dynamicFracWat is 1.0
             self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
-
-
+            
             # for the next calculation and loop, route only non negative channelStorage
             channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
-
-
+            
             # estimate water_height
             # - this water height includes the one for lake and reservoirs
             self.water_height = pcr.max(0.0, channelStorageForRouting) / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
-            
+        
         #######################################################################################################################
         
         # evaporation (m/day)
@@ -1970,117 +2076,113 @@ class Routing(object):
         self.channelStorage = channelStorageForRouting
 
         # return channelStorageThatWillNotMove to channelStorage:
-        self.channelStorage += channelStorageThatWillNotMove         
+        self.channelStorage += channelStorageThatWillNotMove
         
         # channel discharge (m3/s): for current time step
-        #
         self.discharge = self.Q / vos.secondsPerDay()
         self.discharge = pcr.max(0., self.discharge)                   # reported channel discharge cannot be negative
         self.discharge = pcr.ifthen(self.landmask, self.discharge)
-        #
+        
         self.disChanWaterBody = pcr.ifthen(pcr.scalar(self.WaterBodies.waterBodyIds) > 0.,\
                                 pcr.areamaximum(self.discharge,self.WaterBodies.waterBodyIds))
         self.disChanWaterBody = pcr.cover(self.disChanWaterBody, self.discharge)
         self.disChanWaterBody = pcr.ifthen(self.landmask, self.disChanWaterBody)
-        #
+        
         self.disChanWaterBody = pcr.max(0.,self.disChanWaterBody)      # reported channel discharge cannot be negative
 
 
-    def calculate_statistics(self, groundwater):
-
+    def calculate_statistics(self, groundwater, landSurface):
+        
         # short term average inflow (m3/s) and long term average outflow (m3/s) from lake and reservoirs
         self.avgInflow  = pcr.ifthen(self.landmask, pcr.cover(self.WaterBodies.avgInflow , 0.0)) 
         self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.WaterBodies.avgOutflow, 0.0))
-
+        
         # short term and long term average discharge (m3/s)
         # - see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-        #
+        
         # - long term average disharge
-        #
         dishargeUsed      = pcr.max(0.0, self.discharge)
         dishargeUsed      = pcr.max(dishargeUsed, self.disChanWaterBody)
-        #
+        
         deltaAnoDischarge = dishargeUsed - self.avgDischarge  
         self.avgDischarge = self.avgDischarge +\
                             deltaAnoDischarge/\
                             pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)
-        self.avgDischarge = pcr.max(0.0, self.avgDischarge)                                    
-        self.m2tDischarge = self.m2tDischarge + pcr.abs(deltaAnoDischarge*(dishargeUsed - self.avgDischarge))                             
-        #
+        self.avgDischarge = pcr.max(0.0, self.avgDischarge)
+        self.m2tDischarge = self.m2tDischarge + pcr.abs(deltaAnoDischarge*(dishargeUsed - self.avgDischarge))
+        
         # - short term average discharge
-        #
         deltaAnoDischargeShort = dishargeUsed - self.avgDischargeShort  
         self.avgDischargeShort = self.avgDischargeShort + \
                                  deltaAnoDischargeShort/ \
                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
         self.avgDischargeShort = pcr.max(0.0, self.avgDischargeShort)                         
-
-        # long term average baseflow (m3/s) ; used as proxies for partitioning groundwater and surface water abstractions
-        #
+        
+        # long term average baseflow (m3/s)
+        # (used as proxies for partitioning groundwater and surface water abstractions)
         baseflowM3PerSec = groundwater.baseflow * self.cellArea / vos.secondsPerDay()
+        
         deltaAnoBaseflow = baseflowM3PerSec - self.avgBaseflow  
         self.avgBaseflow = self.avgBaseflow + \
                            deltaAnoBaseflow/ \
                            pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)                
         self.avgBaseflow = pcr.max(0.0, self.avgBaseflow)
         
-
+        # DynQual
         # average irrigation water that is allocated from the last 30 days (needed for online runs where loadings are calculated in loop)
-        if self.calculateLoads and self.offlineRun == False: 
-            # calculate average irrigation gross demands from the last 30 days       
-            deltaAno_irrGrossDemand = pcr.max(0.0, landSurface.irrGrossDemand) - self.avg_irrGrossDemand  
-            self.avg_irrGrossDemand = self.avg_irrGrossDemand +\
-                                      deltaAno_irrGrossDemand/\
-        
-                              
-                                                                    
-                                                     
-                                                     
-                                      pcr.min(30.0, self.timestepsToAvgDischarge)
-            self.avg_irrGrossDemand = pcr.max(0.0, self.avg_irrGrossDemand)                 
-        
-            # average netLqWaterToSoil from the last 30 days
-            deltaAno_netLqWaterToSoil = pcr.max(0.0, landSurface.netLqWaterToSoil) - self.avg_netLqWaterToSoil  
-            self.avg_netLqWaterToSoil = self.avg_netLqWaterToSoil +\
-                                        deltaAno_netLqWaterToSoil/\
-                                        pcr.min(30.0, self.timestepsToAvgDischarge)
-            self.avg_netLqWaterToSoil = pcr.max(0.0, self.avg_netLqWaterToSoil)
+        if self.quality:
+            if self.calculateLoads and self.offlineRun == False:
+                # calculate average irrigation gross demands from the last 30 days
+                irrGrossDemand= deepcopy(landSurface.irrGrossDemand)
+                deltaAno_irrGrossDemand = pcr.max(0.0, irrGrossDemand) - self.avg_irrGrossDemand
+                self.avg_irrGrossDemand = self.avg_irrGrossDemand +\
+                                          deltaAno_irrGrossDemand/\
+                                          pcr.min(30.0, self.timestepsToAvgDischarge)
+                self.avg_irrGrossDemand = pcr.max(0.0, self.avg_irrGrossDemand)
+            
+                # average netLqWaterToSoil from the last 30 days
+                deltaAno_netLqWaterToSoil = pcr.max(0.0, landSurface.netLqWaterToSoil) - self.avg_netLqWaterToSoil
+                self.avg_netLqWaterToSoil = self.avg_netLqWaterToSoil +\
+                                            deltaAno_netLqWaterToSoil/\
+                                            pcr.min(30.0, self.timestepsToAvgDischarge)
+                self.avg_netLqWaterToSoil = pcr.max(0.0, self.avg_netLqWaterToSoil)
         
         # QUAlloc
-        # [Edward-Gabriel: include if statement]
-        # average channel storage 
-        deltaChannelStorage    = self.channelStorage - self.avgChannelStorage
-        self.avgChannelStorage = self.avgChannelStorage + \
-                                      deltaChannelStorage/ \
-                                      pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)                
-        self.avgChannelStorage = pcr.max(0.0, self.avgChannelStorage)
-        
-        # average total runoff
-        deltaTotalRunoff    = self.totalRunoff - self.avgTotalRunoff
-        self.avgTotalRunoff = self.avgTotalRunoff + \
-                                  deltaTotalRunoff/ \
-                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)                
-        self.avgTotalRunoff = pcr.max(0.0, self.avgTotalRunoff)
-        
-        # average groundwater storage
-        deltaStorGroundwater    = groundwater.storGroundwater - self.avgStorGroundwater
-        self.avgStorGroundwater = self.avgStorGroundwater + \
-                                       deltaStorGroundwater/ \
-                                       pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)                
-        self.avgStorGroundwater = pcr.max(0.0, self.avgStorGroundwater)
+        if self.using_qualloc:
+            # average channel storage 
+            deltaChannelStorage    = self.channelStorage - self.avgChannelStorage
+            self.avgChannelStorage = self.avgChannelStorage + \
+                                          deltaChannelStorage/ \
+                                          pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+            self.avgChannelStorage = pcr.max(0.0, self.avgChannelStorage)
+            
+            # average total runoff
+            deltaTotalRunoff    = self.totalRunoff - self.avgTotalRunoff
+            self.avgTotalRunoff = self.avgTotalRunoff + \
+                                      deltaTotalRunoff/ \
+                                      pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+            self.avgTotalRunoff = pcr.max(0.0, self.avgTotalRunoff)
+            
+            # average groundwater storage
+            deltaStorGroundwater    = groundwater.storGroundwater - self.avgStorGroundwater
+            self.avgStorGroundwater = self.avgStorGroundwater + \
+                                           deltaStorGroundwater/ \
+                                           pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+            self.avgStorGroundwater = pcr.max(0.0, self.avgStorGroundwater)
+
 
     def estimate_discharge_for_environmental_flow(self, channelStorage):
-
+        
         # statistical assumptions:
         # - using z_score from the percentile 90
-        z_score = 1.2816 
-        #~ # - using z_score from the percentile 95
-        #~ z_score = 1.645
+        z_score = 1.2816
+        # - using z_score from the percentile 95
+        #z_score = 1.645
         
         # long term variance and standard deviation of discharge values
         varDischarge = self.m2tDischarge / \
                        pcr.max(1.,\
-                       pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)-1.)                             
+                       pcr.min(self.maxTimestepsToAvgDischargeLong, self.timestepsToAvgDischarge)-1.)
                        # see: online algorithm on http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
         stdDischarge = pcr.max(varDischarge**0.5, 0.0)
         
@@ -2094,11 +2196,11 @@ class Routing(object):
 
 
     def estimate_available_volume_for_abstraction(self, channelStorage, length_of_time_step = vos.secondsPerDay()):
-        # input: channelStorage    in m3
-
+        # input: channelStorage (units: m3)
+        
         # estimate minimum discharge for environmental flow (m3/s)
         minDischargeForEnvironmentalFlow = self.estimate_discharge_for_environmental_flow(channelStorage)
-
+        
         # available channelStorage that can be extracted for surface water abstraction
         readAvlChannelStorage  = pcr.max(0.0,channelStorage)
         
@@ -2113,14 +2215,14 @@ class Routing(object):
                                                pcr.max(readAvlChannelStorage, \
                                                pcr.max(0.0,\
                                                self.avgDischargeShort - minDischargeForEnvironmentalFlow)*length_of_time_step))
-
+        
         # maximum (percentage) of water can be abstracted from the channel - to avoid flip-flop
         maximum_percentage = 0.90
         readAvlChannelStorage = pcr.min(readAvlChannelStorage, \
                                         maximum_percentage*channelStorage)
         readAvlChannelStorage = pcr.max(0.0,\
                                         readAvlChannelStorage)
-                                                
+        
         # ignore small volume values - less than 0.1 m3
         readAvlChannelStorage = pcr.rounddown(readAvlChannelStorage*10.)/10.
         readAvlChannelStorage = pcr.ifthen(self.landmask, readAvlChannelStorage)
@@ -2128,7 +2230,7 @@ class Routing(object):
         return readAvlChannelStorage      # unit: m3
 
     def initiate_old_style_routing_reporting(self,iniItems):
-
+        
         self.report = True
         try:
             self.outDailyTotNC = iniItems.routingOptions['outDailyTotNC'].split(",")
@@ -2208,8 +2310,9 @@ class Routing(object):
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
 
-    def old_style_routing_reporting(self,currTimeStep):
 
+    def old_style_routing_reporting(self,currTimeStep):
+        
         if self.report == True:
             timeStamp = datetime.datetime(currTimeStep.year,\
                                           currTimeStep.month,\
@@ -2224,21 +2327,21 @@ class Routing(object):
                                          var,\
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,timestepPCR-1)
-
+            
             # writing monthly output to netcdf files
             # -cummulative
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
-
+                    
                     # introduce variables at the beginning of simulation or
                     #     reset variables at the beginning of the month
                     if currTimeStep.timeStepPCR == 1 or \
                        currTimeStep.day == 1:\
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
-
+                    
                     # accumulating
                     vars(self)[var+'MonthTot'] += vars(self)[var]
-
+                    
                     # reporting at the end of the month:
                     if currTimeStep.endMonth == True: 
                         self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
@@ -2259,7 +2362,7 @@ class Routing(object):
                            vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
                         # accumulating
                         vars(self)[var+'MonthTot'] += vars(self)[var]
-
+                    
                     # calculating average & reporting at the end of the month:
                     if currTimeStep.endMonth == True:
                         vars(self)[var+'MonthAvg'] = vars(self)[var+'MonthTot']/\
@@ -2280,21 +2383,21 @@ class Routing(object):
                                          var,\
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,currTimeStep.monthIdx-1)
-
+            
             # writing yearly output to netcdf files
             # -cummulative
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
-
+                    
                     # introduce variables at the beginning of simulation or
                     #     reset variables at the beginning of the month
                     if currTimeStep.timeStepPCR == 1 or \
                        currTimeStep.doy == 1:\
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
-
+                    
                     # accumulating
                     vars(self)[var+'AnnuaTot'] += vars(self)[var]
-
+                    
                     # reporting at the end of the year:
                     if currTimeStep.endYear == True: 
                         self.netcdfObj.data2NetCDF(str(self.outNCDir)+"/"+ \
@@ -2336,6 +2439,7 @@ class Routing(object):
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,currTimeStep.annuaIdx-1)
 
+
     def returnFloodedFraction(self,channelStorage):
         #-returns the flooded fraction given the flood volume and the associated water height
         # using a logistic smoother near intersections (K&K, 2007)
@@ -2354,12 +2458,14 @@ class Routing(object):
             k[0]= pcr.ifthenelse(mask,self.kSlope[iCnt-1],k[0])
             k[1]= pcr.ifthenelse(mask,self.kSlope[iCnt],k[1])
             mInt= pcr.ifthenelse(mask,self.mInterval[iCnt],mInt)
+        
         #-all values returned, process data: calculate scaled deltaX and smoothed function
         # on the basis of the integrated logistic functions PHI(x) and 1-PHI(x)
         deltaX= deltaXMin
         deltaXScaled= pcr.ifthenelse(deltaX < 0.,pcr.scalar(-1.),1.)*\
             pcr.min(self.criterionKK,pcr.abs(deltaX/pcr.max(1.,mInt)))
         logInt= self.integralLogisticFunction(deltaXScaled)
+        
         #-compute fractional flooded area and flooded depth
         floodedFraction= pcr.ifthenelse(channelStorage > 0.,\
             pcr.ifthenelse(pcr.abs(deltaXScaled) < self.criterionKK,\
@@ -2370,6 +2476,7 @@ class Routing(object):
         floodDepth = pcr.min(self.max_water_height, floodDepth)
         #floodedFraction = pcr.ifthen(self.landmask, pcr.cover(floodedFraction , 0.0))
         #floodDepth = pcr.ifthen(self.landmask, pcr.cover(floodDepth , 0.0))
+        
         return floodedFraction, floodDepth
 
     def integralLogisticFunction(self,x):
@@ -2393,6 +2500,7 @@ class Routing(object):
             wetA= channelStorage/self.channelLength
             wetP= 2.*wetA/self.wMean+self.wMean
             alphaQ= (self.manningsN*wetP**(2./3.)*self.channelGradient**-0.5)**self.beta	  
+        
         #-returning variable of interest: flooded fraction, cross-sectional area
         # and alphaQ
         dischargeInitial = pcr.ifthenelse(alphaQ > 0.0,(wetA / alphaQ)**(1/self.beta),0.0)    
@@ -2424,7 +2532,7 @@ class Routing(object):
         #-returning variables of interest: flooded fraction, cross-sectional area
         # and alphaQ
         return floodFrac,floodZ,alphaQ, dischargeInitial
-
+ 
     def kinAlphaComposite(self,channelStorage):
         #-given the total water storage and the mask specifying the occurrence of
         # floodplain conditions, retrns the Q-A relationiceHeatTransferp for the kinematic
@@ -2439,9 +2547,9 @@ class Routing(object):
         dischargeInitial= pcr.ifthenelse(mask,dynamicDischargeInitial,staticDischargeInitial)
         return floodFrac,floodZ,alphaQ, dischargeInitial
 
+
     def readExtensiveMeteo(self, currTimeStep):
         #Read meteorological input directly from netCDF files
-        
         if currTimeStep.day == 1:
             self.cloudCover = vos.netcdf2PCRobjClone(\
                                      self.cloudFileNC,'cld',\
@@ -2449,28 +2557,28 @@ class Routing(object):
                                      useDoy = "monthly",
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True,specificFillValue = -999.)/pcr.scalar(100)
-
+            
             self.vaporPressure = vos.netcdf2PCRobjClone(\
                                      self.vapFileNC,'vap',\
                                      str(currTimeStep.fulldate), 
                                      useDoy = "monthly",
                                       cloneMapFileName=self.cloneMap,\
                                       LatitudeLongitude = True,specificFillValue = -999.)
-                                      
+            
             self.annualT = vos.netcdf2PCRobjClone(\
                                              self.annualTFileNC,'tas',\
                                              str(currTimeStep.fulldate), 
                                              useDoy = "yearly",
                                               cloneMapFileName=self.cloneMap,\
-                                              LatitudeLongitude = True,specificFillValue = -999.) + pcr.scalar(273.15)                                      
-                                  
+                                              LatitudeLongitude = True,specificFillValue = -999.) + pcr.scalar(273.15)
+        
         self.radiation =  vos.netcdf2PCRobjClone(\
                                  self.radFileNC,'rsds',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = "daily",
                                  cloneMapFileName=self.cloneMap,\
                                   LatitudeLongitude = True,specificFillValue = -999.)
-
+        
         #-vapour pressure, used to return atmospheric emissivity [-]                          
         self.atmosEmis= pcr.scalar(1.0) #pcr.min(1.,(0.53+0.0065*(self.vaporPressure)**0.5)*(1.+0.4*self.cloudCover))
         cld1= pcr.roundoff(10*self.cloudCover+0.5)
@@ -2480,10 +2588,11 @@ class Routing(object):
         sunFrac= sun0+(10*self.cloudCover-cld0)*deltaSun
         radFrac= self.radCon+self.radSlope*sunFrac
         self.rsw= radFrac*self.radiation
-        
+
+
     def readExtensiveHydro(self, currTimeStep):
-          
-        #Read hydrological input directly from netCDF files (daily timestep)
+        
+        # Read hydrological input directly from netCDF files (daily timestep)
         self.baseflow = vos.netcdf2PCRobjClone(\
                                   self.baseflowNC,"baseflow",\
                                   str(currTimeStep.fulldate),
@@ -2510,166 +2619,169 @@ class Routing(object):
                                                
         self.runoff = self.directRunoff + self.interflowTotal + self.baseflow
 
-    def readPowerplantData(self, currTimeStep):
-                 
-        logger.info("reading in (annual) powerplant data")
-        
-        #freshwater plants (with a water temperature dependency)
-        self.powerplants_fw_capacity =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'capacity',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
 
-        self.powerplants_fw_ntotal =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'ntotal',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-        self.powerplants_fw_nelec =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'nelec',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)                                                 
+#    def readPowerplantData(self, currTimeStep):
+#                 
+#        logger.info("reading in (annual) powerplant data")
+#        
+#        # freshwater plants (with a water temperature dependency)
+#        self.powerplants_fw_capacity =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'capacity',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_ntotal =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'ntotal',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        self.powerplants_fw_nelec =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'nelec',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_alpha =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'alpha',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_beta =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'beta',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_omega =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'omega',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_EZ =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'EZ',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_gamma =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'gamma',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_lambda =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'lambda',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fw_ratio =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwNC,'con_ratio',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        # freshwater plants (without a water temperature dependency)
+#        self.powerplants_fwfixed_capacity =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwfixedNC,'capacity',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fwfixed_q =  vos.netcdf2PCRobjClone(\
+#                                    self.powerplants_fwfixedNC,'withdrawals',\
+#                                    str(currTimeStep.fulldate), 
+#                                    useDoy = "yearly",
+#                                    cloneMapFileName=self.cloneMap,\
+#                                     LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_fwfixed_ratio =  vos.netcdf2PCRobjClone(\
+#                                              self.powerplants_fwfixedNC,'con_ratio',\
+#                                              str(currTimeStep.fulldate), 
+#                                              useDoy = "yearly",
+#                                              cloneMapFileName=self.cloneMap,\
+#                                               LatitudeLongitude = True,specificFillValue = None)
+#        
+#        # seawater plants
+#        self.powerplants_sw_capacity =  vos.netcdf2PCRobjClone(\
+#                                         self.powerplants_swNC,'capacity',\
+#                                         str(currTimeStep.fulldate), 
+#                                         useDoy = "yearly",
+#                                         cloneMapFileName=self.cloneMap,\
+#                                          LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_sw_q =  vos.netcdf2PCRobjClone(\
+#                                         self.powerplants_swNC,'withdrawals',\
+#                                         str(currTimeStep.fulldate), 
+#                                         useDoy = "yearly",
+#                                         cloneMapFileName=self.cloneMap,\
+#                                          LatitudeLongitude = True,specificFillValue = None)
+#        
+#        self.powerplants_sw_ratio =  vos.netcdf2PCRobjClone(\
+#                                         self.powerplants_swNC,'con_ratio',\
+#                                         str(currTimeStep.fulldate), 
+#                                         useDoy = "yearly",
+#                                         cloneMapFileName=self.cloneMap,\
+#                                          LatitudeLongitude = True,specificFillValue = None)
+#        
+#        # Poweplant demand factors
+#        self.dTlmax = pcr.scalar(7.)
+#        self.Tlmax =  vos.netcdf2PCRobjClone(\
+#                       self.TlmaxNC,'waterTemperature',\
+#                       str(currTimeStep.fulldate), 
+#                       useDoy = "yearly",
+#                       cloneMapFileName=self.cloneMap,\
+#                        LatitudeLongitude = True,specificFillValue = None)
 
-        self.powerplants_fw_alpha =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'alpha',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)                                                 
-        
-        self.powerplants_fw_beta =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'beta',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)          
-        
-        self.powerplants_fw_omega =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'omega',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)          
-        
-        self.powerplants_fw_EZ =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'EZ',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-                                               
-        self.powerplants_fw_gamma =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'gamma',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-                                               
-        self.powerplants_fw_lambda =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'lambda',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-                                               
-                                               
-        self.powerplants_fw_ratio =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwNC,'con_ratio',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)                                                                                                                                                           
-        #freshwater plants (without a water temperature dependency)
-        self.powerplants_fwfixed_capacity =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwfixedNC,'capacity',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-        
-        self.powerplants_fwfixed_q =  vos.netcdf2PCRobjClone(\
-                                    self.powerplants_fwfixedNC,'withdrawals',\
-                                    str(currTimeStep.fulldate), 
-                                    useDoy = "yearly",
-                                    cloneMapFileName=self.cloneMap,\
-                                     LatitudeLongitude = True,specificFillValue = None)
 
-        self.powerplants_fwfixed_ratio =  vos.netcdf2PCRobjClone(\
-                                              self.powerplants_fwfixedNC,'con_ratio',\
-                                              str(currTimeStep.fulldate), 
-                                              useDoy = "yearly",
-                                              cloneMapFileName=self.cloneMap,\
-                                               LatitudeLongitude = True,specificFillValue = None)
-        
-        #seawater plants
-        self.powerplants_sw_capacity =  vos.netcdf2PCRobjClone(\
-                                         self.powerplants_swNC,'capacity',\
-                                         str(currTimeStep.fulldate), 
-                                         useDoy = "yearly",
-                                         cloneMapFileName=self.cloneMap,\
-                                          LatitudeLongitude = True,specificFillValue = None)
-        
-        self.powerplants_sw_q =  vos.netcdf2PCRobjClone(\
-                                         self.powerplants_swNC,'withdrawals',\
-                                         str(currTimeStep.fulldate), 
-                                         useDoy = "yearly",
-                                         cloneMapFileName=self.cloneMap,\
-                                          LatitudeLongitude = True,specificFillValue = None)
-        
-        self.powerplants_sw_ratio =  vos.netcdf2PCRobjClone(\
-                                         self.powerplants_swNC,'con_ratio',\
-                                         str(currTimeStep.fulldate), 
-                                         useDoy = "yearly",
-                                         cloneMapFileName=self.cloneMap,\
-                                          LatitudeLongitude = True,specificFillValue = None)
-        
-        #Poweplant demand factors
-        self.dTlmax = pcr.scalar(7.)        
-        self.Tlmax =  vos.netcdf2PCRobjClone(\
-                       self.TlmaxNC,'waterTemperature',\
-                       str(currTimeStep.fulldate), 
-                       useDoy = "yearly",
-                       cloneMapFileName=self.cloneMap,\
-                        LatitudeLongitude = True,specificFillValue = None)
+#    def calculatePowerplantDemands(self, currTimeStep):
+#        
+#        ###freshwater plants (with a water temperature dependency)
+#        
+#        #demands considering only dTlmax
+#        self.powerplants_fw_qmin = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.dTlmax)) #minimum demands (i.e. only considering deltaTlmax)
+#        
+#        #demands considering simulated river water temperature
+#        self.min_Tlmax_dTlmax = pcr.max(pcr.min(self.Tlmax - self.waterTemp, self.dTlmax),1.) #calculate min of Tlmax (max allowed temperature) - triver (water temperature). Returns minimum value of 1 (i.e. water can always be warmed by 1K as a minimum).
+#        
+#        self.powerplants_fw_q = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.min_Tlmax_dTlmax))
+#        self.powerplants_fw_rf = self.powerplants_fw_q * (1 - self.powerplants_fw_ratio) #power return flows (m3 s-1)
+#        self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
+#        
+#        ###freshwater plants (without a water temperature dependency)
+#        self.powerplants_fwfixed_q = self.powerplants_fwfixed_q #freshwater demands for power prescribed by Lohrmann et al., (2019)
+#        self.powerplants_fwfixed_rf = self.powerplants_fwfixed_q * (1 - self.powerplants_fwfixed_ratio) #power return flows (to freshwater) prescribed by Lohrmann et al., (2019)
+#        
+#        ###seawater plants
+#        self.powerplants_sw_q = self.powerplants_sw_q #seawater demands for power prescribed by Lohrmann et al., (2019)
+#        self.powerplants_sw_rf = self.powerplants_sw_q * (1 - self.powerplants_sw_ratio) #power return flows (to seawater) prescribed by Lohrmann et al., (2019)
 
-    def calculatePowerplantDemands(self, currTimeStep):          
-        
-        ###freshwater plants (with a water temperature dependency)
-        
-        #demands considering only dTlmax
-        self.powerplants_fw_qmin = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.dTlmax)) #minimum demands (i.e. only considering deltaTlmax)
-        
-        #demands considering simulated river water temperature
-        self.min_Tlmax_dTlmax = pcr.max(pcr.min(self.Tlmax - self.waterTemp, self.dTlmax),1.) #calculate min of Tlmax (max allowed temperature) - triver (water temperature). Returns minimum value of 1 (i.e. water can always be warmed by 1K as a minimum).
-        
-        self.powerplants_fw_q = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.min_Tlmax_dTlmax))
-        self.powerplants_fw_rf = self.powerplants_fw_q * (1 - self.powerplants_fw_ratio) #power return flows (m3 s-1)
-        self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
-        
-        ###freshwater plants (without a water temperature dependency)
-        self.powerplants_fwfixed_q = self.powerplants_fwfixed_q #freshwater demands for power prescribed by Lohrmann et al., (2019)
-        self.powerplants_fwfixed_rf = self.powerplants_fwfixed_q * (1 - self.powerplants_fwfixed_ratio) #power return flows (to freshwater) prescribed by Lohrmann et al., (2019)
-                
-        ###seawater plants
-        self.powerplants_sw_q = self.powerplants_sw_q #seawater demands for power prescribed by Lohrmann et al., (2019)
-        self.powerplants_sw_rf = self.powerplants_sw_q * (1 - self.powerplants_sw_ratio) #power return flows (to seawater) prescribed by Lohrmann et al., (2019)
-    
+
     def readPollutantLoadingsInputData(self, currTimeStep):
-        logger.info("Loading input data required to calculate pollutant loadings")    
+        logger.info("Loading input data required to calculate pollutant loadings")
         
         #Domestic
         self.Population = vos.netcdf2PCRobjClone(\
                                  self.PopulationNC,'Population',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for gridded population file (5 arc-mins)    
-                                      
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True,specificFillValue = None) #input pathway for gridded population file (5 arc-mins)    
+        
         #Urban surface runoff
         self.urban_area_fraction = vos.netcdf2PCRobjClone(\
                                              self.UrbanFractionNC,'urban_fraction',\
@@ -2695,7 +2807,7 @@ class Routing(object):
                                   cloneMapFileName=self.cloneMap,\
                                   LatitudeLongitude = True,specificFillValue = None) #input pathway for chicken population (5 arc-mins)
         self.ChickenPopulation = pcr.cover(self.ChickenPopulation,0.)
-                                          
+        
         self.CowPopulation = vos.netcdf2PCRobjClone(\
                                  self.LivPopulationNC,'CowPop',\
                                  str(currTimeStep.fulldate), 
@@ -2711,7 +2823,7 @@ class Routing(object):
                                   cloneMapFileName=self.cloneMap,\
                                   LatitudeLongitude = True,specificFillValue = None) #input pathway for duck population (5 arc-mins)                 
         self.DuckPopulation = pcr.cover(self.DuckPopulation,0.)
-                  
+        
         self.GoatPopulation = vos.netcdf2PCRobjClone(\
                                  self.LivPopulationNC,'GoatPop',\
                                  str(currTimeStep.fulldate), 
@@ -2727,7 +2839,7 @@ class Routing(object):
                                   cloneMapFileName=self.cloneMap,\
                                   LatitudeLongitude = True,specificFillValue = None) #input pathway for horse population (5 arc-mins)  
         self.HorsePopulation = pcr.cover(self.HorsePopulation,0.)
-                                          
+        
         self.PigPopulation = vos.netcdf2PCRobjClone(\
                                  self.LivPopulationNC,'PigPop',\
                                  str(currTimeStep.fulldate), 
@@ -2745,89 +2857,88 @@ class Routing(object):
         self.SheepPopulation = pcr.cover(self.SheepPopulation,0.)
         
         #Calculate livestock densities accounting for livestock units (Wen et al., 2018)
-        self.cellArea_km2 = self.cellArea/1000000. #convert m2 to km2
+        self.cellArea_km2    = self.cellArea/1000000. #convert m2 to km2
         self.LivDensityThres = pcr.scalar(25.)
         
-        self.BufalloDensity = self.BufalloPopulation/ self.cellArea_km2
-        self.ChickenDensity = (self.ChickenPopulation * 0.01) /self.cellArea_km2
-        self.CowDensity = self.CowPopulation/ self.cellArea_km2
-        self.DuckDensity = (self.DuckPopulation * 0.01)/ self.cellArea_km2
-        self.GoatDensity = (self.GoatPopulation * 0.1)/ self.cellArea_km2
-        self.HorseDensity = self.HorsePopulation/ self.cellArea_km2
-        self.PigDensity = (self.PigPopulation * 0.3)/ self.cellArea_km2
-        self.SheepDensity = (self.SheepPopulation * 0.1)/ self.cellArea_km2
-                                  
+        self.BufalloDensity = self.BufalloPopulation / self.cellArea_km2
+        self.ChickenDensity = (self.ChickenPopulation * 0.01) / self.cellArea_km2
+        self.CowDensity     = self.CowPopulation / self.cellArea_km2
+        self.DuckDensity    = (self.DuckPopulation * 0.01) / self.cellArea_km2
+        self.GoatDensity    = (self.GoatPopulation * 0.1) / self.cellArea_km2
+        self.HorseDensity   = self.HorsePopulation / self.cellArea_km2
+        self.PigDensity     = (self.PigPopulation * 0.3) / self.cellArea_km2
+        self.SheepDensity   = (self.SheepPopulation * 0.1) / self.cellArea_km2
+        
         #Wastewater treatment plants
-        self.WWt_plantID = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'plant_id',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant [point] locations
-        self.WWt_plantID = pcr.nominal(self.WWt_plantID)
-
-                                  
-        self.WWt_zoneID = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'zone_id',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant service zones
-        self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
-
-                                  
+        #self.WWt_plantID = vos.netcdf2PCRobjClone(\
+        #                         self.WWtPlantsNC,'plant_id',\
+        #                         str(currTimeStep.fulldate), 
+        #                         useDoy = None,
+        #                         cloneMapFileName=self.cloneMap,\
+        #                         LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant [point] locations
+        #self.WWt_plantID = pcr.nominal(self.WWt_plantID)
+        #
+        #self.WWt_zoneID = vos.netcdf2PCRobjClone(\
+        #                         self.WWtPlantsNC,'zone_id',\
+        #                         str(currTimeStep.fulldate), 
+        #                         useDoy = None,
+        #                         cloneMapFileName=self.cloneMap,\
+        #                         LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant service zones
+        #self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
+        
         self.WWt_ct = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'WW_ct',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #proportion of wastewater that is collected and subsequently treated                          
-
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #proportion of wastewater that is collected and subsequently treated
+        
         self.WWt_bs = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'WW_bs',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
-
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
+        
         self.WWt_od = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'WW_od',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
         
         self.WWt_TDS_removal = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'TDS_removal',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #proportion of TDS removed at each wastewater treatment plant   
-                                  
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #proportion of TDS removed at each wastewater treatment plant   
+        
         self.WWt_BOD_removal = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'BOD_removal',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #proportion of BOD removed at each wastewater treatment plant    
-                                  
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #proportion of BOD removed at each wastewater treatment plant    
+        
         self.WWt_FC_removal = vos.netcdf2PCRobjClone(\
                                  self.WWtPlantsNC,'FC_removal',\
                                  str(currTimeStep.fulldate), 
                                  useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True, specificFillValue = None) #proportion of FC removed at each wastewater treatment plant                                                                             
+                                 cloneMapFileName=self.cloneMap,\
+                                 LatitudeLongitude = True, specificFillValue = None) #proportion of FC removed at each wastewater treatment plant                                                                             
+
 
     def calculatePollutantLoadings(self, currTimeStep, landSurface, groundwater):
         #calculate pollutant loadings directly
         logger.info("Calculating pollutant loadings")
-             
         
-        self.frac_surfaceRunoff = vos.getValDivZero(landSurface.directRunoff, (landSurface.landSurfaceRunoff + groundwater.baseflow)) #Fraction of direct runoff directly from PCR-GLOBWB (direct runoff / total runoff), used for transporting pollution from open defecation and extensive livestock.
+        self.frac_surfaceRunoff = vos.getValDivZero( landSurface.directRunoff, \
+                                                    (landSurface.landSurfaceRunoff + groundwater.baseflow)) #Fraction of direct runoff directly from PCR-GLOBWB (direct runoff / total runoff), used for transporting pollution from open defecation and extensive livestock.
         
         ###---Pollution associated with municipal wastewater (domestic, manufacturing and urban surface runoff---###
         
-        ###Gross domestic loadings: Gridded population (capita) * per Capita excretion rate [g/capita/day; cfu/capita/day]                     
+        ###Gross domestic loadings: Gridded population (capita) * per Capita excretion rate [g/capita/day; cfu/capita/day]
         self.Dom_TDSload = pcr.ifthenelse(
             self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
             (self.Population * self.DomTDS_ExcrLoad * self.WWt_bs) + 
@@ -2874,11 +2985,14 @@ class Routing(object):
                 ) * (1 - (self.WWt_FC_removal * self.WWt_ct)), #Removal at wastewater treatment plant
                 0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
             )
-        ) #million cfu/day          
+        ) #million cfu/day
         
-                                        
         ###Gross manufacturing loadings: Manufacturing wastewater [m3/day] * average manufacturing effluent concentration [mg/L; cfu/100ml]
-        self.ManWWp = self.IndustryReturnFlowVol #manufacturing flows, assumed based on split made in Jones et al., 2021, now are "Industry return flows"
+        #self.ManWWp = self.IndustryReturnFlowVol #manufacturing flows, assumed based on split made in Jones et al., 2021, now are "Industry return flows"
+        if self.includeSectors['industry']:
+            self.ManWWp = landSurface.nonIrrReturnFlowVolumePerSector['industry']
+        elif self.includeSectors['manufacture']:
+            self.ManWWp = landSurface.nonIrrReturnFlowVolumePerSector['manufacture']
         
         self.Man_TDSload = pcr.ifthenelse(
             self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
@@ -2893,8 +3007,8 @@ class Routing(object):
                 ) * (1- (self.WWt_TDS_removal * self.WWt_ct)), #Removal at wastewater treatment plant.
                 0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
             )
-        ) #g/day            
-
+        ) #g/day
+        
         self.Man_BODload = pcr.ifthenelse(
             self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
             self.ManWWp * self.ManBOD_EfflConc,
@@ -3228,7 +3342,7 @@ class Routing(object):
         channelTransFrac = cover(pcr.max(pcr.min((self.subDischarge * timeSec) / self.channelStorageTimeBefore, 1.0),0.0), 0.0)
 
         #Energy (for water temperature) routing 
-        self.volumeEW = self.volumeEW + (self.PowTwload * timeSec) # Add heat effluents from power plants (J s-1 * s)
+        #self.volumeEW = self.volumeEW + (self.PowTwload * timeSec) # Add heat effluents from power plants (J s-1 * s)
         dtotEWLat= channelTransFrac*self.volumeEW
         self.volumeEW = (self.volumeEW +pcr.upstream(self.lddMap,dtotEWLat)-dtotEWLat)
 

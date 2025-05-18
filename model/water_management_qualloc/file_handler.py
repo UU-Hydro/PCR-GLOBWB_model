@@ -55,10 +55,14 @@ import datetime
 
 import pcraster as pcr
 
-from .spatialDataSet2PCR import spatialAttributes, spatialDataSet, \
-        compareSpatialAttributes, setClone
-
-from .netCDF_recipes import netCDF_file_info
+try:
+    from .spatialDataSet2PCR import spatialAttributes, spatialDataSet, \
+                                    compareSpatialAttributes, setClone
+    from .netCDF_recipes import netCDF_file_info
+except:
+    from spatialDataSet2PCR import spatialAttributes, spatialDataSet, \
+                                    compareSpatialAttributes, setClone
+    from netCDF_recipes import netCDF_file_info
 
 logger = logging.getLogger(__name__)
 

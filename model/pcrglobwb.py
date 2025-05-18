@@ -273,7 +273,7 @@ class PCRGlobWB(object):
 
         self.waterBalance = \
           (landWaterStoresAtBeginning - landWaterStoresAtEnd +\
-           self.meteo.precipitation + self.landSurface.total_satisfied_irrigation_water_volume / self.routing.cellArea + self.groundwater.surfaceWaterInf -\
+           self.meteo.precipitation + self.landSurface.irrigationWaterWithdrawal / self.routing.cellArea + self.groundwater.surfaceWaterInf -\
            self.landSurface.actualET - self.routing.runoff - self.groundwater.nonFossilGroundwaterAbs)
 
         self.waterBalanceAcc    += self.waterBalance
@@ -463,7 +463,7 @@ class PCRGlobWB(object):
         # 
         # - incoming fluxes (unit: m)
         precipitation           = pcr.ifthen(self.landmask, self.meteo.precipitation)
-        satisfiedIrrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.total_satisfied_irrigation_water_volume / self.routing.cellArea)
+        satisfiedIrrGrossDemand  = pcr.ifthen(self.landmask, self.landSurface.irrigationWaterWithdrawal / self.routing.cellArea)
         surfaceWaterInf         = pcr.ifthen(self.landmask, self.groundwater.surfaceWaterInf)
         # 
         # - outgoing fluxes (unit: m)
