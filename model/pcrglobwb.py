@@ -56,37 +56,48 @@ Created on Oct 25, 2013
 '''
 class PCRGlobWB(object):
     
-    def __init__(self, configuration, currTimeStep, initialState = None, spinUpRun = None):
+    def __init__(self, configuration, currTimeStep, initialState, spinUpRun, ldd_lue):
         self._configuration = configuration
         self._modelTime = currTimeStep
         
-        pcr.setclone(configuration.cloneMap)
-
-        # Read the ldd map.
-        skip_ldd_repair_and_ldd_mask = False
-        if "skip_ldd_repair_and_ldd_mask" in configuration.routingOptions.keys() and configuration.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
-            skip_ldd_repair_and_ldd_mask = True
-        if skip_ldd_repair_and_ldd_mask:    
-            lddMap_file = vos.getFullPath(inputPath        = configuration.routingOptions['lddMap'],\
-                                          absolutePath     = configuration.globalOptions['inputDir'],\
-                                          completeFileName = True) 
-            self.lddMap = pcr.readmap(lddMap_file)
-        else:
-            self.lddMap = vos.readPCRmapClone(\
-                      configuration.routingOptions['lddMap'],
-                      configuration.cloneMap,configuration.tmpDir, configuration.globalOptions['inputDir'], True)
-            # ensure ldd map is correct, and actually of type "ldd"
-            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
- 
-        if configuration.globalOptions['landmask'] != "None":
-            self.landmask = vos.readPCRmapClone(\
-            configuration.globalOptions['landmask'],
-            configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
-        else:
-            self.landmask = pcr.defined(self.lddMap)
+        if ldd_lue is not None:
         
-        # masking the lddMap to the landmask only
-        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
+            self.lddMap = ldd_lue
+            self.landmask = pcr.defined(self.lddMap)
+            
+            # ~ print(self.lddMap)
+            
+            # ~ pietje
+            
+        else:
+        
+            # ~ pcr.setclone(configuration.cloneMap)
+            
+            # Read the ldd map.
+            skip_ldd_repair_and_ldd_mask = False
+            if "skip_ldd_repair_and_ldd_mask" in configuration.routingOptions.keys() and configuration.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+                skip_ldd_repair_and_ldd_mask = True
+            if skip_ldd_repair_and_ldd_mask:    
+                lddMap_file = vos.getFullPath(inputPath        = configuration.routingOptions['lddMap'],\
+                                              absolutePath     = configuration.globalOptions['inputDir'],\
+                                              completeFileName = True) 
+                self.lddMap = pcr.readmap(lddMap_file)
+            else:
+                self.lddMap = vos.readPCRmapClone(\
+                          configuration.routingOptions['lddMap'],
+                          configuration.cloneMap,configuration.tmpDir, configuration.globalOptions['inputDir'], True)
+                # ensure ldd map is correct, and actually of type "ldd"
+                self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+		    
+            if configuration.globalOptions['landmask'] != "None":
+                self.landmask = vos.readPCRmapClone(\
+                configuration.globalOptions['landmask'],
+                configuration.cloneMap,configuration.tmpDir,configuration.globalOptions['inputDir'])
+            else:
+                self.landmask = pcr.defined(self.lddMap)
+            
+            # masking the lddMap to the landmask only
+            if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
         
         # defining catchment areas
         self.catchment_class = 1.0
@@ -135,6 +146,9 @@ class PCRGlobWB(object):
         # short name for every land cover type (needed for file name)
         self.shortNames = ['f','g','p','n']
         
+    def dumpStateDummy(self, outputDirectory, specific_date_string = None):
+        pass
+
     def dumpState(self, outputDirectory, specific_date_string = None):
         #write all state to disk to facilitate restarting
 
@@ -149,6 +163,9 @@ class PCRGlobWB(object):
              str(variable)+"_"+
              specific_date_string+".map",\
              outputDirectory)
+            
+            # ~ vos.plot_variable_for_lue(map, variable)
+
         
         landSurfaceState = state['landSurface']
         for coverType, coverTypeState in list(landSurfaceState.items()):
@@ -158,6 +175,8 @@ class PCRGlobWB(object):
                  str(variable)+"_"+coverType+"_"+
                  specific_date_string+".map",\
                  outputDirectory)
+
+            # ~ vos.plot_variable_for_lue(map, variable)
                 
         groundWaterState = state['groundwater']
         for variable, map in list(groundWaterState.items()):
@@ -167,6 +186,8 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
 
+            # ~ vos.plot_variable_for_lue(map, variable)
+
         routingState = state['routing']
         for variable, map in list(routingState.items()):
             vos.writePCRmapToDir(\
@@ -175,6 +196,8 @@ class PCRGlobWB(object):
              specific_date_string+".map",\
              outputDirectory)
         
+            # ~ vos.plot_variable_for_lue(map, variable)
+
     def calculateAndDumpMonthlyValuesForMODFLOW(self, outputDirectory, timeStamp = "Default"):
 
         logger.debug('Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input.')
@@ -482,7 +505,7 @@ class PCRGlobWB(object):
         logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
     
-    def update(self, report_water_balance = False):
+    def update(self, report_water_balance = False, lue_scalability_experiment = False):
         logger.info("Updating model for time %s", self._modelTime)
         
         if (report_water_balance):
@@ -494,13 +517,15 @@ class PCRGlobWB(object):
         self.groundwater.update(self.landSurface, self.routing, self._modelTime)
         self.routing.update(self.landSurface, self.groundwater, self._modelTime, self.meteo)
 
-        # save/dump states at the end of the year or at the end of model simulation
-        # - option to also save model output at the last day of the month
-        save_monthly_end_states = self.save_monthly_end_states 
-        if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
-          (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
-            logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
-            self.dumpState(self._configuration.endStateDir)
+        if lue_scalability_experiment is False:
+        
+            # save/dump states at the end of the year or at the end of model simulation
+            # - option to also save model output at the last day of the month
+            save_monthly_end_states = self.save_monthly_end_states 
+            if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep() or\
+              (self._modelTime.isLastDayOfMonth() and save_monthly_end_states):
+                logger.info("Saving/dumping states to pcraster maps for time %s to the directory %s", self._modelTime, self._configuration.endStateDir)
+                self.dumpState(self._configuration.endStateDir)
 
         # calculating and dumping some monthly values for the purpose of online coupling with MODFLOW:
         if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
@@ -518,7 +543,7 @@ class PCRGlobWB(object):
             self.report_summary(landWaterStoresAtBeginning, landWaterStoresAtEnd,\
                                 surfaceWaterStoresAtBeginning, surfaceWaterStoresAtEnd)
 
-        if self._modelTime.isLastDayOfMonth():
+        if self._modelTime.isLastDayOfMonth() and lue_scalability_experiment is False:
             # make an empty file to indicate that the calculation for this month has done
             # - this is only needed for runs with merging and modflow processes
             # - for a spinUpRun, merging will be skipped

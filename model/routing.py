@@ -32,6 +32,8 @@ from six.moves import map
 
 from lue.framework.pcraster_provider import pcr
 
+import lue.framework as lfr
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -76,7 +78,7 @@ class Routing(object):
 
         return result
 
-    def __init__(self,iniItems,initialConditions,lddMap):
+    def __init__(self, iniItems, initialConditions, lddMap):
         object.__init__(self)
 
         self.lddMap = lddMap
@@ -99,21 +101,21 @@ class Routing(object):
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
 
-        # Read the ldd map.
-        skip_ldd_repair_and_ldd_mask = False
-        if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
-            skip_ldd_repair_and_ldd_mask = True
-        if skip_ldd_repair_and_ldd_mask:    
-            lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
-                                          absolutePath     = iniItems.globalOptions['inputDir'],\
-                                          completeFileName = True) 
-            self.lddMap = pcr.readmap(lddMap_file)
-        else:
-            self.lddMap = vos.readPCRmapClone(\
-                      iniItems.routingOptions['lddMap'],
-                      iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
-            # ensure ldd map is correct, and actually of type "ldd"
-            self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
+        # ~ # Read the ldd map. - Why do we need this?
+        # ~ skip_ldd_repair_and_ldd_mask = False
+        # ~ if "skip_ldd_repair_and_ldd_mask" in iniItems.routingOptions.keys() and iniItems.routingOptions["skip_ldd_repair_and_ldd_mask"] == "True":
+            # ~ skip_ldd_repair_and_ldd_mask = True
+        # ~ if skip_ldd_repair_and_ldd_mask:    
+            # ~ lddMap_file = vos.getFullPath(inputPath        = iniItems.routingOptions['lddMap'],\
+                                          # ~ absolutePath     = iniItems.globalOptions['inputDir'],\
+                                          # ~ completeFileName = True) 
+            # ~ self.lddMap = pcr.readmap(lddMap_file)
+        # ~ else:
+            # ~ self.lddMap = vos.readPCRmapClone(\
+                      # ~ iniItems.routingOptions['lddMap'],
+                      # ~ iniItems.cloneMap,iniItems.tmpDir, iniItems.globalOptions['inputDir'], True)
+            # ~ # ensure ldd map is correct, and actually of type "ldd"
+            # ~ self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
  
         if iniItems.globalOptions['landmask'] != "None":
             self.landmask = vos.readPCRmapClone(\
@@ -122,8 +124,8 @@ class Routing(object):
         else:
             self.landmask = pcr.defined(self.lddMap)
         
-        # masking the lddMap to the landmask only
-        if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
+        # ~ # masking the lddMap to the landmask only - Why do we need this?
+        # ~ if skip_ldd_repair_and_ldd_mask == False: self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
 
         # cell area (unit: m2)
         self.cellArea = vos.readPCRmapClone(\
@@ -219,7 +221,10 @@ class Routing(object):
                         pcr.cover(self.gradient, minGradient))
 
         # initiate/create WaterBody class
-        self.WaterBodies = waterBodies.WaterBodies(iniItems,self.landmask)
+        self.WaterBodies = waterBodies.WaterBodies(iniItems, self.landmask, False, self.lddMap)
+        
+        # ~ print(self.WaterBodies.lddMap)
+        # ~ pietje
 
         # crop evaporation coefficient for surface water bodies
         self.no_zero_crop_water_coefficient = True
@@ -1991,9 +1996,14 @@ class Routing(object):
         self.water_height = channelStorageForRouting /\
                            (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
 
+        # ~ vos.plot_variable_for_lue(self.water_height)
+        
         # estimate the length of sub-time step (unit: s):
         length_of_sub_time_step, number_of_loops = self.estimate_length_of_sub_time_step()
-
+        
+        # ~ if pcr.provider_name == "lue":
+            # ~ written = lfr.to_gdal(pcr.spatial(pcr.scalar(number_of_loops)), "wait.tif")
+            # ~ written.wait()
 
         #######################################################################################################################
         for i_loop in range(number_of_loops):
@@ -2114,16 +2124,45 @@ class Routing(object):
             # discharge (m3/s) based on the KINEMATIC WAVE approximation
             #~ logger.debug('start pcr.kinematic')
             if pcr.provider_name == "pcraster":
+                
+                # ~ # write input for lue debugging
+                # ~ pcr.report(self.lddMap, "ldd.map")
+                # ~ pcr.report(dischargeInitial, "dischargeInitial.map")
+                # ~ pcr.report(alpha, "alpha.map")
+                # ~ pcr.report(self.channelLength, "channelLength.map")
+                
+                # ~ print(self.beta)
+                # ~ print(length_of_sub_time_step)
+                
+                alpha_hack = 0.5 * (pcr.mapminimum(alpha) + pcr.mapmaximum(alpha))
+                alpha = alpha_hack
+                
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                                   alpha, self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
+                
+                # ~ # write output for lue debugging
+                # ~ pcr.report(self.subDischarge, "subDischarge.map")
+
+                # ~ pietje
+                                                  
             else:
                 # TODO LUE: Support scalar q
                 # TODO LUE: Support spatial alpha
+                # ~ self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
+                                                  # ~ pcr.spatial(0.0), 
+                                                  # ~ pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  # ~ 1, length_of_sub_time_step, self.channelLength)
+
+                alpha_hack = 0.5 * (pcr.mapminimum(alpha).future.get() + pcr.mapmaximum(alpha).future.get())
+                alpha = alpha_hack
+
                 self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial,
                                                   pcr.spatial(0.0), 
-                                                  pcr.mapminimum(alpha).future.get(), self.beta, \
+                                                  alpha, self.beta, \
                                                   1, length_of_sub_time_step, self.channelLength)
+
+
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
             #~ logger.debug('done')
 

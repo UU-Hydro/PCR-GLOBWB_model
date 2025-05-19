@@ -45,6 +45,8 @@ import numpy as np
 import numpy.ma as ma
 from lue.framework.pcraster_provider import pcr
 
+import lue.framework as lfr
+
 import logging
 
 from six.moves import range
@@ -125,6 +127,11 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
     
     logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
+    ncFile = ncFile
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
+
     # 
     # EHS (19 APR 2013): To convert netCDF (tss) file to PCR file.
     # --- with clone checking
@@ -568,6 +575,40 @@ def singleTryNetcdf2PCRobjClone_version_until_2020_07_14(ncFile,\
     return (outPCR)
 
 
+def create_a_random_field(ncFile):
+
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        
+        msg = "Dummy input file: " +  str(ncFile)   
+        logger.debug(msg)
+        
+        ncFile_split = ncFile.replace("/","").split(",")
+        
+        type_of_random_function = ncFile_split[len(ncFile_split) - 2].replace(" ","")
+        max_value  = float(ncFile_split[len(ncFile_split) - 3].replace(" ",""))
+        min_value  = float(ncFile_split[len(ncFile_split) - 4].replace(" ",""))
+        factor     = float(ncFile_split[len(ncFile_split) - 5].replace(" ",""))
+        constant   = float(ncFile_split[len(ncFile_split) - 6].replace(" ",""))
+        
+        msg = "Generating a random field (constant or mean, factor or std_dev, min_value, max_value, type): " +  str(ncFile_split[len(ncFile_split)-6:len(ncFile_split)-1])   
+        logger.debug(msg)
+
+        if type_of_random_function == "uniform": outPCR = constant + pcr.uniform(pcr.boolean(1.0)) * factor
+        if type_of_random_function == "normal":  outPCR = constant +  pcr.normal(pcr.boolean(1.0)) * factor
+
+        # ~ pcr.aguila(outPCR)
+        
+        outPCR = pcr.min(pcr.max(min_value, outPCR), max_value)
+        
+        # ~ pcr.aguila(outPCR)
+        # ~ pietje 
+                
+        return outPCR
+    
+    else:   
+    
+        return None
+
 def singleTryNetcdf2PCRobjClone(ncFile,\
                                 varName = "automatic" ,
                                 dateInput = None,\
@@ -584,6 +625,11 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
     
     #~ print ncFile
     
+    ncFile = ncFile
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
+        
     if varName != "automatic": logger.debug('reading variable: '+str(varName)+' from the file: '+str(ncFile))
     
     if ncFile in list(filecache.keys()):
@@ -1559,6 +1605,11 @@ def singleTryReadPCRmapClone(v, cloneMapFileName, tmpDir, absolutePath = None, i
     #                   resampling will be done.   
     logger.debug('read file/value: '+str(v))
     
+    ncFile = v
+    if ncFile.endswith(",random") or ncFile.endswith(",random/") or ncFile.endswith(",random.nc") or ncFile.endswith(",random.map") :
+        outPCR = create_a_random_field(ncFile)
+        return outPCR
+
     if v == "None":
         #~ PCRmap = str("None")
         PCRmap = None                                                   # 29 July: I made an experiment by changing the type of this object. 
@@ -2790,6 +2841,34 @@ def plot_variable(pcr_variable, filename = None):
     
     cmd = 'rm '+str(filename)
     os.system(cmd)
+
+def plot_variable_for_lue(pcr_variable, filename = None, remove_file = True):
+
+    if filename == None: filename = get_random_word(8) + ".tif"
+    
+    # ~ pcr.report(pcr_variable, filename)
+    
+    written = lfr.to_gdal(pcr_variable, filename)
+    written.wait()
+    
+    os.system("pwd")
+    # ~ os.system("sleep 1s")
+
+    # converting to a pcraster and using only   
+    cmd = 'pcrcalc ' + filename + '.map = "if(abs(' + filename + ') ge 0.0, ' + filename + ')"'
+    print(cmd)
+    os.system(cmd)
+    cmd = 'mapattr -s -P yb2t ' + filename + '.map'
+    print(cmd)
+    os.system(cmd)
+    
+    cmd = 'aguila ' + str(filename) + '.map' 
+    print(cmd)
+    os.system(cmd)
+    
+    if remove_file:
+        cmd = 'rm ' + str(filename) + "*"
+        os.system(cmd)
 
 # conversions to and from radians
 def deg2rad(a):

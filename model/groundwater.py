@@ -539,7 +539,7 @@ class Groundwater(object):
             self.storGroundwater = pcr.cover( self.storGroundwater,0.0)
             self.storGroundwater = pcr.max(0.,self.storGroundwater)
             self.storGroundwater = pcr.ifthen(self.landmask, self.storGroundwater)
-            pcr.report(self.storGroundwater, "initial_stor_groundwater_when_the_model_just_start_without_spinup.map")
+            # ~ pcr.report(self.storGroundwater, "initial_stor_groundwater_when_the_model_just_start_without_spinup.map")
             
             self.avgAbstraction          = vos.readPCRmapClone(\
                                            iniItems.groundwaterOptions['avgTotalGroundwaterAbstractionIni'],
@@ -668,7 +668,7 @@ class Groundwater(object):
         self.storGroundwaterFossil = pcr.cover( self.storGroundwaterFossil, 0.0)
         self.storGroundwaterFossil = pcr.ifthen(self.landmask,\
                                                 self.storGroundwaterFossil)
-        pcr.report(self.storGroundwaterFossil, "initial_fossil_gw_water.map")                                        
+        # ~ pcr.report(self.storGroundwaterFossil, "initial_fossil_gw_water.map")                                        
 
     def perturb(self, name, **parameters):
 

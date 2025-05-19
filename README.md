@@ -2,7 +2,7 @@
 
 PCR-GLOBWB (PCRaster Global Water Balance) is a large-scale hydrological model intended for global to regional studies and developed at the Department of Physical Geography, Utrecht University (Netherlands). This repository holds the model scripts of PCR-GLOBWB. 
 
-contact: Edwin H. Sutanudjaja (E.H.Sutanudjaja@uu.nl).
+For additional information about the model please checkout the PCR-GLOBWB documentation at https://pcrglobwb.readthedocs.io/en/latest/.
 
 Please also see the file README.txt.
 
@@ -57,6 +57,12 @@ This can be adjusted to any (local) locations, e.g. if you have the input files 
 Please make sure that the correct conda environment in a command prompt:
 
 `conda activate pcrglobwb_python3`
+
+Go to to the PCR-GLOBWB *model* directory. You can start a PCR-GLOBWB run using the following command: 
+
+`python deterministic_runner.py <ini_configuration_file>`
+
+where <ini_configuration_file> is the configuration file of PCR-GLOBWB. 
 
 
 ## Exercises/cooking recipes 
