@@ -42,7 +42,7 @@ ldd_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="100,200" \
+LUE_PARTITION_SHAPE="10,20" \
      python ${pcrglobwb_runner} ${pcrglobwb_ini} ${pcrglobwb_debug_mode} \
          --output_dir ${output_dir} \
          --clone_map ${clone_map} \
@@ -50,8 +50,8 @@ LUE_PARTITION_SHAPE="100,200" \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
-         --lue:array_shape="100,200" \
-         --lue:partition_shape="100,200" \
+         --lue:array_shape="10,20" \
+         --lue:partition_shape="10,20" \
          --lue:centre="43800,42000" \
          --lue:result=${output_dir}/"lue_experiment.txt" \
          --end
