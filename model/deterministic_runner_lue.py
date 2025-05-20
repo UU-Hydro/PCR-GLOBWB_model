@@ -42,7 +42,6 @@ from pcrglobwb import PCRGlobWB
 import logging
 logger = logging.getLogger(__name__)
 
-import oldcalc_framework
 import disclaimer
 
 class DeterministicRunner(pcrfw.DynamicModel):
