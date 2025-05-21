@@ -34,7 +34,7 @@ except:
     
     from groundwater      import groundwater
     from surfacewater     import surfacewater
-    from water_management import water_management, water_management_missing_value, very_small_number
+    from water_management import water_management, water_management_missing_value, very_small_number, water_balance_check
     from water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
 
 
@@ -1022,15 +1022,13 @@ class qualloc_model(object):
                groundwater_pathogen            = None, \
                ):
         
+        # set the current date to update
+        date = self.model_time.date
+        
+        
         # ******************************************************************************************
         # * forcing                                                                                *
         # ******************************************************************************************
-        
-        date = self.model_time.date
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # [ forcing: hydrology ] ...................................................................
         #
@@ -1152,13 +1150,6 @@ class qualloc_model(object):
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
-        # [ DELETEME ] verbose <--------------------------------------------------------------------------------------------------------------
-        if verbose:
-            for source_name in self.water_management.source_names:
-                for constituent_name in self.water_quality.constituent_names:
-                    pcr.report(constituent_shortterm_quality[source_name][constituent_name], f'{path}/{dt}_shortterm_{source_name}_{constituent_name}.map')
-        # ------------------------------------------------------------------------------------------------------------------------------------
-        
         # [ forcing: water management features ] .........................................................
         #
         # [ desalinated water use ]
@@ -1267,14 +1258,6 @@ class qualloc_model(object):
                     logger.info('Pumping capacity is considered to limit %s withdrawals for %s.' % \
                                 (date, source_name))
             
-            # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-            if verbose:
-                if self.model_flags['surfacewater_pumping_capacity_flag'] or not isinstance(self.water_management.surfacewater_withdrawal_capacity, NoneType):
-                    pcr.report(self.water_management.surfacewater_withdrawal_capacity, f'{path}/{dt}_surfacewater_withdrawal_capacity.map')
-                if self.model_flags['groundwater_pumping_capacity_flag'] or not isinstance(self.water_management.groundwater_withdrawal_capacity, NoneType):
-                    pcr.report(self.water_management.groundwater_withdrawal_capacity, f'{path}/{dt}_groundwater_withdrawal_capacity.map')
-            # --------------------------------------------------------------------------------------------------------------------------------------------
-            
             # [ long-term availability ] ...........................................................
             #
             # get the long-term availability for a given date
@@ -1357,6 +1340,7 @@ class qualloc_model(object):
                               net_demand   = net_demand_per_sector, \
                               date         = date)
         
+        
         # **************************************************************
         # * desalinated water allocation                               *
         # **************************************************************
@@ -1369,6 +1353,7 @@ class qualloc_model(object):
                               availability = self.desalinated_water_use * self.cellarea, \
                               date         = date)
         
+        
         # **************************************************************
         # * short-term potential withdrawals                           *
         # **************************************************************
@@ -1377,6 +1362,7 @@ class qualloc_model(object):
         # based on the short-term gross water demands
         # (units: m3/day)
         self.water_management.update_shortterm_potential_withdrawals_for_date(date)
+        
         
         # **************************************************************
         # * surface water withdrawal                                   *
@@ -1394,14 +1380,6 @@ class qualloc_model(object):
         # (units: m3/day)
         potential_withdrawal_per_sector = \
                      self.water_management.get_total_potential_withdrawal(source_name)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(sum_list(list(potential_withdrawal_per_sector.values())), f'{path}/{dt}_shortterm_potential_withdrawal_surfacewater.map')
-            for sector_name in self.water_management.sector_names:
-                pcr.report(potential_withdrawal_per_sector[sector_name], f'{path}/{dt}_shortterm_potential_withdrawal_surfacewater_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         
         # [ surface water available ] ..................................
         #
@@ -1444,7 +1422,6 @@ class qualloc_model(object):
             # define the average total runoff
             # (units: m/day)
             self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff_average)
-        
         
         # [ actual withdrawals ] .......................................
         #
@@ -1512,19 +1489,8 @@ class qualloc_model(object):
                      renewable_withdrawal_per_sector    = renewable_withdrawal_per_sector, \
                      nonrenewable_withdrawal_per_sector = nonrenewable_withdrawal_per_sector, \
                      source_names_to_be_processed       = source_names_to_be_processed, \
-                     date = self.model_time.date)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(potential_withdrawal, f'{path}/{dt}_shortterm_potential_withdrawal_surfacewater_[quality].map')
-            pcr.report(renewable_withdrawal, f'{path}/{dt}_actual_renewable_withdrawal_surfacewater.map')
-            pcr.report(self.water_management.potential_renewable_withdrawal['groundwater'], f'{path}/{dt}_potential_renewable_withdrawal_groundwater_[reallocated].map')
-            pcr.report(self.water_management.potential_nonrenewable_withdrawal['groundwater'], f'{path}/{dt}_potential_nonrenewable_withdrawal_groundwater_[reallocated].map')
-            for sector_name in self.water_management.sector_names:
-                pcr.report(renewable_withdrawal_per_sector[sector_name], f'{path}/{dt}_actual_renewable_withdrawal_surfacewater_{sector_name}.map')
-                pcr.report(self.water_management.potential_renewable_withdrawal_per_sector['groundwater'][sector_name], f'{path}/{dt}_potential_renewable_withdrawal_groundwater_{sector_name}_[reallocated].map')
-                pcr.report(self.water_management.potential_nonrenewable_withdrawal_per_sector['groundwater'][sector_name], f'{path}/{dt}_potential_nonrenewable_withdrawal_groundwater_{sector_name}_[reallocated].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
+                     water_available = surfacewater_available * self.cellarea, \
+                     date            = self.model_time.date)
         
         
         # **************************************************************
@@ -1604,13 +1570,14 @@ class qualloc_model(object):
         # (units: m3/day)
         renewable_withdrawal = \
                   pcr.min(groundwater_availability, \
-                          potential_withdrawal) / \
-                  self.model_time.time_step_length
+                          potential_withdrawal)
         
         nonrenewable_withdrawal = \
                   pcr.max(0, \
-                          potential_withdrawal - renewable_withdrawal) / \
-                  self.model_time.time_step_length
+                          potential_withdrawal - renewable_withdrawal)
+        
+        renewable_withdrawal    /= self.model_time.time_step_length
+        nonrenewable_withdrawal /= self.model_time.time_step_length
         
         # [ update storage ] ...........................................
         #
@@ -1628,6 +1595,7 @@ class qualloc_model(object):
             
             # set average groundwater storage over the last month
             storage = deepcopy(groundwater_storage_average)
+        
         
         # **************************************************************
         # * re-distribute withdrawals                                  *
@@ -1660,18 +1628,8 @@ class qualloc_model(object):
                      renewable_withdrawal_per_sector    = renewable_withdrawal_per_sector, \
                      nonrenewable_withdrawal_per_sector = nonrenewable_withdrawal_per_sector, \
                      source_names_to_be_processed       = source_names_to_be_processed, \
-                     date = self.model_time.date)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(potential_withdrawal, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater.map')
-            pcr.report(renewable_withdrawal,    f'{path}/{dt}_actual_renewable_withdrawal_groundwater.map')
-            pcr.report(nonrenewable_withdrawal, f'{path}/{dt}_actual_nonrenewable_withdrawal_groundwater.map')
-            for sector_name in self.water_management.sector_names:
-                pcr.report(potential_withdrawal_per_sector[sector_name], f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_{sector_name}.map')
-                pcr.report(renewable_withdrawal_per_sector[sector_name],    f'{path}/{dt}_actual_renewable_withdrawal_groundwater_{sector_name}.map')
-                pcr.report(nonrenewable_withdrawal_per_sector[sector_name], f'{path}/{dt}_actual_nonrenewable_withdrawal_groundwater_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
+                     water_available = groundwater_availability, \
+                     date            = self.model_time.date)
         
         
         # **************************************************************
@@ -1684,16 +1642,7 @@ class qualloc_model(object):
         self.water_management.allocate_withdrawal_to_demand_for_date( \
                    date         = self.model_time.date, \
                    availability = {'surfacewater':surfacewater_available * self.cellarea,\
-                                   'groundwater' :groundwater_available  * self.cellarea})
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            for withdrawal_name in self.water_management.withdrawal_names:
-                for source_name in self.water_management.source_names:
-                    key = f'{withdrawal_name}_{source_name}'
-                    for sector_name in self.water_management.sector_names:
-                        pcr.report(self.water_management.allocated_demand_per_sector[key][sector_name], f'{path}/{dt}_allocated_withdrawal_{withdrawal_name}_{source_name}_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
+                                   'groundwater' :groundwater_availability})
         
         
         # **************************************************************

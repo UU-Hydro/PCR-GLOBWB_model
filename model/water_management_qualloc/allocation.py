@@ -747,20 +747,29 @@ def allocate_demand_to_withdrawals(withdrawal_names, \
     
     input:
     =====
-    withdrawal_names      : 
-    source_names          : 
-    sector_names          : 
+    withdrawal_names      : list with withdrawal names to be processed
+                            (i.e., renewable and non-renewable)
+    source_names          : list with source names to be processed
+                            (i.e., surfacewater and groundwater)
+    sector_names          : list with sector names to be processed
     demand_per_sector     : dictionary with the sector names as keys and as 
                             values the corresponding sectoral demand as scalar
     renewable_withdrawal_per_sector :
-                            
+                            dictionary with source names (string) as keys with 
+                            another dictionary with sector names (string) as keys 
+                            and PCRaster maps with actual water withdrawal from
+                            renewable sources
     nonrenewable_withdrawal_per_sector :
-                            
-    zones_per_sector      : zones over which the demand and availability are
-                            totaled; organized as a dictionary with the source 
-                            names as keys and nominal PCRaster fields as values;
+                            dictionary with source names (string) as keys with 
+                            another dictionary with sector names (string) as keys 
+                            and PCRaster maps with actual water withdrawal from
+                            non-renewable sources
+    zones_per_sector      : dictionary with source names (string) as keys with 
+                            another dictionary with sector names (string) as keys 
+                            and PCRaster maps with zones over which the demand and
+                            availability are totaled
     use_local_first        : boolean PCRaster map that indicates if the local
-                            availability should be used first.
+                            availability should be used first
     
     output:
     ======
@@ -827,8 +836,8 @@ def allocate_demand_to_withdrawals(withdrawal_names, \
                                  for sector_name in sector_names)
     
     # total remaining withdrawal and demand per source
-    remaining_withdrawal_per_source_sector = {'renewable'   : renewable_withdrawal_per_sector, \
-                                              'nonrenewable': nonrenewable_withdrawal_per_sector}
+    remaining_withdrawal_per_source_sector = {'renewable'   : deepcopy(renewable_withdrawal_per_sector), \
+                                              'nonrenewable': deepcopy(nonrenewable_withdrawal_per_sector)}
     
     remaining_demand_per_sector = deepcopy(demand_per_sector)
     
@@ -943,8 +952,9 @@ def allocate_demand_to_withdrawals(withdrawal_names, \
                                required_allocated_withdrawal
                         
                         # update remaining withdrawal
-                        remaining_withdrawal_per_source_sector[withdrawal_name][source_name][sector_name] -= \
-                            required_allocated_withdrawal
+                        remaining_withdrawal_per_source_sector[withdrawal_name][source_name][sector_name] = \
+                            pcr.max(0.0, \
+                                    remaining_withdrawal_per_source_sector[withdrawal_name][source_name][sector_name] - required_allocated_withdrawal)
     
     # aggregating results
     remaining_withdrawal_per_source = {}
