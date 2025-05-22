@@ -1363,6 +1363,15 @@ class LandSurface(object):
             self.nonIrrReturnFlowVolume = sum(list(self.nonIrrReturnFlowVolumePerSector.values()))
             self.nonIrrWaterConsumptionVolume = sum(list(self.nonIrrWaterConsumptionVolumePerSector.values()))
             
+            
+            
+            
+            pcr.aguila(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_surfacewater']['thermoelectric'])
+            pcr.aguila(self.nonIrrReturnFlowVolumePerSector['thermoelectric'])
+            pietje
+            
+            
+            
             # - water-slice (unit: m/day)
             #   return flows
             self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
