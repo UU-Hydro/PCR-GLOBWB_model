@@ -41,9 +41,6 @@ except:
 # global variables
 logger = logging.getLogger(__name__)
 
-# path out for debugging
-path = '/scratch/carde003/qualloc/_debug'
-verbose = False
 
 ########
 # TODO #

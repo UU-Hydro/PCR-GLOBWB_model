@@ -27,14 +27,11 @@ from __future__ import print_function
 #-extracts data from partial netCDF output via arrays
 
 #-modules
-import os, sys
+import os, sys, datetime, glob, calendar
 import time as tm
 import numpy as np
-import netCDF4 as nc
-import datetime
-import glob
-from multiprocessing import Pool
-import calendar
+import netCDF4 as nc  
+from multiprocessing import Pool 
 from dateutil.relativedelta import *
 
 # file cache to minimize/reduce opening/closing files.  
@@ -76,11 +73,12 @@ def netcdfList(inputDir):
         ll.append(ncFile.split('/')[-1])
     return ll
 
-def ncFileNameDict(inputDirRoot, areas, ncFileName):
+def ncFileNameDict(inputDirRoot, areas, ncFileName, fileType):
     '''creates a dictionary of subdomains of pcrglob model outut'''
     netcdfInputDict = {}
+    folder = 'states' if fileType == 'outStates' else 'netcdf'
     for key in range(1, len(areas)+1, 1):
-        value = os.path.join(inputDirRoot, areas[key-1], 'netcdf', ncFileName)
+        value = os.path.join(inputDirRoot, areas[key-1], folder, ncFileName)
         netcdfInputDict[key] = value
     return netcdfInputDict
 
@@ -100,21 +98,23 @@ def mergeNetCDF(inputTuple):
     print('combining files for %s'%ncName)
     scriptStartTime = tm.time()
     
+    # - option to define if files are outputs or states
+    fileType     = inputTuple[12]
+    
     # - dictionary holding netCDFInput
-    netCDFInput  = ncFileNameDict(inputDirRoot, areas, ncName)
+    netCDFInput  = ncFileNameDict(inputDirRoot, areas, ncName, fileType)
     
     # - netDCF output file name
     netCDFOutput = outputDir + "/" + ncName.split(".")[0] + "_" + startDate + "_to_" + endDate + ".nc"
-    
     print(netCDFOutput)
     
-    #~ ncFormat = 'NETCDF3_CLASSIC'
-    #~ ncFormat = 'NETCDF4'
+    #ncFormat = 'NETCDF3_CLASSIC'
+    #ncFormat = 'NETCDF4'
     ncFormat = inputTuple[9]
     
     # option to use zlib compression:
-    #~ using_zlib = True
-    #~ using_zlib = False               # I decide not to compress (so that we can I analyze it quickly). 
+    #using_zlib = True
+    #using_zlib = False      # 'False' allows quick analyses 
     using_zlib = inputTuple[10]
     if using_zlib == "True": using_zlib = True
     
@@ -244,8 +244,12 @@ def mergeNetCDF(inputTuple):
                 rootgrp.close()
                 sys.exit('variables are incompatible')
         #-Missing Value
-        MV = rootgrp.variables[key]._FillValue
-        MV = -999.9000244140625
+        using_MV = inputTuple[11]
+        if using_MV == "True": using_MV = True
+        if using_MV == True:
+            MV = -999.9000244140625
+        else:
+            MV = rootgrp.variables[key]._FillValue
         varUnits = rootgrp.variables[variableName].units
         #-close file 
         rootgrp.close()
@@ -431,6 +435,7 @@ netcdfList = list(set(netcdfList.split(",")))
 
 if file_type == "outMonthTotNC": netcdfList = ['%s_monthly_tot.nc'%var for var in netcdfList]
 if file_type == "outMonthAvgNC": netcdfList = ['%s_monthly_avg.nc'%var for var in netcdfList]
+if file_type == "outStates":     netcdfList = ['%s.nc'%var for var in netcdfList]
 
 # netcdf format and zlib option:
 ncFormat   = str(sys.argv[7])
@@ -463,12 +468,15 @@ if sys.argv[11] == "defined":
     lonMax = xmax - float(sys.argv[12]) / (2. * 3600.)
     latMax = ymax - float(sys.argv[12]) / (2. * 3600.)
 
+# define missing value (MV)
+using_MV = str(sys.argv[12])
+
 # for testing, we use only a single core
-#mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+#mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib, using_MV, file_type))
 
 ll = []
 for ncName in netcdfList:
-    ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib))
+    ll.append((ncName, latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib, using_MV, file_type))
 pool = Pool(processes = ncores)    # start "ncores" of worker processes
 pool.map(mergeNetCDF, ll)          # multicore processing
 

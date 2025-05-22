@@ -43,9 +43,7 @@ mid = -1
 # update long-term water availability etc.
 water_management_missing_value = -9.99
 
-# path out for debugging
-path = '/scratch/carde003/qualloc/_debug'
-verbose = False
+# for debugging only
 debug   = True
 
 ########
@@ -87,7 +85,7 @@ def water_balance_check(states_ini, \
                         zones = None, \
                         flag_warning = True, \
                         flag_debug = False, \
-                        threshold = 1e-7):
+                        threshold = 1e-5):
     """
     water_balance_check :
                    function to evaluate the water balance for a list of
@@ -571,7 +569,7 @@ See doc string of class for detailed info.
                     sorted(list(gross_demand_longterm[sector_name].keys())))
         
         # pumping capacity
-        # set an initial value for surface and groundwater long-term potential        <------------------------------ pumping capacity
+        # set an initial value for surface and groundwater long-term potential
         # withdrawal to distribute the pumping capacity (units: m3/day)
         for source_name in self.source_names:
             if self.pumping_capacity_flag[source_name]:
@@ -1192,13 +1190,6 @@ See doc string of class for detailed info.
                                     pcr.ifthen(self.landmask, \
                                                pcr.cover(gross_demand_per_sector[sector_name], 0))
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            for sector_name in self.sector_names:
-                pcr.report(gross_demand_per_sector[sector_name], f'{path}/{dt}_longterm_gross_demand_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # return gross demand per sector
         return gross_demand_per_sector
     
@@ -1270,13 +1261,6 @@ See doc string of class for detailed info.
         # create an updateable gross demand variable
         # (units: m3/day)
         self.gross_demand_remaining = deepcopy(self.gross_demand)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            for sector_name in self.sector_names:
-                pcr.report(self.gross_demand[sector_name], f'{path}/{dt}_shortterm_gross_demand_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # log message
         logger.debug('total gross and net demand set for %s' % date)
@@ -1404,17 +1388,6 @@ See doc string of class for detailed info.
             self.potential_nonrenewable_withdrawal[source_name] = \
                  sum_list(list(self.potential_nonrenewable_withdrawal_per_sector[source_name].values()))
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            for source_name in self.source_names:
-                pcr.report(self.potential_renewable_withdrawal[source_name], f'{path}/{dt}_shortterm_potential_renewable_{source_name}.map')
-                pcr.report(self.potential_nonrenewable_withdrawal[source_name], f'{path}/{dt}_shortterm_potential_nonrenewable_{source_name}.map')
-                for sector_name in self.sector_names:
-                    pcr.report(self.potential_renewable_withdrawal_per_sector[source_name][sector_name], f'{path}/{dt}_shortterm_potential_renewable_{source_name}_{sector_name}.map')
-                    pcr.report(self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name], f'{path}/{dt}_shortterm_potential_nonrenewable_{source_name}_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # log message
         message_str = 'Long-term potential withdrawals are updated considering short-term gross demands for %s.' \
                       % (date)
@@ -1436,10 +1409,7 @@ See doc string of class for detailed info.
                           cellarea     = self.cellarea, \
                           var_name     = '%s %s' % (withdrawal_name, source_name), \
                           process_name = 'Long-term withdrawal vs Short-term withdrawal', \
-                          date         = date, \
-                          
-                          flag_warning = False, \
-                          flag_debug   = True)
+                          date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) pumping capacity
@@ -1457,10 +1427,7 @@ See doc string of class for detailed info.
                           cellarea     = self.cellarea, \
                           var_name     = source_name, \
                           process_name = 'Short-term - pumping capacity vs potential withdrawal', \
-                          date         = date, \
-                          
-                          flag_warning = False, \
-                          flag_debug   = True)
+                          date         = date)
         
         # return None
         return None
@@ -1489,12 +1456,6 @@ See doc string of class for detailed info.
         
         # set the message string to log the information
         message_str = 'Desalinated water use for %s.' % (date)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            pcr.report(availability, f'{path}/{dt}_shortterm_desalwater_availability.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # [ set up input data ] .............................................................................................
         # define starting conditions
@@ -1796,21 +1757,6 @@ See doc string of class for detailed info.
                                   sum_list(list(self.potential_renewable_withdrawal_per_sector[source_name].values()))) \
                                  for source_name in self.source_names)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            pcr.report(availability['surfacewater'], f'{path}/{dt}_longterm_surfacewater_availability_[noquality].map')
-            pcr.report(availability['groundwater'],  f'{path}/{dt}_longterm_groundwater_availability_[noquality].map')
-            for sector_name in self.sector_names:
-                pcr.report(met_demand_per_sector[sector_name],       f'{path}/{dt}_potential_renewable_met_demand_{sector_name}.map')
-                pcr.report(unmet_demand_per_sector[sector_name],     f'{path}/{dt}_potential_renewable_unmet_demand_{sector_name}.map')
-            
-            for source_name in self.source_names:
-                pcr.report(self.potential_renewable_withdrawal[source_name], f'{path}/{dt}_potential_renewable_{source_name}.map')
-                for sector_name in self.sector_names:
-                    pcr.report(self.potential_renewable_withdrawal_per_sector[source_name][sector_name], f'{path}/{dt}_potential_renewable_{source_name}_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # update the message str
         message_str = str.join('\n', \
                                (message_str, sub_message_str))
@@ -1829,14 +1775,6 @@ See doc string of class for detailed info.
                                     zones_per_sector        = zones_per_sector, \
                                     withdrawal_capacity     = withdrawal_capacity, \
                                     withdrawal_points       = withdrawal_points)
-        
-        # [ DELETEME ] verbose <------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            for source_name in self.source_names:
-                pcr.report(self.potential_nonrenewable_withdrawal[source_name], f'{path}/{dt}_potential_nonrenewable_{source_name}.map')
-                for sector_name in self.sector_names:
-                    pcr.report(self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name], f'{path}/{dt}_potential_nonrenewable_{source_name}_{sector_name}.map')
-        # ----------------------------------------------------------------------------------------------------------------------------------------
         
         # add the information to the message str
         sub_message_str = str.join(' ', \
@@ -1885,11 +1823,8 @@ See doc string of class for detailed info.
                       cellarea     = self.cellarea, \
                       var_name     = sector_name, \
                       process_name = 'Long-term - gross demand vs potential withdrawal', \
-                      date         = date, \
                       zones        = zones_per_sector['surfacewater'][sector_name], \
-                      
-                      flag_warning = False, \
-                      flag_debug   = True)
+                      date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) long-term waer availabiliy
@@ -1902,10 +1837,7 @@ See doc string of class for detailed info.
                       cellarea     = self.cellarea, \
                       var_name     = source_name, \
                       process_name = 'Long-term - availability vs potential withdrawal', \
-                      date         = date, \
-                      
-                      flag_warning = False, \
-                      flag_debug   = True)
+                      date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) pumping capacity
@@ -1921,10 +1853,7 @@ See doc string of class for detailed info.
                       cellarea     = self.cellarea, \
                       var_name     = source_name, \
                       process_name = 'Long-term - pumping capacity  vs potential withdrawal', \
-                      date         = date, \
-                      
-                      flag_warning = False, \
-                      flag_debug   = True)
+                      date         = date)
         
         # returns none
         return None
@@ -1997,14 +1926,6 @@ See doc string of class for detailed info.
                                              source_names = self.source_names, \
                                              date         = date)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            for source_name in self.source_names:
-                for constituent_name in self.water_quality.constituent_names:
-                    pcr.report(constituent_longterm_states[source_name][constituent_name], f'{path}/{dt}_longterm_{source_name}_{constituent_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # define suitability masks of water quality per sector and source
         self.suitability_per_sector = {}
         for source_name in self.source_names:
@@ -2012,13 +1933,6 @@ See doc string of class for detailed info.
                  self.water_quality.get_suitability_per_sector( \
                              constituent_state = constituent_longterm_states[source_name], \
                              sector_names      = self.sector_names)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            for source_name in self.source_names:
-                for sector_name in self.sector_names:
-                    pcr.report(self.suitability_per_sector[source_name][sector_name], f'{path}/{dt}_longterm_suitability_{source_name}_{sector_name}.map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # define initial exit conditions
         iter_allocation = 1
@@ -2030,17 +1944,6 @@ See doc string of class for detailed info.
         # [ start water distribution ] ......................................................................................
         # iterate until either the demand is met or the supply is exhausted
         while not exit_condition:
-            
-            # [ DELETEME ] verbose <------------------------------------------------------------------------------------------------------------------
-            if verbose:
-                dt = str(date)[2:7]
-                itera = str(iter_allocation).zfill(2)
-                print('date: %s - iteration: %s \n total available : surfacewater = %15s - groundwater  = %15s' % \
-                      (dt, \
-                       itera, \
-                       pcr.cellvalue(pcr.maptotal(remaining_availability['surfacewater']),1)[0], \
-                       pcr.cellvalue(pcr.maptotal(remaining_availability['groundwater']),1)[0]))
-            # ----------------------------------------------------------------------------------------------------------------------------------------
             
             # define initial values of zonal demand and supply
             for source_name in self.source_names:
@@ -2106,12 +2009,6 @@ See doc string of class for detailed info.
                 remaining_availability_groundwater_sector = \
                     remaining_availability['groundwater']  * weights_groundwater_per_sector[sector_name]  * self.suitability_per_sector['groundwater'][sector_name]
                 
-                # [ DELETEME ] verbose <--------------------------------------------------------------------------------------------------------------
-                if verbose:
-                    pcr.report(remaining_availability_surfacewater_sector, f'{path}/{dt}_longterm_surfacewater_{sector_name}_iter{itera}.map')
-                    pcr.report(remaining_availability_groundwater_sector,  f'{path}/{dt}_longterm_groundwater_{sector_name}_iter{itera}.map')
-                # ------------------------------------------------------------------------------------------------------------------------------------
-                
                 # calculate water withdrawal and allocation
                 tmp_withdrawal, tmp_allocated_demand, tmp_met_demand, tmp_unmet_demand, message_str = \
                     allocate_demand_to_availability_with_options( \
@@ -2123,18 +2020,6 @@ See doc string of class for detailed info.
                         source_names       = self.source_names, \
                         use_local_first     = use_local_first, \
                         reallocate_surplus = reallocate_surplus)
-                
-                # [ DELETEME ] verbose <--------------------------------------------------------------------------------------------------------------
-                if verbose:
-                    print(' %s\n  - available   : surfacewater = %15s - groundwater  = %15s \n  - withdrawals : surfacewater = %15s - groundwater  = %15s \n  - met demand  : %s \n  - unmet demand: %s' % \
-                          (sector_name, \
-                           pcr.cellvalue(pcr.maptotal(remaining_availability_surfacewater_sector),1)[0], \
-                           pcr.cellvalue(pcr.maptotal(remaining_availability_groundwater_sector),1)[0], \
-                           pcr.cellvalue(pcr.maptotal(tmp_withdrawal['surfacewater']),1)[0], \
-                           pcr.cellvalue(pcr.maptotal(tmp_withdrawal['groundwater']),1)[0], \
-                           pcr.cellvalue(pcr.maptotal(tmp_met_demand),1)[0], \
-                           pcr.cellvalue(pcr.maptotal(tmp_unmet_demand),1)[0]))
-                # ------------------------------------------------------------------------------------------------------------------------------------
                 
                 # update water withdrawal and demand values
                 met_demand_per_sector[sector_name]   = \
@@ -2184,25 +2069,6 @@ See doc string of class for detailed info.
             iter_allocation = iter_allocation + 1
             exit_condition  = (pcr.cellvalue(pcr.mapmaximum(pcr.scalar(update_mask)), 1)[0] == 0) | \
                               (iter_allocation > max_iter_allocation)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-            if verbose:
-                print('  exit condition -> \n   - surfacewater : demands = %s - availability = %s -> overall = %s\n   - groundwater  : demands = %s - availability = %s -> overall = %s\n   - final overall : %s' % \
-                      (pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_demand['surfacewater'] < totz_demand_old['surfacewater']))), 1)[0] == 0, \
-                       pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_supply['surfacewater'] < totz_supply_old['surfacewater']))), 1)[0] == 0, \
-                       pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_demand['surfacewater'] < totz_demand_old['surfacewater']) & (total_zonal_supply['surfacewater'] < totz_supply_old['surfacewater']))), 1)[0] == 0, \
-                       pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_demand['groundwater']  < totz_demand_old['groundwater']))), 1)[0] == 0, \
-                       pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_supply['groundwater']  < totz_supply_old['groundwater']))), 1)[0] == 0, \
-                       pcr.cellvalue(pcr.mapmaximum(pcr.scalar((total_zonal_demand['groundwater']  < totz_demand_old['groundwater']) & (total_zonal_supply['groundwater']  < totz_supply_old['groundwater']))), 1)[0] == 0, \
-                       exit_condition))
-        
-        if verbose:
-            print(' outcomes \n - withdrawals : surfacewater = %15s - groundwater  = %15s \n - met demand  : %s \n - unmet demand: %s' % \
-                  (pcr.cellvalue(pcr.maptotal(withdrawal['surfacewater']),1)[0], \
-                   pcr.cellvalue(pcr.maptotal(withdrawal['groundwater']),1)[0], \
-                   pcr.cellvalue(pcr.maptotal(sum_list(list(met_demand_per_sector.values()))),1)[0], \
-                   pcr.cellvalue(pcr.maptotal(sum_list(list(unmet_demand_per_sector.values()))),1)[0]))
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # return potential withdrawals and met demand per sector
         return withdrawal_per_sector, met_demand_per_sector, message_str
@@ -2467,15 +2333,6 @@ See doc string of class for detailed info.
                                                    very_small_number))) \
                  for sector_name in self.sector_names)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            pcr.report(potential_surfacewater_availability, f'{path}/{dt}_shortterm_potential_availability_surfacewater.map')
-            for sector_name in self.sector_names:
-                pcr.report(suitability_per_sector[sector_name], f'{path}/{dt}_shortterm_suitability_surfacewater_{sector_name}.map')
-                pcr.report(potential_withdrawal_per_sector[sector_name], f'{path}/{dt}_shortterm_potential_withdrawal_surfacewater_{sector_name}_[quality].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # return potential surface water withdrawals per sector
         # for current time-step
         # (units: m3/day)
@@ -2539,16 +2396,6 @@ See doc string of class for detailed info.
                   * time_step_length) \
                  for sector_name in self.sector_names)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            pcr.report(potential_groundwater_availability / time_step_length, f'{path}/{dt}_shortterm_actual_renewable_availability_groundwater.map')
-            pcr.report(sum_list(list(shortterm_potential_withdrawal_per_sector.values())) / time_step_length, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_[quality].map')
-            for sector_name in self.sector_names:
-                pcr.report(suitability_per_sector[sector_name], f'{path}/{dt}_shortterm_suitability_groundwater_{sector_name}.map')
-                pcr.report(potential_withdrawal_per_sector[sector_name] / time_step_length, f'{path}/{dt}_shortterm_potential_withdrawal_groundwater_{sector_name}_[quality].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # return potential groundwater withdrawals per sector and the 
         # groundwater availability for current time-step
         # (units: m3/period)
@@ -2610,13 +2457,6 @@ See doc string of class for detailed info.
                            self.actual_nonrenewable_withdrawal_per_sector[source_name][sector_name])) )\
                  for sector_name in self.sector_names)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            for sector_name in self.sector_names:
-                pcr.report(unmet_withdrawal_per_sector[sector_name], f'{path}/{dt}_unmet_{source_name}_withdrawal_{sector_name}_after_{source_name}_[2reallocate].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # set a list of selectable source names to process
         source_names = []
         for source_name_to_be_processed in source_names_to_be_processed:
@@ -2651,10 +2491,7 @@ See doc string of class for detailed info.
                   cellarea     = self.cellarea, \
                   var_name     = source_name, \
                   process_name = 'Short-term - availability vs actual withdrawal', \
-                  date         = date, \
-                  
-                  flag_warning = False, \
-                  flag_debug   = True)
+                  date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) pumping capacity
@@ -2673,10 +2510,7 @@ See doc string of class for detailed info.
                           cellarea     = self.cellarea, \
                           var_name     = source_name, \
                           process_name = 'Short-term - pumping capacity vs reallocated unmet demand', \
-                          date         = date, \
-                          
-                          flag_warning = False, \
-                          flag_debug   = True)
+                          date         = date)
         
         # returns None
         return None
@@ -2772,61 +2606,6 @@ See doc string of class for detailed info.
         # update the message_str
         message_str = str.join('\n', \
                                (message_str, sub_message_str))
-        
-        
-        #sw_dom = self.actual_renewable_withdrawal_per_sector['surfacewater']['domestic']       - self.allocated_withdrawal_per_sector['renewable_surfacewater']['domestic']
-        #sw_irr = self.actual_renewable_withdrawal_per_sector['surfacewater']['irrigation']     - self.allocated_withdrawal_per_sector['renewable_surfacewater']['irrigation']
-        #sw_liv = self.actual_renewable_withdrawal_per_sector['surfacewater']['livestock']      - self.allocated_withdrawal_per_sector['renewable_surfacewater']['livestock']
-        #sw_man = self.actual_renewable_withdrawal_per_sector['surfacewater']['manufacture']    - self.allocated_withdrawal_per_sector['renewable_surfacewater']['manufacture']
-        #sw_thr = self.actual_renewable_withdrawal_per_sector['surfacewater']['thermoelectric'] - self.allocated_withdrawal_per_sector['renewable_surfacewater']['thermoelectric']
-        #
-        #rg_dom = self.actual_renewable_withdrawal_per_sector['groundwater']['domestic']       - self.allocated_withdrawal_per_sector['renewable_groundwater']['domestic']
-        #rg_irr = self.actual_renewable_withdrawal_per_sector['groundwater']['irrigation']     - self.allocated_withdrawal_per_sector['renewable_groundwater']['irrigation']
-        #rg_liv = self.actual_renewable_withdrawal_per_sector['groundwater']['livestock']      - self.allocated_withdrawal_per_sector['renewable_groundwater']['livestock']
-        #rg_man = self.actual_renewable_withdrawal_per_sector['groundwater']['manufacture']    - self.allocated_withdrawal_per_sector['renewable_groundwater']['manufacture']
-        #rg_thr = self.actual_renewable_withdrawal_per_sector['groundwater']['thermoelectric'] - self.allocated_withdrawal_per_sector['renewable_groundwater']['thermoelectric']
-        #
-        #ng_dom = self.actual_nonrenewable_withdrawal_per_sector['groundwater']['domestic']       - self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['domestic']
-        #ng_irr = self.actual_nonrenewable_withdrawal_per_sector['groundwater']['irrigation']     - self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['irrigation']
-        #ng_liv = self.actual_nonrenewable_withdrawal_per_sector['groundwater']['livestock']      - self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['livestock']
-        #ng_man = self.actual_nonrenewable_withdrawal_per_sector['groundwater']['manufacture']    - self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['manufacture']
-        #ng_thr = self.actual_nonrenewable_withdrawal_per_sector['groundwater']['thermoelectric'] - self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['thermoelectric']
-        #
-        #gw_dom = (self.actual_renewable_withdrawal_per_sector['groundwater']['domestic']          + self.actual_nonrenewable_withdrawal_per_sector['groundwater']['domestic'])       - \
-        #         (self.allocated_withdrawal_per_sector['renewable_groundwater']['domestic']       + self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['domestic'])
-        #gw_irr = (self.actual_renewable_withdrawal_per_sector['groundwater']['irrigation']        + self.actual_nonrenewable_withdrawal_per_sector['groundwater']['irrigation'])     - \
-        #         (self.allocated_withdrawal_per_sector['renewable_groundwater']['irrigation']     + self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['irrigation'])
-        #gw_liv = (self.actual_renewable_withdrawal_per_sector['groundwater']['livestock']         + self.actual_nonrenewable_withdrawal_per_sector['groundwater']['livestock'])      - \
-        #         (self.allocated_withdrawal_per_sector['renewable_groundwater']['livestock']      + self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['livestock'])
-        #gw_man = (self.actual_renewable_withdrawal_per_sector['groundwater']['manufacture']       + self.actual_nonrenewable_withdrawal_per_sector['groundwater']['manufacture'])    - \
-        #         (self.allocated_withdrawal_per_sector['renewable_groundwater']['manufacture']    + self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['manufacture'])
-        #gw_thr = (self.actual_renewable_withdrawal_per_sector['groundwater']['thermoelectric']    + self.actual_nonrenewable_withdrawal_per_sector['groundwater']['thermoelectric']) - \
-        #         (self.allocated_withdrawal_per_sector['renewable_groundwater']['thermoelectric'] + self.allocated_withdrawal_per_sector['nonrenewable_groundwater']['thermoelectric'])
-        #
-        #print(f'sw_dom -> [{pcr.cellvalue(pcr.mapminimum(sw_dom),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(sw_dom),1)[0]}]')
-        #print(f'sw_irr -> [{pcr.cellvalue(pcr.mapminimum(sw_irr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(sw_irr),1)[0]}]')
-        #print(f'sw_liv -> [{pcr.cellvalue(pcr.mapminimum(sw_liv),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(sw_liv),1)[0]}]')
-        #print(f'sw_man -> [{pcr.cellvalue(pcr.mapminimum(sw_man),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(sw_man),1)[0]}]')
-        #print(f'sw_thr -> [{pcr.cellvalue(pcr.mapminimum(sw_thr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(sw_thr),1)[0]}]')
-        #
-        #print(f'rg_dom -> [{pcr.cellvalue(pcr.mapminimum(rg_dom),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(rg_dom),1)[0]}]')
-        #print(f'rg_irr -> [{pcr.cellvalue(pcr.mapminimum(rg_irr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(rg_irr),1)[0]}]')
-        #print(f'rg_liv -> [{pcr.cellvalue(pcr.mapminimum(rg_liv),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(rg_liv),1)[0]}]')
-        #print(f'rg_man -> [{pcr.cellvalue(pcr.mapminimum(rg_man),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(rg_man),1)[0]}]')
-        #print(f'rg_thr -> [{pcr.cellvalue(pcr.mapminimum(rg_thr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(rg_thr),1)[0]}]')
-        #
-        #print(f'ng_dom -> [{pcr.cellvalue(pcr.mapminimum(ng_dom),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(ng_dom),1)[0]}]')
-        #print(f'ng_irr -> [{pcr.cellvalue(pcr.mapminimum(ng_irr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(ng_irr),1)[0]}]')
-        #print(f'ng_liv -> [{pcr.cellvalue(pcr.mapminimum(ng_liv),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(ng_liv),1)[0]}]')
-        #print(f'ng_man -> [{pcr.cellvalue(pcr.mapminimum(ng_man),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(ng_man),1)[0]}]')
-        #print(f'ng_thr -> [{pcr.cellvalue(pcr.mapminimum(ng_thr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(ng_thr),1)[0]}]')
-        #
-        #print(f'gw_dom -> [{pcr.cellvalue(pcr.mapminimum(gw_dom),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(gw_dom),1)[0]}]')
-        #print(f'gw_irr -> [{pcr.cellvalue(pcr.mapminimum(gw_irr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(gw_irr),1)[0]}]')
-        #print(f'gw_liv -> [{pcr.cellvalue(pcr.mapminimum(gw_liv),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(gw_liv),1)[0]}]')
-        #print(f'gw_man -> [{pcr.cellvalue(pcr.mapminimum(gw_man),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(gw_man),1)[0]}]')
-        #print(f'gw_thr -> [{pcr.cellvalue(pcr.mapminimum(gw_thr),1)[0]} - {pcr.cellvalue(pcr.mapmaximum(gw_thr),1)[0]}]')
-        
         
         # NOTE: this is a bit silly but just to keep things tractable:
         # add the unused withdrawals per withdrawal type and source
@@ -2925,11 +2704,8 @@ See doc string of class for detailed info.
                       cellarea     = self.cellarea, \
                       var_name     = sector_name, \
                       process_name = 'Short-term demand vs Water allocation', \
-                      date         = date, \
                       zones        = self.surfacewater_allocation_zones[sector_name], \
-                      
-                      flag_warning = False, \
-                      flag_debug   = True)
+                      date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) short-term water availabilty
@@ -2942,10 +2718,7 @@ See doc string of class for detailed info.
                       cellarea     = self.cellarea, \
                       var_name     = source_name, \
                       process_name = 'Short-term availability vs Water withdrawal', \
-                      date         = date, \
-                      
-                      flag_warning = False, \
-                      flag_debug   = True)
+                      date         = date)
             
             # evaluate the water balance comparing per withdrawal, source and sector:
             # 1) actual allocated demand
@@ -2962,10 +2735,7 @@ See doc string of class for detailed info.
                               var_name     = '%s %s %s' % (withdrawal_name, source_name, sector_name), \
                               process_name = 'Water allocation vs Water withdrawal', \
                               zones        = getattr(self, '%s_allocation_zones' % source_name)[sector_name], \
-                              date         = date, \
-                              
-                              flag_warning = False, \
-                              flag_debug   = True)
+                              date         = date)
             
             # evaluate the water balance comparing per source:
             # 1) pumping capacity
@@ -2981,41 +2751,7 @@ See doc string of class for detailed info.
                         cellarea     = self.cellarea, \
                         var_name     = source_name, \
                         process_name = 'Pumping capacity vs Water withdrawal', \
-                        date         = date, \
-                        
-                        flag_warning = False, \
-                        flag_debug   = True)
-            
-            # evaluate the water balance based on the short-term potential water withdrawals
-            #for source_name in self.source_names:
-            #    water_balance_check( \
-            #            states_ini   = [availability[source_name]], \
-            #            states_end   = [self.actual_renewable_withdrawal_per_sector[source_name][sector_name] \
-            #                            for sector_name in self.sector_names], \
-            #            cellarea     = self.cellarea, \
-            #            var_name     = source_name, \
-            #            process_name = 'Short-term availability vs Water withdrawal', \
-            #            date         = date, \
-            #            
-            #            flag_warning = False, \
-            #            flag_debug   = True)
-            
-            # evaluate the water balance based on the pumping capacity
-            #for source_name in self.source_names:
-            #    if self.pumping_capacity_flag[source_name]:
-            #        water_balance_check( \
-            #            states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
-            #            states_end   = [self.actual_renewable_withdrawal_per_sector[source_name][sector_name] \
-            #                            for sector_name in self.sector_names] + \
-            #                           [self.actual_nonrenewable_withdrawal_per_sector[source_name][sector_name] \
-            #                            for sector_name in self.sector_names], \
-            #            cellarea     = self.cellarea, \
-            #            var_name     = source_name, \
-            #            process_name = 'Pumping capacity vs Water withdrawal)', \
-            #            date         = date, \
-            #            
-            #            flag_warning = False, \
-            #            flag_debug   = True)
+                        date         = date)
         
         # returns None
         return None
@@ -3068,19 +2804,10 @@ See doc string of class for detailed info.
         date                   : date of the update
         '''
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # [ groundwater storage ] ..................................................................
         # get the time step to update the groundwater storage
         date_index, matched_date, message_str = match_date_by_julian_number(date, \
                                                       self.groundwater_longterm_storage_dates)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(self.groundwater_longterm_storage[matched_date], f'{path}/{dt}_longterm_groundwater_storage_[initial].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # remove the date from the dictionary and update it with the present value
         # set the value using the weight, if the long-term availability is not
@@ -3107,11 +2834,6 @@ See doc string of class for detailed info.
         # get the time step to update the surface water availability (monthly)
         date_index, matched_date, message_str = match_date_by_julian_number(date, \
                                                       self.surfacewater_longterm_discharge_dates)
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(self.surfacewater_longterm_discharge[matched_date], f'{path}/{dt}_longterm_surfacewater_discharge_[initial].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # remove the date from the dictionary and update it with the present value
         # set the value using the weight, if the long-term availability is not
@@ -3140,11 +2862,6 @@ See doc string of class for detailed info.
         date_index, matched_date, message_str = match_date_by_julian_number(date, \
                                                       self.surfacewater_longterm_runoff_dates)
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            pcr.report(self.surfacewater_longterm_runoff[matched_date], f'{path}/{dt}_longterm_surfacewater_runoff_[initial].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         # remove the date from the dictionary and update it with the present value
         # set the value using the weight, if the long-term availability is not
         # defined, cover with the present value
@@ -3160,17 +2877,6 @@ See doc string of class for detailed info.
         
         # add the value to the dictionary
         self.surfacewater_longterm_runoff[date] = surfacewater_longterm_runoff
-        
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        if verbose:
-            dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-            pcr.report(groundwater_storage, f'{path}/{dt}_longterm_groundwater_storage_[final].map')
-            pcr.report(surfacewater_discharge, f'{path}/{dt}_longterm_surfacewater_discharge_[final].map')
-            pcr.report(surfacewater_runoff, f'{path}/{dt}_longterm_surfacewater_runoff_[final].map')
-            pcr.report(groundwater_longterm_storage, f'{path}/{dt}_longterm_groundwater_storage_[updated].map')
-            pcr.report(surfacewater_longterm_discharge, f'{path}/{dt}_longterm_surfacewater_discharge_[updated].map')
-            pcr.report(surfacewater_longterm_runoff, f'{path}/{dt}_longterm_surfacewater_runoff_[updated].map')
-        # --------------------------------------------------------------------------------------------------------------------------------------------
         
         # echo to screen
         message_str = str.join(' ', \
@@ -3194,10 +2900,6 @@ See doc string of class for detailed info.
         date                  : date of the update
         '''
         
-        # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-        dt = f'{str(date.year)[2:]}-{str(date.month).zfill(2)}'
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        
         for sector_name in self.sector_names:
             # get variables
             var_value  = getattr(self,'gross_demand_longterm_%s'       % sector_name)
@@ -3207,11 +2909,6 @@ See doc string of class for detailed info.
             # get the time step to update the groundwater storage
             date_index, matched_date, message_str = \
                             match_date_by_julian_number(date, var_dates)
-            
-            # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-            if verbose:
-                pcr.report(var_value[matched_date] * self.cellarea, f'{path}/{dt}_longterm_gross_demand_{sector_name}_[initial].map')
-            # --------------------------------------------------------------------------------------------------------------------------------------------
             
             # remove the date from the dictionary and update it with the present value
             # set the value using the weight, if the long-term availability is not
@@ -3232,12 +2929,6 @@ See doc string of class for detailed info.
             # set variables
             setattr(self, 'gross_demand_longterm_%s'       % sector_name, var_value)
             setattr(self, 'gross_demand_longterm_%s_dates' % sector_name, var_dates)
-            
-            # [ DELETEME ] verbose <----------------------------------------------------------------------------------------------------------------------
-            if verbose:
-                pcr.report(gross_demand_shortterm * self.cellarea, f'{path}/{dt}_longterm_gross_demand_{sector_name}_[final].map')
-                pcr.report(gross_demand_longterm * self.cellarea, f'{path}/{dt}_longterm_gross_demand_{sector_name}_[updated].map')
-            # --------------------------------------------------------------------------------------------------------------------------------------------
             
             # echo to screen
             message_str = str.join(' ', \
