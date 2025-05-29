@@ -109,7 +109,7 @@ class ThermoelectricWaterDemand(object):
             self.thermoelectricGrossDemand = pcr.cover(self.thermoelectricGrossDemand, 0.0)
             self.thermoelectricNettoDemand = pcr.cover(self.thermoelectricNettoDemand, 0.0)
             self.thermoelectricNettoDemand = pcr.min(self.thermoelectricGrossDemand, self.thermoelectricNettoDemand)  
-
+            
             # return flow fraction
             self.thermoelectricReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.thermoelectricNettoDemand, self.thermoelectricGrossDemand))
 
@@ -126,7 +126,7 @@ class ThermoelectricWaterDemand(object):
 
 
     def readPowerplantData(self, currTimeStep, routing):
-                 
+        
         logger.info("reading in (annual) powerplant data")
         
         # freshwater plants (with a water temperature dependency)
@@ -257,28 +257,31 @@ class ThermoelectricWaterDemand(object):
 
     def calculatePowerplantDemands(self, currTimeStep, routing):
         
-        ###freshwater plants (with a water temperature dependency)
-        
-        #demands considering only dTlmax
+        # freshwater plants (with a water temperature dependency)
+        # (units: m3/s)
+        ###demands considering only dTlmax
         self.powerplants_fw_qmin = self.powerplants_fw_capacity * 1e6 * ((1-self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (routing.densityWater * routing.specificHeatWater * self.dTlmax)) #minimum demands (i.e. only considering deltaTlmax)
         
-        #demands considering simulated river water temperature
+        ###demands considering simulated river water temperature
         self.min_Tlmax_dTlmax = pcr.max(pcr.min(self.Tlmax - routing.waterTemp, self.dTlmax),1.) #calculate min of Tlmax (max allowed temperature) - triver (water temperature). Returns minimum value of 1 (i.e. water can always be warmed by 1K as a minimum).
         
-        self.powerplants_fw_q = self.powerplants_fw_capacity * 1e6 * ((1-self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (routing.densityWater * routing.specificHeatWater * self.min_Tlmax_dTlmax))
+        self.powerplants_fw_q  = self.powerplants_fw_capacity * 1e6 * ((1-self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (routing.densityWater * routing.specificHeatWater * self.min_Tlmax_dTlmax))
         self.powerplants_fw_rf = self.powerplants_fw_q * (1 - self.powerplants_fw_ratio) #power return flows (m3 s-1)
         
-        ###freshwater plants (without a water temperature dependency)
-        self.powerplants_fwfixed_q = self.powerplants_fwfixed_q #freshwater demands for power prescribed by Lohrmann et al., (2019)
+        # freshwater plants (without a water temperature dependency)
+        # (units:m3/s)
+        self.powerplants_fwfixed_q  = self.powerplants_fwfixed_q #freshwater demands for power prescribed by Lohrmann et al., (2019)
         self.powerplants_fwfixed_rf = self.powerplants_fwfixed_q * (1 - self.powerplants_fwfixed_ratio) #power return flows (to freshwater) prescribed by Lohrmann et al., (2019)
         
-        ###seawater plants
-        self.powerplants_sw_q = self.powerplants_sw_q #seawater demands for power prescribed by Lohrmann et al., (2019)
+        # seawater plants
+        # (units:m3/s)
+        self.powerplants_sw_q  = self.powerplants_sw_q #seawater demands for power prescribed by Lohrmann et al., (2019)
         self.powerplants_sw_rf = self.powerplants_sw_q * (1 - self.powerplants_sw_ratio) #power return flows (to seawater) prescribed by Lohrmann et al., (2019)
         
         
         
-        # gross and netto industrial water demand in m/day
+        # gross and netto industrial water demand
+        # (unis: m/day)
         self.thermoelectricGrossDemand = pcr.cover((self.powerplants_fw_q + self.powerplants_fwfixed_q) * 86400 / routing.cellArea, \
                                                    0.0)
         self.thermoelectricNettoDemand = self.thermoelectricGrossDemand - \
@@ -287,4 +290,5 @@ class ThermoelectricWaterDemand(object):
         self.thermoelectricNettoDemand = pcr.min(self.thermoelectricGrossDemand, self.thermoelectricNettoDemand)
         
         # return flow fraction
-        self.thermoelectricReturnFlowFraction = pcr.max(0.0, 1.0 - vos.getValDivZero(self.thermoelectricNettoDemand, self.thermoelectricGrossDemand))
+        self.thermoelectricReturnFlowFraction = pcr.max(0.0, \
+                                                        1.0 - vos.getValDivZero(self.thermoelectricNettoDemand, self.thermoelectricGrossDemand))

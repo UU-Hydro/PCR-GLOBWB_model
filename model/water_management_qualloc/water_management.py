@@ -194,15 +194,15 @@ def estimate_waterdepth_from_discharge(discharge, \
     
     # and iterate over all time steps
     while icnt < max_iterations and not convergence:
-
+        
         # set the old water 
         waterdepth_old = pcr.max(0.001, waterdepth)
-
+        
         # get the wetted perimeter [m] for a rectangular channel and the 
         # corresponding alpha of the equation A = alpha * Q ** beta
         wetted_perimeter = channel_width + 2 * waterdepth_old
         alpha = (mannings_n * wetted_perimeter ** (2.0/3.0) * channel_gradient ** -0.5) ** beta
-
+        
         # compute the new water table
         wetted_area = alpha * discharge ** beta
         waterdepth = pcr.max(0.001, wetted_area / channel_width)
@@ -342,7 +342,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         groundwater_pumping_capacity_flag  = False, \
         surfacewater_pumping_capacity_flag = False, \
         ):
-
         '''
 water management class requires the following input for its initialization:
     

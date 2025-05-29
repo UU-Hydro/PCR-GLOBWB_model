@@ -1366,9 +1366,12 @@ class LandSurface(object):
             
             
             
-            pcr.aguila(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_surfacewater']['thermoelectric'])
-            pcr.aguila(self.nonIrrReturnFlowVolumePerSector['thermoelectric'])
-            pietje
+            #path = '/gpfs/home6/gcardenas'
+            #pcr.report(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_withdrawal_qualloc.map')
+            #pcr.report(self.qualloc_model.water_management.consumed_demand_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_consumed_qualloc.map')
+            #pcr.report(self.qualloc_model.water_management.return_flow_demand_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_rflow_qualloc.map')
+            #pcr.report(self.nonIrrReturnFlowVolumePerSector['thermoelectric'], f'{path}/thr_rflow_pcrglobwb')
+            #pietje
             
             
             
