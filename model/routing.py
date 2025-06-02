@@ -389,7 +389,7 @@ class Routing(object):
         # DynQual
         self.quality = False
         if 'quality' in iniItems.routingOptions.keys() and \
-           iniItems.routingOptions['quality'] == "True"
+           iniItems.routingOptions['quality'] == "True":
           self.quality = True
           logger.info("Water quality modelling initiated.")
         else:
