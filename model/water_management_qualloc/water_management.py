@@ -2820,8 +2820,8 @@ See doc string of class for detailed info.
         
         
         
-        dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-        pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge_acc.map')
+        #dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+        #pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge_acc.map')
         
         
         
@@ -2842,7 +2842,7 @@ See doc string of class for detailed info.
             
             
             
-            pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge.map')
+            #pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge.map')
             
             
             
@@ -2953,8 +2953,8 @@ See doc string of class for detailed info.
         
         
         
-        dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-        pcr.report(self.average_gross_demand['domestic'], f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic_acc.map')
+        #dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+        #pcr.report(self.average_gross_demand['domestic'], f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic_acc.map')
         
         
         
@@ -2974,8 +2974,8 @@ See doc string of class for detailed info.
                 
                 
                 
-                if sector_name == 'domestic':
-                    pcr.report(average_gross_demand, f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic.map')
+                #if sector_name == 'domestic':
+                #    pcr.report(average_gross_demand, f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic.map')
                 
                 
                 

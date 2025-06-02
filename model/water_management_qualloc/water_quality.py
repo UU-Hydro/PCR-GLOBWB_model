@@ -254,9 +254,9 @@ class water_quality(object):
                 
                 
                 
-                if source_name == 'surfacewater' and constituent_name == 'temperature':
-                    dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-                    pcr.report(average, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature_acc.map')
+                #if source_name == 'surfacewater' and constituent_name == 'temperature':
+                #    dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+                #    pcr.report(average, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature_acc.map')
                 
                 
         
@@ -279,8 +279,8 @@ class water_quality(object):
                     
                     
                     
-                    if source_name == 'surfacewater' and constituent_name == 'temperature':
-                        pcr.report(average_constituent_quality, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature.map')
+                    #if source_name == 'surfacewater' and constituent_name == 'temperature':
+                    #    pcr.report(average_constituent_quality, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature.map')
                     
                     
                     
