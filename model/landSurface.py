@@ -88,7 +88,7 @@ class LandSurface(object):
                   self.landCoverObj[coverType].storLow030150
                 result[coverType]['interflow'    ] = \
                   self.landCoverObj[coverType].interflow
-              
+        
         return result
     
     def getPseudoState(self):
@@ -112,7 +112,7 @@ class LandSurface(object):
             result['storLow030150'] = self.storLow030150
         
         return result
-
+    
     def __init__(self,iniItems,landmask,initialState=None):
         object.__init__(self)
 
@@ -153,24 +153,26 @@ class LandSurface(object):
                           'satDegTotal']
         
         # flux variables (unit: m/day)
-        self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
-                          'totalPotET',
-                          'actualET',
-                          'interceptEvap',
-                          'openWaterEvap',
-                          'actSnowFreeWaterEvap',
-                          'actBareSoilEvap',
-                          'actTranspiUppTotal',
-                          'actTranspiLowTotal',
-                          'actTranspiTotal',
-                          'directRunoff',
-                          'interflow',
-                          'interflowTotal',
-                          'landSurfaceRunoff',
-                          'satExcess',
-                          'snowMelt',
-                          'irrigationTranspirationDeficit',
-                          ]
+        self.fluxVars  = ['infiltration',
+                         'gwRecharge',
+                         'netLqWaterToSoil',
+                         'totalPotET',
+                         'actualET',
+                         'interceptEvap',
+                         'openWaterEvap',
+                         'actSnowFreeWaterEvap',
+                         'actBareSoilEvap',
+                         'actTranspiUppTotal',
+                         'actTranspiLowTotal',
+                         'actTranspiTotal',
+                         'directRunoff',
+                         'interflow',
+                         'interflowTotal',
+                         'landSurfaceRunoff',
+                         'satExcess',
+                         'snowMelt',
+                         'irrigationTranspirationDeficit',
+                         ]
         
         # specific variables for 2 and 3 layer soil models:
         if self.numberOfSoilLayers == 2:
@@ -1362,18 +1364,6 @@ class LandSurface(object):
             
             self.nonIrrReturnFlowVolume = sum(list(self.nonIrrReturnFlowVolumePerSector.values()))
             self.nonIrrWaterConsumptionVolume = sum(list(self.nonIrrWaterConsumptionVolumePerSector.values()))
-            
-            
-            
-            
-            #path = '/gpfs/home6/gcardenas'
-            #pcr.report(self.qualloc_model.water_management.allocated_withdrawal_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_withdrawal_qualloc.map')
-            #pcr.report(self.qualloc_model.water_management.consumed_demand_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_consumed_qualloc.map')
-            #pcr.report(self.qualloc_model.water_management.return_flow_demand_per_sector['renewable_surfacewater']['thermoelectric'], f'{path}/thr_rflow_qualloc.map')
-            #pcr.report(self.nonIrrReturnFlowVolumePerSector['thermoelectric'], f'{path}/thr_rflow_pcrglobwb')
-            #pietje
-            
-            
             
             # - water-slice (unit: m/day)
             #   return flows

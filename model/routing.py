@@ -59,47 +59,49 @@ class Routing(object):
         result = {}
         
         # Hydrology elements
-        result['timestepsToAvgDischarge']     = self.timestepsToAvgDischarge #  day 
-        result['channelStorage']              = self.channelStorage          #  m3     ; channel storage, including lake and reservoir storage
-        result['readAvlChannelStorage']       = self.readAvlChannelStorage   #  m3     ; readily available channel storage that can be extracted to satisfy water demand
-        result['avgDischargeLong']            = self.avgDischarge            #  m3/s   ;  long term average discharge
-        result['m2tDischargeLong']            = self.m2tDischarge            #  (m3/s)^2
-        result['avgBaseflowLong']             = self.avgBaseflow             #  m3/s   ;  long term average baseflow
-        result['riverbedExchange']            = self.riverbedExchange        #  m3/day ; river bed infiltration (from surface water bdoies to groundwater)
-        result['waterBodyStorage']            = self.waterBodyStorage        #  m3     ; storages of lakes and reservoirs            # values given are per water body id (not per cell)
-        result['avgLakeReservoirOutflowLong'] = self.avgOutflow              #  m3/s   ; long term average lake & reservoir outflow  # values given are per water body id (not per cell)
-        result['avgLakeReservoirInflowShort'] = self.avgInflow               #  m3/s   ; short term average lake & reservoir inflow  # values given are per water body id (not per cell)
-        result['avgDischargeShort']           = self.avgDischargeShort       #  m3/s   ; short term average discharge
-        result['subDischarge']                = self.subDischarge            #  m3/s   ; sub-time step discharge (needed for kinematic wave methods/approaches: i.e. 'kinematicWave' and 'simplifiedKinematicWave')
+        result['timestepsToAvgDischarge']    = self.timestepsToAvgDischarge #  day 
+        result['channelStorage']             = self.channelStorage          #  m3     ; channel storage, including lake and reservoir storage
+        result['readAvlChannelStorage']      = self.readAvlChannelStorage   #  m3     ; readily available channel storage that can be extracted to satisfy water demand
+        result['avgDischargeLong']           = self.avgDischarge            #  m3/s   ; long term average discharge
+        result['m2tDischargeLong']           = self.m2tDischarge            # (m3/s)^2
+        result['avgBaseflowLong']             = self.avgBaseflow              #  m3/s   ; long term average baseflow
+        result['riverbedExchange']           = self.riverbedExchange        #  m3/day ; river bed infiltration (from surface water bdoies to groundwater)
+        result['waterBodyStorage']           = self.waterBodyStorage        #  m3     ; storages of lakes and reservoirs           # values given are per water body id (not per cell)
+        result['avgLakeReservoirOutflowLong'] = self.avgOutflow               #  m3/s   ; long term average lake & reservoir outflow  # values given are per water body id (not per cell)
+        result['avgLakeReservoirInflowShort'] = self.avgInflow                #  m3/s   ; short term average lake & reservoir inflow  # values given are per water body id (not per cell)
+        result['avgDischargeShort']          = self.avgDischargeShort       #  m3/s   ; short term average discharge
+        result['subDischarge']               = self.subDischarge            #  m3/s   ; sub-time step discharge (needed for kinematic wave methods/approaches: i.e. 'kinematicWave' and 'simplifiedKinematicWave')
         
         # QUAlloc
         # for long-term water availability
         if self.using_qualloc:
-            result['avgChannelStorage']       = self.avgChannelStorage       #  m3     ; running average of channel storage for the short term period (e.g. 30 days)
-            result['avgTotalRunoff']          = self.avgTotalRunoff          #  m/day  ; running average of total runoff for the short term period (e.g. 30 days)
-            result['avgStorGroundwater']      = self.avgStorGroundwater      #  m      ; running average of groundwater storage for the short term period (e.g. 30 days)
+            result['discharge']              = self.discharge               #  m3/s   ; discharge
+            result['runoff']                  = self.runoff                   #  m/day  ; total runoff
+            #result['avgChannelStorage']     = self.avgChannelStorage       #  m3     ; running average of channel storage for the short term period (e.g. 30 days)
+            #result['avgTotalRunoff']         = self.avgTotalRunoff           #  m/day  ; running average of total runoff for the short term period (e.g. 30 days)
+            #result['avgStorGroundwater']    = self.avgStorGroundwater      #  m      ; running average of groundwater storage for the short term period (e.g. 30 days)
         
         # DynQual [added by EdGab]
         # for irrigation return flows
-        try:
-            result['avg_irrGrossDemand']      = self.avg_irrGrossDemand     #  m/day  ; average irrigation gross demand    
-            result['avg_netLqWaterToSoil']    = self.avg_netLqWaterToSoil   #  m/day  ; average net liquid transferred to the soil
-        except:
+        if self.quality:
+            result['avg_irrGrossDemand']     = self.avg_irrGrossDemand      #  m/day  ; average irrigation gross demand    
+            result['avg_netLqWaterToSoil']   = self.avg_netLqWaterToSoil    #  m/day  ; average net liquid transferred to the soil
+        else:
             logger.info("Irrigation return flows not estimated")
         
         # Water quality elements
-        try:
-            result['waterTemperature']        = self.waterTemp              #  K      ; water temperature
+        if self.quality:
+            result['waterTemperature']        = self.waterTemp              #  K           ; water temperature
+            result['salinity']                = self.salinity               #  mg L-1      ; TDS concentration
+            result['organic']                 = self.organic                #  mg L-1      ; BOD concentration
+            result['pathogen']                = self.pathogen               #  cfu 100mL-1 ; FC concentration
+            
             result['iceThickness']            = self.iceThickness           #  m      ; ice thickness
             result['routedTDS']               = self.routedTDS              #  g TDS  ; routed TDS load (for conversion to salinity pollution in mg/L)
             result['routedBOD']               = self.routedBOD              #  g BOD  ; routed BOD load (for conversion to organic pollution mg/L)
             result['routedFC']                = self.routedFC               #  cfu    ; routed FC load (for conversion to pathogen pollution in cfu/100mL)
             
-            result['salinity']                = self.salinity               #  mg L-1      ; TDS concentration
-            result['organic']                 = self.organic                #  mg L-1      ; BOD concentration
-            result['pathogen']                = self.pathogen               #  cfu 100mL-1 ; FC concentration
-            
-            try:
+            if self.offlineRun == False and self.calculateLoads and self.loadsPerSector:
                 #- Route pollutants individually per sector (for analysis of sectoral contributions)
                 #Domestic sector
                 result['routedDomTDS']        = self.routedDomTDS           #  g TDS
@@ -121,10 +123,9 @@ class Routing(object):
                 result['routedextLivFC']      = self.routedextLivFC         #  10^6 cfu
                 #Irrigation
                 result['routedIrrTDS']        = self.routedIrrTDS           #  g TDS
-            except:
+            else:
                 logger.info("Water quality elements per sector not simulated")
-            
-        except:
+        else:
             logger.info("Water quality elements not simulated")
         return result
     
@@ -386,12 +387,12 @@ class Routing(object):
             self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
         
         # DynQual
-        try:
-          self.quality = iniItems.routingOptions['quality'] == "True"
+        self.quality = False
+        if 'quality' in iniItems.routingOptions.keys() and \
+           iniItems.routingOptions['quality'] == "True"
+          self.quality = True
           logger.info("Water quality modelling initiated.")
-        
-        except:
-          self.quality = False
+        else:
           logger.info("Water quality modelling not initiated.")
         
         print("waterTemperature =",self.quality)
@@ -568,7 +569,8 @@ class Routing(object):
         
         # QUAlloc
         self.using_qualloc = False
-        if iniItems.waterManagementOptions['using_qualloc'] == "True":
+        if 'using_qualloc' in iniItems.waterManagementOptions and \
+           iniItems.waterManagementOptions['using_qualloc'] == "True":
             self.using_qualloc = True
         
         # get the initialConditions
@@ -601,9 +603,11 @@ class Routing(object):
             
             # Initial conditions needed for coupling with QUAlloc
             if self.using_qualloc:
-                self.avgChannelStorage   = vos.readPCRmapClone(iniItems.routingOptions['avgChannelStorageIni']       ,self.cloneMap,self.tmpDir,self.inputDir)
-                self.avgTotalRunoff      = vos.readPCRmapClone(iniItems.routingOptions['avgTotalRunoffIni']           ,self.cloneMap,self.tmpDir,self.inputDir)
-                self.avgStorGroundwater  = vos.readPCRmapClone(iniItems.routingOptions['avgStorGroundwaterIni']      ,self.cloneMap,self.tmpDir,self.inputDir)
+                self.discharge          = vos.readPCRmapClone(iniItems.routingOptions['dischargeIni']                ,self.cloneMap,self.tmpDir,self.inputDir)
+                self.runoff              = vos.readPCRmapClone(iniItems.routingOptions['totalrunoffIni']               ,self.cloneMap,self.tmpDir,self.inputDir)
+                #self.avgChannelStorage   = vos.readPCRmapClone(iniItems.routingOptions['avgChannelStorageIni']       ,self.cloneMap,self.tmpDir,self.inputDir)
+                #self.avgTotalRunoff      = vos.readPCRmapClone(iniItems.routingOptions['avgTotalRunoffIni']           ,self.cloneMap,self.tmpDir,self.inputDir)
+                #self.avgStorGroundwater  = vos.readPCRmapClone(iniItems.routingOptions['avgStorGroundwaterIni']      ,self.cloneMap,self.tmpDir,self.inputDir)
             
             # Initial conditions needed for water quality module
             if self.quality:
@@ -638,8 +642,8 @@ class Routing(object):
                         self.routedextLivBOD = vos.readPCRmapClone(iniItems.routingOptions['routedextLivBODIni'],self.cloneMap,self.tmpDir,self.inputDir)
                         self.routedextLivFC = vos.readPCRmapClone(iniItems.routingOptions['routedextLivFCIni'],self.cloneMap,self.tmpDir,self.inputDir)
                         self.routedIrrTDS = vos.readPCRmapClone(iniItems.routingOptions['routedIrrTDSIni'],self.cloneMap,self.tmpDir,self.inputDir)
-
-        else:              
+        
+        else:
             logger.info("Reading initial conditions from memory.")
             # read initial conditions from the memory
             self.timestepsToAvgDischarge = iniConditions['routing']['timestepsToAvgDischarge']
@@ -648,7 +652,7 @@ class Routing(object):
             self.readAvlChannelStorage   = iniConditions['routing']['readAvlChannelStorage']
             self.avgDischarge            = iniConditions['routing']['avgDischargeLong']
             self.m2tDischarge            = iniConditions['routing']['m2tDischargeLong']
-            self.avgBaseflow             = iniConditions['routing']['avgBaseflowLong']
+            self.avgBaseflow              = iniConditions['routing']['avgBaseflowLong']
             self.riverbedExchange        = iniConditions['routing']['riverbedExchange']
             self.avgDischargeShort       = iniConditions['routing']['avgDischargeShort']
             
@@ -657,9 +661,11 @@ class Routing(object):
             # QUAlloc
             # Initial conditions needed for coupling with QUAlloc
             if self.using_qualloc:
-                self.avgChannelStorage       = iniConditions['routing']['avgChannelStorage']
-                self.avgTotalRunoff           = iniConditions['routing']['avgTotalRunoff']
-                self.avgStorGroundwater      = iniConditions['routing']['avgStorGroundwater']
+                self.discharge           = iniConditions['routing']['discharge']
+                self.runoff               = iniConditions['routing']['runoff']
+                #self.avgChannelStorage       = iniConditions['routing']['avgChannelStorage']
+                #self.avgTotalRunoff           = iniConditions['routing']['avgTotalRunoff']
+                #self.avgStorGroundwater      = iniConditions['routing']['avgStorGroundwater']
             
             # DynQual
             # Initial conditions needed for water quality module
@@ -702,7 +708,7 @@ class Routing(object):
         self.avgDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.avgDischarge,          0.0))
         self.m2tDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.m2tDischarge,          0.0))
         self.avgDischargeShort     = pcr.ifthen(self.landmask, pcr.cover(self.avgDischargeShort,     0.0))
-        self.avgBaseflow            = pcr.ifthen(self.landmask, pcr.cover(self.avgBaseflow,          0.0))
+        self.avgBaseflow            = pcr.ifthen(self.landmask, pcr.cover(self.avgBaseflow,            0.0))
         self.riverbedExchange      = pcr.ifthen(self.landmask, pcr.cover(self.riverbedExchange,      0.0))
         self.subDischarge          = pcr.ifthen(self.landmask, pcr.cover(self.subDischarge ,         0.0))
         
@@ -711,14 +717,16 @@ class Routing(object):
         
         # QUAlloc
         if self.using_qualloc:
-            self.avgChannelStorage     = pcr.ifthen(self.landmask, pcr.cover(self.avgChannelStorage,     0.0))
-            self.avgTotalRunoff         = pcr.ifthen(self.landmask, pcr.cover(self.avgTotalRunoff,         0.0))
-            self.avgStorGroundwater    = pcr.ifthen(self.landmask, pcr.cover(self.avgStorGroundwater,    0.0))
+            self.discharge = pcr.ifthen(self.landmask, pcr.cover(self.discharge, 0.0))
+            self.runoff     = pcr.ifthen(self.landmask, pcr.cover(self.runoff,     0.0))
+            #self.avgChannelStorage  = pcr.ifthen(self.landmask, pcr.cover(self.avgChannelStorage,     0.0))
+            #self.avgTotalRunoff      = pcr.ifthen(self.landmask, pcr.cover(self.avgTotalRunoff,         0.0))
+            #self.avgStorGroundwater = pcr.ifthen(self.landmask, pcr.cover(self.avgStorGroundwater,    0.0))
         
         # DynQual
         if self.quality:
-            self.waterTemp             = pcr.ifthen(self.landmask, pcr.cover(self.waterTemp, 0.0))
-            self.iceThickness          = pcr.ifthen(self.landmask, pcr.cover(self.iceThickness , 0.0))
+            self.waterTemp    = pcr.ifthen(self.landmask, pcr.cover(self.waterTemp, 0.0))
+            self.iceThickness = pcr.ifthen(self.landmask, pcr.cover(self.iceThickness , 0.0))
             self.DO = (1-0.0001148*self.elevation)*exp(-139.34411+(157570.1)/(self.waterTemp)-(66423080.)/(self.waterTemp**2)+(12438000000.)/(self.waterTemp**3)-(862194900000.)/(self.waterTemp**4))
             self.channelStorageTimeBefore = self.channelStorage      
             self.totEW = self.channelStorage * self.waterTemp*self.specificHeatWater * self.densityWater
@@ -1578,7 +1586,8 @@ class Routing(object):
         
         # re-direction of return flow to the water treatment plants locations (unit: m3)
         if self.quality and self.calculateLoads:
-            self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
+            #self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
+            self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume # [Gabriel] only for paper 4; later, delete this line and reactivate previous one
         else:
             self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume
         

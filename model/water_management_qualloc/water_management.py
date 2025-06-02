@@ -9,20 +9,20 @@ from copy import deepcopy
 
 try:
     from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-    from .model_time      import match_date_by_julian_number, get_weights_from_dates
+    from .model_time      import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
     from .allocation      import get_key, get_zonal_fraction, get_zonal_total, \
-                                obtain_allocation_ratio, \
-                                allocate_demand_to_availability_with_options, \
-                                allocate_demand_to_withdrawals
+                                 obtain_allocation_ratio, \
+                                 allocate_demand_to_availability_with_options, \
+                                 allocate_demand_to_withdrawals
     from .water_quality   import water_quality
 except:
-    from basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-    from model_time      import match_date_by_julian_number, get_weights_from_dates
-    from allocation      import get_key, get_zonal_fraction, get_zonal_total, \
-                                obtain_allocation_ratio, \
-                                allocate_demand_to_availability_with_options, \
-                                allocate_demand_to_withdrawals
-    from water_quality   import water_quality
+    from basic_functions  import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
+    from model_time       import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
+    from allocation       import get_key, get_zonal_fraction, get_zonal_total, \
+                                 obtain_allocation_ratio, \
+                                 allocate_demand_to_availability_with_options, \
+                                 allocate_demand_to_withdrawals
+    from water_quality    import water_quality
 
 # global attributes
 # set the logger
@@ -44,7 +44,7 @@ mid = -1
 water_management_missing_value = -9.99
 
 # for debugging only
-debug   = True
+debug = True
 
 ########
 # TODO #
@@ -133,7 +133,7 @@ def water_balance_check(states_ini, \
         msg = "[ %.10s Water Balance ] %s (%s): OK" %(date, process_name, var_name)
         if vmin < 0:
             msg += " (max mismatch of %.2e m)" % vmin   #%.10f
-        logger.info(msg)
+        logger.debug(msg)
     
     else:
         msg  = "\n#################################################################################################################################################################\n"
@@ -142,9 +142,6 @@ def water_balance_check(states_ini, \
         logger.error(msg)
         
         if flag_debug:
-            #dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-            #filename = 'wb_%s_%s.map' % (process_name, dt)
-            #pcr.report(diff, filename)
             pcr.aguila(diff, diff * cellarea)
         
         if not flag_warning:
@@ -313,8 +310,9 @@ total_return_flow_ini                      : total return flow [m3/day]
     
     def __init__(self, \
         landmask, \
-        time_increment, \
         cellarea, \
+        time_increment, \
+        time_step, \
         time_step_length, \
         desalwater_allocation_zones, \
         desalwater_withdrawal_points, \
@@ -399,6 +397,7 @@ See doc string of class for detailed info.
         # and this refers to the update of the withdrawals given the 
         # long-term availability
         self.time_increment   = time_increment
+        self.time_step        = time_step
         self.time_step_length = time_step_length
         
         # use_local_first is a boolean PCRaster map that indicates if the local
@@ -955,13 +954,19 @@ See doc string of class for detailed info.
         message_str = 'Long-term water availability for %s base on %s time increment' % \
                       (date, self.time_increment)
         
-        # [ get water availability ] ........................................................................................
+        # initialize the monthly average variables
+        self.average_groundwater_storage = pcr.spatial(pcr.scalar(0))
+        self.average_surfacewater_discharge = pcr.spatial(pcr.scalar(0))
+        self.average_surfacewater_runoff = pcr.spatial(pcr.scalar(0))
+        
+        # get long-term water availability
+        #
         # 1st set values from long-term availability
         # 2nd patch NaNs with pumping capacity (if available)
         # 3rd fill NaNs with zeros
         # 4th limit the availability to pumping capacity (if available) and withdrawal points
         
-        # set long-term water availability
+        # [ set long-term water availability ] .........................
         # and panic if it is a missing value ;-p
         if self.time_increment == 'monthly':
             # get the groundwater and surface water availabilty for the matching date
@@ -1117,10 +1122,10 @@ See doc string of class for detailed info.
     
     
     
-    def get_longterm_demands_for_date(self,
+    def get_longterm_demand_for_date(self,
                                        date):
         '''
-        get_longterm_demands_for_date:
+        get_longterm_demand_for_date:
                                   function to obtain the long-term sectoral gross water demands
                                   for current date
         
@@ -1144,6 +1149,11 @@ See doc string of class for detailed info.
                                         pcr.spatial(pcr.scalar(0))) \
                                        for sector_name in self.sector_names)
         
+        # initialize the monthly average gross demand per sector
+        self.average_gross_demand = dict((sector_name, \
+                                          pcr.spatial(pcr.scalar(0))) \
+                                         for sector_name in self.sector_names)
+        
         # set long-term sectoral gross water demand as a dictionary
         # (units: m/day)
         if self.time_increment == 'monthly':
@@ -1154,8 +1164,8 @@ See doc string of class for detailed info.
                 var_value = getattr(self, 'gross_demand_longterm_%s'       % sector_name)
                 var_dates = getattr(self, 'gross_demand_longterm_%s_dates' % sector_name)
                 
-                # get the time step to update the sectoral water demand:
-                # (units: m3/day)
+                # get the time step to update the sectoral water demand
+                # (units: m/day)
                 date_index, matched_date, sub_message_str = \
                         match_date_by_julian_number(date, var_dates)
                 gross_demand_per_sector[sector_name] += \
@@ -1190,6 +1200,7 @@ See doc string of class for detailed info.
                                                pcr.cover(gross_demand_per_sector[sector_name], 0))
         
         # return gross demand per sector
+        # (units: m3/day)
         return gross_demand_per_sector
     
     
@@ -2204,7 +2215,7 @@ See doc string of class for detailed info.
     
     
     def get_total_potential_withdrawal(self, \
-                                 source_name):
+                                        source_name):
         '''
         get_total_potential_withdrawal:
                                   function to get the potential withdrawals per sector
@@ -2259,8 +2270,7 @@ See doc string of class for detailed info.
     
     def update_surfacewater_potential_withdrawals(self, \
                                                    surfacewater_available, \
-                                                   longterm_potential_withdrawal_per_sector, \
-                                                   date = None):
+                                                   longterm_potential_withdrawal_per_sector):
         '''
         update_surfacewater_potential_withdrawals:
                                        function that calculates the actual water withdrawals from the
@@ -2278,7 +2288,6 @@ See doc string of class for detailed info.
                                        with sum of renewable and non-renewable potential withdrawals per
                                        sector obtained considering long-term water quality as values
                                        (units: m3/day)
-        date                         : string, date under evaluation
         
         output:
         ======
@@ -2342,8 +2351,7 @@ See doc string of class for detailed info.
     def update_groundwater_potential_withdrawals(self, \
                                                   groundwater_available, \
                                                   longterm_potential_withdrawal_per_sector, \
-                                                  time_step_length, \
-                                                  date=None):
+                                                  time_step_length):
         '''
         update_groundwater_potential_withdrawals:
                                              function to update the potential groundwater withdrawals
@@ -2757,7 +2765,9 @@ See doc string of class for detailed info.
     
     
     
-    def get_return_flow_ratio(self, gross_demand, net_demand):
+    def get_return_flow_ratio(self, \
+                              gross_demand, \
+                              net_demand):
         '''
         get_return_flow_ratio: 
                            function which returns the return flow ratio as the
@@ -2803,85 +2813,121 @@ See doc string of class for detailed info.
         date                   : date of the update
         '''
         
-        # [ groundwater storage ] ..................................................................
-        # get the time step to update the groundwater storage
-        date_index, matched_date, message_str = match_date_by_julian_number(date, \
-                                                      self.groundwater_longterm_storage_dates)
+        # accumulate the water availability values over the month
+        self.average_groundwater_storage    += groundwater_storage
+        self.average_surfacewater_discharge += surfacewater_discharge
+        self.average_surfacewater_runoff     += surfacewater_runoff
         
-        # remove the date from the dictionary and update it with the present value
-        # set the value using the weight, if the long-term availability is not
-        # defined, cover with the present value
-        # (units: m per day)
-        groundwater_longterm_storage = self.groundwater_longterm_storage.pop(matched_date)
-        groundwater_longterm_storage = \
-            pcr.cover( self.groundwater_update_weight      * groundwater_storage  + \
-                      (1 - self.groundwater_update_weight) * groundwater_longterm_storage, \
-                      groundwater_storage)
-        # reset the date
-        self.groundwater_longterm_storage_dates[date_index] = date
         
-        # add the value to the dictionary
-        self.groundwater_longterm_storage[date] = groundwater_longterm_storage
         
-        # echo to screen
-        message_str = str.join(' ', \
-                                ('groundwater long-term total base flow updated for', \
-                                message_str))
-        logger.debug(message_str)
+        dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+        pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge_acc.map')
         
-        # [ surface water discharge ] ..............................................................
-        # get the time step to update the surface water availability (monthly)
-        date_index, matched_date, message_str = match_date_by_julian_number(date, \
-                                                      self.surfacewater_longterm_discharge_dates)
         
-        # remove the date from the dictionary and update it with the present value
-        # set the value using the weight, if the long-term availability is not
-        # defined, cover with the present value
-        # (units: m3/s)
-        surfacewater_longterm_discharge = self.surfacewater_longterm_discharge.pop(matched_date)
-        surfacewater_longterm_discharge = \
-            pcr.cover( self.surfacewater_update_weight      * surfacewater_discharge + \
-                      (1 - self.surfacewater_update_weight) * surfacewater_longterm_discharge, \
-                      surfacewater_discharge)
         
-        # reset the date
-        self.surfacewater_longterm_discharge_dates[date_index] = date
-        
-        # add the value to the dictionary
-        self.surfacewater_longterm_discharge[date] = surfacewater_longterm_discharge
-        
-        # echo to screen
-        message_str = str.join(' ', \
-                                ('surface water long-term discharge updated for', \
-                                message_str))
-        logger.debug(message_str)
-        
-        # [ surface water runoff ] .................................................................
-        # get the time step to update the surface water availability (monthly)
-        date_index, matched_date, message_str = match_date_by_julian_number(date, \
-                                                      self.surfacewater_longterm_runoff_dates)
-        
-        # remove the date from the dictionary and update it with the present value
-        # set the value using the weight, if the long-term availability is not
-        # defined, cover with the present value
-        # (units: m/day)
-        surfacewater_longterm_runoff = self.surfacewater_longterm_runoff.pop(matched_date)
-        surfacewater_longterm_runoff = \
-            pcr.cover( self.surfacewater_update_weight      * surfacewater_runoff + \
-                      (1 - self.surfacewater_update_weight) * surfacewater_longterm_runoff, \
-                      surfacewater_runoff)
-        
-        # reset the date
-        self.surfacewater_longterm_runoff_dates[date_index] = date
-        
-        # add the value to the dictionary
-        self.surfacewater_longterm_runoff[date] = surfacewater_longterm_runoff
-        
-        # echo to screen
-        message_str = str.join(' ', \
-                                ('surface water long-term total runoff updated for', \
-                                message_str))
-        logger.debug(message_str)
+        # update long-term variables the last day of the month
+        if (self.time_step == 'monthly') or \
+           (self.time_step == 'daily' and is_last_day_month(date)):
+            
+            # get number of steps within the time-step
+            #    - number of days in the month if time-step == daile
+            #    - unity if time-step == monthly
+            steps = date.day
+            
+            # get the monthly average water availability
+            # by dividing the accumulated values over the number of steps
+            self.average_groundwater_storage    /= steps
+            self.average_surfacewater_discharge /= steps
+            self.average_surfacewater_runoff     /= steps
+            
+            
+            
+            pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge.map')
+            
+            
+            
+            # [ groundwater storage ] ..................................
+            #
+            # get the time step to update the groundwater storage
+            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+                                                          self.groundwater_longterm_storage_dates)
+            
+            # remove the date from the dictionary and update it with the present value
+            # set the value using the weight, if the long-term availability is not
+            # defined, cover with the present value
+            # (units: m per day)
+            groundwater_longterm_storage = self.groundwater_longterm_storage.pop(matched_date)
+            groundwater_longterm_storage = \
+                pcr.cover( self.groundwater_update_weight      * self.average_groundwater_storage  + \
+                          (1 - self.groundwater_update_weight) * groundwater_longterm_storage, \
+                          self.average_groundwater_storage)
+            # reset the date
+            self.groundwater_longterm_storage_dates[date_index] = date
+            
+            # add the value to the dictionary
+            self.groundwater_longterm_storage[date] = groundwater_longterm_storage
+            
+            # echo to screen
+            message_str = str.join(' ', \
+                                    ('groundwater long-term total base flow updated for', \
+                                    message_str))
+            logger.debug(message_str)
+            
+            # [ surface water discharge ] ..............................
+            #
+            # get the time step to update the surface water availability (monthly)
+            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+                                                          self.surfacewater_longterm_discharge_dates)
+            
+            # remove the date from the dictionary and update it with the present value
+            # set the value using the weight, if the long-term availability is not
+            # defined, cover with the present value
+            # (units: m3/s)
+            surfacewater_longterm_discharge = self.surfacewater_longterm_discharge.pop(matched_date)
+            surfacewater_longterm_discharge = \
+                pcr.cover( self.surfacewater_update_weight      * self.average_surfacewater_discharge + \
+                          (1 - self.surfacewater_update_weight) * surfacewater_longterm_discharge, \
+                          self.average_surfacewater_discharge)
+            
+            # reset the date
+            self.surfacewater_longterm_discharge_dates[date_index] = date
+            
+            # add the value to the dictionary
+            self.surfacewater_longterm_discharge[date] = surfacewater_longterm_discharge
+            
+            # echo to screen
+            message_str = str.join(' ', \
+                                    ('surface water long-term discharge updated for', \
+                                    message_str))
+            logger.debug(message_str)
+            
+            # [ surface water runoff ] ..................................
+            #
+            # get the time step to update the surface water availability (monthly)
+            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+                                                          self.surfacewater_longterm_runoff_dates)
+            
+            # remove the date from the dictionary and update it with the present value
+            # set the value using the weight, if the long-term availability is not
+            # defined, cover with the present value
+            # (units: m/day)
+            surfacewater_longterm_runoff = self.surfacewater_longterm_runoff.pop(matched_date)
+            surfacewater_longterm_runoff = \
+                pcr.cover( self.surfacewater_update_weight      * self.average_surfacewater_runoff + \
+                          (1 - self.surfacewater_update_weight) * surfacewater_longterm_runoff, \
+                          self.average_surfacewater_runoff)
+            
+            # reset the date
+            self.surfacewater_longterm_runoff_dates[date_index] = date
+            
+            # add the value to the dictionary
+            self.surfacewater_longterm_runoff[date] = surfacewater_longterm_runoff
+            
+            # echo to screen
+            message_str = str.join(' ', \
+                                    ('surface water long-term total runoff updated for', \
+                                    message_str))
+            logger.debug(message_str)
         
         # returns None
         return None
@@ -2889,7 +2935,7 @@ See doc string of class for detailed info.
     
     
     def update_longterm_demand(self, \
-                                 date):
+                                date):
         '''
         update_longterm_demand: function that updates the gross sectoral water demands
                                 as a function of the date.
@@ -2899,41 +2945,73 @@ See doc string of class for detailed info.
         date                  : date of the update
         '''
         
+        # accumulate the gross water demands over the month
+        # (units: m/day)
         for sector_name in self.sector_names:
-            # get variables
-            var_value  = getattr(self,'gross_demand_longterm_%s'       % sector_name)
-            var_dates  = getattr(self,'gross_demand_longterm_%s_dates' % sector_name)
-            var_weight = getattr(self,'%s_update_weight'               % sector_name)
+            self.average_gross_demand[sector_name] += \
+                          self.gross_demand[sector_name] / self.cellarea
+        
+        
+        
+        dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+        pcr.report(self.average_gross_demand['domestic'], f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic_acc.map')
+        
+        
+        
+        # update long-term variables the last day of the month
+        if (self.time_step == 'monthly') or \
+           (self.time_step == 'daily' and is_last_day_month(date)):
             
-            # get the time step to update the groundwater storage
-            date_index, matched_date, message_str = \
-                            match_date_by_julian_number(date, var_dates)
+            # get number of steps within the time-step
+            #    - number of days in the month if time-step == daily
+            #    - unity if time-step == monthly
+            steps = date.day
             
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            # (units: m/day)
-            gross_demand_shortterm = self.gross_demand[sector_name] / self.cellarea
-            gross_demand_longterm  = var_value.pop(matched_date)
-            gross_demand_longterm  = \
-                pcr.cover( var_weight      * gross_demand_shortterm  + \
-                          (1 - var_weight) * gross_demand_longterm, \
-                          self.gross_demand[sector_name])
-            # reset the date
-            var_dates[date_index] = date
-            
-            # add the value to the dictionary
-            var_value[date] = gross_demand_longterm
-            
-            # set variables
-            setattr(self, 'gross_demand_longterm_%s'       % sector_name, var_value)
-            setattr(self, 'gross_demand_longterm_%s_dates' % sector_name, var_dates)
-            
-            # echo to screen
-            message_str = str.join(' ', \
-                                    ('%s long-term gross demand updated for' % sector_name, \
-                                    message_str))
-            logger.debug(message_str)
+            for sector_name in self.sector_names:
+                # get the monthly average water availability
+                # by dividing the accumulated values over the number of steps
+                average_gross_demand = self.average_gross_demand[sector_name] / steps
+                
+                
+                
+                if sector_name == 'domestic':
+                    pcr.report(average_gross_demand, f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic.map')
+                
+                
+                
+                # get variables
+                var_value  = getattr(self,'gross_demand_longterm_%s'       % sector_name)
+                var_dates  = getattr(self,'gross_demand_longterm_%s_dates' % sector_name)
+                var_weight = getattr(self,'%s_update_weight'               % sector_name)
+                
+                # get the time step to update the groundwater storage
+                date_index, matched_date, message_str = \
+                                match_date_by_julian_number(date, var_dates)
+                
+                # remove the date from the dictionary and update it with the present value
+                # set the value using the weight, if the long-term availability is not
+                # defined, cover with the present value
+                # (units: m/day)
+                gross_demand_longterm  = var_value.pop(matched_date)
+                gross_demand_longterm  = \
+                    pcr.cover( var_weight      * average_gross_demand  + \
+                              (1 - var_weight) * gross_demand_longterm, \
+                              average_gross_demand)
+                # reset the date
+                var_dates[date_index] = date
+                
+                # add the value to the dictionary
+                var_value[date] = gross_demand_longterm
+                
+                # set variables
+                setattr(self, 'gross_demand_longterm_%s'       % sector_name, var_value)
+                setattr(self, 'gross_demand_longterm_%s_dates' % sector_name, var_dates)
+                
+                # echo to screen
+                message_str = str.join(' ', \
+                                        ('%s long-term gross demand updated for' % sector_name, \
+                                        message_str))
+                logger.debug(message_str)
         
         # returns None
         return None
@@ -2952,71 +3030,75 @@ See doc string of class for detailed info.
         date : date of the update.
         '''
         
-        # [ groundwater ]
-        if self.pumping_capacity_flag['groundwater']:
-            # get groundwater potential withdrawals for date
-            # (units: m3/day)
-            groundwater_potential_withdrawal = self.groundwater_potential_estimated_withdrawal
+        # update long-term variables the last day of the month
+        if (self.time_step == 'monthly') or \
+           (self.time_step == 'daily' and is_last_day_month(date)):
             
-            # get the time step to update the groundwater potential withdrawal (monthly)
-            # variable matches with groundwater_longterm_avail_dates
-            date_index, matched_date, message_str = \
-                        match_date_by_julian_number(date, \
-                                                    self.groundwater_longterm_pot_withdrawal_dates)
+            # [ groundwater ]
+            if self.pumping_capacity_flag['groundwater']:
+                # get groundwater potential withdrawals for date
+                # (units: m3/day)
+                groundwater_potential_withdrawal = self.groundwater_potential_estimated_withdrawal
+                
+                # get the time step to update the groundwater potential withdrawal (monthly)
+                # variable matches with groundwater_longterm_avail_dates
+                date_index, matched_date, message_str = \
+                            match_date_by_julian_number(date, \
+                                                        self.groundwater_longterm_pot_withdrawal_dates)
+                
+                # remove the date from the dictionary and update it with the present value
+                # set the value using the weight, if the long-term availability is not
+                # defined, cover with the present value
+                groundwater_longterm_pot_withdrawal = self.groundwater_longterm_potential_withdrawal.pop(matched_date)
+                groundwater_longterm_pot_withdrawal = \
+                      pcr.cover( self.groundwater_update_weight      * groundwater_potential_withdrawal + \
+                                (1 - self.groundwater_update_weight) * groundwater_longterm_pot_withdrawal, \
+                                groundwater_potential_withdrawal)
+                
+                # reset the date
+                self.groundwater_longterm_pot_withdrawal_dates[date_index] = date
+                
+                # add the value to the dictionary
+                self.groundwater_longterm_potential_withdrawal[date] = groundwater_longterm_pot_withdrawal
+                
+                # echo to screen
+                message_str = str.join(' ', \
+                                        ('groundwater potential withdrawals updated for', \
+                                        message_str))
+                logger.debug(message_str)
             
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            groundwater_longterm_pot_withdrawal = self.groundwater_longterm_potential_withdrawal.pop(matched_date)
-            groundwater_longterm_pot_withdrawal = \
-                  pcr.cover( self.groundwater_update_weight      * groundwater_potential_withdrawal + \
-                            (1 - self.groundwater_update_weight) * groundwater_longterm_pot_withdrawal, \
-                            groundwater_potential_withdrawal)
-            
-            # reset the date
-            self.groundwater_longterm_pot_withdrawal_dates[date_index] = date
-            
-            # add the value to the dictionary
-            self.groundwater_longterm_potential_withdrawal[date] = groundwater_longterm_pot_withdrawal
-            
-            # echo to screen
-            message_str = str.join(' ', \
-                                    ('groundwater potential withdrawals updated for', \
-                                    message_str))
-            logger.debug(message_str)
-        
-        # [ surface water ]
-        if self.pumping_capacity_flag['surfacewater']:
-            # get surface water potential withdrawals for date
-            # (units: m3/day)
-            surfacewater_potential_withdrawal = self.surfacewater_potential_estimated_withdrawal
-            
-            # get the time step to update the groundwater potential withdrawal (monthly)
-            # variable matches with groundwater_longterm_avail_dates
-            date_index, matched_date, message_str = \
-                        match_date_by_julian_number(date, \
-                                                    self.surfacewater_longterm_pot_withdrawal_dates)
-            
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            surfacewater_longterm_pot_withdrawal = self.surfacewater_longterm_potential_withdrawal.pop(matched_date)
-            surfacewater_longterm_pot_withdrawal = \
-                  pcr.cover( self.surfacewater_update_weight      * surfacewater_potential_withdrawal + \
-                            (1 - self.surfacewater_update_weight) * surfacewater_longterm_pot_withdrawal, \
-                            surfacewater_potential_withdrawal)
-            
-            # reset the date
-            self.surfacewater_longterm_pot_withdrawal_dates[date_index] = date
-            
-            # add the value to the dictionary
-            self.surfacewater_longterm_potential_withdrawal[date] = surfacewater_longterm_pot_withdrawal
-            
-            # echo to screen
-            message_str = str.join(' ', \
-                                    ('surface water potential withdrawals updated for', \
-                                    message_str))
-            logger.debug(message_str)
+            # [ surface water ]
+            if self.pumping_capacity_flag['surfacewater']:
+                # get surface water potential withdrawals for date
+                # (units: m3/day)
+                surfacewater_potential_withdrawal = self.surfacewater_potential_estimated_withdrawal
+                
+                # get the time step to update the groundwater potential withdrawal (monthly)
+                # variable matches with groundwater_longterm_avail_dates
+                date_index, matched_date, message_str = \
+                            match_date_by_julian_number(date, \
+                                                        self.surfacewater_longterm_pot_withdrawal_dates)
+                
+                # remove the date from the dictionary and update it with the present value
+                # set the value using the weight, if the long-term availability is not
+                # defined, cover with the present value
+                surfacewater_longterm_pot_withdrawal = self.surfacewater_longterm_potential_withdrawal.pop(matched_date)
+                surfacewater_longterm_pot_withdrawal = \
+                      pcr.cover( self.surfacewater_update_weight      * surfacewater_potential_withdrawal + \
+                                (1 - self.surfacewater_update_weight) * surfacewater_longterm_pot_withdrawal, \
+                                surfacewater_potential_withdrawal)
+                
+                # reset the date
+                self.surfacewater_longterm_pot_withdrawal_dates[date_index] = date
+                
+                # add the value to the dictionary
+                self.surfacewater_longterm_potential_withdrawal[date] = surfacewater_longterm_pot_withdrawal
+                
+                # echo to screen
+                message_str = str.join(' ', \
+                                        ('surface water potential withdrawals updated for', \
+                                        message_str))
+                logger.debug(message_str)
         
         # returns None
         return None

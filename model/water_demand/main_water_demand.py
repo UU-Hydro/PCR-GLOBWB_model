@@ -87,15 +87,13 @@ class WaterDemand(object):
         self.water_demand_domestic.update(currTimeStep)
         self.water_demand_industry.update(currTimeStep)
         self.water_demand_livestock.update(currTimeStep)
-        
         self.water_demand_manufacture.update(currTimeStep)
-        self.water_demand_thermoelectric.update(currTimeStep)
         
-        if 'quality' in landSurface.iniItems.routingOptions.keys():
-            if landSurface.iniItems.routingOptions['quality'] == "True":
-                self.water_demand_thermoelectric.update(currTimeStep, \
-                                                        routing=routing, \
-                                                        read_file=False)
+        if routing.quality:
+            #self.water_demand_thermoelectric.update(currTimeStep, routing=routing, read_file=False)
+            self.water_demand_thermoelectric.update(currTimeStep)    # [Gabriel] only for paper 4; later, delete this line and reactivate previous one
+        else:
+            self.water_demand_thermoelectric.update(currTimeStep)
         
         # get irrigation demand (m)
         # - for every irrigation land cover type

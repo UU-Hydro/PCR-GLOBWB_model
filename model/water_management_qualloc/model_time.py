@@ -187,6 +187,12 @@ module.
     # return the date index, matched date and message string
     return date_index, matched_date, message_str
 
+def is_last_day_month(date):
+    '''returns if it is thelast of of the month'''
+    today = date.day
+    last_day = calendar.monthrange(date.year, date.month)[1]
+    return today == last_day
+
 #-class objects are organized as follows: __init__, __repr__ & __str__ methods
 # read and reports, initializations, functions with child, and childless functions
 

@@ -165,6 +165,7 @@ class qualloc_model(object):
         # model time #
         ##############
         self.model_time = model_time
+        self.time_step  = self.model_time.time_increment
         
         #########
         # clone #
@@ -742,10 +743,11 @@ class qualloc_model(object):
         # initialize the water management module
         self.water_management = water_management( \
                     landmask                         = self.landmask, \
+                    cellarea                         = self.cellarea, \
                     time_increment                   = self.model_configuration.water_management\
                                                                              ['time_increment'], \
+                    time_step                        = self.model_time.time_increment, \
                     time_step_length                 = self.model_time.time_step_length, \
-                    cellarea                         = self.cellarea, \
                     desalwater_allocation_zones      = desalwater_allocation_zones, \
                     desalwater_withdrawal_points     = desalwater_withdrawal_points, \
                     groundwater_allocation_zones     = groundwater_allocation_zones, \
@@ -1000,13 +1002,13 @@ class qualloc_model(object):
                thermoelectricNettoDemand       = None, \
                environment_gross_demand        = None, \
                surfacewater_storage            = None, \
-               surfacewater_storage_average    = None, \
-               surfacewater_discharge_average  = None, \
-               surfacewater_totalrunoff_average = None, \
+               #surfacewater_storage_average    = None, \
+               surfacewater_discharge          = None, \
+               surfacewater_totalrunoff         = None, \
                groundwater_recharge            = None, \
                groundwater_baseflow             = None, \
                groundwater_storage             = None, \
-               groundwater_storage_average     = None, \
+               #groundwater_storage_average     = None, \
                
                online_coupling_to_quality      = False, \
                surfacewater_temperature        = None, \
@@ -1225,7 +1227,9 @@ class qualloc_model(object):
         
         if date.day == 1:
             
-            # [ pumping capacity ] .................................................................
+            # **********************************************************
+            # * pumping capacity                                       *
+            # **********************************************************
             #
             # update withdrawal capacity
             # based on regional water pumping capacity (if activated)
@@ -1255,14 +1259,17 @@ class qualloc_model(object):
                     logger.info('Pumping capacity is considered to limit %s withdrawals for %s.' % \
                                 (date, source_name))
             
-            # [ long-term availability ] ...........................................................
+            
+            # **********************************************************
+            # * long-term availability                                 *
+            # **********************************************************
             #
             # get the long-term availability for a given date
             # (units: m3/day)
-            # [ remember ] if coupled, 'surfacewater_storage' is different if used for:
+            # [ remember ] if coupled, 'surfacewater_storage' is different if used for:   <--- re-evaluate it after these latest modifications!
             #              - long-term: needs to be the average of last 30 days [m]
             #              - short-term: needs to be the instantaneous value [m]
-            #              non-coupled version does not distinguishes among them
+            #              non-coupled version does not distinguish among them
             surfacewater_availability, groundwater_availability = \
                 self.water_management.get_longterm_availability_for_date( \
                                   date              = date, \
@@ -1274,16 +1281,23 @@ class qualloc_model(object):
                                   channel_length    = self.surfacewater.channel_length, \
                                   time_step_seconds = self.model_time.seconds_per_day)
             
-            # [ long-term demands ] ................................................................
+            
+            # **********************************************************
+            # * long-term demands                                      *
+            # **********************************************************
             #
             # get the long-term sectoral gross water demands for a given date
             # (units: m3/day)
             gross_demand_per_sector = \
-                self.water_management.get_longterm_demands_for_date( \
+                self.water_management.get_longterm_demand_for_date( \
                                   date              = date)
             
-            # [ long-term potential water withdrawal ] .............................................
-            # allocate the current demand to the long-term availability given the date
+            
+            # **********************************************************
+            # * long-term potential withdrawal                         *
+            # **********************************************************
+            #
+            # allocate the long-term demand to the long-term availability given the date
             # and the model settings for the time increment and return the withdrawal
             # that is met (renewable) and potentially unmet (non-renewable) for the
             # available sources
@@ -1416,9 +1430,9 @@ class qualloc_model(object):
             # (units: m/day)
             surfacewater_available = deepcopy(surfacewater_storage)
             
-            # define the average total runoff
+            # set the total runoff
             # (units: m/day)
-            self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff_average)
+            self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff)
         
         # [ actual withdrawals ] .......................................
         #
@@ -1428,8 +1442,7 @@ class qualloc_model(object):
         potential_withdrawal_per_sector = \
             self.water_management.update_surfacewater_potential_withdrawals( \
                   surfacewater_available                   = surfacewater_available, \
-                  longterm_potential_withdrawal_per_sector = potential_withdrawal_per_sector, \
-                  date = date)
+                  longterm_potential_withdrawal_per_sector = potential_withdrawal_per_sector)
         
         potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
         
@@ -1451,10 +1464,11 @@ class qualloc_model(object):
                                            pcr.max(0, \
                                                    surfacewater_available * self.cellarea - potential_withdrawal))
             
-            # set average discharge and surface water storage
-            # over the last month
-            self.surfacewater.storage   = deepcopy(surfacewater_storage_average)
-            self.surfacewater.discharge = deepcopy(surfacewater_discharge_average)
+            # set variables in the surface water module
+            #  - discharge (units: m3/s)
+            #  - surface water storage (units: m)
+            self.surfacewater.storage   = deepcopy(surfacewater_storage)
+            self.surfacewater.discharge = deepcopy(surfacewater_discharge)
         
         
         # **************************************************************
@@ -1542,7 +1556,8 @@ class qualloc_model(object):
         else:
             # groundwater availability is defined by the groundwater storage
             # (units: m/day)
-            groundwater_available = deepcopy(groundwater_storage)
+            storage = deepcopy(groundwater_storage)
+            groundwater_available = deepcopy(storage)
             
             # set the (total) recharge and (total) base flow
             # (units: m/day)
@@ -1558,8 +1573,7 @@ class qualloc_model(object):
             self.water_management.update_groundwater_potential_withdrawals( \
                   groundwater_available                    = groundwater_available, \
                   longterm_potential_withdrawal_per_sector = potential_withdrawal_per_sector, \
-                  time_step_length                         = self.model_time.time_step_length, \
-                  date = self.model_time.date)
+                  time_step_length                         = self.model_time.time_step_length)
         
         potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
         
@@ -1588,10 +1602,10 @@ class qualloc_model(object):
         # coupled QUAlloc version
         else:
             # set groundwater storage for the current date
-            self.groundwater.storage = deepcopy(groundwater_storage)
+            #self.groundwater.storage = deepcopy(groundwater_storage)
             
             # set average groundwater storage over the last month
-            storage = deepcopy(groundwater_storage_average)
+            #storage = deepcopy(groundwater_storage_average)
         
         
         # **************************************************************
@@ -1646,6 +1660,11 @@ class qualloc_model(object):
         # * long-term updating                                         *
         # **************************************************************
         #
+        # long-term variables are accumulated over the month and, only on the
+        # last day, these are divided by the number of days in the time increment
+        # (i.e., monthly = 1, daily = 28/29/30/31) to obtain the average value
+        # over the month
+        
         # update long-term water availability
         #   groundwater_storage    (units: m per day)
         #   surfacewater_discharge (units: m3/s)
@@ -1670,6 +1689,7 @@ class qualloc_model(object):
         # (units: oC, mg/L, cfu/100mL)
         self.water_management.water_quality.update_longterm_quality( \
                                     source_names = self.water_management.source_names, \
+                                    time_step    = self.model_time.time_increment, \
                                     date         = date)
         
         # returns None
@@ -1680,11 +1700,12 @@ class qualloc_model(object):
         # *****************
 
     def finalize_year(self):
-     
+        
         # update the total water availability
         # log message
         logger.info('last day of year %d: updating water availability' % \
                     self.model_time.year)
+        
         # update annual water availability
         self.water_management.update_annual_water_availability()
         self.water_management.update_annual_water_demand()
@@ -1694,15 +1715,16 @@ class qualloc_model(object):
         # get the final states as the new initial conditions
         # log message
         logger.info('last day of year %d: writing states' % self.model_time.year)
+        
         # write the values
         self.update_initial_conditions(self.model_time.date)
         self.report_initial_conditions(self.model_time.date)
 
     def finalize_run(self):
-
+        
         # log message
         logger.info('final time step: closing down all files')
-
+        
         # close the caches
         # initial conditions
         self.report_initial_conditions_to_file.close()

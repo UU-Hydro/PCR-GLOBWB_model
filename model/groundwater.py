@@ -47,15 +47,15 @@ class Groundwater(object):
         result['avgTotalGroundwaterAllocationShort']     = self.avgAllocationShort             # unit: m/day
         result['avgNonFossilGroundwaterAllocationLong']  = self.avgNonFossilAllocation         # unit: m/day
         result['avgNonFossilGroundwaterAllocationShort'] = self.avgNonFossilAllocationShort    # unit: m/day
-
-        result['avgStorGroundwater']                     = self.avgStorGroundwater             # unit: m
         
-        # states that needed for the coupling between PCR-GLOBWB and MODFLOW:
+        # states needed for coupling between PCR-GLOBWB and MODFLOW
         result['relativeGroundwaterHead'] = self.relativeGroundwaterHead                       # unit: m
         result['baseflow']                = self.baseflow                                        # unit: m/day
         
+        # states needed for coupling with QUAlloc
         result['gwRecharge'] = self.gwRecharge                                                 # unit: m/day
-
+        result['avgStorGroundwater']                     = self.avgStorGroundwater             # unit: m
+        
         return result
 
     def getPseudoState(self):
@@ -110,15 +110,6 @@ class Groundwater(object):
         self.limitFossilGroundwaterAbstraction = False
         if not self.using_qualloc or iniItems.waterManagementOptions['limitFossilGroundWaterAbstraction'] == "True":
                 self.limitFossilGroundwaterAbstraction = True
-                
-        #if not self.using_qualloc:
-        #    # option to limit groundwater use only from renewable sources
-        #    if iniItems.waterManagementOptions['limitAbstraction'] == "True":
-        #        self.limitAbstraction = True
-        #
-        #    # option to limit fossil groundwater abstractions to aquifer thickness
-        #    if iniItems.waterManagementOptions['limitFossilGroundWaterAbstraction'] == "True":
-        #        self.limitFossilGroundwaterAbstraction = True
         
         # if using MODFLOW, limitAbstraction must be True (the abstraction cannot exceed storGroundwater, the concept of fossil groundwater is abandoned)
         if self.useMODFLOW:
@@ -430,15 +421,16 @@ class Groundwater(object):
                                                     var,"undefined")
 
     def getICs(self,iniItems,iniConditions = None):
-
+        
         self.initialize_states(iniItems, iniConditions)
 
     def initialize_states(self, iniItems, iniConditions):
-
+        
         # initial conditions (unit: m)
         if iniConditions == None: # when the model just start (reading the initial conditions from file)
-
-            if "estimateStorGroundwaterIniFromRecharge" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions["estimateStorGroundwaterIniFromRecharge"] == "True":
+            
+            if "estimateStorGroundwaterIniFromRecharge" in iniItems.groundwaterOptions.keys() and \
+               iniItems.groundwaterOptions["estimateStorGroundwaterIniFromRecharge"] == "True":
                 iniItems.groundwaterOptions['storGroundwaterIni']      = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"
                 self.iniItems.groundwaterOptions['storGroundwaterIni'] = "ESTIMATE_FROM_GROUNDWATER_RECHARGE_RATE"    
             
@@ -480,7 +472,7 @@ class Groundwater(object):
             self.avgNonFossilAllocationShort = vos.readPCRmapClone(\
                                                iniItems.groundwaterOptions['avgNonFossilGroundwaterAllocationShortIni'],
                                                self.cloneMap,self.tmpDir,self.inputDir)
-
+            
             # additional initial conditions (needed ONLY for the online coupling between PCR-GLOBWB and MODFLOW))
             if iniItems.groundwaterOptions['relativeGroundwaterHeadIni'] != "None":\
                 self.relativeGroundwaterHead = vos.readPCRmapClone(\
@@ -491,7 +483,7 @@ class Groundwater(object):
             self.baseflow = vos.readPCRmapClone(\
                             iniItems.groundwaterOptions['baseflowIni'],
                             self.cloneMap,self.tmpDir,self.inputDir)
-
+            
             # initial condition for avgStorGroundwater (unit: m)
             # - only relevant if non-linear groundwater reservoir is used
             if 'avgStorGroundwaterIni' in list(iniItems.groundwaterOptions.keys()):
@@ -504,12 +496,11 @@ class Groundwater(object):
                 msg = "This run uses storGroundwaterIni = avgStorGroundwaterIni."
                 logger.warning(msg)
                 self.avgStorGroundwater = self.storGroundwater
-           
+            
             self.gwRecharge = vos.readPCRmapClone(\
                                                iniItems.groundwaterOptions['gwRechargeIni'],
-                                               self.cloneMap,self.tmpDir,self.inputDir)     
-
-
+                                               self.cloneMap,self.tmpDir,self.inputDir)
+        
         else:                     # during/after spinUp
             self.storGroundwater             = iniConditions['groundwater']['storGroundwater']
             self.avgAbstraction              = iniConditions['groundwater']['avgTotalGroundwaterAbstraction']
@@ -517,14 +508,13 @@ class Groundwater(object):
             self.avgAllocationShort          = iniConditions['groundwater']['avgTotalGroundwaterAllocationShort']
             self.avgNonFossilAllocation      = iniConditions['groundwater']['avgNonFossilGroundwaterAllocationLong']
             self.avgNonFossilAllocationShort = iniConditions['groundwater']['avgNonFossilGroundwaterAllocationShort']
-
+            
             self.relativeGroundwaterHead     = iniConditions['groundwater']['relativeGroundwaterHead']
             self.baseflow                    = iniConditions['groundwater']['baseflow']
             
             self.avgStorGroundwater          = iniConditions['groundwater']['avgStorGroundwater']
             self.gwRecharge                  = iniConditions['groundwater']['gwRecharge']
-
-
+        
         # initial condition for storGroundwaterFossil (unit: m)
         #
         if "useMaximumStorGroundwaterFossilIni" in iniItems.groundwaterOptions.keys() and iniItems.groundwaterOptions['storGroundwaterFossilIni'] == "True": 
@@ -549,8 +539,7 @@ class Groundwater(object):
             logger.info("The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity).")
             self.storGroundwaterFossil = pcr.min(self.storGroundwaterFossil, self.fossilWaterCap)
             self.storGroundwaterFossil = pcr.max(0.0, self.storGroundwaterFossil)
-
-
+        
         # make sure that active storGroundwater, avgAbstraction and avgNonFossilAllocation cannot be negative
         #
         self.storGroundwater = pcr.cover( self.storGroundwater,0.0)

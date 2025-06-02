@@ -7,11 +7,11 @@ import logging
 import pcraster as pcr
 
 try:
-    from .model_time      import match_date_by_julian_number, get_weights_from_dates
+    from .model_time      import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
     from .basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
     from .allocation      import get_zonal_total
 except:
-    from model_time      import match_date_by_julian_number, get_weights_from_dates
+    from model_time      import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
     from basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
     from allocation      import get_zonal_total
 
@@ -176,6 +176,13 @@ class water_quality(object):
         message_str = 'Long-term water quality for %s at %s level.' % \
                       (date, self.time_increment)
         
+        # initialize the monthly average water quality states
+        for source_name in source_names:
+            for constituent_name in self.constituent_names:
+                setattr(self, \
+                        'average_%s_%s' % (source_name,constituent_name), \
+                        pcr.spatial(pcr.scalar(0)))
+        
         # initialize dictionary with long-term water quality states
         constituent_longterm_states = {}
         
@@ -226,46 +233,86 @@ class water_quality(object):
 
 
     def update_longterm_quality(self, \
-                                          source_names, \
-                                          date):
+                                source_names, \
+                                time_step, \
+                                date):
         '''
         update_longterm_quality: 
                                   function that updates the quality
                                   per zone as a function of the date.
         '''
         
+        # accumulate the water quality over the month per source and constituent
+        # (units: mg/L, oC, cfu/100mL)
         for source_name in source_names:
             for constituent_name in self.constituent_names:
+                key = 'average_%s_%s'    % (source_name, constituent_name)
+                average  = getattr(self, key)
+                average += self.constituent_shortterm_quality\
+                                           [source_name][constituent_name]
+                setattr(self, key, average)
                 
-                # get key
-                var = '%s_longterm_%s' % (source_name, constituent_name)
                 
-                # get the time step to update the long-term quality (monthly)
-                dates = getattr(self, var+'_dates')
-                date_index, matched_date, message_str = \
-                                    match_date_by_julian_number(date, dates)
                 
-                # remove the date from the dictionary and update it with the present value
-                # set the value using the weight, if the long-term availability is not
-                # defined, cover with the present value
-                constituent_longterm_quality = getattr(self, var).pop(matched_date)
-                constituent_longterm_quality = \
-                    pcr.cover( self.quality_update_weight[source_name]      * self.constituent_shortterm_quality[source_name][constituent_name] + \
-                              (1 - self.quality_update_weight[source_name]) * constituent_longterm_quality, \
-                              self.constituent_shortterm_quality[source_name][constituent_name])
+                if source_name == 'surfacewater' and constituent_name == 'temperature':
+                    dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
+                    pcr.report(average, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature_acc.map')
                 
-                # reset the date
-                getattr(self, var+'_dates')[date_index] = date
                 
-                # add the value to the dictionary
-                getattr(self, var)[date] = constituent_longterm_quality
-                
-                # echo to screen
-                message_str = str.join(' ', \
-                                       ('%s from %s availability updated for' \
-                                        % (constituent_name, source_name), \
-                                        message_str))
-                logger.debug(message_str)
+        
+        # update long-term water quality constituents the last day of the month
+        if (time_step == 'monthly') or \
+           (time_step == 'daily' and is_last_day_month(date)):
+            
+            # get number of steps within the time-step
+            #    - number of days in the month if time-step == daile
+            #    - unity if time-step == monthly
+            steps = date.day
+            
+            # evaluate per source and constituent
+            for source_name in source_names:
+                for constituent_name in self.constituent_names:
+                    # get the monthly average water availability
+                    # by dividing the accumulated values over the number steps
+                    key = 'average_%s_%s' % (source_name, constituent_name)
+                    average_constituent_quality = getattr(self, key) / steps
+                    
+                    
+                    
+                    if source_name == 'surfacewater' and constituent_name == 'temperature':
+                        pcr.report(average_constituent_quality, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature.map')
+                    
+                    
+                    
+                    # get variable key
+                    var = '%s_longterm_%s' % (source_name, constituent_name)
+                    
+                    # get the time step to update the long-term quality (monthly)
+                    dates = getattr(self, var+'_dates')
+                    date_index, matched_date, message_str = \
+                                        match_date_by_julian_number(date, dates)
+                    
+                    # remove the date from the dictionary and update it with the present value
+                    # set the value using the weight, if the long-term availability is not
+                    # defined, cover with the present value
+                    constituent_longterm_quality = getattr(self, var).pop(matched_date)
+                    constituent_longterm_quality = \
+                        pcr.cover( self.quality_update_weight[source_name]      * average_constituent_quality + \
+                                  (1 - self.quality_update_weight[source_name]) * constituent_longterm_quality, \
+                                  average_constituent_quality)
+                    
+                    # reset the date
+                    getattr(self, var+'_dates')[date_index] = date
+                    
+                    # add the value to the dictionary
+                    getattr(self, var)[date] = constituent_longterm_quality
+                    
+                    # echo to screen
+                    message_str = str.join(' ', \
+                                           ('%s from %s availability updated for' \
+                                            % (constituent_name, source_name), \
+                                            message_str))
+                    logger.debug(message_str)
         
         # returns None
         return None
