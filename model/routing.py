@@ -1532,20 +1532,22 @@ class Routing(object):
                                 landSurface.nonIrrReturnFlowVolumePerSector['manufacture']
         
         # re-direction of return flow to the water treatment plants locations
-        self.nonIrrReturnFlow = pcr.ifthenelse(
-            self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
-            self.nonIrrReturnFlow,
-            pcr.ifthenelse(
-                self.WWt_zoneID == self.WWt_plantID, #Accumulate water over wastewater treatment zone to plant location
-                pcr.areatotal(
-                    pcr.ifthenelse(self.WWt_zoneID != 0, 
-                                   self.nonIrrReturnFlow,
-                                   0), 
-                    self.WWt_zoneID 
-                ), #Removal at wastewater treatment plant
-                0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
-            )
-        ) #m3 day
+        #self.nonIrrReturnFlow = pcr.ifthenelse(
+        #    self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
+        #    self.nonIrrReturnFlow,
+        #    pcr.ifthenelse(
+        #        self.WWt_zoneID == self.WWt_plantID,  # Accumulate water over wastewater treatment zone to plant location
+        #        pcr.areatotal(
+        #            pcr.ifthenelse(self.WWt_zoneID != 0, 
+        #                           self.nonIrrReturnFlow,
+        #                           0), 
+        #            self.WWt_zoneID 
+        #        ),  # Removal at wastewater treatment plant
+        #        0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
+        #    )
+        #) #m3 day
+        #
+        # [Gabriel] only for paper 4; later, reactivate previous lines
         
         # return flow from non irrigation water demand
         # - calculated in the landSurface.py module
@@ -1586,8 +1588,7 @@ class Routing(object):
         
         # re-direction of return flow to the water treatment plants locations (unit: m3)
         if self.quality and self.calculateLoads:
-            #self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
-            self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume # [Gabriel] only for paper 4; later, delete this line and reactivate previous one
+            self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
         else:
             self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume
         
