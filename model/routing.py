@@ -604,7 +604,7 @@ class Routing(object):
             # Initial conditions needed for coupling with QUAlloc
             if self.using_qualloc:
                 self.discharge          = vos.readPCRmapClone(iniItems.routingOptions['dischargeIni']                ,self.cloneMap,self.tmpDir,self.inputDir)
-                self.runoff              = vos.readPCRmapClone(iniItems.routingOptions['totalrunoffIni']               ,self.cloneMap,self.tmpDir,self.inputDir)
+                self.runoff              = vos.readPCRmapClone(iniItems.routingOptions['totalRunoffIni']               ,self.cloneMap,self.tmpDir,self.inputDir)
                 #self.avgChannelStorage   = vos.readPCRmapClone(iniItems.routingOptions['avgChannelStorageIni']       ,self.cloneMap,self.tmpDir,self.inputDir)
                 #self.avgTotalRunoff      = vos.readPCRmapClone(iniItems.routingOptions['avgTotalRunoffIni']           ,self.cloneMap,self.tmpDir,self.inputDir)
                 #self.avgStorGroundwater  = vos.readPCRmapClone(iniItems.routingOptions['avgStorGroundwaterIni']      ,self.cloneMap,self.tmpDir,self.inputDir)
@@ -2157,27 +2157,27 @@ class Routing(object):
                 self.avg_netLqWaterToSoil = pcr.max(0.0, self.avg_netLqWaterToSoil)
         
         # QUAlloc
-        if self.using_qualloc:
-            # average channel storage 
-            deltaChannelStorage    = self.channelStorage - self.avgChannelStorage
-            self.avgChannelStorage = self.avgChannelStorage + \
-                                          deltaChannelStorage/ \
-                                          pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-            self.avgChannelStorage = pcr.max(0.0, self.avgChannelStorage)
-            
-            # average total runoff
-            deltaTotalRunoff    = self.totalRunoff - self.avgTotalRunoff
-            self.avgTotalRunoff = self.avgTotalRunoff + \
-                                      deltaTotalRunoff/ \
-                                      pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-            self.avgTotalRunoff = pcr.max(0.0, self.avgTotalRunoff)
-            
-            # average groundwater storage
-            deltaStorGroundwater    = groundwater.storGroundwater - self.avgStorGroundwater
-            self.avgStorGroundwater = self.avgStorGroundwater + \
-                                           deltaStorGroundwater/ \
-                                           pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-            self.avgStorGroundwater = pcr.max(0.0, self.avgStorGroundwater)
+        #if self.using_qualloc:
+        #    # average channel storage 
+        #    deltaChannelStorage    = self.channelStorage - self.avgChannelStorage
+        #    self.avgChannelStorage = self.avgChannelStorage + \
+        #                                  deltaChannelStorage/ \
+        #                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+        #    self.avgChannelStorage = pcr.max(0.0, self.avgChannelStorage)
+        #    
+        #    # average total runoff
+        #    deltaTotalRunoff    = self.totalRunoff - self.avgTotalRunoff
+        #    self.avgTotalRunoff = self.avgTotalRunoff + \
+        #                              deltaTotalRunoff/ \
+        #                              pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+        #    self.avgTotalRunoff = pcr.max(0.0, self.avgTotalRunoff)
+        #    
+        #    # average groundwater storage
+        #    deltaStorGroundwater    = groundwater.storGroundwater - self.avgStorGroundwater
+        #    self.avgStorGroundwater = self.avgStorGroundwater + \
+        #                                   deltaStorGroundwater/ \
+        #                                   pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
+        #    self.avgStorGroundwater = pcr.max(0.0, self.avgStorGroundwater)
 
 
     def estimate_discharge_for_environmental_flow(self, channelStorage):
