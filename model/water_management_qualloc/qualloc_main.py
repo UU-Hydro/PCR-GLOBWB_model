@@ -1600,7 +1600,7 @@ class qualloc_model(object):
                                     nonrenewable_withdrawal * self.model_time.time_step_length / self.cellarea)
         
         # coupled QUAlloc version
-        else:
+        #else:
             # set groundwater storage for the current date
             #self.groundwater.storage = deepcopy(groundwater_storage)
             
