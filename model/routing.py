@@ -1693,10 +1693,10 @@ class Routing(object):
                 self.readPollutantLoadings(currTimeStep)  
             
             #self.calculatePowerplantDemands(currTimeStep)
-            self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
-            self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
+            #self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
+            #self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
+            #self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
             
-            self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
             self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
             self.qualityWaterBody()
