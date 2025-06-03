@@ -868,12 +868,10 @@ class Reporting(object):
             self.iceThickness = self._model.routing.iceThickness
             
             # Aspects related to powerplant flows (m3 day-1)
-            #self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 day-1 (temperature-dependent technologies)
-            #self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q #water temperature dependent demands in m3 day-1 (temperature-dependent technologies)
-            #self.powerplants_fw_rf   = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf #powerplant return flows in m3 day-1 (temperature-dependent technologies)
-            #self.PowTwload           = self._model.routing.PowTwload #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
-            #
-            # [Gabriel] paper 4, reactivate lines
+            self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 day-1 (temperature-dependent technologies)
+            self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q    #water temperature dependent demands in m3 day-1 (temperature-dependent technologies)
+            self.powerplants_fw_rf   = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf   #powerplant return flows in m3 day-1 (temperature-dependent technologies)
+            self.PowTwload           = self._model.routing.PowTwload   #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
             
             # Aspects related to salinity pollution
             self.TDSload = self._model.routing.TDSload #in grams

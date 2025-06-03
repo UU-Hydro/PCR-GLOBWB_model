@@ -1532,22 +1532,20 @@ class Routing(object):
                                 landSurface.nonIrrReturnFlowVolumePerSector['manufacture']
         
         # re-direction of return flow to the water treatment plants locations
-        #self.nonIrrReturnFlow = pcr.ifthenelse(
-        #    self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
-        #    self.nonIrrReturnFlow,
-        #    pcr.ifthenelse(
-        #        self.WWt_zoneID == self.WWt_plantID,  # Accumulate water over wastewater treatment zone to plant location
-        #        pcr.areatotal(
-        #            pcr.ifthenelse(self.WWt_zoneID != 0, 
-        #                           self.nonIrrReturnFlow,
-        #                           0), 
-        #            self.WWt_zoneID 
-        #        ),  # Removal at wastewater treatment plant
-        #        0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
-        #    )
-        #) #m3 day
-        #
-        # [Gabriel] only for paper 4; later, reactivate previous lines
+        self.nonIrrReturnFlow = pcr.ifthenelse(
+            self.WWt_zoneID == 0,  # Gridcells not in a wastewater treatment zone
+            self.nonIrrReturnFlow,
+            pcr.ifthenelse(
+                self.WWt_zoneID == self.WWt_plantID,  # Accumulate water over wastewater treatment zone to plant location
+                pcr.areatotal(
+                    pcr.ifthenelse(self.WWt_zoneID != 0, 
+                                   self.nonIrrReturnFlow,
+                                   0), 
+                    self.WWt_zoneID 
+                ),  # Removal at wastewater treatment plant
+                0.  # After accumulation, assign locations without a wastewater treatment plant as 0.
+            )
+        ) #m3 day
         
         # return flow from non irrigation water demand
         # - calculated in the landSurface.py module
@@ -1693,9 +1691,9 @@ class Routing(object):
                 self.readPollutantLoadings(currTimeStep)  
             
             #self.calculatePowerplantDemands(currTimeStep)
-            #self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
-            #self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
-            #self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
+            self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
+            self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
+            self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
             
             self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)

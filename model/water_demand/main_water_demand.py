@@ -90,8 +90,7 @@ class WaterDemand(object):
         self.water_demand_manufacture.update(currTimeStep)
         
         if routing.quality:
-            #self.water_demand_thermoelectric.update(currTimeStep, routing=routing, read_file=False)
-            self.water_demand_thermoelectric.update(currTimeStep)    # [Gabriel] only for paper 4; later, delete this line and reactivate previous one
+            self.water_demand_thermoelectric.update(currTimeStep, routing=routing, read_file=False)
         else:
             self.water_demand_thermoelectric.update(currTimeStep)
         
