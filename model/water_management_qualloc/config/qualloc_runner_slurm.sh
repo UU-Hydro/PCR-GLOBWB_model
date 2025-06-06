@@ -69,7 +69,7 @@ for i in 01 02 03 04 05
   LT_FCL=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_pathogen.nc
   
   # running QUAlloc with arguments
-  echo python ${MODEL_DIR_SCRIPTS}/qualloc_runner.py ${CFG_FILE} ${SCENARIO_NAME} ${MAIN_INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${GW_BFL} ${GW_STO} ${SW_STO} ${LT_STO} ${LT_DIS} ${LT_ROF} ${LT_DOM} ${LT_IRR} ${LT_LIV} ${LT_MAN} ${LT_THR} ${LT_PGW} ${LT_PSW} ${SW_RFL} ${SWQ_FLAG} ${LT_SWT} ${LT_BOD} ${LT_TDS} ${LT_FCL} &
+  python ${MODEL_DIR_SCRIPTS}/qualloc_runner.py ${CFG_FILE} ${SCENARIO_NAME} ${MAIN_INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${GW_BFL} ${GW_STO} ${SW_STO} ${LT_STO} ${LT_DIS} ${LT_ROF} ${LT_DOM} ${LT_IRR} ${LT_LIV} ${LT_MAN} ${LT_THR} ${LT_PGW} ${LT_PSW} ${SW_RFL} ${SWQ_FLAG} ${LT_SWT} ${LT_BOD} ${LT_TDS} ${LT_FCL} &
   done
 wait
 
