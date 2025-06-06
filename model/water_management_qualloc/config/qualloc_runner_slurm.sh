@@ -87,19 +87,19 @@ python ${MODEL_DIR_SCRIPTS}/merge_netcdf.py ${MAIN_OUTPUT_DIR} ${OUTPUT_STATE_DI
 python ${MODEL_DIR_SCRIPTS}/merge_netcdf.py ${MAIN_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-01 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True
 
 # regridding states
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff$_{END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_storage_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff$_{END_YEAR}-01-01_to_.${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
 
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-01_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
