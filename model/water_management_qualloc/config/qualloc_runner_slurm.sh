@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 3
+#SBATCH -n 53
 #SBATCH -J hist_wqTrue
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=gcardenas1891@gmail.com
