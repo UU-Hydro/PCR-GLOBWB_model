@@ -49,24 +49,24 @@ for i in 01 02
   CLONE_MAP=${MASK_DIR}M${i}.map
   
   # adjusting initial condition files
-  GW_BFL = ${INI_DIR}/${YEAR_INITIAL_STATES}/total_base_flow.nc
-  GW_STO = ${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_storage.nc
-  SW_STO = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_storage.nc
-  LT_STO = ${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_longterm_storage.nc
-  LT_DIS = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_discharge.nc
-  LT_ROF = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_runoff.nc
-  LT_DOM = ${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_domestic.nc
-  LT_IRR = ${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_irrigation.nc
-  LT_LIV = ${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_livestock.nc
-  LT_MAN = ${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_manufacture.nc
-  LT_THR = ${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_thermoelectric.nc
-  LT_PGW = ${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_longterm_potential_withdrawal.nc
-  LT_PSW = None
-  SW_RFL = ${INI_DIR}/${YEAR_INITIAL_STATES}/total_return_flow.nc
-  LT_SWT = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_temperature.nc
-  LT_BOD = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_organic.nc
-  LT_TDS = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_salinity.nc
-  LT_FCL = ${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_pathogen.nc
+  GW_BFL=${INI_DIR}/${YEAR_INITIAL_STATES}/total_base_flow.nc
+  GW_STO=${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_storage.nc
+  SW_STO=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_storage.nc
+  LT_STO=${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_longterm_storage.nc
+  LT_DIS=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_discharge.nc
+  LT_ROF=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_runoff.nc
+  LT_DOM=${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_domestic.nc
+  LT_IRR=${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_irrigation.nc
+  LT_LIV=${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_livestock.nc
+  LT_MAN=${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_manufacture.nc
+  LT_THR=${INI_DIR}/${YEAR_INITIAL_STATES}/gross_demand_longterm_thermoelectric.nc
+  LT_PGW=${INI_DIR}/${YEAR_INITIAL_STATES}/groundwater_longterm_potential_withdrawal.nc
+  LT_PSW=None
+  SW_RFL=${INI_DIR}/${YEAR_INITIAL_STATES}/total_return_flow.nc
+  LT_SWT=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_temperature.nc
+  LT_BOD=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_organic.nc
+  LT_TDS=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_salinity.nc
+  LT_FCL=${INI_DIR}/${YEAR_INITIAL_STATES}/surfacewater_longterm_pathogen.nc
   
   # running QUAlloc with arguments
   echo python ${MODEL_DIR_SCRIPTS}/qualloc_runner.py ${CFG_FILE} ${SCENARIO_NAME} ${MAIN_INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${GW_BFL} ${GW_STO} ${SW_STO} ${LT_STO} ${LT_DIS} ${LT_ROF} ${LT_DOM} ${LT_IRR} ${LT_LIV} ${LT_MAN} ${LT_THR} ${LT_PGW} ${LT_PSW} ${SW_RFL} ${SWQ_FLAG} ${LT_SWT} ${LT_BOD} ${LT_TDS} ${LT_FCL} &
