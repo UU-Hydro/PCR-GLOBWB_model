@@ -15,8 +15,8 @@ MODEL_DIR_SCRIPTS="/eejit/home/carde003/github/QUAlloc_coupled/PCR-GLOBWB_model/
 CFG_FILE="/eejit/home/carde003/github/QUAlloc_coupled/PCR-GLOBWB_model/model/water_management_qualloc/config/configuration_file_test_eejit_slurm.cfg"
 
 # starting and end years
-START_YEAR="2000"
-END_YEAR="2001"
+START_YEAR="1980"
+END_YEAR="1981"
 
 # sectoral water quality requirements
 SWQ_FLAG="True"
@@ -41,8 +41,7 @@ YEAR_INITIAL_STATES="1979"
 
 # run QUAlloc
 #python qualloc/model/qualloc_runner.py qualloc/model/configuration_file_test.cfg
-#for i in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
-for i in 01 02 03 04 05
+for i in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
   do
   # adjusting general input data
   OUTPUT_DIR=${MAIN_OUTPUT_DIR}/M${i}
