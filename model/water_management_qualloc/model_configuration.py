@@ -149,7 +149,7 @@ the CALEROS model.
         # read configuration from given file
         self.parse_configuration_file(self.cfgfilename, self.groups, \
                                     self.sections, subst_args)
-
+        
         # with the configuration set, create all necessary directories
         self.create_output_directories()
 
@@ -206,6 +206,7 @@ the CALEROS model.
                                                subst_args[argpos]))
                             # set the value
                             section_info[key] = value
+                    
                     # set the values
                     setattr(self, section, section_info)
                 except:
