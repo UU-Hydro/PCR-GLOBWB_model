@@ -16,7 +16,7 @@ CFG_FILE="/eejit/home/carde003/github/QUAlloc_coupled/PCR-GLOBWB_model/model/wat
 
 # starting and end years
 START_YEAR="1980"
-END_YEAR="1981"
+END_YEAR="1980"
 
 # sectoral water quality requirements
 SWQ_FLAG="True"
@@ -71,5 +71,8 @@ for i in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
   python ${MODEL_DIR_SCRIPTS}/qualloc_runner.py ${CFG_FILE} ${SCENARIO_NAME} ${MAIN_INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${GW_BFL} ${GW_STO} ${SW_STO} ${LT_STO} ${LT_DIS} ${LT_ROF} ${LT_DOM} ${LT_IRR} ${LT_LIV} ${LT_MAN} ${LT_THR} ${LT_PGW} ${LT_PSW} ${SW_RFL} ${SWQ_FLAG} ${LT_SWT} ${LT_BOD} ${LT_TDS} ${LT_FCL} &
   done
 wait
+
+# merge QUAlloc outputs and state variables
+
 
 echo "end of model runs (please check your results)"
