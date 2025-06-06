@@ -208,7 +208,7 @@ the CALEROS model.
                             section_info[key] = value
                     
                     
-                    print(key, value, argposcnt, argpos)
+                            print(key, value, argposcnt, argpos)
                     
                     
                     # set the values
