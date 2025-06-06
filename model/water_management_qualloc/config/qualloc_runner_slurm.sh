@@ -19,7 +19,7 @@ START_YEAR="1980"
 END_YEAR="1980"
 
 # time-step ("daily" if stand-alone; "monthly" if coupled to PCR-GLOBWB2)
-TIME_STEP="daily"
+TIME_STEP="monthly"
 
 # sectoral water quality requirements
 SWQ_FLAG="True"
