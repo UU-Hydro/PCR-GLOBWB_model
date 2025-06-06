@@ -19,7 +19,7 @@ START_YEAR="2000"
 END_YEAR="2001"
 
 # sectoral water quality requirements
-SWQ_FLAG=True
+SWQ_FLAG="True"
 
 # name of the simulation
 SCENARIO_NAME="historic_wq=True"
@@ -46,7 +46,7 @@ for i in 01 02
   CLONE_MAP=${MASK_DIR}M${i}.map
   
   # running QUAlloc with arguments
-  python ${MODEL_DIR_SCRIPTS}/qualloc_runner_parallel.py ${CFG_FILE} ${SCENARIO_NAME} ${INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${YEAR_INITIAL_STATES} ${SWQ_FLAG} &
+  python ${MODEL_DIR_SCRIPTS}/qualloc_runner.py ${CFG_FILE} ${SCENARIO_NAME} ${INPUT_DIR} ${OUTPUT_DIR} ${CLONE_MAP} ${START_YEAR} ${END_YEAR} ${YEAR_INITIAL_STATES} ${SWQ_FLAG} &
   done
 wait
 
