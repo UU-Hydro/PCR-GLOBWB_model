@@ -73,6 +73,13 @@ for i in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
 wait
 
 # merge QUAlloc outputs and state variables
+OUTPUT_STATE_DIR=${MAIN_INPUT_DIR}/${INI_DIR}/${END_YEAR}
+mkdir ${OUTPUT_STATE_DIR}
 
+## state variables: long-term
+python ${MODEL_DIR_SCRIPTS}/merge_netcdf.py ${MAIN_OUTPUT_DIR} ${OUTPUT_STATE_DIR} outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True
+## state variables: initial conditions
+python ${MODEL_DIR_SCRIPTS}/merge_netcdf.py ${MAIN_OUTPUT_DIR} ${OUTPUT_STATE_DIR} outStates ${END_YEAR}-12-01 ${END_YEAR}-12-01 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True
+## regridding states
 
 echo "end of model runs (please check your results)"
