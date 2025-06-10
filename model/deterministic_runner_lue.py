@@ -93,6 +93,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
         self.model.read_forcings()
         state = self.model.update(report_water_balance = False, lue_scalability_experiment = self.lue_scalability_experiment)
 
+        assert state is not None
+        
         # skip any reporting during LUE scalability experiment
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
