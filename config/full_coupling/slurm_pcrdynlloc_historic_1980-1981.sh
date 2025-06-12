@@ -7,7 +7,7 @@
 
 # setting input files and directories ...................................
 # folder containing .ini file
-INI_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/setup_05min.ini"
+INI_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/setup_05min_full_coupling.ini"
 
 # starting and end dates
 START_DATE="1980-01-01"
