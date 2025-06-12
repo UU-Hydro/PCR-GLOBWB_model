@@ -23,7 +23,7 @@ MAIN_INITIAL_STATE_FOLDER=${INITIAL_STATE_FOLDER}/pcrglobwb
 DATE_FOR_INITIAL_STATES="1979-12-31"
 
 # directory where python script to create configuration files per mask is stored
-SCRIPT_CONFIG_FILE_QUALLOC=""
+SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/water_management_qualloc/configuration_parallel.py"
 
 # directory where QUAlloc base configuration file is stored
 MAIN_QUALLOC_CONFIG_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/water_management_qualloc/config/parallel/configuration_file_parallel_coupled.cfg"
