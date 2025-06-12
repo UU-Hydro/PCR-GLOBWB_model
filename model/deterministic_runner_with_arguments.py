@@ -387,7 +387,7 @@ def modify_ini_file(original_ini_file,
     # optional system arguments for modifying startTime (-sd) and endTime (-ed)
     if "-sd" in system_argument:
         starting_date = system_argument[system_argument.index("-sd") + 1]
-        file_ini_content = file_ini_content.replace("STARTING_DATE", starting_date)
+        file_ini_content = file_ini_content.replace("START_DATE", starting_date)
         msg = "The starting date 'startTime' is set based on the system argument (-sd): " + starting_date
         print(msg)
     if "-ed" in system_argument:
@@ -410,9 +410,7 @@ def modify_ini_file(original_ini_file,
         msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_states
         print(msg)
     
-
     # optional system argument for modifying forcing files
-    
     # - precipitationNC = PRECIPITATION_FORCING_FILE
     if "-pff" in system_argument:
         precipitation_forcing_file = system_argument[system_argument.index("-pff") + 1]
@@ -567,7 +565,7 @@ def main():
         # - clone code in string
         clone_code = str(sys.argv[3])
         # - output folder
-        output_folder_with_clone_code = "M%07i" %int(clone_code)
+        output_folder_with_clone_code = "M%02i" %int(clone_code)
         configuration.globalOptions['outputDir'] += "/" + output_folder_with_clone_code 
         # - clone map
         configuration.globalOptions['cloneMap'] = configuration.globalOptions['cloneMap'] %(int(clone_code))
