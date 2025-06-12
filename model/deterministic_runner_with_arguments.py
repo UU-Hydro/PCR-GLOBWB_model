@@ -504,7 +504,13 @@ def modify_ini_file(original_ini_file,
         msg = "The option 'dailyGroundwaterRechargeIni' is set based on the system argument (-day_gw_rch_ini): " + day_gw_rch_ini 
         print(msg)
     
-
+    # configuration_file_for_qualloc / QUALLOC_CONFIG_FILE
+    if "-qcf" in system_argument:
+        qualloc_config_file = system_argument[system_argument.index("-qcf") + 1]
+        file_ini_content = file_ini_content.replace("QUALLOC_CONFIG_FILE", qualloc_config_file)
+        msg = "The configuration file to run QUAlloc is set based on the system argument (-qcf): " + qualloc_config_file 
+        print(msg)
+    
     # folder for saving original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
     # - for a run that is part of a set of parallel (clone) runs
