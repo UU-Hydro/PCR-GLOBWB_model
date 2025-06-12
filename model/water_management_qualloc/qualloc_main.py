@@ -89,9 +89,9 @@ forcing_variables = { \
                       'precipitation'             : 'precipitation', \
                       'referencePotET'            : 'refpot_evaporation', \
                       'groundwater_recharge'      : 'groundwater_recharge', \
-                      'direct_runoff'             : 'direct_runoff', \
-                      'interflow'                 : 'interflow', \
-                      'irrigation_gross_demand'   : 'irrigation_water_demand', \
+                      'direct_runoff'              : 'direct_runoff', \
+                      'interflow'                  : 'interflow', \
+                      'irrigationGrossDemand'     : 'irrigation_water_demand', \
                       'domesticGrossDemand'       : 'domestic_water_demand', \
                       'domesticNettoDemand'       : 'domestic_water_demand', \
                       'industryGrossDemand'       : 'industrial_water_demand', \
@@ -102,8 +102,7 @@ forcing_variables = { \
                       'manufactureNettoDemand'    : 'manufacture_water_demand', \
                       'thermoelectricGrossDemand' : 'thermoelectric_water_demand', \
                       'thermoelectricNettoDemand' : 'thermoelectric_water_demand', \
-                      'environment_gross_demand'  : 'environment_water_demand', \
-                      #'desalinated_water_use'     : 'desalinated_water_use',\
+                      'environmentGrossDemand'    : 'environment_water_demand', \
                     }
 
 #############
