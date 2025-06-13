@@ -13,8 +13,8 @@ import os
 import sys
 
 # fetching data
-original_ini_file = sys.argv[0]
-system_argument  = sys.argv[1:]
+original_ini_file = sys.argv[1]
+system_argument  = sys.argv[2:]
     
 # open and read configuration file
 file_ini = open(original_ini_file, "rt")
