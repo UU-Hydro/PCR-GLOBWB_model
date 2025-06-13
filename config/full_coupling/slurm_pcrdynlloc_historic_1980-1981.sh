@@ -84,64 +84,64 @@ for i in {01..01}
   done
 wait
 
-# merging state variables ..............................................
-# merging PCR-GLOBWB2 state variables
-python merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${MAIN_INITIAL_STATE_FOLDER} 8 Global &
-wait
-
-# merging QUAlloc state variables
-# create folders
-OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
-mkdir ${OUTPUT_STATE_DIR}
-mkdir ${OUTPUT_STATE_DIR}/tmp
-
-# state variables: long-term
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
-wait
-
-# state variables: last-day
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
-wait
-
-# regridding states
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff$_{END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
-
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow.nc &
-wait
-
-# merge output netcdf ..................................................
-# merging PCR-GLOBWB2 output netcdf files
-# create folder
-PCRGLOBWB_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
-mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
-
-# merge outputs
-python merge_netcdf.py ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_DATE} ${END_DATE} ${PCRGLOBWB_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
-wait
-
-# merging QUAlloc state variables
-# create folder
-QUALLOC_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
-mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
-
-# merge outputs
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${QUALLOC_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
-wait
+## merging state variables ..............................................
+## merging PCR-GLOBWB2 state variables
+#python merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${MAIN_INITIAL_STATE_FOLDER} 8 Global &
+#wait
+#
+## merging QUAlloc state variables
+## create folders
+#OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
+#mkdir ${OUTPUT_STATE_DIR}
+#mkdir ${OUTPUT_STATE_DIR}/tmp
+#
+## state variables: long-term
+#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
+#wait
+#
+## state variables: last-day
+#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
+#wait
+#
+## regridding states
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff$_{END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
+#
+#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage.nc &
+#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow.nc &
+#wait
+#
+## merge output netcdf ..................................................
+## merging PCR-GLOBWB2 output netcdf files
+## create folder
+#PCRGLOBWB_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
+#mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
+#
+## merge outputs
+#python merge_netcdf.py ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_DATE} ${END_DATE} ${PCRGLOBWB_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
+#wait
+#
+## merging QUAlloc state variables
+## create folder
+#QUALLOC_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
+#mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
+#
+## merge outputs
+#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${QUALLOC_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
+#wait
 
 echo "\n... End of model runs (please check your results)."
 

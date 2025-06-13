@@ -206,12 +206,6 @@ the CALEROS model.
                                                subst_args[argpos]))
                             # set the value
                             section_info[key] = value
-                    
-                    
-                        print(key, value, argposcnt, argpos)
-                    print(section_info)
-                    
-                    
                     # set the values
                     setattr(self, section, section_info)
                 except:
