@@ -59,7 +59,7 @@ if "-dfis" in system_argument:
     print(msg)
 
 # folder for saving original and modified ini files
-new_ini_file_name = f'{original_ini_file.split(".")[0]}_{CLONE_CODE}.cfg' 
+new_ini_file_name = f'{original_ini_file.split(".")[0]}_{clone_code}.cfg' 
 
 # create folder
 if os.path.isfile(new_ini_file_name): os.remove(new_ini_file_name)
