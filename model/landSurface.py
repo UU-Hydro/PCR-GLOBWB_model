@@ -1173,7 +1173,7 @@ class LandSurface(object):
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
             self.qualloc_model.update(online_coupling_to_quantity     = self.using_qualloc, \
-                                      irrigation_gross_demand         = vol_gross_sectoral_water_demands["irrigation"] / routing.cellArea, \
+                                      irrigationGrossDemand           = vol_gross_sectoral_water_demands["irrigation"] / routing.cellArea, \
                                       domesticGrossDemand             = self.water_demand.water_demand_domestic.domesticGrossDemand, \
                                       domesticNettoDemand             = self.water_demand.water_demand_domestic.domesticNettoDemand, \
                                       industryGrossDemand             = self.water_demand.water_demand_industry.industryGrossDemand, \
@@ -1184,7 +1184,7 @@ class LandSurface(object):
                                       manufactureNettoDemand          = self.water_demand.water_demand_manufacture.manufactureNettoDemand, \
                                       thermoelectricGrossDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand, \
                                       thermoelectricNettoDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, \
-                                      environment_gross_demand        = None, \
+                                      environmentGrossDemand          = None, \
                                       surfacewater_storage            = routing.channelStorage / routing.cellArea, \
                                       #surfacewater_storage_average   = routing.avgChannelStorage / routing.cellArea, \
                                       surfacewater_discharge          = routing.discharge, \

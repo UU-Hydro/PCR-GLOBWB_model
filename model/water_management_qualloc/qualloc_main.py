@@ -988,7 +988,7 @@ class qualloc_model(object):
     
     def update(self,\
                online_coupling_to_quantity     = False, \
-               irrigation_gross_demand         = None, \
+               irrigationGrossDemand           = None, \
                domesticGrossDemand             = None, \
                domesticNettoDemand             = None, \
                industryGrossDemand             = None, \
@@ -999,15 +999,15 @@ class qualloc_model(object):
                manufactureNettoDemand          = None, \
                thermoelectricGrossDemand       = None, \
                thermoelectricNettoDemand       = None, \
-               environment_gross_demand        = None, \
+               environmentGrossDemand          = None, \
                surfacewater_storage            = None, \
-               #surfacewater_storage_average    = None, \
+               #surfacewater_storage_average   = None, \
                surfacewater_discharge          = None, \
                surfacewater_totalrunoff         = None, \
                groundwater_recharge            = None, \
                groundwater_baseflow             = None, \
                groundwater_storage             = None, \
-               #groundwater_storage_average     = None, \
+               #groundwater_storage_average    = None, \
                
                online_coupling_to_quality      = False, \
                surfacewater_temperature        = None, \
