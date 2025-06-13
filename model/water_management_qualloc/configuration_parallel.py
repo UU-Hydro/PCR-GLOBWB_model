@@ -63,6 +63,7 @@ new_ini_file_name = f'{original_ini_file.split(".")[0]}_{clone_code}.cfg'
 
 # create folder
 if os.path.isfile(new_ini_file_name): os.remove(new_ini_file_name)
+print(new_ini_file_name)
 
 # save the new ini file
 new_ini_file = open(new_ini_file_name, "w")
