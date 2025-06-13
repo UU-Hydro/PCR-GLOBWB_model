@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 96
+##SBATCH -n 96
+#SBATCH -n 16
 #SBATCH -J full_couple
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=gcardenas1891@gmail.com
