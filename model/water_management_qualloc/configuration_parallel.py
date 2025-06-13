@@ -34,7 +34,7 @@ print(msg)
 # optional system arguments for modifying startTime (-sd) and endTime (-ed)
 if "-sd" in system_argument:
     start_date = system_argument[system_argument.index("-sd") + 1]
-    file_ini_content = file_ini_content.replace("START_DATE", starting_date)
+    file_ini_content = file_ini_content.replace("START_DATE", start_date)
     msg = "The starting date 'startyear' is set based on the system argument (-sd): " + start_date
     print(msg)
 if "-ed" in system_argument:
