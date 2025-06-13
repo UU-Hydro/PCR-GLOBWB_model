@@ -1029,11 +1029,20 @@ class Reporting(object):
         #self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
         #self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
-        # water withdrawal for livestock, industry and domestic water demands
-        self.domesticWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
-        self.industryWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
-        self.livestockWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
+        # water withdrawal for domestic, industry, livestock, manufacturing and thermoelectric water demands
+        self.domesticWaterWithdrawal       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal)
+        self.industryWaterWithdrawal       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal)
+        self.livestockWaterWithdrawal      = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.livestockWaterWithdrawal)
+        self.manufactureWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.manufactureWaterWithdrawal)
+        self.thermoelectricWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.thermoelectricWaterWithdrawal)
         
+        # non-irrigation return flows for domestic, industry, livestock, manufacturing and thermoelectric sectors
+        self.domesticNonIrrReturnFlow       = self.nonIrrReturnFlowVolumePerSector['domestic'] / self._model.routing.cellArea
+        self.industryNonIrrReturnFlow       = self.nonIrrReturnFlowVolumePerSector['industry'] / self._model.routing.cellArea
+        self.livestockNonIrrReturnFlow      = self.nonIrrReturnFlowVolumePerSector['livestock'] / self._model.routing.cellArea
+        self.manufactureNonIrrReturnFlow    = self.nonIrrReturnFlowVolumePerSector['manufacture'] / self._model.routing.cellArea
+        self.thermoelectricNonIrrReturnFlow = self.nonIrrReturnFlowVolumePerSector['thermoelectric'] / self._model.routing.cellArea
+            
         ######################################################################################################################################################################
         # All water withdrawal variables in volume unit (m3): 
         waterWithdrawalVariables = [

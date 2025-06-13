@@ -948,7 +948,7 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'This variable can only be reported if 3 layer soil model is used.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# nonIrrWaterConsumption                  
+# nonIrrWaterConsumption
 pcrglobwb_variable_name = 'nonIrrWaterConsumption'
 netcdf_short_name[pcrglobwb_variable_name] = 'consumptive_water_use_for_non_irrigation_demand'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
@@ -959,9 +959,64 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# nonIrrReturnFlow                  
+# nonIrrReturnFlow
 pcrglobwb_variable_name = 'nonIrrReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_non_irrigation_demand_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# domesticNonIrrReturnFlow
+pcrglobwb_variable_name = 'domesticNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_domestic_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# livestockNonIrrReturnFlow
+pcrglobwb_variable_name = 'livestockNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_livestock_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# industryNonIrrReturnFlow
+pcrglobwb_variable_name = 'industryNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_industry_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# manufactureNonIrrReturnFlow
+pcrglobwb_variable_name = 'manufactureNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_manufacture_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# thermoelectricNonIrrReturnFlow
+pcrglobwb_variable_name = 'thermoelectricNonIrrReturnFlow'
+netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_thermoelectric_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
@@ -1125,7 +1180,7 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# domesticWaterWithdrawal   
+# domesticWaterWithdrawal
 pcrglobwb_variable_name = 'domesticWaterWithdrawal'
 netcdf_short_name[pcrglobwb_variable_name] = 'domestic_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
@@ -1147,9 +1202,31 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# livestockWaterWithdrawal  
+# livestockWaterWithdrawal
 pcrglobwb_variable_name = 'livestockWaterWithdrawal'
 netcdf_short_name[pcrglobwb_variable_name] = 'livestock_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# manufactureWaterWithdrawal
+pcrglobwb_variable_name = 'manufactureWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'manufacture_water_withdrawal'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'Flux values given are over the entire cell area.'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# thermoelectricWaterWithdrawal
+pcrglobwb_variable_name = 'thermoelectricWaterWithdrawal'
+netcdf_short_name[pcrglobwb_variable_name] = 'thermoelectric_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'

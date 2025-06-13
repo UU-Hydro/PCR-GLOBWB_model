@@ -77,9 +77,6 @@ class Routing(object):
         if self.using_qualloc:
             result['discharge']              = self.discharge               #  m3/s   ; discharge
             result['runoff']                  = self.runoff                   #  m/day  ; total runoff
-            #result['avgChannelStorage']     = self.avgChannelStorage       #  m3     ; running average of channel storage for the short term period (e.g. 30 days)
-            #result['avgTotalRunoff']         = self.avgTotalRunoff           #  m/day  ; running average of total runoff for the short term period (e.g. 30 days)
-            #result['avgStorGroundwater']    = self.avgStorGroundwater      #  m      ; running average of groundwater storage for the short term period (e.g. 30 days)
         
         # DynQual [added by EdGab]
         # for irrigation return flows
@@ -238,7 +235,7 @@ class Routing(object):
                                              self.cloneMap,self.tmpDir,self.inputDir), 0.0)
         
         # an assumption for broad sheet flow in kinematic wave methods/approaches
-        self.beta = 0.6 
+        self.beta = 0.6
         
         # channelLength = approximation of channel length (unit: m)
         # This is approximated by cell diagonal. 
