@@ -1424,31 +1424,31 @@ class LandSurface(object):
             self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
             
             # calculate the non irrigation return flow
-            # - volume (unit: m3/day)
+            # - volume (unit: m3)
             self.nonIrrReturnFlowVolumePerSector = {}
-            self.nonIrrReturnFlowVolumePerSector['domestic'] = self.water_demand.water_demand_domestic.domesticReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["domestic"]
-            self.nonIrrReturnFlowVolumePerSector['industry'] = self.water_demand.water_demand_industry.industryReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["industry"]
-            self.nonIrrReturnFlowVolumePerSector['manufacture'] = self.water_demand.water_demand_manufacture.manufactureReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["manufacture"]
+            self.nonIrrReturnFlowVolumePerSector['domestic']       = self.water_demand.water_demand_domestic.domesticReturnFlowFraction             * self.water_management.satisfied_gross_sectoral_water_demands["domestic"]
+            self.nonIrrReturnFlowVolumePerSector['industry']       = self.water_demand.water_demand_industry.industryReturnFlowFraction             * self.water_management.satisfied_gross_sectoral_water_demands["industry"]
+            self.nonIrrReturnFlowVolumePerSector['manufacture']    = self.water_demand.water_demand_manufacture.manufactureReturnFlowFraction       * self.water_management.satisfied_gross_sectoral_water_demands["manufacture"]
             self.nonIrrReturnFlowVolumePerSector['thermoelectric'] = self.water_demand.water_demand_thermoelectric.thermoelectricReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"]
-            self.nonIrrReturnFlowVolumePerSector['livestock'] = self.water_demand.water_demand_livestock.livestockReturnFlowFraction * self.water_management.satisfied_gross_sectoral_water_demands["livestock"]
+            self.nonIrrReturnFlowVolumePerSector['livestock']      = self.water_demand.water_demand_livestock.livestockReturnFlowFraction           * self.water_management.satisfied_gross_sectoral_water_demands["livestock"]
             
             self.nonIrrReturnFlowVolume = sum(list(self.nonIrrReturnFlowVolumePerSector.values()))
             
-            # - water-slice (unit: m/day)
+            # - water-slice (unit: m)
             self.nonIrrReturnFlow  = self.nonIrrReturnFlowVolume / self.cellArea
             
             # calculate the non irrigation consumption
-            # - volume (unit: m3/day)
+            # - volume (unit: m3)
             self.nonIrrWaterConsumptionVolumePerSector = {}
-            self.nonIrrWaterConsumptionVolumePerSector['domestic'] = self.water_management.satisfied_gross_sectoral_water_demands["domestic"]             - self.nonIrrReturnFlowVolumePerSector['domestic']
-            self.nonIrrWaterConsumptionVolumePerSector['industry'] = self.water_management.satisfied_gross_sectoral_water_demands["industry"]             - self.nonIrrReturnFlowVolumePerSector['industry']
-            self.nonIrrWaterConsumptionVolumePerSector['manufacture'] = self.water_management.satisfied_gross_sectoral_water_demands["manufacture"]       - self.nonIrrReturnFlowVolumePerSector['manufacture']
+            self.nonIrrWaterConsumptionVolumePerSector['domestic']       = self.water_management.satisfied_gross_sectoral_water_demands["domestic"]       - self.nonIrrReturnFlowVolumePerSector['domestic']
+            self.nonIrrWaterConsumptionVolumePerSector['industry']       = self.water_management.satisfied_gross_sectoral_water_demands["industry"]       - self.nonIrrReturnFlowVolumePerSector['industry']
+            self.nonIrrWaterConsumptionVolumePerSector['manufacture']    = self.water_management.satisfied_gross_sectoral_water_demands["manufacture"]    - self.nonIrrReturnFlowVolumePerSector['manufacture']
             self.nonIrrWaterConsumptionVolumePerSector['thermoelectric'] = self.water_management.satisfied_gross_sectoral_water_demands["thermoelectric"] - self.nonIrrReturnFlowVolumePerSector['thermoelectric']
-            self.nonIrrWaterConsumptionVolumePerSector['livestock'] = self.water_management.satisfied_gross_sectoral_water_demands["livestock"]           - self.nonIrrReturnFlowVolumePerSector['livestock']
+            self.nonIrrWaterConsumptionVolumePerSector['livestock']      = self.water_management.satisfied_gross_sectoral_water_demands["livestock"]      - self.nonIrrReturnFlowVolumePerSector['livestock']
             
             self.nonIrrWaterConsumptionVolume = sum(list(self.nonIrrWaterConsumptionVolumePerSector.values()))
             
-            # - water-slice (unit: m/day)
+            # - water-slice (unit: m)
             self.nonIrrWaterConsumption  =  self.nonIrrWaterConsumptionVolume / self.cellArea
             
             # variable to reduce capillary rise in order to ensure there is always enough water to supply non fossil groundwater abstraction 

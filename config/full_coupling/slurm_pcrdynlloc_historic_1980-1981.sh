@@ -70,8 +70,8 @@ MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${START_YEAR}_${END_YEAR}
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # run the model for all clones, from 1 to 53
-#for i in {01..53}
-for i in {01..01}
+#for i in {01..01}
+for i in {01..53}
   do
   # set the clone code
   CLONE_CODE=${i}
