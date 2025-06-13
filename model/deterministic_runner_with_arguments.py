@@ -558,14 +558,11 @@ def main():
                                   debug_mode = debug_mode, \
                                   no_modification = False)      
     
-    print(f"this_run_is_part_of_a_set_of_parallel_run -> {this_run_is_part_of_a_set_of_parallel_run}")
-    
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
     if this_run_is_part_of_a_set_of_parallel_run:
         # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
         # - clone code in string
         clone_code = str(sys.argv[3])
-        print(f"\n\n\n{clone_code}\n\n\n")
         # - output folder
         output_folder_with_clone_code = "M%02i" %int(clone_code)
         configuration.globalOptions['outputDir'] += "/" + output_folder_with_clone_code 
@@ -575,13 +572,12 @@ def main():
         if configuration.globalOptions['landmask'] != "None":
             configuration.globalOptions['landmask']   = configuration.globalOptions['landmask'] %(int(clone_code))
         # - landmask for reporting
-        if configuration.reportingOptions['landmask_for_reporting'] != "None":
-            configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(int(clone_code))
+        #if configuration.reportingOptions['landmask_for_reporting'] != "None":
+        #    configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(int(clone_code))
 
     # set configuration
     configuration.set_configuration(system_arguments = sys.argv)
     
-
     # timeStep info: year, month, day, doy, hour, etc
     currTimeStep = ModelTime() 
 
