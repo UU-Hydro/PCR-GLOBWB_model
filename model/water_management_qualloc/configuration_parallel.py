@@ -26,9 +26,9 @@ clone_code = "M" + system_argument[system_argument.index("-mod") - 1]
 file_ini_content = file_ini_content.replace("CLONE_CODE", clone_code)
 
 # system argument for replacing outputDir (-mod)
-main_output_dir = system_argument[system_argument.index("-mod") + 1]
-file_ini_content = file_ini_content.replace("QUALLOC_OUTPUT_DIR", main_output_dir)
-msg = "The output folder 'outputpath' is set based on the system argument (-mod): " + main_output_dir
+qualloc_output_dir = system_argument[system_argument.index("-mod") + 1]
+file_ini_content = file_ini_content.replace("QUALLOC_OUTPUT_DIR", qualloc_output_dir)
+msg = "The output folder 'outputpath' is set based on the system argument (-mod): " + qualloc_output_dir
 print(msg)
 
 # optional system arguments for modifying startTime (-sd) and endTime (-ed)
@@ -46,9 +46,9 @@ if "-ed" in system_argument:
 # optional system arguments for initial condition files
 # - main initial state folder
 if "-isd" in system_argument:
-    main_initial_state_folder = system_argument[system_argument.index("-isd") + 1]        
-    file_ini_content = file_ini_content.replace("MAIN_INITIAL_STATE_FOLDER", main_initial_state_folder)
-    msg = "The main folder for all initial states is set based on the system argument (-isd): " + main_initial_state_folder
+    initial_state_folder = system_argument[system_argument.index("-isd") + 1]        
+    file_ini_content = file_ini_content.replace("INITIAL_STATE_FOLDER", initial_state_folder)
+    msg = "The main folder for all initial states is set based on the system argument (-isd): " + initial_state_folder
     print(msg)
 
 # - date for initial states 
