@@ -514,7 +514,7 @@ def modify_ini_file(original_ini_file,
     # - for a run that is part of a set of parallel (clone) runs
     if system_argument[2] == "parallel" or system_argument[2] == "debug_parallel" or system_argument[2] == "debug-parallel":
         clone_code = str(system_argument[3])
-        output_folder_with_clone_code = "M%07i" %int(clone_code)
+        output_folder_with_clone_code = "M%02i" % int(clone_code)
         folder_for_ini_files = os.path.join(main_output_dir, output_folder_with_clone_code, "ini_files") 
     
    # create folder
@@ -557,13 +557,15 @@ def main():
     configuration = Configuration(iniFileName = iniFileName, \
                                   debug_mode = debug_mode, \
                                   no_modification = False)      
-
+    
+    print(f"this_run_is_part_of_a_set_of_parallel_run -> {this_run_is_part_of_a_set_of_parallel_run}")
     
     # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
     if this_run_is_part_of_a_set_of_parallel_run:
         # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
         # - clone code in string
         clone_code = str(sys.argv[3])
+        print(f"\n\n\n{clone_code}\n\n\n")
         # - output folder
         output_folder_with_clone_code = "M%02i" %int(clone_code)
         configuration.globalOptions['outputDir'] += "/" + output_folder_with_clone_code 

@@ -46,7 +46,7 @@ if "-ed" in system_argument:
 # optional system arguments for initial condition files
 # - main initial state folder
 if "-isd" in system_argument:
-    initial_state_folder = system_argument[system_argument.index("-isd") + 1]        
+    initial_state_folder = system_argument[system_argument.index("-isd") + 1]
     file_ini_content = file_ini_content.replace("INITIAL_STATE_FOLDER", initial_state_folder)
     msg = "The main folder for all initial states is set based on the system argument (-isd): " + initial_state_folder
     print(msg)
