@@ -65,6 +65,6 @@ new_ini_file_name = f'{original_ini_file.split(".")[0]}_{clone_code}.cfg'
 if os.path.isfile(new_ini_file_name): os.remove(new_ini_file_name)
 
 # save the new ini file
-new_ini_file = open(dir_new_ini_file, "w")
+new_ini_file = open(new_ini_file_name, "w")
 new_ini_file.write(file_ini_content)
 new_ini_file.close()
