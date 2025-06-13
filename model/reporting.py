@@ -1037,11 +1037,11 @@ class Reporting(object):
         self.thermoelectricWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.thermoelectricWaterWithdrawal)
         
         # non-irrigation return flows for domestic, industry, livestock, manufacturing and thermoelectric sectors
-        self.domesticNonIrrReturnFlow       = self.nonIrrReturnFlowVolumePerSector['domestic'] / self._model.routing.cellArea
-        self.industryNonIrrReturnFlow       = self.nonIrrReturnFlowVolumePerSector['industry'] / self._model.routing.cellArea
-        self.livestockNonIrrReturnFlow      = self.nonIrrReturnFlowVolumePerSector['livestock'] / self._model.routing.cellArea
-        self.manufactureNonIrrReturnFlow    = self.nonIrrReturnFlowVolumePerSector['manufacture'] / self._model.routing.cellArea
-        self.thermoelectricNonIrrReturnFlow = self.nonIrrReturnFlowVolumePerSector['thermoelectric'] / self._model.routing.cellArea
+        self.domesticNonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlowVolumePerSector['domestic'] / self._model.routing.cellArea
+        self.industryNonIrrReturnFlow       = self._model.landSurface.nonIrrReturnFlowVolumePerSector['industry'] / self._model.routing.cellArea
+        self.livestockNonIrrReturnFlow      = self._model.landSurface.nonIrrReturnFlowVolumePerSector['livestock'] / self._model.routing.cellArea
+        self.manufactureNonIrrReturnFlow    = self._model.landSurface.nonIrrReturnFlowVolumePerSector['manufacture'] / self._model.routing.cellArea
+        self.thermoelectricNonIrrReturnFlow = self._model.landSurface.nonIrrReturnFlowVolumePerSector['thermoelectric'] / self._model.routing.cellArea
             
         ######################################################################################################################################################################
         # All water withdrawal variables in volume unit (m3): 
