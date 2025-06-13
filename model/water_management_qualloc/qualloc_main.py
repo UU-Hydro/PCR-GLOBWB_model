@@ -799,11 +799,13 @@ class qualloc_model(object):
         self.gross_demand_forcing_vars = {}
         self.net_demand_forcing_vars = {}
         
+        print(forcing_variables.keys())
+        
         for forcing_variable in forcing_variables.keys():
             for sector_name in self.water_management.sector_names:
                 for demand_name_root in ['%s_gross_demand', '%sgrossdemand']:
                     
-                    print(f'{forcing_variable.lower()} -> {demand_name_root % sector_name}')
+                    print(f'{forcing_variable.lower()} -> {demand_name_root % sector_name} ( {forcing_variable.lower() == (demand_name_root % sector_name)} )')
                     
                     if forcing_variable.lower() == (demand_name_root % sector_name):
                         self.gross_demand_forcing_vars[sector_name] = forcing_variable.lower()
