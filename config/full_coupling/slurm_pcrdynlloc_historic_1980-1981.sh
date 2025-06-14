@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-##SBATCH -n 96
-#SBATCH -n 16
+#SBATCH -n 96
 #SBATCH -t 24:00:00
 #SBATCH -J full_couple
 #SBATCH --mail-type=ALL
