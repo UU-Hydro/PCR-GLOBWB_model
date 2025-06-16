@@ -217,12 +217,15 @@ except:
 
 outputDir = inputDirRoot+"/global/maps/"
 try:
-    outputDir = sys.argv[3]
-    if sys.argv[3] == "default": outputDir = inputDirRoot + "/global/maps/"
-    if sys.argv[3] == "maps"   : outputDir = inputDirRoot + "/global/maps/"
-    if sys.argv[3] == "states" : outputDir = inputDirRoot + "/global/states/"
+    if sys.argv[3] == "":
+        if sys.argv[4] == "default": outputDir = inputDirRoot + "/global/maps/"
+        if sys.argv[4] == "maps"   : outputDir = inputDirRoot + "/global/maps/"
+        if sys.argv[4] == "states" : outputDir = inputDirRoot + "/global/states/"
+    else:
+        outputDir = str(sys.argv[3])
 except:
-    outputDir = str(sys.argv[3])
+    pass
+
 try:
     os.makedirs(outputDir)
 except:
@@ -230,39 +233,19 @@ except:
 
 ncores = 8
 try:
-    ncores = int(sys.argv[4])
+    ncores = int(sys.argv[5])
 except:
     pass
 
 number_of_clone_maps = 53
 try:
-    number_of_clone_maps = int(sys.argv[5])
+    number_of_clone_maps = int(sys.argv[6])
 except:
     pass
 areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
 
-if sys.argv[5] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
-if sys.argv[5] == "Global_uly": areas = ['M%07d'%i for i in range(1,number_of_clone_maps+1,1)] 
-
-#~ # set clone maps based on the system argument
-#~ areas = ["M47","M48"]   ### only fot TEST CASE
-
-#~ try:
-    #~ areas = str(sys.argv[5])
-    #~ areas = list(set(areas.split(",")))
-    #~ if areas[0] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
-#~ except:
-    #~ pass
-#~ 
-#~ try:
-    #~ areas = str(sys.argv[5])
-    #~ areas = list(set(areas.split(",")))
-    #~ print(areas)
-    #~ if areas[0] == "Global_uly" or areas == "Global_uly": areas = ['M%07'%i for i in range(1,number_of_clone_maps+1,1)] 
-#~ except:
-    #~ pass
-#~ 
-#~ print(areas) 
+if sys.argv[6] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)] 
+if sys.argv[6] == "Global_uly": areas = ['M%07d'%i for i in range(1,number_of_clone_maps+1,1)] 
 
 #-main script
 #-get clone
@@ -275,16 +258,12 @@ command= 'mapattr -s -R %d -C %d -P "yb2t"  -B -x %f -y %f -l %f %s' %\
 os.system(command)
 setclone(tempCloneMap)
 
-#~ print areas
-#~ print areas[0]
-
 # input files where unmerged maps are saved
 inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "default": inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "maps"   : inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
-if sys.argv[3] == "states" : inputDir = os.path.join(inputDirRoot,areas[0], 'states')
+if sys.argv[4] == "default": inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
+if sys.argv[4] == "maps"   : inputDir = os.path.join(inputDirRoot,areas[0], 'maps')
+if sys.argv[4] == "states" : inputDir = os.path.join(inputDirRoot,areas[0], 'states')
 files = getFileList(inputDir, '*%s.map' % chosenDate)
-
 
 ncores = min(len(files), ncores)
 print()
@@ -301,14 +280,11 @@ for fileName in list(files.keys()):
     for area in areas:
         #~ print area
         inputFileName= os.path.join(inputDirRoot, area, 'maps', fileName)
-        if sys.argv[3] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
-        if sys.argv[3] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
-        if sys.argv[3] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
+        if sys.argv[4] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
+        if sys.argv[4] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
+        if sys.argv[4] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
         ll.append(inputFileName)
     files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
-
-#~ # this is for testing
-#~ joinMaps(files[fileName])
 
 print()
 print()
