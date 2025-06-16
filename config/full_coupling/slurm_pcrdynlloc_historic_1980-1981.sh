@@ -86,7 +86,7 @@ QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # merging state variables ..............................................
 # merging PCR-GLOBWB2 state variables
-python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER}/ ${MAIN_INITIAL_STATE_FOLDER} state 8 Global &
+python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER}/ ${MAIN_INITIAL_STATE_FOLDER} states 8 Global &
 wait
 
 # merging QUAlloc state variables

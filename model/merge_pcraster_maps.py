@@ -273,18 +273,28 @@ print()
 print()
 
 for fileName in list(files.keys()):
-    #~ print fileName,
     files[fileName]= {}
     ll= []
     outputFileName= os.path.join(outputDir,fileName)
     for area in areas:
-        #~ print area
         inputFileName= os.path.join(inputDirRoot, area, 'maps', fileName)
         if sys.argv[4] == "default": inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[4] == "maps"   : inputFileName = os.path.join(inputDirRoot, area, 'maps',   fileName)
         if sys.argv[4] == "states" : inputFileName = os.path.join(inputDirRoot, area, 'states', fileName)
         ll.append(inputFileName)
     files[fileName]= tuple((outputFileName,nrRows,nrCols,lonMin,latMax,deltaLat,MV,ll[:],tempCloneMap))
+
+
+print()
+print(f"sys.argv[1] (chosenDate)   -> {sys.argv[1]}")
+print(f"sys.argv[2] (inputDirRoot) -> {sys.argv[2]}")
+print(f"sys.argv[3] (outputDir)    -> {sys.argv[3]}")
+print(f"sys.argv[4] (state)        -> {sys.argv[4]}")
+print(f"sys.argv[5] (ncores)       -> {sys.argv[5]}")
+print(f"sys.argv[6] (Global)       -> {sys.argv[6]}")
+print(inputDir)
+
+
 
 print()
 print()
