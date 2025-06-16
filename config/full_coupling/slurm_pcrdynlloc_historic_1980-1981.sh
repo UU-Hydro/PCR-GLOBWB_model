@@ -69,39 +69,39 @@ MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${START_YEAR}_${END_YEAR}
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # run the model for all clones, from 1 to 53
-#for i in {01..26}
-#for i in {27..53}
-#  do
-#  # set the clone code
-#  CLONE_CODE=${i}
-#  
-#  # create qualloc configuration file
-#  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
-#  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
-#  
-#  # run modelling framework
-#  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
-#  done
-#wait
+for i in {01..26}
+for i in {27..53}
+  do
+  # set the clone code
+  CLONE_CODE=${i}
+  
+  # create qualloc configuration file
+  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
+  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
+  
+  # run modelling framework
+  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
+  done
+wait
 
 # merging state variables ..............................................
 # merging PCR-GLOBWB2 state variables
-#python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${MAIN_INITIAL_STATE_FOLDER} states 8 Global &
-#wait
+python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${MAIN_INITIAL_STATE_FOLDER} states 8 Global &
+wait
 
 # merging QUAlloc state variables
 # create folders
 OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
-#mkdir ${OUTPUT_STATE_DIR}
-#mkdir ${OUTPUT_STATE_DIR}/tmp
+mkdir ${OUTPUT_STATE_DIR}
+mkdir ${OUTPUT_STATE_DIR}/tmp
 
 # state variables: long-term
-#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
-#wait
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
+wait
 
 # state variables: last-day
-#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
-#wait
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
+wait
 
 # regridding states
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
