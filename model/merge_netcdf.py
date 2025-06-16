@@ -423,18 +423,18 @@ endDate    = str(sys.argv[5])
 netcdfList = str(sys.argv[6])
 print(netcdfList)
 netcdfList = list(set(netcdfList.split(",")))
-#if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%var for var in netcdfList]
-#if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%var for var in netcdfList]
-#if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%var for var in netcdfList]
-#if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%var for var in netcdfList]
-#if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%var for var in netcdfList]
-#if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%var for var in netcdfList]
-#if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%var for var in netcdfList]
-#if file_type == "outMonthMaxNC": netcdfList = ['%s_monthMax_output.nc'%var for var in netcdfList]
-#if file_type == "outAnnuaMaxNC": netcdfList = ['%s_annuaMax_output.nc'%var for var in netcdfList]
+if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%var for var in netcdfList]
+if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%var for var in netcdfList]
+if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%var for var in netcdfList]
+if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaTotNC": netcdfList = ['%s_annuaTot_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaAvgNC": netcdfList = ['%s_annuaAvg_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaEndNC": netcdfList = ['%s_annuaEnd_output.nc'%var for var in netcdfList]
+if file_type == "outMonthMaxNC": netcdfList = ['%s_monthMax_output.nc'%var for var in netcdfList]
+if file_type == "outAnnuaMaxNC": netcdfList = ['%s_annuaMax_output.nc'%var for var in netcdfList]
 
-if file_type == "outMonthTotNC": netcdfList = ['%s_monthly_tot.nc'%var for var in netcdfList]
-if file_type == "outMonthAvgNC": netcdfList = ['%s_monthly_avg.nc'%var for var in netcdfList]
+if file_type == "out_month_totNC": netcdfList = ['%s_monthly_tot.nc'%var for var in netcdfList]
+if file_type == "out_month_avgNC": netcdfList = ['%s_monthly_avg.nc'%var for var in netcdfList]
 if file_type == "outStates":     netcdfList = ['%s.nc'%var for var in netcdfList]
 
 # netcdf format and zlib option:
