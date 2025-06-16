@@ -1,17 +1,18 @@
-# meteorological forcing files
-# - historical reference
-#RELATIVE_HUMIDITY_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_hurs_global_daily_1850_2014.nc"
-#PRECIPITATION_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_pr_global_daily_1850_2014.nc"
-#PRESSURE_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_ps_global_daily_1850_2014.nc"
-#SHORTWAVE_RADIATION_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_rsds_global_daily_1850_2014.nc"
-#WIND_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_sfcwind_global_daily_1850_2014.nc"
-#TEMPERATURE_FORCING_FILE="/depfg/sutan101/data/isimip_forcing/isimip3b_version_2021-05-XX/copied_on_2021-06-XX/merged/historical/gfdl-esm4/gfdl-esm4_w5e5_historical_tas_global_daily_1850_2014.nc"
-#python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -pff ${PRECIPITATION_FORCING_FILE} -tff ${TEMPERATURE_FORCING_FILE} -presff ${PRESSURE_FORCING_FILE} -windff ${WIND_FORCING_FILE} -swradff ${SHORTWAVE_RADIATION_FORCING_FILE} -relhumff ${RELATIVE_HUMIDITY_FORCING_FILE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} &
-#python3 deterministic_runner_merging_with_arguments.py ${INI_FILE} parallel -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} &
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+#
+# Module to create configuration files from a bash file when a global
+# parallel run is intended
 
-import os
-import sys
+###########
+# Modules #
+###########
+import os, sys
 
+###########
+# Process #
+###########
+#
 # fetching data
 original_ini_file = sys.argv[1]
 system_argument  = sys.argv[2:]

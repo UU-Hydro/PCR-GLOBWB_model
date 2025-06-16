@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+import datetime
 import pcraster as pcr
 from copy import deepcopy
 
@@ -2818,13 +2819,6 @@ See doc string of class for detailed info.
         self.average_surfacewater_discharge += surfacewater_discharge
         self.average_surfacewater_runoff     += surfacewater_runoff
         
-        
-        
-        #dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-        #pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge_acc.map')
-        
-        
-        
         # update long-term variables the last day of the month
         if (self.time_step == 'monthly') or \
            (self.time_step == 'daily' and is_last_day_month(date)):
@@ -2834,22 +2828,19 @@ See doc string of class for detailed info.
             #    - unity if time-step == monthly
             steps = date.day
             
+            # define the updatable date
+            update_date = datetime.datetime(date.year, date.month, 1)
+            
             # get the monthly average water availability
             # by dividing the accumulated values over the number of steps
             self.average_groundwater_storage    /= steps
             self.average_surfacewater_discharge /= steps
             self.average_surfacewater_runoff     /= steps
             
-            
-            
-            #pcr.report(self.average_surfacewater_discharge, f'/scratch/carde003/qualloc/_debug/{dt}_avg_sw_discharge.map')
-            
-            
-            
             # [ groundwater storage ] ..................................
             #
             # get the time step to update the groundwater storage
-            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
                                                           self.groundwater_longterm_storage_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -2862,10 +2853,10 @@ See doc string of class for detailed info.
                           (1 - self.groundwater_update_weight) * groundwater_longterm_storage, \
                           self.average_groundwater_storage)
             # reset the date
-            self.groundwater_longterm_storage_dates[date_index] = date
+            self.groundwater_longterm_storage_dates[date_index] = update_date
             
             # add the value to the dictionary
-            self.groundwater_longterm_storage[date] = groundwater_longterm_storage
+            self.groundwater_longterm_storage[update_date] = groundwater_longterm_storage
             
             # echo to screen
             message_str = str.join(' ', \
@@ -2876,7 +2867,7 @@ See doc string of class for detailed info.
             # [ surface water discharge ] ..............................
             #
             # get the time step to update the surface water availability (monthly)
-            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
                                                           self.surfacewater_longterm_discharge_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -2890,10 +2881,10 @@ See doc string of class for detailed info.
                           self.average_surfacewater_discharge)
             
             # reset the date
-            self.surfacewater_longterm_discharge_dates[date_index] = date
+            self.surfacewater_longterm_discharge_dates[date_index] = update_date
             
             # add the value to the dictionary
-            self.surfacewater_longterm_discharge[date] = surfacewater_longterm_discharge
+            self.surfacewater_longterm_discharge[update_date] = surfacewater_longterm_discharge
             
             # echo to screen
             message_str = str.join(' ', \
@@ -2904,7 +2895,7 @@ See doc string of class for detailed info.
             # [ surface water runoff ] ..................................
             #
             # get the time step to update the surface water availability (monthly)
-            date_index, matched_date, message_str = match_date_by_julian_number(date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
                                                           self.surfacewater_longterm_runoff_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -2918,10 +2909,10 @@ See doc string of class for detailed info.
                           self.average_surfacewater_runoff)
             
             # reset the date
-            self.surfacewater_longterm_runoff_dates[date_index] = date
+            self.surfacewater_longterm_runoff_dates[date_index] = update_date
             
             # add the value to the dictionary
-            self.surfacewater_longterm_runoff[date] = surfacewater_longterm_runoff
+            self.surfacewater_longterm_runoff[update_date] = surfacewater_longterm_runoff
             
             # echo to screen
             message_str = str.join(' ', \
@@ -2951,13 +2942,6 @@ See doc string of class for detailed info.
             self.average_gross_demand[sector_name] += \
                           self.gross_demand[sector_name] / self.cellarea
         
-        
-        
-        #dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-        #pcr.report(self.average_gross_demand['domestic'], f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic_acc.map')
-        
-        
-        
         # update long-term variables the last day of the month
         if (self.time_step == 'monthly') or \
            (self.time_step == 'daily' and is_last_day_month(date)):
@@ -2972,21 +2956,15 @@ See doc string of class for detailed info.
                 # by dividing the accumulated values over the number of steps
                 average_gross_demand = self.average_gross_demand[sector_name] / steps
                 
-                
-                
-                #if sector_name == 'domestic':
-                #    pcr.report(average_gross_demand, f'/scratch/carde003/qualloc/_debug/{dt}_avg_demand_domestic.map')
-                
-                
-                
                 # get variables
                 var_value  = getattr(self,'gross_demand_longterm_%s'       % sector_name)
                 var_dates  = getattr(self,'gross_demand_longterm_%s_dates' % sector_name)
                 var_weight = getattr(self,'%s_update_weight'               % sector_name)
                 
                 # get the time step to update the groundwater storage
+                update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = \
-                                match_date_by_julian_number(date, var_dates)
+                                match_date_by_julian_number(update_date, var_dates)
                 
                 # remove the date from the dictionary and update it with the present value
                 # set the value using the weight, if the long-term availability is not
@@ -2998,10 +2976,10 @@ See doc string of class for detailed info.
                               (1 - var_weight) * gross_demand_longterm, \
                               average_gross_demand)
                 # reset the date
-                var_dates[date_index] = date
+                var_dates[date_index] = update_date
                 
                 # add the value to the dictionary
-                var_value[date] = gross_demand_longterm
+                var_value[update_date] = gross_demand_longterm
                 
                 # set variables
                 setattr(self, 'gross_demand_longterm_%s'       % sector_name, var_value)

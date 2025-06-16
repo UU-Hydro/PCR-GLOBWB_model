@@ -86,14 +86,14 @@ QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # merging state variables ..............................................
 # merging PCR-GLOBWB2 state variables
-python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${MAIN_INITIAL_STATE_FOLDER} states 8 Global &
-wait
+#python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${MAIN_INITIAL_STATE_FOLDER} states 8 Global &
+#wait
 
 # merging QUAlloc state variables
 # create folders
-OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
-mkdir ${OUTPUT_STATE_DIR}
-mkdir ${OUTPUT_STATE_DIR}/tmp
+#OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
+#mkdir ${OUTPUT_STATE_DIR}
+#mkdir ${OUTPUT_STATE_DIR}/tmp
 
 # state variables: long-term
 python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
