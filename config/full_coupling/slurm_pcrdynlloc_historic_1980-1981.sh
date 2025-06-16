@@ -77,8 +77,7 @@ for i in {28..29}
   CLONE_CODE=${i}
   
   # create qualloc configuration file
-  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR} &
-  wait
+  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
   QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
   
   # run modelling framework
