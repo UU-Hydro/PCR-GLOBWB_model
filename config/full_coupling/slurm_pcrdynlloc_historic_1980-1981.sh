@@ -71,23 +71,22 @@ QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 # run the model for all clones, from 1 to 53
 #for i in {01..26}
 #for i in {27..53}
-for i in {28..29}
-  do
-  # set the clone code
-  CLONE_CODE=${i}
-  
-  # create qualloc configuration file
-  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
-  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
-  
-  # run modelling framework
-  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
-  done
-wait
+#  do
+#  # set the clone code
+#  CLONE_CODE=${i}
+#  
+#  # create qualloc configuration file
+#  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
+#  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
+#  
+#  # run modelling framework
+#  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
+#  done
+#wait
 
 # merging state variables ..............................................
 # merging PCR-GLOBWB2 state variables
-python merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${MAIN_INITIAL_STATE_FOLDER} 8 Global &
+python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_INITIAL_STATE_FOLDER} ${MAIN_INITIAL_STATE_FOLDER} 8 Global &
 wait
 
 # merging QUAlloc state variables
