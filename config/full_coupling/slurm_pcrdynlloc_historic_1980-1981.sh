@@ -91,7 +91,7 @@ QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # merging QUAlloc state variables
 # create folders
-#OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
+OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
 #mkdir ${OUTPUT_STATE_DIR}
 #mkdir ${OUTPUT_STATE_DIR}/tmp
 
