@@ -112,7 +112,7 @@ cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longter
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
@@ -127,7 +127,7 @@ wait
 # merge output netcdf ..................................................
 # merging PCR-GLOBWB2 output netcdf files
 # create folder
-PCRGLOBWB_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
+PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
 mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merge outputs
@@ -140,7 +140,7 @@ QUALLOC_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
 mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
 
 # merge outputs
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${QUALLOC_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_OUTPUT_NETCDF_DIR} out_month_avgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${QUALLOC_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
 wait
 
 echo "\n... End of model runs (please check your results)."
