@@ -128,7 +128,7 @@ wait
 # merging PCR-GLOBWB2 output netcdf files
 # create folder
 PCRGLOBWB_OUTPUT_NETCDF_DIR=${QUALLOC_OUTPUT_DIR}/global
-mkdir ${QUALLOC_OUTPUT_NETCDF_DIR}
+mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merge outputs
 python merge_netcdf.py ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_DATE} ${END_DATE} ${PCRGLOBWB_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
