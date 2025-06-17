@@ -78,7 +78,7 @@ class Routing(object):
             result['discharge']              = self.discharge               #  m3/s   ; discharge
             result['runoff']                  = self.runoff                   #  m/day  ; total runoff
         
-        # DynQual [added by EdGab]
+        # DynQual
         # for irrigation return flows
         if self.quality:
             result['avg_irrGrossDemand']     = self.avg_irrGrossDemand      #  m/day  ; average irrigation gross demand    
@@ -121,7 +121,7 @@ class Routing(object):
                 #Irrigation
                 result['routedIrrTDS']        = self.routedIrrTDS           #  g TDS
             else:
-                logger.info("Water quality elements per sector not simulated")
+                logger.info("Water quality per sector not tracked")
         else:
             logger.info("Water quality elements not simulated")
         return result
@@ -149,7 +149,7 @@ class Routing(object):
                iniItems.routingOptions['includeWaterBodies'] == "None":
                 self.includeWaterBodies = False
         
-        # [added by Gab] dictionary of sectors evaluated
+        # dictionary of sectors evaluated
         self.includeSectors = {}
         self.includeSectors['industry'] = False
         self.includeSectors['manufacture'] = False
@@ -157,10 +157,6 @@ class Routing(object):
             self.includeSectors['industry'] = True
         elif iniItems.waterDemandOptions['includeManufactureWaterDemand'] == "True":
             self.includeSectors['manufacture'] = True
-        
-        # [added by EdGab] it seems like these variables are not used
-        self.includeLakes = True
-        self.includeReservoirs =  True
         
         # local drainage direction
         self.lddMap = vos.readPCRmapClone(\
@@ -221,7 +217,6 @@ class Routing(object):
         self.predefinedChannelWidth = None
         if "constantChannelWidth" in list(iniItems.routingOptions.keys()):
             if iniItems.routingOptions['constantChannelWidth'] != "None":\
-               # [EdGab: this variable was called 'constantChannelWidth']
                self.predefinedChannelWidth = pcr.cover(vos.readPCRmapClone(\
                                              iniItems.routingOptions['constantChannelWidth'],
                                              self.cloneMap,self.tmpDir,self.inputDir), 0.0)
@@ -571,7 +566,6 @@ class Routing(object):
             self.using_qualloc = True
         
         # get the initialConditions
-        # [EdGab: consider moving this line to the top of the function]
         self.getICs(iniItems, initialConditions)
         
         # initiate old style reporting
@@ -660,9 +654,6 @@ class Routing(object):
             if self.using_qualloc:
                 self.discharge           = iniConditions['routing']['discharge']
                 self.runoff               = iniConditions['routing']['runoff']
-                #self.avgChannelStorage       = iniConditions['routing']['avgChannelStorage']
-                #self.avgTotalRunoff           = iniConditions['routing']['avgTotalRunoff']
-                #self.avgStorGroundwater      = iniConditions['routing']['avgStorGroundwater']
             
             # DynQual
             # Initial conditions needed for water quality module
@@ -716,9 +707,6 @@ class Routing(object):
         if self.using_qualloc:
             self.discharge = pcr.ifthen(self.landmask, pcr.cover(self.discharge, 0.0))
             self.runoff     = pcr.ifthen(self.landmask, pcr.cover(self.runoff,     0.0))
-            #self.avgChannelStorage  = pcr.ifthen(self.landmask, pcr.cover(self.avgChannelStorage,     0.0))
-            #self.avgTotalRunoff      = pcr.ifthen(self.landmask, pcr.cover(self.avgTotalRunoff,         0.0))
-            #self.avgStorGroundwater = pcr.ifthen(self.landmask, pcr.cover(self.avgStorGroundwater,    0.0))
         
         # DynQual
         if self.quality:
@@ -1192,7 +1180,7 @@ class Routing(object):
             if i_loop == 0: discharge_volume = pcr.scalar(0.0)
             discharge_volume += self.subDischarge * length_of_sub_time_step
             
-            # [added by EdGab]
+            # quality routing
             if self.quality:
                 self.channelStorageNow = pcr.max(0.0, channelStorageForRouting)
                 self.qualityRouting(length_of_sub_time_step)
@@ -1247,7 +1235,7 @@ class Routing(object):
         # channel depth (unit: m)
         self.channelDepth = pcr.max(0.0, self.yMean)
         
-        # [added by EdGab] set a water height for the first time-step
+        # set a water height for the first time-step
         if currTimeStep.timeStepPCR == 1:
             _, self.water_height = self.returnFloodedFraction(self.channelStorage)
         
@@ -1503,26 +1491,27 @@ class Routing(object):
     def return_flows_to_wastewater_treatment_plants(self, currTimeStep, landSurface):
         
         # wastewater treatment plants: IDs
-        self.WWt_plantID = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC, \
-                                 'plant_id',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True,\
-                                 specificFillValue = None) #wastewater treatment plant [point] locations
-        self.WWt_plantID = pcr.nominal(self.WWt_plantID)
-        
-        # wastewater treatment plants: service areas
-        self.WWt_zoneID = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,\
-                                 'zone_id',\
-                                 str(currTimeStep.fulldate),\
-                                 useDoy = None,\
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True,\
-                                 specificFillValue = None) #wastewater treatment plant service zones
-        self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
+        if currTimeStep.doy == 1:
+            self.WWt_plantID = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC, \
+                                     'plant_id',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True,\
+                                     specificFillValue = None) #wastewater treatment plant [point] locations
+            self.WWt_plantID = pcr.nominal(self.WWt_plantID)
+            
+            # wastewater treatment plants: service areas
+            self.WWt_zoneID = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,\
+                                     'zone_id',\
+                                     str(currTimeStep.fulldate),\
+                                     useDoy = "yearly",\
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True,\
+                                     specificFillValue = None) #wastewater treatment plant service zones
+            self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
         
         # define return flow as sum of domestic and manufacturing return flows only
         self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolumePerSector['domestic'] + \
@@ -1674,16 +1663,10 @@ class Routing(object):
             # Input data provided at daily resolution, unless otherwise adjusted in function
             self.readExtensiveMeteo(currTimeStep)
             
-            # Input data for pollutant loadings typically provided at monthly resolution
-            if currTimeStep.day == 1:
-                #self.readPowerplantData(currTimeStep)
-                
-                if self.calculateLoads:
-                    self.readPollutantLoadingsInputData(currTimeStep)  
-            
-            # Pollutant loadings calculated (or read in) at daily resolution, unless otherwise adjusted in function
+            # Pollutant loadings
             if self.calculateLoads:
-                self.calculatePollutantLoadings(currTimeStep,landSurface,groundwater)
+                self.readPollutantLoadingsInputData(currTimeStep) #Input data for estimating pollutant loadings at daily resolution, unless otherwise adjusted in function
+                self.calculatePollutantLoadings(currTimeStep,landSurface,groundwater) # Pollutant loadings calculated (or read in) at daily resolution, unless otherwise adjusted in function
             else:
                 self.readPollutantLoadings(currTimeStep)  
             
@@ -2151,29 +2134,6 @@ class Routing(object):
                                             deltaAno_netLqWaterToSoil/\
                                             pcr.min(30.0, self.timestepsToAvgDischarge)
                 self.avg_netLqWaterToSoil = pcr.max(0.0, self.avg_netLqWaterToSoil)
-        
-        # QUAlloc
-        #if self.using_qualloc:
-        #    # average channel storage 
-        #    deltaChannelStorage    = self.channelStorage - self.avgChannelStorage
-        #    self.avgChannelStorage = self.avgChannelStorage + \
-        #                                  deltaChannelStorage/ \
-        #                                  pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-        #    self.avgChannelStorage = pcr.max(0.0, self.avgChannelStorage)
-        #    
-        #    # average total runoff
-        #    deltaTotalRunoff    = self.totalRunoff - self.avgTotalRunoff
-        #    self.avgTotalRunoff = self.avgTotalRunoff + \
-        #                              deltaTotalRunoff/ \
-        #                              pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-        #    self.avgTotalRunoff = pcr.max(0.0, self.avgTotalRunoff)
-        #    
-        #    # average groundwater storage
-        #    deltaStorGroundwater    = groundwater.storGroundwater - self.avgStorGroundwater
-        #    self.avgStorGroundwater = self.avgStorGroundwater + \
-        #                                   deltaStorGroundwater/ \
-        #                                   pcr.min(self.maxTimestepsToAvgDischargeShort, self.timestepsToAvgDischarge)
-        #    self.avgStorGroundwater = pcr.max(0.0, self.avgStorGroundwater)
 
 
     def estimate_discharge_for_environmental_flow(self, channelStorage):
@@ -2625,313 +2585,147 @@ class Routing(object):
         self.runoff = self.directRunoff + self.interflowTotal + self.baseflow
 
 
-#    def readPowerplantData(self, currTimeStep):
-#                 
-#        logger.info("reading in (annual) powerplant data")
-#        
-#        # freshwater plants (with a water temperature dependency)
-#        self.powerplants_fw_capacity =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'capacity',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_ntotal =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'ntotal',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        self.powerplants_fw_nelec =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'nelec',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_alpha =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'alpha',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_beta =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'beta',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_omega =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'omega',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_EZ =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'EZ',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_gamma =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'gamma',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_lambda =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'lambda',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fw_ratio =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwNC,'con_ratio',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        # freshwater plants (without a water temperature dependency)
-#        self.powerplants_fwfixed_capacity =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwfixedNC,'capacity',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fwfixed_q =  vos.netcdf2PCRobjClone(\
-#                                    self.powerplants_fwfixedNC,'withdrawals',\
-#                                    str(currTimeStep.fulldate), 
-#                                    useDoy = "yearly",
-#                                    cloneMapFileName=self.cloneMap,\
-#                                     LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_fwfixed_ratio =  vos.netcdf2PCRobjClone(\
-#                                              self.powerplants_fwfixedNC,'con_ratio',\
-#                                              str(currTimeStep.fulldate), 
-#                                              useDoy = "yearly",
-#                                              cloneMapFileName=self.cloneMap,\
-#                                               LatitudeLongitude = True,specificFillValue = None)
-#        
-#        # seawater plants
-#        self.powerplants_sw_capacity =  vos.netcdf2PCRobjClone(\
-#                                         self.powerplants_swNC,'capacity',\
-#                                         str(currTimeStep.fulldate), 
-#                                         useDoy = "yearly",
-#                                         cloneMapFileName=self.cloneMap,\
-#                                          LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_sw_q =  vos.netcdf2PCRobjClone(\
-#                                         self.powerplants_swNC,'withdrawals',\
-#                                         str(currTimeStep.fulldate), 
-#                                         useDoy = "yearly",
-#                                         cloneMapFileName=self.cloneMap,\
-#                                          LatitudeLongitude = True,specificFillValue = None)
-#        
-#        self.powerplants_sw_ratio =  vos.netcdf2PCRobjClone(\
-#                                         self.powerplants_swNC,'con_ratio',\
-#                                         str(currTimeStep.fulldate), 
-#                                         useDoy = "yearly",
-#                                         cloneMapFileName=self.cloneMap,\
-#                                          LatitudeLongitude = True,specificFillValue = None)
-#        
-#        # Poweplant demand factors
-#        self.dTlmax = pcr.scalar(7.)
-#        self.Tlmax =  vos.netcdf2PCRobjClone(\
-#                       self.TlmaxNC,'waterTemperature',\
-#                       str(currTimeStep.fulldate), 
-#                       useDoy = "yearly",
-#                       cloneMapFileName=self.cloneMap,\
-#                        LatitudeLongitude = True,specificFillValue = None)
-
-
-#    def calculatePowerplantDemands(self, currTimeStep):
-#        
-#        ###freshwater plants (with a water temperature dependency)
-#        
-#        #demands considering only dTlmax
-#        self.powerplants_fw_qmin = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.dTlmax)) #minimum demands (i.e. only considering deltaTlmax)
-#        
-#        #demands considering simulated river water temperature
-#        self.min_Tlmax_dTlmax = pcr.max(pcr.min(self.Tlmax - self.waterTemp, self.dTlmax),1.) #calculate min of Tlmax (max allowed temperature) - triver (water temperature). Returns minimum value of 1 (i.e. water can always be warmed by 1K as a minimum).
-#        
-#        self.powerplants_fw_q = self.powerplants_fw_capacity * 1e6 * ((1- self.powerplants_fw_ntotal)/ self.powerplants_fw_nelec) * (((1-self.powerplants_fw_alpha) * (1-self.powerplants_fw_beta) * self.powerplants_fw_omega * self.powerplants_fw_EZ)/ (self.densityWater * self.specificHeatWater * self.min_Tlmax_dTlmax))
-#        self.powerplants_fw_rf = self.powerplants_fw_q * (1 - self.powerplants_fw_ratio) #power return flows (m3 s-1)
-#        self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
-#        
-#        ###freshwater plants (without a water temperature dependency)
-#        self.powerplants_fwfixed_q = self.powerplants_fwfixed_q #freshwater demands for power prescribed by Lohrmann et al., (2019)
-#        self.powerplants_fwfixed_rf = self.powerplants_fwfixed_q * (1 - self.powerplants_fwfixed_ratio) #power return flows (to freshwater) prescribed by Lohrmann et al., (2019)
-#        
-#        ###seawater plants
-#        self.powerplants_sw_q = self.powerplants_sw_q #seawater demands for power prescribed by Lohrmann et al., (2019)
-#        self.powerplants_sw_rf = self.powerplants_sw_q * (1 - self.powerplants_sw_ratio) #power return flows (to seawater) prescribed by Lohrmann et al., (2019)
-
-
     def readPollutantLoadingsInputData(self, currTimeStep):
-        logger.info("Loading input data required to calculate pollutant loadings")
+        #logger.info("Loading input data required to calculate pollutant loadings")
         
-        #Domestic
-        self.Population = vos.netcdf2PCRobjClone(\
-                                 self.PopulationNC,'Population',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True,specificFillValue = None) #input pathway for gridded population file (5 arc-mins)    
-        
-        #Urban surface runoff
-        self.urban_area_fraction = vos.netcdf2PCRobjClone(\
-                                             self.UrbanFractionNC,'urban_fraction',\
-                                             str(currTimeStep.fulldate), 
-                                             useDoy = None,
-                                             cloneMapFileName=self.cloneMap,\
-                                             LatitudeLongitude = True,specificFillValue = None) #fraction urban area (0-1)
-        self.urban_area_fraction = pcr.cover(self.urban_area_fraction,0) #if urban fraction missing (e.g. for lakes), make 0
-        
-        #Livestock
-        self.BufalloPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'BufalloPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for bufallo population (5 arc-mins)
-        self.BufalloPopulation = pcr.cover(self.BufalloPopulation,0.)
-        
-        self.ChickenPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'ChickenPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for chicken population (5 arc-mins)
-        self.ChickenPopulation = pcr.cover(self.ChickenPopulation,0.)
-        
-        self.CowPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'CowPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for cow population (5 arc-mins)
-        self.CowPopulation = pcr.cover(self.CowPopulation,0.)
-        
-        self.DuckPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'DuckPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for duck population (5 arc-mins)                 
-        self.DuckPopulation = pcr.cover(self.DuckPopulation,0.)
-        
-        self.GoatPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'GoatPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for goat population (5 arc-mins)  
-        self.GoatPopulation = pcr.cover(self.GoatPopulation,0.)
-        
-        self.HorsePopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'HorsePop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for horse population (5 arc-mins)  
-        self.HorsePopulation = pcr.cover(self.HorsePopulation,0.)
-        
-        self.PigPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'PigPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for pig population (5 arc-mins)  
-        self.PigPopulation = pcr.cover(self.PigPopulation,0.)
-        
-        self.SheepPopulation = vos.netcdf2PCRobjClone(\
-                                 self.LivPopulationNC,'SheepPop',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                  cloneMapFileName=self.cloneMap,\
-                                  LatitudeLongitude = True,specificFillValue = None) #input pathway for sheep population (5 arc-mins)            
-        self.SheepPopulation = pcr.cover(self.SheepPopulation,0.)
-        
-        #Calculate livestock densities accounting for livestock units (Wen et al., 2018)
-        self.cellArea_km2    = self.cellArea/1000000. #convert m2 to km2
-        self.LivDensityThres = pcr.scalar(25.)
-        
-        self.BufalloDensity = self.BufalloPopulation / self.cellArea_km2
-        self.ChickenDensity = (self.ChickenPopulation * 0.01) / self.cellArea_km2
-        self.CowDensity     = self.CowPopulation / self.cellArea_km2
-        self.DuckDensity    = (self.DuckPopulation * 0.01) / self.cellArea_km2
-        self.GoatDensity    = (self.GoatPopulation * 0.1) / self.cellArea_km2
-        self.HorseDensity   = self.HorsePopulation / self.cellArea_km2
-        self.PigDensity     = (self.PigPopulation * 0.3) / self.cellArea_km2
-        self.SheepDensity   = (self.SheepPopulation * 0.1) / self.cellArea_km2
-        
-        #Wastewater treatment plants
-        #self.WWt_plantID = vos.netcdf2PCRobjClone(\
-        #                         self.WWtPlantsNC,'plant_id',\
-        #                         str(currTimeStep.fulldate), 
-        #                         useDoy = None,
-        #                         cloneMapFileName=self.cloneMap,\
-        #                         LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant [point] locations
-        #self.WWt_plantID = pcr.nominal(self.WWt_plantID)
-        #
-        #self.WWt_zoneID = vos.netcdf2PCRobjClone(\
-        #                         self.WWtPlantsNC,'zone_id',\
-        #                         str(currTimeStep.fulldate), 
-        #                         useDoy = None,
-        #                         cloneMapFileName=self.cloneMap,\
-        #                         LatitudeLongitude = True, specificFillValue = None) #wastewater treatment plant service zones
-        #self.WWt_zoneID = pcr.nominal(self.WWt_zoneID)
-        
-        self.WWt_ct = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'WW_ct',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #proportion of wastewater that is collected and subsequently treated
-        
-        self.WWt_bs = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'WW_bs',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
-        
-        self.WWt_od = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'WW_od',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
-        
-        self.WWt_TDS_removal = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'TDS_removal',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #proportion of TDS removed at each wastewater treatment plant   
-        
-        self.WWt_BOD_removal = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'BOD_removal',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #proportion of BOD removed at each wastewater treatment plant    
-        
-        self.WWt_FC_removal = vos.netcdf2PCRobjClone(\
-                                 self.WWtPlantsNC,'FC_removal',\
-                                 str(currTimeStep.fulldate), 
-                                 useDoy = None,
-                                 cloneMapFileName=self.cloneMap,\
-                                 LatitudeLongitude = True, specificFillValue = None) #proportion of FC removed at each wastewater treatment plant                                                                             
+        if currTimeStep.doy == 1:
+            #Domestic
+            self.Population = vos.netcdf2PCRobjClone(\
+                                     self.PopulationNC,'Population',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True,specificFillValue = None) #input pathway for gridded population file (5 arc-mins)    
+            
+            #Urban surface runoff
+            self.urban_area_fraction = vos.netcdf2PCRobjClone(\
+                                                 self.UrbanFractionNC,'urban_fraction',\
+                                                 str(currTimeStep.fulldate), 
+                                                 useDoy = None,
+                                                 cloneMapFileName=self.cloneMap,\
+                                                 LatitudeLongitude = True,specificFillValue = None) #fraction urban area (0-1)
+            self.urban_area_fraction = pcr.cover(self.urban_area_fraction,0) #if urban fraction missing (e.g. for lakes), make 0
+            
+            #Livestock
+            self.BufalloPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'BufalloPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for bufallo population (5 arc-mins)
+            self.BufalloPopulation = pcr.cover(self.BufalloPopulation,0.)
+            
+            self.ChickenPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'ChickenPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for chicken population (5 arc-mins)
+            self.ChickenPopulation = pcr.cover(self.ChickenPopulation,0.)
+            
+            self.CowPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'CowPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for cow population (5 arc-mins)
+            self.CowPopulation = pcr.cover(self.CowPopulation,0.)
+            
+            self.DuckPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'DuckPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for duck population (5 arc-mins)                 
+            self.DuckPopulation = pcr.cover(self.DuckPopulation,0.)
+            
+            self.GoatPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'GoatPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for goat population (5 arc-mins)  
+            self.GoatPopulation = pcr.cover(self.GoatPopulation,0.)
+            
+            self.HorsePopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'HorsePop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for horse population (5 arc-mins)  
+            self.HorsePopulation = pcr.cover(self.HorsePopulation,0.)
+            
+            self.PigPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'PigPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for pig population (5 arc-mins)  
+            self.PigPopulation = pcr.cover(self.PigPopulation,0.)
+            
+            self.SheepPopulation = vos.netcdf2PCRobjClone(\
+                                     self.LivPopulationNC,'SheepPop',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = None,
+                                      cloneMapFileName=self.cloneMap,\
+                                      LatitudeLongitude = True,specificFillValue = None) #input pathway for sheep population (5 arc-mins)            
+            self.SheepPopulation = pcr.cover(self.SheepPopulation,0.)
+            
+            #Calculate livestock densities accounting for livestock units (Wen et al., 2018)
+            self.cellArea_km2    = self.cellArea/1000000. #convert m2 to km2
+            self.LivDensityThres = pcr.scalar(25.)
+            
+            self.BufalloDensity = self.BufalloPopulation / self.cellArea_km2
+            self.ChickenDensity = (self.ChickenPopulation * 0.01) / self.cellArea_km2
+            self.CowDensity     = self.CowPopulation / self.cellArea_km2
+            self.DuckDensity    = (self.DuckPopulation * 0.01) / self.cellArea_km2
+            self.GoatDensity    = (self.GoatPopulation * 0.1) / self.cellArea_km2
+            self.HorseDensity   = self.HorsePopulation / self.cellArea_km2
+            self.PigDensity     = (self.PigPopulation * 0.3) / self.cellArea_km2
+            self.SheepDensity   = (self.SheepPopulation * 0.1) / self.cellArea_km2
+            
+            #Wastewater treatment plants
+            self.WWt_ct = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'WW_ct',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #proportion of wastewater that is collected and subsequently treated
+            
+            self.WWt_bs = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'WW_bs',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
+            
+            self.WWt_od = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'WW_od',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #country-level fraction of uncollected wastewater that is open defecation
+            
+            self.WWt_TDS_removal = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'TDS_removal',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #proportion of TDS removed at each wastewater treatment plant   
+            
+            self.WWt_BOD_removal = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'BOD_removal',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #proportion of BOD removed at each wastewater treatment plant    
+            
+            self.WWt_FC_removal = vos.netcdf2PCRobjClone(\
+                                     self.WWtPlantsNC,'FC_removal',\
+                                     str(currTimeStep.fulldate), 
+                                     useDoy = "yearly",
+                                     cloneMapFileName=self.cloneMap,\
+                                     LatitudeLongitude = True, specificFillValue = None) #proportion of FC removed at each wastewater treatment plant                                                                             
 
 
     def calculatePollutantLoadings(self, currTimeStep, landSurface, groundwater):
@@ -3347,7 +3141,7 @@ class Routing(object):
         channelTransFrac = cover(pcr.max(pcr.min((self.subDischarge * timeSec) / self.channelStorageTimeBefore, 1.0),0.0), 0.0)
 
         #Energy (for water temperature) routing 
-        #self.volumeEW = self.volumeEW + (self.PowTwload * timeSec) # Add heat effluents from power plants (J s-1 * s)
+        self.volumeEW = self.volumeEW + (self.PowTwload * timeSec) # Add heat effluents from power plants (J s-1 * s)
         dtotEWLat= channelTransFrac*self.volumeEW
         self.volumeEW = (self.volumeEW +pcr.upstream(self.lddMap,dtotEWLat)-dtotEWLat)
 

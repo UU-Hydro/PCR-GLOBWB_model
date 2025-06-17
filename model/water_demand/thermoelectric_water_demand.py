@@ -118,7 +118,8 @@ class ThermoelectricWaterDemand(object):
     def calculate_thermoelectric_water_demand_for_date(self, currTimeStep, routing):
         
         # read in power plant data for the current date
-        self.readPowerplantData(currTimeStep, routing)
+        if currTimeStep.doy == 1:
+            self.readPowerplantData(currTimeStep, routing)
         
         # calculate the thermoelectric water demand for the date
         self.calculatePowerplantDemands(currTimeStep, routing)
@@ -257,6 +258,8 @@ class ThermoelectricWaterDemand(object):
 
     def calculatePowerplantDemands(self, currTimeStep, routing):
         
+        logger.info("Dynamically estimating (daily) powerplant gross water demands")
+        
         # freshwater plants (with a water temperature dependency)
         # (units: m3/s)
         ###demands considering only dTlmax
@@ -279,8 +282,7 @@ class ThermoelectricWaterDemand(object):
         self.powerplants_sw_rf = self.powerplants_sw_q * (1 - self.powerplants_sw_ratio) #power return flows (to seawater) prescribed by Lohrmann et al., (2019)
         
         
-        
-        # gross and netto industrial water demand
+        # gross and netto thermoelectric water demand
         # (unis: m/day)
         self.thermoelectricGrossDemand = pcr.cover((self.powerplants_fw_q + self.powerplants_fwfixed_q) * 86400 / routing.cellArea, \
                                                    0.0)
