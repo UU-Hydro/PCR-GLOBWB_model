@@ -970,8 +970,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# domesticNonIrrReturnFlow
-pcrglobwb_variable_name = 'domesticNonIrrReturnFlow'
+# domesticReturnFlow
+pcrglobwb_variable_name = 'domesticReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_domestic_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
@@ -981,8 +981,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# livestockNonIrrReturnFlow
-pcrglobwb_variable_name = 'livestockNonIrrReturnFlow'
+# livestockReturnFlow
+pcrglobwb_variable_name = 'livestockReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_livestock_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
@@ -992,8 +992,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# industryNonIrrReturnFlow
-pcrglobwb_variable_name = 'industryNonIrrReturnFlow'
+# industryReturnFlow
+pcrglobwb_variable_name = 'industryReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_industry_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
@@ -1003,8 +1003,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# manufactureNonIrrReturnFlow
-pcrglobwb_variable_name = 'manufactureNonIrrReturnFlow'
+# manufactureReturnFlow
+pcrglobwb_variable_name = 'manufactureReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_manufacture_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
@@ -1014,8 +1014,8 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
-# thermoelectricNonIrrReturnFlow
-pcrglobwb_variable_name = 'thermoelectricNonIrrReturnFlow'
+# thermoelectricReturnFlow
+pcrglobwb_variable_name = 'thermoelectricReturnFlow'
 netcdf_short_name[pcrglobwb_variable_name] = 'return_flow_from_thermoelectric_water_withdrawal'
 netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 

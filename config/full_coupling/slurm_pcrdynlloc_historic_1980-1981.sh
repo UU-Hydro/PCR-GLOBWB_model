@@ -69,20 +69,20 @@ MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${START_YEAR}_${END_YEAR}
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # run the model for all clones, from 1 to 53
-for i in {01..26}
-for i in {27..53}
-  do
-  # set the clone code
-  CLONE_CODE=${i}
-  
-  # create qualloc configuration file
-  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
-  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
-  
-  # run modelling framework
-  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
-  done
-wait
+#for i in {01..26}
+#for i in {27..53}
+#  do
+#  # set the clone code
+#  CLONE_CODE=${i}
+#  
+#  # create qualloc configuration file
+#  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
+#  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
+#  
+#  # run modelling framework
+#  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
+#  done
+#wait
 
 # merging state variables ..............................................
 # merging PCR-GLOBWB2 state variables
@@ -100,7 +100,7 @@ python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates $
 wait
 
 # state variables: last-day
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-01 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
 wait
 
 # regridding states

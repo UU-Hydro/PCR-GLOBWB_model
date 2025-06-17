@@ -1265,10 +1265,6 @@ class qualloc_model(object):
             #
             # get the long-term availability for a given date
             # (units: m3/day)
-            # [ remember ] if coupled, 'surfacewater_storage' is different if used for:   <--- re-evaluate it after these latest modifications!
-            #              - long-term: needs to be the average of last 30 days [m]
-            #              - short-term: needs to be the instantaneous value [m]
-            #              non-coupled version does not distinguish among them
             surfacewater_availability, groundwater_availability = \
                 self.water_management.get_longterm_availability_for_date( \
                                   date              = date, \
