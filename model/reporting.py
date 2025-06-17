@@ -867,10 +867,9 @@ class Reporting(object):
             # ice thickness (m)
             self.iceThickness = self._model.routing.iceThickness
             
-            # Aspects related to powerplant flows (m3 day-1)
-            self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 day-1 (temperature-dependent technologies)
-            self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q    #water temperature dependent demands in m3 day-1 (temperature-dependent technologies)
-            self.powerplants_fw_rf   = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf   #powerplant return flows in m3 day-1 (temperature-dependent technologies)
+            # Aspects related to powerplant flows (m3 s-1)
+            self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 s-1 (temperature-dependent technologies)
+            self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q    #water temperature dependent demands in m3 s-1 (temperature-dependent technologies)
             self.PowTwload           = self._model.routing.PowTwload   #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
             
             # Aspects related to salinity pollution
@@ -1029,6 +1028,14 @@ class Reporting(object):
         #self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
         #self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
+        # sectoral gross demands for domestic, industry, livestock, manufacturing and thermoelectric
+        # (units:m/day)
+        self.domesticGrossDemand       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.water_demand.water_demand_domestic.domesticGrossDemand)
+        self.industryGrossDemand       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.water_demand.water_demand_industry.industryGrossDemand)
+        self.livestockGrossDemand      = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.water_demand.water_demand_livestock.livestockGrossDemand)
+        self.manufactureGrossDemand    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.water_demand.water_demand_manufacture.manufactureGrossDemand)
+        self.thermoelectricGrossDemand = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.water_demand.water_demand_thermoelectric.thermoelectricGrossDemand)
+        
         # water withdrawal for domestic, industry, livestock, manufacturing and thermoelectric water demands
         self.domesticWaterWithdrawal       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.domesticWaterWithdrawal       / self._model.routing.cellArea)
         self.industryWaterWithdrawal       = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.industryWaterWithdrawal       / self._model.routing.cellArea)
@@ -1042,7 +1049,7 @@ class Reporting(object):
         self.livestockReturnFlow      = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.nonIrrReturnFlowVolumePerSector['livestock'] / self._model.routing.cellArea)
         self.manufactureReturnFlow    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.nonIrrReturnFlowVolumePerSector['manufacture'] / self._model.routing.cellArea)
         self.thermoelectricReturnFlow = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.nonIrrReturnFlowVolumePerSector['thermoelectric'] / self._model.routing.cellArea)
-            
+        
         ######################################################################################################################################################################
         # All water withdrawal variables in volume unit (m3): 
         waterWithdrawalVariables = [

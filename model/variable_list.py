@@ -429,6 +429,61 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+# domesticGrossDemand                  
+pcrglobwb_variable_name = 'domesticGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'domestic_gross_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# industryGrossDemand                  
+pcrglobwb_variable_name = 'industryGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'industry_gross_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# livestockGrossDemand                 
+pcrglobwb_variable_name = 'livestockGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'livestock_gross_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# manufactureGrossDemand                  
+pcrglobwb_variable_name = 'manufactureGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'manufacture_gross_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# thermoelectricGrossDemand                 
+pcrglobwb_variable_name = 'thermoelectricGrossDemand'
+netcdf_short_name[pcrglobwb_variable_name] = 'thermoelectric_gross_demand'
+netcdf_unit[pcrglobwb_variable_name]       = 'm.day-1'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = 'm.month-1' 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = 'm.year-1'
+netcdf_long_name[pcrglobwb_variable_name]  = None
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
 # nonIrrGrossDemandVolume                  
 pcrglobwb_variable_name = 'nonIrrGrossDemandVolume'
 netcdf_short_name[pcrglobwb_variable_name] = 'non_irrigation_gross_demand_volume'
@@ -2018,7 +2073,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = 'minimum_freshwater_demands_powerplants'
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'powerplants minimum demands in m3 day-1 (temperature-dependent technologies)'
+comment[pcrglobwb_variable_name]           = 'powerplants minimum demands in m3 s-1 (temperature-dependent technologies)'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # powerplant demands for temperature dependent technologies
@@ -2029,18 +2084,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = 'freshwater_demands_powerplants'
 description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'powerplants demands in m3 day-1 (temperature-dependent technologies)'
-latex_symbol[pcrglobwb_variable_name]      = None
-
-# powerplant return flows from temperature dependent technologies
-pcrglobwb_variable_name = 'powerplants_fw_rf'
-netcdf_short_name[pcrglobwb_variable_name] = 'powerplants_fw_rf'
-netcdf_unit[pcrglobwb_variable_name]       = 'm3.s-1'
-netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
-netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
-netcdf_long_name[pcrglobwb_variable_name]  = 'freshwater_returnflows_powerplants'
-description[pcrglobwb_variable_name]       = None
-comment[pcrglobwb_variable_name]           = 'powerplants return flows in m3 day-1 (temperature-dependent technologies)'
+comment[pcrglobwb_variable_name]           = 'powerplants demands in m3 s-1 (temperature-dependent technologies)'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # unrouted Tw loads from powerplants

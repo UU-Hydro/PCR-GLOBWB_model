@@ -200,6 +200,7 @@ class ThermoelectricWaterDemand(object):
                                              useDoy = "yearly",
                                              cloneMapFileName=self.cloneMap,\
                                              LatitudeLongitude = True,specificFillValue = None)
+        self.powerplants_fw_ratio = pcr.cover(self.powerplants_fw_ratio, 0.)
         
         # freshwater plants (without a water temperature dependency)
         self.powerplants_fwfixed_capacity =  vos.netcdf2PCRobjClone(\
@@ -222,6 +223,7 @@ class ThermoelectricWaterDemand(object):
                                              useDoy = "yearly",
                                              cloneMapFileName=self.cloneMap,\
                                              LatitudeLongitude = True,specificFillValue = None)
+        self.powerplants_fwfixed_ratio = pcr.cover(self.powerplants_fwfixed_ratio, 0.)
         
         # seawater plants
         self.powerplants_sw_capacity =  vos.netcdf2PCRobjClone(\
@@ -244,6 +246,7 @@ class ThermoelectricWaterDemand(object):
                                              useDoy = "yearly",
                                              cloneMapFileName=self.cloneMap,\
                                              LatitudeLongitude = True,specificFillValue = None)
+        self.powerplants_sw_ratio = pcr.cover(self.powerplants_sw_ratio, 0.)
         
         # Poweplant demand factors
         self.dTlmax = pcr.scalar(7.)

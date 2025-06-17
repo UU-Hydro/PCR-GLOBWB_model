@@ -1670,10 +1670,7 @@ class Routing(object):
             else:
                 self.readPollutantLoadings(currTimeStep)  
             
-            #self.calculatePowerplantDemands(currTimeStep)
-            self.powerplants_fw_rf = landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_rf
-            self.min_Tlmax_dTlmax  = landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax
-            self.PowTwload = pcr.cover(self.powerplants_fw_rf * self.specificHeatWater * self.densityWater * self.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J s-1)
+            self.PowTwload = pcr.cover(landSurface.nonIrrReturnFlowVolumePerSector['thermoelectric'] * self.specificHeatWater * self.densityWater * landSurface.water_demand.water_demand_thermoelectric.min_Tlmax_dTlmax, 0.) #heat dumps from water-temperature dependent powerplants (J day-1)
             
             self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorage)
             self.qualityLocal(meteo, landSurface, groundwater, currTimeStep)
@@ -3135,13 +3132,13 @@ class Routing(object):
         
         #---Sedimentation parameters
         self.FCdecay_sedimentation = pcr.ifthenelse(self.water_height_pathogen > self.threshold_FC_settlingdepth, cover(self.settlingvelocity_FC / self.water_height,0.0), 0)  #day -1
-  
+    
     def qualityRouting(self, timeSec):
         
         channelTransFrac = cover(pcr.max(pcr.min((self.subDischarge * timeSec) / self.channelStorageTimeBefore, 1.0),0.0), 0.0)
-
+        
         #Energy (for water temperature) routing 
-        self.volumeEW = self.volumeEW + (self.PowTwload * timeSec) # Add heat effluents from power plants (J s-1 * s)
+        self.volumeEW = self.volumeEW + (self.PowTwload * (timeSec / vos.secondsPerDay())) # Add heat effluents from power plants (J in timeSec)
         dtotEWLat= channelTransFrac*self.volumeEW
         self.volumeEW = (self.volumeEW +pcr.upstream(self.lddMap,dtotEWLat)-dtotEWLat)
 
