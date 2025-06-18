@@ -393,9 +393,9 @@ class Routing(object):
         print("Dissolved oxygen = ", self.quality)
         print("Pathogen = ", self.quality)
         
-        self.WWtPlants == False
+        self.WWtPlants = False
         if 'WWtPlantsNC' in list(iniItems.routingOptions.keys()):
-           self.WWtPlants == True
+           self.WWtPlants = True
            #Wastewater pathways and removal efficiencies (treatment [tertiary, secondary, primary], collected but untreated, basic sanitation, open defecation, direct)
            self.WWtPlantsNC = vos.getFullPath(iniItems.routingOptions["WWtPlantsNC"], self.inputDir)
         

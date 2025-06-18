@@ -1,7 +1,0 @@
-name: pcraster_4.4.0
-
-channels:
-  - conda-forge
-dependencies:
-  - pcraster>=4.4.0 
-  

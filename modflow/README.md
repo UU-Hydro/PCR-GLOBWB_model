@@ -1,1 +1,0 @@
-This folder contains the scripts to run the couple PCR-GLOBWB-MODFLOW model as used in de Graaf, I. E. M., Gleeson T., van Beek, R., Sutanudjaja, E. H., Bierkens, M. F. P.: Environmental flow limits to global groundwater pumping, submitted to Nature. 
