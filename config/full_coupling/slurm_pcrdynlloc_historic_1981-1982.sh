@@ -118,10 +118,10 @@ cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longter
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
 cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
 
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${END_YEAR}-12-01_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow.nc &
 wait
 
 # merge output netcdf ..................................................
