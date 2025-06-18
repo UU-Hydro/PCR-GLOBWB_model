@@ -393,6 +393,12 @@ class Routing(object):
         print("Dissolved oxygen = ", self.quality)
         print("Pathogen = ", self.quality)
         
+        self.WWtPlants == False
+        if 'WWtPlantsNC' in list(iniItems.routingOptions.keys()):
+           self.WWtPlants == True
+           #Wastewater pathways and removal efficiencies (treatment [tertiary, secondary, primary], collected but untreated, basic sanitation, open defecation, direct)
+           self.WWtPlantsNC = vos.getFullPath(iniItems.routingOptions["WWtPlantsNC"], self.inputDir)
+        
         if self.quality:
             
             #Define discharge threshold for estimating concentrations
@@ -549,9 +555,6 @@ class Routing(object):
                 #Irrigation
                 self.Irr_EfflConcNC = vos.getFullPath(iniItems.routingOptions["Irr_EfflConcNC"], self.inputDir) #average soil concentration averaged over the topsoil and subsoil 
                 self.IrrTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.Irr_EfflConcNC,"soil_TDS",self.cloneMap) # mg/L
-                                                    
-                #Wastewater pathways and removal efficiencies (treatment [tertiary, secondary, primary], collected but untreated, basic sanitation, open defecation, direct)
-                self.WWtPlantsNC = vos.getFullPath(iniItems.routingOptions["WWtPlantsNC"], self.inputDir)
             
             else:
             #- Path to (non-natural) TDS, BOD, FC loading inputs
@@ -1571,7 +1574,7 @@ class Routing(object):
         self.channelStorageAfterAbstraction = pcr.ifthen(self.landmask, self.channelStorage) 
         
         # re-direction of return flow to the water treatment plants locations (unit: m3)
-        if self.quality and self.calculateLoads:
+        if self.WWtPlants:
             self.return_flows_to_wastewater_treatment_plants(currTimeStep, landSurface)
         else:
             self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume
