@@ -3,7 +3,7 @@
 ###########
 # modules #
 ###########
-import logging
+import logging, datetime
 import pcraster as pcr
 
 try:

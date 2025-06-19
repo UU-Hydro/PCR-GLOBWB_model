@@ -1344,14 +1344,6 @@ class qualloc_model(object):
                               net_demand   = net_demand_per_sector, \
                               date         = date)
         
-        #pcr.aguila(\
-        #           self.water_management.gross_demand['domestic'],\
-        #           self.water_management.gross_demand['irrigation'],\
-        #           self.water_management.gross_demand['livestock'],\
-        #           self.water_management.gross_demand['manufacture'],\
-        #           self.water_management.gross_demand['thermoelectric'],\
-        #           )
-        
         
         # **************************************************************
         # * desalinated water allocation                               *
@@ -1365,22 +1357,6 @@ class qualloc_model(object):
                               availability = self.desalinated_water_use * self.cellarea, \
                               date         = date)
         
-        #pcr.aguila(\
-        #           self.water_management.allocated_demand_per_sector_desalwater['domestic'],\
-        #           self.water_management.allocated_demand_per_sector_desalwater['irrigation'],\
-        #           self.water_management.allocated_demand_per_sector_desalwater['livestock'],\
-        #           self.water_management.allocated_demand_per_sector_desalwater['manufacture'],\
-        #           self.water_management.allocated_demand_per_sector_desalwater['thermoelectric'],\
-        #           )
-        #
-        #pcr.aguila(\
-        #           self.water_management.gross_demand_remaining['domestic'],\
-        #           self.water_management.gross_demand_remaining['irrigation'],\
-        #           self.water_management.gross_demand_remaining['livestock'],\
-        #           self.water_management.gross_demand_remaining['manufacture'],\
-        #           self.water_management.gross_demand_remaining['thermoelectric'],\
-        #           )
-        #pietje
         
         # **************************************************************
         # * short-term potential withdrawals                           *
@@ -1390,15 +1366,6 @@ class qualloc_model(object):
         # based on the short-term gross water demands
         # (units: m3/day)
         self.water_management.update_shortterm_potential_withdrawals_for_date(date)
-        
-        #pcr.aguila(\
-        #           self.water_management.potential_renewable_withdrawal_per_sector['surfacewater']['domestic'],\
-        #           self.water_management.potential_renewable_withdrawal_per_sector['surfacewater']['irrigation'],\
-        #           self.water_management.potential_renewable_withdrawal_per_sector['surfacewater']['livestock'],\
-        #           self.water_management.potential_renewable_withdrawal_per_sector['surfacewater']['manufacture'],\
-        #           self.water_management.potential_renewable_withdrawal_per_sector['surfacewater']['thermoelectric'],\
-        #           )
-        #pietje
         
         
         # **************************************************************
@@ -1497,13 +1464,6 @@ class qualloc_model(object):
             #  - surface water storage (units: m)
             self.surfacewater.storage   = deepcopy(surfacewater_storage)
             self.surfacewater.discharge = deepcopy(surfacewater_discharge)
-        
-        #pcr.aguila(\
-        #           potential_withdrawal_per_sector['irrigation'],\
-        #           potential_withdrawal,\
-        #           actual_withdrawal,\
-        #           )
-        #pietje
         
         
         # **************************************************************
@@ -1635,12 +1595,9 @@ class qualloc_model(object):
                                     nonrenewable_withdrawal * self.model_time.time_step_length / self.cellarea)
         
         # coupled QUAlloc version
-        #else:
+        else:
             # set groundwater storage for the current date
-            #self.groundwater.storage = deepcopy(groundwater_storage)
-            
-            # set average groundwater storage over the last month
-            #storage = deepcopy(groundwater_storage_average)
+            self.groundwater.storage = deepcopy(groundwater_storage)
         
         
         # **************************************************************

@@ -909,9 +909,13 @@ See doc string of class for detailed info.
         withdrawal_capacity = regional_pumping_limit * withdrawal_rate / \
                                                       (12 * time_step_length)
         if source_name == 'groundwater':
-            self.groundwater_withdrawal_capacity  = withdrawal_capacity
+            self.groundwater_withdrawal_capacity  = pcr.ifthen(self.landmask, \
+                                                               pcr.cover(withdrawal_capacity, \
+                                                                         0.0))
         if source_name == 'surfacewater':
-            self.surfacewater_withdrawal_capacity = withdrawal_capacity
+            self.surfacewater_withdrawal_capacity = pcr.ifthen(self.landmask, \
+                                                               pcr.cover(withdrawal_capacity, \
+                                                                         0.0))
         
         # return None
         return None
@@ -1281,175 +1285,6 @@ See doc string of class for detailed info.
     
     
     
-    def update_shortterm_potential_withdrawals_for_date(self,
-                                                        date):
-        '''
-        update_shortterm_potential_withdrawals_for_date:
-                       update the long-term potential withdrawals considering the short-term
-                       sectoral gross water demands per source and supply.
-        '''
-        
-        # re-distribute the gross demand no longer needed
-        # note:
-        #   if short-term gross demands are larger than long-term expectations,
-        #   the system cannot supply this water regardless its existence due to
-        #   infrastructure limitations
-        
-        # store the long-term variables
-        if date.day == 1:
-            self.longterm_potential_withdrawals_per_sector = \
-                     {'renewable'    : deepcopy(self.potential_renewable_withdrawal_per_sector), \
-                      'nonrenewable' : deepcopy(self.potential_nonrenewable_withdrawal_per_sector)}
-        
-        # re-distribute water
-        for sector_name in self.sector_names:
-            
-            # inititalize dictionaries
-            #  - total potential withdrawals (renewable + non-renewable) per source
-            #  - allocation zones per source
-            potential_withdrawal = dict((source_name, \
-                                         self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name] + \
-                                         self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name]) \
-                                        for source_name in self.source_names)
-            
-            zones = {'surfacewater': self.surfacewater_allocation_zones[sector_name],
-                     'groundwater' : self.groundwater_allocation_zones[sector_name]}
-            
-            # obtain the source distribution ratio 
-            zonal_availability, zonal_potential_allocation, \
-                allocation_ratio = obtain_allocation_ratio( \
-                                   demand       = self.gross_demand_remaining[sector_name], \
-                                   availability = potential_withdrawal, \
-                                   zones        = zones, \
-                                   source_names = self.source_names)
-            
-            # split the gross demands per water source contribution
-            # (units: m3/day)
-            demands_per_source = dict((source_name, \
-                                       self.gross_demand_remaining[sector_name] * allocation_ratio[source_name]) \
-                                      for source_name in self.source_names)
-            
-            # [ updating non-renewable potential withdrawal ]
-            # re-distribute the gross demands over the long-term potential withdrawals
-            # for non-renewable resources first
-            # although counter-intuitive, it is useful to re-allocate outstanding water
-            # demands to non-renewable sources once a renewable source is depleted
-            # also, at the beginning of the allocation, both renewable and non-renewable
-            # sources are added
-            # (units: m3/day)
-            distribution_ratio   = dict((source_name, \
-                                         pcr_return_val_div_zero( \
-                                                self.longterm_potential_withdrawals_per_sector\
-                                                     ['nonrenewable'][source_name][sector_name], \
-                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
-                                                                     ['nonrenewable'][source_name][sector_name], \
-                                                                zones[source_name]), \
-                                                very_small_number)) \
-                                        for source_name in self.source_names)
-            
-            potential_withdrawal = dict((source_name, \
-                                         distribution_ratio[source_name] * \
-                                         get_zonal_total(demands_per_source[source_name], \
-                                                         zones[source_name])) \
-                                        for source_name in self.source_names)
-            
-            # update the potential non-renewable withdrawal
-            # (m3/day)
-            for source_name in self.source_names:
-                self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name] = \
-                            pcr.min(potential_withdrawal[source_name], \
-                                    self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name])
-            
-            # obtain the outstanding gross water demand
-            # (m3/day)
-            outstanding_demand = dict((source_name, \
-                                       pcr.max(0, \
-                                               demands_per_source[source_name] - 
-                                               self.potential_nonrenewable_withdrawal_per_sector\
-                                                                      [source_name][sector_name])) \
-                                      for source_name in self.source_names)
-            
-            # [ updating renewable potential withdrawal ]
-            # re-distribute the gross demands over the long-term potential withdrawals
-            # for renewable resources finally
-            # (units: m3/day)
-            distribution_ratio   = dict((source_name, \
-                                         pcr_return_val_div_zero( \
-                                                self.longterm_potential_withdrawals_per_sector\
-                                                         ['renewable'][source_name][sector_name], \
-                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
-                                                                         ['renewable'][source_name][sector_name], \
-                                                                zones[source_name]), \
-                                                very_small_number)) \
-                                        for source_name in self.source_names)
-            
-            potential_withdrawal = dict((source_name, \
-                                         distribution_ratio[source_name] * \
-                                         get_zonal_total(outstanding_demand[source_name], \
-                                                         zones[source_name])) \
-                                        for source_name in self.source_names)
-            
-            # update the potential withdrawal per sector
-            # (m3/day)
-            for source_name in self.source_names:
-                self.potential_renewable_withdrawal_per_sector[source_name][sector_name] = \
-                            pcr.min(potential_withdrawal[source_name], \
-                                    self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name])
-        
-        # update the potential withdrawal
-        # (m3/day) 
-        for source_name in self.source_names:
-            self.potential_renewable_withdrawal[source_name] = \
-                 sum_list(list(self.potential_renewable_withdrawal_per_sector[source_name].values()))
-            self.potential_nonrenewable_withdrawal[source_name] = \
-                 sum_list(list(self.potential_nonrenewable_withdrawal_per_sector[source_name].values()))
-        
-        # log message
-        message_str = 'Long-term potential withdrawals are updated considering short-term gross demands for %s.' \
-                      % (date)
-        logger.debug(message_str)
-        
-        # [ water balance check ] ...........................................................................................
-        if debug:
-            # evaluate the water balance comparing per source:
-            # 1) long-term potential water withdrawals
-            # 2) short-term potential water withdrawals
-            for withdrawal_name in self.withdrawal_names:
-                for source_name in self.source_names:
-                    water_balance_check( \
-                          states_ini   = [self.longterm_potential_withdrawals_per_sector\
-                                          [withdrawal_name][source_name][sector_name] \
-                                          for sector_name in self.sector_names], \
-                          states_end   = [getattr(self, 'potential_%s_withdrawal' % \
-                                          withdrawal_name)[source_name]], \
-                          cellarea     = self.cellarea, \
-                          var_name     = '%s %s' % (withdrawal_name, source_name), \
-                          process_name = 'Long-term withdrawal vs Short-term withdrawal', \
-                          date         = date)
-            
-            # evaluate the water balance comparing per source:
-            # 1) pumping capacity
-            # 2) short-term potential water withdrawals
-            for source_name in self.source_names:
-                if self.pumping_capacity_flag[source_name]:
-                    water_balance_check( \
-                          states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
-                          states_end   = [self.potential_renewable_withdrawal_per_sector\
-                                          [source_name][sector_name] \
-                                          for sector_name in self.sector_names] + \
-                                         [self.potential_nonrenewable_withdrawal_per_sector\
-                                          [source_name][sector_name] \
-                                          for sector_name in self.sector_names], \
-                          cellarea     = self.cellarea, \
-                          var_name     = source_name, \
-                          process_name = 'Short-term - pumping capacity vs potential withdrawal', \
-                          date         = date)
-        
-        # return None
-        return None
-    
-    
-    
     def allocate_desalinated_water_for_date(self, \
                                              availability,
                                              date):
@@ -1484,8 +1319,9 @@ See doc string of class for detailed info.
             unmet_demand_per_sector[sector_name] = pcr.spatial(pcr.scalar(0))
         
         met_demand_per_sector       = dict((sector_name, \
-                                            pcr.ifthen(self.gross_demand[sector_name] >= 0.0, \
-                                                       pcr.scalar(0.0))) \
+                                            #pcr.ifthen(self.gross_demand[sector_name] >= 0.0, \
+                                            #           pcr.scalar(0.0))) \
+                                            pcr.spatial(pcr.scalar(0.0))) \
                                            for sector_name in self.sector_names)
         
         withdrawal_per_sector       = dict((sector_name, \
@@ -1637,11 +1473,10 @@ See doc string of class for detailed info.
     
     
     
-    
     def update_longterm_potential_withdrawals_for_date(self, \
-                                               availability, \
-                                               demand, \
-                                               date):
+                                                        availability, \
+                                                        demand, \
+                                                        date):
         '''
         update_longterm_potential_withdrawals_for_date: 
                        function that updates the potential withdrawal as a function 
@@ -2220,6 +2055,171 @@ See doc string of class for detailed info.
     
     
     
+    def update_shortterm_potential_withdrawals_for_date(self,
+                                                        date):
+        '''
+        update_shortterm_potential_withdrawals_for_date:
+                       update the long-term potential withdrawals considering the short-term
+                       sectoral gross water demands per source and supply.
+        '''
+        
+        # re-distribute the gross demand no longer needed
+        # note:
+        #   if short-term gross demands are larger than long-term expectations,
+        #   the system cannot supply this water regardless its existence due to
+        #   infrastructure limitations
+        
+        # store the long-term variables
+        if date.day == 1:
+            self.longterm_potential_withdrawals_per_sector = \
+                     {'renewable'    : deepcopy(self.potential_renewable_withdrawal_per_sector), \
+                      'nonrenewable' : deepcopy(self.potential_nonrenewable_withdrawal_per_sector)}
+        
+        # re-distribute water
+        for sector_name in self.sector_names:
+            
+            # inititalize dictionaries
+            #  - total potential withdrawals (renewable + non-renewable) per source
+            #  - allocation zones per source
+            potential_withdrawal = dict((source_name, \
+                                         self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name] + \
+                                         self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name]) \
+                                        for source_name in self.source_names)
+            
+            zones = {'surfacewater': self.surfacewater_allocation_zones[sector_name],
+                     'groundwater' : self.groundwater_allocation_zones[sector_name]}
+            
+            # obtain the source distribution ratio 
+            zonal_availability, zonal_potential_allocation, \
+                allocation_ratio = obtain_allocation_ratio( \
+                                   demand       = self.gross_demand_remaining[sector_name], \
+                                   availability = potential_withdrawal, \
+                                   zones        = zones, \
+                                   source_names = self.source_names)
+            
+            # split the gross demands per water source contribution
+            # (units: m3/day)
+            demands_per_source = dict((source_name, \
+                                       self.gross_demand_remaining[sector_name] * allocation_ratio[source_name]) \
+                                      for source_name in self.source_names)
+            
+            # [ updating renewable potential withdrawal ]
+            # re-distribute the gross demands over the long-term potential withdrawals
+            # for renewable resources first
+            # (units: m3/day)
+            distribution_ratio   = dict((source_name, \
+                                         pcr_return_val_div_zero( \
+                                                self.longterm_potential_withdrawals_per_sector\
+                                                        ['renewable'][source_name][sector_name], \
+                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
+                                                                        ['renewable'][source_name][sector_name], \
+                                                                zones[source_name]), \
+                                                very_small_number)) \
+                                        for source_name in self.source_names)
+            
+            potential_withdrawal = dict((source_name, \
+                                         distribution_ratio[source_name] * \
+                                         get_zonal_total(demands_per_source[source_name], \
+                                                         zones[source_name])) \
+                                        for source_name in self.source_names)
+            
+            # update the potential non-renewable withdrawal
+            # (units: m3/day)
+            for source_name in self.source_names:
+                self.potential_renewable_withdrawal_per_sector[source_name][sector_name] = \
+                            pcr.min(potential_withdrawal[source_name], \
+                                    self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name])
+            
+            # obtain the outstanding gross water demand
+            # (units: m3/day)
+            outstanding_demand = dict((source_name, \
+                                       pcr.max(0, \
+                                               demands_per_source[source_name] - 
+                                               self.potential_renewable_withdrawal_per_sector\
+                                                                    [source_name][sector_name])) \
+                                      for source_name in self.source_names)
+            
+            # [ updating non-renewable potential withdrawal ]
+            # re-distribute the outstanding gross demands over the long-term potential withdrawals
+            # from non-renewable sources finally
+            # (units: m3/day)
+            distribution_ratio   = dict((source_name, \
+                                         pcr_return_val_div_zero( \
+                                                self.longterm_potential_withdrawals_per_sector\
+                                                      ['nonrenewable'][source_name][sector_name], \
+                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
+                                                                     ['nonrenewable'][source_name][sector_name], \
+                                                                zones[source_name]), \
+                                                very_small_number)) \
+                                        for source_name in self.source_names)
+            
+            potential_withdrawal = dict((source_name, \
+                                         distribution_ratio[source_name] * \
+                                         get_zonal_total(outstanding_demand[source_name], \
+                                                         zones[source_name])) \
+                                        for source_name in self.source_names)
+            
+            # update the potential withdrawal per sector
+            # (units: m3/day)
+            for source_name in self.source_names:
+                self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name] = \
+                            pcr.min(potential_withdrawal[source_name], \
+                                    self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name])
+        
+        # update the total potential withdrawal
+        # (units: m3/day) 
+        for source_name in self.source_names:
+            self.potential_renewable_withdrawal[source_name] = \
+                 sum_list(list(self.potential_renewable_withdrawal_per_sector[source_name].values()))
+            self.potential_nonrenewable_withdrawal[source_name] = \
+                 sum_list(list(self.potential_nonrenewable_withdrawal_per_sector[source_name].values()))
+        
+        # log message
+        message_str = 'Long-term potential withdrawals are updated considering short-term gross demands for %s.' \
+                      % (date)
+        logger.debug(message_str)
+        
+        # [ water balance check ] ...........................................................................................
+        if debug:
+            # evaluate the water balance comparing per source:
+            # 1) long-term potential water withdrawals
+            # 2) short-term potential water withdrawals
+            for withdrawal_name in self.withdrawal_names:
+                for source_name in self.source_names:
+                    water_balance_check( \
+                          states_ini   = [self.longterm_potential_withdrawals_per_sector\
+                                          [withdrawal_name][source_name][sector_name] \
+                                          for sector_name in self.sector_names], \
+                          states_end   = [getattr(self, 'potential_%s_withdrawal' % \
+                                          withdrawal_name)[source_name]], \
+                          cellarea     = self.cellarea, \
+                          var_name     = '%s %s' % (withdrawal_name, source_name), \
+                          process_name = 'Long-term withdrawal vs Short-term withdrawal', \
+                          date         = date)
+            
+            # evaluate the water balance comparing per source:
+            # 1) pumping capacity
+            # 2) short-term potential water withdrawals
+            for source_name in self.source_names:
+                if self.pumping_capacity_flag[source_name]:
+                    water_balance_check( \
+                          states_ini   = [getattr(self, '%s_withdrawal_capacity' % source_name)], \
+                          states_end   = [self.potential_renewable_withdrawal_per_sector\
+                                          [source_name][sector_name] \
+                                          for sector_name in self.sector_names] + \
+                                         [self.potential_nonrenewable_withdrawal_per_sector\
+                                          [source_name][sector_name] \
+                                          for sector_name in self.sector_names], \
+                          cellarea     = self.cellarea, \
+                          var_name     = source_name, \
+                          process_name = 'Short-term - pumping capacity vs potential withdrawal', \
+                          date         = date)
+        
+        # return None
+        return None
+    
+    
+    
     def get_total_potential_withdrawal(self, \
                                         source_name):
         '''
@@ -2327,15 +2327,6 @@ See doc string of class for detailed info.
                   longterm_potential_withdrawal_per_sector[sector_name] * \
                    suitability_per_sector[sector_name]) \
                  for sector_name in self.sector_names)
-        
-        #pcr.aguila(\
-        #           longterm_potential_withdrawal_per_sector['domestic'],\
-        #           longterm_potential_withdrawal_per_sector['irrigation'],\
-        #           longterm_potential_withdrawal_per_sector['livestock'],\
-        #           longterm_potential_withdrawal_per_sector['manufacture'],\
-        #           longterm_potential_withdrawal_per_sector['thermoelectric'],\
-        #           )
-        #pietje
         
         # aggregate potential withdrawals from all sectors
         # (units: m3/day)
