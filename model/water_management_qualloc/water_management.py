@@ -1295,10 +1295,11 @@ See doc string of class for detailed info.
         #   the system cannot supply this water regardless its existence due to
         #   infrastructure limitations
         
-        # store the long-term variables to perform the water balance check
-        longterm_potential_withdrawals_per_sector = \
-                 {'renewable'    : deepcopy(self.potential_renewable_withdrawal_per_sector), \
-                  'nonrenewable' : deepcopy(self.potential_nonrenewable_withdrawal_per_sector)}
+        # store the long-term variables
+        if date.day == 1:
+            self.longterm_potential_withdrawals_per_sector = \
+                     {'renewable'    : deepcopy(self.potential_renewable_withdrawal_per_sector), \
+                      'nonrenewable' : deepcopy(self.potential_nonrenewable_withdrawal_per_sector)}
         
         # re-distribute water
         for sector_name in self.sector_names:
@@ -1307,8 +1308,8 @@ See doc string of class for detailed info.
             #  - total potential withdrawals (renewable + non-renewable) per source
             #  - allocation zones per source
             potential_withdrawal = dict((source_name, \
-                                         self.potential_renewable_withdrawal_per_sector[source_name][sector_name] + \
-                                         self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name]) \
+                                         self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name] + \
+                                         self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name]) \
                                         for source_name in self.source_names)
             
             zones = {'surfacewater': self.surfacewater_allocation_zones[sector_name],
@@ -1329,15 +1330,19 @@ See doc string of class for detailed info.
                                       for source_name in self.source_names)
             
             # [ updating non-renewable potential withdrawal ]
-            # re-distribute the gross demans over the long-term potential withdrawals
+            # re-distribute the gross demands over the long-term potential withdrawals
             # for non-renewable resources first
+            # although counter-intuitive, it is useful to re-allocate outstanding water
+            # demands to non-renewable sources once a renewable source is depleted
+            # also, at the beginning of the allocation, both renewable and non-renewable
+            # sources are added
             # (units: m3/day)
             distribution_ratio   = dict((source_name, \
                                          pcr_return_val_div_zero( \
-                                                self.potential_nonrenewable_withdrawal_per_sector\
-                                                                        [source_name][sector_name], \
-                                                get_zonal_total(self.potential_nonrenewable_withdrawal_per_sector\
-                                                                                       [source_name][sector_name], \
+                                                self.longterm_potential_withdrawals_per_sector\
+                                                     ['nonrenewable'][source_name][sector_name], \
+                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
+                                                                     ['nonrenewable'][source_name][sector_name], \
                                                                 zones[source_name]), \
                                                 very_small_number)) \
                                         for source_name in self.source_names)
@@ -1348,12 +1353,12 @@ See doc string of class for detailed info.
                                                          zones[source_name])) \
                                         for source_name in self.source_names)
             
-            # update the potential withdrawal
+            # update the potential non-renewable withdrawal
             # (m3/day)
             for source_name in self.source_names:
                 self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name] = \
                             pcr.min(potential_withdrawal[source_name], \
-                                    self.potential_nonrenewable_withdrawal_per_sector[source_name][sector_name])
+                                    self.longterm_potential_withdrawals_per_sector['nonrenewable'][source_name][sector_name])
             
             # obtain the outstanding gross water demand
             # (m3/day)
@@ -1365,15 +1370,15 @@ See doc string of class for detailed info.
                                       for source_name in self.source_names)
             
             # [ updating renewable potential withdrawal ]
-            # re-distribute the gross demans over the long-term potential withdrawals
+            # re-distribute the gross demands over the long-term potential withdrawals
             # for renewable resources finally
             # (units: m3/day)
             distribution_ratio   = dict((source_name, \
                                          pcr_return_val_div_zero( \
-                                                self.potential_renewable_withdrawal_per_sector\
-                                                                    [source_name][sector_name], \
-                                                get_zonal_total(self.potential_renewable_withdrawal_per_sector\
-                                                                                    [source_name][sector_name], \
+                                                self.longterm_potential_withdrawals_per_sector\
+                                                         ['renewable'][source_name][sector_name], \
+                                                get_zonal_total(self.longterm_potential_withdrawals_per_sector\
+                                                                         ['renewable'][source_name][sector_name], \
                                                                 zones[source_name]), \
                                                 very_small_number)) \
                                         for source_name in self.source_names)
@@ -1389,7 +1394,7 @@ See doc string of class for detailed info.
             for source_name in self.source_names:
                 self.potential_renewable_withdrawal_per_sector[source_name][sector_name] = \
                             pcr.min(potential_withdrawal[source_name], \
-                                    self.potential_renewable_withdrawal_per_sector[source_name][sector_name])
+                                    self.longterm_potential_withdrawals_per_sector['renewable'][source_name][sector_name])
         
         # update the potential withdrawal
         # (m3/day) 
@@ -1412,7 +1417,7 @@ See doc string of class for detailed info.
             for withdrawal_name in self.withdrawal_names:
                 for source_name in self.source_names:
                     water_balance_check( \
-                          states_ini   = [longterm_potential_withdrawals_per_sector\
+                          states_ini   = [self.longterm_potential_withdrawals_per_sector\
                                           [withdrawal_name][source_name][sector_name] \
                                           for sector_name in self.sector_names], \
                           states_end   = [getattr(self, 'potential_%s_withdrawal' % \
@@ -2323,6 +2328,15 @@ See doc string of class for detailed info.
                    suitability_per_sector[sector_name]) \
                  for sector_name in self.sector_names)
         
+        #pcr.aguila(\
+        #           longterm_potential_withdrawal_per_sector['domestic'],\
+        #           longterm_potential_withdrawal_per_sector['irrigation'],\
+        #           longterm_potential_withdrawal_per_sector['livestock'],\
+        #           longterm_potential_withdrawal_per_sector['manufacture'],\
+        #           longterm_potential_withdrawal_per_sector['thermoelectric'],\
+        #           )
+        #pietje
+        
         # aggregate potential withdrawals from all sectors
         # (units: m3/day)
         shortterm_potential_withdrawal = \
@@ -2840,7 +2854,8 @@ See doc string of class for detailed info.
             # [ groundwater storage ] ..................................
             #
             # get the time step to update the groundwater storage
-            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(\
+                                                          update_date, \
                                                           self.groundwater_longterm_storage_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -2867,7 +2882,8 @@ See doc string of class for detailed info.
             # [ surface water discharge ] ..............................
             #
             # get the time step to update the surface water availability (monthly)
-            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(\
+                                                          update_date, \
                                                           self.surfacewater_longterm_discharge_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -2895,7 +2911,8 @@ See doc string of class for detailed info.
             # [ surface water runoff ] ..................................
             #
             # get the time step to update the surface water availability (monthly)
-            date_index, matched_date, message_str = match_date_by_julian_number(update_date, \
+            date_index, matched_date, message_str = match_date_by_julian_number(\
+                                                          update_date, \
                                                           self.surfacewater_longterm_runoff_dates)
             
             # remove the date from the dictionary and update it with the present value
@@ -3020,8 +3037,9 @@ See doc string of class for detailed info.
                 
                 # get the time step to update the groundwater potential withdrawal (monthly)
                 # variable matches with groundwater_longterm_avail_dates
+                update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = \
-                            match_date_by_julian_number(date, \
+                            match_date_by_julian_number(update_date, \
                                                         self.groundwater_longterm_pot_withdrawal_dates)
                 
                 # remove the date from the dictionary and update it with the present value
@@ -3034,10 +3052,10 @@ See doc string of class for detailed info.
                                 groundwater_potential_withdrawal)
                 
                 # reset the date
-                self.groundwater_longterm_pot_withdrawal_dates[date_index] = date
+                self.groundwater_longterm_pot_withdrawal_dates[date_index] = update_date
                 
                 # add the value to the dictionary
-                self.groundwater_longterm_potential_withdrawal[date] = groundwater_longterm_pot_withdrawal
+                self.groundwater_longterm_potential_withdrawal[update_date] = groundwater_longterm_pot_withdrawal
                 
                 # echo to screen
                 message_str = str.join(' ', \
@@ -3053,8 +3071,9 @@ See doc string of class for detailed info.
                 
                 # get the time step to update the groundwater potential withdrawal (monthly)
                 # variable matches with groundwater_longterm_avail_dates
+                update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = \
-                            match_date_by_julian_number(date, \
+                            match_date_by_julian_number(update_date, \
                                                         self.surfacewater_longterm_pot_withdrawal_dates)
                 
                 # remove the date from the dictionary and update it with the present value
@@ -3067,10 +3086,10 @@ See doc string of class for detailed info.
                                 surfacewater_potential_withdrawal)
                 
                 # reset the date
-                self.surfacewater_longterm_pot_withdrawal_dates[date_index] = date
+                self.surfacewater_longterm_pot_withdrawal_dates[date_index] = update_date
                 
                 # add the value to the dictionary
-                self.surfacewater_longterm_potential_withdrawal[date] = surfacewater_longterm_pot_withdrawal
+                self.surfacewater_longterm_potential_withdrawal[update_date] = surfacewater_longterm_pot_withdrawal
                 
                 # echo to screen
                 message_str = str.join(' ', \

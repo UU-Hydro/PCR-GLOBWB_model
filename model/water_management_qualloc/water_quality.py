@@ -251,14 +251,6 @@ class water_quality(object):
                 average += self.constituent_shortterm_quality\
                                            [source_name][constituent_name]
                 setattr(self, key, average)
-                
-                
-                
-                #if source_name == 'surfacewater' and constituent_name == 'temperature':
-                #    dt = f'{str(date.year)[2:]}{str(date.month).zfill(2)}{str(date.day).zfill(2)}'
-                #    pcr.report(average, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature_acc.map')
-                
-                
         
         # update long-term water quality constituents the last day of the month
         if (time_step == 'monthly') or \
@@ -277,20 +269,14 @@ class water_quality(object):
                     key = 'average_%s_%s' % (source_name, constituent_name)
                     average_constituent_quality = getattr(self, key) / steps
                     
-                    
-                    
-                    #if source_name == 'surfacewater' and constituent_name == 'temperature':
-                    #    pcr.report(average_constituent_quality, f'/scratch/carde003/qualloc/_debug/{dt}_avg_quality_temperature.map')
-                    
-                    
-                    
                     # get variable key
                     var = '%s_longterm_%s' % (source_name, constituent_name)
                     
                     # get the time step to update the long-term quality (monthly)
-                    dates = getattr(self, var+'_dates')
+                    update_date = datetime.datetime(date.year, date.month, 1)
+                    var_dates = getattr(self, var+'_dates')
                     date_index, matched_date, message_str = \
-                                        match_date_by_julian_number(date, dates)
+                                        match_date_by_julian_number(update_date, var_dates)
                     
                     # remove the date from the dictionary and update it with the present value
                     # set the value using the weight, if the long-term availability is not
@@ -302,10 +288,10 @@ class water_quality(object):
                                   average_constituent_quality)
                     
                     # reset the date
-                    getattr(self, var+'_dates')[date_index] = date
+                    getattr(self, var+'_dates')[date_index] = update_date
                     
                     # add the value to the dictionary
-                    getattr(self, var)[date] = constituent_longterm_quality
+                    getattr(self, var)[update_date] = constituent_longterm_quality
                     
                     # echo to screen
                     message_str = str.join(' ', \

@@ -167,8 +167,10 @@ def mergeNetCDF(inputTuple):
                 year_used  = datetime_range[i].year
                 month_used = datetime_range[i].month
                 day_used   = calendar.monthrange(year_used, month_used)[1]
-                #datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(day_used), 0)
-                datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(1), 0)
+                if file_type != "outStates":
+                    datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(day_used), 0)
+                else:
+                    datetime_range[i] = datetime.datetime(int(year_used), int(month_used), int(1), 0)
         
         if timeStepType == "yearly":
             number_of_years = endTime.year - startTime.year + 1
@@ -264,7 +266,7 @@ def mergeNetCDF(inputTuple):
     
     # - create time and set its attributes
     date_time=rootgrp.createDimension('time',len(uniqueTimes))
-    #~ date_time=rootgrp.createDimension('time', None)
+    #date_time=rootgrp.createDimension('time', None)
     date_time= rootgrp.createVariable('time','f8',('time',))
     
     for attr,value in list(calendar_used.items()):
@@ -345,11 +347,8 @@ def mergeNetCDF(inputTuple):
             col1= int(np.where(longitudes == min(lonMax,lonMaxNcFile))[0][0]+1)
             
             posCnt= None
+            
             try:
-                
-                # ~ # find the correct index (old method) - this is very slow
-                # ~ posCnt= variables[index]['time'][:].tolist().index(time)
-                
                 # find the correct index (new method)
                 date_value = nc.num2date(time, rootgrp.variables['time'].units, rootgrp.variables['time'].calendar)
                 posCnt = nc.date2index(date_value, rootgrp.variables['time'])
