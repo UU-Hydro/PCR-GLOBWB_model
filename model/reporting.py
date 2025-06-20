@@ -130,13 +130,13 @@ class Reporting(object):
             pass
         if self.outWeekTotNC[0] != "None":
             for var in self.outWeekTotNC:
-                # initiating monthlyVarTot (accumulator variable):
+                # initiating weeklyVarTot (accumulator variable):
                 vars(self)[var+'WeekTot'] = None
                 
                 logger.info("Creating the netcdf file for weekly accumulation reporting for variable %s.", str(var))
                 
                 short_name = varDicts.netcdf_short_name[var]
-                unit       = varDicts.netcdf_monthly_total_unit[var]      
+                unit       = varDicts.netcdf_weekly_total_unit[var]      
                 long_name  = varDicts.netcdf_long_name[var]
                 if long_name == None: long_name = short_name  
                 
@@ -154,10 +154,10 @@ class Reporting(object):
         
         if self.outWeekAvgNC[0] != "None":
             for var in self.outWeekAvgNC:
-                # initiating monthlyTotAvg (accumulator variable)
+                # initiating weeklyTotAvg (accumulator variable)
                 vars(self)[var+'WeekTot'] = None
                 
-                # initiating monthlyVarAvg:
+                # initiating weeklyVarAvg:
                 vars(self)[var+'WeekAvg'] = None
                 
                 logger.info("Creating the netcdf file for weekly average reporting for variable %s.", str(var))
@@ -1206,9 +1206,9 @@ class Reporting(object):
                 
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the month
-                if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.day == 1:\
+                if self._modelTime.timeStepPCR == 1 or self._modelTime.day == 1:
                    vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
+                   vars(self)[var+'_ndays_month'] = pcr.scalar(0.0)
                 
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
@@ -1216,7 +1216,9 @@ class Reporting(object):
                                                  vars(self)[var])
                 
                 # accumulating
-                vars(self)[var+'MonthTot'] += vars(self)[var]
+                valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                vars(self)[var+'MonthTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                vars(self)[var+'_ndays_month'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
                 
                 # reporting at the end of the month:
                 if self._modelTime.endMonth == True: 
@@ -1239,9 +1241,9 @@ class Reporting(object):
                     
                     # introduce accumulator at the beginning of simulation or
                     #     reset accumulator at the beginning of the month
-                    if self._modelTime.timeStepPCR == 1 or \
-                       self._modelTime.day == 1:\
+                    if self._modelTime.timeStepPCR == 1 or self._modelTime.day == 1:
                        vars(self)[var+'MonthTot'] = pcr.scalar(0.0)
+                       vars(self)[var+'_ndays_month'] = pcr.scalar(0.0)
                     
                     # masking out for reporting
                     if self.landmask_for_reporting is not None:
@@ -1249,13 +1251,14 @@ class Reporting(object):
                                                      vars(self)[var])
                     
                     # accumulating
-                    vars(self)[var+'MonthTot'] += vars(self)[var]
+                    valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                    vars(self)[var+'MonthTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                    vars(self)[var+'_ndays_month'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
                 
                 # calculating average & reporting at the end of the month:
                 if self._modelTime.endMonth == True:
-                    vars(self)[var+'MonthAvg'] = vars(self)[var+'MonthTot']/\
-                                                 self._modelTime.day  
-                    
+                    vars(self)[var+'MonthAvg'] = pcr.ifthenelse(vars(self)[var+'_ndays_month'] > 0.0,\
+                                                  vars(self)[var+'MonthTot'] / vars(self)[var+'_ndays_month'], pcr.scalar(vos.MV))
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
                                                str(var)+\
@@ -1316,9 +1319,9 @@ class Reporting(object):
                 
                 # introduce variables at the beginning of simulation or
                 #     reset variables at the beginning of the year
-                if self._modelTime.timeStepPCR == 1 or \
-                   self._modelTime.doy == 1:\
+                if self._modelTime.timeStepPCR == 1 or self._modelTime.doy == 1:
                    vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+                   vars(self)[var+'_ndays_year'] = pcr.scalar(0.0)
                 
                 # masking out for reporting
                 if self.landmask_for_reporting is not None:
@@ -1326,7 +1329,9 @@ class Reporting(object):
                                                  vars(self)[var])
                 
                 # accumulating
-                vars(self)[var+'AnnuaTot'] += vars(self)[var]
+                valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                vars(self)[var+'AnnuaTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                vars(self)[var+'_ndays_year'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
                 
                 # reporting at the end of the year:
                 if self._modelTime.endYear == True: 
@@ -1348,9 +1353,9 @@ class Reporting(object):
                     
                     # introduce accumulator at the beginning of simulation or
                     #     reset accumulator at the beginning of the year
-                    if self._modelTime.timeStepPCR == 1 or \
-                       self._modelTime.doy == 1:\
+                    if self._modelTime.timeStepPCR == 1 or self._modelTime.doy == 1:
                        vars(self)[var+'AnnuaTot'] = pcr.scalar(0.0)
+                       vars(self)[var+'_ndays_year'] = pcr.scalar(0.0)
                     
                     # masking out for reporting
                     if self.landmask_for_reporting is not None:
@@ -1358,13 +1363,15 @@ class Reporting(object):
                                                      vars(self)[var])
                     
                     # accumulating
-                    vars(self)[var+'AnnuaTot'] += vars(self)[var]
+                    valid = pcr.ifthen(pcr.defined(vars(self)[var]), vars(self)[var] != vos.MV)
+                    vars(self)[var+'AnnuaTot'] += pcr.ifthenelse(valid, vars(self)[var], pcr.scalar(0.))
+                    vars(self)[var+'_ndays_year'] += pcr.ifthenelse(valid, pcr.scalar(1.0), pcr.scalar(0.))
                 
                 # calculating average & reporting at the end of the year:
                 if self._modelTime.endYear == True:
                     
-                    vars(self)[var+'AnnuaAvg'] = vars(self)[var+'AnnuaTot']/\
-                                                 self._modelTime.doy  
+                    vars(self)[var+'AnnuaAvg'] = pcr.ifthenelse(vars(self)[var+'_ndays_year'] > 0.0,\
+                              vars(self)[var+'AnnuaTot'] / vars(self)[var+'_ndays_year'], pcr.scalar(vos.MV))
                     
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(self.outNCDir+"/"+ \
