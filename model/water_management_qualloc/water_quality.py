@@ -251,6 +251,9 @@ class water_quality(object):
                 average += self.constituent_shortterm_quality\
                                            [source_name][constituent_name]
                 setattr(self, key, average)
+                
+                if constituent_name == 'organic':
+                    pcr.aguila(average)
         
         # update long-term water quality constituents the last day of the month
         if (time_step == 'monthly') or \
@@ -268,6 +271,11 @@ class water_quality(object):
                     # by dividing the accumulated values over the number steps
                     key = 'average_%s_%s' % (source_name, constituent_name)
                     average_constituent_quality = getattr(self, key) / steps
+                    
+                    
+                    if constituent_name == 'organic':
+                        pcr.aguila(average_constituent_quality)
+                        
                     
                     # get variable key
                     var = '%s_longterm_%s' % (source_name, constituent_name)
