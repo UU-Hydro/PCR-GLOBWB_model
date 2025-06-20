@@ -657,7 +657,11 @@ class Routing(object):
             if self.using_qualloc:
                 self.discharge           = iniConditions['routing']['discharge']
                 self.runoff               = iniConditions['routing']['runoff']
-            
+                
+                if self.quality:
+                    self.salinity                = iniConditions['routing']['salinity']
+                    self.organic                 = iniConditions['routing']['organic']
+                    self.pathogen                = iniConditions['routing']['pathogen']
             # DynQual
             # Initial conditions needed for water quality module
             if self.quality:
@@ -666,10 +670,6 @@ class Routing(object):
                 self.routedTDS               = iniConditions['routing']['routedTDS']
                 self.routedBOD               = iniConditions['routing']['routedBOD']
                 self.routedFC                = iniConditions['routing']['routedFC']
-                
-                self.salinity                = iniConditions['routing']['salinity']
-                self.organic                 = iniConditions['routing']['organic']
-                self.pathogen                = iniConditions['routing']['pathogen']
                 
                 # Initial conditions for calculating average irrigation demand and net liquid transferred to the soil for irrigation return flow calculations                
                 if self.calculateLoads and self.offlineRun == False:
