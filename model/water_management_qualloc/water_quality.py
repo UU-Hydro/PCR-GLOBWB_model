@@ -252,8 +252,13 @@ class water_quality(object):
                                            [source_name][constituent_name]
                 setattr(self, key, average)
                 
-                if constituent_name == 'organic':
-                    pcr.aguila(average)
+               
+               
+               
+                if constituent_name == 'organic' and source_name == 'surfacewater':
+                    pcr.report(average, f'/scratch-shared/gcardenas/organic_qualloc_{date}.map')
+                
+                
         
         # update long-term water quality constituents the last day of the month
         if (time_step == 'monthly') or \
@@ -273,8 +278,8 @@ class water_quality(object):
                     average_constituent_quality = getattr(self, key) / steps
                     
                     
-                    if constituent_name == 'organic':
-                        pcr.aguila(average_constituent_quality)
+                    if constituent_name == 'organic' and source_name == 'surfacewater':
+                        pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/organic_avg_qualloc_{date}.map')
                         
                     
                     # get variable key
