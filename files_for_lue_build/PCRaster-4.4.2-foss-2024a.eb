@@ -1,0 +1,42 @@
+easyblock = 'CMakeMake'
+
+name = 'PCRaster'
+
+version = '4.4.2'
+
+homepage = "https://pcraster.geo.uu.nl"
+
+description = """PCRaster is a collection of software targeted at the
+development and deployment of spatio-temporal environmental models."""
+
+toolchain = {'name': 'foss', 'version': '2024a'}
+
+sources = ['%(namelower)s-%(version)s.tar.bz2']
+source_urls = ['http://pcraster.geo.uu.nl/pcraster/packages/src/']
+checksums = ['415f66c7e26a0abf8f1d25b461f6af0e9fe0e038fd3cee43becde0c538b18f02']
+
+builddependencies = [
+    ('CMake', '3.29.3'),
+    ('pybind11', '2.13.6'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('GDAL', '3.10.0'),
+    ('Xerces-C++', '3.2.5'),
+    ('Qt5', '5.15.16'),
+    ('Boost', '1.85.0'),
+    ('ncurses', '6.5')
+]
+
+configopts = f" -D Python3_EXECUTABLE=$EBROOTPYTHON/bin/python -D PYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python -D PCRASTER_WITH_FLAGS_IPO=ON "
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ['aguila', 'asc2map', 'col2map', 'legend', 'map2asc', 'map2col',
+                                     'mapattr', 'oldcalc', 'pcrcalc', 'mf2005', 'resample', 'table']],
+    'dirs': ['python/pcraster'],
+}
+
+modextrapaths = {'PYTHONPATH': ['python']}
+
+moduleclass = 'geo'
