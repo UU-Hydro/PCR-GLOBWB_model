@@ -1138,8 +1138,8 @@ class qualloc_model(object):
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
                 
-                if source_name == 'surfacewater' and constituent_name == 'organic':
-                    pcr.aguila(var_out)
+                #if source_name == 'surfacewater' and constituent_name == 'organic':
+                #    pcr.aguila(var_out)
                 
                 
                 # set variable
