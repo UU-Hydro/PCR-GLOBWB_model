@@ -252,11 +252,10 @@ class water_quality(object):
                                            [source_name][constituent_name]
                 setattr(self, key, average)
                 
-               
-               
-               
-                if constituent_name == 'organic' and source_name == 'surfacewater':
-                    pcr.aguila(average)
+                
+                pcr.aguila(self.constituent_shortterm_quality[source_name][constituent_name])
+                pcr.aguila(self.average_surfacewater_organic)
+                
                 
                 
         
