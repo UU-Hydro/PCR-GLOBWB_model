@@ -1171,7 +1171,7 @@ class LandSurface(object):
                 surfacewater_pathogen    = pcr.ifthen(routing.pathogen < vos.MV, routing.pathogen)
                 
                 pcr.aguila(routing.organic)
-                pcr.report(routing.organic, f'/scratch-shared/gcardenas/organic_upd_routing_{currTimeStep}.map')
+                pcr.report(routing.organic, f'/scratch-shared/gcardenas/{currTimeStep}_organic_upd_dynqual.map')
             
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
