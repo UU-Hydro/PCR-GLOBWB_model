@@ -256,10 +256,7 @@ class water_quality(object):
                
                
                 if constituent_name == 'organic' and source_name == 'surfacewater':
-                    pcr.aguila(self.constituent_shortterm_quality[source_name][constituent_name])
                     pcr.aguila(average)
-                    pietje
-                    #pcr.report(average, f'/scratch-shared/gcardenas/organic_qualloc_{date}.map')
                 
                 
         
