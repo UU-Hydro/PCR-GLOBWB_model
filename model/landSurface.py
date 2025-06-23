@@ -1190,13 +1190,11 @@ class LandSurface(object):
                                       thermoelectricNettoDemand       = self.water_demand.water_demand_thermoelectric.thermoelectricNettoDemand, \
                                       environmentGrossDemand          = None, \
                                       surfacewater_storage            = routing.channelStorage / routing.cellArea, \
-                                      #surfacewater_storage_average   = routing.avgChannelStorage / routing.cellArea, \
                                       surfacewater_discharge          = routing.discharge, \
                                       surfacewater_totalrunoff         = routing.runoff, \
                                       groundwater_recharge            = groundwater.gwRecharge, \
                                       groundwater_baseflow             = groundwater.baseflow, \
                                       groundwater_storage             = groundwater.storGroundwater, \
-                                      #groundwater_storage_average    = routing.avgStorGroundwater, \
                                       
                                       online_coupling_to_quality      = self.using_dynqual, \
                                       surfacewater_temperature        = surfacewater_temperature, \
