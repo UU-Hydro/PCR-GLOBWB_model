@@ -1146,6 +1146,13 @@ class qualloc_model(object):
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
+        
+        
+        pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['organic'])
+        
+        
+        
+        
         # [ forcing: water management features ] .........................................................
         #
         # [ desalinated water use ]

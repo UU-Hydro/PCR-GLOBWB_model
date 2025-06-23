@@ -256,7 +256,10 @@ class water_quality(object):
                
                
                 if constituent_name == 'organic' and source_name == 'surfacewater':
-                    pcr.report(average, f'/scratch-shared/gcardenas/organic_qualloc_{date}.map')
+                    pcr.aguila(self.constituent_shortterm_quality[source_name][constituent_name])
+                    pcr.aguila(average)
+                    pietje
+                    #pcr.report(average, f'/scratch-shared/gcardenas/organic_qualloc_{date}.map')
                 
                 
         
@@ -265,7 +268,7 @@ class water_quality(object):
            (time_step == 'daily' and is_last_day_month(date)):
             
             # get number of steps within the time-step
-            #    - number of days in the month if time-step == daile
+            #    - number of days in the month if time-step == daily
             #    - unity if time-step == monthly
             steps = date.day
             
@@ -279,7 +282,9 @@ class water_quality(object):
                     
                     
                     if constituent_name == 'organic' and source_name == 'surfacewater':
-                        pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/organic_avg_qualloc_{date}.map')
+                        pcr.aguila(average_constituent_quality)
+                        #pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/organic_avg_qualloc_{date}.map')
+                        pietje
                         
                     
                     # get variable key
