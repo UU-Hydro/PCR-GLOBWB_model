@@ -1166,13 +1166,11 @@ class LandSurface(object):
             surfacewater_pathogen    = None
             if self.using_dynqual:
                 surfacewater_temperature = routing.waterTemp - 273.15
-                surfacewater_organic     = routing.organic
-                surfacewater_salinity    = routing.salinity
-                surfacewater_pathogen    = routing.pathogen
+                surfacewater_organic     = ifthen(routing.organic < vos.MV, routing.organic)
+                surfacewater_salinity    = ifthen(routing.salinity < vos.MV, routing.salinity)
+                surfacewater_pathogen    = ifthen(routing.pathogen < vos.MV, routing.pathogen)
                 
                 pcr.aguila(routing.organic)
-                pcr.aguila(routing.salinity)
-                pcr.aguila(routing.pathogen)
             
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
