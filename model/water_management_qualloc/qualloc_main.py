@@ -1138,8 +1138,8 @@ class qualloc_model(object):
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
                 # set variable
-                #constituent_shortterm_quality[source_name][constituent] = var_out
-                setattr(self, key, var_out)
+                constituent_shortterm_quality[source_name][constituent] = var_out
+                #setattr(self, key, var_out)
         
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
