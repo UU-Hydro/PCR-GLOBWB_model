@@ -408,7 +408,7 @@ class Routing(object):
             
             ###-Water temperature parameters and file paths
             self.iceThresTemp= pcr.scalar(273.15) # threshold temperature for snowmelt (degK)
-            self.densityWater= 1000.0 # density of water [kg/m3]
+            self.densityWater= pcr.scalar(1000.0) # density of water [kg/m3]
             self.latentHeatVapor= pcr.scalar(2.5e6) # latent heat of vaporization [J/kg]
             self.latentHeatFusion= pcr.scalar(3.34e5) # latent heat of fusion [J/kg]
             self.specificHeatWater= pcr.scalar(4190.0) # specific heat of water [J/kg/degC]
@@ -717,7 +717,7 @@ class Routing(object):
             self.iceThickness = pcr.ifthen(self.landmask, pcr.cover(self.iceThickness , 0.0))
             self.DO = (1-0.0001148*self.elevation)*exp(-139.34411+(157570.1)/(self.waterTemp)-(66423080.)/(self.waterTemp**2)+(12438000000.)/(self.waterTemp**3)-(862194900000.)/(self.waterTemp**4))
             self.channelStorageTimeBefore = self.channelStorage      
-            self.totEW = self.channelStorage * self.waterTemp*self.specificHeatWater * self.densityWater
+            self.totEW = self.channelStorage * self.waterTemp * self.specificHeatWater * self.densityWater
             self.temp_water_height = yMean = self.eta * pow (self.avgDischarge, self.nu)
             self.routedTDS = pcr.ifthen(self.landmask, pcr.cover(self.routedTDS, 0.0))
             self.routedBOD = pcr.ifthen(self.landmask, pcr.cover(self.routedBOD, 0.0))
@@ -1173,6 +1173,7 @@ class Routing(object):
             self.dynamicFracWat += pcr.max(0.0, 1.0 - self.dynamicFracWat) * pcr.max(self.channelFraction, self.innundatedFraction)
             # - maximum value of dynamicFracWat is 1.0
             self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
+            self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
 
             # estimate water_height for the next loop
             # - needed to estimate the channel wetted area (for the calculation of alpha and dischargeInitial)
@@ -1270,6 +1271,7 @@ class Routing(object):
         self.dynamicFracWat += pcr.max(0.0, 1.0 - self.dynamicFracWat) * pcr.max(self.channelFraction, self.innundatedFraction)
         # - maximum value of dynamicFracWat is 1.0
         self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
+        self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
         
         # routing methods
         if self.method == "accuTravelTime" or self.method == "simplifiedKinematicWave": \
@@ -2040,6 +2042,7 @@ class Routing(object):
             
             # - maximum value of dynamicFracWat is 1.0
             self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
+            self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
             
             # for the next calculation and loop, route only non negative channelStorage
             channelStorageThatWillNotMove += pcr.ifthenelse(channelStorageForRouting < 0.0, channelStorageForRouting, 0.0)

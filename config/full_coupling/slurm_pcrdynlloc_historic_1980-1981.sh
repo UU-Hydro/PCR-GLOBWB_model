@@ -131,7 +131,7 @@ PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
 mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merge outputs
-python merge_netcdf.py ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_DATE} ${END_DATE} ${PCRGLOBWB_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats True &
+python merge_netcdf.py ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} NETCDF4 True 53 53 all_lats False &
 wait
 
 # merging QUAlloc state variables
