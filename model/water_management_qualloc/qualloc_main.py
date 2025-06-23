@@ -1139,17 +1139,10 @@ class qualloc_model(object):
                 
                 # set variable
                 constituent_shortterm_quality[source_name][constituent_name] = var_out
-                #setattr(self, key, var_out)
+                setattr(self, key, var_out)
         
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
-        print(self.water_management.water_quality.constituent_shortterm_quality)
-        
-        
-        pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['organic'])
-        
-        
-        
         
         # [ forcing: water management features ] .........................................................
         #
