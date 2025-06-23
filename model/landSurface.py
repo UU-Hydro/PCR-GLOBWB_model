@@ -1169,6 +1169,8 @@ class LandSurface(object):
                 surfacewater_organic     = routing.organic
                 surfacewater_salinity    = routing.salinity
                 surfacewater_pathogen    = routing.pathogen
+                
+                pcr.aguila(surfacewater_organic)
             
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
