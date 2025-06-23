@@ -1146,7 +1146,7 @@ class qualloc_model(object):
         
         pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['organic'])
         pcr.report(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['organic'], \
-                   f'/scratch-shared/gcardenas/organic_stm_qualloc_{date[:10]}.map')
+                   f'/scratch-shared/gcardenas/organic_stm_qualloc_{str(date)[:10]}.map')
         
         # [ forcing: water management features ] .........................................................
         #
