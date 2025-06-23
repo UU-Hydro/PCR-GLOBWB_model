@@ -1137,8 +1137,10 @@ class qualloc_model(object):
                 # cover NaN to zero concentration values and clip map to land mask
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
-                # set the variable in dictionary
-                constituent_shortterm_quality[source_name][constituent_name] = var_out
+                
+                
+                if source_name == 'surfacewater' and constituent_name == 'organic':
+                    pcr.aguila(var_out)
                 
                 # set variable
                 setattr(self, key, var_out)
