@@ -1166,9 +1166,9 @@ class LandSurface(object):
             surfacewater_pathogen    = None
             if self.using_dynqual:
                 surfacewater_temperature = routing.waterTemp - 273.15
-                surfacewater_organic     = ifthen(routing.organic < vos.MV, routing.organic)
-                surfacewater_salinity    = ifthen(routing.salinity < vos.MV, routing.salinity)
-                surfacewater_pathogen    = ifthen(routing.pathogen < vos.MV, routing.pathogen)
+                surfacewater_organic     = pcr.ifthen(routing.organic < vos.MV, routing.organic)
+                surfacewater_salinity    = pcr.ifthen(routing.salinity < vos.MV, routing.salinity)
+                surfacewater_pathogen    = pcr.ifthen(routing.pathogen < vos.MV, routing.pathogen)
                 
                 pcr.aguila(routing.organic)
             
