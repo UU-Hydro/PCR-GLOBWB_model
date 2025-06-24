@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 192
-#SBATCH -p genoa
+#SBATCH -n 16
+#SBATCH -p rome
 #SBATCH -t 24:00:00
 #SBATCH -J full_couple
 #SBATCH --mail-type=END
