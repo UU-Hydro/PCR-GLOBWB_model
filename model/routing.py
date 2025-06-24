@@ -77,6 +77,11 @@ class Routing(object):
         if self.using_qualloc:
             result['discharge']              = self.discharge               #  m3/s   ; discharge
             result['runoff']                  = self.runoff                   #  m/day  ; total runoff
+            
+            if self.quality:
+                result['salinity']           = self.salinity                #  mg L-1      ; TDS concentration
+                result['organic']            = self.organic                 #  mg L-1      ; BOD concentration
+                result['pathogen']           = self.pathogen                #  cfu 100mL-1 ; FC concentration
         
         # DynQual
         # for irrigation return flows
@@ -88,11 +93,7 @@ class Routing(object):
         
         # Water quality elements
         if self.quality:
-            result['waterTemperature']        = self.waterTemp              #  K           ; water temperature
-            result['salinity']                = self.salinity               #  mg L-1      ; TDS concentration
-            result['organic']                 = self.organic                #  mg L-1      ; BOD concentration
-            result['pathogen']                = self.pathogen               #  cfu 100mL-1 ; FC concentration
-            
+            result['waterTemperature']        = self.waterTemp              #  K      ; water temperature
             result['iceThickness']            = self.iceThickness           #  m      ; ice thickness
             result['routedTDS']               = self.routedTDS              #  g TDS  ; routed TDS load (for conversion to salinity pollution in mg/L)
             result['routedBOD']               = self.routedBOD              #  g BOD  ; routed BOD load (for conversion to organic pollution mg/L)
@@ -599,10 +600,12 @@ class Routing(object):
             if self.using_qualloc:
                 self.discharge          = vos.readPCRmapClone(iniItems.routingOptions['dischargeIni']                ,self.cloneMap,self.tmpDir,self.inputDir)
                 self.runoff              = vos.readPCRmapClone(iniItems.routingOptions['totalRunoffIni']               ,self.cloneMap,self.tmpDir,self.inputDir)
-                #self.avgChannelStorage   = vos.readPCRmapClone(iniItems.routingOptions['avgChannelStorageIni']       ,self.cloneMap,self.tmpDir,self.inputDir)
-                #self.avgTotalRunoff      = vos.readPCRmapClone(iniItems.routingOptions['avgTotalRunoffIni']           ,self.cloneMap,self.tmpDir,self.inputDir)
-                #self.avgStorGroundwater  = vos.readPCRmapClone(iniItems.routingOptions['avgStorGroundwaterIni']      ,self.cloneMap,self.tmpDir,self.inputDir)
-            
+                
+                if self.quality:
+                    self.salinity = vos.readPCRmapClone(iniItems.routingOptions['salinityIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
+                    self.organic  = vos.readPCRmapClone(iniItems.routingOptions['organicIni'],self.cloneMap,self.tmpDir,self.inputDir)  #initial conditions for organic pollution
+                    self.pathogen = vos.readPCRmapClone(iniItems.routingOptions['pathogenIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
+                
             # Initial conditions needed for water quality module
             if self.quality:
                 self.waterTemp    = vos.readPCRmapClone(iniItems.routingOptions['waterTemperatureIni'],self.cloneMap,self.tmpDir,self.inputDir)
@@ -610,10 +613,6 @@ class Routing(object):
                 self.routedTDS = vos.readPCRmapClone(iniItems.routingOptions['routedTDSIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
                 self.routedBOD = vos.readPCRmapClone(iniItems.routingOptions['routedBODIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for organic pollution
                 self.routedFC = vos.readPCRmapClone(iniItems.routingOptions['routedFCIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
-                
-                self.salinity = vos.readPCRmapClone(iniItems.routingOptions['salinityIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
-                self.organic  = vos.readPCRmapClone(iniItems.routingOptions['organicIni'],self.cloneMap,self.tmpDir,self.inputDir)  #initial conditions for organic pollution
-                self.pathogen = vos.readPCRmapClone(iniItems.routingOptions['pathogenIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
                 
                 # Initial conditions for calculating average irrigation demand and net liquid transferred to the soil for irrigation return flow calculations
                 if self.calculateLoads and self.offlineRun == False:
@@ -662,6 +661,7 @@ class Routing(object):
                     self.salinity                = iniConditions['routing']['salinity']
                     self.organic                 = iniConditions['routing']['organic']
                     self.pathogen                = iniConditions['routing']['pathogen']
+            
             # DynQual
             # Initial conditions needed for water quality module
             if self.quality:
@@ -710,6 +710,11 @@ class Routing(object):
         if self.using_qualloc:
             self.discharge = pcr.ifthen(self.landmask, pcr.cover(self.discharge, 0.0))
             self.runoff     = pcr.ifthen(self.landmask, pcr.cover(self.runoff,     0.0))
+            
+            if self.quality:
+               self.salinity = pcr.ifthen(self.landmask, pcr.cover(self.salinity, 0.0))
+               self.organic  = pcr.ifthen(self.landmask, pcr.cover(self.organic, 0.0))
+               self.pathogen = pcr.ifthen(self.landmask, pcr.cover(self.pathogen,  0.0))
         
         # DynQual
         if self.quality:
@@ -722,9 +727,6 @@ class Routing(object):
             self.routedTDS = pcr.ifthen(self.landmask, pcr.cover(self.routedTDS, 0.0))
             self.routedBOD = pcr.ifthen(self.landmask, pcr.cover(self.routedBOD, 0.0))
             self.routedFC = pcr.ifthen(self.landmask, pcr.cover(self.routedFC,  0.0))
-            self.salinity = pcr.ifthen(self.landmask, pcr.cover(self.salinity, 0.0))
-            self.organic  = pcr.ifthen(self.landmask, pcr.cover(self.organic, 0.0))
-            self.pathogen = pcr.ifthen(self.landmask, pcr.cover(self.pathogen,  0.0))
             
             #Per water quality sector
             if self.calculateLoads and self.offlineRun == False: 
