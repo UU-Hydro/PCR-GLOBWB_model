@@ -598,13 +598,13 @@ class Routing(object):
             
             # Initial conditions needed for coupling with QUAlloc
             if self.using_qualloc:
-                self.discharge          = vos.readPCRmapClone(iniItems.routingOptions['dischargeIni']                ,self.cloneMap,self.tmpDir,self.inputDir)
-                self.runoff              = vos.readPCRmapClone(iniItems.routingOptions['totalRunoffIni']               ,self.cloneMap,self.tmpDir,self.inputDir)
+                self.discharge    = vos.readPCRmapClone(iniItems.routingOptions['dischargeIni']  ,self.cloneMap,self.tmpDir,self.inputDir)
+                self.runoff        = vos.readPCRmapClone(iniItems.routingOptions['runoffIni']      ,self.cloneMap,self.tmpDir,self.inputDir)
                 
                 if self.quality:
-                    self.salinity = vos.readPCRmapClone(iniItems.routingOptions['salinityIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
-                    self.organic  = vos.readPCRmapClone(iniItems.routingOptions['organicIni'],self.cloneMap,self.tmpDir,self.inputDir)  #initial conditions for organic pollution
-                    self.pathogen = vos.readPCRmapClone(iniItems.routingOptions['pathogenIni'],self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
+                    self.salinity = vos.readPCRmapClone(iniItems.routingOptions['salinityIni']   ,self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for salinity pollution
+                    self.organic  = vos.readPCRmapClone(iniItems.routingOptions['organicIni']    ,self.cloneMap,self.tmpDir,self.inputDir)  #initial conditions for organic pollution
+                    self.pathogen = vos.readPCRmapClone(iniItems.routingOptions['pathogenIni']   ,self.cloneMap,self.tmpDir,self.inputDir) #initial conditions for pathogen pollution
                 
             # Initial conditions needed for water quality module
             if self.quality:
