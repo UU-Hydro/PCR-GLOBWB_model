@@ -55,23 +55,19 @@ INI_STATE_YEAR=${DATE_FOR_INITIAL_STATES:0:4}
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # update directory where PCRGLOBWB2 outputs will be stored
-MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${START_YEAR}_${END_YEAR}
+MAIN_OUTPUT_DIR=${OUTPUT_DIR}/test
 
 # directory where QUAlloc outputs will be stored
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
-# run the model for all clones, from 1 to 53
-for i in {01}
-  do
-  # set the clone code
-  CLONE_CODE=${i}
-  
-  # create qualloc configuration file
-  QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
-  
-  # run modelling framework
-  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
-  done
+# set the clone code
+CLONE_CODE=01
+
+# create qualloc configuration file
+QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M01.cfg
+
+# run modelling framework
+python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel 01 -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${MAIN_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
 wait
 
 echo "\n... End of model runs (please check your results)."
