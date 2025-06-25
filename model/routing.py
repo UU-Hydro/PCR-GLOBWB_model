@@ -3507,9 +3507,9 @@ class Routing(object):
         self.channelStorage_Qthres = pcr.ifthenelse(pcr.cover(self.disChanWaterBody,vos.MV) > self.WQ_discharge_threshold, self.channelStorage, vos.MV)
         
         ###---Total dissolved solids concentrations (salinity indicator)
-        self.salinity = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, self.routedTDS / self.channelStorage_Qthres, vos.MV) #non-natural salinity in mg/L
-        self.salinity = pcr.ifthenelse(self.salinity != vos.MV, self.salinity + self.backgroundSalinity,self.backgroundSalinity)  # +background salinity
-         
+        self.salinity = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, (self.routedTDS / self.channelStorage_Qthres) + self.backgroundSalinity, vos.MV) #salinity in mg/L
+        
+        
         ###---Biological oxygen demand concentrations (organic indicator)
         self.organic = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, self.routedBOD / self.channelStorage_Qthres, vos.MV) #in mg/l        
                     
