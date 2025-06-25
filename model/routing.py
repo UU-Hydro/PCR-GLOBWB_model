@@ -1199,7 +1199,10 @@ class Routing(object):
         self.channelStorage = channelStorageForRouting
 
         # return channelStorageThatWillNotMove to channelStorage:
-        self.channelStorage += channelStorageThatWillNotMove 
+        self.channelStorage += channelStorageThatWillNotMove
+        
+        # limiting channel storage to positive values
+        self.channelStorage = pcr.max(0., self.channelStorage)         # reported channel storage cannot be negative
 
     def update(self,landSurface,groundwater,currTimeStep,meteo):
 
@@ -1710,6 +1713,9 @@ class Routing(object):
         # return waterBodyStorage to channelStorage  
         self.channelStorage = self.return_water_body_storage_to_channel(self.channelStorage)
         
+        # limiting channel storage to positive values
+        self.channelStorage = pcr.max(0., self.channelStorage)         # reported channel storage cannot be negative
+        
         if self.quality:
             self.estimate_concentrations()
 
@@ -2070,6 +2076,9 @@ class Routing(object):
 
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove
+        
+        # limiting channel storage to positive values
+        self.channelStorage = pcr.max(0., self.channelStorage)         # reported channel storage cannot be negative
         
         # channel discharge (m3/s): for current time step
         self.discharge = self.Q / vos.secondsPerDay()
