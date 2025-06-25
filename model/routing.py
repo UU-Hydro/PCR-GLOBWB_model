@@ -3509,13 +3509,11 @@ class Routing(object):
         ###---Total dissolved solids concentrations (salinity indicator)
         self.salinity = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, (self.routedTDS / self.channelStorage_Qthres) + self.backgroundSalinity, vos.MV) #salinity in mg/L
         
-        
         ###---Biological oxygen demand concentrations (organic indicator)
-        self.organic = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, self.routedBOD / self.channelStorage_Qthres, vos.MV) #in mg/l        
+        self.organic = pcr.ifthenelse(self.channelStorage_Qthres != vos.MV, self.routedBOD / self.channelStorage_Qthres, vos.MV) #in mg/l
                     
         ###---Estimate dissolved oxygen concentration: Streeter-Phelps equation---###
-        self.organic_for_DO = pcr.ifthenelse(self.channelStorage > 0.1, self.routedBOD / self.channelStorage, 0.)  # BOD concentration in mg/l [TODO ED..just make self.organic?]
-        self.k1 = self.BODdecay_temperature * self.organic_for_DO
+        self.k1 = self.BODdecay_temperature * self.organic
         self.DOsat = (1-0.0001148*self.elevation)*exp(-139.34411+(157570.1)/(self.waterTemp)-(66423080.)/(self.waterTemp**2)+(12438000000.)/(self.waterTemp**3)-(862194900000.)/(self.waterTemp**4)) # oxygen saturation in mg/l
         self.velocity = self.avgDischarge / (self.yMean * self.wMean) # velocity assuming rectangular channel (m/s)
         self.k2 = 3.93 * (self.velocity ** 0.5) / (self.yMean ** 1.5) # reaeration rate in /d (O'Connor and Dobbins, 1958)
