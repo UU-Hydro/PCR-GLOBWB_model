@@ -92,39 +92,39 @@ wait
 
 # merging QUAlloc state variables
 # create folders
-OUTPUT_STATE_DIR
-mkdir ${INITIAL_STATE_FOLDER}/tmp
+OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/qualloc
+mkdir ${OUTPUT_STATE_DIR}/tmp
 DATE_FOR_FINAL_STATES=${END_YEAR}-12-31
 
 # state variables: long-term
 LONGTERM_STATES=gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES},gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES},gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES},gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES},gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES},groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES},groundwater_longterm_storage_${DATE_FOR_FINAL_STATES},surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES},surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES},surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES},surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES},surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES},surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 ${LONGTERM_STATES} NETCDF4 True 53 53 all_lats True &
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 ${LONGTERM_STATES} NETCDF4 True 53 53 all_lats True &
 wait
 
 # state variables: last-day
 SHORTTERM_STATES=groundwater_storage_${DATE_FOR_FINAL_STATES},surfacewater_storage_${DATE_FOR_FINAL_STATES},total_base_flow_${DATE_FOR_FINAL_STATES},total_return_flow_${DATE_FOR_FINAL_STATES}
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 ${SHORTTERM_STATES} NETCDF4 True 53 53 all_lats True &
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 ${SHORTTERM_STATES} NETCDF4 True 53 53 all_lats True &
 wait
 
 # regridding states
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}.nc &
 
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/total_base_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/total_base_flow_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/groundwater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/groundwater_storage_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/surfacewater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/surfacewater_storage_${DATE_FOR_FINAL_STATES}.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/total_return_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/total_return_flow_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow_${DATE_FOR_FINAL_STATES}.nc &
 wait
 
 # merge output netcdf ..................................................
