@@ -137,7 +137,7 @@ class water_quality(object):
         '''
         
         # log message
-        logger.info('Total water quality over a year updated')
+        logger.info('annual water quality over a year updated')
 
         # update the long-term total values
         for source_name in source_names:
@@ -173,7 +173,7 @@ class water_quality(object):
                                        ):
         
         # set the message string to log the information
-        message_str = 'Long-term water quality for %s at %s level.' % \
+        message_str = 'long-term water quality for %s at %s level.' % \
                       (date, self.time_increment)
         
         # initialize the monthly average water quality states
@@ -252,8 +252,8 @@ class water_quality(object):
                                            [source_name][constituent_name]
                 setattr(self, key, average)
                 
-                if source_name == 'surfacewater' and constituent_name == 'salinity':
-                    pcr.report(average, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_cum.map')
+                #if source_name == 'surfacewater' and constituent_name == 'salinity':
+                #    pcr.report(average, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_cum.map')
         
         # update long-term water quality constituents the last day of the month
         if (time_step == 'monthly') or \
@@ -272,8 +272,8 @@ class water_quality(object):
                     key = 'average_%s_%s' % (source_name, constituent_name)
                     average_constituent_quality = getattr(self, key) / steps
                     
-                    if source_name == 'surfacewater' and constituent_name == 'salinity':
-                        pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_avg.map')
+                    #if source_name == 'surfacewater' and constituent_name == 'salinity':
+                    #    pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_avg.map')
                     
                     # get variable key
                     var = '%s_longterm_%s' % (source_name, constituent_name)

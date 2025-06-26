@@ -794,7 +794,7 @@ See doc string of class for detailed info.
         '''
         
         # log message
-        logger.info('total water availability updated')
+        logger.info('annual water availability updated')
         
         # weights the dates as a dictionary with the latter as key
         # to get an annual weighted average
@@ -1609,8 +1609,11 @@ See doc string of class for detailed info.
                                  for source_name in self.source_names)
         
         # update the message str
-        message_str = str.join('\n', \
-                               (message_str, sub_message_str))
+        #message_str = str.join('\n', \
+        #                       (message_str, sub_message_str))
+        
+        # log the message
+        logger.debug(sub_message_str)
         
         # [ potential non-renewable withdrawal ] ............................................................................
         #
@@ -1636,7 +1639,7 @@ See doc string of class for detailed info.
           
         sub_message_str = sub_message_str % \
                           (pcr_get_statistics(unmet_demand)['average'], \
-                            pcr_get_statistics(sum_list(list( \
+                           pcr_get_statistics(sum_list(list( \
                                               self.potential_nonrenewable_withdrawal.values())))['average'])
         
         message_str = str.join('\n', \
@@ -2177,7 +2180,7 @@ See doc string of class for detailed info.
         # log message
         message_str = 'Long-term potential withdrawals are updated considering short-term gross demands for %s.' \
                       % (date)
-        logger.debug(message_str)
+        logger.info(message_str)
         
         # [ water balance check ] ...........................................................................................
         if debug:
@@ -2269,7 +2272,8 @@ See doc string of class for detailed info.
         # log message string
         logger.debug(message_str)
         
-        # return the total potential withdrawal (units: m3/day)
+        # return the total potential withdrawal
+        # (units: m3/day)
         return total_potential_withdrawal_per_sector
     
     
@@ -2617,8 +2621,11 @@ See doc string of class for detailed info.
                     )
         
         # update the message_str
-        message_str = str.join('\n', \
-                               (message_str, sub_message_str))
+        #message_str = str.join('\n', \
+        #                       (message_str, sub_message_str))
+        
+        # log the message
+        logger.debug(sub_message_str)
         
         # NOTE: this is a bit silly but just to keep things tractable:
         # add the unused withdrawals per withdrawal type and source

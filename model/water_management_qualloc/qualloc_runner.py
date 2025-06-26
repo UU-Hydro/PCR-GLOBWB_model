@@ -69,8 +69,7 @@ NoneType = type(None)
 # inherit logger and start afresh
 logger = logging.getLogger(__name__)
 
-# allowed time increments, currently monthly only
-#allowed_time_increments = ['monthly']
+# allowed time increments, currently monthly and daily
 allowed_time_increments = ['monthly','daily']
 
 #==============================================================================
@@ -117,7 +116,7 @@ class qualloc_runner(DynamicModel):
         if self.model_time.report_flags['yearly']:
             # additional processing at the end of year:
             # report the states, so the run can be restarted
-            # as a safeguard and to reduce the initial states, write any outstanding soil production
+            # as a safeguard and to reduce the initial states
             self.model.finalize_year()
         
         # last time step

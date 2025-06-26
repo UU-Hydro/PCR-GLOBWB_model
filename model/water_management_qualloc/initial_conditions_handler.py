@@ -176,6 +176,8 @@ appropriate key and value pairs.
                     suffix = key[-4:]
                     if suffix in ini_identifiers:
                         
+                        # variable name in the netcdf is the same as the
+                        # variable name in the configuration file
                         variablename = key[:-4]
                         
                         # if not included, add the section name to the

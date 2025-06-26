@@ -1693,7 +1693,7 @@ class qualloc_model(object):
         
         # update the total water availability
         # log message
-        logger.info('last day of year %d: updating water availability' % \
+        logger.info('last day of year %d: updating water availability, demand and quality' % \
                     self.model_time.year)
         
         # update annual water availability
@@ -1739,7 +1739,7 @@ class qualloc_model(object):
                 state_info = getattr(self, module_name).get_final_conditions()
             else:
                 state_info = self.water_management.water_quality.get_final_conditions()
-                
+            
             # update the information
             if not module_name in self.initial_conditions.keys():
                 self.initial_conditions[module_name] = {}

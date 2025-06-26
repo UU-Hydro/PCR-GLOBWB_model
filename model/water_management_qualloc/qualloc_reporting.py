@@ -707,19 +707,22 @@ report: function to report recursively the initial conditions as netCDF files.
             # recreate the netCDFs files
             self.initialize_netcdfs = True
         
+        # define the date format
+        date_str = '_%s-%02d-%02d' % (date.year, date.month, date.day)
+        
         # initialize the netCDfs
         if self.initialize_netcdfs:
             
             # iterate over the variables and initialize the netCDFs
             for module, variablenames in self.variablenames.items():
-            
-                for variablename in  variablenames:
+                
+                for variablename in variablenames:
                     logger.debug('Creating netCDF output file for initial condition %s for %s' % \
                                  (variablename, module))
                     
                     # set the netCDF file name    
                     ncfilename = os.path.join(self.statespath, \
-                                              str.join('', (variablename, '.nc')))
+                                              str.join('', (variablename, date_str, '.nc')))
                     
                     # set the variable
                     self.nc_handler.initialize_nc_variable( \
@@ -738,56 +741,55 @@ report: function to report recursively the initial conditions as netCDF files.
             
             # iterate over the variables and initialize the netCDFs
             for module, variablenames in self.variablenames.items():
-            
+                
                 for variablename in  variablenames:
                     
-                    # set the netCDF file name    
+                    # set the netCDF file name
                     ncfilename = os.path.join(self.statespath, \
-                                              str.join('', (variablename, '.nc')))
-
+                                              str.join('', (variablename, date_str, '.nc')))
+                    
                     # get the value
                     if isinstance(initial_conditions[module][variablename], \
                                   dict):
-
+                        
                         # get the dates and values
                         dates = list(initial_conditions[module][variablename].keys())
                         dates.sort()
                         values = []
-                        for date in dates:
-                            values.append(initial_conditions[module][variablename][date])
-
+                        for dt in dates:
+                            values.append(initial_conditions[module][variablename][dt])
+                    
                     elif isinstance(initial_conditions[module][variablename], \
-                                  pcrFieldType):
-
+                                    pcrFieldType):
+                        
                         # get the dates and values
                         dates =  [date]
                         values = [initial_conditions[module][variablename]]
-
+                   
                     else:
                         sys.exit('initial conditions of type %s cannot be used' % \
                                  str(type(initial_conditions[module][variablename])))
-
-
+                    
                     # write the information to the netCDF file
-                    for date in dates:
+                    for dt in dates:
                         
                         # add the data
                         self.nc_handler.add_data_to_netCDF( \
                             ncfilename     = ncfilename, \
                             variablename   = variablename, \
-                            variable_array = pcr.pcr2numpy(values[dates.index(date)], \
+                            variable_array = pcr.pcr2numpy(values[dates.index(dt)], \
                                                             self.nc_handler.default_fill_value), \
                             is_timed       = variable_attr.netcdf_is_spatial[variablename], \
-                            dates          = [date], \
+                            dates          = [dt], \
                             )
-
+                    
                     # echo update
                     logger.debug('Information written for initial condition %s for %s' % \
-                                 (variablename, module))   
-
+                                 (variablename, module))
+        
         # log message
         logger.info('Reported initial conditions for %s' % date)
-                        
+        
         # returns None
         return None
         

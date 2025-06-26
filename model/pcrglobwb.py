@@ -480,9 +480,7 @@ class PCRGlobWB(object):
                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
                                True,\
                                self._modelTime.fulldate,threshold=1e-3)
-    
-        # ~ pcr.aguila(satisfiedIrrGrossDemand)
-        # ~ pietje
+
 
     def read_forcings(self):
         logger.info("Reading forcings for time %s", self._modelTime)

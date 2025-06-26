@@ -41,10 +41,12 @@ PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/mod
 GRIDDES="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
 
 # PCR-GLOBWB2 and DynQual output variables' names
-PCRGLOBWB_OUTPUT_NETCDFS=baseflow,interflowTotal,directRunoff,discharge,channelStorage,waterTemp,TDSload,BODload,FCload,routedTDS,routedBOD,routedFC,salinity,organic,dissolved_oxygen,pathogen
+#PCRGLOBWB_OUTPUT_NETCDFS=baseflow,interflowTotal,directRunoff,discharge,channelStorage,waterTemp,TDSload,BODload,FCload,routedTDS,routedBOD,routedFC,salinity,organic,dissolved_oxygen,pathogen
+PCRGLOBWB_OUTPUT_NETCDFS=None
 
 # QUAlloc output variables' names
-QUALLOC_OUTPUT_NETCDFS=demand_domestic_allocated_to_renewable_surfacewater,demand_irrigation_allocated_to_renewable_surfacewater,demand_livestock_allocated_to_renewable_surfacewater,demand_manufacture_allocated_to_renewable_surfacewater,demand_thermoelectric_allocated_to_renewable_surfacewater,demand_domestic_allocated_to_renewable_groundwater,demand_irrigation_allocated_to_renewable_groundwater,demand_livestock_allocated_to_renewable_groundwater,demand_manufacture_allocated_to_renewable_groundwater,demand_thermoelectric_allocated_to_renewable_groundwater,demand_domestic_allocated_to_nonrenewable_groundwater,demand_irrigation_allocated_to_nonrenewable_groundwater,demand_livestock_allocated_to_nonrenewable_groundwater,demand_manufacture_allocated_to_nonrenewable_groundwater,demand_thermoelectric_allocated_to_nonrenewable_groundwater,withdrawal_domestic_allocated_to_renewable_surfacewater,withdrawal_irrigation_allocated_to_renewable_surfacewater,withdrawal_livestock_allocated_to_renewable_surfacewater,withdrawal_manufacture_allocated_to_renewable_surfacewater,withdrawal_thermoelectric_allocated_to_renewable_surfacewater,withdrawal_domestic_allocated_to_renewable_groundwater,withdrawal_irrigation_allocated_to_renewable_groundwater,withdrawal_livestock_allocated_to_renewable_groundwater,withdrawal_manufacture_allocated_to_renewable_groundwater,withdrawal_thermoelectric_allocated_to_renewable_groundwater,withdrawal_domestic_allocated_to_nonrenewable_groundwater,withdrawal_irrigation_allocated_to_nonrenewable_groundwater,withdrawal_livestock_allocated_to_nonrenewable_groundwater,withdrawal_manufacture_allocated_to_nonrenewable_groundwater,withdrawal_thermoelectric_allocated_to_nonrenewable_groundwater,demand_domestic_allocated_to_desalinated_water,demand_irrigation_allocated_to_desalinated_water,demand_livestock_allocated_to_desalinated_water,demand_manufacture_allocated_to_desalinated_water,demand_thermoelectric_allocated_to_desalinated_water,withdrawal_domestic_allocated_to_desalinated_water,withdrawal_irrigation_allocated_to_desalinated_water,withdrawal_livestock_allocated_to_desalinated_water,withdrawal_manufacture_allocated_to_desalinated_water,withdrawal_thermoelectric_allocated_to_desalinated_water,domestic_gross_demand,irrigation_gross_demand,livestock_gross_demand,manufacture_gross_demand,thermoelectric_gross_demand,potential_withdrawal_renewable_surfacewater,potential_withdrawal_renewable_groundwater,potential_withdrawal_nonrenewable_groundwater
+#QUALLOC_OUTPUT_NETCDFS=demand_domestic_allocated_to_renewable_surfacewater,demand_irrigation_allocated_to_renewable_surfacewater,demand_livestock_allocated_to_renewable_surfacewater,demand_manufacture_allocated_to_renewable_surfacewater,demand_thermoelectric_allocated_to_renewable_surfacewater,demand_domestic_allocated_to_renewable_groundwater,demand_irrigation_allocated_to_renewable_groundwater,demand_livestock_allocated_to_renewable_groundwater,demand_manufacture_allocated_to_renewable_groundwater,demand_thermoelectric_allocated_to_renewable_groundwater,demand_domestic_allocated_to_nonrenewable_groundwater,demand_irrigation_allocated_to_nonrenewable_groundwater,demand_livestock_allocated_to_nonrenewable_groundwater,demand_manufacture_allocated_to_nonrenewable_groundwater,demand_thermoelectric_allocated_to_nonrenewable_groundwater,withdrawal_domestic_allocated_to_renewable_surfacewater,withdrawal_irrigation_allocated_to_renewable_surfacewater,withdrawal_livestock_allocated_to_renewable_surfacewater,withdrawal_manufacture_allocated_to_renewable_surfacewater,withdrawal_thermoelectric_allocated_to_renewable_surfacewater,withdrawal_domestic_allocated_to_renewable_groundwater,withdrawal_irrigation_allocated_to_renewable_groundwater,withdrawal_livestock_allocated_to_renewable_groundwater,withdrawal_manufacture_allocated_to_renewable_groundwater,withdrawal_thermoelectric_allocated_to_renewable_groundwater,withdrawal_domestic_allocated_to_nonrenewable_groundwater,withdrawal_irrigation_allocated_to_nonrenewable_groundwater,withdrawal_livestock_allocated_to_nonrenewable_groundwater,withdrawal_manufacture_allocated_to_nonrenewable_groundwater,withdrawal_thermoelectric_allocated_to_nonrenewable_groundwater,demand_domestic_allocated_to_desalinated_water,demand_irrigation_allocated_to_desalinated_water,demand_livestock_allocated_to_desalinated_water,demand_manufacture_allocated_to_desalinated_water,demand_thermoelectric_allocated_to_desalinated_water,withdrawal_domestic_allocated_to_desalinated_water,withdrawal_irrigation_allocated_to_desalinated_water,withdrawal_livestock_allocated_to_desalinated_water,withdrawal_manufacture_allocated_to_desalinated_water,withdrawal_thermoelectric_allocated_to_desalinated_water,domestic_gross_demand,irrigation_gross_demand,livestock_gross_demand,manufacture_gross_demand,thermoelectric_gross_demand,potential_withdrawal_renewable_surfacewater,potential_withdrawal_renewable_groundwater,potential_withdrawal_nonrenewable_groundwater
+QUALLOC_OUTPUT_NETCDFS=None
 
 # running model ........................................................
 # load the conda enviroment on snellius
@@ -58,7 +60,6 @@ export OPENBLAS_NUM_THREADS=1
 # starting, end and initial condition years
 START_YEAR=${START_DATE:0:4}
 END_YEAR=${END_DATE:0:4}
-INI_STATE_YEAR=${DATE_FOR_INITIAL_STATES:0:4}
 
 # go to the folder that contain PCR-GLOBWB scripts
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
@@ -76,7 +77,7 @@ for i in {01..53}
   CLONE_CODE=${i}
   
   # create qualloc configuration file
-  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${INI_STATE_YEAR}
+  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${MAIN_QUALLOC_CONFIG_FILE} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sd ${START_YEAR} -ed ${END_YEAR} -isd ${INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
   QUALLOC_CONFIG_FILE=${MAIN_QUALLOC_CONFIG_FILE:0:-4}_M${CLONE_CODE}.cfg
   
   # run modelling framework
@@ -91,37 +92,39 @@ wait
 
 # merging QUAlloc state variables
 # create folders
-OUTPUT_STATE_DIR=${INITIAL_STATE_FOLDER}/${END_YEAR}
-mkdir ${OUTPUT_STATE_DIR}
-mkdir ${OUTPUT_STATE_DIR}/tmp
+OUTPUT_STATE_DIR
+mkdir ${INITIAL_STATE_FOLDER}/tmp
+DATE_FOR_FINAL_STATES=${END_YEAR}-12-31
 
 # state variables: long-term
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 gross_demand_longterm_domestic,gross_demand_longterm_irrigation,gross_demand_longterm_livestock,gross_demand_longterm_manufacture,gross_demand_longterm_thermoelectric,groundwater_longterm_potential_withdrawal,groundwater_longterm_storage,surfacewater_longterm_discharge,surfacewater_longterm_runoff,surfacewater_longterm_organic,surfacewater_longterm_pathogen,surfacewater_longterm_salinity,surfacewater_longterm_temperature NETCDF4 True 53 53 all_lats True &
+LONGTERM_STATES=gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES},gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES},gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES},gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES},gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES},groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES},groundwater_longterm_storage_${DATE_FOR_FINAL_STATES},surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES},surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES},surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES},surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES},surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES},surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 ${LONGTERM_STATES} NETCDF4 True 53 53 all_lats True &
 wait
 
 # state variables: last-day
-python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${OUTPUT_STATE_DIR}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 groundwater_storage,surfacewater_storage,total_base_flow,total_return_flow NETCDF4 True 53 53 all_lats True &
+SHORTTERM_STATES=groundwater_storage_${DATE_FOR_FINAL_STATES},surfacewater_storage_${DATE_FOR_FINAL_STATES},total_base_flow_${DATE_FOR_FINAL_STATES},total_return_flow_${DATE_FOR_FINAL_STATES}
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 ${SHORTTERM_STATES} NETCDF4 True 53 53 all_lats True &
 wait
 
 # regridding states
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_storage_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_discharge_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_discharge.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_runoff_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_runoff.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_domestic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_domestic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_irrigation_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_irrigation.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_livestock_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_livestock.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_manufacture_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_manufacture.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/gross_demand_longterm_thermoelectric_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/gross_demand_longterm_thermoelectric.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/groundwater_longterm_potential_withdrawal_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/groundwater_longterm_potential_withdrawal.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_temperature_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_temperature.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_organic_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_organic.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_salinity_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_salinity.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} ${OUTPUT_STATE_DIR}/tmp/surfacewater_longterm_pathogen_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${OUTPUT_STATE_DIR}/surfacewater_longterm_pathogen.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${INITIAL_STATE_FOLDER}/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}.nc &
 
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_base_flow_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_base_flow.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/groundwater_storage_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/groundwater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/surfacewater_storage_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/surfacewater_storage.nc &
-cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${OUTPUT_STATE_DIR}/tmp/total_return_flow_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${OUTPUT_STATE_DIR}/total_return_flow.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/total_base_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/total_base_flow_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/groundwater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/groundwater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/surfacewater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/surfacewater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${INITIAL_STATE_FOLDER}/tmp/total_return_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${INITIAL_STATE_FOLDER}/total_return_flow_${DATE_FOR_FINAL_STATES}.nc &
 wait
 
 # merge output netcdf ..................................................
