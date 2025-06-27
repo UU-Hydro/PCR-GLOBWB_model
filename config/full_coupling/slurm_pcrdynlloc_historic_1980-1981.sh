@@ -22,7 +22,7 @@ OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qu
 # - PS: for continuing runs (including the transition from the historical to SSP runs), please use the output files from the previous period model runs.
 INITIAL_STATE_FOLDER="/gpfs/work3/0/prjs1311/qualloc/data/initial/historic"
 MAIN_INITIAL_STATE_FOLDER=${INITIAL_STATE_FOLDER}/pcrglobwb
-DATE_FOR_INITIAL_STATES="1979-12-31"
+DATE_FOR_INITIAL_STATES=$((START_DATE:0:4 - 1))-12-31
 
 # directory where python script to create configuration files per mask is stored
 SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/water_management_qualloc/configuration_parallel.py"

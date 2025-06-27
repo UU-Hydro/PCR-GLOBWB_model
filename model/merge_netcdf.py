@@ -49,6 +49,11 @@ def calculate_monthdelta(date1, date2):
         )
     return monthdelta
 
+def calculate_weekdelta(start, end):
+    start = datetime.datetime(start.year, 1, 7) # Always start 7 Jan
+    end = datetime.datetime(end.year, 12, 31) # Force end to 31 Dec of the last year
+    return ((end - start).days // 7) + 1  # Always 53 weeks/year
+
 def getMax(x,a):
     m= float(a.max())
     if x == None:
@@ -148,6 +153,7 @@ def mergeNetCDF(inputTuple):
         # temporal resolution
         timeStepType = "daily"
         if len(f.variables['time']) > 1:
+            if (f.variables['time'][1] - f.variables['time'][0]) > 5.0: timeStepType = "weekly"
             if (f.variables['time'][1] - f.variables['time'][0]) > 25.0: timeStepType = "monthly"
             if (f.variables['time'][1] - f.variables['time'][0]) > 305.0: timeStepType = "yearly"
         else:   
@@ -159,8 +165,20 @@ def mergeNetCDF(inputTuple):
             number_of_days = (endTime - startTime).days + 1
             datetime_range = [startTime + datetime.timedelta(days = x) for x in range(0, number_of_days)]
         
+        if timeStepType == "weekly":
+            datetime_range = []
+            for year in range(startTime.year, endTime.year + 1):
+                current = datetime.datetime(year, 1, 7)
+                end_of_year = datetime.datetime(year, 12, 31)
+                while current <= end_of_year:
+                    datetime_range.append(current)
+                    current += datetime.timedelta(weeks=1)
+                if datetime_range[-1] != end_of_year:
+                    datetime_range.append(end_of_year)
+        
         if timeStepType == "monthly":
-            number_of_months = calculate_monthdelta(startTime, endTime + datetime.timedelta(days = 1)) + 1
+            #number_of_months = calculate_monthdelta(startTime, endTime + datetime.timedelta(days = 1)) + 1
+            number_of_months = calculate_monthdelta(startTime, endTime) + 1
             datetime_range = [startTime + relativedelta(months =+x) for x in range(0, number_of_months)]
             # make sure that datetime_range values always at the last day of the month:
             for i in range(0, len(datetime_range)):
@@ -423,6 +441,8 @@ netcdfList = str(sys.argv[6])
 print(netcdfList)
 netcdfList = list(set(netcdfList.split(",")))
 if file_type == "outDailyTotNC": netcdfList = ['%s_dailyTot_output.nc'%var for var in netcdfList]
+if file_type == "outWeekTotNC":  netcdfList = ['%s_weekTot_output.nc'%var for var in netcdfList]
+if file_type == "outWeekAvgNC":  netcdfList = ['%s_weekAvg_output.nc'%var for var in netcdfList]
 if file_type == "outMonthTotNC": netcdfList = ['%s_monthTot_output.nc'%var for var in netcdfList]
 if file_type == "outMonthAvgNC": netcdfList = ['%s_monthAvg_output.nc'%var for var in netcdfList]
 if file_type == "outMonthEndNC": netcdfList = ['%s_monthEnd_output.nc'%var for var in netcdfList]
