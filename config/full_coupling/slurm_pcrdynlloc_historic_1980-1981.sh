@@ -12,8 +12,9 @@
 INI_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/setup_05min_full_coupling.ini"
 
 # starting and end dates
-START_DATE="1980-01-01"
-END_DATE="1980-12-31"
+YEAR=1980
+START_DATE="${YEAR}-01-01"
+END_DATE="${YEAR}-12-31"
 
 # location/folder, where you will store output files of your 
 OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qualloc"
@@ -22,7 +23,7 @@ OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qu
 # - PS: for continuing runs (including the transition from the historical to SSP runs), please use the output files from the previous period model runs.
 INITIAL_STATE_FOLDER="/gpfs/work3/0/prjs1311/qualloc/data/initial/historic"
 MAIN_INITIAL_STATE_FOLDER=${INITIAL_STATE_FOLDER}/pcrglobwb
-DATE_FOR_INITIAL_STATES=$((START_DATE:0:4 - 1))-12-31
+DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # directory where python script to create configuration files per mask is stored
 SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/water_management_qualloc/configuration_parallel.py"
@@ -32,7 +33,7 @@ MAIN_QUALLOC_CONFIG_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/wa
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="0"
+NUMBER_OF_SPINUP_YEARS="3"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/model/"
