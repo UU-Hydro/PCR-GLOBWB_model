@@ -2,7 +2,7 @@
 #SBATCH -N 1
 #SBATCH -n 192
 #SBATCH -p genoa
-#SBATCH -t 24:00:00
+#SBATCH -t 120:00:00
 #SBATCH -J full_couple
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
