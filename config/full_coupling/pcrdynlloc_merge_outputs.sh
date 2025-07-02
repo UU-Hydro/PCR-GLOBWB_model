@@ -18,6 +18,10 @@ END_DATE=$6
 OUTPUT_NETCDFS=$7
 MV_DEFAULT=$8
 
+# load the conda enviroment on snellius
+source activate base
+conda activate /gpfs/home6/gcardenas/.conda/envs/geo
+
 # changing directory to folder where merge_netcdf.poy is located
 cd ${MODEL_SCRIPT_FOLDER}
 
