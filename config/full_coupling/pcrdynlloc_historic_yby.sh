@@ -1,16 +1,20 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 192
-#SBATCH -p genoa
+##SBATCH -n 192
+##SBATCH -p genoa
 #SBATCH -t 120:00:00
 #SBATCH -J full_couple
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
 
+#SBATCH -n 16
+#SBATCH -p rome
+
+
 # setting input files and directories ...................................
 # PCR-GLOBWB2 .....................
 # folder containing .ini file
-INI_FILE="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/setup_05min_full_coupling.ini"
+INI_FILE="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/setup_05min_full_coupling.ini"
 
 # starting and end dates
 #YEAR=1980
@@ -154,7 +158,7 @@ PCRGLOBWB_OUTPUT_NETCDF_DIR=${OUTPUT_NETCDF_DIR}/pcrglobwb
 mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merge outputs
-MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_merge_outputs.sh"
+MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_merge_outputs.sh"
 sbatch ${MERGE_NETCDF_PY} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} False &
 
 # merging QUAlloc output netcdf files
@@ -171,5 +175,5 @@ wait
 
 # submit next year .....................................................
 #if [ "$YEAR" -le 2018 ]; then
-#  sbatch "/gpfs/home6/gcardenas/github/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby.sh" "$((YEAR + 1))"
+#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby.sh" "$((YEAR + 1))"
 #fi
