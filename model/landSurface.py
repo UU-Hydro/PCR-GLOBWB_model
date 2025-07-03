@@ -1503,7 +1503,7 @@ class LandSurface(object):
                                   self.allocSurfaceWaterAbstract, \
                                   self.allocNonFossilGroundwater, \
                                   self.fossilGroundwaterAlloc], \
-                                  [landSurface.totalPotentialGrossDemand], \
+                                  [self.totalPotentialGrossDemand], \
                                   [pcr.scalar(0.)], \
                                   [pcr.scalar(0.)], \
                                   'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
