@@ -746,7 +746,7 @@ class WaterManagement(object):
         
         # allocate the "surface water Allocation" to each sector
         # (units: m3)
-        self.allocated_demand_per_sector["surface_water"] = 
+        self.allocated_demand_per_sector["surface_water"] = \
              self.allocate_satisfied_demand_to_each_sector(\
                   totalVolWaterAllocation          = volSurfaceWaterAllocation,\
                   sectoral_remaining_demand_volume = remaining_gross_sectoral_water_demands,\
