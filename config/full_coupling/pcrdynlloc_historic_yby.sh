@@ -1,15 +1,11 @@
 #!/bin/bash
 #SBATCH -N 1
-##SBATCH -n 192
-##SBATCH -p genoa
+#SBATCH -n 192
+#SBATCH -p genoa
 #SBATCH -t 120:00:00
 #SBATCH -J full_couple
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
-
-#SBATCH -n 16
-#SBATCH -p rome
-
 
 # setting input files and directories ...................................
 # PCR-GLOBWB2 .....................
@@ -17,7 +13,6 @@
 INI_FILE="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/setup_05min_full_coupling.ini"
 
 # starting and end dates
-#YEAR=1980
 YEAR=$1
 START_DATE="${YEAR}-01-01"
 END_DATE="${YEAR}-12-31"
@@ -80,71 +75,71 @@ END_YEAR=${END_DATE:0:4}
 # directory where QUAlloc outputs will be stored
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
-## create folder to keep generated QUAlloc configuration files
-#mkdir ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
+# create folder to keep generated QUAlloc configuration files
+mkdir ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
 
-## run the model for all clones, from 1 to 53
-#for i in {01..53}
-  #do
-  ## set the clone code
-  #CLONE_CODE=${i}
+# run the model for all clones, from 1 to 53
+for i in {01..53}
+  do
+  # set the clone code
+  CLONE_CODE=${i}
   
-  ## create qualloc configuration file
-  #python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${QUALLOC_CONFIG_FILE_FOLDER} ${QUALLOC_CONFIG_FILE_NAME} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sy ${START_YEAR} -ey ${END_YEAR} -qisd ${QUALLOC_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
-  #QUALLOC_CONFIG_FILE=${QUALLOC_CONFIG_FILE_FOLDER}/${YEAR}/${QUALLOC_CONFIG_FILE_NAME:0:-4}_M${CLONE_CODE}.cfg
+  # create qualloc configuration file
+  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${QUALLOC_CONFIG_FILE_FOLDER} ${QUALLOC_CONFIG_FILE_NAME} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sy ${START_YEAR} -ey ${END_YEAR} -qisd ${QUALLOC_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
+  QUALLOC_CONFIG_FILE=${QUALLOC_CONFIG_FILE_FOLDER}/${YEAR}/${QUALLOC_CONFIG_FILE_NAME:0:-4}_M${CLONE_CODE}.cfg
   
-  ## run modelling framework
-  #python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${PCRGLOBWB_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
-  #done
-#wait
+  # run modelling framework
+  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${PCRGLOBWB_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
+  done
+wait
 
-## removing temporary folder
-#rm -r ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
+# removing temporary folder
+rm -r ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
 
 
-## merging state variables ..............................................
-## merging PCR-GLOBWB2 state variables
-#python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${PCRGLOBWB_INITIAL_STATE_FOLDER} states 8 Global &
-#wait
+# merging state variables ..............................................
+# merging PCR-GLOBWB2 state variables
+python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${PCRGLOBWB_INITIAL_STATE_FOLDER} states 8 Global &
+wait
 
-## merging QUAlloc state variables
-## create folders
-#mkdir ${QUALLOC_INITIAL_STATE_FOLDER}/tmp
-#DATE_FOR_FINAL_STATES=${YEAR}-12-31
+# merging QUAlloc state variables
+# create folders
+mkdir ${QUALLOC_INITIAL_STATE_FOLDER}/tmp
+DATE_FOR_FINAL_STATES=${YEAR}-12-31
 
-## state variables: long-term
-#LONGTERM_STATES=gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES},gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES},gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES},gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES},gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES},groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES},groundwater_longterm_storage_${DATE_FOR_FINAL_STATES},surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES},surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES},surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES},surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES},surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES},surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}
-#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 ${LONGTERM_STATES} NETCDF4 True 53 53 all_lats True &
-#wait
+# state variables: long-term
+LONGTERM_STATES=gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES},gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES},gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES},gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES},gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES},groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES},groundwater_longterm_storage_${DATE_FOR_FINAL_STATES},surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES},surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES},surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES},surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES},surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES},surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-01-01 ${END_YEAR}-12-01 ${LONGTERM_STATES} NETCDF4 True 53 53 all_lats True &
+wait
 
-## state variables: last-day
-#SHORTTERM_STATES=groundwater_storage_${DATE_FOR_FINAL_STATES},surfacewater_storage_${DATE_FOR_FINAL_STATES},total_base_flow_${DATE_FOR_FINAL_STATES},total_return_flow_${DATE_FOR_FINAL_STATES}
-#python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 ${SHORTTERM_STATES} NETCDF4 True 53 53 all_lats True &
-#wait
+# state variables: last-day
+SHORTTERM_STATES=groundwater_storage_${DATE_FOR_FINAL_STATES},surfacewater_storage_${DATE_FOR_FINAL_STATES},total_base_flow_${DATE_FOR_FINAL_STATES},total_return_flow_${DATE_FOR_FINAL_STATES}
+python merge_netcdf.py ${QUALLOC_OUTPUT_DIR} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp outStates ${END_YEAR}-12-31 ${END_YEAR}-12-31 ${SHORTTERM_STATES} NETCDF4 True 53 53 all_lats True &
+wait
 
-## regridding states
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}.nc &
+# regridding states
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_longterm_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_discharge_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_runoff_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_domestic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_irrigation_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_livestock_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_manufacture_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/gross_demand_longterm_thermoelectric_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_longterm_potential_withdrawal_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_temperature_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_organic_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_salinity_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}_${END_YEAR}-01-01_to_${END_YEAR}-12-01.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_longterm_pathogen_${DATE_FOR_FINAL_STATES}.nc &
 
-#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/total_base_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/total_base_flow_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_storage_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_storage_${DATE_FOR_FINAL_STATES}.nc &
-#cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/total_return_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/total_return_flow_${DATE_FOR_FINAL_STATES}.nc &
-#wait
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/total_base_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/total_base_flow_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/groundwater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/groundwater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/surfacewater_storage_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/surfacewater_storage_${DATE_FOR_FINAL_STATES}.nc &
+cdo -v -z zip_9 -setgrid,${GRIDDES} -setday,31 ${QUALLOC_INITIAL_STATE_FOLDER}/tmp/total_return_flow_${DATE_FOR_FINAL_STATES}_${END_YEAR}-12-31_to_${END_YEAR}-12-31.nc ${QUALLOC_INITIAL_STATE_FOLDER}/total_return_flow_${DATE_FOR_FINAL_STATES}.nc &
+wait
 
-## remove temporary folder
-#rm -r ${QUALLOC_INITIAL_STATE_FOLDER}/tmp
+# remove temporary folder
+rm -r ${QUALLOC_INITIAL_STATE_FOLDER}/tmp
 
 
 # merge output netcdf ..................................................

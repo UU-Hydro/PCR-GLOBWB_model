@@ -1497,7 +1497,7 @@ class LandSurface(object):
                 self.satisfied_irrigation_water_volume[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
                 self.satisfied_irrigation_water_height[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
         
-        # TODO: Fix the following water balance checks, or shall we put it within the water management module
+        # check the water balance
         if self.debugWaterBalance:
            vos.waterBalanceCheck([self.desalinationAllocation, \
                                   self.allocSurfaceWaterAbstract, \
