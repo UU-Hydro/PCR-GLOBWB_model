@@ -1499,16 +1499,16 @@ class LandSurface(object):
         
         # TODO: Fix the following water balance checks, or shall we put it within the water management module
         if self.debugWaterBalance:
-           os.waterBalanceCheck([self.desalinationAllocation, \
-                                 self.allocSurfaceWaterAbstract, \
-                                 self.allocNonFossilGroundwater, \
-                                 self.fossilGroundwaterAlloc], \
-                                 [landSurface.totalPotentialGrossDemand], \
-                                 [pcr.scalar(0.)], \
-                                 [pcr.scalar(0.)], \
-                                 'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
-                                  True, \
-                                  currTimeStep.fulldate,threshold = 1e-3)
+           vos.waterBalanceCheck([self.desalinationAllocation, \
+                                  self.allocSurfaceWaterAbstract, \
+                                  self.allocNonFossilGroundwater, \
+                                  self.fossilGroundwaterAlloc], \
+                                  [landSurface.totalPotentialGrossDemand], \
+                                  [pcr.scalar(0.)], \
+                                  [pcr.scalar(0.)], \
+                                  'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
+                                   True, \
+                                   currTimeStep.fulldate,threshold = 1e-3)
         
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'
