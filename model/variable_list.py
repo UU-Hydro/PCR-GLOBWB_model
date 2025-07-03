@@ -2494,7 +2494,6 @@ description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'unrouted Extensive Livestock FC loadings (for pathogen pollution)'
 latex_symbol[pcrglobwb_variable_name]      = None
 
-
 # routed TDS loads
 pcrglobwb_variable_name = 'routedTDS'
 netcdf_short_name[pcrglobwb_variable_name] = 'routedTDS'
@@ -2505,6 +2504,18 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = 'routed_TDS_loadings'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'TDS loadings routed through surface water network'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# in stream TDS loadings (flux)
+pcrglobwb_variable_name = 'TDSflux'
+netcdf_short_name[pcrglobwb_variable_name] = 'TDSflux'
+netcdf_unit[pcrglobwb_variable_name]       = 'g s-1'
+netcdf_weekly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'instream_TDS_flux'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'TDS loadings routed through surface water network per unit time'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # routed Domestic TDS loads
@@ -2565,6 +2576,18 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = 'routed_BOD_loadings'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'BOD loadings routed through surface water network'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# in stream BOD loadings (flux)
+pcrglobwb_variable_name = 'BODflux'
+netcdf_short_name[pcrglobwb_variable_name] = 'BODflux'
+netcdf_unit[pcrglobwb_variable_name]       = 'g s-1'
+netcdf_weekly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'instream_BOD_flux'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'BOD loadings routed through surface water network per unit time'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # routed Domestic BOD loads
@@ -2637,6 +2660,18 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
 netcdf_long_name[pcrglobwb_variable_name]  = 'routed_FC_loadings'
 description[pcrglobwb_variable_name]       = None
 comment[pcrglobwb_variable_name]           = 'FC loadings routed through surface water network'
+latex_symbol[pcrglobwb_variable_name]      = None
+
+# in stream TDS loadings (flux)
+pcrglobwb_variable_name = 'FCflux'
+netcdf_short_name[pcrglobwb_variable_name] = 'FCflux'
+netcdf_unit[pcrglobwb_variable_name]       = 'million cfu s-1'
+netcdf_weekly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_long_name[pcrglobwb_variable_name]  = 'instream_TDS_flux'
+description[pcrglobwb_variable_name]       = None
+comment[pcrglobwb_variable_name]           = 'FC loadings routed through surface water network per unit time'
 latex_symbol[pcrglobwb_variable_name]      = None
 
 # routed Domestic FC loads

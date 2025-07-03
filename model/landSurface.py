@@ -1403,23 +1403,23 @@ class LandSurface(object):
             self.irrigationWaterWithdrawal = self.water_management.satisfied_gross_sectoral_water_demands["irrigation"]
             
             # get the following variables to be passed to other modules
-            # - desalination water abstraction and allocation, unit m/day, total for all sectors
+            # - desalination water abstraction and allocation, total for all sectors (units: m)
             self.desalinationAbstraction   = self.water_management.desalinationAbstraction
             self.desalinationAllocation    = self.water_management.desalinationAllocation
             
-            # - surface water abstraction and allocation, unit m/day, total for all sectors
+            # - surface water abstraction and allocation, total for all sectors (units: m)
             self.allocSurfaceWaterAbstract = self.water_management.allocSurfaceWaterAbstract
             self.actSurfaceWaterAbstract   = self.water_management.actSurfaceWaterAbstract
             
-            # - renewable groundwater abstraction and allocation, unit m/day, total for all sectors
+            # - renewable groundwater abstraction and allocation, total for all sectors (units: m)
             self.nonFossilGroundwaterAbs   = self.water_management.nonFossilGroundwaterAbs
             self.allocNonFossilGroundwater = self.water_management.allocNonFossilGroundwater
             
-            # - non-renewable groundwater abstraction, unit m/day, total for all sectors
+            # - non-renewable groundwater abstraction, total for all sectors (units: m)
             self.fossilGroundwaterAbstr    = self.water_management.fossilGroundwaterAbstr
             self.fossilGroundwaterAlloc    = self.water_management.fossilGroundwaterAlloc
             
-            # - total groundwater abstraction and allocation in water slice/height (m/day)
+            # - total groundwater abstraction and allocation in water slice/height (units: m)
             self.totalGroundwaterAbstraction = self.nonFossilGroundwaterAbs + self.fossilGroundwaterAbstr
             self.totalGroundwaterAllocation  = self.allocNonFossilGroundwater + self.fossilGroundwaterAlloc
             
@@ -1456,12 +1456,13 @@ class LandSurface(object):
             self.reducedCapRise = self.water_management.reducedCapRise
         
         # water demand limited to available/allocated water
+        # (units: m)
         self.totalPotentialGrossDemand = self.fossilGroundwaterAlloc +\
                                          self.allocNonFossilGroundwater +\
                                          self.allocSurfaceWaterAbstract +\
                                          self.desalinationAllocation
         
-        self.irrGrossDemand    = self.irrigationWaterWithdrawal
+        self.irrGrossDemand    = self.irrigationWaterWithdrawal / self.cellArea
         self.nonIrrGrossDemand = pcr.max(0.0, \
                                          self.totalPotentialGrossDemand - self.irrGrossDemand)
         
@@ -1497,17 +1498,17 @@ class LandSurface(object):
                 self.satisfied_irrigation_water_height[coverType] = pcr.ifthen(self.landmask, pcr.scalar(0.0))
         
         # TODO: Fix the following water balance checks, or shall we put it within the water management module
-        # if self.debugWaterBalance:
-        #    os.waterBalanceCheck([self.desalinationAllocation, \
-        #                          self.allocSurfaceWaterAbstract, \
-        #                          self.allocNonFossilGroundwater, \
-        #                          self.fossilGroundwaterAlloc], \
-        #                          [landSurface.totalPotentialGrossDemand], \
-        #                          [pcr.scalar(0.)], \
-        #                          [pcr.scalar(0.)], \
-        #                          'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
-        #                           True, \
-        #                           currTimeStep.fulldate,threshold = 1e-3)
+        if self.debugWaterBalance:
+           os.waterBalanceCheck([self.desalinationAllocation, \
+                                 self.allocSurfaceWaterAbstract, \
+                                 self.allocNonFossilGroundwater, \
+                                 self.fossilGroundwaterAlloc], \
+                                 [landSurface.totalPotentialGrossDemand], \
+                                 [pcr.scalar(0.)], \
+                                 [pcr.scalar(0.)], \
+                                 'satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.', \
+                                  True, \
+                                  currTimeStep.fulldate,threshold = 1e-3)
         
         # do the remaining land cover processes
         # - this including applying the 'allocated irrGrossDemand'

@@ -681,7 +681,7 @@ class Reporting(object):
         self.gwNetCapRise         = pcr.ifthenelse(self._model.landSurface.gwRecharge < 0.0, self.gwRecharge*(-1.0), 0.0)
         
         # water demand (m)
-        self.irrGrossDemand       = self._model.landSurface.irrGrossDemand    
+        self.irrGrossDemand       = self._model.landSurface.irrGrossDemand
         self.nonIrrGrossDemand    = self._model.landSurface.nonIrrGrossDemand
         self.totalGrossDemand     = self._model.landSurface.totalPotentialGrossDemand
         
@@ -868,14 +868,15 @@ class Reporting(object):
             self.iceThickness = self._model.routing.iceThickness
             
             # Aspects related to powerplant flows (m3 s-1)
-            self.powerplants_fw_qmin = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin #minimum demands in m3 s-1 (temperature-dependent technologies)
-            self.powerplants_fw_q    = self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q    #water temperature dependent demands in m3 s-1 (temperature-dependent technologies)
-            self.PowTwload           = self._model.routing.PowTwload   #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
+            self.powerplants_fw_qmin = pcr.ifthen(self._model.routing.landmask,self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_qmin) #minimum demands in m3 s-1 (temperature-dependent technologies)
+            self.powerplants_fw_q    = pcr.ifthen(self._model.routing.landmask,self._model.landSurface.water_demand.water_demand_thermoelectric.powerplants_fw_q) #water temperature dependent demands in m3 s-1 (temperature-dependent technologies)
+            self.PowTwload           = pcr.ifthen(self._model.routing.landmask,self._model.routing.PowTwload) #unrouted temperature loadings from powerplants in W (temperature-dependent technologies)
             
             # Aspects related to salinity pollution
             self.TDSload = self._model.routing.TDSload #in grams
             self.routedTDS = self._model.routing.routedTDS #in grams
-            self.salinity = self._model.routing.salinity #in mg l-1  
+            self.salinity = self._model.routing.salinity #in mg l-1
+            self.TDSflux = pcr.ifthen(self._model.routing.salinity != vos.MV, self.salinity * self._model.routing.disChanWaterBody) #in grams s-1   
             
             if self.loadsPerSector == "True":
                 #-TDS
@@ -893,6 +894,7 @@ class Reporting(object):
             self.BODload = self._model.routing.BODload #in grams
             self.routedBOD = self._model.routing.routedBOD #in grams
             self.organic = self._model.routing.organic #in mg/l
+            self.BODflux = pcr.ifthen(self._model.routing.organic != vos.MV, self.organic * self._model.routing.disChanWaterBody) #in grams s-1
             
             if self.loadsPerSector == "True":
                 #-BOD
@@ -915,6 +917,7 @@ class Reporting(object):
             self.FCload = self._model.routing.FCload #in million cfu
             self.routedFC = self._model.routing.routedFC #in million cfu
             self.pathogen = self._model.routing.pathogen # in cfu/100ml
+            self.FCflux = pcr.ifthen(self._model.routing.pathogen != vos.MV, self.pathogen * self._model.routing.disChanWaterBody * 0.01) #in million cfu s-1
             
             if self.loadsPerSector  == "True":
                 #-FC
@@ -993,40 +996,11 @@ class Reporting(object):
         if "accuNetGroundwaterDischarge" in self.variables_for_report:
             self.accuNetGroundwaterDischarge = pcr.catchmenttotal(self.netGroundwaterDischarge * self._model.routing.cellArea, self._model.routing.lddMap) / vos.secondsPerDay()
         
-        #-----------------------------------------------------------------------
-        # NOTE (RvB, 12/07): the following has been changed to get the actual flood volume and depth;
-        # because the waterBodyIDs get covered by zeroes, values for all areas are returned as zero
-        #
-        # flood innundation depth (unit: m) above the floodplain
-        self.floodDepth = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
-        if self._model.routing.floodPlain:
-           self.floodDepth = pcr.ifthen(self._model.routing.landmask, \
-                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
-                                self._model.routing.floodDepth, 0.0))
-        #
-        # flood volume (unit: m3): excess above the channel storage capacity
-        self.floodVolume = pcr.ifthen(self._model.routing.landmask, pcr.spatial(pcr.scalar(0.0)))
-        if self._model.routing.floodPlain:
-           self.floodVolume = pcr.ifthen(self._model.routing.landmask, \
-                      pcr.ifthenelse(pcr.cover(self._model.routing.WaterBodies.waterBodyIds,0) == 0,\
-                                  pcr.max(0.0,self._model.routing.channelStorage-self._model.routing.channelStorageCapacity), 0.0))
-        #-----------------------------------------------------------------------
-        
-        # channel storage (unit: m3)
-        self.channelStorage = pcr.ifthen(self._model.routing.landmask, \
-                              pcr.cover(self._model.routing.channelStorage, 0.0))
-        
-        # riverine flood inundation volume (unit: m3)
-        if self._model.routing.floodPlain:
-            self.floodVolume = pcr.ifthen(
-                self._model.routing.landmask,
-                pcr.cover(self._model.routing.floodInundationVolume, 0.0),
-            )
-        
         # water withdrawal for irrigation sectors
+        # (units:m/day)
+        self.irrigationWaterWithdrawal   = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrigationWaterWithdrawal / self._model.routing.cellArea)
         #self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
         #self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
-        #self.irrigationWaterWithdrawal  = self.irrPaddyWaterWithdrawal + self.irrNonPaddyWaterWithdrawal
         
         # sectoral gross demands for domestic, industry, livestock, manufacturing and thermoelectric
         # (units:m/day)
@@ -1059,7 +1033,7 @@ class Reporting(object):
                                     'domesticWaterWithdrawal',\
                                     'industryWaterWithdrawal',\
                                     'livestockWaterWithdrawal',\
-                                    #'irrigationWaterWithdrawal',\
+                                    'irrigationWaterWithdrawal',\
                                     'irrGrossDemand',\
                                     'nonIrrGrossDemand',\
                                     'totalGrossDemand'\
@@ -1079,8 +1053,8 @@ class Reporting(object):
         
         ######################################################################################################################################################################
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:
-        # irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
-        #                                                                         (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
+        irrigation_water_consumption_volume = self.evaporation_from_irrigation_volume * self.irrigationWaterWithdrawal / \
+                                                                                       (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)  
         self.precipitation_at_irrigation_volume = self.precipitation_at_irrigation * self._model.routing.cellArea
         self.evaporation_from_irrigation_volume = self.evaporation_from_irrigation * self._model.routing.cellArea
         # - additional values (may be needed) 
