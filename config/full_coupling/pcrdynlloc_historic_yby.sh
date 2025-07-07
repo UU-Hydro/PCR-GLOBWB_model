@@ -18,7 +18,7 @@ START_DATE="${YEAR}-01-01"
 END_DATE="${YEAR}-12-31"
 
 # location/folder, where you will store output files of your 
-OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qualloc"
+OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qualloc_wqTrue"
 
 # initial conditions
 # - PS: for continuing runs (including the transition from the historical to SSP runs), please use the output files from the previous period model runs.
