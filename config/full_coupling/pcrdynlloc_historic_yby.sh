@@ -33,7 +33,7 @@ NUMBER_OF_SPINUP_YEARS="3"
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
 
 # PCR-GLOBWB2 and DynQual output variables' names
-PCRGLOBWB_OUTPUT_NETCDFS=baseflow,interflowTotal,directRunoff,discharge,channelStorage,waterTemp,TDSload,BODload,FCload,routedTDS,routedBOD,routedFC,salinity,organic,dissolved_oxygen,pathogen
+PCRGLOBWB_OUTPUT_NETCDFS=discharge,channelStorage,waterTemp,routedTDS,routedBOD,routedFC,salinity,organic,dissolved_oxygen,pathogen,thermoelectricGrossDemand,thermoelectricWaterWithdrawal,totalWaterStorageVolume
 
 # QUAlloc .........................
 # directory where QUAlloc base configuration file is stored
