@@ -3,7 +3,7 @@
 #SBATCH -n 192
 #SBATCH -p genoa
 #SBATCH -t 120:00:00
-#SBATCH -J full_couple
+#SBATCH -J wqFalse
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
 
@@ -18,7 +18,7 @@ START_DATE="${YEAR}-01-01"
 END_DATE="${YEAR}-12-31"
 
 # location/folder, where you will store output files of your 
-OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qualloc_wqTrue"
+OUTPUT_DIR="/gpfs/work3/0/prjs1311/qualloc/outputs/historic/pcrglobwb_dynqual_qualloc"
 
 # initial conditions
 # - PS: for continuing runs (including the transition from the historical to SSP runs), please use the output files from the previous period model runs.
@@ -40,11 +40,14 @@ PCRGLOBWB_OUTPUT_NETCDFS=discharge,channelStorage,waterTemp,routedTDS,routedBOD,
 QUALLOC_CONFIG_FILE_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/config/parallel"
 QUALLOC_CONFIG_FILE_NAME="configuration_file_parallel_coupled.cfg"
 
-# directory where python script to create configuration files per mask is stored
+# directory where python script used to create configuration files per mask for parallel run is stored
 SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/configuration_parallel.py"
 
 # initial conditions
 QUALLOC_INITIAL_STATE_FOLDER="/gpfs/work3/0/prjs1311/qualloc/data/initial/historic/qualloc"
+
+# water quality flag to consider sectoral water quality requirements (True or False)
+WQ_FLAG="False"
 
 # directory where grid description is stored
 GRIDDES="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
@@ -66,7 +69,7 @@ export OPENBLAS_NUM_THREADS=1
 cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # update directory where PCRGLOBWB2 outputs will be stored
-MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${YEAR}
+MAIN_OUTPUT_DIR=${OUTPUT_DIR}_wq${WQ_FLAG}/${YEAR}
 
 # define starting and end year for QUAlloc
 START_YEAR=${START_DATE:0:4}
@@ -76,7 +79,8 @@ END_YEAR=${END_DATE:0:4}
 QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # create folder to keep generated QUAlloc configuration files
-mkdir ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
+CONFIG_FILE_OUTPUT_FOLDER=${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}_wq${WQ_FLAG}
+mkdir CONFIG_FILE_OUTPUT_FOLDER
 
 # run the model for all clones, from 1 to 53
 for i in {01..53}
@@ -85,8 +89,8 @@ for i in {01..53}
   CLONE_CODE=${i}
   
   # create qualloc configuration file
-  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${QUALLOC_CONFIG_FILE_FOLDER} ${QUALLOC_CONFIG_FILE_NAME} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sy ${START_YEAR} -ey ${END_YEAR} -qisd ${QUALLOC_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES}
-  QUALLOC_CONFIG_FILE=${QUALLOC_CONFIG_FILE_FOLDER}/${YEAR}/${QUALLOC_CONFIG_FILE_NAME:0:-4}_M${CLONE_CODE}.cfg
+  python3 ${SCRIPT_CONFIG_FILE_QUALLOC} ${QUALLOC_CONFIG_FILE_FOLDER} ${QUALLOC_CONFIG_FILE_NAME} ${CLONE_CODE} -mod ${QUALLOC_OUTPUT_DIR} -sy ${START_YEAR} -ey ${END_YEAR} -qisd ${QUALLOC_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -wqf ${WQ_FLAG}
+  QUALLOC_CONFIG_FILE=${CONFIG_FILE_OUTPUT_FOLDER}/${QUALLOC_CONFIG_FILE_NAME:0:-4}_M${CLONE_CODE}.cfg
   
   # run modelling framework
   python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${PCRGLOBWB_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} -qcf ${QUALLOC_CONFIG_FILE} &
@@ -94,7 +98,7 @@ for i in {01..53}
 wait
 
 # removing temporary folder
-rm -r ${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}
+rm -r ${CONFIG_FILE_OUTPUT_FOLDER}
 
 
 # merging state variables ..............................................
