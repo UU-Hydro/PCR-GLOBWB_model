@@ -71,7 +71,7 @@ if "-wqf" in system_arguments:
     print(msg)
 
 # folder for saving original and modified ini files
-new_ini_file_name = os.path.join(config_file_folder, start_year, f'{config_file_name.split(".")[0]}_{clone_code}.cfg')
+new_ini_file_name = os.path.join(config_file_folder, f'{start_year}_wq{water_quality_flag}', f'{config_file_name.split(".")[0]}_{clone_code}.cfg')
 
 # create folder
 if os.path.isfile(new_ini_file_name): os.remove(new_ini_file_name)
