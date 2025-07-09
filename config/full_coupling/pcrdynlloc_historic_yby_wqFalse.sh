@@ -104,7 +104,7 @@ for i in {01..53}
 wait
 
 # removing temporary folder
-rm -r ${CONFIG_FILE_OUTPUT_FOLDER}
+#rm -r ${CONFIG_FILE_OUTPUT_FOLDER}
 
 
 # merging state variables ..............................................
