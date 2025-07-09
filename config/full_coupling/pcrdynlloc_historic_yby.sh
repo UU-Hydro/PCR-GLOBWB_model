@@ -80,7 +80,7 @@ QUALLOC_OUTPUT_DIR=${MAIN_OUTPUT_DIR}/qualloc
 
 # create folder to keep generated QUAlloc configuration files
 CONFIG_FILE_OUTPUT_FOLDER=${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}_wq${WQ_FLAG}
-mkdir CONFIG_FILE_OUTPUT_FOLDER
+mkdir ${CONFIG_FILE_OUTPUT_FOLDER}
 
 # run the model for all clones, from 1 to 53
 for i in {01..53}
