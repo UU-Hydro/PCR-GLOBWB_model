@@ -104,7 +104,7 @@ for i in {01..53}
 wait
 
 # removing temporary folder
-#rm -r ${CONFIG_FILE_OUTPUT_FOLDER}
+rm -r ${CONFIG_FILE_OUTPUT_FOLDER}
 
 
 # merging state variables ..............................................
@@ -179,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-#if [ "$YEAR" -le 2018 ]; then
+#if [ "$YEAR" -le 2019 ]; then
 #  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
 #fi

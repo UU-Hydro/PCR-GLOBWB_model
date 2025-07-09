@@ -58,14 +58,14 @@ if "-qisd" in system_arguments:
 
 # - date for initial states 
 if "-dfis" in system_arguments:
-    date_for_initial_states = system_arguments[system_arguments.index("-dfis") + 1]        
+    date_for_initial_states = system_arguments[system_arguments.index("-dfis") + 1]
     file_ini_content = file_ini_content.replace("DATE_FOR_INITIAL_STATES", date_for_initial_states)
     msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_states
     print(msg)
 
 # - water quality requirements
 if "-wqf" in system_arguments:
-    water_quality_flag = system_arguments[system_arguments.index("-wqf") + 1]        
+    water_quality_flag = system_arguments[system_arguments.index("-wqf") + 1]
     file_ini_content = file_ini_content.replace("WQ_FLAG", water_quality_flag)
     msg = "The consideration of sectoral water quality requirements is set based on the system argument (-wqf): " + water_quality_flag
     print(msg)
