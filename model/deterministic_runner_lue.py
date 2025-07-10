@@ -105,7 +105,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
         # ~ if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
         state = pcr.scalar(1.0)
-        
+        state.future().get()
         return state
 
 @pcr.runtime_scope
