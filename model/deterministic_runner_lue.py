@@ -68,9 +68,9 @@ class DeterministicRunner(pcrfw.DynamicModel):
             hyperslab_shape = array_shape
             hyperslab = lfr.Hyperslab(center = centre, shape = hyperslab_shape)
 		    
-            # ~ ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
+            ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
             
-            ldd_lue   = pcr.readmap(configuration.routingOptions['lddMap'])
+            # ~ ldd_lue   = pcr.readmap(configuration.routingOptions['lddMap'])
 
             ldd_lue.future().get()
 
@@ -92,19 +92,19 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
     def dynamic(self):
 
-        # re-calculate current model time using current pcraster timestep value
-        self.modelTime.update(self.currentTimeStep())
+        # ~ # re-calculate current model time using current pcraster timestep value
+        # ~ self.modelTime.update(self.currentTimeStep())
 
-        # update model (will pick up current model time from model time object)
-        self.model.read_forcings()
-        state = self.model.update(report_water_balance = False, lue_scalability_experiment = self.lue_scalability_experiment)
+        # ~ # update model (will pick up current model time from model time object)
+        # ~ self.model.read_forcings()
+        # ~ state = self.model.update(report_water_balance = False, lue_scalability_experiment = self.lue_scalability_experiment)
 
-        assert state is not None
+        # ~ assert state is not None
         
-        # skip any reporting during LUE scalability experiment
-        if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
+        # ~ # skip any reporting during LUE scalability experiment
+        # ~ if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
-        # ~ state = pcr.scalar(1.0)
+        state = pcr.scalar(1.0)
         
         return state
 
