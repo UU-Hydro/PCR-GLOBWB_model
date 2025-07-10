@@ -20,9 +20,9 @@ pcrglobwb_debug_mode="nodebug"
 #~ clone_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 #~ ldd_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 
-output_dir="/scratch-shared/edwin//test_lue_experiment/100m_final_test/"
-clone_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
-ldd_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
+output_dir="/scratch-shared/edwin/test_lue_experiment/100m_final_test/"
+clone_map="/scratch-shared/edwin/clone_map_for_lue/ldd_africa_3sec.map"
+ldd_map="/scratch-shared/edwin/clone_map_for_lue/ldd_africa_3sec.map"
 
 
 #~ sutan101@node011.cluster:/scratch/depfg/sutan101/clone_map_for_lue$ mapattr -p ldd_africa_3sec.map
