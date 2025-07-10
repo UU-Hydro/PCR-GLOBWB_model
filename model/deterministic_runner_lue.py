@@ -106,7 +106,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
 
         state = pcr.spatial(pcr.scalar(1.0))
 
-        return state
+        # ~ return state
 
 @pcr.runtime_scope
 def main(
