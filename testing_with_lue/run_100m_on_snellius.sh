@@ -56,8 +56,8 @@ LUE_PARTITION_SHAPE="50,100" \
          --hpx:threads=1 \
          --lue:count=1 \
          --lue:nr_workers=1 \
-         --lue:array_shape="100,200" \
-         --lue:partition_shape="100,200" \
+         --lue:array_shape="50,100" \
+         --lue:partition_shape="50,100" \
          --lue:centre="43800,42000" \
          --lue:result=${output_dir}/"lue_experiment.txt" \
          --end
