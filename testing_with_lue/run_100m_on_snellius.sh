@@ -48,7 +48,7 @@ ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
 
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
-LUE_PARTITION_SHAPE="100,200" \
+LUE_PARTITION_SHAPE="50,100" \
      python ${pcrglobwb_runner} ${pcrglobwb_ini} ${pcrglobwb_debug_mode} \
          --output_dir ${output_dir} \
          --clone_map ${clone_map} \
