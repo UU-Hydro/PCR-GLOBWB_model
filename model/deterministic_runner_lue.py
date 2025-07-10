@@ -71,6 +71,9 @@ class DeterministicRunner(pcrfw.DynamicModel):
             ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
             ldd_lue.future().get()
 
+            # write the ldd file to a file 
+            pcr.report(ldd_lue, "ldd_lue_used.tif")
+        
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
         
@@ -98,6 +101,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
         # skip any reporting during LUE scalability experiment
         if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
+        # ~ state = pcr.scalar(1.0)
+        
         return state
 
 @pcr.runtime_scope
