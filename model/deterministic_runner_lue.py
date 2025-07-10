@@ -68,7 +68,10 @@ class DeterministicRunner(pcrfw.DynamicModel):
             hyperslab_shape = array_shape
             hyperslab = lfr.Hyperslab(center = centre, shape = hyperslab_shape)
 		    
-            ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
+            # ~ ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
+            
+            ldd_lue   = pcr.readmap(configuration.routingOptions['lddMap'])
+
             ldd_lue.future().get()
 
             # ~ # write the ldd file to a file 
