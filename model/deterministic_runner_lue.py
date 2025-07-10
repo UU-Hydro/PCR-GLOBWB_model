@@ -72,7 +72,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
             ldd_lue.future().get()
 
             # write the ldd file to a file 
-            pcr.report(ldd_lue, "ldd_lue_used.tif")
+            lfr.to_gdal(ldd_lue, "ldd_lue_used.tif")
         
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
