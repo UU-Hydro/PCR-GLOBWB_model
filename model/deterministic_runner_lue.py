@@ -78,7 +78,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
             # ~ lfr.to_gdal(ldd_lue, "ldd_lue_used.tif")
         
         self.modelTime = modelTime        
-        self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
+        # ~ self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)
         
 
         # skip any reporting during LUE scalability experiment
