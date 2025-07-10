@@ -71,8 +71,8 @@ class DeterministicRunner(pcrfw.DynamicModel):
             ldd_lue   = lfr.from_gdal(configuration.routingOptions['lddMap'], partition_shape = partition_shape, hyperslab = hyperslab)
             ldd_lue.future().get()
 
-            # write the ldd file to a file 
-            lfr.to_gdal(ldd_lue, "ldd_lue_used.tif")
+            # ~ # write the ldd file to a file 
+            # ~ lfr.to_gdal(ldd_lue, "ldd_lue_used.tif")
         
         self.modelTime = modelTime        
         self.model     = PCRGlobWB(configuration, modelTime, initialState, None, ldd_lue)

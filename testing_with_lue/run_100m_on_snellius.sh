@@ -20,9 +20,13 @@ pcrglobwb_debug_mode="nodebug"
 #~ clone_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 #~ ldd_map="/scratch/depfg/sutan101/clone_map_for_lue/ldd_africa_3sec.map"
 
-output_dir="/scratch-shared/edwin/test_lue_experiment/100m_final_test/"
-clone_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
-ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
+#~ output_dir="/scratch-shared/edwin/test_lue_experiment/100m_final_test/"
+#~ clone_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
+#~ ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
+
+output_dir="/scratch-shared/edwin/test_lue_experiment/100m_small_test/"
+clone_map="/scratch-shared/edwin/ldd_map_for_lue/lue_used_for_a_small_test.map"
+ldd_map="/scratch-shared/edwin/ldd_map_for_lue/lue_used_for_a_small_test.map"
 
 
 #~ sutan101@node011.cluster:/scratch/depfg/sutan101/clone_map_for_lue$ mapattr -p ldd_africa_3sec.map
@@ -46,6 +50,22 @@ ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
 #~ (pcrglobwb_python3_pcraster44_v2025-01-16b)
 
 
+#~ LD_PRELOAD=$libtcmalloc \
+#~ LUE_PCRASTER_PROVIDER_NAME=lue \
+#~ LUE_PARTITION_SHAPE="100,200" \
+     #~ python ${pcrglobwb_runner} ${pcrglobwb_ini} ${pcrglobwb_debug_mode} \
+         #~ --output_dir ${output_dir} \
+         #~ --clone_map ${clone_map} \
+         #~ --ldd_map ${ldd_map} \
+         #~ --hpx:threads=1 \
+         #~ --lue:count=1 \
+         #~ --lue:nr_workers=1 \
+         #~ --lue:array_shape="100,200" \
+         #~ --lue:partition_shape="100,200" \
+         #~ --lue:centre="43800,42000" \
+         #~ --lue:result=${output_dir}/"lue_experiment.txt" \
+         #~ --end
+
 LD_PRELOAD=$libtcmalloc \
 LUE_PCRASTER_PROVIDER_NAME=lue \
 LUE_PARTITION_SHAPE="100,200" \
@@ -58,6 +78,6 @@ LUE_PARTITION_SHAPE="100,200" \
          --lue:nr_workers=1 \
          --lue:array_shape="100,200" \
          --lue:partition_shape="100,200" \
-         --lue:centre="43800,42000" \
+         --lue:centre="51,101" \
          --lue:result=${output_dir}/"lue_experiment.txt" \
          --end
