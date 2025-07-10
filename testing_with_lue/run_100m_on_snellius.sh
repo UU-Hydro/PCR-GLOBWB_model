@@ -25,8 +25,8 @@ pcrglobwb_debug_mode="nodebug"
 #~ ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_africa_3sec.map"
 
 output_dir="/scratch-shared/edwin/test_lue_experiment/100m_small_test/"
-clone_map="/scratch-shared/edwin/ldd_map_for_lue/lue_used_for_a_small_test.map"
-ldd_map="/scratch-shared/edwin/ldd_map_for_lue/lue_used_for_a_small_test.map"
+clone_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_lue_used_for_a_small_test.map"
+ldd_map="/scratch-shared/edwin/ldd_map_for_lue/ldd_lue_used_for_a_small_test.map"
 
 
 #~ sutan101@node011.cluster:/scratch/depfg/sutan101/clone_map_for_lue$ mapattr -p ldd_africa_3sec.map
