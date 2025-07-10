@@ -159,7 +159,7 @@ def main(
     # initializing the deterministic runner, including reading ldd
     deterministic_runner = DeterministicRunner(configuration, currTimeStep, initial_state, count, nr_workers, array_shape, partition_shape, result_pathname, centre)
     dynamic_framework = pcrfw.DynamicFramework(deterministic_runner,currTimeStep.nrOfTimeSteps)
-    dynamic_framework.setQuiet(True)
+    # ~ dynamic_framework.setQuiet(True)
 
     experiment = lqi.ArrayExperiment(nr_workers, array_shape, partition_shape)
     experiment.start()
