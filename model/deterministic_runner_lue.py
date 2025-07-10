@@ -104,7 +104,7 @@ class DeterministicRunner(pcrfw.DynamicModel):
         # ~ # skip any reporting during LUE scalability experiment
         # ~ if self.lue_scalability_experiment is False: self.reporting = Reporting(configuration, self.model, modelTime)
 
-        state = pcr.scalar(1.0)
+        state = pcr.spatial(pcr.scalar(1.0))
 
         return state
 
