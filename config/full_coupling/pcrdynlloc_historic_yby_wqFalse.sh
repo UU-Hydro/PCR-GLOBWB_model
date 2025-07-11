@@ -179,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-#if [ "$YEAR" -le 2019 ]; then
-#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
-#fi
+if [ "$YEAR" -le 2019 ]; then
+  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
+fi
