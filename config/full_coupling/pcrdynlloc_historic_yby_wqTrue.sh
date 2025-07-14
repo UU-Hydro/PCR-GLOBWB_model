@@ -27,7 +27,7 @@ DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="0"
+NUMBER_OF_SPINUP_YEARS="3"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
@@ -179,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-if [ "$YEAR" -le 2018 ]; then
-  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqTrue.sh" "$((YEAR + 1))"
-fi
+#if [ "$YEAR" -le 2018 ]; then
+#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqTrue.sh" "$((YEAR + 1))"
+#fi

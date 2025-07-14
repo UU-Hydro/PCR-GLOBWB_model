@@ -1,9 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-##SBATCH -n 192
-##SBATCH -p genoa
-#SBATCH -n 16
-#SBATCH -p rome
+#SBATCH -n 192
+#SBATCH -p genoa
 #SBATCH -t 120:00:00
 #SBATCH -J wqFalse
 #SBATCH --mail-type=END
@@ -29,7 +27,7 @@ DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="0"
+NUMBER_OF_SPINUP_YEARS="3"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
@@ -91,8 +89,7 @@ CONFIG_FILE_OUTPUT_FOLDER=${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}_wq${WQ_FLA
 mkdir ${CONFIG_FILE_OUTPUT_FOLDER}
 
 # run the model for all clones, from 1 to 53
-#for i in {01..53}
-for i in 18 29 52
+for i in {01..53}
   do
   # set the clone code
   CLONE_CODE=${i}

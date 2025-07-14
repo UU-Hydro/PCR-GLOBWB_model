@@ -2251,15 +2251,15 @@ See doc string of class for detailed info.
             if pcr.cellvalue(pcr.mapminimum(self.surfacewater_withdrawal_capacity - \
                                             (self.potential_renewable_withdrawal['surfacewater'] + \
                                              self.potential_nonrenewable_withdrawal['surfacewater'])), 1)[0] < -1:
-                logger.info('Sum of potential surface water renewable and non-renewable withdrawals are larger than surface water withdrawal capacity')
-                sys.exit()
+                logger.error('WARNING !!!!!!!! Sum of potential surface water renewable and non-renewable withdrawals are larger than surface water withdrawal capacity')
+                #sys.exit()
         
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
             if pcr.cellvalue(pcr.mapminimum(self.groundwater_withdrawal_capacity - \
                                             (self.potential_renewable_withdrawal['groundwater'] + \
                                              self.potential_nonrenewable_withdrawal['groundwater'])), 1)[0] < -1:
-                logger.info('Sum of potential groundwater renewable and non-renewable withdrawals are larger than groundwater withdrawal capacity')
-                sys.exit()
+                logger.error('WARNING !!!!!!!! Sum of potential groundwater renewable and non-renewable withdrawals are larger than groundwater withdrawal capacity')
+                #sys.exit()
         
         # get total long-term potential renewable and non-renewable withdrawals per sector
         # (units: m3/day)
