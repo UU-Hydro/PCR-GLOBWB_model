@@ -1455,7 +1455,8 @@ class qualloc_model(object):
             # (units: m3/day)
             actual_withdrawal = pcr.ifthen(pcr.defined(self.surfacewater.ldd), \
                                            pcr.max(0, \
-                                                   surfacewater_available * self.cellarea - potential_withdrawal))
+                                                   pcr.min(potential_withdrawal, \
+                                                           surfacewater_available * self.cellarea)))
             
             # set variables in the surface water module
             #  - discharge (units: m3/s)

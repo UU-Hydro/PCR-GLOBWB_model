@@ -3,7 +3,7 @@
 #SBATCH -n 192
 #SBATCH -p genoa
 #SBATCH -t 120:00:00
-#SBATCH -J wqFalse
+#SBATCH -J wqTrue
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
 
@@ -179,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-if [ "$YEAR" -le 2019 ]; then
+if [ "$YEAR" -le 2018 ]; then
   sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqTrue.sh" "$((YEAR + 1))"
 fi

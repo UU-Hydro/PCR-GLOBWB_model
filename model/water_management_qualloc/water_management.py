@@ -2339,7 +2339,8 @@ See doc string of class for detailed info.
         
         # get the current potential surface water withdrawals based on the
         # suitability per sector considering the short-term quality
-        # this extra step is needed due to the accuthresholdstate/flux routing
+        # note:
+        #     this step is needed due to the accuthresholdstate/flux routing
         # (units: m3/day)
         potential_withdrawal_per_sector = \
             dict((sector_name, \

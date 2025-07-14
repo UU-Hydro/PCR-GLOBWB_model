@@ -1,7 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 192
-#SBATCH -p genoa
+##SBATCH -n 192
+##SBATCH -p genoa
+#SBATCH -n 16
+#SBATCH -p rome
 #SBATCH -t 120:00:00
 #SBATCH -J wqFalse
 #SBATCH --mail-type=END
@@ -89,7 +91,8 @@ CONFIG_FILE_OUTPUT_FOLDER=${QUALLOC_CONFIG_FILE_FOLDER}/${START_YEAR}_wq${WQ_FLA
 mkdir ${CONFIG_FILE_OUTPUT_FOLDER}
 
 # run the model for all clones, from 1 to 53
-for i in {01..53}
+#for i in {01..53}
+for i in 18 29 52
   do
   # set the clone code
   CLONE_CODE=${i}
@@ -179,6 +182,6 @@ wait
 
 
 # submit next year .....................................................
-if [ "$YEAR" -le 2019 ]; then
-  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
-fi
+#if [ "$YEAR" -le 2018 ]; then
+#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqFalse.sh" "$((YEAR + 1))"
+#fi
