@@ -1170,8 +1170,6 @@ class LandSurface(object):
                 surfacewater_salinity    = pcr.ifthen(routing.salinity < vos.MV, routing.salinity)
                 surfacewater_pathogen    = pcr.ifthen(routing.pathogen < vos.MV, routing.pathogen)
             
-            pcr.report(surfacewater_salinity, f'/scratch-shared/gcardenas/{currTimeStep}_salinity_dynqual.map')
-            
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
             self.qualloc_model.update(online_coupling_to_quantity     = self.using_qualloc, \

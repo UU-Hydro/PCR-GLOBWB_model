@@ -251,9 +251,6 @@ class water_quality(object):
                 average += self.constituent_shortterm_quality\
                                            [source_name][constituent_name]
                 setattr(self, key, average)
-                
-                #if source_name == 'surfacewater' and constituent_name == 'salinity':
-                #    pcr.report(average, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_cum.map')
         
         # update long-term water quality constituents the last day of the month
         if (time_step == 'monthly') or \
@@ -271,9 +268,6 @@ class water_quality(object):
                     # by dividing the accumulated values over the number steps
                     key = 'average_%s_%s' % (source_name, constituent_name)
                     average_constituent_quality = getattr(self, key) / steps
-                    
-                    #if source_name == 'surfacewater' and constituent_name == 'salinity':
-                    #    pcr.report(average_constituent_quality, f'/scratch-shared/gcardenas/{str(date)[:10]}_salinity_qualloc_avg.map')
                     
                     # get variable key
                     var = '%s_longterm_%s' % (source_name, constituent_name)
