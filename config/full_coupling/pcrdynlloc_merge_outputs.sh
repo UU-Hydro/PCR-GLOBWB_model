@@ -2,7 +2,7 @@
 #SBATCH -N 1
 #SBATCH -n 52
 #SBATCH -p rome
-#SBATCH -t 24:00:00
+#SBATCH -t 4:00:00
 #SBATCH -J merging
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
