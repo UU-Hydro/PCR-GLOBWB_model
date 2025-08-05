@@ -1149,8 +1149,8 @@ class qualloc_model(object):
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
         
-        pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality.constituent_shortterm_quality['surfacewater']['temperature'])
-        pietje
+        #pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality.constituent_shortterm_quality['surfacewater']['temperature'])
+        #pietje
         
         
         # [ forcing: water management features ] .........................................................
