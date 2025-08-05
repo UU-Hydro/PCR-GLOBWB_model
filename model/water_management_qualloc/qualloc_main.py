@@ -1134,6 +1134,10 @@ class qualloc_model(object):
                     logger.debug('no %s %s short-term quality is given for %s; a value of zero is considered' % \
                                  (source_name, constituent_name, date))
                 
+                # verify water temperature units (from Kelvin to Centigrades)
+                if constituent_name == "temperature":
+                    var_out = pcr.ifthenelse(var_out > 200., var_out - 273.15, var_out)
+                
                 # cover NaN to zero concentration values and clip map to land mask
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
@@ -1143,6 +1147,11 @@ class qualloc_model(object):
         
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
+        
+        
+        pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality.constituent_shortterm_quality['surfacewater']['temperature'])
+        pietje
+        
         
         # [ forcing: water management features ] .........................................................
         #

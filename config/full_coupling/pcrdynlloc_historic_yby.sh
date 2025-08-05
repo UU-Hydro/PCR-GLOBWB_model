@@ -3,7 +3,7 @@
 #SBATCH -n 192
 #SBATCH -p genoa
 #SBATCH -t 120:00:00
-#SBATCH -J wqFalse
+#SBATCH -J fullcoup
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
 
@@ -27,7 +27,7 @@ DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="3"
+NUMBER_OF_SPINUP_YEARS="0"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
@@ -47,7 +47,7 @@ SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_mode
 QUALLOC_INITIAL_STATE_FOLDER="/gpfs/work3/0/prjs1311/qualloc/data/initial/historic/qualloc"
 
 # water quality flag to consider sectoral water quality requirements (True or False)
-WQ_FLAG="False"
+WQ_FLAG=$2
 
 # directory where grid description is stored
 GRIDDES="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
@@ -70,6 +70,12 @@ cd ${PCRGLOBWB_MODEL_SCRIPT_FOLDER}
 
 # update directory where PCRGLOBWB2 outputs will be stored
 MAIN_OUTPUT_DIR=${OUTPUT_DIR}_wq${WQ_FLAG}/${YEAR}
+
+# update directory where PCRGLOBWB2 state variables will be stored
+PCRGLOBWB_INITIAL_STATE_FOLDER=${PCRGLOBWB_INITIAL_STATE_FOLDER}_wq${WQ_FLAG}
+
+# update directory where QUAlloc state variables will be stored
+QUALLOC_INITIAL_STATE_FOLDER=${QUALLOC_INITIAL_STATE_FOLDER}_wq${WQ_FLAG}
 
 # define starting and end year for QUAlloc
 START_YEAR=${START_DATE:0:4}
@@ -173,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-#if [ "$YEAR" -le 2018 ]; then
-#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby.sh" "$((YEAR + 1))"
-#fi
+if [ "$YEAR" -le 2018 ]; then
+  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby.sh" "$((YEAR + 1))" "${WQ_FLAG}"
+fi
