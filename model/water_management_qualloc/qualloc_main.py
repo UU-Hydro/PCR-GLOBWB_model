@@ -1081,6 +1081,13 @@ class qualloc_model(object):
                 logger.debug('information on %s imported from PCR-GLOBWB2 for %s' % \
                              (forcing_variable.lower(), date))
         
+        
+        
+        if date.month == 1:
+            pcr.report(self.thermoelectricGrossDemand, f"/scratch-shared/gcardenas/thermoelectricGrossDemand_{str(date)}")
+        
+        
+        
         # [ forcing: water quality ] ...............................................................
         #
         # read in water quality forcing datasets
@@ -1134,10 +1141,6 @@ class qualloc_model(object):
                     logger.debug('no %s %s short-term quality is given for %s; a value of zero is considered' % \
                                  (source_name, constituent_name, date))
                 
-                # verify water temperature units (from Kelvin to Centigrades)
-                if constituent_name == "temperature":
-                    var_out = pcr.ifthenelse(var_out > 200., var_out - 273.15, var_out)
-                
                 # cover NaN to zero concentration values and clip map to land mask
                 var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
                 
@@ -1149,8 +1152,12 @@ class qualloc_model(object):
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
         
-        #pcr.aguila(self.water_management.water_quality.constituent_shortterm_quality.constituent_shortterm_quality['surfacewater']['temperature'])
-        #pietje
+        
+        
+        if date.month == 1:
+            pcr.report(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['temperature'], f"/scratch-shared/gcardenas/waterTemperature_{str(date)}")
+        
+        
         
         
         # [ forcing: water management features ] .........................................................
