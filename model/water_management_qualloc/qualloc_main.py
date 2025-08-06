@@ -1084,7 +1084,7 @@ class qualloc_model(object):
         
         
         if date.month == 1:
-            pcr.report(self.thermoelectricGrossDemand, f"/scratch-shared/gcardenas/thermoelectricGrossDemand_{str(date)}")
+            pcr.report(self.thermoelectricgrossdemand, f"/scratch-shared/gcardenas/thermoelectricGrossDemand_{str(date)}")
         
         
         
