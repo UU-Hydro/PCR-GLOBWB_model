@@ -1081,13 +1081,6 @@ class qualloc_model(object):
                 logger.debug('information on %s imported from PCR-GLOBWB2 for %s' % \
                              (forcing_variable.lower(), date))
         
-        
-        
-        if date.month == 1:
-            pcr.report(self.thermoelectricgrossdemand, f"/scratch-shared/gcardenas/thermoelectricGrossDemand_{str(date)[:10]}.map")
-        
-        
-        
         # [ forcing: water quality ] ...............................................................
         #
         # read in water quality forcing datasets
@@ -1150,15 +1143,6 @@ class qualloc_model(object):
         
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
-        
-        
-        
-        
-        if date.month == 1:
-            pcr.report(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['temperature'], f"/scratch-shared/gcardenas/waterTemperature_{str(date)[:10]}.map")
-        
-        
-        
         
         # [ forcing: water management features ] .........................................................
         #
