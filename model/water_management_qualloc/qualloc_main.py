@@ -1144,6 +1144,12 @@ class qualloc_model(object):
         # set variable
         setattr(self.water_management.water_quality, 'constituent_shortterm_quality', constituent_shortterm_quality)
         
+        
+        
+        if dat.month == 1:
+            pcr.report(self.water_management.water_quality.constituent_shortterm_quality['surfacewater']['temperature'], f"/scratch-shared/gcardenas/waterTemperature_{str(date)[:10].map}")
+        
+        
         # [ forcing: water management features ] .........................................................
         #
         # [ desalinated water use ]
