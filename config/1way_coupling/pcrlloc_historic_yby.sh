@@ -38,7 +38,7 @@ PCRGLOBWB_OUTPUT_NETCDFS=discharge,channelStorage,totalWaterStorageVolume
 # QUAlloc .........................
 # directory where QUAlloc base configuration file is stored
 QUALLOC_CONFIG_FILE_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/config/parallel"
-QUALLOC_CONFIG_FILE_NAME="configuration_file_parallel_coupled.cfg"
+QUALLOC_CONFIG_FILE_NAME="configuration_file_parallel_1w_coupled.cfg"
 
 # directory where python script used to create configuration files per mask for parallel run is stored
 SCRIPT_CONFIG_FILE_QUALLOC="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/configuration_parallel.py"
