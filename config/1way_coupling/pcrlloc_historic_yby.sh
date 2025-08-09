@@ -2,7 +2,7 @@
 #SBATCH -N 1
 #SBATCH -n 192
 #SBATCH -p genoa
-#SBATCH -t 120:00:00
+#SBATCH -t 15:00:00
 #SBATCH -J 1wcoup
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
@@ -27,7 +27,7 @@ DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="3"
+NUMBER_OF_SPINUP_YEARS="0"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
@@ -179,6 +179,6 @@ wait
 
 
 # submit next year .....................................................
-#if [ "$YEAR" -le 2018 ]; then
-#  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqTrue.sh" "$((YEAR + 1))" "${WQ_FLAG}"
-#fi
+if [ "$YEAR" -le 2018 ]; then
+  sbatch "/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_coupling/pcrdynlloc_historic_yby_wqTrue.sh" "$((YEAR + 1))" "${WQ_FLAG}"
+fi
