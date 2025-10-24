@@ -75,15 +75,15 @@ wait
 
 # merge output netcdf ..................................................
 # create folder
-PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
-mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
+#PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
+#mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merging outputs to global extension
-MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_pseudo_naturalized/pcr_merge_outputs.sh"
-sbatch ${MERGE_NETCDF_PY} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} False &
+#MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_pseudo_naturalized/pcr_merge_outputs.sh"
+#sbatch ${MERGE_NETCDF_PY} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} False &
 
-echo -e "\n... Finished model runs for $YEAR." &
-wait
+#echo -e "\n... Finished model runs for $YEAR." &
+#wait
 
 
 # submit next year .....................................................
