@@ -33,7 +33,7 @@ NUMBER_OF_SPINUP_YEARS="1"
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
 
 # PCR-GLOBWB2 and DynQual output variables' names
-PCRGLOBWB_OUTPUT_NETCDFS=directRunoff,interflow,baseflow,surfaceWaterInf,waterBodyActEvaporation,channelStorage,discharge,totalWaterStorageVolume
+PCRGLOBWB_OUTPUT_NETCDFS=directRunoff,interflowTotal,baseflow,surfaceWaterInf,waterBodyActEvaporation,channelStorage,discharge,totalWaterStorageVolume
 
 # directory where grid description is stored
 GRIDDES="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
