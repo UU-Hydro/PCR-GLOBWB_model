@@ -1302,9 +1302,11 @@ class Routing(object):
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
             
-            # flood/innundation depth above the flood plain (unit: m)
             # [from the original version of Routing.py]
+            # flood/innundation depth above the flood plain (unit: m)
             self.floodDepth = 0.0
+            # channel and flood innundated fraction (dimensionless, the minimum value is channelFraction)
+            self.inundatedFraction = deepcopy(self.channelFraction)
         
         #if self.floodPlain != True:
         else:
