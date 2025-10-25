@@ -1306,7 +1306,7 @@ class Routing(object):
             # flood/innundation depth above the flood plain (unit: m)
             self.floodDepth = 0.0
             # channel and flood innundated fraction (dimensionless, the minimum value is channelFraction)
-            self.inundatedFraction = deepcopy(self.channelFraction)
+            self.innundatedFraction = deepcopy(self.channelFraction)
         
         #if self.floodPlain != True:
         else:
