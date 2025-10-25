@@ -52,22 +52,21 @@ MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${YEAR}
 # update directory where PCRGLOBWB2 state variables will be stored
 PCRGLOBWB_INITIAL_STATE_FOLDER=${PCRGLOBWB_INITIAL_STATE_FOLDER}
 
-## run the model for all clones, from 1 to 53
-##for i in {01..01}
-#for i in {01..53}
-  #do
-  ## set the clone code
-  #CLONE_CODE=${i}
+# run the model for all clones, from 1 to 53
+for i in {01..53}
+  do
+  # set the clone code
+  CLONE_CODE=${i}
   
-  ## run modelling framework
-  #python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${PCRGLOBWB_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} &
-  #done
-#wait
+  # run modelling framework
+  python3 deterministic_runner_with_arguments.py ${INI_FILE} debug_parallel ${CLONE_CODE} -mod ${MAIN_OUTPUT_DIR} -sd ${START_DATE} -ed ${END_DATE} -misd ${PCRGLOBWB_INITIAL_STATE_FOLDER} -dfis ${DATE_FOR_INITIAL_STATES} -num_of_sp_years ${NUMBER_OF_SPINUP_YEARS} &
+  done
+wait
 
-## merging state variables ..............................................
-## merging PCR-GLOBWB2 state variables
-#python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${PCRGLOBWB_INITIAL_STATE_FOLDER} states 8 Global &
-#wait
+# merging state variables ..............................................
+# merging PCR-GLOBWB2 state variables
+python3 merge_pcraster_maps.py ${END_DATE} ${MAIN_OUTPUT_DIR}/ ${PCRGLOBWB_INITIAL_STATE_FOLDER} states 8 Global &
+wait
 
 # merge output netcdf ..................................................
 # create folder
