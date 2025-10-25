@@ -1134,7 +1134,7 @@ class Routing(object):
         1. First, assume that all local fluxes has been added to 'channelStorage'. This is done outside of this function/method.
         2. Then, the 'channelStorage' is routed by using 'pcr.kinematic function' with 'lateral_inflow' = 0.0.
         """
-
+        
         ##########################################################################################################################
         
         logger.info("Using the simplifiedKinematicWave method!")
@@ -1143,7 +1143,7 @@ class Routing(object):
         channelStorageThatWillNotMove = pcr.ifthenelse(self.channelStorage < 0.0, self.channelStorage, 0.0)
         
         # channelStorage that will be given to the ROUTING operation:
-        channelStorageForRouting = pcr.max(0.0, self.channelStorage)                              # unit: m3
+        channelStorageForRouting = pcr.max(0.0, self.channelStorage)                           # unit: m3
         
         # estimate of water height (m)
         # - needed to estimate the length of sub-time step and 
@@ -1164,7 +1164,7 @@ class Routing(object):
             if self.floodPlain:
                 self.dynamicFracWat, self.water_height, alpha, dischargeInitial = self.kinAlpha(channelStorageForRouting)
                 self.dynamicFracWat = pcr.min(pcr.max(self.dynamicFracWat, self.WaterBodies.fracWat),1.0)
-            else:    
+            else:
                 #alpha parameter and initial discharge variable needed for kinematic wave
                 alpha, dischargeInitial = \
                        self.calculate_alpha_and_initial_discharge_for_kinematic_wave(channelStorageForRouting, \
@@ -1182,13 +1182,11 @@ class Routing(object):
             dischargeInitial = pcr.cover(waterBodyOutflowInM3PerSec, dischargeInitial)                             
 
             # discharge (m3/s) based on kinematic wave approximation
-            #~ logger.debug('start pcr.kinematic')
             self.subDischarge = pcr.kinematic(self.lddMap, dischargeInitial, 0.0, 
                                               alpha, self.beta, \
                                               1, length_of_sub_time_step, self.channelLength)
             self.subDischarge = pcr.cover(self.subDischarge, 0.0)
             self.subDischarge = pcr.max(0.0, pcr.cover(self.subDischarge, 0.0))
-            #~ logger.debug('done')
             
             # make sure that we do not get negative channel storage
             self.subDischarge = pcr.min(self.subDischarge * length_of_sub_time_step, \
@@ -1204,7 +1202,8 @@ class Routing(object):
             channelStorageForRouting       = pcr.max(0.000, channelStorageForRouting)
             
             # update flood fraction and flood depth
-            if self.floodPlain != True:
+            #if self.floodPlain != True
+            if not self.floodPlain:
                 self.inundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(channelStorageForRouting)
                 
                 # update dynamicFracWat: fraction of surface water bodies (dimensionless) including lakes and reservoirs
@@ -1691,15 +1690,10 @@ class Routing(object):
             self.qualityWaterBody()
         
         # ROUTING OPERATION:
-        
-        # DELETEME!!!!
-        pcr.aguila(self.floodDepth)
-        sys.exit()
-        
         ##########################################################################################################################
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
-        if self.method == "accuTravelTime":          self.accuTravelTime()      
+        if self.method == "accuTravelTime":         self.accuTravelTime()      
         if self.method == "simplifiedKinematicWave": self.simplifiedKinematicWave(meteo, landSurface, groundwater)
         #
         # channel discharge (m3/s): for current time step
@@ -1715,6 +1709,9 @@ class Routing(object):
         self.disChanWaterBody = pcr.max(0.,self.disChanWaterBody)      # reported channel discharge cannot be negative
         #
         ##########################################################################################################################
+        
+        # DELETEME!!
+        pcr.aguila(self.floodDepth)
         
         if self.quality:
             self.qualityWaterBodyAverage(currTimeStep)    
