@@ -1691,6 +1691,11 @@ class Routing(object):
             self.qualityWaterBody()
         
         # ROUTING OPERATION:
+        
+        # DELETEME!!!!
+        pcr.aguila(self.floodDepth)
+        sys.exit()
+        
         ##########################################################################################################################
         # - this will return new self.channelStorage (but still without waterBodyStorage)
         # - also, this will return self.Q which is channel discharge in m3/day
