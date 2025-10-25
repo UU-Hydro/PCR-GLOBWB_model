@@ -1218,7 +1218,7 @@ class Routing(object):
                 self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(pcr.max(self.dynamicFracWat, self.WaterBodies.fracWat), 1.0))
                 self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
                 self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
-            
+                
                 # estimate water_height for the next loop
                 # - needed to estimate the channel wetted area (for the calculation of alpha and dischargeInitial)
                 self.water_height = channelStorageForRouting / (pcr.max(self.min_fracwat_for_water_height, self.dynamicFracWat) * self.cellArea)
@@ -1232,13 +1232,13 @@ class Routing(object):
                 self.channelStorageNow = pcr.max(0.0, channelStorageForRouting)
                 self.qualityRouting(length_of_sub_time_step)
                 self.channelStorageTimeBefore = pcr.max(0.0, self.channelStorageNow)                                  
-
+        
         # channel discharge (m3/day) = self.Q
         self.Q = discharge_volume
-
+        
         # updating channelStorage (after routing)
         self.channelStorage = channelStorageForRouting
-
+        
         # return channelStorageThatWillNotMove to channelStorage:
         self.channelStorage += channelStorageThatWillNotMove
         
@@ -1282,7 +1282,7 @@ class Routing(object):
          
         # channel width (unit: m), depth (unit: m) and fraction
         self.channelWidth = self.wMean
-        self.channelDepth = pcr.max(0.0, self.yMean)       
+        self.channelDepth = pcr.max(0.0, self.yMean)
         self.channelFraction = pcr.max(0.0, pcr.min(1.0,\
                                self.channelWidth * self.channelLength / (self.cellArea)))
         
@@ -1302,11 +1302,12 @@ class Routing(object):
             else:
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
-                                                                            
-        if self.floodPlain != True:
+        
+        #if self.floodPlain != True:
+        if not self.floodPlain:
             # fraction of innundation due to flood (dimensionless) and flood/innundation depth (m)
             self.innundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(self.channelStorage)
-            #                        
+            #
             # fraction of surface water bodies (dimensionless) including lakes and reservoirs
             # - lake and reservoir surface water fraction
             self.dynamicFracWat = pcr.cover(\
@@ -1566,7 +1567,7 @@ class Routing(object):
         self.timestepsToAvgDischarge += 1.
         
         if self.debugWaterBalance:\
-           preStorage = self.channelStorage                                                         # unit: m3
+           preStorage = self.channelStorage                                                        # unit: m3
         
         # the following variable defines total local change (input) to surface water storage bodies # unit: m3 
         # - only local processes; therefore not considering any routing processes
@@ -1594,7 +1595,7 @@ class Routing(object):
             self.nonIrrReturnFlow = landSurface.nonIrrReturnFlowVolume
         
         # include return flows to channel storage (unit: m3)
-        self.channelStorage  += self.nonIrrReturnFlow
+        self.channelStorage += self.nonIrrReturnFlow
         self.local_input_to_surface_water += self.nonIrrReturnFlow
         
         # calculate evaporation from water bodies - this will return self.waterBodyEvaporation (unit: m)
