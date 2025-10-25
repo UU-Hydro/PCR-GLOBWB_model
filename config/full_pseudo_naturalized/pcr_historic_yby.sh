@@ -1,10 +1,8 @@
 #!/bin/bash
 #SBATCH -N 1
-##SBATCH -n 192
-##SBATCH -p genoa
+#SBATCH -n 192
+#SBATCH -p genoa
 #SBATCH -t 120:00:00
-#SBATCH -n 52
-#SBATCH -p rome
 #SBATCH -J fullcoup
 #SBATCH --mail-type=END
 #SBATCH --mail-user=gcardenas1891@gmail.com
