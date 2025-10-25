@@ -27,16 +27,13 @@ DATE_FOR_INITIAL_STATES="$((YEAR - 1))-12-31"
 
 # number of spinup years
 # - PS: For continuing runs, please set it to zero
-NUMBER_OF_SPINUP_YEARS="1"
+NUMBER_OF_SPINUP_YEARS="3"
 
 # directory of pcrglobwb model scripts
 PCRGLOBWB_MODEL_SCRIPT_FOLDER="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/"
 
 # PCR-GLOBWB2 and DynQual output variables' names
 PCRGLOBWB_OUTPUT_NETCDFS=directRunoff,interflowTotal,baseflow,surfaceWaterInf,waterBodyActEvaporation,channelStorage,discharge,totalWaterStorageVolume
-
-# directory where grid description is stored
-GRIDDES="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/model/water_management_qualloc/griddes_05arcmin_ldd.txt"
 
 # running model ........................................................
 # load the conda enviroment on snellius
@@ -57,8 +54,8 @@ MAIN_OUTPUT_DIR=${OUTPUT_DIR}/${YEAR}
 PCRGLOBWB_INITIAL_STATE_FOLDER=${PCRGLOBWB_INITIAL_STATE_FOLDER}
 
 # run the model for all clones, from 1 to 53
-#for i in {01..53}
-for i in {01..01}
+#for i in {01..01}
+for i in {01..53}
   do
   # set the clone code
   CLONE_CODE=${i}
@@ -75,15 +72,15 @@ wait
 
 # merge output netcdf ..................................................
 # create folder
-#PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
-#mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
+PCRGLOBWB_OUTPUT_NETCDF_DIR=${MAIN_OUTPUT_DIR}/global
+mkdir ${PCRGLOBWB_OUTPUT_NETCDF_DIR}
 
 # merging outputs to global extension
-#MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_pseudo_naturalized/pcr_merge_outputs.sh"
-#sbatch ${MERGE_NETCDF_PY} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} False &
+MERGE_NETCDF_PY="/gpfs/home6/gcardenas/github/qualloc/PCR-GLOBWB_model/config/full_pseudo_naturalized/pcr_merge_outputs.sh"
+sbatch ${MERGE_NETCDF_PY} ${PCRGLOBWB_MODEL_SCRIPT_FOLDER} ${MAIN_OUTPUT_DIR} ${PCRGLOBWB_OUTPUT_NETCDF_DIR} outMonthAvgNC ${START_YEAR}-01-01 ${END_YEAR}-12-01 ${PCRGLOBWB_OUTPUT_NETCDFS} False &
 
-#echo -e "\n... Finished model runs for $YEAR." &
-#wait
+echo -e "\n... Finished model runs for $YEAR." &
+wait
 
 
 # submit next year .....................................................
