@@ -1301,6 +1301,10 @@ class Routing(object):
             else:
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
+            
+            # flood/innundation depth above the flood plain (unit: m)
+            # [from the original version of Routing.py]
+            floodDepth = 0.0
         
         #if self.floodPlain != True:
         if not self.floodPlain:
@@ -1721,9 +1725,6 @@ class Routing(object):
         
         if self.quality:
             self.estimate_concentrations()
-        
-        # DELETEME!!
-        pcr.aguila(self.floodDepth)
 
 
     def calculate_alpha_and_initial_discharge_for_kinematic_wave(self, channelStorage, water_height, innundatedFraction, floodDepth):
@@ -1791,7 +1792,7 @@ class Routing(object):
             # to the available intersections or steps
             #
             deltaXMin = self.floodVolume[self.nrZLevels-1]
-            y_i  =  pcr.scalar(1.0)                                          
+            y_i  =  pcr.scalar(1.0)
             k    = [pcr.scalar(0.0)]*2
             mInt =  pcr.scalar(0.0)
             for iCnt in range(self.nrZLevels-1,0,-1):
