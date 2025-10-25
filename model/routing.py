@@ -1304,10 +1304,10 @@ class Routing(object):
             
             # flood/innundation depth above the flood plain (unit: m)
             # [from the original version of Routing.py]
-            floodDepth = 0.0
+            self.floodDepth = 0.0
         
         #if self.floodPlain != True:
-        if not self.floodPlain:
+        else:
             # fraction of innundation due to flood (dimensionless) and flood/innundation depth (m)
             self.innundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(self.channelStorage)
             #
