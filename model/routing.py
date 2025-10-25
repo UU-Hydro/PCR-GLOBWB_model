@@ -1710,9 +1710,6 @@ class Routing(object):
         #
         ##########################################################################################################################
         
-        # DELETEME!!
-        pcr.aguila(self.floodDepth)
-        
         if self.quality:
             self.qualityWaterBodyAverage(currTimeStep)    
         
@@ -1724,6 +1721,9 @@ class Routing(object):
         
         if self.quality:
             self.estimate_concentrations()
+        
+        # DELETEME!!
+        pcr.aguila(self.floodDepth)
 
 
     def calculate_alpha_and_initial_discharge_for_kinematic_wave(self, channelStorage, water_height, innundatedFraction, floodDepth):
