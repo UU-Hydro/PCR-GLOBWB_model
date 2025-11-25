@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.6
-  - numpy<2.0
+  - numpy
   - pip
   - python-dateutil
   - six  
