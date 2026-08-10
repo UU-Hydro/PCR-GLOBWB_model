@@ -175,6 +175,9 @@ class Routing(object):
            self.landmask = pcr.defined(self.lddMap)
         self.landmask = pcr.ifthen(pcr.defined(self.lddMap), self.landmask)
         self.landmask = pcr.cover(self.landmask, pcr.boolean(0))   
+
+        # ldd complete, required to read upstream discharge
+        self.ldd_complete = self.lddMap
         
         # ldd mask 
         self.lddMap = pcr.lddmask(self.lddMap, self.landmask)
@@ -379,203 +382,14 @@ class Routing(object):
         if 'maxFloodDepth' in list(iniItems.routingOptions.keys()):
             self.maxFloodDepth = vos.readPCRmapClone(iniItems.routingOptions['maxFloodDepth'], self.cloneMap, self.tmpDir, self.inputDir)
         
-        # DynQual
-        self.quality = False
-        if 'quality' in iniItems.routingOptions.keys() and \
-           iniItems.routingOptions['quality'] == "True":
-          self.quality = True
-          logger.info("Water quality modelling initiated.")
-        else:
-          logger.info("Water quality modelling not initiated.")
-        
-        print("waterTemperature =",self.quality)
-        print("Salinity = ", self.quality)
-        print("Organic = ", self.quality)
-        print("Dissolved oxygen = ", self.quality)
-        print("Pathogen = ", self.quality)
-        
-        self.WWtPlants = False
-        if 'WWtPlantsNC' in list(iniItems.routingOptions.keys()):
-           self.WWtPlants = True
-           #Wastewater pathways and removal efficiencies (treatment [tertiary, secondary, primary], collected but untreated, basic sanitation, open defecation, direct)
-           self.WWtPlantsNC = vos.getFullPath(iniItems.routingOptions["WWtPlantsNC"], self.inputDir)
-        
-        if self.quality:
-            
-            #Define discharge threshold for estimating concentrations
-            self.WQ_discharge_threshold = 0.1 #default of 0.1 m3 s-1
-            if 'WQ_discharge_threshold' in iniItems.routingOptions.keys():
-                self.WQ_discharge_threshold = float(iniItems.routingOptions['WQ_discharge_threshold'])
-            
-            ###-Water temperature parameters and file paths
-            self.iceThresTemp= pcr.scalar(273.15) # threshold temperature for snowmelt (degK)
-            self.densityWater= pcr.scalar(1000.0) # density of water [kg/m3]
-            self.latentHeatVapor= pcr.scalar(2.5e6) # latent heat of vaporization [J/kg]
-            self.latentHeatFusion= pcr.scalar(3.34e5) # latent heat of fusion [J/kg]
-            self.specificHeatWater= pcr.scalar(4190.0) # specific heat of water [J/kg/degC]
-            self.heatTransferWater= pcr.scalar(20.0) # heat transfer coefficient for water [W/m2/degC]
-            self.heatTransferIce= pcr.scalar(8.0) # heat transfer coefficient for ice [W/m2/degC]
-            self.albedoWater= pcr.scalar(0.15) # albedo of water [-]
-            self.albedoSnow= pcr.scalar(0.50) # albedo of snow and ice [-]         
-            self.deltaTPrec= pcr.scalar(1.5) #-energy balance, proxy for temperature of groundwater store: mean annual temperature and reduction in the temperature for falling rain 
-            
-            self.radCon= 0.25
-            self.radSlope= 0.50
-            self.stefanBoltzman= 5.67e-8 # [W/m2/K]
-            self.maxThresTemp = pcr.scalar(322.15) # max river temperature set to 322.15 K (or 50C)
-            
-            self.maxIceThickness= 3.0
-            self.deltaIceThickness = 0.0
 
-            if iniItems.meteoOptions['sunhoursTable'] != "Default":
-                self.sunFracTBL = vos.getFullPath(iniItems.meteoOptions['sunhoursTable'], self.inputDir) #convert cloud cover to sunshine hours (Doornkamp & Pruitt)
-            else:               
-                self.sunFracTBL = vos.getFullPath("sunhoursfrac.tbl", os.path.abspath(os.path.dirname( __file__ )))
-                msg = "Using the default sunhoursfrac.tbl stored on " + self.sunFracTBL
-                logger.info(msg) # - sunshine fraction table
+        # input file for upstrem discharge (from upstream basins)
+        self.upstream_discharge_input_files = None
+        if "upstream_discharge_input_files" in list(iniItems.routingOptions.keys()) and iniItems.routingOptions["upstream_discharge_input_files"] != "None":
+            self.upstream_discharge_input_files = iniItems.routingOptions["upstream_discharge_input_files"].split(",")
+        
 
-            #- Paths to (additional) meterological variables
-            self.cloudFileNC = vos.getFullPath(iniItems.meteoOptions['cloudcoverNC'], self.inputDir)
-            self.radFileNC = vos.getFullPath(iniItems.meteoOptions['radiationNC'], self.inputDir)
-            self.vapFileNC = vos.getFullPath(iniItems.meteoOptions['vaporNC'], self.inputDir)
-            self.annualTFileNC = vos.getFullPath(iniItems.meteoOptions['annualAvgTNC'], self.inputDir)
-              
-            #- Paths to powerplant data
-            self.TlmaxNC = vos.getFullPath(iniItems.routingOptions["TlmaxNC"], self.inputDir)
-            self.powerplants_fwNC = vos.getFullPath(iniItems.routingOptions["powerplants_fwNC"], self.inputDir)
-            self.powerplants_fwfixedNC = vos.getFullPath(iniItems.routingOptions["powerplants_fwfixedNC"], self.inputDir)
-            self.powerplants_swNC = vos.getFullPath(iniItems.routingOptions["powerplants_swNC"], self.inputDir)             
-            
-            ###-Salinity parameters and file paths
-            self.backgroundSalinityNC = vos.getFullPath(iniItems.routingOptions['backgroundSalinity'], self.inputDir) #Background TDS concentration (mg l-1)
-            self.backgroundSalinity   = vos.netcdf2PCRobjCloneWithoutTime(self.backgroundSalinityNC,"bgTDS",self.cloneMap) # mg l-1
-                  
-            ###-Organic parameters and file paths
-            self.k_BOD = pcr.scalar(0.35)     #first-order degradation coefficient at 20C (van Vliet et al., 2021)
-            self.watertempcorrection_BOD = pcr.scalar(1.047)     #temperature correction (van Vliet et al., 2021; Wen et al., 2017)
-            
-            ###-Dissolved oxygen parameters and file paths
-            self.elevation_path = vos.getFullPath(iniItems.landSurfaceOptions['topographyNC'],self.inputDir) #elevation data
-            self.elevation = vos.netcdf2PCRobjCloneWithoutTime(self.elevation_path,'dem_average', self.cloneMap, True, None, self.inputDir) #read elevation data
-            
-            ###-Fecal coliform parameters and file paths
-            
-            #Temperature dependent decay
-            self.darkinactivation_FC = pcr.scalar(0.82)        #days-1; Reder et al., (2015)
-            self.watertempcorrection_FC = pcr.scalar(1.07)     #Reder et al., (2015)
-            
-            #Solar radiation dependent decay
-            self.tss = vos.readPCRmapClone(iniItems.routingOptions['TSSmap'],self.cloneMap,self.tmpDir,self.inputDir) #Total suspended solids (from Beusen et al., 2005)
-            self.sunlightinactivation_FC = pcr.scalar(0.0068)     #m2 w-1     #Reder et al., (2015) 
-            self.attenuation_FC = 0.0931 * self.tss + 0.881       #m-1; Reder et al., (2015)
-            
-            #Sedimentation
-            self.threshold_FC_settlingdepth = pcr.scalar(0.5) #m ; stream depth must exceed 50cm in order for sedimentation to occur
-            self.settlingvelocity_FC = pcr.scalar(1.656)    #m/day; Reder et al., (2015)
-            
-            #- Options required for offline runs
-            if iniItems.routingOptions['offlineRun'] == "True":
-                self.offlineRun = True
-                logger.info("DynQual running in offline configuration")
-                
-                #Baseflow, interflow and direct runoff required for offline DynQual runs.
-                self.baseflowNC = vos.getFullPath(iniItems.routingOptions['baseflowNC'], self.inputDir)
-                self.interflowNC = vos.getFullPath(iniItems.routingOptions['interflowNC'], self.inputDir)
-                self.directRunoffNC = vos.getFullPath(iniItems.routingOptions['directRunoffNC'], self.inputDir)
-                    
-                if iniItems.routingOptions['calculateLoads'] == "True":
-                    logger.info("WARNING: Cannot calculate pollutant loadings in offline configuration.")
-                    logger.info("Switch to online configuration or prescribe loadings directly.")
-            
-            else:
-                self.offlineRun = False
-                logger.info("DynQual running online")
-             
-            # For calculating loadings within model runs   
-            if iniItems.routingOptions['calculateLoads'] == "True" and self.offlineRun == False:
-                self.calculateLoads = True
-                logger.info("Loadings calculated within model run.")
-                
-                if iniItems.routingOptions['loadsPerSector'] == "True":
-                    self.loadsPerSector = True
-                    logger.info("Option to report loads per sector enabled")
-                else:
-                    self.loadsPerSector = False
-                
-            else:
-                self.calculateLoads = False
-                self.loadsPerSector = False
-                logger.info("Loadings are prescribed (i.e. akin to a forcing) to the model")
-            
-            if self.calculateLoads:
-                
-                ###File pathways and constant pollutant loading input data
-                
-                #Domestic
-                self.PopulationNC = vos.getFullPath(iniItems.routingOptions["PopulationNC"], self.inputDir) #gridded population, annual, 5 arc-min (Lange & Geiger, 2020)
-                self.Dom_ExcrLoadNC = vos.getFullPath(iniItems.routingOptions["Dom_ExcrLoadNC"], self.inputDir) #average (regional) excretion rates:
-                self.DomTDS_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(self.Dom_ExcrLoadNC,"Dom_Fixed_TDSload",self.cloneMap) # g/capita/day
-                self.DomBOD_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(self.Dom_ExcrLoadNC,"Dom_Fixed_BODload",self.cloneMap) # g/capita/day
-                self.DomFC_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(self.Dom_ExcrLoadNC,"Dom_Fixed_FCload",self.cloneMap)   # cfu/capita/day
-                
-                #Manufacturing
-                self.Man_EfflConcNC = vos.getFullPath(iniItems.routingOptions["Man_EfflConcNC"], self.inputDir) #average (regional) man effluent concentrations:
-                self.ManTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.Man_EfflConcNC,"Man_Fixed_TDSload",self.cloneMap) # mg/L [i.e. g/m3]
-                self.ManBOD_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.Man_EfflConcNC,"Man_Fixed_BODload",self.cloneMap) # mg/L [i.e. g/m3] 
-                self.ManFC_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.Man_EfflConcNC,"Man_Fixed_FCload",self.cloneMap)   # cfu/100ml                
-                
-                #Urban suface runoff          
-                self.UrbanFractionNC = vos.getFullPath(iniItems.routingOptions["UrbanFractionNC"], self.inputDir) #ratio 0 (no urban) - 1 (all urban)
-                self.USR_EfflConcNC = vos.getFullPath(iniItems.routingOptions["USR_EfflConcNC"], self.inputDir) #average (regional) USR effluent concentration:
-                self.USRTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.USR_EfflConcNC,"USR_Fixed_TDSload",self.cloneMap) # mg/L [i.e. g/m3]
-                self.USRBOD_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.USR_EfflConcNC,"USR_Fixed_BODload",self.cloneMap) # mg/L [i.e. g/m3]
-                self.USRFC_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.USR_EfflConcNC,"USR_Fixed_FCload",self.cloneMap)   # cfu/100ml 
-                
-                #Livestock
-                self.LivPopulationNC = vos.getFullPath(iniItems.routingOptions["LivPopulationNC"], self.inputDir) #Gridded livestock populations, 2010, 5 arc-min (Gilbert et al., 2018)
-                self.Liv_ExcrLoadNC = vos.getFullPath(iniItems.routingOptions["Liv_ExcrLoadNC"], self.inputDir)  #average (regional) excretion rates:
-                self.Bufallo_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"bufallo_BODload",self.cloneMap) # g/stock/day
-                self.Chicken_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"chicken_BODload",self.cloneMap) # g/stock/day
-                self.Cow_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"cow_BODload",self.cloneMap) # g/stock/day
-                self.Duck_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"duck_BODload",self.cloneMap) # g/stock/day
-                self.Goat_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"goat_BODload",self.cloneMap) # g/stock/day
-                self.Horse_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"horse_BODload",self.cloneMap) # g/stock/day
-                self.Pig_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"pig_BODload",self.cloneMap) # g/stock/day
-                self.Sheep_BODload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"sheep_BODload",self.cloneMap) # g/stock/day
-                self.Bufallo_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"bufallo_FCload",self.cloneMap) # cfu/stock/day
-                self.Chicken_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"chicken_FCload",self.cloneMap) # cfu/stock/day
-                self.Cow_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"cow_FCload",self.cloneMap) # cfu/stock/day
-                self.Duck_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"duck_FCload",self.cloneMap) # cfu/stock/day
-                self.Goat_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"goat_FCload",self.cloneMap) # cfu/stock/day
-                self.Horse_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"horse_FCload",self.cloneMap) # cfu/stock/day
-                self.Pig_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"pig_FCload",self.cloneMap) # cfu/stock/day
-                self.Sheep_FCload = vos.netcdf2PCRobjCloneWithoutTime(self.Liv_ExcrLoadNC,"sheep_FCload",self.cloneMap) # cfu/stock/day
-                
-                #Irrigation
-                self.Irr_EfflConcNC = vos.getFullPath(iniItems.routingOptions["Irr_EfflConcNC"], self.inputDir) #average soil concentration averaged over the topsoil and subsoil 
-                self.IrrTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(self.Irr_EfflConcNC,"soil_TDS",self.cloneMap) # mg/L
-            
-            else:
-            #- Path to (non-natural) TDS, BOD, FC loading inputs
-                self.TDSloadNC = vos.getFullPath(iniItems.routingOptions["TDSloadNC"], self.inputDir)
-                self.BODloadNC = vos.getFullPath(iniItems.routingOptions["BODloadNC"], self.inputDir)
-                self.FCloadNC = vos.getFullPath(iniItems.routingOptions["FCloadNC"], self.inputDir)
-        
-        else:
-            self.calculateLoads = False
-            self.loadsPerSector = False
-        
-        # QUAlloc
-        self.using_qualloc = False
-        if 'using_qualloc' in iniItems.waterManagementOptions and \
-           iniItems.waterManagementOptions['using_qualloc'] == "True":
-            self.using_qualloc = True
-        
-        # get the initialConditions
-        self.getICs(iniItems, initialConditions)
-        
-        # initiate old style reporting
-        # This is still very useful during the 'debugging' process. 
+        # initiate old style reporting                                  # This is still very useful during the 'debugging' process. 
         self.initiate_old_style_routing_reporting(iniItems)
 
     def getICs(self,iniItems,iniConditions = None):
@@ -784,7 +598,12 @@ class Routing(object):
         self.avgOutflow = pcr.ifthen(self.landmask, pcr.cover(self.avgOutflow, 0.0))
         if self.waterBodyStorage is not None:
             self.waterBodyStorage = pcr.ifthen(self.landmask, pcr.cover(self.waterBodyStorage, 0.0))
-    
+
+
+
+            
+            
+
     def estimateBankfullDischarge(self, bankfullWidth, factor = 4.8):
         
         # bankfull discharge (unit: m3/s)
@@ -841,7 +660,6 @@ class Routing(object):
 
             # a dictionary contains areaFractions (dimensionless): fractions of flooded/innundated areas  
             areaFractions = list(map(float, str(iniItems.routingOptions['relativeElevationLevels']).split(',')))
-            print(areaFractions)
             # number of levels/intervals
             nrZLevels     = len(areaFractions)
             # - TODO: Read areaFractions and nrZLevels automatically. 
@@ -1585,7 +1403,27 @@ class Routing(object):
         # update channelStorage (unit: m3) after runoff
         self.channelStorage += self.runoff * self.cellArea
         self.local_input_to_surface_water += self.runoff * self.cellArea
+
+        # UNTIL THIS PART - CONTINUE FROM THIS
         
+        # upstream discharge, unit: m3.s-1
+        total_upstream_discharge = pcr.spatial(pcr.scalar(0.0))
+        if self.upstream_discharge_input_files is not None:
+            for i_ups_file in range(0, len(self.upstream_discharge_input_files)):
+                upstream_discharge_input_file = self.upstream_discharge_input_files[i_ups_file]
+                self.upstream_discharge  = vos.readUpstreamDischarge(\
+                                                            upstream_discharge_input_file, "automatic",\
+                                                            str(currTimeStep.fulldate),
+                                                            cloneMapFileName=self.cloneMap,
+                                                            useDoy = None)
+                total_upstream_discharge = total_upstream_discharge + pcr.cover(self.upstream_discharge, 0.0)
+        # - put the upstream discharge into the current calculate basin
+        total_upstream_discharge = pcr.upstream(self.ldd_complete, total_upstream_discharge)
+        # - consider only values within the landmask
+        self.total_upstream_discharge = pcr.ifthen(self.landmask, total_upstream_discharge)
+        # - add upstream discharge to the channelStorage (m3)
+        self.channelStorage           = pcr.cover(self.total_upstream_discharge, 0.0) * 3600. * 24. + self.channelStorage
+
         # update channelStorage (unit: m3) after actSurfaceWaterAbstraction 
         self.channelStorage -= landSurface.actSurfaceWaterAbstract * self.cellArea
         self.local_input_to_surface_water -= landSurface.actSurfaceWaterAbstract * self.cellArea

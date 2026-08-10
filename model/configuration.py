@@ -270,78 +270,153 @@ class Configuration(object):
 
     def create_output_directories(self):
 
-        if self.using_relative_path_for_output_directory:
-            self.globalOptions['outputDir'] = self.make_absolute_path(self.globalOptions['outputDir'])
+        if "is_sub_run" in list(self.reportingOptions.keys()) and self.reportingOptions["is_sub_run"] == "True":
+            if self.using_relative_path_for_output_directory:
+                self.globalOptions['outputDir'] = self.make_absolute_path(self.globalOptions['outputDir'])
 
-        # making the root/parent of OUTPUT directory:
-        cleanOutputDir = False
-        if cleanOutputDir:
+            # # making the root/parent of OUTPUT directory:
+            # cleanOutputDir = False
+            # if cleanOutputDir:
+            #     try: 
+            #         shutil.rmtree(self.globalOptions['outputDir'])
+            #     except: 
+            #         pass # for new outputDir (not exist yet)
+            # try: 
+            #     os.makedirs(self.globalOptions['outputDir'])
+            # except: 
+            #     pass # for new outputDir (not exist yet)
+
+            # making temporary directory:
+            self.tmpDir = vos.getFullPath("tmp/", \
+                                        self.globalOptions['outputDir'])
+            
+            # if os.path.exists(self.tmpDir):
+            #     shutil.rmtree(self.tmpDir)
+            # os.makedirs(self.tmpDir)
+            
+            self.outNCDir = vos.getFullPath("netcdf/", \
+                                            self.globalOptions['outputDir'])
+            # if os.path.exists(self.outNCDir):
+            #     shutil.rmtree(self.outNCDir)
+            # os.makedirs(self.outNCDir)
+
+            # # making backup for the python scripts used:
+            self.scriptDir = vos.getFullPath("scripts/", \
+                                            self.globalOptions['outputDir'])
+
+            # if os.path.exists(self.scriptDir):
+            #     shutil.rmtree(self.scriptDir)
+            # os.makedirs(self.scriptDir)
+            
+            # working/starting directory where all scripts are stored
+            path_of_this_module = os.path.abspath(os.path.dirname(__file__))
+            self.starting_directory = path_of_this_module
+                            
+            # for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+            # # ~ for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
+            #     print(filename)
+            #     shutil.copy(filename, self.scriptDir)
+            # # TODO: Fix this copying (it does not include subfolders)   
+            
+            # making log directory:
+            self.logFileDir = vos.getFullPath("log/", \
+                                            self.globalOptions['outputDir'])
+            # cleanLogDir = True
+            # if os.path.exists(self.logFileDir) and cleanLogDir:
+            #     shutil.rmtree(self.logFileDir)
+            # os.makedirs(self.logFileDir)
+
+            # making endStateDir directory:
+            self.endStateDir = vos.getFullPath("states/", \
+                                            self.globalOptions['outputDir'])
+            # if os.path.exists(self.endStateDir):
+            #     shutil.rmtree(self.endStateDir)
+            # os.makedirs(self.endStateDir)
+
+            # making pcraster maps directory:
+            self.mapsDir = vos.getFullPath("maps/", \
+                                        self.globalOptions['outputDir'])
+            # cleanMapDir = True
+            # if os.path.exists(self.mapsDir) and cleanMapDir:
+            #     shutil.rmtree(self.mapsDir)
+            # os.makedirs(self.mapsDir)
+            
+            # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
+            os.chdir(self.mapsDir)
+
+        else:
+            if self.using_relative_path_for_output_directory:
+                self.globalOptions['outputDir'] = self.make_absolute_path(self.globalOptions['outputDir'])
+
+            # making the root/parent of OUTPUT directory:
+            cleanOutputDir = False
+            if cleanOutputDir:
+                try: 
+                    shutil.rmtree(self.globalOptions['outputDir'])
+                except: 
+                    pass # for new outputDir (not exist yet)
             try: 
-                shutil.rmtree(self.globalOptions['outputDir'])
+                os.makedirs(self.globalOptions['outputDir'])
             except: 
                 pass # for new outputDir (not exist yet)
-        try: 
-            os.makedirs(self.globalOptions['outputDir'])
-        except: 
-            pass # for new outputDir (not exist yet)
 
-        # making temporary directory:
-        self.tmpDir = vos.getFullPath("tmp/", \
-                                      self.globalOptions['outputDir'])
-        
-        if os.path.exists(self.tmpDir):
-            shutil.rmtree(self.tmpDir)
-        os.makedirs(self.tmpDir)
-        
-        self.outNCDir = vos.getFullPath("netcdf/", \
-                                         self.globalOptions['outputDir'])
-        if os.path.exists(self.outNCDir):
-            shutil.rmtree(self.outNCDir)
-        os.makedirs(self.outNCDir)
+            # making temporary directory:
+            self.tmpDir = vos.getFullPath("tmp/", \
+                                        self.globalOptions['outputDir'])
+            
+            if os.path.exists(self.tmpDir):
+                shutil.rmtree(self.tmpDir)
+            os.makedirs(self.tmpDir)
+            
+            self.outNCDir = vos.getFullPath("netcdf/", \
+                                            self.globalOptions['outputDir'])
+            if os.path.exists(self.outNCDir):
+                shutil.rmtree(self.outNCDir)
+            os.makedirs(self.outNCDir)
 
-        # making backup for the python scripts used:
-        self.scriptDir = vos.getFullPath("scripts/", \
-                                         self.globalOptions['outputDir'])
+            # making backup for the python scripts used:
+            self.scriptDir = vos.getFullPath("scripts/", \
+                                            self.globalOptions['outputDir'])
 
-        if os.path.exists(self.scriptDir):
-            shutil.rmtree(self.scriptDir)
-        os.makedirs(self.scriptDir)
-        
-        # working/starting directory where all scripts are stored
-        path_of_this_module = os.path.abspath(os.path.dirname(__file__))
-        self.starting_directory = path_of_this_module
-                           
-        for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
-        # ~ for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
-            print(filename)
-            shutil.copy(filename, self.scriptDir)
-        # TODO: Fix this copying (it does not include subfolders)   
-        
-        # making log directory:
-        self.logFileDir = vos.getFullPath("log/", \
-                                          self.globalOptions['outputDir'])
-        cleanLogDir = True
-        if os.path.exists(self.logFileDir) and cleanLogDir:
-            shutil.rmtree(self.logFileDir)
-        os.makedirs(self.logFileDir)
+            if os.path.exists(self.scriptDir):
+                shutil.rmtree(self.scriptDir)
+            os.makedirs(self.scriptDir)
+            
+            # working/starting directory where all scripts are stored
+            path_of_this_module = os.path.abspath(os.path.dirname(__file__))
+            self.starting_directory = path_of_this_module
+                            
+            for filename in glob.glob(os.path.join(path_of_this_module, '*.py')):
+            # ~ for filename in glob.glob(os.path.join(path_of_this_module, '**/*.py'), recursive=True):
+                print(filename)
+                shutil.copy(filename, self.scriptDir)
+            # TODO: Fix this copying (it does not include subfolders)   
+            
+            # making log directory:
+            self.logFileDir = vos.getFullPath("log/", \
+                                            self.globalOptions['outputDir'])
+            cleanLogDir = True
+            if os.path.exists(self.logFileDir) and cleanLogDir:
+                shutil.rmtree(self.logFileDir)
+            os.makedirs(self.logFileDir)
 
-        # making endStateDir directory:
-        self.endStateDir = vos.getFullPath("states/", \
-                                           self.globalOptions['outputDir'])
-        if os.path.exists(self.endStateDir):
-            shutil.rmtree(self.endStateDir)
-        os.makedirs(self.endStateDir)
+            # making endStateDir directory:
+            self.endStateDir = vos.getFullPath("states/", \
+                                            self.globalOptions['outputDir'])
+            if os.path.exists(self.endStateDir):
+                shutil.rmtree(self.endStateDir)
+            os.makedirs(self.endStateDir)
 
-        # making pcraster maps directory:
-        self.mapsDir = vos.getFullPath("maps/", \
-                                       self.globalOptions['outputDir'])
-        cleanMapDir = True
-        if os.path.exists(self.mapsDir) and cleanMapDir:
-            shutil.rmtree(self.mapsDir)
-        os.makedirs(self.mapsDir)
-        
-        # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
-        os.chdir(self.mapsDir)
+            # making pcraster maps directory:
+            self.mapsDir = vos.getFullPath("maps/", \
+                                        self.globalOptions['outputDir'])
+            cleanMapDir = True
+            if os.path.exists(self.mapsDir) and cleanMapDir:
+                shutil.rmtree(self.mapsDir)
+            os.makedirs(self.mapsDir)
+            
+            # go to pcraster maps directory (so all pcr.report files will be saved in this directory) 
+            os.chdir(self.mapsDir)
 
 
     def repair_ini_key_names(self):

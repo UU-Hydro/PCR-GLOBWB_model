@@ -471,17 +471,33 @@ class PCRGlobWB(object):
         runoff                  = pcr.ifthen(self.landmask, self.routing.runoff)
         nonFossilGroundwaterAbs = pcr.ifthen(self.landmask, self.groundwater.nonFossilGroundwaterAbs)   
         # 
+        #%%ADDED  AND CHANGED BY JOREN: START
+        #TODO: ADD AN OPTION TO SWITCH BETWEEN NEW MODULE AND OLD MODULE
+        transportVolSnow=self.landSurface.transportVolSnow/self.routing.cellArea
+        incomingVolSnow=self.landSurface.incomingVolSnow/self.routing.cellArea
         
+        incomingFreeWater=self.landSurface.incomingFreeWater/self.routing.cellArea
+        transportFreeWater=self.landSurface.transportFreeWater/self.routing.cellArea
         
-        vos.waterBalanceCheck([precipitation, surfaceWaterInf, satisfiedIrrGrossDemand],\
-                              [actualET, runoff, nonFossilGroundwaterAbs],\
+        vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand, incomingVolSnow, incomingFreeWater],\
+                              [actualET,runoff,nonFossilGroundwaterAbs, transportVolSnow, transportFreeWater],\
                               [storesAtBeginning],\
                               [storesAtEnd],\
                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
                                True,\
                                self._modelTime.fulldate,threshold=1e-3)
 
-
+# =============================================================================
+#         vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
+#                               [actualET,runoff,nonFossilGroundwaterAbs],\
+#                               [storesAtBeginning],\
+#                               [storesAtEnd],\
+#                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
+#                                True,\
+#                                self._modelTime.fulldate,threshold=1e-3)
+# =============================================================================
+        #%%ADDED  AND CHANGED BY JOREN: STOP
+    
     def read_forcings(self):
         logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)

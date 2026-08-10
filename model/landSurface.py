@@ -153,28 +153,54 @@ class LandSurface(object):
                           'satDegTotal']
         
         # flux variables (unit: m/day)
-        self.fluxVars  = ['infiltration',
-                         'gwRecharge',
-                         'netLqWaterToSoil',
-                         'totalPotET',
-                         'actualET',
-                         'interceptEvap',
-                         'openWaterEvap',
-                         'actSnowFreeWaterEvap',
-                         'actBareSoilEvap',
-                         'actTranspiUppTotal',
-                         'actTranspiLowTotal',
-                         'actTranspiTotal',
-                         'directRunoff',
-                         'interflow',
-                         'interflowTotal',
-                         'landSurfaceRunoff',
-                         'satExcess',
-                         'snowMelt',
-                         'irrigationTranspirationDeficit',
-                         ]
+        self.fluxVars  = ['infiltration','gwRecharge','netLqWaterToSoil',
+                          'totalPotET',
+                          'actualET',
+                          'interceptEvap',
+                          'openWaterEvap',
+                          'actSnowFreeWaterEvap',
+                          'actBareSoilEvap',
+                          'actTranspiUppTotal',
+                          'actTranspiLowTotal',
+                          'actTranspiTotal',                                 
+                          'directRunoff',
+                          'interflow',
+                          'interflowTotal',
+                          'irrGrossDemand',
+                          'nonIrrGrossDemand',
+                          'totalPotentialGrossDemand',
+                          'actSurfaceWaterAbstract',
+                          'allocSurfaceWaterAbstract',
+                          'desalinationAbstraction',
+                          'desalinationAllocation',
+                          'nonFossilGroundwaterAbs',
+                          'allocNonFossilGroundwater',
+                          'fossilGroundwaterAbstr',
+                          'fossilGroundwaterAlloc',
+                          'landSurfaceRunoff',
+                          'satExcess',
+                          'snowMelt',
+                          'totalGroundwaterAbstraction',
+                          'totalGroundwaterAllocation',
+                          'totalPotentialMaximumGrossDemand',
+                          'totalPotentialMaximumIrrGrossDemand',
+                          'totalPotentialMaximumIrrGrossDemandPaddy',
+                          'totalPotentialMaximumIrrGrossDemandNonPaddy',
+                          'totalPotentialMaximumNonIrrGrossDemand',
+                          'irrGrossDemandPaddy',
+                          'irrGrossDemandNonPaddy',
+                          'domesticWaterWithdrawal',
+                          'industryWaterWithdrawal',
+                          'livestockWaterWithdrawal',
+                          'nonIrrReturnFlow',
+                          'irrigationTranspirationDeficit']
+
+        #ADDED BY JOREN: START
+        self.fluxVars   +=['incomingVolSnow', 'transportVolSnow', 'incomingFreeWater', 'transportFreeWater']
+        #ADDED BY JOREN: STOP
         
         # specific variables for 2 and 3 layer soil models:
+        
         if self.numberOfSoilLayers == 2:
             self.mainStates += ['storUpp','storLow']
             self.stateVars  += self.mainStates

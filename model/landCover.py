@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 import virtualOS as vos
 from ncConverter import *
+import numpy as np
 
 class LandCover(object):
 
@@ -131,6 +132,26 @@ class LandCover(object):
                                             self.tmpDir,self.inputDir)
             vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))
         
+        self.cellArea = vos.readPCRmapClone(iniItems.routingOptions['cellAreaMap'],self.cloneMap,self.tmpDir,self.inputDir)  
+        #%%ADDED BY JOREN:START
+        self.snowTransport=False
+        if "snowTransport" in list(self.iniItemsLC.keys())and self.iniItemsLC['snowTransport'] != "None":
+            self.snowTransport = self.iniItemsLC['snowTransport']
+            for var in ['Hv', 'frho']:
+                input = self.iniItemsLC[str(var)]
+                vars(self)[var] = vos.readPCRmapClone(input,self.cloneMap,
+                                                self.tmpDir,self.inputDir)
+                vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))
+        
+            self.reverseLDD=pcr.ldd(vos.readPCRmapClone(\
+                                    iniItems.landSurfaceOptions['invertedDEM'],
+                                self.cloneMap,self.tmpDir,self.inputDir))
+            
+            self.downstreamCells=pcr.upstream(self.reverseLDD, pcr.scalar(1.0))
+            self.downstreamCells=pcr.ifthenelse(self.downstreamCells==0, 1.0, self.downstreamCells)
+            logger.info("Using FreyAndHolzmann Snow Transport to prevent snow towers")
+    
+    #%%ADDED BY JOREN:STOP
 
         # initialization some variables
         self.fractionArea        = None           # area (m2) of a certain land cover type ; will be assigned by the landSurface module
@@ -1555,6 +1576,25 @@ class LandCover(object):
             prevStates        = [self.snowCoverSWE,self.snowFreeWater]
             prevSnowCoverSWE  = self.snowCoverSWE
             prevSnowFreeWater = self.snowFreeWater
+            
+        #%%ADDED BY JOREN: START    
+        #------SNOW-TRANSPORT-----------------------------------------------------------------
+        self.transportVolSnow=pcr.scalar(0.0)
+        self.incomingVolSnow=pcr.scalar(0.0)
+        
+        #Do we want to transport snow free water as well?
+        self.transport_water=False
+        self.transportFreeWater=pcr.scalar(0.0)
+        self.incomingFreeWater=pcr.scalar(0.0)
+        #What Kind Of Snow Transport Do We Want...?        
+        if self.snowTransport=='FreyAndHolzmann':
+            self.simplifiedFreyAndHolzmann_pcraster(currTimeStep)
+            
+        else:
+            logger.info('NO SnowTransport: who needs that anyway....?')
+
+        #%%ADDED BY JOREN: STOP
+            
 
         # changes in snow cover: - melt ; + gain in snow or refreezing
         deltaSnowCover = \
@@ -1603,33 +1643,137 @@ class LandCover(object):
 
         # update actual evaporation (after evaporation from snowFreeWater) 
         self.actualET += self.actSnowFreeWaterEvap                      # EACT_L[TYPE]= EACT_L[TYPE]+ES_a[TYPE];
-
-        # ~ pcr.aguila(self.snowFreeWater)
-        # ~ pcr.aguila(self.actualET)
-
-        if self.debugWaterBalance:
-            vos.waterBalanceCheck([self.snowfall, self.liquidPrecip],
-                                  [self.netLqWaterToSoil,\
-                                   self.actSnowFreeWaterEvap],
-                                   prevStates,\
-                                  [self.snowCoverSWE, self.snowFreeWater],\
-                                  'snow module',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=1e-4)
-            vos.waterBalanceCheck([self.snowfall, deltaSnowCover],\
-                                  [pcr.scalar(0.0)],\
-                                  [prevSnowCoverSWE],\
-                                  [self.snowCoverSWE],\
-                                  'snowCoverSWE',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=5e-4)
+#%%CHANGED BY JOREN: START
+            
+        
+        if self.transport_water==True:
+            vos.waterBalanceCheck([self.snowfall, self.liquidPrecip, self.incomingVolSnow/self.cellArea, self.incomingFreeWater/self.cellArea],
+                                    [self.netLqWaterToSoil,\
+                                    self.actSnowFreeWaterEvap, self.transportVolSnow/self.cellArea, self.transportFreeWater/self.cellArea],
+                                    prevStates,\
+                                    [self.snowCoverSWE, self.snowFreeWater],\
+                                    'snow module',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=1e-4)
+            vos.waterBalanceCheck([self.snowfall, deltaSnowCover, self.incomingVolSnow/self.cellArea],\
+                                    [self.transportVolSnow/self.cellArea],\
+                                    [prevSnowCoverSWE],\
+                                    [self.snowCoverSWE],\
+                                    'snowCoverSWE',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=5e-4)
+            vos.waterBalanceCheck([self.liquidPrecip, self.incomingFreeWater/self.cellArea],
+                                    [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil, self.transportFreeWater/self.cellArea],
+                                    [prevSnowFreeWater],\
+                                    [self.snowFreeWater],\
+                                    'snowFreeWater',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=5e-4)
+        else:
+            vos.waterBalanceCheck([self.snowfall, self.liquidPrecip, self.incomingVolSnow/self.cellArea],
+                                    [self.netLqWaterToSoil,\
+                                    self.actSnowFreeWaterEvap, self.transportVolSnow/self.cellArea],
+                                    prevStates,\
+                                    [self.snowCoverSWE, self.snowFreeWater],\
+                                    'snow module',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=1e-4)
+            vos.waterBalanceCheck([self.snowfall, deltaSnowCover, self.incomingVolSnow/self.cellArea],\
+                                    [self.transportVolSnow/self.cellArea],\
+                                    [prevSnowCoverSWE],\
+                                    [self.snowCoverSWE],\
+                                    'snowCoverSWE',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=5e-4)
             vos.waterBalanceCheck([self.liquidPrecip],
-                                  [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
-                                  [prevSnowFreeWater],\
-                                  [self.snowFreeWater],\
-                                  'snowFreeWater',\
-                                   True,\
-                                   currTimeStep.fulldate,threshold=5e-4)
+                                    [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
+                                    [prevSnowFreeWater],\
+                                    [self.snowFreeWater],\
+                                    'snowFreeWater',\
+                                    True,\
+                                    currTimeStep.fulldate,threshold=5e-4)
+            
+# =============================================================================
+#             vos.waterBalanceCheck([self.snowfall, self.liquidPrecip],
+#                                   [self.netLqWaterToSoil,\
+#                                    self.actSnowFreeWaterEvap],
+#                                    prevStates,\
+#                                   [self.snowCoverSWE, self.snowFreeWater],\
+#                                   'snow module',\
+#                                    True,\
+#                                    currTimeStep.fulldate,threshold=1e-4)
+#             vos.waterBalanceCheck([self.snowfall, deltaSnowCover],\
+#                                   [pcr.scalar(0.0)],\
+#                                   [prevSnowCoverSWE],\
+#                                   [self.snowCoverSWE],\
+#                                   'snowCoverSWE',\
+#                                    True,\
+#                                    currTimeStep.fulldate,threshold=5e-4)
+#             vos.waterBalanceCheck([self.liquidPrecip],
+#                                   [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
+#                                   [prevSnowFreeWater],\
+#                                   [self.snowFreeWater],\
+#                                   'snowFreeWater',\
+#                                    True,\
+#                                    currTimeStep.fulldate,threshold=5e-4)
+# =============================================================================
+
+    def simplifiedFreyAndHolzmann_pcraster(self, currTimeStep):
+        #Check where snow exceeds the threshold.
+        # snowZones = pcr.ifthenelse(self.snowCoverSWE != 0., pcr.scalar(1.), pcr.scalar(0.))
+        self.reverseLDD_sub = pcr.ifthen(pcr.ifthenelse(self.snowCoverSWE != 0., pcr.scalar(1.), pcr.scalar(0.)) != 0, self.reverseLDD)
+        # exceedingSnow=pcr.max(self.snowCoverSWE-self.Hv, pcr.scalar(0.))
+        #Convert everything to volumes
+        self.transportVolSnow=pcr.max(pcr.max(self.snowCoverSWE-self.Hv, pcr.scalar(0.))*self.cellArea, 0.0)
+        #Calculate fraction that needs to be transported
+        self.transportVolSnow=self.transportVolSnow*vos.rad2deg(self.parameters.tanslope)/90*self.frho
+
+        #Divide by number of downstream cells (downstream copies the value of the downstream cell, thus this step is needed for water balance)        
+        # fractionTransport=pcr.cover(self.transportVolSnow/self.downstreamCells)
+        # fractionTransport = pcr.cover(fractionTransport, 0.)
+        #Transport the snow to downstream cells (with reverse LDD)
+        self.incomingVolSnow = pcr.cover(pcr.downstream(self.reverseLDD_sub, pcr.cover(self.transportVolSnow/self.downstreamCells)), 0.)
+        # self.incomingVolSnow = pcr.cover(self.incomingVolSnow, 0.)
+
+        #TRANSPORT SNOWFREEWATER
+        if self.transport_water==True:
+            frac_of_snow=(exceedingSnow*vos.rad2deg(self.parameters.tanslope)/90*self.frho)/self.snowCoverSWE
+            self.transportFreeWater=pcr.max(self.cellArea*self.snowFreeWater*frac_of_snow, 0.0)
+            fractionWater=self.transportFreeWater/self.downstreamCells
+            #Transport the snow free water to downstream cells (with reverse LDD)
+            self.incomingFreeWater = pcr.downstream(self.reverseLDD, fractionWater)
+            self.snowFreeWater = self.snowFreeWater-self.transportFreeWater/self.cellArea+self.incomingFreeWater/self.cellArea
+            
+        #Compute new snow cover
+        self.snowCoverSWE = self.snowCoverSWE-self.transportVolSnow/self.cellArea+self.incomingVolSnow/self.cellArea
+        
+
+#%%CHANGED BY JOREN: STOP
+
+
+        # if self.debugWaterBalance:
+        #     vos.waterBalanceCheck([self.snowfall, self.liquidPrecip],
+        #                           [self.netLqWaterToSoil,\
+        #                            self.actSnowFreeWaterEvap],
+        #                            prevStates,\
+        #                           [self.snowCoverSWE, self.snowFreeWater],\
+        #                           'snow module',\
+        #                            True,\
+        #                            currTimeStep.fulldate,threshold=1e-4)
+        #     vos.waterBalanceCheck([self.snowfall, deltaSnowCover],\
+        #                           [pcr.scalar(0.0)],\
+        #                           [prevSnowCoverSWE],\
+        #                           [self.snowCoverSWE],\
+        #                           'snowCoverSWE',\
+        #                            True,\
+        #                            currTimeStep.fulldate,threshold=5e-4)
+        #     vos.waterBalanceCheck([self.liquidPrecip],
+        #                           [deltaSnowCover, self.actSnowFreeWaterEvap, self.netLqWaterToSoil],
+        #                           [prevSnowFreeWater],\
+        #                           [self.snowFreeWater],\
+        #                           'snowFreeWater',\
+        #                            True,\
+        #                            currTimeStep.fulldate,threshold=5e-4)
 
     def getSoilStates(self):
 
