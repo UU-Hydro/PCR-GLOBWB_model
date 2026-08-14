@@ -1,0 +1,15 @@
+[workspace]
+authors = ["Barry van Jaarsveld <a.s.vanjaarsveld@uu.nl>"]
+channels = ["conda-forge"]
+name = "PCR-GLOBWB_model"
+platforms = ["osx-arm64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+pcraster = ">=4.4.3,<5"
+python = ">=3.14.6,<3.15"
+netCDF4 = "*"
+six = "*"
+
