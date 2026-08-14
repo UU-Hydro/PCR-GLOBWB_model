@@ -74,6 +74,32 @@ max_num_of_tries = 5
 # ~ max_num_of_tries = float("inf")
 
 
+def aguila_with_var_name(pcr_field, file_name, tmp_directory = None):
+
+    if tmp_directory is not None: file_name = tmp_directory + "/" + file_name + ".tmp.map"
+    
+    # save the variable to a pcraster file and visualize it using aguila
+    pcr.report(pcr_field, file_name)
+    # - using os.system
+    cmd = "aguila " + str(file_name) + " & "
+    os.system(cmd)
+    # ~ # - using subprocess
+    # ~ cmd = "aguila " + str(file_name)
+    # ~ print(cmd)
+    # ~ proc = subprocess.Popen([cmd], shell = True,
+                                   # ~ stdin = None, stdout = None, stderr = None, close_fds = True)
+    
+    # ~ # remove the pcraster file - WE CANNOT DO THIS!!! (as the files will still be open/active)
+    # ~ cmd = 'rm ' + file_name
+    # ~ os.system(cmd)
+    
+
+def get_var_name(var):
+    for name, value in globals().items():
+        if value is var:
+            return name
+
+
 def readUpstreamDischarge(ncFile,\
                                 varName = "automatic" ,
                                 dateInput = None,\
