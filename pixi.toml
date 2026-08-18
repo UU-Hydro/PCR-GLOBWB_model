@@ -13,4 +13,10 @@ python = ">=3.14.6,<3.15"
 netCDF4 = "*"
 six = "*"
 ncview = "*"
+zarr = "*"
+xarray = "*"
+pyinterp = "*"
+
+
+
 

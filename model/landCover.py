@@ -1724,7 +1724,7 @@ class LandCover(object):
         self.reverseLDD_sub = pcr.ifthen(pcr.ifthenelse(self.snowCoverSWE != 0., pcr.scalar(1.), pcr.scalar(0.)) != 0, self.reverseLDD)
         # exceedingSnow=pcr.max(self.snowCoverSWE-self.Hv, pcr.scalar(0.))
         #Convert everything to volumes
-        self.transportVolSnow=pcr.max(pcr.max(self.snowCoverSWE-self.Hv, pcr.scalar(0.))*self.cellArea, 0.0)
+        self.transportVolSnow=pcr.max(self.snowCoverSWE-self.Hv, pcr.scalar(0.))*self.cellArea
         #Calculate fraction that needs to be transported
         self.transportVolSnow=self.transportVolSnow*vos.rad2deg(self.parameters.tanslope)/90*self.frho
 

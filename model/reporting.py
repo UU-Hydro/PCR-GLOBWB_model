@@ -486,256 +486,256 @@ class Reporting(object):
                                             "_weekAvg_output.nc",\
                                             short_name,unit,long_name)
         
-            # - MONTHly output in netCDF files:
-            # -- cummulative
-            self.outMonthTotNC = ["None"]
-            try:
-                self.outMonthTotNC = list(set(self.configuration.reportingOptions['outMonthTotNC'].split(",")))
-            except:
-                pass
-            if self.outMonthTotNC[0] != "None":
-                for var in self.outMonthTotNC:
-                    # initiating monthlyVarTot (accumulator variable):
-                    vars(self)[var+'MonthTot'] = None
+        # - MONTHly output in netCDF files:
+        # -- cummulative
+        self.outMonthTotNC = ["None"]
+        try:
+            self.outMonthTotNC = list(set(self.configuration.reportingOptions['outMonthTotNC'].split(",")))
+        except:
+            pass
+        if self.outMonthTotNC[0] != "None":
+            for var in self.outMonthTotNC:
+                # initiating monthlyVarTot (accumulator variable):
+                vars(self)[var+'MonthTot'] = None
                 
-                    logger.info("Creating the netcdf file for monthly accumulation reporting for variable %s.", str(var))
+                logger.info("Creating the netcdf file for monthly accumulation reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_monthly_total_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_monthly_total_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthTot_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_monthTot_output.nc",\
+                                            short_name,unit,long_name,standard_name)
             
-            # -- average
-            self.outMonthAvgNC = ["None"]
-            try:
-                self.outMonthAvgNC = list(set(self.configuration.reportingOptions['outMonthAvgNC'].split(",")))
-            except:
-                pass
-            if self.outMonthAvgNC[0] != "None":
-                for var in self.outMonthAvgNC:
-                    # initiating monthlyTotAvg (accumulator variable)
-                    vars(self)[var+'MonthTot'] = None
+        # -- average
+        self.outMonthAvgNC = ["None"]
+        try:
+            self.outMonthAvgNC = list(set(self.configuration.reportingOptions['outMonthAvgNC'].split(",")))
+        except:
+            pass
+        if self.outMonthAvgNC[0] != "None":
+            for var in self.outMonthAvgNC:
+                # initiating monthlyTotAvg (accumulator variable)
+                vars(self)[var+'MonthTot'] = None
                 
-                    # initiating monthlyVarAvg:
-                    vars(self)[var+'MonthAvg'] = None
+                # initiating monthlyVarAvg:
+                vars(self)[var+'MonthAvg'] = None
                 
-                    logger.info("Creating the netcdf file for monthly average reporting for variable %s.", str(var))
+                logger.info("Creating the netcdf file for monthly average reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_monthAvg_output.nc",\
+                                            short_name,unit,long_name,standard_name)
         
-                # -- last day of the month
-            self.outMonthEndNC = ["None"]
-            try:
-                self.outMonthEndNC = list(set(self.configuration.reportingOptions['outMonthEndNC'].split(",")))
-            except:
-                pass
-            if self.outMonthEndNC[0] != "None":
-                for var in self.outMonthEndNC:
-                    logger.info("Creating the netcdf file for monthly end reporting for variable %s.", str(var))
+            # -- last day of the month
+        self.outMonthEndNC = ["None"]
+        try:
+            self.outMonthEndNC = list(set(self.configuration.reportingOptions['outMonthEndNC'].split(",")))
+        except:
+            pass
+        if self.outMonthEndNC[0] != "None":
+            for var in self.outMonthEndNC:
+                logger.info("Creating the netcdf file for monthly end reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthEnd_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_monthEnd_output.nc",\
+                                            short_name,unit,long_name,standard_name)
             
-            # -- maximum of the month
-            self.outMonthMaxNC = ["None"]
-            try:
-                self.outMonthMaxNC = list(set(self.configuration.reportingOptions['outMonthMaxNC'].split(",")))
-            except:
-                pass
-            if self.outMonthMaxNC[0] != "None":
-                for var in self.outMonthMaxNC:
-                    logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
+        # -- maximum of the month
+        self.outMonthMaxNC = ["None"]
+        try:
+            self.outMonthMaxNC = list(set(self.configuration.reportingOptions['outMonthMaxNC'].split(",")))
+        except:
+            pass
+        if self.outMonthMaxNC[0] != "None":
+            for var in self.outMonthMaxNC:
+                logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_monthMax_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_monthMax_output.nc",\
+                                            short_name,unit,long_name,standard_name)
         
-                # - YEARly output in netCDF files:
-            # -- cummulative
-            self.outAnnuaTotNC = ["None"]
-            try:
-                self.outAnnuaTotNC = list(set(self.configuration.reportingOptions['outAnnuaTotNC'].split(",")))
-            except:
-                pass
-            if self.outAnnuaTotNC[0] != "None":
-                for var in self.outAnnuaTotNC:
-                    # initiating yearly accumulator variable:
-                    vars(self)[var+'AnnuaTot'] = None
+            # - YEARly output in netCDF files:
+        # -- cummulative
+        self.outAnnuaTotNC = ["None"]
+        try:
+            self.outAnnuaTotNC = list(set(self.configuration.reportingOptions['outAnnuaTotNC'].split(",")))
+        except:
+            pass
+        if self.outAnnuaTotNC[0] != "None":
+            for var in self.outAnnuaTotNC:
+                # initiating yearly accumulator variable:
+                vars(self)[var+'AnnuaTot'] = None
                 
-                    logger.info("Creating the netcdf file for annual accumulation reporting for variable %s.", str(var))
+                logger.info("Creating the netcdf file for annual accumulation reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_yearly_total_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_yearly_total_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaTot_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_annuaTot_output.nc",\
+                                            short_name,unit,long_name,standard_name)
             
-            # -- average
-            self.outAnnuaAvgNC = ["None"]
-            try:
-                self.outAnnuaAvgNC = list(set(self.configuration.reportingOptions['outAnnuaAvgNC'].split(",")))
-            except:
-                pass
-            if self.outAnnuaAvgNC[0] != "None":
-                for var in self.outAnnuaAvgNC:
-                    # initiating annualyVarAvg:
-                    vars(self)[var+'AnnuaAvg'] = None
+        # -- average
+        self.outAnnuaAvgNC = ["None"]
+        try:
+            self.outAnnuaAvgNC = list(set(self.configuration.reportingOptions['outAnnuaAvgNC'].split(",")))
+        except:
+            pass
+        if self.outAnnuaAvgNC[0] != "None":
+            for var in self.outAnnuaAvgNC:
+                # initiating annualyVarAvg:
+                vars(self)[var+'AnnuaAvg'] = None
                 
-                    # initiating annualyTotAvg (accumulator variable)
-                    vars(self)[var+'AnnuaTot'] = None
+                # initiating annualyTotAvg (accumulator variable)
+                vars(self)[var+'AnnuaTot'] = None
                 
-                    logger.info("Creating the netcdf file for annual average reporting for variable %s.", str(var))
+                logger.info("Creating the netcdf file for annual average reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_annuaAvg_output.nc",\
+                                            short_name,unit,long_name,standard_name)
             
-            # -- last day of the year
-            self.outAnnuaEndNC = ["None"]
-            try:
-                self.outAnnuaEndNC = list(set(self.configuration.reportingOptions['outAnnuaEndNC'].split(",")))
-            except:
-                pass
-            if self.outAnnuaEndNC[0] != "None":
-                for var in self.outAnnuaEndNC:
-                    logger.info("Creating the netcdf file for annual end reporting for variable %s.", str(var))
+        # -- last day of the year
+        self.outAnnuaEndNC = ["None"]
+        try:
+            self.outAnnuaEndNC = list(set(self.configuration.reportingOptions['outAnnuaEndNC'].split(",")))
+        except:
+            pass
+        if self.outAnnuaEndNC[0] != "None":
+            for var in self.outAnnuaEndNC:
+                logger.info("Creating the netcdf file for annual end reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaEnd_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_annuaEnd_output.nc",\
+                                            short_name,unit,long_name,standard_name)
         
-            # -- maximum of the year
-            self.outAnnuaMaxNC = ["None"]
-            try:
-                self.outAnnuaMaxNC = list(set(self.configuration.reportingOptions['outAnnuaMaxNC'].split(",")))
-            except:
-                pass
-            if self.outAnnuaMaxNC[0] != "None":
-                for var in self.outAnnuaMaxNC:
-                    logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
+        # -- maximum of the year
+        self.outAnnuaMaxNC = ["None"]
+        try:
+            self.outAnnuaMaxNC = list(set(self.configuration.reportingOptions['outAnnuaMaxNC'].split(",")))
+        except:
+            pass
+        if self.outAnnuaMaxNC[0] != "None":
+            for var in self.outAnnuaMaxNC:
+                logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
                 
-                    short_name = varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_annuaMax_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_annuaMax_output.nc",\
+                                            short_name,unit,long_name,standard_name)
         
-            # -- daily upsteam average (through LDD)
-            self.outDailyTotUpsAvgNC = ["None"]
-            try:
-                self.outDailyTotUpsAvgNC = list(set(self.configuration.reportingOptions['outDailyTotUpsAvgNC'].split(",")))
-            except:
-                pass
-            if self.outDailyTotUpsAvgNC[0] != "None":
-                for var in self.outDailyTotUpsAvgNC:
-                    logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
+        # -- daily upsteam average (through LDD)
+        self.outDailyTotUpsAvgNC = ["None"]
+        try:
+            self.outDailyTotUpsAvgNC = list(set(self.configuration.reportingOptions['outDailyTotUpsAvgNC'].split(",")))
+        except:
+            pass
+        if self.outDailyTotUpsAvgNC[0] != "None":
+            for var in self.outDailyTotUpsAvgNC:
+                logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
                 
-                    short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
-                    unit       = varDicts.netcdf_unit[var]      
-                    long_name  = varDicts.netcdf_long_name[var]
-                    if long_name == None: long_name = short_name
-                    long_name  = "upstream_average_" + long_name
-                    standard_name= short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
-                        standard_name= varDicts.netcdf_standard_name[var]
+                short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
+                unit       = varDicts.netcdf_unit[var]      
+                long_name  = varDicts.netcdf_long_name[var]
+                if long_name == None: long_name = short_name
+                long_name  = "upstream_average_" + long_name
+                standard_name= short_name
+                if var in list(varDicts.netcdf_standard_name.keys()):
+                    standard_name= varDicts.netcdf_standard_name[var]
                     
-                    # creating netCDF files:
-                    self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-                                                str(var)+\
-                                                "_dailyTotUpsAvg_output.nc",\
-                                                short_name,unit,long_name,standard_name)
+                # creating netCDF files:
+                self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
+                                            str(var)+\
+                                            "_dailyTotUpsAvg_output.nc",\
+                                            short_name,unit,long_name,standard_name)
         
-            # list of variables that will be reported:
-            self.variables_for_report = self.outDailyTotNC +\
-                                    self.outWeekTotNC +\
-                                    self.outWeekAvgNC +\
-                                        self.outMonthTotNC +\
-                                        self.outMonthAvgNC +\
-                                        self.outMonthEndNC +\
-                                        self.outMonthMaxNC +\
-                                        self.outAnnuaTotNC +\
-                                        self.outAnnuaAvgNC +\
-                                        self.outAnnuaEndNC +\
-                                        self.outMonthMaxNC +\
-                                        self.outDailyTotUpsAvgNC
+        # list of variables that will be reported:
+        self.variables_for_report = self.outDailyTotNC +\
+                                self.outWeekTotNC +\
+                                self.outWeekAvgNC +\
+                                    self.outMonthTotNC +\
+                                    self.outMonthAvgNC +\
+                                    self.outMonthEndNC +\
+                                    self.outMonthMaxNC +\
+                                    self.outAnnuaTotNC +\
+                                    self.outAnnuaAvgNC +\
+                                    self.outAnnuaEndNC +\
+                                    self.outMonthMaxNC +\
+                                    self.outDailyTotUpsAvgNC
 
 
     def post_processing(self):

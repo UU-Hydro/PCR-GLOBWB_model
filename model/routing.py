@@ -165,7 +165,12 @@ class Routing(object):
                           self.cloneMap, self.tmpDir, self.inputDir, True)
         self.lddMap = pcr.lddrepair(pcr.ldd(self.lddMap))
         self.lddMap = pcr.lddrepair(self.lddMap)
-        
+
+        # the complete ldd, before it is clipped to the landmask (see below)
+        # - needed to route upstream discharge (from other sub-runs) into this basin,
+        #   as the cells supplying that discharge lie just outside the landmask
+        self.ldd_complete = self.lddMap
+
         # landmask
         if iniItems.globalOptions['landmask'] != "None":
            self.landmask = vos.readPCRmapClone(\
@@ -1606,8 +1611,8 @@ class Routing(object):
                                                             cloneMapFileName=self.cloneMap,
                                                             useDoy = None)
                 total_upstream_discharge = total_upstream_discharge + pcr.cover(self.upstream_discharge, 0.0)
-        # - put the upstream discharge into the current calculate basin
-        total_upstream_discharge = pcr.upstream(self.ldd_complete, total_upstream_discharge)
+            # - put the upstream discharge into the current calculate basin
+            total_upstream_discharge = pcr.upstream(self.ldd_complete, total_upstream_discharge)
         # - consider only values within the landmask
         self.total_upstream_discharge = pcr.ifthen(self.landmask, total_upstream_discharge)
         # - add upstream discharge to the channelStorage (m3)

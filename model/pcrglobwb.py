@@ -479,25 +479,14 @@ class PCRGlobWB(object):
         incomingFreeWater=self.landSurface.incomingFreeWater/self.routing.cellArea
         transportFreeWater=self.landSurface.transportFreeWater/self.routing.cellArea
         
-        vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand, incomingVolSnow, incomingFreeWater],\
+        vos.waterBalanceCheck([precipitation,surfaceWaterInf,satisfiedIrrGrossDemand, incomingVolSnow, incomingFreeWater],\
                               [actualET,runoff,nonFossilGroundwaterAbs, transportVolSnow, transportFreeWater],\
                               [storesAtBeginning],\
                               [storesAtEnd],\
                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
                                True,\
                                self._modelTime.fulldate,threshold=1e-3)
-
-# =============================================================================
-#         vos.waterBalanceCheck([precipitation,surfaceWaterInf,irrGrossDemand],\
-#                               [actualET,runoff,nonFossilGroundwaterAbs],\
-#                               [storesAtBeginning],\
-#                               [storesAtEnd],\
-#                               'all stores (snow + interception + soil + groundwater), but except river/routing',\
-#                                True,\
-#                                self._modelTime.fulldate,threshold=1e-3)
-# =============================================================================
         #%%ADDED  AND CHANGED BY JOREN: STOP
-    
     def read_forcings(self):
         logger.info("Reading forcings for time %s", self._modelTime)
         self.meteo.read_forcings(self._modelTime)
@@ -546,4 +535,3 @@ class PCRGlobWB(object):
                 filename = self._configuration.mapsDir + "/pcrglobwb_files_for_" + str(self._modelTime.fulldate)+"_are_ready.txt"
                 if os.path.exists(filename): os.remove(filename)
                 open(filename, "w").close()    
-
