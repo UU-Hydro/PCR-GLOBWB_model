@@ -36,8 +36,8 @@ jobs:
       # Ready-made data/input and data/reference fixtures, published on Zenodo
       - name: Download CI fixtures from Zenodo
         env:
-          ZENODO_RECORD_ID: "REPLACE_ME"
-          ZENODO_ARCHIVE: "qualloc_dynqual_ci_data.zip"
+          ZENODO_RECORD_ID: "22141541"
+          ZENODO_ARCHIVE: "qualloc_dynqual.zip"
         run: |
           curl -fL -o data.zip \
             "https://zenodo.org/records/${ZENODO_RECORD_ID}/files/${ZENODO_ARCHIVE}?download=1"
@@ -45,9 +45,7 @@ jobs:
           mkdir -p data
           unzip -q data.zip -d data
           rm data.zip
-          # expected layout after extraction:
-          #   data/input/...
-          #   data/reference/...
+          ls -l data
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
