@@ -1,0 +1,71 @@
+name: qualloc_dynqual CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "ci/qualloc_dynqual/**"
+      - "model/**"
+      - ".github/workflows/qualloc_dynqual.yml"
+  pull_request:
+    paths:
+      - "ci/qualloc_dynqual/**"
+      - "model/**"
+      - ".github/workflows/qualloc_dynqual.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: qualloc_dynqual-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -l {0}
+    working-directory: ci/qualloc_dynqual
+
+jobs:
+  run-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Ready-made data/input and data/reference fixtures, published on Zenodo
+      - name: Download CI fixtures from Zenodo
+        env:
+          ZENODO_RECORD_ID: "REPLACE_ME"
+          ZENODO_ARCHIVE: "qualloc_dynqual_ci_data.zip"
+        run: |
+          curl -fL -o data.zip \
+            "https://zenodo.org/records/${ZENODO_RECORD_ID}/files/${ZENODO_ARCHIVE}?download=1"
+          rm -rf data
+          mkdir -p data
+          unzip -q data.zip -d data
+          rm data.zip
+          # expected layout after extraction:
+          #   data/input/...
+          #   data/reference/...
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge
+          channel-priority: strict
+          auto-activate-base: false
+
+      - name: Run model + evaluation
+        run: bash runner.sh
+
+      - name: Upload run output and logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualloc_dynqual-output
+          path: |
+            ci/qualloc_dynqual/output
+            ci/qualloc_dynqual/configuration
+          retention-days: 7
