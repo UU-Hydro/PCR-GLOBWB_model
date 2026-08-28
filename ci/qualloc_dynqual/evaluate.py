@@ -47,6 +47,7 @@ for model in models:
                 rtol = 1e-3
                 atol = np.max(np.abs(ref_var)) * 1e-3
 
+                errors = []
                 try:
                     npt.assert_allclose(ref_var, out_var, rtol=rtol, atol=atol, err_msg=f"Values of variable {var_name} in {ref_file} and {out_file} do not match.")
                 except AssertionError as e:
@@ -81,4 +82,9 @@ for model in models:
                             pdf_pages.savefig(dpi=300)
                             plt.close()
 
-                    raise e
+                    errors.append(str(e))
+
+                if errors:
+                    error_msg = "\n".join(errors)
+                    raise AssertionError(f"Errors found in variable {var_name} of file {ref_file}:\n{error_msg}")
+
