@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9.10
+  - numpy=1.26.4
+  - python-dateutil
+  - six  
+  - zlib
+  - pcraster=4.3.3
+  - netcdf4=1.5.7
+  - matplotlib
