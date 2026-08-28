@@ -9,11 +9,15 @@ config_dir="$(pwd)/configuration"
 model_dir="$(pwd)/../../model"
 eval_file="$(pwd)/evaluate.py"
 
-echo "## Configuration ##
-  env_dir: $env_dir
-  config_dir: $config_dir
-  model_dir: $model_dir
-  eval_file: $eval_file"
+printf '%s\n' \
+  "######################################" \
+  "## Configuration" \
+  "######################################" \
+  "  env_dir   : $env_dir" \
+  "  config_dir: $config_dir" \
+  "  model_dir : $model_dir" \
+  "  eval_file : $eval_file" \
+  "######################################"
 
 echo "Creating conda environment..."
 conda env create --file "environment.yml" --prefix "$env_dir"

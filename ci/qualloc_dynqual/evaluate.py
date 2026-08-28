@@ -44,8 +44,8 @@ for model in models:
                 out_var = out_ds.variables[var_name][:]
                 assert ref_var.shape == out_var.shape, f"Shape of variable {var_name} in {ref_file} and {out_file} do not match."
 
-                rtol = 1e-2
-                atol = np.max(np.abs(ref_var)) * 1e-2
+                rtol = 1e-3
+                atol = np.max(np.abs(ref_var)) * 1e-3
 
                 try:
                     npt.assert_allclose(ref_var, out_var, rtol=rtol, atol=atol, err_msg=f"Values of variable {var_name} in {ref_file} and {out_file} do not match.")
