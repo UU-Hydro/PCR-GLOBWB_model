@@ -152,31 +152,25 @@ def readDownscalingZarr(ncFile,\
     cellsizeInput = f[yRef][0] - f[yRef][1] 
     cellsizeInput = float(cellsizeInput)
 
-    factor = 1                                 # needed in regridData2FinerGrid
-    # if sameClone == False:
-    minX    = min(abs(f[xRef][:] - (xULClone + 0.5*cellsizeInput)))
-    xIdxSta = int(np.where(abs(f[xRef][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0])
+    # factor = 1
+    # yslice = slice(None)
+    # xslice = slice(None)
 
-#     #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
-#     #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
+    factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
+    diffX = np.abs(f[xRef][:] - (xULClone + 0.5*cellsizeInput))
+    xIdxSta = np.argmin(diffX)
+    xIdxEnd = math.ceil(xIdxSta + colsClone / factor)
+    xslice = slice(xIdxSta, xIdxEnd)
 
-#     #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
-    xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
-
-    minY    = min(abs(f[yRef][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
-
-    yIdxSta = int(np.where(abs(f[yRef][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0])
-
-#     #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
-#     #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
-
-#     #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
-    yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
+    diffY = np.abs(f[yRef][:] - (yULClone - 0.5*cellsizeInput))
+    yIdxSta = np.argmin(diffY)
+    yIdxEnd = math.ceil(yIdxSta + rowsClone / factor)
+    yslice = slice(yIdxSta, yIdxEnd)
 
     timeID = dateInput -1
 
 
-    cropData = f[varName].get_basic_selection((timeID, slice(xIdxSta,xIdxEnd), slice(yIdxSta,yIdxEnd)))[:]
+    cropData = f[varName].get_basic_selection((timeID, xslice, yslice))[:]
     # cropData = f[varName].get_basic_selection((timeID, slice(None), slice(None)))[:]
     cropData = np.nan_to_num(cropData).T
 
@@ -573,38 +567,27 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(ncFile, varName,\
         if colsClone != colsInput: sameClone = False
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
-
-    cropData = f.variables[varName][:,:]       # still original data
-    factor = 1                                 # needed in regridData2FinerGrid
+        
+    factor = 1
+    yslice = slice(None)
+    xslice = slice(None)    
     if sameClone == False:
 
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
-
-        # crop to cloneMap:
-        minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
-
-        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
-
-        #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
-        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
-
-        #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
-        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
-
-        minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
-
-        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
-
-        #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
-        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
-
-        #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
-        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
-
-        cropData = f.variables[varName][yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]
-
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
-    
+
+        diffX = np.abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))
+        xIdxSta = np.argmin(diffX)
+        xIdxEnd = math.ceil(xIdxSta + colsClone / factor)
+        xslice = slice(xIdxSta, xIdxEnd)
+
+        diffY = np.abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))
+        yIdxSta = np.argmin(diffY)
+        yIdxEnd = math.ceil(yIdxSta + rowsClone / factor)
+        yslice = slice(yIdxSta, yIdxEnd)
+
+    cropData = f.variables[varName][yslice, xslice]
+
     #~ # convert to PCR object and close f - OLD METHOD
     #~ if specificFillValue != None:
         #~ outPCR = pcr.numpy2pcr(pcr.Scalar, \
@@ -1171,60 +1154,33 @@ def singleTryNetcdf2PCRobjClone(ncFile,\
         if xULClone != xULInput: sameClone = False
         if yULClone != yULInput: sameClone = False
 
-
-    # check data on dimensions - this correction is needed in case of the WFDEI_Forcing which has includes levels for surface varables (time, height/level, lat, lon)
-    if f.variables[varName].ndim == 4:
-        # not standard NC format
-        logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
-        # file with additional layer/dimension
-        cropData = f.variables[varName][int(idx),0,:,:]     # still original data
-    else:
-        # standard nc file
-        cropData = f.variables[varName][int(idx),:,:]       # still original data
-
-
-    factor = 1                                 # needed in regridData2FinerGrid
+    factor = 1
+    yslice = slice(None)
+    xslice = slice(None)    
     if sameClone == False:
 
         factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
-
-        # crop to cloneMap:
-        minX    = min(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))) # ; print(minX)
-
-        xIdxSta = int(np.where(abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput)) == minX)[0][0])
-
-        #~ xIdxSta = int(np.where(np.abs(f.variables['lon'][:] - (xULClone - cellsizeInput/2)) == minX)[0][0])
-        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
-
-        #~ xIdxEnd = int(math.ceil(xIdxSta + colsClone /(cellsizeInput/cellsizeClone)))
-        xIdxEnd = int(math.ceil(xIdxSta + colsClone /(factor)))
-
-        minY    = min(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))) # ; print(minY)
-
-        yIdxSta = int(np.where(abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput)) == minY)[0][0])
-
-        #~ yIdxSta = int(np.where(np.abs(f.variables['lat'][:] - (yULClone - cellsizeInput/2)) == minY)[0][0])
-        #~ # see: https://github.com/UU-Hydro/PCR-GLOBWB_model/pull/13
-
-        #~ yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(cellsizeInput/cellsizeClone)))
-        yIdxEnd = int(math.ceil(yIdxSta + rowsClone /(factor)))
-
-        # retrieve data from netCDF for slice
-
-        if f.variables[varName].ndim == 4:
-            # not standard NC format
-            logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
-            #-file with additional layer
-            cropData = f.variables[varName][int(idx),0,yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]     # selection of original data
-        else:
-            # standard nc file
-            cropData = f.variables[varName][int(idx),  yIdxSta:yIdxEnd,xIdxSta:xIdxEnd]       # selection of original data
-
-        # get resampling factor
-        factor = int(round(float(cellsizeInput)/float(cellsizeClone)))
         if factor > 1: logger.debug('Resample: input cell size = '+str(float(cellsizeInput))+' ; output/clone cell size = '+str(float(cellsizeClone)))
 
+        diffX = np.abs(f.variables['lon'][:] - (xULClone + 0.5*cellsizeInput))
+        xIdxSta = np.argmin(diffX)
+        xIdxEnd = math.ceil(xIdxSta + colsClone / factor)
+        xslice = slice(xIdxSta, xIdxEnd)
 
+        diffY = np.abs(f.variables['lat'][:] - (yULClone - 0.5*cellsizeInput))
+        yIdxSta = np.argmin(diffY)
+        yIdxEnd = math.ceil(yIdxSta + rowsClone / factor)
+        yslice = slice(yIdxSta, yIdxEnd)
+
+    # retrieve data from netCDF for slice
+    if f.variables[varName].ndim == 4:
+        # not standard NC format
+        logger.warning('WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude' % (ncFile, varName))
+        #-file with additional layer
+        cropData = f.variables[varName][int(idx), 0, yslice, xslice]     # selection of original data
+    else:
+        # standard nc file
+        cropData = f.variables[varName][int(idx), yslice, xslice]       # selection of original data
 
     #~ # convert to PCR object and close f - OLD METHOD
     #~ if specificFillValue != None:

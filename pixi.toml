@@ -1,22 +1,15 @@
 [workspace]
-authors = ["Barry van Jaarsveld <a.s.vanjaarsveld@uu.nl>"]
 channels = ["conda-forge"]
-name = "PCR-GLOBWB_model"
-platforms = ["osx-arm64", "linux-64"]
-version = "0.1.0"
-
-[tasks]
+platforms = ["linux-64"]
 
 [dependencies]
-pcraster = ">=4.4.3,<5"
-python = ">=3.14.6,<3.15"
-netCDF4 = "*"
-six = "*"
-ncview = "*"
-zarr = "*"
-xarray = "*"
-pyinterp = "*"
-
-
-
-
+python = "=3.10.13"
+six = "=1.17.0"
+python-dateutil = "=2.9.0.post0"
+zlib = "=1.3.2"
+numpy = "=1.26.4"
+pcraster = "=4.3.3"
+netCDF4 = "=1.6.4"
+zarr = "=2.18.3"
+xarray = "=2025.6.1"
+pyinterp = "=2025.8.1"
