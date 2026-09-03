@@ -898,16 +898,16 @@ class Meteo(object):
 
         else:
             preSlope = 0.001 * vos.netcdf2PCRobjClone(\
-                                self.precipLapseRateNC, 'precipitation',\
-                                currTimeStep.month, useDoy = "Yes",\
+                                self.precipLapseRateNC,\
+                                dateInput=currTimeStep.month, useDoy = "Yes",\
                                 cloneMapFileName=self.cloneMap,\
                                 LatitudeLongitude = True)
             preSlope = pcr.cover(preSlope, 0.0)
             preSlope = pcr.max(0.,preSlope)
             
             preCriteria = vos.netcdf2PCRobjClone(\
-                            self.precipitCorrelNC, 'precipitation',\
-                            currTimeStep.month, useDoy = "Yes",\
+                            self.precipitCorrelNC,\
+                            dateInput=currTimeStep.month, useDoy = "Yes",\
                             cloneMapFileName=self.cloneMap,\
                             LatitudeLongitude = True)
             preSlope = pcr.ifthenelse(preCriteria > minCorrelationCriteria,\
@@ -954,14 +954,14 @@ class Meteo(object):
 
         else:
             tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                            self.temperLapseRateNC, 'temperature',\
-                            currTimeStep.month, useDoy = "Yes",\
+                            self.temperLapseRateNC,\
+                            dateInput=currTimeStep.month, useDoy = "Yes",\
                             cloneMapFileName=self.cloneMap,\
                             LatitudeLongitude = True)
             tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
             tmpCriteria = vos.netcdf2PCRobjClone(\
-                        self.temperatCorrelNC, 'temperature',\
-                        currTimeStep.month, useDoy = "Yes",\
+                        self.temperatCorrelNC,\
+                        dateInput=currTimeStep.month, useDoy = "Yes",\
                         cloneMapFileName=self.cloneMap,\
                         LatitudeLongitude = True)
             tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
@@ -985,14 +985,14 @@ class Meteo(object):
         # TODO: add CorrelationCriteria in the config file
 
         tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                           self.temperLapseRateNC, self.tmpVarName,\
-                           currTimeStep.month, useDoy = "Yes",\
+                           self.temperLapseRateNC, \
+                           dateInput=currTimeStep.month, useDoy = "Yes",\
                            cloneMapFileName=self.cloneMap,\
                            LatitudeLongitude = True)
         tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
         tmpCriteria = vos.netcdf2PCRobjClone(\
-                      self.temperatCorrelNC, self.tmpVarName,\
-                      currTimeStep.month, useDoy = "Yes",\
+                      self.temperatCorrelNC, \
+                      dateInput=currTimeStep.month, useDoy = "Yes",\
                       cloneMapFileName=self.cloneMap,\
                       LatitudeLongitude = True)
         tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
