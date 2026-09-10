@@ -141,7 +141,7 @@ class PCR2netCDF():
         var.standard_name = standardVarName
         var.long_name = longVarName
         var.units = varUnits
-
+        
         attributeDictionary = self.attributeDictionary
         for k, v in list(attributeDictionary.items()): setattr(rootgrp,k,v)
 

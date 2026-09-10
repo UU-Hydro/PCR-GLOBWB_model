@@ -1922,6 +1922,60 @@ description[pcrglobwb_variable_name]       = 'Water volume leaving the cell, pos
 comment[pcrglobwb_variable_name]           = None
 latex_symbol[pcrglobwb_variable_name]      = None
 
+
+#%%ADDED BY JOREN: START
+#transportVolSnow
+pcrglobwb_variable_name = 'transportVolSnow'
+netcdf_short_name[pcrglobwb_variable_name] = 'transportVolSnow'
+netcdf_unit[pcrglobwb_variable_name]       = 'm^3/day'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'transportVolSnow'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Transport Snow Water Equivalent'
+description[pcrglobwb_variable_name]       = 'Transport of total water mass of the snowpack (frozen), averaged over a grid cell'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#incomingVolSnow
+pcrglobwb_variable_name = 'incomingVolSnow'
+netcdf_short_name[pcrglobwb_variable_name] = 'incomingVolSnow'
+netcdf_unit[pcrglobwb_variable_name]       = 'm^3/day'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'incomingVolSnow'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Incoming Snow Water Equivalent'
+description[pcrglobwb_variable_name]       = 'Incoming of total water mass of the snowpack (frozen), averaged over a grid cell'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#transportFreeWater
+pcrglobwb_variable_name = 'transportFreeWater'
+netcdf_short_name[pcrglobwb_variable_name] = 'transportFreeWater'
+netcdf_unit[pcrglobwb_variable_name]       = 'm^3/day'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'transportFreeWater'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Transport of Water in Snow Pack'
+description[pcrglobwb_variable_name]       = 'Transport of total water mass of the snowpack (liquid), averaged over a grid cell'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#incomingFreeWater
+pcrglobwb_variable_name = 'incomingFreeWater'
+netcdf_short_name[pcrglobwb_variable_name] = 'incomingFreeWater'
+netcdf_unit[pcrglobwb_variable_name]       = 'm^3/day'
+netcdf_monthly_total_unit[pcrglobwb_variable_name] = None 
+netcdf_yearly_total_unit[pcrglobwb_variable_name]  = None
+netcdf_standard_name[pcrglobwb_variable_name] = 'incomingFreeWater'
+netcdf_long_name[pcrglobwb_variable_name]  = 'Incoming Water in Snow Pack'
+description[pcrglobwb_variable_name]       = 'Incoming of total water mass in the snowpack (liquid), averaged over a grid cell'
+comment[pcrglobwb_variable_name]           = None
+latex_symbol[pcrglobwb_variable_name]      = None
+
+#%%ADDED BY JOREN: STOP
+
+
+
 #%% State variables
 
 #SWE

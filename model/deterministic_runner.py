@@ -46,7 +46,7 @@ class DeterministicRunner(DynamicModel):
     def __init__(self, configuration, modelTime, initialState = None):
         DynamicModel.__init__(self)
 
-        self.modelTime = modelTime        
+        self.modelTime = modelTime
         self.model = PCRGlobWB(configuration, modelTime, initialState)
         self.reporting = Reporting(configuration, self.model, modelTime)
         

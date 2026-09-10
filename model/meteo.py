@@ -38,6 +38,11 @@ from ncConverter import *
 import evaporation.hamonETPFunctions as hamon_et0
 import evaporation.ref_pot_et_penman_monteith as penman_monteith
 import evaporation.shortwave_radiation as sw_rad
+import pyinterp
+import pyinterp.fill
+import pyinterp.backends.xarray
+
+
 
 class Meteo(object):
 
@@ -180,6 +185,10 @@ class Meteo(object):
         # latitudes (required for the Hamon and Penman-Monteith method)
         self.latitudes = pcr.ycoordinate(pcr.defined(self.cloneMap)) # needed to calculate 'referenceETPot'
         self.latitudes_in_radian = vos.deg2rad(self.latitudes)    
+
+        self.lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.defined(self.cloneMap)), np.nan)[0, :]
+        self.lat = pcr.pcr2numpy(pcr.ycoordinate(pcr.defined(self.cloneMap)), np.nan)[0, :]
+
         
         # initiate shortwave radiation class, required for the Bristow-Campbell method
         self.sw_rad_based_on_bristow_campbell = False
@@ -212,6 +221,17 @@ class Meteo(object):
         self.temperature_set_per_year    = iniItems.meteoOptions['temperature_set_per_year'] == "True"
         self.refETPotFileNC_set_per_year = iniItems.meteoOptions['refETPotFileNC_set_per_year'] == "True" 
         
+        # option for downscaling meteo using daily climatological factor
+        self.using_daily_factor_for_downscaling = False
+        if "using_daily_factor_for_downscaling" in list(iniItems.meteoDownscalingOptions.keys()) and iniItems.meteoDownscalingOptions['using_daily_factor_for_downscaling'] == "True":
+            self.using_daily_factor_for_downscaling = True
+            self.precip_downscaling_factor_file = vos.getFullPath(iniItems.meteoDownscalingOptions['precip_downscaling_factor_file'], self.inputDir)  
+            self.precip_drydays_file = vos.getFullPath(iniItems.meteoDownscalingOptions['precip_drydays_file'], self.inputDir) 
+            self.temp_downscaling_factor_file = vos.getFullPath(iniItems.meteoDownscalingOptions['temp_downscaling_factor_file'], self.inputDir)  
+            self.evap_downscaling_factor_file = vos.getFullPath(iniItems.meteoDownscalingOptions['evap_downscaling_factor_file'], self.inputDir)             
+
+
+            # TODO: expand this for T and ET0
         # make the iniItems available for the other modules:
         self.iniItems = iniItems
         
@@ -297,7 +317,6 @@ class Meteo(object):
                                                 str(var)+"_annuaEnd.nc",\
                                                     var,"undefined")
 
-
     def read_meteo_conversion_factors(self, meteoOptions):
 
         # conversion constants and factors for default meteo variables: precipitation, temperature and reference potential evaporation 
@@ -320,8 +339,6 @@ class Meteo(object):
             vars(self)[factor_var_name]     = pcr.spatial(pcr.scalar(1.0))
             if factor_var_name in meteoOptions:
                 vars(self)[factor_var_name] = pcr.cover(vos.readPCRmapClone(meteoOptions[factor_var_name], self.cloneMap, self.tmpDir, self.inputDir), 1.0)
-        
-
 
     def read_meteo_variable_names(self, meteoOptions):
 
@@ -350,6 +367,7 @@ class Meteo(object):
             if iniItems.meteoDownscalingOptions['downscaleReferenceETPot'] == "True":
                 self.downscaleReferenceETPotOption = True 
                 logger.info("Reference potential evaporation will be downscaled to the cloneMap resolution.")
+
 
                 # Note that for the Hamon method: referencePotET will be calculated based on temperature,  
                 # therefore, we may not have to downscale it (particularly if temperature is already provided at high resolution). 
@@ -428,16 +446,15 @@ class Meteo(object):
             print("Error: only precipitation may be updated at this time")
             return -1
 
-
     def update(self, routing, currTimeStep):
 
         # Downscaling precipitation
         self.precipitation_before_downscaling = pcr.ifthen(self.landmask, self.precipitation)
-        if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep)
-
+        if self.downscalePrecipitationOption: self.downscalePrecipitation(currTimeStep, read_factor_from_file = self.using_daily_factor_for_downscaling)
+      
         # downscaling temperature average       
         self.temperature_before_downscaling = pcr.ifthen(self.landmask, self.temperature)
-        if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep)
+        if self.downscaleTemperatureOption: self.downscaleTemperature(currTimeStep, read_factor_from_file = self.using_daily_factor_for_downscaling)
 
         # downscaling temperature min       
         if self.air_temperature_min is not None and self.downscaleTemperatureOption:
@@ -554,7 +571,7 @@ class Meteo(object):
                 self.extraterestrial_radiation  = pcr.max(0.0, self.extraterestrial_radiation) 
             else:
                 self.extraterestrial_radiation  = pcr.max(0.0, self.extraterestrial_radiation / 1e6) / 0.0864
-
+                
             #~ # debug
             #~ pcr.aguila(self.extraterestrial_radiation)
             #~ input("Press Enter to continue...")
@@ -624,7 +641,7 @@ class Meteo(object):
                 self.shortwave_radiation = pcr.max(0.0, self.shortwave_radiation) 
             else:
                 self.shortwave_radiation = pcr.max(0.0, self.shortwave_radiation / 1e6) / 0.0864
-
+            
             #~ # debug
             #~ pcr.aguila(self.shortwave_radiation)
             #~ input("Press Enter to continue...")
@@ -655,14 +672,14 @@ class Meteo(object):
                 # fraction of shortWaveRadiation (dimensionless)
                 fractionShortWaveRadiation = pcr.cover(pcr.min(1.0, \
                                                         self.shortwave_radiation / self.extraterestrial_radiation), 0.0)
-            
+    
+
                 # longwave radiation (already) in W.m**-2
                 self.longwave_radiation = penman_monteith.getLongWaveRadiation(self.temperature, \
                                                                                vapourPressure, \
                                                                                fractionShortWaveRadiation, \
                                                                                self.relative_humidity)
 
-            
             # calculate net radiation (unit: W.m**-2)
             self.net_radiation = pcr.max(0.0, self.shortwave_radiation - self.longwave_radiation)
             
@@ -676,9 +693,10 @@ class Meteo(object):
                                                                                   timeStepLength      = 86400)
 
 
+
         # Downscaling referenceETPot (based on temperature)
         self.referencePotET_before_downscaling = self.referencePotET
-        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot(currTimeStep)
+        if self.downscaleReferenceETPotOption: self.downscaleReferenceETPot(currTimeStep, read_factor_from_file = self.using_daily_factor_for_downscaling)
  
         # smoothing:
         if self.forcingSmoothing == True:
@@ -859,97 +877,122 @@ class Meteo(object):
                           pcr2numpy(self.__getattribute__(var),vos.MV),\
                                          timeStamp,currTimeStep.annuaIdx-1)
 
-
-    def downscalePrecipitation(self, currTimeStep, useFactor = True, minCorrelationCriteria = 0.85, drizzle_limit = 0.001, considerCellArea = True):
+    def downscalePrecipitation(self, currTimeStep, read_factor_from_file = False, useFactor = True, minCorrelationCriteria = 0.85, drizzle_limit = 0.001, considerCellArea = True):
         
         # TODO: add CorrelationCriteria in the config file
-        
-        preSlope = 0.001 * vos.netcdf2PCRobjClone(\
-                           self.precipLapseRateNC, self.preVarName,\
-                           currTimeStep.month, useDoy = "Yes",\
-                           cloneMapFileName=self.cloneMap,\
-                           LatitudeLongitude = True)
-        preSlope = pcr.cover(preSlope, 0.0)
-        preSlope = pcr.max(0.,preSlope)
-        
-        preCriteria = vos.netcdf2PCRobjClone(\
-                     self.precipitCorrelNC, self.preVarName,\
-                     currTimeStep.month, useDoy = "Yes",\
-                     cloneMapFileName=self.cloneMap,\
-                     LatitudeLongitude = True)
-        preSlope = pcr.ifthenelse(preCriteria > minCorrelationCriteria,\
-                   preSlope, 0.0)             
-        preSlope = pcr.cover(preSlope, 0.0)
-    
-        if useFactor == True:
-            factor = pcr.max(0., self.precipitation + preSlope * self.anomalyDEM)
+        if read_factor_from_file==True:
+   
+            doyStep = currTimeStep.doy
+            if calendar.isleap(currTimeStep.year) and doyStep > 59: doyStep=doyStep-1
+            factor = vos.readDownscalingZarr(self.precip_downscaling_factor_file, \
+                                            doyStep, useDoy = "Yes",\
+                                            cloneMapFileName = self.cloneMap)
+            drizzle_limit = vos.readDownscalingZarr(self.precip_drydays_file,
+                                                    currTimeStep.month, useDoy = "Yes",
+                                                    cloneMapFileName = self.cloneMap)
 
-            # ~ # avoid too high factor
-            # ~ factor    = pcr.min(self.precipitation * 3.0, factor)
+            self.precipitation = pcr.ifthenelse(self.precipitation > drizzle_limit, self.precipitation, 0.00)
+            #TODO use this one too?
+            self.precipitation = self.precipitation * factor
+            self.precipitation = pcr.max(0.0, self.precipitation)
 
-            # avoid zero factor
-            min_limit = drizzle_limit
-            factor    = pcr.max(min_limit, factor)
-
-            if considerCellArea: factor = factor * self.cellArea
-
-            factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
-
-            # - do not downscale drizzle
-            #~ factor = pcr.ifthenelse(pcr.areaaverage(self.precipitation, self.meteoDownscaleIds) > drizzle_limit, factor, 1.00) 
-            factor = pcr.ifthenelse(self.precipitation > drizzle_limit, factor, 1.00) 
-            
-            factor = pcr.cover(factor, 1.0)
-            
-            self.precipitation = factor * self.precipitation
         else:
-            self.precipitation = self.precipitation + preSlope*self.anomalyDEM
+            preSlope = 0.001 * vos.netcdf2PCRobjClone(\
+                                self.precipLapseRateNC,\
+                                dateInput=currTimeStep.month, useDoy = "Yes",\
+                                cloneMapFileName=self.cloneMap,\
+                                LatitudeLongitude = True)
+            preSlope = pcr.cover(preSlope, 0.0)
+            preSlope = pcr.max(0.,preSlope)
+            
+            preCriteria = vos.netcdf2PCRobjClone(\
+                            self.precipitCorrelNC,\
+                            dateInput=currTimeStep.month, useDoy = "Yes",\
+                            cloneMapFileName=self.cloneMap,\
+                            LatitudeLongitude = True)
+            preSlope = pcr.ifthenelse(preCriteria > minCorrelationCriteria,\
+                        preSlope, 0.0)             
+            preSlope = pcr.cover(preSlope, 0.0)
+        
+            if useFactor == True:
+                factor = pcr.max(0., self.precipitation + preSlope * self.anomalyDEM)
+
+                # ~ # avoid too high factor
+                # ~ factor    = pcr.min(self.precipitation * 3.0, factor)
+
+                # avoid zero factor
+                min_limit = drizzle_limit
+                factor    = pcr.max(min_limit, factor)
+
+                if considerCellArea: factor = factor * self.cellArea
+
+                factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
+
+                # - do not downscale drizzle
+                #~ factor = pcr.ifthenelse(pcr.areaaverage(self.precipitation, self.meteoDownscaleIds) > drizzle_limit, factor, 1.00) 
+                factor = pcr.ifthenelse(self.precipitation > drizzle_limit, factor, 1.00) 
+                
+                factor = pcr.cover(factor, 1.0)
+                
+                self.precipitation = factor * self.precipitation
+            else:
+                self.precipitation = self.precipitation + preSlope*self.anomalyDEM
 
         self.precipitation = pcr.max(0.0, self.precipitation)
+        
 
-    def downscaleTemperature(self, currTimeStep, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
+    def downscaleTemperature(self, currTimeStep, read_factor_from_file = False, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
         
         # TODO: add CorrelationCriteria in the config file
+        if read_factor_from_file == True:
+            doyStep = currTimeStep.doy
+            if calendar.isleap(currTimeStep.year) and doyStep > 59: doyStep=doyStep-1
+            factor = vos.readDownscalingZarr(self.temp_downscaling_factor_file, \
+                                            doyStep, useDoy = "Yes",\
+                                            cloneMapFileName = self.cloneMap)
+            self.temperature = self.temperature + factor
 
-        tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                           self.temperLapseRateNC, self.tmpVarName,\
-                           currTimeStep.month, useDoy = "Yes",\
-                           cloneMapFileName=self.cloneMap,\
-                           LatitudeLongitude = True)
-        tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
-        tmpCriteria = vos.netcdf2PCRobjClone(\
-                      self.temperatCorrelNC, self.tmpVarName,\
-                      currTimeStep.month, useDoy = "Yes",\
-                      cloneMapFileName=self.cloneMap,\
-                      LatitudeLongitude = True)
-        tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
-                   tmpSlope, 0.0)             
-        tmpSlope = pcr.cover(tmpSlope, 0.0)
-    
-        if useFactor == True:
-            temperatureInKelvin = self.temperature + zeroCelciusInKelvin
-            factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
-            if considerCellArea: factor = factor * self.cellArea
-            factor = factor / \
-                     pcr.areaaverage(factor, self.meteoDownscaleIds)
-            factor = pcr.cover(factor, 1.0)
-            self.temperature = factor * temperatureInKelvin - zeroCelciusInKelvin
         else:
-            self.temperature = self.temperature + tmpSlope * self.anomalyDEM
+            tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
+                            self.temperLapseRateNC,\
+                            dateInput=currTimeStep.month, useDoy = "Yes",\
+                            cloneMapFileName=self.cloneMap,\
+                            LatitudeLongitude = True)
+            tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
+            tmpCriteria = vos.netcdf2PCRobjClone(\
+                        self.temperatCorrelNC,\
+                        dateInput=currTimeStep.month, useDoy = "Yes",\
+                        cloneMapFileName=self.cloneMap,\
+                        LatitudeLongitude = True)
+            tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
+                    tmpSlope, 0.0)             
+            tmpSlope = pcr.cover(tmpSlope, 0.0)
+        
+            if useFactor == True:
+
+                temperatureInKelvin = self.temperature + zeroCelciusInKelvin
+                factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
+                if considerCellArea: factor = factor * self.cellArea
+                factor = factor / \
+                        pcr.areaaverage(factor, self.meteoDownscaleIds)
+                factor = pcr.cover(factor, 1.0)
+                self.temperature = factor * temperatureInKelvin - zeroCelciusInKelvin
+            else:
+                self.temperature = self.temperature + tmpSlope * self.anomalyDEM
 
     def downscaleTemperatureFunction(self, currTimeStep, input_temperature, useFactor = False, maxCorrelationCriteria = -0.75, zeroCelciusInKelvin = 273.15, considerCellArea = True):
         
         # TODO: add CorrelationCriteria in the config file
 
         tmpSlope = 1.000 * vos.netcdf2PCRobjClone(\
-                           self.temperLapseRateNC, self.tmpVarName,\
-                           currTimeStep.month, useDoy = "Yes",\
+                           self.temperLapseRateNC, \
+                           dateInput=currTimeStep.month, useDoy = "Yes",\
                            cloneMapFileName=self.cloneMap,\
                            LatitudeLongitude = True)
         tmpSlope = pcr.min(0.,tmpSlope)  # must be negative
         tmpCriteria = vos.netcdf2PCRobjClone(\
-                      self.temperatCorrelNC, self.tmpVarName,\
-                      currTimeStep.month, useDoy = "Yes",\
+                      self.temperatCorrelNC, \
+                      dateInput=currTimeStep.month, useDoy = "Yes",\
                       cloneMapFileName=self.cloneMap,\
                       LatitudeLongitude = True)
         tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria,\
@@ -969,36 +1012,42 @@ class Meteo(object):
         
         return output_temperature    
 
+    def downscaleReferenceETPot(self, currTimeStep, read_factor_from_file=False, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, min_limit = 0.001):
+        if read_factor_from_file == True:
+            doyStep = currTimeStep.doy
+            if calendar.isleap(currTimeStep.year) and doyStep > 59: doyStep=doyStep-1
+            factor = vos.readDownscalingZarr(self.evap_downscaling_factor_file, \
+                                            doyStep, useDoy = "Yes",\
+                                            cloneMapFileName = self.cloneMap)
+            self.referencePotET = self.referencePotET * factor
 
-    def downscaleReferenceETPot(self, currTimeStep, zeroCelciusInKelvin = 273.15, usingHamon = True, considerCellArea = True, min_limit = 0.001):
-
-        if usingHamon:
-            # factor is based on hamon reference potential evaporation using high resolution temperature
-            factor = hamon_et0.HamonPotET(self.temperature,\
-                                          pcr.scalar(currTimeStep.doy),\
-                                          self.latitudes)
         else:
-            # factor is based on high resolution temperature in Kelvin unit
-            factor = self.temperature + zeroCelciusInKelvin
-        
-        factor = pcr.max(0.0, factor)
+            if usingHamon:
+                # factor is based on hamon reference potential evaporation using high resolution temperature
+                factor = hamon_et0.HamonPotET(self.temperature,\
+                                            pcr.scalar(currTimeStep.doy),\
+                                            self.latitudes)
+            else:
+                # factor is based on high resolution temperature in Kelvin unit
+                factor = self.temperature + zeroCelciusInKelvin
+            
+            factor = pcr.max(0.0, factor)
 
-        # avoid zero factor
-        factor = pcr.max(min_limit, factor)
+            # avoid zero factor
+            factor = pcr.max(min_limit, factor)
 
-        if considerCellArea: factor = factor * self.cellArea
-        
-        factor = factor / \
-                 pcr.areaaverage(factor, self.meteoDownscaleIds)
+            if considerCellArea: factor = factor * self.cellArea
+            
+            factor = factor / \
+                    pcr.areaaverage(factor, self.meteoDownscaleIds)
 
-        # - do not downscale small values
-        #~ factor = pcr.ifthenelse(pcr.areaaverage(self.referencePotET, self.meteoDownscaleIds) > min_limit, factor, 1.00) 
-        factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00) 
+            # - do not downscale small values
+            #~ factor = pcr.ifthenelse(pcr.areaaverage(self.referencePotET, self.meteoDownscaleIds) > min_limit, factor, 1.00) 
+            factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00) 
 
-        factor = pcr.cover(factor, 1.0)
-        
-        self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
-        
+            factor = pcr.cover(factor, 1.0)
+            
+            self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
 
     def read_forcings(self, currTimeStep):
 
@@ -1024,7 +1073,7 @@ class Meteo(object):
         if ("precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())) and\
                                                   (self.iniItems.meteoOptions['precipitation_file_per_month'] == "True"):
             try:
-                netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month), int(currTimeStep.month), int(currTimeStep.year))
+                netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.month))
             except:
                 netcdf_file_name = self.preFileNC %(int(currTimeStep.month), int(currTimeStep.year))
             method_for_time_index = "daily_per_monthly_file"
@@ -1032,19 +1081,22 @@ class Meteo(object):
         if self.precipitation_set_per_year:
             netcdf_file_name = self.preFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 
-        # ~ self.precipitation = vos.netcdf2PCRobjClone(\
-                                      # ~ netcdf_file_name, self.preVarName,\
-                                      # ~ str(currTimeStep.fulldate), 
-                                      # ~ useDoy = method_for_time_index,
-                                      # ~ cloneMapFileName = self.cloneMap,\
-                                      # ~ LatitudeLongitude = True)
 
-        self.precipitation = vos.netcdf2PCRobjClone(\
-                                      netcdf_file_name, "automatic",\
-                                      str(currTimeStep.fulldate), 
-                                      useDoy = method_for_time_index,
-                                      cloneMapFileName = self.cloneMap,\
-                                      LatitudeLongitude = True)
+        if self.using_daily_factor_for_downscaling & self.downscalePrecipitationOption == True:
+            self.precipitation = vos.readDownscalingMeteo(\
+                                        netcdf_file_name, "automatic",\
+                                        str(currTimeStep.fulldate), 
+                                        useDoy = method_for_time_index,
+                                        cloneMapFileName = self.cloneMap,\
+                                        LatitudeLongitude = True)
+
+        else:
+            self.precipitation = vos.netcdf2PCRobjClone(\
+                                        netcdf_file_name, "automatic",\
+                                        str(currTimeStep.fulldate), 
+                                        useDoy = method_for_time_index,
+                                        cloneMapFileName = self.cloneMap,\
+                                        LatitudeLongitude = True)
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update precipitation              
@@ -1083,19 +1135,23 @@ class Meteo(object):
         if self.temperature_set_per_year:
             netcdf_file_name = self.tmpFileNC %(int(currTimeStep.year), int(currTimeStep.year))
 
-        # ~ self.temperature = vos.netcdf2PCRobjClone(\
-                                      # ~ netcdf_file_name, self.tmpVarName,\
-                                      # ~ str(currTimeStep.fulldate), 
-                                      # ~ useDoy = method_for_time_index,
-                                      # ~ cloneMapFileName = self.cloneMap,\
-                                      # ~ LatitudeLongitude = True)
+        if self.using_daily_factor_for_downscaling & self.downscaleTemperatureOption == True:
+            self.temperature = vos.readDownscalingMeteo(\
+                                        netcdf_file_name, "automatic",\
+                                        str(currTimeStep.fulldate), 
+                                        useDoy = method_for_time_index,
+                                        cloneMapFileName = self.cloneMap,\
+                                        LatitudeLongitude = True)
 
-        self.temperature = vos.netcdf2PCRobjClone(\
-                                      netcdf_file_name, "automatic",\
-                                      str(currTimeStep.fulldate), 
-                                      useDoy = method_for_time_index,
-                                      cloneMapFileName = self.cloneMap,\
-                                      LatitudeLongitude = True)
+
+        else:
+            self.temperature = vos.netcdf2PCRobjClone(\
+                                        netcdf_file_name, "automatic",\
+                                        str(currTimeStep.fulldate), 
+                                        useDoy = method_for_time_index,
+                                        cloneMapFileName = self.cloneMap,\
+                                        LatitudeLongitude = True)
+
 
         #-----------------------------------------------------------------------
         # NOTE: RvB 13/07/2016 added to automatically update temperature
@@ -1135,12 +1191,21 @@ class Meteo(object):
                                           # ~ cloneMapFileName = self.cloneMap,\
                                           # ~ LatitudeLongitude = True)
 
-            self.referencePotET = vos.netcdf2PCRobjClone(\
-                                          netcdf_file_name, "automatic",\
-                                          str(currTimeStep.fulldate), 
-                                          useDoy = method_for_time_index,
-                                          cloneMapFileName = self.cloneMap,\
-                                          LatitudeLongitude = True)
+            if self.using_daily_factor_for_downscaling & self.downscaleReferenceETPotOption == True:
+                self.referencePotET = vos.readDownscalingMeteo(\
+                                            netcdf_file_name, "automatic",\
+                                            str(currTimeStep.fulldate), 
+                                            useDoy = method_for_time_index,
+                                            cloneMapFileName = self.cloneMap,\
+                                            LatitudeLongitude = True)
+            
+            else:
+                self.referencePotET = vos.netcdf2PCRobjClone(\
+                                            netcdf_file_name, "automatic",\
+                                            str(currTimeStep.fulldate), 
+                                            useDoy = method_for_time_index,
+                                            cloneMapFileName = self.cloneMap,\
+                                            LatitudeLongitude = True)
 
             #-----------------------------------------------------------------------
             # NOTE: RvB 13/07/2016 added to automatically update reference potential evapotranspiration
@@ -1167,5 +1232,3 @@ class Meteo(object):
                 # apply conversion factor and constant
                 vars(self)[meteo_var_name] = vars(self)['consta_for_' + meteo_var_name] + \
                                              vars(self)['factor_for_' + meteo_var_name] * vars(self)[meteo_var_name]                                                   
-
-        # ~ pcr.aguila(self.relative_humidity)

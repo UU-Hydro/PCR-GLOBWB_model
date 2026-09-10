@@ -409,6 +409,13 @@ def modify_ini_file(original_ini_file,
         file_ini_content = file_ini_content.replace("DATE_FOR_INITIAL_STATES", date_for_initial_states)
         msg = "The date for all initial state files is set based on the system argument (-dfis): " + date_for_initial_states
         print(msg)
+
+    # DOMAIN_CONNECTIONS
+    if "-clone_connections" in system_argument:
+        clone_connections = system_argument[system_argument.index("-clone_connections") + 1]
+        file_ini_content = file_ini_content.replace("CLONE_CONNECTIONS", clone_connections)
+        msg = "The clone_connections is set based on the system argument (-clone_connections): " + clone_connections
+        print(msg)
     
     # optional system argument for modifying forcing files
     # - precipitationNC = PRECIPITATION_FORCING_FILE
@@ -501,6 +508,8 @@ def modify_ini_file(original_ini_file,
         file_ini_content = file_ini_content.replace("DAILY_GROUNDWATER_RECHARGE_INI", day_gw_rch_ini)
         msg = "The option 'dailyGroundwaterRechargeIni' is set based on the system argument (-day_gw_rch_ini): " + day_gw_rch_ini 
         print(msg)
+
+
     
     # configuration_file_for_qualloc / QUALLOC_CONFIG_FILE
     if "-qcf" in system_argument:
