@@ -1369,9 +1369,12 @@ class LandSurface(object):
             
             # - water-slice (unit: m/day)
             #   return flows
-            self.nonIrrReturnFlow  = nonIrrReturnFlowVolume / self.cellArea
+            self.nonIrrReturnFlow  = self.nonIrrReturnFlowVolume / self.cellArea
             #   water consumption
-            self.nonIrrWaterConsumption  =  nonIrrWaterConsumptionVolume / self.cellArea
+            self.nonIrrWaterConsumption  =  self.nonIrrWaterConsumptionVolume / self.cellArea
+
+            self.nonIrrReturnFlow      = pcr.rounddown(self.nonIrrReturnFlow * 10000.) / 10000.
+            self.nonIrrReturnFlowVolume = self.nonIrrReturnFlow * self.cellArea
             
             # variable to reduce capillary rise in order to ensure there is always enough water to supply non fossil groundwater abstraction 
             # (units: m)
@@ -1438,6 +1441,9 @@ class LandSurface(object):
             
             # - water-slice (unit: m)
             self.nonIrrReturnFlow  = self.nonIrrReturnFlowVolume / self.cellArea
+            
+            self.nonIrrReturnFlow      = pcr.rounddown(self.nonIrrReturnFlow * 10000.) / 10000.
+            self.nonIrrReturnFlowVolume = self.nonIrrReturnFlow * self.cellArea
             
             # calculate the non irrigation consumption
             # - volume (unit: m3)
