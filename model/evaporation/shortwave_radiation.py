@@ -78,7 +78,7 @@ pi = math.pi
 
 # conversions to and from radians
 def deg2rad(a):
-    
+
     return a * pi / 180.0
 
 def rad2deg(a):
@@ -454,12 +454,12 @@ compute_day_length: function that computes the day length in hours.
 
     # compute the day length
     tanterm = pcr.tan(latitude) * pcr.tan(solar_declination)
+
     day_length = 2 * pcr.ifthenelse( \
                  pcr.abs(tanterm) < 1.00, \
                  pcr.scalar(pcr.acos(-tanterm)) / 0.2618, \
                  pcr.ifthenelse(solar_declination < 0, pcr.scalar(0), 12))
 
-    # return the day length
     return day_length
 
 def compute_solar_geometry(latitude, day_angle):

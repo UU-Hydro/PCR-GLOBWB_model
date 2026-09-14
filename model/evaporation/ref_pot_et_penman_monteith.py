@@ -5,6 +5,8 @@
 #-modules
 import os
 import sys
+import virtualOS as vos
+import numpy as np
 
 import pcraster as pcr
 import pcraster.framework as pcrm
@@ -239,7 +241,11 @@ must be provided; the latter takes precedence):
 		atmosphericContribution= self.rhoAir*self.cpAir*\
 			(satVapPressure-unsatVapPressure)/(self.atmosphericResistance*self.rhoWater*dGLv)
 		#-radiation contribution [m.s**-1]
+
+
+		
 		radiationContribution= delta*netRadiation/(dGLv*self.rhoWater)
+
 		#-total potential evapotranspiration over time step length
 		self.potentialEvaporation= pcr.max(0.,\
 			atmosphericContribution+radiationContribution)*timeStepLength
@@ -308,3 +314,4 @@ if __name__ == "__main__":
 	print(main.__doc__)
 	main()
 
+	
