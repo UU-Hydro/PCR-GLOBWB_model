@@ -1313,29 +1313,20 @@ class Routing(object):
             else:
                 self.channelStorageCapacity = self.estimateBankfullCapacity(self.channelWidth, \
                                                                             self.channelDepth)
-            
-            # [from the original version of Routing.py]
-            # flood/innundation depth above the flood plain (unit: m)
-            self.floodDepth = 0.0
-            # channel and flood innundated fraction (dimensionless, the minimum value is channelFraction)
-            self.innundatedFraction = deepcopy(self.channelFraction)
-        
-        #if self.floodPlain != True:
-        else:
-            # fraction of innundation due to flood (dimensionless) and flood/innundation depth (m)
-            self.innundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(self.channelStorage)
-            #
-            # fraction of surface water bodies (dimensionless) including lakes and reservoirs
-            # - lake and reservoir surface water fraction
-            self.dynamicFracWat = pcr.cover(\
-                             pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
-            # - fraction of channel (including its excess above bankfull capacity)
-            self.dynamicFracWat += pcr.max(0.0, 1.0 - self.dynamicFracWat) * pcr.max(self.channelFraction, self.innundatedFraction)
-            
-            # - maximum value of dynamicFracWat is 1.0
-            self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(pcr.max(self.dynamicFracWat, self.WaterBodies.fracWat), 1.0))
-            self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
-            self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
+                
+        # fraction of innundation due to flood (dimensionless) and flood/innundation depth (m)
+        self.innundatedFraction, self.floodDepth = self.returnInundationFractionAndFloodDepth(self.channelStorage)
+        #
+        # fraction of surface water bodies (dimensionless) including lakes and reservoirs
+        # - lake and reservoir surface water fraction
+        self.dynamicFracWat = pcr.cover(\
+                         pcr.min(1.0, self.WaterBodies.fracWat), 0.0)
+        # - fraction of channel (including its excess above bankfull capacity)
+        self.dynamicFracWat += pcr.max(0.0, 1.0 - self.dynamicFracWat) * pcr.max(self.channelFraction, self.innundatedFraction)
+        # - maximum value of dynamicFracWat is 1.0
+        self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(pcr.max(self.dynamicFracWat, self.WaterBodies.fracWat), 1.0))
+        self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.min(1.0, self.dynamicFracWat))
+        self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
             
         # routing methods
         if self.method == "accuTravelTime" or self.method == "simplifiedKinematicWave": \
