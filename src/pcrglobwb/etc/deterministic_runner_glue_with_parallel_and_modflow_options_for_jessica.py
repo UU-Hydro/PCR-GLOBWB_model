@@ -31,7 +31,7 @@ from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
 from pcrglobwb.configuration import Configuration
-from pcrglobwb.currTimeStep import ModelTime
+from pcrglobwb.common.currTimeStep import ModelTime
 from pcrglobwb.reporting import Reporting
 from pcrglobwb.spinUp import SpinUp
 
@@ -40,7 +40,7 @@ from pcrglobwb.pcrglobwb import PCRGlobWB
 import logging
 logger = logging.getLogger(__name__)
 
-from pcrglobwb import disclaimer
+from pcrglobwb.common import disclaimer
 
 class DeterministicRunner(DynamicModel):
 

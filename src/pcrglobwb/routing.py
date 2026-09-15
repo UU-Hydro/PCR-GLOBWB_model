@@ -40,7 +40,7 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *
 
 from pcrglobwb import waterBodies

@@ -7,7 +7,7 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from pcrglobwb.water_management_qualloc.basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics
+from qualloc.basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics
 
 # global variables
 

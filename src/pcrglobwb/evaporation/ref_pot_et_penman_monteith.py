@@ -5,7 +5,7 @@
 #-modules
 import os
 import sys
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 import numpy as np
 
 import pcraster as pcr

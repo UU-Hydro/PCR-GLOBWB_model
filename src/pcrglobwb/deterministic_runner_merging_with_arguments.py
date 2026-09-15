@@ -33,7 +33,7 @@ from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
 from pcrglobwb.configuration_for_modflow import Configuration
-from pcrglobwb.currTimeStep import ModelTime
+from pcrglobwb.common.currTimeStep import ModelTime
 
 try:
     from reporting_for_modflow import Reporting
@@ -45,12 +45,12 @@ try:
 except:
     pass
 
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 import logging
 logger = logging.getLogger(__name__)
 
-from pcrglobwb import disclaimer
+from pcrglobwb.common import disclaimer
 
 class DeterministicRunner(DynamicModel):
 

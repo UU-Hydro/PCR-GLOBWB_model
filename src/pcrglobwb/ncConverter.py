@@ -34,7 +34,7 @@ import subprocess
 import netCDF4 as nc
 import numpy as np
 import pcraster as pcr
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 # TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
 

@@ -25,7 +25,7 @@
 import pcraster as pcr
 import math
 
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 #  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
 # Convert all arguments to deg using * 180 / pi

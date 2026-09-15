@@ -9,9 +9,9 @@ import os, sys
 import logging
 import pcraster as pcr
 
-from pcrglobwb.water_management_qualloc import qualloc_variable_list as variable_attr
-from pcrglobwb.water_management_qualloc.netCDF_recipes import netCDF_output_handler
-from pcrglobwb.water_management_qualloc.allocation import get_key
+from qualloc import qualloc_variable_list as variable_attr
+from qualloc.netCDF_recipes import netCDF_output_handler
+from qualloc.allocation import get_key
 
 logger = logging.getLogger(__name__)
 

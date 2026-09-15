@@ -16,4 +16,4 @@ pcrglobwb-run-with-arguments = "pcrglobwb.deterministic_runner_with_arguments:ma
 pcrglobwb-run-merging = "pcrglobwb.deterministic_runner_merging_with_arguments:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pcrglobwb"]
+packages = ["src/pcrglobwb", "src/qualloc"]

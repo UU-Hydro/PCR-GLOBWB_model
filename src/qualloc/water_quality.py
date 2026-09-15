@@ -6,9 +6,9 @@
 import logging, datetime
 import pcraster as pcr
 
-from pcrglobwb.water_management_qualloc.model_time import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
-from pcrglobwb.water_management_qualloc.basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
-from pcrglobwb.water_management_qualloc.allocation import get_zonal_total
+from qualloc.model_time import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
+from qualloc.basic_functions import pcr_return_val_div_zero, sum_list, max_dicts
+from qualloc.allocation import get_zonal_total
 
 ####################
 # global variables #

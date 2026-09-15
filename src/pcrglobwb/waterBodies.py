@@ -32,7 +32,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 class WaterBodies(object):
 

@@ -33,7 +33,7 @@ import pcraster as pcr
 from pcraster.framework import DynamicModel
 
 from pcrglobwb.ncConverter import *
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 from pcrglobwb import variable_list as varDicts
 

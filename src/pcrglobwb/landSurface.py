@@ -24,7 +24,7 @@
 
 import types
 import pcraster as pcr
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 
 import logging
 logger = logging.getLogger(__name__)
@@ -39,10 +39,10 @@ from pcrglobwb.water_management import main_water_management as water_management
 
 # initialization of the qualloc
 from copy import deepcopy
-from pcrglobwb.water_management_qualloc.qualloc_main import qualloc_model
-from pcrglobwb.water_management_qualloc.qualloc_reporting import qualloc_reporting
-from pcrglobwb.water_management_qualloc.model_configuration import configuration_parser
-from pcrglobwb.water_management_qualloc.model_time import model_time
+from qualloc.qualloc_main import qualloc_model
+from qualloc.qualloc_reporting import qualloc_reporting
+from qualloc.model_configuration import configuration_parser
+from qualloc.model_time import model_time
 
 
 

@@ -27,7 +27,7 @@ import sys
 
 import pcraster as pcr
 
-from pcrglobwb.water_demand import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 # TODO: FIX THIS, at this moment there is a link to virtualOS.py to the upper folder.
 # ~ from .. import virtualOS as vos
 

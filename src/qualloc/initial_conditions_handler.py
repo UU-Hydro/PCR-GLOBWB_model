@@ -23,9 +23,9 @@ from copy import deepcopy
 
 # specific packages
 # only file handler is required
-from pcrglobwb.water_management_qualloc.model_time import match_date_by_julian_number
-from pcrglobwb.water_management_qualloc.netCDF_recipes import get_nc_dates
-from pcrglobwb.water_management_qualloc.file_handler import file_is_nc, compose_filename, read_file_entry
+from qualloc.model_time import match_date_by_julian_number
+from qualloc.netCDF_recipes import get_nc_dates
+from qualloc.file_handler import file_is_nc, compose_filename, read_file_entry
 
 ########
 # TODO #

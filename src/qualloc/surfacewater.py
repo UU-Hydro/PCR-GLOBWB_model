@@ -4,8 +4,8 @@
 import logging
 import pcraster as pcr
 
-from pcrglobwb.water_management_qualloc.basic_functions import pcr_return_val_div_zero, pcr_get_map_value
-from pcrglobwb.water_management_qualloc.model_time import match_date_by_julian_number
+from qualloc.basic_functions import pcr_return_val_div_zero, pcr_get_map_value
+from qualloc.model_time import match_date_by_julian_number
 
 # global attributes
 logger = logging.getLogger(__name__)

@@ -30,7 +30,7 @@ import gc
 
 import pcraster as pcr
 
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 from pcrglobwb import meteo
 from pcrglobwb import landSurface
 from pcrglobwb import groundwater

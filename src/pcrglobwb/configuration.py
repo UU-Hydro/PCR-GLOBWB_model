@@ -27,7 +27,7 @@ from __future__ import print_function
 import optparse
 import os
 import sys
-from pcrglobwb import virtualOS as vos
+from pcrglobwb.common import virtualOS as vos
 import time
 import datetime
 import shutil
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 from six.moves.configparser import RawConfigParser as ConfigParser
 
-from pcrglobwb import disclaimer
+from pcrglobwb.common import disclaimer
 
 class Configuration(object):
 

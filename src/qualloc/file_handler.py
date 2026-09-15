@@ -55,8 +55,8 @@ import datetime
 
 import pcraster as pcr
 
-from pcrglobwb.water_management_qualloc.spatialDataSet2PCR import spatialAttributes, spatialDataSet, compareSpatialAttributes, setClone
-from pcrglobwb.water_management_qualloc.netCDF_recipes import netCDF_file_info
+from qualloc.spatialDataSet2PCR import spatialAttributes, spatialDataSet, compareSpatialAttributes, setClone
+from qualloc.netCDF_recipes import netCDF_file_info
 
 logger = logging.getLogger(__name__)
 
