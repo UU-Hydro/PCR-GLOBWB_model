@@ -26,10 +26,10 @@ from pcraster.framework import DynamicModel
 from pcraster.framework import DynamicFramework
 
 # specific packages
-from model_configuration import configuration_parser
-from model_time import model_time
-from qualloc_main import qualloc_model
-from qualloc_reporting import qualloc_reporting
+from pcrglobwb.water_management_qualloc.model_configuration import configuration_parser
+from pcrglobwb.water_management_qualloc.model_time import model_time
+from pcrglobwb.water_management_qualloc.qualloc_main import qualloc_model
+from pcrglobwb.water_management_qualloc.qualloc_reporting import qualloc_reporting
 
 ########
 # TODO #

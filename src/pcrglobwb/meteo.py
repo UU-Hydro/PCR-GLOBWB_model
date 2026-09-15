@@ -32,12 +32,12 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-import virtualOS as vos
-from ncConverter import *
+from pcrglobwb import virtualOS as vos
+from pcrglobwb.ncConverter import *
 
-import evaporation.hamonETPFunctions as hamon_et0
-import evaporation.ref_pot_et_penman_monteith as penman_monteith
-import evaporation.shortwave_radiation as sw_rad
+from pcrglobwb.evaporation import hamonETPFunctions as hamon_et0
+from pcrglobwb.evaporation import ref_pot_et_penman_monteith as penman_monteith
+from pcrglobwb.evaporation import shortwave_radiation as sw_rad
 import pyinterp
 import pyinterp.fill
 import pyinterp.backends.xarray

@@ -8,22 +8,10 @@ import datetime
 import pcraster as pcr
 from copy import deepcopy
 
-try:
-    from .basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-    from .model_time      import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
-    from .allocation      import get_key, get_zonal_fraction, get_zonal_total, \
-                                 obtain_allocation_ratio, \
-                                 allocate_demand_to_availability_with_options, \
-                                 allocate_demand_to_withdrawals
-    from .water_quality   import water_quality
-except:
-    from basic_functions  import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
-    from model_time       import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
-    from allocation       import get_key, get_zonal_fraction, get_zonal_total, \
-                                 obtain_allocation_ratio, \
-                                 allocate_demand_to_availability_with_options, \
-                                 allocate_demand_to_withdrawals
-    from water_quality    import water_quality
+from pcrglobwb.water_management_qualloc.basic_functions import pcr_return_val_div_zero, sum_list, pcr_get_statistics, max_dicts
+from pcrglobwb.water_management_qualloc.model_time import match_date_by_julian_number, get_weights_from_dates, is_last_day_month
+from pcrglobwb.water_management_qualloc.allocation import get_key, get_zonal_fraction, get_zonal_total, obtain_allocation_ratio, allocate_demand_to_availability_with_options, allocate_demand_to_withdrawals
+from pcrglobwb.water_management_qualloc.water_quality import water_quality
 
 # global attributes
 # set the logger

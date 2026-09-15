@@ -26,7 +26,7 @@ import os
 import sys
 
 import pcraster as pcr
-import virtualOS as vos
+from pcrglobwb.water_management import virtualOS as vos
 
 import logging
 logger = logging.getLogger(__name__)

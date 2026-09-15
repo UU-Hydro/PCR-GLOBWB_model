@@ -46,12 +46,7 @@ if sys.version[0] == '2':
 else:
     from six.moves.configparser import RawConfigParser as ConfigParser
 
-try:
-    from .basic_functions import get_decision, \
-                                 convert_string_to_list
-except:
-    from basic_functions import get_decision, \
-                                convert_string_to_list
+from pcrglobwb.water_management_qualloc.basic_functions import get_decision, convert_string_to_list
 
 # global
 logger = logging.getLogger(__name__)

@@ -32,13 +32,13 @@ import datetime
 
 import pcraster as pcr
 
-import configuration
-import virtualOS as vos
+from pcrglobwb import configuration
+from pcrglobwb import virtualOS as vos
 
 import logging
 logger = logging.getLogger(__name__)
 
-import disclaimer
+from pcrglobwb import disclaimer
 
 # print disclaimer
 disclaimer.print_disclaimer()

@@ -42,9 +42,9 @@ logger = logging.getLogger(__name__)
 
 import pcraster as pcr
 
-from ncConverter import *
+from pcrglobwb.ncConverter import *
 
-import variable_list as varDicts
+from pcrglobwb import variable_list as varDicts
 
 class Reporting(object):
 

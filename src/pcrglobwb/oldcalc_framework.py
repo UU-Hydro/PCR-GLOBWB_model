@@ -32,10 +32,10 @@ import datetime
 import pcraster as pcr
 from pcraster.framework import DynamicModel
 
-from ncConverter import *
-import virtualOS as vos
+from pcrglobwb.ncConverter import *
+from pcrglobwb import virtualOS as vos
 
-import variable_list as varDicts
+from pcrglobwb import variable_list as varDicts
 
 import logging
 logger = logging.getLogger(__name__)

@@ -55,14 +55,8 @@ import datetime
 
 import pcraster as pcr
 
-try:
-    from .spatialDataSet2PCR import spatialAttributes, spatialDataSet, \
-                                    compareSpatialAttributes, setClone
-    from .netCDF_recipes import netCDF_file_info
-except:
-    from spatialDataSet2PCR import spatialAttributes, spatialDataSet, \
-                                    compareSpatialAttributes, setClone
-    from netCDF_recipes import netCDF_file_info
+from pcrglobwb.water_management_qualloc.spatialDataSet2PCR import spatialAttributes, spatialDataSet, compareSpatialAttributes, setClone
+from pcrglobwb.water_management_qualloc.netCDF_recipes import netCDF_file_info
 
 logger = logging.getLogger(__name__)
 

@@ -9,14 +9,9 @@ import os, sys
 import logging
 import pcraster as pcr
 
-try:
-    from . import qualloc_variable_list as variable_attr
-    from .netCDF_recipes import netCDF_output_handler
-    from .allocation import get_key
-except:
-    import qualloc_variable_list as variable_attr
-    from netCDF_recipes import netCDF_output_handler
-    from allocation import get_key
+from pcrglobwb.water_management_qualloc import qualloc_variable_list as variable_attr
+from pcrglobwb.water_management_qualloc.netCDF_recipes import netCDF_output_handler
+from pcrglobwb.water_management_qualloc.allocation import get_key
 
 logger = logging.getLogger(__name__)
 

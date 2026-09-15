@@ -31,8 +31,8 @@ import pcraster as pcr
 import logging
 logger = logging.getLogger(__name__)
 
-import virtualOS as vos
-from ncConverter import *
+from pcrglobwb import virtualOS as vos
+from pcrglobwb.ncConverter import *
 import numpy as np
 
 class LandCover(object):

@@ -30,12 +30,12 @@ import gc
 
 import pcraster as pcr
 
-import virtualOS as vos
-import meteo
-import landSurface
-import groundwater
+from pcrglobwb import virtualOS as vos
+from pcrglobwb import meteo
+from pcrglobwb import landSurface
+from pcrglobwb import groundwater
 
-import routing
+from pcrglobwb import routing
 # ~ import routing_dynqual as routing
 
 

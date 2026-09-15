@@ -13,29 +13,15 @@ import pcraster as pcr
 from copy import deepcopy
 
 # modules from the QUAlloc model
-try:
-    from .spatialDataSet2PCR import spatialAttributes, setClone
-    from .basic_functions import sum_list, pcr_return_val_div_zero
-    from .file_handler import compose_filename, read_file_entry, close_nc_cache
-    from .initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
-    from .qualloc_reporting import  qualloc_report_initial_conditions
-    
-    from .groundwater      import groundwater
-    from .surfacewater     import surfacewater
-    from .water_management import water_management, water_management_missing_value, very_small_number
-    from .water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
-
-except:
-    from spatialDataSet2PCR import spatialAttributes, setClone
-    from basic_functions import sum_list, pcr_return_val_div_zero
-    from file_handler import compose_filename, read_file_entry, close_nc_cache
-    from initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
-    from qualloc_reporting import  qualloc_report_initial_conditions
-    
-    from groundwater      import groundwater
-    from surfacewater     import surfacewater
-    from water_management import water_management, water_management_missing_value, very_small_number, water_balance_check
-    from water_quality    import water_quality, water_quality_forcing_variables, unattainable_threshold
+from pcrglobwb.water_management_qualloc.spatialDataSet2PCR import spatialAttributes, setClone
+from pcrglobwb.water_management_qualloc.basic_functions import sum_list, pcr_return_val_div_zero
+from pcrglobwb.water_management_qualloc.file_handler import compose_filename, read_file_entry, close_nc_cache
+from pcrglobwb.water_management_qualloc.initial_conditions_handler import get_initial_conditions, get_initial_condition_as_timed_dict
+from pcrglobwb.water_management_qualloc.qualloc_reporting import qualloc_report_initial_conditions
+from pcrglobwb.water_management_qualloc.groundwater import groundwater
+from pcrglobwb.water_management_qualloc.surfacewater import surfacewater
+from pcrglobwb.water_management_qualloc.water_management import water_management, water_management_missing_value, very_small_number
+from pcrglobwb.water_management_qualloc.water_quality import water_quality, water_quality_forcing_variables, unattainable_threshold
 
 
 # global variables
