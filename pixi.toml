@@ -16,3 +16,10 @@ pcraster = ">=4.4.2,<5"
 
 [pypi-dependencies]
 pcrglobwb = { path = ".", editable = true }
+
+[feature.dev.dependencies]
+pre-commit = "*"
+
+[environments]
+default = { features = [], solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
