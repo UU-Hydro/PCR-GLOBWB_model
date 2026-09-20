@@ -25,31 +25,31 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 # 1/3 PCR-GLOBWB on its own
 # ---------------------------------------------------------------------------
-# echo "=== 1/3 pcrglobwb"
-# pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
-#     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_5arcminutes.ini" \
-#     -mod "$DATA_DIR/output/5arcminutes/pcrglobwb" \
-#     -mid "$INPUT_DIR" \
-#     -clonemap "$CLONE_MAP"
+echo "=== 1/3 pcrglobwb"
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
+    "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_5arcminutes.ini" \
+    -mod "$DATA_DIR/output/5arcminutes/pcrglobwb" \
+    -mid "$INPUT_DIR" \
+    -clonemap "$CLONE_MAP"
 
 # ---------------------------------------------------------------------------
-# 3/3 QUAlloc on the reported PCR-GLOBWB output
+# 2/3 QUAlloc on the reported PCR-GLOBWB output
 # ---------------------------------------------------------------------------
-# echo "=== 2/3 offline_pcrglobwb_qualloc"
+echo "=== 2/3 offline_pcrglobwb_qualloc"
 # -pcrglobwb_mod points at the daily totals step 1/3 reported, so the three sets
 # share one PCR-GLOBWB trajectory and that run is not repeated here
-# pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-#     python -m qualloc.qualloc_runner \
-#     "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_5arcminutes.cfg" \
-#     -mod "$DATA_DIR/output/5arcminutes/offline_pcrglobwb_qualloc" \
-#     -mid "$INPUT_DIR" \
-#     -clonemap "$CLONE_MAP" \
-#     -pcrglobwb_mod "$DATA_DIR/output/5arcminutes/pcrglobwb"
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
+    python -m qualloc.qualloc_runner \
+    "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_5arcminutes.cfg" \
+    -mod "$DATA_DIR/output/5arcminutes/offline_pcrglobwb_qualloc" \
+    -mid "$INPUT_DIR" \
+    -clonemap "$CLONE_MAP" \
+    -pcrglobwb_mod "$DATA_DIR/output/5arcminutes/pcrglobwb"
 
-# # ---------------------------------------------------------------------------
-# # 2/3 QUAlloc stepped from inside PCR-GLOBWB
-# # ---------------------------------------------------------------------------
-echo "=== 2/3 online_pcrglobwb_qualloc"
+# ---------------------------------------------------------------------------
+# 3/3 QUAlloc stepped from inside PCR-GLOBWB
+# ---------------------------------------------------------------------------
+echo "=== 3/3 online_pcrglobwb_qualloc"
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/online_pcrglobwb_qualloc_5arcminutes.ini" \
     -mod "$DATA_DIR/output/5arcminutes/online_pcrglobwb_qualloc" \
