@@ -384,6 +384,13 @@ def modify_ini_file(original_ini_file,
     msg = "The output folder 'outputDir' is set based on the system argument (-mod): " + main_output_dir
     print(msg)
     
+    # system argument for replacing inputDir (-mid)
+    if "-mid" in system_argument:
+        main_input_dir = system_argument[system_argument.index("-mid") + 1]
+        file_ini_content = file_ini_content.replace("MAIN_INPUT_DIR", main_input_dir)
+        msg = "The input folder 'inputDir' is set based on the system argument (-mid): " + main_input_dir
+        print(msg)
+    
     # optional system arguments for modifying startTime (-sd) and endTime (-ed)
     if "-sd" in system_argument:
         starting_date = system_argument[system_argument.index("-sd") + 1]

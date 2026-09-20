@@ -17,7 +17,6 @@ requires a configuration file that is entered on the command line.
 # general modules and packages
 import os
 import sys
-import optparse
 import logging
 
 import pcraster as pcr
@@ -71,6 +70,16 @@ logger = logging.getLogger(__name__)
 
 # allowed time increments, currently monthly and daily
 allowed_time_increments = ['monthly','daily']
+
+# command line flags and the configuration file placeholders they fill; the
+# names match those of pcrglobwb's run-with-arguments so that a coupled run
+# can pass the same values to both models
+argument_tokens = { \
+                   '-mid'           : 'MAIN_INPUT_DIR', \
+                   '-mod'           : 'MAIN_OUTPUT_DIR', \
+                   '-clonemap'      : 'CLONEMAP', \
+                   '-pcrglobwb_mod' : 'PCRGLOBWB_OUTPUT_DIR', \
+                  }
 
 #==============================================================================
 class qualloc_runner(DynamicModel):
@@ -139,10 +148,31 @@ def main():
     # parses options and arguments from the command line, including the configuration file
     # and runs the model script
     
-    # test specification of configuration file
-    usage = 'usage: %prog CFGFILE'
-    parser = optparse.OptionParser(usage = usage)
-    (options, arguments)= parser.parse_args()
+    # split the command line into the flags of argument_tokens and the
+    # remaining arguments: the configuration file, followed by the positional
+    # substitution arguments
+    replacements = {}
+    arguments    = []
+    
+    system_argument = sys.argv[1:]
+    argument_cnt    = 0
+    
+    while argument_cnt < len(system_argument):
+        
+        argument = system_argument[argument_cnt]
+        
+        if argument in argument_tokens:
+            
+            if argument_cnt + 1 == len(system_argument):
+                sys.exit('%s is not followed by a value' % argument)
+            
+            replacements[argument_tokens[argument]] = \
+                system_argument[argument_cnt + 1]
+            argument_cnt += 2
+        
+        else:
+            arguments.append(argument)
+            argument_cnt += 1
     
     # substargs is a list of possible substitution arguments that can be used
     # to make the input file more generic.
@@ -165,7 +195,8 @@ def main():
     model_configuration = configuration_parser(cfgfilename = cfgfilename, \
                                              sections   = sections, \
                                              groups     = groups, \
-                                             subst_args = subst_args)
+                                             subst_args = subst_args, \
+                                             replacements = replacements)
     # change to the scratch path
     os.chdir(model_configuration.temppath)
     

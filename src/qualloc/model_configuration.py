@@ -32,6 +32,7 @@
 configuration:  
 """
 
+import re
 import os
 import sys
 import stat
@@ -85,6 +86,14 @@ if len(critical_improvements) > 0:
     
 NoneType = type(None)
 
+# placeholders that the calling program replaces in the configuration file;
+# these match the tokens pcrglobwb's run-with-arguments substitutes in its ini
+# files, so that a cfg and an ini can be driven by the same arguments
+substitutable_tokens = ['MAIN_INPUT_DIR', 'MAIN_OUTPUT_DIR', \
+                        'PCRGLOBWB_OUTPUT_DIR', 'CLONEMAP']
+
+token_pattern = re.compile(r'\b(%s)\b' % str.join('|', substitutable_tokens))
+
 #####################
 # general functions #
 #####################    
@@ -112,7 +121,8 @@ the CALEROS model.
 """
 
     def __init__(self, cfgfilename, sections= [], groups= [], \
-                 debug_mode = False, subst_args = [],  **optional_arguments):
+                 debug_mode = False, subst_args = [], replacements = {}, \
+                 **optional_arguments):
         
         # init object
         object.__init__(self)
@@ -139,7 +149,9 @@ the CALEROS model.
         # save the initial root for later use
         self.start_root_path = os.path.abspath(os.path.dirname(__file__))
 
-        # check whether argument substitution is required
+        # substituted ahead of parsing so that every value is covered, including
+        # those in the optional sections and groups
+        self.cfg_content = self.substitute_tokens(self.cfgfilename, replacements)
 
         # read configuration from given file
         self.parse_configuration_file(self.cfgfilename, self.groups, \
@@ -173,12 +185,37 @@ the CALEROS model.
             options[key]= value
         return options
 
+    def substitute_tokens(self, cfgfilename, replacements):
+
+        '''
+
+substitute_tokens: function that returns the contents of the configuration file \
+with each of the substitutable tokens replaced by the value the calling program \
+passed for it. Halts the run if the file uses a token that was not passed, as \
+the unreplaced token would otherwise surface much later as a missing file.
+
+'''
+
+        with open(cfgfilename) as cfgfile:
+            cfg_content = cfgfile.read()
+
+        missing_tokens = sorted(set(token_pattern.findall(cfg_content)) - \
+                                set(replacements.keys()))
+
+        if len(missing_tokens) > 0:
+            message_str = 'configuration file %s uses the placeholder(s) %s, for which no value was passed' % \
+                (cfgfilename, str.join(', ', missing_tokens))
+            sys.exit(message_str)
+
+        return token_pattern.sub( \
+            lambda match: replacements[match.group(1)], cfg_content)
+
     def parse_configuration_file(self, cfgfilename, groups, sections, subst_args):
 
         #-initialize and read config parser object
         config = ConfigParser()
         config.optionxform = str
-        config.read(cfgfilename)
+        config.read_string(self.cfg_content)
         sections_present= config.sections()
         #-process single, preset sections first
         for section in sections:
@@ -426,7 +463,10 @@ directories using information from the model configuration.
             (fn, '_', replacement_str, ext))
         fn = os.path.join(outputpath, fn)
         
-        shutil.copy(cfgfilename, fn)
+        # written out rather than copied, so the backup records the substituted
+        # paths the run actually used
+        with open(fn, 'w') as backup_file:
+            backup_file.write(self.cfg_content)
         
         # return a string of the backup config file
         return fn
