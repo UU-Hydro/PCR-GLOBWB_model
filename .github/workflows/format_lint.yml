@@ -1,0 +1,35 @@
+name: Format and Lint
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  format-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v46
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        
+      - name: Install pre-commit
+        run: pip install pre-commit==4.6.2
+
+      - name: Run pre-commit
+        if: steps.changed.outputs.any_changed == 'true'
+        env:
+          FILES: ${{ steps.changed.outputs.all_changed_files }}
+        run: |
+          pre-commit run --files $FILES --hook-stage manual autoflake-check
+          pre-commit run --files $FILES --hook-stage manual isort-check
+          pre-commit run --files $FILES --hook-stage manual black-check
+          pre-commit run --files $FILES --hook-stage manual flake8-check
