@@ -22,7 +22,7 @@ jobs:
       
       - name: Run pre-commit
         run: |
-          pre-commit run autoflake-check
-          pre-commit run isort-check
-          pre-commit run black-check
-          pre-commit run flake8
+          pre-commit run --hook-stage manual autoflake-check
+          pre-commit run --hook-stage manual isort-check
+          pre-commit run --hook-stage manual black-check
+          pre-commit run --hook-stage manual flake8

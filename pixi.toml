@@ -19,7 +19,7 @@ pcrglobwb = { path = ".", editable = true }
 
 [feature.dev.dependencies]
 pre-commit = "=4.6.2"
-act = "0.2.89"
+act = "=0.2.89"
 
 [environments]
 default = { features = [], solve-group = "default" }
