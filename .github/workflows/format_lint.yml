@@ -5,24 +5,25 @@ on: [push, pull_request]
 permissions:
   contents: read
 
-env:
-  FROM_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-  TO_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-
 jobs:
   format-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         
       - name: Install pre-commit
         run: pip install pre-commit==4.6.2
-        
+
       - name: Run pre-commit
+        env:
+          FROM_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          TO_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           pre-commit run --hook-stage manual --from-ref "$FROM_REF" --to-ref "$TO_REF" autoflake-check
           pre-commit run --hook-stage manual --from-ref "$FROM_REF" --to-ref "$TO_REF" isort-check
