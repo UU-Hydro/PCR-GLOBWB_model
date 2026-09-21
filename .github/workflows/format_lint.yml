@@ -18,9 +18,10 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        
       - name: Install pre-commit
         run: pip install pre-commit==4.6.2
+        
       - name: Run pre-commit
         run: |
           pre-commit run --hook-stage manual --from-ref "$FROM_REF" --to-ref "$TO_REF" autoflake-check
