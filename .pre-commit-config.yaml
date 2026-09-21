@@ -39,3 +39,9 @@ repos:
   hooks:
   - id: flake8
     args: [--max-line-length, "88", "--ignore", "E501,W503"]
+    
+  - id: flake8
+    alias: flake8-check
+    name: flake8 (diff check)
+    args: [--max-line-length, "88", "--ignore", "E501,W503"]
+    stages: [manual]
