@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pcrglobwb"
+version = "2.1.0"
+description = "PCR-GLOBWB global hydrological model (with DynQual and QUAlloc)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+
+[project.scripts]
+pcrglobwb-run = "pcrglobwb.deterministic_runner:main"
+pcrglobwb-run-with-arguments = "pcrglobwb.deterministic_runner_with_arguments:main"
+pcrglobwb-run-merging = "pcrglobwb.deterministic_runner_merging_with_arguments:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pcrglobwb", "src/qualloc"]

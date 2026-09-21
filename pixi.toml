@@ -13,3 +13,6 @@ zarr = "=2.18.3"
 xarray = "=2025.6.1"
 pyinterp = "=2025.8.1"
 pcraster = ">=4.4.2,<5"
+
+[pypi-dependencies]
+pcrglobwb = { path = ".", editable = true }
