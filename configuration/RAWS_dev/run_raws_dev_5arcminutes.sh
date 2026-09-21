@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$CONFIG_DIR/../.." && pwd)"
 # settings
 # ---------------------------------------------------------------------------
 DATA_CATALOGUE_DIR=/scratch/depfg/7006713/temp/quick_commit/RAWS/RAWS_data_catalogue/CATALOGUE/TEST_CASES/
-DATA_DIR="/Users/7006713/Desktop/code/raws_data_catalogue/data"
+DATA_DIR="${REPO_ROOT}/../data"
 
 INPUT_DIR="$DATA_DIR/CATALOGUE/TEST_CASES/tugela"
 CLONE_MAP="clone_maps/tugela_5arcminutes.clone.map"
