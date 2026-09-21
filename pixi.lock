@@ -532,6 +532,7 @@ environments:
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/act-0.2.89-ha8f183a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/alsa-lib-1.2.16.1-hb03c661_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-c-auth-0.9.0-h59ae206_7.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-c-cal-0.9.0-h5e3027f_1.conda
@@ -868,6 +869,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/_openmp_mutex-4.5-7_kmp_llvm.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/act-0.2.89-h75b854d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-auth-0.9.0-h6f6228c_7.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-cal-0.9.0-h03444cf_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-common-0.12.3-h5505292_0.conda
@@ -1080,6 +1082,15 @@ packages:
     - _openmp_mutex >=4.5
   size: 28948
   timestamp: 1770939786096
+- conda: https://conda.anaconda.org/conda-forge/linux-64/act-0.2.89-ha8f183a_0.conda
+  sha256: 77f4731bd6f88d4a25755a684e127e091204842737e102bbe4c77440e00a36d3
+  md5: 225656971b3d99a84ceb8f3683759fd5
+  license: MIT
+  license_family: MIT
+  purls: []
+  run_exports: {}
+  size: 14042935
+  timestamp: 1780316080518
 - conda: https://conda.anaconda.org/conda-forge/linux-64/alsa-lib-1.2.16.1-hb03c661_0.conda
   sha256: cf93ca0f1f107e95a35969a4622684e08fcb8cf37f8cf4a1e9e424828386c921
   md5: 8904e09bda369377b3dd07e2ac828c5d
@@ -5814,6 +5825,15 @@ packages:
     - _openmp_mutex >=4.5
   size: 8325
   timestamp: 1764092507920
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/act-0.2.89-h75b854d_0.conda
+  sha256: bc4025151d06eb8c82c0d61f29bbcc4c2464d1ad2b12fd2d858aa6b7997a71b8
+  md5: 09a93dbd648bec79b3f942bbf5dab87d
+  license: MIT
+  license_family: MIT
+  purls: []
+  run_exports: {}
+  size: 13612267
+  timestamp: 1780316598812
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-auth-0.9.0-h6f6228c_7.conda
   sha256: 84b63e41e7564fb544d2e489e720596a743622de810fba1e93e8f81e36890fa3
   md5: 7a136622d456cd9c39eb4d182144e3d3
