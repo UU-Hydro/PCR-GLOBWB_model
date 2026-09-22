@@ -566,7 +566,7 @@ class WaterManagement(object):
                    pcr.ifthen(self.landmask,\
                               pcr.cover(\
                                         vos.netcdf2PCRobjClone(self.desalinationWaterFile,\
-                                                               'desal_capacity',\
+                                                               'automatic',\
                                                                currTimeStep.fulldate,\
                                                                useDoy = 'monthly',\
                                                                cloneMapFileName = self.cloneMap), 0.0))

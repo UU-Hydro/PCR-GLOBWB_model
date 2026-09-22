@@ -335,11 +335,23 @@ class LandSurface(object):
             sections   = ['general','time','forcing','groundwater','surfacewater','water_management','water_quality']
             groups     = []
             subst_args = []
+
+            # the placeholders in the qualloc cfg are filled from this ini, which
+            # run-with-arguments has already substituted with the same values, so
+            # that both models are driven by one set of command line arguments
+            replacements = {}
+            for token, option in [('MAIN_INPUT_DIR',  'main_input_dir_for_qualloc'), \
+                                  ('MAIN_OUTPUT_DIR', 'main_output_dir_for_qualloc'), \
+                                  ('CLONEMAP',        'clonemap_for_qualloc')]:
+                if option in iniItems.waterManagementOptions:
+                    replacements[token] = iniItems.waterManagementOptions[option]
+
             self.qualloc_model_configuration = configuration_parser(\
                                                  cfgfilename = qualloc_config_file, \
                                                  sections    = sections, \
                                                  groups      = groups, \
-                                                 subst_args  = subst_args)
+                                                 subst_args  = subst_args, \
+                                                 replacements = replacements)
             
             # initialize the time increment
             time_increment = 'daily'   # self.qualloc_model_configuration.time['time_increment']

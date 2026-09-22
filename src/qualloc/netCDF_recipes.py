@@ -1370,7 +1370,7 @@ depending on the type of match specified.
                     var_array = self.cache[ncfilename][variablename][date_index, :]
                 else:
                    # not timed, get the appropriate dimension
-                    var_array = self.cache[ncfilename][variablename][date_index, :]
+                    var_array = self.cache[ncfilename][variablename][:]
                 
                 # array returned, convert to the map
                 var_out = pcr.numpy2pcr(datatype, var_array, \

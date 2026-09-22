@@ -95,6 +95,20 @@ forcing_variables = { \
 # functions #
 #############
 
+def ncvariable_name(section, key, default = None):
+
+    '''
+ncvariable_name: returns the name of the netCDF variable that holds the entry \
+of key in the given configuration section. This is the key itself, or default \
+where given, unless the section provides an explicit <key>_ncvariable override; \
+PCRaster input ignores the name and is unaffected.
+'''
+
+    if isinstance(default, NoneType):
+        default = key
+
+    return section.get('%s_ncvariable' % key, default)
+
 #///model start///#
 
 class qualloc_model(object):
@@ -210,7 +224,7 @@ class qualloc_model(object):
         # read in the land mask
         self.landmask = read_file_entry( \
                 filename                = self.model_configuration.general['clone'], \
-                variablename            = 'landmask', \
+                variablename            = self.model_configuration.general['landmask_ncvariable'], \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Boolean, \
@@ -219,7 +233,7 @@ class qualloc_model(object):
         # read in the cell area
         self.cellarea = read_file_entry( \
                 filename                = self.model_configuration.general['cellarea'], \
-                variablename            = 'cellarea', \
+                variablename            = self.model_configuration.general['cellarea_ncvariable'], \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
@@ -310,8 +324,10 @@ class qualloc_model(object):
         self.forcing_info = {}
         for forcing_variable, ncfileroot in forcing_variables.items():
             
-            # set the nc file name
+            # set the nc file name and the variable it holds
             ncfilename = self.model_configuration.forcing['%s_ncfile' % ncfileroot]
+            ncvariable = ncvariable_name(self.model_configuration.forcing, \
+                                         ncfileroot, forcing_variable)
             
             # check on the type of variable
             if   ncfileroot in forcing_totals:
@@ -325,6 +341,7 @@ class qualloc_model(object):
             self.forcing_info[forcing_variable] = \
                             { \
                              'ncfilename'               : ncfilename, \
+                             'ncvariable'              : ncvariable, \
                              'inputpath'               : inputpath, \
                              'datatype'                : datatype, \
                              'date_selection_method'   : date_selection_method, \
@@ -399,49 +416,49 @@ class qualloc_model(object):
         
         ldd = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['ldd'], \
-                variablename            = 'ldd', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'ldd'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Ldd, \
                 )
         fraction_water = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['fraction_water'], \
-                variablename            = 'fraction_water', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'fraction_water'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
                 )
         water_cropfactor=  read_file_entry( \
                 filename                = self.model_configuration.surfacewater['water_cropfactor'], \
-                variablename            = 'water_cropfactor', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'water_cropfactor'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
                 )
         channel_gradient = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['channel_gradient'], \
-                variablename            = 'channel_gradient', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'channel_gradient'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
                 )
         channel_width = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['channel_width'], \
-                variablename            = 'channel_width', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'channel_width'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
                 )
         channel_length = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['channel_length'], \
-                variablename            = 'channel_length', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'channel_length'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
                 )
         mannings_n = read_file_entry( \
                 filename                = self.model_configuration.surfacewater['mannings_n'], \
-                variablename            = 'mannings_n', \
+                variablename            = ncvariable_name(self.model_configuration.surfacewater, 'mannings_n'), \
                 inputpath               = self.model_configuration.general['inputpath'], \
                 clone_attributes        = self.model_configuration.clone_attributes, \
                 datatype                = pcr.Scalar, \
@@ -502,21 +519,21 @@ class qualloc_model(object):
         # read in the allocation zones
         groundwater_allocation_zones     = read_file_entry( \
                 filename                  = self.model_configuration.water_management['groundwater_allocation_zones'], \
-                variablename             = 'groundwater_allocation_zones', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'groundwater_allocation_zones'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Nominal, \
                 ) 
         surfacewater_allocation_zones    = read_file_entry( \
                 filename                  = self.model_configuration.water_management['surfacewater_allocation_zones'], \
-                variablename             = 'surfacewater_allocation_zones', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'surfacewater_allocation_zones'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Nominal, \
                 )
         desalwater_allocation_zones      = read_file_entry( \
                 filename                  = self.model_configuration.water_management['desalwater_allocation_zones'], \
-                variablename             = 'desalwater_allocation_zones', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'desalwater_allocation_zones'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Nominal, \
@@ -531,21 +548,21 @@ class qualloc_model(object):
         # read in the withdrawal points
         groundwater_withdrawal_points    = read_file_entry( \
                 filename                  = self.model_configuration.water_management['groundwater_withdrawal_points'], \
-                variablename             = 'groundwater_withdrawal_points', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'groundwater_withdrawal_points'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Ordinal, \
                 )
         surfacewater_withdrawal_points   = read_file_entry( \
                 filename                  = self.model_configuration.water_management['surfacewater_withdrawal_points'], \
-                variablename             = 'surfacewater_withdrawal_points', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'surfacewater_withdrawal_points'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Ordinal, \
                 )
         desalwater_withdrawal_points     = read_file_entry( \
                 filename                  = self.model_configuration.water_management['desalwater_withdrawal_points'], \
-                variablename             = 'desalwater_withdrawal_points', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'desalwater_withdrawal_points'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Ordinal, \
@@ -557,14 +574,14 @@ class qualloc_model(object):
         # read in the withdrawal capacity
         groundwater_withdrawal_capacity  = read_file_entry( \
                 filename                  = self.model_configuration.water_management['groundwater_withdrawal_capacity'], \
-                variablename             = 'groundwater_withdrawal_capacity', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'groundwater_withdrawal_capacity'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Scalar, \
                 ) 
         surfacewater_withdrawal_capacity = read_file_entry( \
                 filename                  = self.model_configuration.water_management['surfacewater_withdrawal_capacity'], \
-                variablename             = 'surfacewater_withdrawal_capacity', \
+                variablename             = ncvariable_name(self.model_configuration.water_management, 'surfacewater_withdrawal_capacity'), \
                 inputpath                = self.model_configuration.general['inputpath'], \
                 clone_attributes         = self.model_configuration.clone_attributes, \
                 datatype                 = pcr.Scalar, \
@@ -1022,7 +1039,7 @@ class qualloc_model(object):
                 # get the field
                 var_out = read_file_entry( \
                     filename                = self.forcing_info[forcing_variable]['ncfilename'], \
-                    variablename            = forcing_variable, \
+                    variablename            = self.forcing_info[forcing_variable]['ncvariable'], \
                     inputpath               = self.forcing_info[forcing_variable]['inputpath'], \
                     clone_attributes        = self.model_configuration.clone_attributes, \
                     datatype                = self.forcing_info[forcing_variable]['datatype'], \
