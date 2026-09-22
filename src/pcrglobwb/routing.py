@@ -1303,7 +1303,7 @@ class Routing(object):
                 self.dynamicFracWat, self.water_height = self.returnFloodedFraction(self.channelStorage)
                 self.dynamicFracWat = pcr.min(pcr.max(self.dynamicFracWat, self.WaterBodies.fracWat),1.0)
             else:
-                self.dynamicFracWat = pcr.max(channelFraction, self.WaterBodies.fracWat)
+                self.dynamicFracWat = pcr.max(self.channelFraction, self.WaterBodies.fracWat)
             self.dynamicFracWat = pcr.ifthen(self.landmask, self.dynamicFracWat)
             
         # channel bankfull capacity (unit: m3)
