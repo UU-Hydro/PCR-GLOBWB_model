@@ -2,10 +2,9 @@ import logging
 
 import pcraster as pcr
 
-logger = logging.getLogger(__name__)
-
-
 from pcrglobwb.common import virtualOS as vos
+
+logger = logging.getLogger(__name__)
 
 
 class WaterBodies(object):

@@ -10,10 +10,10 @@ class surfacewater(object):
     """
     surfacewater: class that holds the surface water component of the QUAlloc \
     model.
-    
+
     1initial states and fluxes:
     discharge:              initial discharge [m3/s]
-    
+
     variables:
     ==========
     ldd:                    local drainage direction map [-]
@@ -22,14 +22,14 @@ class surfacewater(object):
     channel_width:          width for a rectangular channel [m]
     channel_length:         channel length [m]
     mannings_n:             manning's coefficient [m^-1/3*s]
-    
+
     initial states and fluxes:
     ==========================
     surfacewater_storage_ini:
                             initial surface water storage in water slice [m]
                             over the fresh water surface of the cell
                             channelStorage_monthAvg_output
-    
+
     functions:
     ==========
     estimate_stage_from_discharge:

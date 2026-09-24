@@ -248,7 +248,7 @@ stores data as numpy array in memory under the variable name specified"""
 
             if (
                 err != ""
-                and not b"warning" in err.lower()
+                and b"warning" not in err.lower()
                 and not os.path.isfile("%s_%d.map" % (tempFileRoot, band))
             ):
                 sys.exit(
@@ -333,7 +333,7 @@ stores data as numpy array in memory under the variable name specified"""
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         ).communicate()
 
-        if len(err) > 0 and not b"warning" in err.lower():
+        if len(err) > 0 and b"warning" not in err.lower():
             sys.exit(
                 "Error: no information could be retrieved from the spatial dataset %s"
                 % inputFileName

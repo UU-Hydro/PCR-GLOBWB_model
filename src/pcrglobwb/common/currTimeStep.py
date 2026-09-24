@@ -1,8 +1,7 @@
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
-
-import datetime
 
 
 class ModelTime(object):

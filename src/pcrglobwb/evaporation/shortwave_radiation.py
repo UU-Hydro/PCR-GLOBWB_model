@@ -1,11 +1,3 @@
-"""
-
-shortwave_radiation.py:                                                     #
-global shortwave radiation: class instance that allows for the computation  #
-of spatial distributed fields of the incoming radiation per day             #
-
-"""
-
 import datetime
 import math
 import os
@@ -87,7 +79,7 @@ al. (2001) on the basis of the data by List (1971).
                         (optional), which by default is set to 0.774 [-]
                         that corresponds with a latitude of 80 degrees (1.40
                         rad).
-    
+
     Output:
     =======
     tau_o:              transmittance of clean, dry air [-].
@@ -203,7 +195,7 @@ humidity and thus can reach the surface more uninterrupted, increases.
 The correction factor rs_rtmax_cor then is computed from:
 
     Rs/R@Tmax = (1 - 0.25 * (D - 0.5 * pi) ** 2 / D ** 2) ** -1
-    
+
 where D is the day length scaled to 2 * pi radians for 24 hours and D cannot \
 be smaller than 0.5 * pi (equivalent to Tmax at 3 PM, so Rs/R@Tmax = 1).
 
@@ -236,7 +228,7 @@ the air temperature.
     Input:
     ======
     air_temp            :   air temperature in [degC].
-    
+
     Output:
     =======
     esat                :   saturated vapour pressur in [Pa].
@@ -499,7 +491,7 @@ on the VP-RAD model by Winslow et al. (2001):
     Dingman, S. L. (2015). Physical hydrology. Waveland press.
 
     Winslow, J. C., Hunt Jr, E. R., & Piper, S. C. (2001).
-    A globally applicable model of daily solar irradiance estimated from air 
+    A globally applicable model of daily solar irradiance estimated from air
     temperature and precipitation data. Ecological Modelling, 143(3), 227-243.
     doi.org/10.1016/S0304-3800(01)00341-6
 
@@ -591,9 +583,9 @@ required to compute the shortwave radiation at the earth surface.
 
     Output:
     =======
-    tau_o, 
+    tau_o,
     tau_a,
-    tau_v:              transmittance [-] of the air column for 
+    tau_v:              transmittance [-] of the air column for
                         clean, dry air, as affected by atmospheric
                         aerosols and ozone, and as affected by atmospheric
                         water vapour;
@@ -645,29 +637,29 @@ precipitation, minimum and maximum daily temperature.
     Input:
     ======
     date:                 date of the year, in datetime date or datetime format;
-    
+
     prec_daily:           daily precipitation [m waterslice per day];
-    
+
     temp_min_daily:       daily minimum temperature [degC];
     temp_max_daily:       daily maximum temperature [degC];
-    
+
     temp_avg_daily        daily average temperature [degC];
-                          if None, temp_max_daily will be used as temp_avg_daily 
-    
-    dew_temperature       daily average dew temperature [degC]; 
-                          if None, temp_min_daily will be used as dew_temperature 
-    
+                          if None, temp_max_daily will be used as temp_avg_daily
+
+    dew_temperature       daily average dew temperature [degC];
+                          if None, temp_min_daily will be used as dew_temperature
+
     extraterrestrial_rad  extraterrestrial shortwave radiation, in the unit of the
-                          solar constant specified, e.g default value of solar constant 
+                          solar constant specified, e.g default value of solar constant
                           is 118.1 MJ/m2/day, equivalent to 341 W/m2;
-                          
+
     relative_humidity     [1]
-    
-                          all precipitation, temperature and radiation fields supposed 
+
+                          all precipitation, temperature and radiation fields supposed
                           to be spatial scalar PCRaster fields or compatible with this.
-                          
-    Output:               
-    =======               
+
+    Output:
+    =======
     None:                 returns None.
 
 """

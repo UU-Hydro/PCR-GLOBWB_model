@@ -1,23 +1,11 @@
-"""
-Takes care of reporting (writing) output to netcdf files. Aggregates totals and averages for various time periods.
-@author: Edwin H. Sutanudjaja
-
-Created on Jul 28, 2014.
-This "reporting.py" module is not the same as the one module initiated by Niels Drost.
-
-@editors: Ruud van der Ent, Rens van Beek 2017
-Added reporting of variables within the eartH2Observe project
-
-"""
-
 import logging
-
-logger = logging.getLogger(__name__)
 
 import pcraster as pcr
 
 from pcrglobwb import variable_list as varDicts
 from pcrglobwb.ncConverter import *
+
+logger = logging.getLogger(__name__)
 
 
 class Reporting(object):

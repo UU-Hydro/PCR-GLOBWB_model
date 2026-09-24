@@ -5,14 +5,13 @@ import math
 import pcraster as pcr
 from pcraster.framework import *
 
-logger = logging.getLogger(__name__)
-
-
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.evaporation import hamonETPFunctions as hamon_et0
 from pcrglobwb.evaporation import ref_pot_et_penman_monteith as penman_monteith
 from pcrglobwb.evaporation import shortwave_radiation as sw_rad
 from pcrglobwb.ncConverter import *
+
+logger = logging.getLogger(__name__)
 
 
 class Meteo(object):

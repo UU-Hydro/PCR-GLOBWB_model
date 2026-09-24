@@ -7,12 +7,6 @@ from pcrglobwb.common import virtualOS as vos
 
 logger = logging.getLogger(__name__)
 
-"""
-Created on Oct 25, 2013
-
-@author: Niels Drost
-"""
-
 
 class PCRGlobWB(object):
 

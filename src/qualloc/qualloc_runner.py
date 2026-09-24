@@ -1,11 +1,3 @@
-"""
-
-qualloc_runner.py: main file that runs the QUAlloc model that emulates \
-the large-scale hydrological model PCR-GLOBWB 2; \
-requires a configuration file that is entered on the command line.
-
-"""
-
 # TODO: move spin-up to a separate class to reduce the size of this runner
 # TODO: include general spin-up settings as global variables for easy adaptation
 
@@ -169,7 +161,7 @@ def main():
     endyear = int(model_configuration.time["endyear"])
     time_increment = model_configuration.time["time_increment"]
 
-    if not time_increment in allowed_time_increments:
+    if time_increment not in allowed_time_increments:
         message_str = ""
         message_str = str.join(
             " ",

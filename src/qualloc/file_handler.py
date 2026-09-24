@@ -1,19 +1,3 @@
-"""
-
-file_handler.py:
- file_handler holds all the necessary functions to process files for input and
- output.
-
- all netCDF information is stored in a class object holding information in the
- form of dictionaries with the file names as key on:
- - a cache holding all open netCDF file objects
- - a store of all non-dimensional variables in the netCDF objects with their
-   dimensions;
- - a store of all non-dimensional variables in the netCDF objects with the
-   associated time steps.
-
-"""
-
 import logging
 import os
 import sys
@@ -183,7 +167,7 @@ given date. This may concern spatial information or single entries.
                             value as a string;
     variablename:           name of the variable to be extracted, read from
                             the specified file;
-    
+
     optional input:         defaults are None unless specified otherwise;
     ---------------
     inputpath:              input path that is attached to the file name if the
@@ -192,7 +176,7 @@ given date. This may concern spatial information or single entries.
                             enish the file name if needed (default: ());
     clone_attributes:       clone attributes that define the area of interest;
     forced_non_spatial:     boolean forcing multidimensional data to be read
-                            as non-spatial, applies to netCDF files only or in 
+                            as non-spatial, applies to netCDF files only or in
                             case of the conversion of numerical values
                             (default: False);
     datatype:               PCRaster data type to be extracted
@@ -201,7 +185,7 @@ given date. This may concern spatial information or single entries.
     date_selection_method:  option to select alternative dates if the actual
                             date is not met (default: 'exact');
     allow_year_substitution:
-                            for temporal netCDF data, allows dates to be 
+                            for temporal netCDF data, allows dates to be
                             changed and match a particular year; this is part-
                             icularly useful to read climatologies or reuse
                             existing data over longer periods (e.g., spinup),

@@ -315,7 +315,7 @@ def initialize_ncfile(
     cache={},
 ):
     """
-        
+
 initialize_netCD: initializes the netCDF file with the name and format specified\
      and set its attributes for output.
 
@@ -333,7 +333,7 @@ initialize_netCD: initializes the netCDF file with the name and format specified
         rootgrp.setncattr(attribute, value)
 
     # close the file if it is not in the cache
-    if not ncfilename in cache:
+    if ncfilename not in cache:
         rootgrp.close()
 
     return None
@@ -348,7 +348,7 @@ def add_variable_to_netCDF(
     **nc_optional_info,
 ):
     """
-                
+
 add_variable_to_netCDF: function that adds a variable to the netCDF file using\
 the netCDF4 createVariable function.
 
@@ -365,11 +365,11 @@ the netCDF4 createVariable function.
                         'l' (NC_INT), 'u4' (NC_UINT), 'i8' (NC_INT64), 'u8' (NC_UINT64),
                         'f4' or 'f' (NC_FLOAT), 'f8' or 'd' (NC_DOUBLE).
     dimensions:         tuple with dimensions.
-    
+
     optional inputs:
     ----------------
     cache:              dictionary with already open files.
-    
+
     Any or all of the following:
     zlib, complevel, shuffle,
     fletcher32, contiguous, chunksizes, endian,
@@ -378,7 +378,7 @@ the netCDF4 createVariable function.
                         if this dictionary holds any of the above parameters but it is
                         specified explicitly, the latter is given precedence. Otherwise it is
                         set implicitly using the default, global values.
-   
+
     """
 
     # process the optional keywords and set the defaults
@@ -409,7 +409,7 @@ the netCDF4 createVariable function.
 
         if key != "nc_var_attrs":
 
-            if not key in nc_var_attrs.keys():
+            if key not in nc_var_attrs.keys():
 
                 nc_var_attrs[key] = value
 
@@ -448,7 +448,7 @@ the netCDF4 createVariable function.
     rootgrp.sync()
 
     # close the file if it is not in the cache
-    if not ncfilename in cache:
+    if ncfilename not in cache:
         rootgrp.close()
 
     return None
@@ -480,7 +480,7 @@ variable information to the netCDF file.
                         'h' or 's' (NC_SHORT), 'u2' (NC_USHORT), 'i4' or 'i' or
                         'l' (NC_INT), 'u4' (NC_UINT), 'i8' (NC_INT64), 'u8' (NC_UINT64),
                         'f4' or 'f' (NC_FLOAT), 'f8' or 'd' (NC_DOUBLE).
-    
+
     optional inputs:
     ----------------
     unlimited:          boolean specifying whether the dimension is unlimited or not;
@@ -496,7 +496,7 @@ variable information to the netCDF file.
                         if this dictionary holds any of the above parameters but it is
                         specified explicitly, the latter is given precedence. Otherwise it is
                         set implicitly using the default, global values.
-   
+
     """
 
     if ncfilename in cache:
@@ -514,7 +514,7 @@ variable information to the netCDF file.
     rootgrp.sync()
 
     # close the file if it is not in the cache
-    if not ncfilename in cache:
+    if ncfilename not in cache:
         rootgrp.close()
 
     add_variable_to_netCDF(
@@ -538,7 +538,7 @@ variable information to the netCDF file.
         rootgrp.sync()
 
         # close the file if it is not in the cache
-        if not ncfilename in cache:
+        if ncfilename not in cache:
             rootgrp.close()
 
     return None
@@ -685,7 +685,7 @@ def add_data_to_netCDF(
     del v_a, mask_array, mask_ix
 
     # close the file if it is not in the cache
-    if not ncfilename in cache:
+    if ncfilename not in cache:
         rootgrp.close()
 
     return None
@@ -747,7 +747,7 @@ class netCDF_file_info(object):
 holding netCDF information to facilitate access."""
 
         # add the netCDF file to the cache if not present yet
-        if not ncfilename in self.cache.keys():
+        if ncfilename not in self.cache.keys():
 
             nc_format, nc_attributes, nc_dimattrs, nc_varattrs = get_nc_attributes(
                 ncfilename
@@ -835,12 +835,12 @@ holding netCDF information to facilitate access."""
                                 "spatial_variable"
                             ] = True
 
-                            if not ncfilename in self.spatialattributes.keys():
+                            if ncfilename not in self.spatialattributes.keys():
                                 self.spatialattributes[ncfilename] = {}
 
                             if (
-                                not variablename
-                                in self.spatialattributes[ncfilename].keys()
+                                variablename
+                                not in self.spatialattributes[ncfilename].keys()
                             ):
 
                                 self.spatialattributes[ncfilename][
@@ -888,8 +888,8 @@ holding netCDF information to facilitate access."""
                     # add the missing value information (attribute nc_mv_id_str, '_FillValue') of all
                     # non-dimensional variables, if necessary
                     if (
-                        not nc_mv_id_str
-                        in self.variables[ncfilename][variablename].keys()
+                        nc_mv_id_str
+                        not in self.variables[ncfilename][variablename].keys()
                     ):
 
                         if isinstance(mv, NoneType):
@@ -942,7 +942,7 @@ specified netCDF file."""
         forced_non_spatial=False,
     ):
         """
-        
+
 read_nc_field: function that retrieves an entry of the variable name within \
 the specified netCDF file name with consideration of the spatial attributes of \
 the present clone. It can automatically retrieve the corresponding date, \
@@ -951,7 +951,7 @@ depending on the type of match specified.
 """
         date_selection_method = date_selection_method.lower()
 
-        if not date_selection_method in date_selection_methods:
+        if date_selection_method not in date_selection_methods:
             logger.error(
                 "date selection method %s is not available" % date_selection_method
             )
@@ -1205,10 +1205,10 @@ depending on the type of match specified.
 
 class netCDF_output_handler(object):
     """
-   
+
 netCDF_output_handler: class that holds all information to create and update \
 output netCDF files.
-    
+
 """
 
     def __init__(self, model_configuration):
@@ -1299,7 +1299,7 @@ output netCDF files.
         # add defaults if necessary
         for key, attribute in nc_default_attributes.items():
 
-            if not key in nc_global_attributes.keys():
+            if key not in nc_global_attributes.keys():
                 nc_global_attributes[key] = attribute
 
         return nc_global_attributes
@@ -1340,7 +1340,7 @@ specified netCDF file."""
 initialize_ncfile: function of the netCDF_output_handler that wraps around \
 initialize_ncfile to create the output netCDF file and adds it to the cache \
 for reduced IO.
-        
+
 """
 
         self.add_ncfile_to_cache(ncfilename)
@@ -1387,7 +1387,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
         nc_dim_keys = list(self.cache[ncfilename].dimensions.keys())
 
         for dim_key in var_dim_keys:
-            if not dim_key in nc_dim_keys:
+            if dim_key not in nc_dim_keys:
 
                 logger.debug("dimension %s added to %s" % (dim_key, ncfilename))
 
@@ -1431,7 +1431,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
                     pass
 
         # dimensions of the current variable
-        if not ncfilename in self.dimensions.keys():
+        if ncfilename not in self.dimensions.keys():
             self.dimensions[ncfilename] = {variablename: var_dim_keys}
 
         logger.debug("variable %s added to %s" % (variablename, ncfilename))
@@ -1458,7 +1458,7 @@ add_data_to_netCDF: function of the netCDF_output_handler that adds the output \
 to netCDF file for the variable specified.
 Function wraps around the function add_data_to_netCDF and initializes the tuple \
 of the dimensions to be written.
-     
+
 """
 
         # time variable and date of temporal variables
@@ -1468,7 +1468,7 @@ of the dimensions to be written.
             is_timed = additional_info["is_timed"]
 
         if is_timed:
-            if not "time_dimension" in additional_info.keys():
+            if "time_dimension" not in additional_info.keys():
                 additional_info["time_dimension"] = self.time_dimension[ncfilename]
 
         dim_slices = dict(

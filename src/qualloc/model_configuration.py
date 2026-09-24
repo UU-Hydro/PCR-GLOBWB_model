@@ -1,7 +1,3 @@
-"""
-configuration:
-"""
-
 import datetime
 import logging
 import os
@@ -74,7 +70,7 @@ def remove_readonly(func, path, _):
 class configuration_parser(object):
     """
 
-configuration_parser: 
+configuration_parser:
 object to parse the configuration file and  hold all information to run \
 the CALEROS model.
 

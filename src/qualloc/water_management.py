@@ -239,7 +239,7 @@ groundwater_allocation_zones      : nominal map with the ID of the allocation
                                     values;
 desalwater_withdrawal_points,
 surfacewater_withdrawal_points,
-groundwater_withdrawal_points     : map with the withdrawal points falling 
+groundwater_withdrawal_points     : map with the withdrawal points falling
                                     in a zone; this should be an ordinal map
                                     that gives each point a unique ID and
                                     that can be used to track local with-
@@ -280,9 +280,9 @@ prioritization                    : priority for the allocation of the total
 
 Long-term averages per month need to be provided for the following variables
 as monthly netCDFs:
-surfacewater_longterm_dischage_ini        : long-term average monthly surface 
+surfacewater_longterm_dischage_ini        : long-term average monthly surface
                                             water discharge [m3/s]
-surfacewater_longterm_runoff_ini           : long-term average monthly surface 
+surfacewater_longterm_runoff_ini           : long-term average monthly surface
                                             water runoff [m/day]
 groundwater_longterm_storage_ini          : long-term average monthly groundwater
                                             storage [m per day]

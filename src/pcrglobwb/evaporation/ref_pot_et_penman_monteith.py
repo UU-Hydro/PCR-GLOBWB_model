@@ -41,13 +41,13 @@ def getLongWaveRadiation(temperature, eAct, radFrac=1.00, relativeHumidity=None)
     """getLongWaveRadiation: returns the longwave radiation [W.m**-2] \
 according to FAO guidelines.
 
-	Input:
-	temperature:          temperature [degC]
-	eAct:                 actual vapour pressure [Pa]
-	radFrac:              fraction incoming shortwave radiation [-]
+    Input:
+    temperature:          temperature [degC]
+    eAct:                 actual vapour pressure [Pa]
+    radFrac:              fraction incoming shortwave radiation [-]
 
-	Output:
-	longWaveRadiation:    longwave radiation [W.m**-2]
+    Output:
+    longWaveRadiation:    longwave radiation [W.m**-2]
 
 """
     # Stefan-Boltzmann constant for longwave radiation emission (W.m-2.K-4)
@@ -82,7 +82,7 @@ as a function of cloudiness according to FAO guidelines.
   Input:
   cloudiness:          cloud cover [-]
 
-	Output:
+    Output:
   radiationFraction:   fraction shortwave radiation [-]
 \n"""
     # fraction of sunshine hours as function of cloudiness (Puit & Doornbos)
@@ -146,18 +146,16 @@ Constants are set in the init section and can override default values.
 that are used to calculate the potential evaporation. The following variables \
 are included with the following default, constant values:
 
-  cpAir = 1004;  					# specific heat of air at constant P [J/(kg*K)]
-  epsilon = 0.622;				# ratio moleculair weight of water
-	                        # vapour and dry air [-]
-  rhoAir = 1.2047;				# air density [kg.m**-3]
-  windHeight = 2.00;			# height open area windspeed [m] above ground
-  temperatureHeight= 2.00;# height open area temperature measurements
-	                        # [m] above ground
-	albedo= 0.23;           # albedo [-] for FAO reference crop (grass)
-	canopyResistance = 70.0;# canopy resistance [s.m**-1] for FAO reference crop
-	vegetationHeight = 0.12;# vegetation height [m] for FAO reference crop
+    cpAir = 1004:             specific heat of air at constant pressure [J/(kg*K)]
+    epsilon = 0.622:          ratio of the molecular weight of water vapour and dry air [-]
+    rhoAir = 1.2047:          air density [kg.m**-3]
+    windHeight = 2.00:        height of the open-area wind speed measurement above ground [m]
+    temperatureHeight = 2.00: height of the open-area temperature measurement above ground [m]
+    albedo = 0.23:            albedo of the FAO reference crop (grass) [-]
+    canopyResistance = 70.0:  canopy resistance of the FAO reference crop [s.m**-1]
+    vegetationHeight = 0.12:  vegetation height of the FAO reference crop [m]
 
-	"""
+    """
         pcrm.StaticModel.__init__(self)
         self.MV = -999.9
         # von Karman constant (-)
@@ -197,16 +195,16 @@ are included with the following default, constant values:
 variables provided (note: either relative humidity or the actual vapour pressure \
 must be provided; the latter takes precedence):
 
-	Input:
-	netRadiation:         net incoming radiation [W.m**-2], incoming positive
-	airTemperature:       air temperature [degC]
-	windSpeed:            wind speed [m.s**-1]
-	unsatVapPressure:     actual vapour pressure [Pa]
-	relativeHumidity:     relative humidity [-]
-	timeStepLength:       length of the time step [seconds], default one day (86400 sec)
+    Input:
+    netRadiation:         net incoming radiation [W.m**-2], incoming positive
+    airTemperature:       air temperature [degC]
+    windSpeed:            wind speed [m.s**-1]
+    unsatVapPressure:     actual vapour pressure [Pa]
+    relativeHumidity:     relative humidity [-]
+    timeStepLength:       length of the time step [seconds], default one day (86400 sec)
 
-	Output:
-	potentialEvaporation: potential evaporation, returned in [m] waterslice over timestep length
+    Output:
+    potentialEvaporation: potential evaporation, returned in [m] waterslice over timestep length
 
 \n"""
 

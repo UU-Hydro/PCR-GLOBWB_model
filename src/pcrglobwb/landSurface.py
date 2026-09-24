@@ -1,15 +1,11 @@
 import logging
+from copy import deepcopy
 
 import pcraster as pcr
 
-from pcrglobwb.common import virtualOS as vos
-
-logger = logging.getLogger(__name__)
-
-from copy import deepcopy
-
 from pcrglobwb import landCover as lc
 from pcrglobwb import parameterSoilAndTopo as parSoilAndTopo
+from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *
 from pcrglobwb.water_demand import main_water_demand as water_demand
 from pcrglobwb.water_management import main_water_management as water_management
@@ -17,6 +13,8 @@ from qualloc.model_configuration import configuration_parser
 from qualloc.model_time import model_time
 from qualloc.qualloc_main import qualloc_model
 from qualloc.qualloc_reporting import qualloc_reporting
+
+logger = logging.getLogger(__name__)
 
 
 class LandSurface(object):

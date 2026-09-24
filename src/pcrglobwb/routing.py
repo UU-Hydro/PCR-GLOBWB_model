@@ -6,11 +6,11 @@ import pcraster as pcr
 from pcraster.framework import *
 from six.moves import map
 
-logger = logging.getLogger(__name__)
-
 from pcrglobwb import waterBodies
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *
+
+logger = logging.getLogger(__name__)
 
 
 class Routing(object):

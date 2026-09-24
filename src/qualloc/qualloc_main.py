@@ -1735,7 +1735,7 @@ class qualloc_model(object):
             else:
                 state_info = self.water_management.water_quality.get_final_conditions()
 
-            if not module_name in self.initial_conditions.keys():
+            if module_name not in self.initial_conditions.keys():
                 self.initial_conditions[module_name] = {}
 
             for key, value in state_info.items():

@@ -62,9 +62,9 @@ the total of the provided zones.
     Input:
     ======
     local values:            local cell values as a scalar PCRaster field;
-    zones:                   zones over which the totals are computed as 
+    zones:                   zones over which the totals are computed as
                              a nominal PCRaster field.
-    
+
     Output:
     =======
     totals:                  totals over the zones per cell as a scalar
@@ -83,9 +83,9 @@ the total of the provided zones.
     Input:
     ======
     local values:            local cell values as a scalar PCRaster field;
-    zones:                   zones over which the fractional values for the 
+    zones:                   zones over which the fractional values for the
                              cells are computed as a nominal PCRaster field.
-    
+
     Output:
     =======
     fractional_values:       fractional values, summing to unity over the ap-
@@ -787,10 +787,10 @@ def allocate_demand_to_withdrawals(
     use_local_first,
 ):
     """
-    allocate_demand_to_withdrawals: 
+    allocate_demand_to_withdrawals:
                             function that allocates the supply to \
                             the demand per sector.
-    
+
     input:
     =====
     withdrawal_names      : list with withdrawal names to be processed
@@ -798,25 +798,25 @@ def allocate_demand_to_withdrawals(
     source_names          : list with source names to be processed
                             (i.e., surfacewater and groundwater)
     sector_names          : list with sector names to be processed
-    demand_per_sector     : dictionary with the sector names as keys and as 
+    demand_per_sector     : dictionary with the sector names as keys and as
                             values the corresponding sectoral demand as scalar
     renewable_withdrawal_per_sector :
-                            dictionary with source names (string) as keys with 
-                            another dictionary with sector names (string) as keys 
+                            dictionary with source names (string) as keys with
+                            another dictionary with sector names (string) as keys
                             and PCRaster maps with actual water withdrawal from
                             renewable sources
     nonrenewable_withdrawal_per_sector :
-                            dictionary with source names (string) as keys with 
-                            another dictionary with sector names (string) as keys 
+                            dictionary with source names (string) as keys with
+                            another dictionary with sector names (string) as keys
                             and PCRaster maps with actual water withdrawal from
                             non-renewable sources
-    zones_per_sector      : dictionary with source names (string) as keys with 
-                            another dictionary with sector names (string) as keys 
+    zones_per_sector      : dictionary with source names (string) as keys with
+                            another dictionary with sector names (string) as keys
                             and PCRaster maps with zones over which the demand and
                             availability are totaled
     use_local_first        : boolean PCRaster map that indicates if the local
                             availability should be used first
-    
+
     output:
     ======
     allocated_supply_per_sector:
@@ -826,7 +826,7 @@ def allocate_demand_to_withdrawals(
                             dictionary as value with the sector name as key and
                             a scalar PCRaster field of the allocated supply per
                             cell as value;
-    remaining_supply_per_source: 
+    remaining_supply_per_source:
                             a dictionary organized similarly as the input
                             supply_per_source but now with any supply that is
                             not allocated to meet the demand;
@@ -841,12 +841,12 @@ def allocate_demand_to_withdrawals(
                             to meet the demand and over the appropriate alloc-
                             ation zone should balance;
     met_demand_per_sector:  dictionary organzized as the input demand_per_sector
-                            with the sector names as keys and as values the 
+                            with the sector names as keys and as values the
                             demand per sector that is actually met;
     message_str:            a message string that provides an overview of the
                             allocation process, including the number of iter-
                             ations and the allocated supply/demand.
-    
+
     The package requires all input to be compatible with spatial, scalar PCRaster
     fields and the values of supply and demand to have the same value, being volume
     over time per cell.

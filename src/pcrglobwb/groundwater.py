@@ -4,10 +4,10 @@ import math
 import pcraster as pcr
 from pcraster.framework import *
 
-logger = logging.getLogger(__name__)
-
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *
+
+logger = logging.getLogger(__name__)
 
 
 class Groundwater(object):

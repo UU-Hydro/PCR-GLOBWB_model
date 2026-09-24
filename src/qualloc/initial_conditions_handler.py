@@ -1,9 +1,3 @@
-"""
-
-read_initial_conditions.py: module for setting the initial conditions.
-
-"""
-
 # TODO: update the initial conditions to inherit warm states during spin-up
 # TODO: make sure non-included components are not updated and initial settings remain consistent
 
@@ -97,7 +91,7 @@ appropriate key and value pairs.
     ini_identifiers        : list of possible suffixes identifying spinup values
                             in the model configuration object; input is optional
                             and the default identifier is '_ini', which should
-                            be added to the key identifier, e.g. 
+                            be added to the key identifier, e.g.
                             soil_moisture_ini.
     files_to_exclude       : list of files in the configuration file that must
                             be disregarded as initial conditions will be not be used
@@ -255,7 +249,7 @@ date is generated.
                                 default is scalar;
     message_str:                message_str that is used as a basis to log
                                 the changes made; default is an empty string.
-                                
+
     Output:
     =======
     initial_condition:          a dictionary of the initial condition with dates

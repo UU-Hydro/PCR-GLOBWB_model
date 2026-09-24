@@ -1,5 +1,3 @@
-""" """
-
 import sys
 
 import numpy as np
@@ -143,7 +141,7 @@ as specified by numpy functions in the np_stat_funcs list with the missing value
 masked out.
 
 Returns a dictionary with the name of the numpy functions as keys and the count
-    
+
 """
     a = pcr.pcr2numpy(pcr.scalar(pcrfield), mv).astype(np.float32)
     a = a[a != mv]

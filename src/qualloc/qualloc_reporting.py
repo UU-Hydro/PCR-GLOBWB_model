@@ -202,7 +202,7 @@ class qualloc_reporting(object):
                     # key of the variable for the current interval
                     key = "%s_%s_%s" % (variablename, interval, statistic)
 
-                    if not key in vars(self).keys():
+                    if key not in vars(self).keys():
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -211,7 +211,7 @@ class qualloc_reporting(object):
                     # and make the updates work
                     key = "%s_%s_%s" % (variablename, "monthly", statistic)
 
-                    if not key in vars(self).keys():
+                    if key not in vars(self).keys():
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -311,7 +311,7 @@ class qualloc_reporting(object):
         # update the other variables
         if model_time.report_flags["monthly"]:
             for key in self.process_variables:
-                if not "daily" in key and not "weekly" in key and not "monthly" in key:
+                if "daily" not in key and "weekly" not in key and "monthly" not in key:
 
                     # corresponding monthly key
                     ix = key.rfind("_")

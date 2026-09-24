@@ -1,15 +1,3 @@
-"""
-List of variables.
-
-Created on July 7, 2014
-
-@author: Edwin H. Sutanudjaja
-
-eartH2Observe variables added
-@editors: Ruud van der Ent, Rens van Beek
-
-"""
-
 netcdf_short_name = {}
 netcdf_unit = {}
 netcdf_weekly_total_unit = {}

@@ -8,13 +8,12 @@ import platform
 import shutil
 import sys
 
-from pcrglobwb.common import virtualOS as vos
-
-logger = logging.getLogger(__name__)
-
 from six.moves.configparser import RawConfigParser as ConfigParser
 
 from pcrglobwb.common import disclaimer
+from pcrglobwb.common import virtualOS as vos
+
+logger = logging.getLogger(__name__)
 
 
 class Configuration(object):

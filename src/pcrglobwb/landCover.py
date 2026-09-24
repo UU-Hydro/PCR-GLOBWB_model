@@ -2,11 +2,10 @@ import logging
 
 import pcraster as pcr
 
-logger = logging.getLogger(__name__)
-
-
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *
+
+logger = logging.getLogger(__name__)
 
 
 class LandCover(object):

@@ -10,7 +10,7 @@ that identify whether the variable is timed and/or spatial that are used in \
 initializing the netCDF output files. Also defined is a standard 8-character \
 long name that can be used to report PCRaster maps and the corresponding data \
 type that is used to initialize the data type of the netCDF file.
- 
+
 """
 
 # all variables are listed with their name as key and identifier, and dictionaries with
