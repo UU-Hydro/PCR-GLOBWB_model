@@ -3082,8 +3082,3 @@ netcdf_long_name[pcrglobwb_variable_name] = "pathogen_concentration"
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "In-stream pathogen (FC) concentration in cfu.100ml"
 latex_symbol[pcrglobwb_variable_name] = None
-
-
-# ~ # remove/clear pcrglobwb_variable_name
-# ~ pcrglobwb_variable_name = None
-# ~ del pcrglobwb_variable_name

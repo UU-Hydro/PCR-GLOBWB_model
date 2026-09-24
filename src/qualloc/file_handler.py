@@ -363,7 +363,6 @@ def close_nc_cache():
 
     nc_info.close_cache()
 
-    # return None
     return None
 
 

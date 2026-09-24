@@ -314,14 +314,5 @@ class model_time(object):
         message_str = "processing %s" % self.date
         logger.info(message_str)
 
-    # def get_day_length(self, julianday, year, latitude):
-    #     #-returns day length on the basis of latitude, julian day number and number of days in year
-    #     # all data in radians
-    #     yearlength = 365
-    #     if calendar.isleap(year):
-    #         yearlength = 366
-    #     decl = -23.45 * pi / 180.0 * cos(2 * pi * (julianday + 10) / yearlength)
-    #     return 24.0 / pi * acos(-tan(decl) * tan(latitude * pi / 180.0))
-
 
 # /end of timer class/

@@ -616,8 +616,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     self.groundwater_longterm_potential_withdrawal = (
                         longterm_potential_withdrawal[source_name]
                     )
-                    # dict((key, val * cellarea) \
-                    #     for key,val in self.groundwater_longterm_storage.items())
 
                     # set a list of sorted dates of long-term groundwater potential withdrawal
                     self.groundwater_longterm_pot_withdrawal_dates = sorted(
@@ -630,8 +628,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     self.surfacewater_longterm_potential_withdrawal = (
                         longterm_potential_withdrawal[source_name]
                     )
-                    # dict((key, val * cellarea) \
-                    #     for key,val in self.surfacewater_longterm_runoff.items())
 
                     # set a list of sorted dates of long-term surface water potential withdrawal
                     self.surfacewater_longterm_pot_withdrawal_dates = sorted(
@@ -999,7 +995,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.landmask, pcr.cover(withdrawal_capacity, 0.0)
             )
 
-        # return None
         return None
 
     def get_longterm_availability_for_date(
@@ -1446,8 +1441,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         met_demand_per_sector = dict(
             (
-                sector_name,  # pcr.ifthen(self.gross_demand[sector_name] >= 0.0, \
-                #           pcr.scalar(0.0))) \
+                sector_name,
                 pcr.spatial(pcr.scalar(0.0)),
             )
             for sector_name in self.sector_names
@@ -1615,7 +1609,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         # log message
         logger.debug(message_str)
 
-        # return None
         return None
 
     def update_longterm_potential_withdrawals_for_date(
@@ -1790,10 +1783,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
             for source_name in self.source_names
         )
-
-        # update the message str
-        # message_str = str.join('\n', \
-        #                       (message_str, sub_message_str))
 
         # log the message
         logger.debug(sub_message_str)
@@ -2606,7 +2595,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        # return None
         return None
 
     def get_total_potential_withdrawal(self, source_name):
@@ -2649,7 +2637,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 logger.error(
                     "WARNING !!!!!!!! Sum of potential surface water renewable and non-renewable withdrawals are larger than surface water withdrawal capacity"
                 )
-                # sys.exit()
 
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
             if (
@@ -2668,7 +2655,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 logger.error(
                     "WARNING !!!!!!!! Sum of potential groundwater renewable and non-renewable withdrawals are larger than groundwater withdrawal capacity"
                 )
-                # sys.exit()
 
         # get total long-term potential renewable and non-renewable withdrawals per sector
         # (units: m3/day)
@@ -3092,8 +3078,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         # update the message_str
-        # message_str = str.join('\n', \
-        #                       (message_str, sub_message_str))
 
         # log the message
         logger.debug(sub_message_str)

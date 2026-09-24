@@ -170,7 +170,6 @@ class DeterministicRunner(DynamicModel):
 
         # adjust storGroundwaterIni
         if storGroundwaterIni_file != "Default":
-            # ~ self.model.groundwater.storGroundwater = pcr.readmap(storGroundwaterIni_file)
             self.model.groundwater.storGroundwater = vos.readPCRmapClone(
                 storGroundwaterIni_file, configuration.cloneMap, configuration.tmpDir
             )
@@ -612,7 +611,6 @@ class DeterministicRunner(DynamicModel):
         if self.count_check == 1:
             logger.info(msg)
         if self.count_check < 7:
-            # ~ logger.debug(msg)			# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
             self.count_check += 1
         status = os.path.exists(status_file)
         if status == False:
@@ -633,7 +631,6 @@ class DeterministicRunner(DynamicModel):
         if self.count_check == 1:
             logger.info(msg)
         if self.count_check < 7:
-            # ~ logger.debug(msg)			# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
             self.count_check += 1
         status = os.path.exists(status_file)
         if status == False:
@@ -997,9 +994,6 @@ def main():
             configuration.globalOptions["landmask"] = configuration.globalOptions[
                 "landmask"
             ] % (int(clone_code))
-        # - landmask for reporting
-        # if configuration.reportingOptions['landmask_for_reporting'] != "None":
-        #    configuration.reportingOptions['landmask_for_reporting'] = configuration.reportingOptions['landmask_for_reporting'] %(int(clone_code))
 
     # set configuration
     configuration.set_configuration(system_arguments=sys.argv)

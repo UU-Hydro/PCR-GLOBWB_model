@@ -21,7 +21,6 @@ def print_disclaimer(with_logger=False):
         " Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch,"
         + "\n"
     )
-    # ~ disclaimer_message += " Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz," + "\n"
     disclaimer_message += (
         " Kor de Jong, Derek Karssenberg, Patricia Lopez Lopez, Stefanie Pessenteiner, Oliver Schmitz,"
         + "\n"

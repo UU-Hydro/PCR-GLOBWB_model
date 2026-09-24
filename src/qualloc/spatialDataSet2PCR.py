@@ -76,15 +76,6 @@ def compareSpatialAttributes(
         )
         fitsExtent &= sameCoordinates[coordKey]
     # -determine whether the maps fits the extent if the coordinates of the corners do not match
-    # if not fitsExtent:
-    #     fitsExtent= targetSpatialDataSet.xLL >= sourceSpatialDataSet.xLL and \
-    #         targetSpatialDataSet.xLL < sourceSpatialDataSet.xUR and \
-    #         targetSpatialDataSet.xUR > sourceSpatialDataSet.xLL and \
-    #         targetSpatialDataSet.xUR <= sourceSpatialDataSet.xUR and \
-    #         targetSpatialDataSet.yLL >= sourceSpatialDataSet.yLL and \
-    #         targetSpatialDataSet.yLL < sourceSpatialDataSet.yUR and \
-    #         targetSpatialDataSet.yUR > sourceSpatialDataSet.yLL and \
-    #         targetSpatialDataSet.yUR <= sourceSpatialDataSet.yUR
     # -same resolution
     sameResolution = (
         abs(1 - xResampleRatio) < resamplePrecision
@@ -317,8 +308,6 @@ stores data as numpy array in memory under the variable name specified"""
                     tempFileRoot,
                 )
             )
-            # ~ command= 'gdalwarp -of GTiff -ot %s -te %f %f %f %f -tr %f %f -r %s %s %s2.tif -q -overwrite' %\
-            # ~ (typeStr, xLL, yLL, xUR, yUR, xResolution, yResolution, resampleMethod, inputFileName, tempFileRoot)
             if test:
                 print(command)
             cOut, err = subprocess.Popen(

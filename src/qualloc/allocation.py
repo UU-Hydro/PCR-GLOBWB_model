@@ -320,8 +320,6 @@ def allocate_demand_to_availability(
                 )
                 * availability[source_name]
             )
-            # pcr.max(0, availability[source_name] - \
-            #           withdrawal[source_name])
 
             # update the values of the withdrawal
             withdrawal[source_name] = withdrawal[source_name] + withdrawal_increment

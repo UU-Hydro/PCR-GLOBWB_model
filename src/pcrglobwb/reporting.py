@@ -99,25 +99,7 @@ class Reporting(object):
                 )
             except:
                 pass
-            #
-            # if self.outDailyTotNC[0] != "None":
-            #     for var in self.outDailyTotNC:
 
-            #         logger.info("Creating the netcdf file for daily reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_dailyTot_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
             # #
             # - MONTHly output in netCDF files:
             # -- cummulative
@@ -128,27 +110,7 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outMonthTotNC[0] != "None":
-            #     for var in self.outMonthTotNC:
 
-            #         # initiating monthlyVarTot (accumulator variable):
-            #         vars(self)[var+'MonthTot'] = None
-
-            #         logger.info("Creating the netcdf file for monthly accumulation reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_monthly_total_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_monthTot_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
             # #
             # -- average
             self.outMonthAvgNC = ["None"]
@@ -158,31 +120,6 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outMonthAvgNC[0] != "None":
-
-            #     for var in self.outMonthAvgNC:
-
-            #         # initiating monthlyTotAvg (accumulator variable)
-            #         vars(self)[var+'MonthTot'] = None
-
-            #         # initiating monthlyVarAvg:
-            #         vars(self)[var+'MonthAvg'] = None
-
-            #         logger.info("Creating the netcdf file for monthly average reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_monthAvg_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
 
             #
             # -- last day of the month
@@ -193,25 +130,7 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outMonthEndNC[0] != "None":
 
-            #     for var in self.outMonthEndNC:
-
-            #         logger.info("Creating the netcdf file for monthly end reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_monthEnd_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
             # #
             # -- maximum of the month
             self.outMonthMaxNC = ["None"]
@@ -221,25 +140,6 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outMonthMaxNC[0] != "None":
-
-            #     for var in self.outMonthMaxNC:
-
-            #         logger.info("Creating the netcdf file for monthly maximum reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_monthMax_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
 
             # #
             # - YEARly output in netCDF files:
@@ -251,28 +151,7 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outAnnuaTotNC[0] != "None":
-            #
-            #     for var in self.outAnnuaTotNC:
 
-            #         # initiating yearly accumulator variable:
-            #         vars(self)[var+'AnnuaTot'] = None
-
-            #         logger.info("Creating the netcdf file for annual accumulation reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_yearly_total_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_annuaTot_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
             # #
             # -- average
             self.outAnnuaAvgNC = ["None"]
@@ -282,31 +161,7 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outAnnuaAvgNC[0] != "None":
 
-            #     for var in self.outAnnuaAvgNC:
-
-            #         # initiating annualyVarAvg:
-            #         vars(self)[var+'AnnuaAvg'] = None
-
-            #         # initiating annualyTotAvg (accumulator variable)
-            #         vars(self)[var+'AnnuaTot'] = None
-
-            #         logger.info("Creating the netcdf file for annual average reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_annuaAvg_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
             # #
             # -- last day of the year
             self.outAnnuaEndNC = ["None"]
@@ -316,25 +171,6 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outAnnuaEndNC[0] != "None":
-
-            #     for var in self.outAnnuaEndNC:
-
-            #         logger.info("Creating the netcdf file for annual end reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_annuaEnd_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
 
             # -- maximum of the year
             self.outAnnuaMaxNC = ["None"]
@@ -344,25 +180,6 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outAnnuaMaxNC[0] != "None":
-
-            #     for var in self.outAnnuaMaxNC:
-
-            #         logger.info("Creating the netcdf file for annual maximum reporting for variable %s.", str(var))
-
-            #         short_name = varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_annuaMax_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
 
             # -- daily upsteam average (through LDD)
             self.outDailyTotUpsAvgNC = ["None"]
@@ -376,26 +193,6 @@ class Reporting(object):
                 )
             except:
                 pass
-            # if self.outDailyTotUpsAvgNC[0] != "None":
-
-            #     for var in self.outDailyTotUpsAvgNC:
-
-            #         logger.info("Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.", str(var))
-
-            #         short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
-            #         unit       = varDicts.netcdf_unit[var]
-            #         long_name  = varDicts.netcdf_long_name[var]
-            #         if long_name == None: long_name = short_name
-            #         long_name  = "upstream_average_" + long_name
-            #         standard_name= short_name
-            #         if var in list(varDicts.netcdf_standard_name.keys()):
-            #             standard_name= varDicts.netcdf_standard_name[var]
-
-            #         # creating netCDF files:
-            #         self.netcdfObj.createNetCDF(self.outNCDir+"/"+ \
-            #                                     str(var)+\
-            #                                     "_dailyTotUpsAvg_output.nc",\
-            #                                     short_name,unit,long_name,standard_name)
 
             # list of variables that will be reported:
             self.variables_for_report = (
@@ -1782,9 +1579,6 @@ class Reporting(object):
                 / vos.secondsPerDay()
             )
 
-        # total potential water demand - not considering water availability
-        # self.totalPotentialMaximumGrossDemand = self._model.landSurface.totalPotentialMaximumGrossDemand
-
         # return flow due to groundwater abstraction (unit: m/day)
         self.groundwaterAbsReturnFlow = (
             self._model.routing.riverbedExchange / self._model.routing.cellArea
@@ -1829,8 +1623,6 @@ class Reporting(object):
             self._model.landSurface.irrigationWaterWithdrawal
             / self._model.routing.cellArea,
         )
-        # self.irrPaddyWaterWithdrawal    = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandPaddy)
-        # self.irrNonPaddyWaterWithdrawal = pcr.ifthen(self._model.routing.landmask, self._model.landSurface.irrGrossDemandNonPaddy)
 
         # sectoral gross demands for domestic, industry, livestock, manufacturing and thermoelectric
         # (units:m/day)
@@ -1928,13 +1720,6 @@ class Reporting(object):
             vars(self)[volVariable] = None
             vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
         ######################################################################################################################################################################
-
-        ##########################################################################################################################################################################################
-        # Consumptive water use (unit: m3/day) for livestock, domestic and industry
-        # self.livestockWaterConsumptionVolume = self._model.landSurface.livestockReturnFlowFraction * self.livestockWaterWithdrawalVolume
-        # self.domesticWaterConsumptionVolume  = self._model.landSurface.domesticReturnFlowFraction  * self.domesticWaterWithdrawalVolume
-        # self.industryWaterConsumptionVolume  = self._model.landSurface.industryReturnFlowFraction  * self.industryWaterWithdrawalVolume
-        ##########################################################################################################################################################################################
 
         ######################################################################################################################################################################
         # For irrigation sector, the net consumptive water use will be calculated using annual values as follows:

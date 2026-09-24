@@ -108,13 +108,9 @@ def mergeNetCDF(inputTuple):
     )
     print(netCDFOutput)
 
-    # ncFormat = 'NETCDF3_CLASSIC'
-    # ncFormat = 'NETCDF4'
     ncFormat = inputTuple[9]
 
     # option to use zlib compression:
-    # using_zlib = True
-    # using_zlib = False      # 'False' allows quick analyses
     using_zlib = inputTuple[10]
     if using_zlib == "True":
         using_zlib = True
@@ -178,7 +174,6 @@ def mergeNetCDF(inputTuple):
                     datetime_range.append(end_of_year)
 
         if timeStepType == "monthly":
-            # number_of_months = calculate_monthdelta(startTime, endTime + datetime.timedelta(days = 1)) + 1
             number_of_months = calculate_monthdelta(startTime, endTime) + 1
             datetime_range = [
                 startTime + relativedelta(months=+x) for x in range(0, number_of_months)
@@ -296,7 +291,6 @@ def mergeNetCDF(inputTuple):
 
     # - create time and set its attributes
     date_time = rootgrp.createDimension("time", len(uniqueTimes))
-    # date_time=rootgrp.createDimension('time', None)
     date_time = rootgrp.createVariable("time", "f8", ("time",))
 
     for attr, value in list(calendar_used.items()):
@@ -537,8 +531,6 @@ if sys.argv[11] == "defined":
 # define missing value (MV)
 using_MV = str(sys.argv[12])
 
-# for testing, we use only a single core
-# mergeNetCDF((netcdfList[0], latMin, latMax, lonMin, lonMax, deltaLat, deltaLon, startDate, endDate, ncFormat, using_zlib, using_MV, file_type))
 
 ll = []
 for ncName in netcdfList:

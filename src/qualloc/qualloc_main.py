@@ -256,7 +256,6 @@ class qualloc_model(object):
     ):
 
         # stand-alone QUAlloc version
-        # if online_coupling == False:
         # read in the land mask
         self.landmask = read_file_entry(
             filename=self.model_configuration.general["clone"],
@@ -275,26 +274,12 @@ class qualloc_model(object):
             datatype=pcr.Scalar,
         )
 
-        # coupled QUAlloc version
-        # else:
-        #    # import the land mask and cell area (m2)
-        #    # from PCR-GLOBWB2
-        #    self.landmask = landmask
-        #    self.cellarea = cellarea
-
         # **********************
         # * initial conditions *
         # **********************
         #
         # purge initial conditions
         files_to_exclude = []
-
-        # coupled QUAlloc version
-        # purge forcing variables
-        # if online_coupling:
-        #    files_to_exclude.append('total_base_flow_ini')
-        #    files_to_exclude.append('groundwater_storage_ini')
-        #    files_to_exclude.append('surfacewater_storage_ini')
 
         # verify use of pumping capacity
         if (
@@ -400,7 +385,6 @@ class qualloc_model(object):
         # ***************
         #
         # stand-alone QUAlloc version
-        # if online_coupling == False:
         # read in the groundwater alpha
         self.initial_conditions["groundwater"]["groundwater_storage"] = pcr.ifthen(
             self.landmask,
@@ -429,13 +413,6 @@ class qualloc_model(object):
             "groundwater_storage"
         ]
 
-        # coupled QUAlloc version
-        # else:
-        #    alpha                   = groundwater_alpha
-        #    alpha_default           = groundwater_alpha
-        #    total_base_flow_ini      = total_base_flow_ini
-        #    groundwater_storage_ini = groundwater_storage_ini
-
         # initialize the groundwater module
         self.groundwater = groundwater(
             alpha=alpha,
@@ -458,7 +435,6 @@ class qualloc_model(object):
         # and the initial surface water storage
 
         # stand-alone QUAlloc version
-        # if online_coupling == False:
         self.initial_conditions["surfacewater"]["surfacewater_storage"] = pcr.ifthen(
             self.landmask,
             pcr.cover(
@@ -530,17 +506,6 @@ class qualloc_model(object):
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Scalar,
         )
-
-        # coupled QUAlloc version
-        # else:
-        #    ldd                      = ldd
-        #    fraction_water           = fraction_water
-        #    water_cropfactor         = water_cropfactor
-        #    channel_gradient         = channel_gradient
-        #    channel_width            = channel_width
-        #    channel_length           = channel_length
-        #    mannings_n               = mannings_n
-        #    surfacewater_storage_ini = surfacewater_storage_ini
 
         # initialize the surface water module
         self.surfacewater = surfacewater(
@@ -2086,7 +2051,6 @@ class qualloc_model(object):
         # report the initial conditions
         self.report_initial_conditions_to_file.report(date, self.initial_conditions)
 
-        # return None
         return None
 
     # ==============

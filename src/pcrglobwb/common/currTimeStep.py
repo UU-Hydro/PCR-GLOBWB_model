@@ -33,10 +33,6 @@ class ModelTime(object):
         sd = str(strStartTime).split("-")
         self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
 
-        # ~ # using one year
-        # ~ self._endTime = datetime.date(int(sd[0])+1, int(sd[1]), int(sd[2])) -\
-        # ~ datetime.timedelta(days=1)
-
         # always use the last day of a year: 31 December of the starting year
         self._endTime = datetime.date(int(sd[0]), int(12), int(31))
 
@@ -113,13 +109,11 @@ class ModelTime(object):
             days=1 * (timeStepPCR - 1)
         )
 
-        # ~ self._fulldate = str(self.currTime.strftime('%Y-%m-%d'))     # This does not work for the date before 1900
         self._fulldate = "%04i-%02i-%02i" % (
             self._currTime.year,
             self._currTime.month,
             self._currTime.day,
         )
-        # ~ print(self._fulldate)
 
         if self.spinUpStatus == True:
             logger.info(
@@ -176,5 +170,4 @@ class ModelTime(object):
         return self.isLastDayOfYear()
 
     def __str__(self):
-        # ~ print self._currTime
         return str(self._currTime)

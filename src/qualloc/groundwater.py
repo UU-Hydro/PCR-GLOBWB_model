@@ -109,7 +109,6 @@ class groundwater(object):
             )
             self.total_base_flow = self.total_base_flow + self.base_flow
 
-        # return None
         return None
 
     def update(self, renewable_withdrawal, nonrenewable_withdrawal):
@@ -132,7 +131,6 @@ class groundwater(object):
             - nonrenewable_withdrawal
         )
 
-        # return None
         return None
 
     def get_final_conditions(self):

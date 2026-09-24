@@ -60,9 +60,6 @@ class IrrigationWaterDemand(object):
         # - this will return self.totAvlWater
         self.calculateTotAvlWaterCapacityInRootZone()
 
-        # ~ # infiltration/percolation losses for paddy fields - CHECKTHIS: We think this part should be part of the landCover options
-        # ~ if self.name == 'irrPaddy' or self.name == 'irr_paddy': self.design_percolation_loss = self.estimate_paddy_infiltration_loss(iniPaddyOptions = self.iniItemsIrrLC)
-
         # irrigation efficiency input (string or file name)
         self.ini_items_for_irrigation_efficiency = None
         # - by default, use the one defined in the waterDemandOptions
@@ -774,7 +771,6 @@ class IrrigationWaterDemand(object):
         # no bare soil evaporation in the inundated paddy field
         if self.name == "irrPaddy" or self.name == "irr_paddy":
             # no bare soil evaporation if topWaterLayer is above treshold
-            # treshold = 0.0005 # unit: m
             treshold = (
                 self.potBareSoilEvap + self.potTranspiration
             )  # an idea by Edwin on 23 march 2015

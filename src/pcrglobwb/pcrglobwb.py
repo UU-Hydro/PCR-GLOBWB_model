@@ -7,9 +7,6 @@ import pcraster as pcr
 from pcrglobwb import groundwater, landSurface, meteo, routing
 from pcrglobwb.common import virtualOS as vos
 
-# ~ import routing_dynqual as routing
-
-
 logger = logging.getLogger(__name__)
 
 """
@@ -253,7 +250,6 @@ class PCRGlobWB(object):
                 "nonIrrReturnFlow",
             ]
 
-            # ~ for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] = pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0.0)))
             for var in self.list_of_land_surface_variables:
                 vars(self)[var + "Acc"] = pcr.ifthen(
                     self.landmask, pcr.spatial(pcr.scalar(0.0))
@@ -310,7 +306,6 @@ class PCRGlobWB(object):
 
         # accumulating until the last day of the year:
         self.precipitationAcc += self.meteo.precipitation
-        # ~ for var in self.landSurface.fluxVars: vars(self)[var+'Acc'] += vars(self.landSurface)[var]
         for var in self.list_of_land_surface_variables:
             vars(self)[var + "Acc"] += vars(self.landSurface)[var]
 
@@ -377,25 +372,14 @@ class PCRGlobWB(object):
                 "runoff",
                 "unmetDemand",
             ]
-            # ~ variableList += self.landSurface.fluxVars
             variableList += self.list_of_land_surface_variables
 
-            # ~ variableList += ['waterBalance','absWaterBalance','irrigationEvaporationWaterUse','nonIrrigationWaterUse']
-            # ~ # FIXME: During the development of new water use module, we disactivated the total accumulation value for 'irrigationEvaporationWaterUse'
             variableList += ["waterBalance", "absWaterBalance", "nonIrrigationWaterUse"]
-
-            # ~ # consumptive water use for irrigation (unit: m)
-            # ~ self.irrigationEvaporationWaterUseAcc = vos.getValDivZero(self.irrGrossDemandAcc,\
-            # ~ self.precipitationAcc + self.irrGrossDemandAcc) * self.actualETAcc
 
             for var in variableList:
                 volume = vos.getMapVolume(
                     self.__getattribute__(var + "Acc"), self.routing.cellArea
                 )
-
-                # ~ # an eperiment: To test an improved version of map total - still need to be tested
-                # ~ if var == "actSurfaceWaterAbstract" or var == "allocSurfaceWaterAbstract":
-                # ~ volume = vos.getMapTotalHighPrecisionButOnlyForPositiveValues(self.__getattribute__(var + 'Acc') * self.routing.cellArea)
 
                 msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
                     var,

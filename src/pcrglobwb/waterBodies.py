@@ -675,7 +675,6 @@ class WaterBodies(object):
             pcr.ifthen(pcr.scalar(self.waterBodyIds) > 0.0, weirWidthUsed), 0.0
         )
 
-        # avgInflow <= lakeOutflow (weirFormula) <= waterBodyStorage
         lakeOutflowInM3PerSec = pcr.max(
             self.weirFormula(waterHeight, weirWidthUsed), self.avgInflow
         )  # unit: m3/s
@@ -698,11 +697,6 @@ class WaterBodies(object):
         # avgOutflow (m3/s)
         avgOutflow = self.avgOutflow
         # The following is needed when new lakes/reservoirs introduced (its avgOutflow is still zero).
-        # ~ # - alternative 1
-        # ~ avgOutflow = pcr.ifthenelse(\
-        # ~ avgOutflow > 0.,\
-        # ~ avgOutflow,
-        # ~ pcr.max(avgChannelDischarge, self.avgInflow, 0.001))
         # - alternative 2
         avgOutflow = pcr.ifthenelse(
             avgOutflow > 0.0, avgOutflow, pcr.max(avgChannelDischarge, self.avgInflow)

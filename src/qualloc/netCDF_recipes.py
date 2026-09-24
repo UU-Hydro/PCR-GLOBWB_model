@@ -475,7 +475,6 @@ initialize_netCD: initializes the netCDF file with the name and format specified
     if not ncfilename in cache:
         rootgrp.close()
 
-    # return None
     return None
 
 
@@ -604,7 +603,6 @@ the netCDF4 createVariable function.
     if not ncfilename in cache:
         rootgrp.close()
 
-    # return None
     return None
 
 
@@ -703,7 +701,6 @@ variable information to the netCDF file.
         if not ncfilename in cache:
             rootgrp.close()
 
-    # return None
     return None
 
 
@@ -878,7 +875,6 @@ def add_data_to_netCDF(
     if not ncfilename in cache:
         rootgrp.close()
 
-    # return None
     return None
 
 
@@ -1482,7 +1478,6 @@ depending on the type of match specified.
             # close the file name
             self.remove_ncfile_from_cache(ncfilename)
 
-        # return None
         return None
 
 
@@ -1800,7 +1795,6 @@ of the dimensions to be written.
             **additional_info,
         )
 
-        # return None
         return None
 
     def close_cache(self):
@@ -1811,7 +1805,6 @@ of the dimensions to be written.
             # close the file name
             self.remove_ncfile_from_cache(ncfilename)
 
-        # return None
         return None
 
 

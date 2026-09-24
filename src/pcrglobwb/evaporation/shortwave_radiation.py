@@ -20,34 +20,6 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-# ~ ########
-# ~ # TODO #
-# ~ ########
-# ~ critical_improvements= str.join('\n\t',\
-# ~ ( \
-# ~ '', \
-# ~ ))
-# ~
-# ~ development= str.join('\n\t',\
-# ~ ( \
-# ~ '', \
-# ~ 'add a class to compute subdaily radiation and the angle', \
-# ~ 'as well as a class to compute the topographic shading for regional models.'
-# ~ '', \
-# ~ ))
-# ~
-# ~ print ('\nDevelopmens for main module:')
-
-# ~ if len(critical_improvements) > 0:
-# ~ print('Critical improvements: \n%s' % \
-# ~ critical_improvements)
-# ~
-# ~ if len(development) > 0:
-# ~ print ('Ongoing: \n%s' % development)
-# ~
-# ~ if len(critical_improvements) > 0:
-# ~ sys.exit()
-
 ####################
 # global variables #
 ####################
@@ -155,7 +127,6 @@ al. (2001) on the basis of the data by List (1971).
     # get tau_o
     tau_o = pcr.max(tau_o_min, a - c * pcr.abs(latitude) ** b)
 
-    # return tau_o
     return tau_o
 
 
@@ -195,7 +166,6 @@ def get_tau_v(temp_annual):
     # get tau_v
     tau_v = a - c * pcr.max(0.0, temp_annual + d) ** b
 
-    # return tau_v
     return tau_v
 
 
@@ -235,7 +205,6 @@ is exceeded earlier for colder mean temperatures and the increase is steeper.
 
 """
 
-    # return beta
     return pcr.max(1.041, 23.753 * delta_temp_mean / (temp_annual + 273.15))
 
 
@@ -434,7 +403,6 @@ orbit around the sun as a function of the day angle in radians.
         + 0.000077 * pcr.sin(2 * day_angle)
     )
 
-    # return eccentricity
     return eccentricity
 
 
@@ -722,9 +690,6 @@ All variables are also set internally
         self.tau_v = tau_v
         self.patm_cor = patm_cor
         self.beta = beta
-
-        # ~ # return the values
-        # ~ return tau_o, tau_a, tau_v, patm_cor, beta
 
     def update(
         self,

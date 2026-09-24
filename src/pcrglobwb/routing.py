@@ -1776,9 +1776,6 @@ class Routing(object):
 
         for i_loop in range(number_of_loops):
 
-            # msg = "sub-daily time step "+str(i_loop+1)+" from "+str(number_of_loops)
-            # logger.info(msg)
-
             # alpha parameter and initial discharge variable needed for kinematic wave
             if self.floodPlain:
                 self.dynamicFracWat, self.water_height, alpha, dischargeInitial = (
@@ -2611,9 +2608,6 @@ class Routing(object):
 
         if self.floodPlain:
 
-            # msg = 'Calculate channel inundated fraction and flood inundation depth above the floodplain.'
-            # logger.info(msg)
-
             # given the flood channel volume: channelStorage
             # - return the flooded fraction and the associated water height
             # - using a logistic smoother near intersections (K&K, 2007)
@@ -2891,8 +2885,6 @@ class Routing(object):
 
             # update channelStorage (m3) after waterBodyOutflow (m3) - Note that local_input_to_surface_water does not include waterBodyOutflow.
             # - update channelStorage (m3)  - after waterBodyOutflow (m3)
-            # ~ storage_change_in_volume = waterBodyOutflow                                                 # NOT CORRECT
-            # ~ storage_change_in_volume = pcr.upstream(self.lddMap, waterBodyOutflow) - waterBodyOutflow   # NOT CORRECT
             storage_change_in_volume = pcr.upstream(
                 self.lddMap, waterBodyOutflow
             )  # PS: I think this is the correct one.
@@ -3009,7 +3001,6 @@ class Routing(object):
             self.dynamicFracWat = pcr.ifthen(
                 self.landmask, pcr.min(1.0, self.dynamicFracWat)
             )
-            # self.dynamicFracWat = pcr.ifthen(self.landmask, pcr.max(1e-6, self.dynamicFracWat))
 
             # for the next calculation and loop, route only non negative channelStorage
             channelStorageThatWillNotMove += pcr.ifthenelse(
@@ -3144,8 +3135,6 @@ class Routing(object):
         # statistical assumptions:
         # - using z_score from the percentile 90
         z_score = 1.2816
-        # - using z_score from the percentile 95
-        # z_score = 1.645
 
         # long term variance and standard deviation of discharge values
         varDischarge = self.m2tDischarge / pcr.max(
@@ -3495,8 +3484,6 @@ class Routing(object):
             0.0,
         )
         floodDepth = pcr.min(self.max_water_height, floodDepth)
-        # floodedFraction = pcr.ifthen(self.landmask, pcr.cover(floodedFraction , 0.0))
-        # floodDepth = pcr.ifthen(self.landmask, pcr.cover(floodDepth , 0.0))
 
         return floodedFraction, floodDepth
 
@@ -3669,7 +3656,6 @@ class Routing(object):
         self.runoff = self.directRunoff + self.interflowTotal + self.baseflow
 
     def readPollutantLoadingsInputData(self, currTimeStep):
-        # logger.info("Loading input data required to calculate pollutant loadings")
 
         if currTimeStep.doy == 1:
             # Domestic
@@ -3950,7 +3936,6 @@ class Routing(object):
         )  # million cfu/day
 
         ###Gross manufacturing loadings: Manufacturing wastewater [m3/day] * average manufacturing effluent concentration [mg/L; cfu/100ml]
-        # self.ManWWp = self.IndustryReturnFlowVol #manufacturing flows, assumed based on split made in Jones et al., 2021, now are "Industry return flows"
         if self.includeSectors["industry"]:
             self.ManWWp = landSurface.nonIrrReturnFlowVolumePerSector["industry"]
         elif self.includeSectors["manufacture"]:

@@ -37,17 +37,6 @@ pcr_datatype = {}
 # example #
 ###########
 
-# netcdf_variable_name                        = ''
-# netcdf_standard_name [netcdf_variable_name] = netcdf_variable_name
-# netcdf_long_name[netcdf_variable_name]      = netcdf_variable_name
-# netcdf_units[netcdf_variable_name]          = ''
-# netcdf_is_timed[netcdf_variable_name]       = False
-# netcdf_is_spatial[netcdf_variable_name]     = False
-# description[netcdf_variable_name]           = None
-# comment[netcdf_variable_name]               = None
-# latex_symbol[netcdf_variable_name]          = None
-# pcr_short_name[netcdf_variable_name]        = ''
-# pcr_datatype[netcdf_variable_name]          = 'Scalar'
 
 #####################
 # forcing variables #

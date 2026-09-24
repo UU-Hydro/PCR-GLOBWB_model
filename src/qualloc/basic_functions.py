@@ -270,115 +270,6 @@ def get_decision(question_str, possible_outcomes):
     return outcome
 
 
-# def create_list_constructor(s, separators):
-#
-#    '''
-#
-# create_list_constructor: function that returns the list constructor from a \
-# string and list of separators, which is a dictionary object holding a unique \
-# identifier as keyword, and two items identified by the keywords "entry", \
-# holding the actual list entry, and "levelinfo" that holds information on the \
-# levels and indices as a separate dictionary in which levels are used as keys \
-# and indices as values, e.g.,  {'a': {0: 0, 1: 0}, 'b': {0: 0, 1: 1}}, from a \
-# string organized in different levels by the separators that are listed in \
-# descending order.
-#
-#    '''
-#
-#    #-list_constructor is intialized as an empty dictionary with a known identifier
-#    separators = separators[:]
-#    identifier = 0
-#    list_constructor = {}
-#    list_constructor[identifier] = {}
-#    list_constructor[identifier]['entry'] = s
-#    list_constructor[identifier]['levelinfo'] = {}
-#    level = 0
-#    #-step through separators and keys in the list constructor
-#    while len(separators) > 0:
-#        #-get separator and list of current identifiers, including the maximum value
-#        # to be used for adding new dictionary entries
-#        separator = separators.pop()
-#        ids = list_constructor.keys()
-#        maxid = max(ids)
-#        #-step through dictionary entries
-#        for identifier in ids:
-#            #-if the entry of the current dictionary entry contains the separator
-#            # get entry and levelinfo, delete the present entry and process for all
-#            # subsequent entries of increasing order at the given level
-#            if separator in list_constructor[identifier]['entry']:
-#                entry = list_constructor[identifier]['entry']
-#                levelinfo = list_constructor[identifier]['levelinfo']
-#                del list_constructor[identifier]
-#                order = 0
-#                #-for each element of the split entry, update the identifier and add
-#                # the info to the new entry of the dictionary
-#                for newentry in entry.split(separator):
-#                    maxid = maxid + 1
-#                    list_constructor[maxid] = {}
-#                    list_constructor[maxid]['entry'] = newentry
-#                    list_constructor[maxid]['levelinfo'] = levelinfo.copy()
-#                    list_constructor[maxid]['levelinfo'][level] = order
-#                    order = order + 1
-#        #-increment level counter
-#        level = level + 1
-#    #-return list_constructor object
-#    return list_constructor
-
-# def construct_list_from_dictionary(list_constructor,result_list):
-#
-#    '''
-#
-# construct_list_from_dictionary: function that can construct a list of \
-# arbitrary form from a dictionary object holding a unique identifier \
-# as keyword, and two items identified by the keywords "entry", holding the \
-# actual list entry, and "levelinfo" that holds information on the levels and \
-# indices as a separate dictionary in which levels are used as keys and indices \
-# as values, e.g., {0: {'entry': 'a', 'levelInfo': {0: 0, 1: 0}}, \
-# 1: {'entry': 'b', 'levelInfo': {0: 0, 1: 1}}} which is equivalent with a \
-# zero-order list that contains at position 0 the first-order list with the \
-# elements a and b: [[a,b]].
-#
-#    '''
-#    result_list= result_list[:]
-#    assert isinstance(list_constructor,dict)
-#    #-iterate over all list entries in the list_constructor object
-#    for key, listinfo in list_constructor.iteritems():
-#        entry= listinfo['entry']
-#        levelinfo= listinfo['levelinfo']
-#        #-get levels from levelinfo and sort them in ascending order
-#        levels= levelinfo.keys()
-#        levels.sort()
-#        #-create dictionary of list contents and populate
-#        list_contents= dict([(level,[]) for level in levels])
-#        for level in levels:
-#            index= levelinfo[level]
-#            #-populate list_contents at lowest level with the sublist at index i
-#            # otherwise
-#            if level == 0:
-#                #-get the contents of result_list at index, else insert the necessary elements as empty lists
-#                if index >= len(result_list):
-#                  result_list= expandlist(result_list,index,[])
-#                list_contents[level]= result_list[:]
-#            else:
-#                list_contents[level]= list_contents[level-1][levelinfo[level-1]][:]
-#                if index >= len(list_contents[level]):
-#                  list_contents[level]= expandlist(list_contents[level],index,[])
-#            #-at the highest level, insert entry
-#            if level == max(levels):
-#                list_contents[level][index]= entry
-#        #-process the levels in reverse order and insert result from higher level into the underlying level
-#        #-remove highest level first
-#        level= levels.pop()
-#        index= levelinfo[level]
-#        while len(levels) > 0:
-#            level= levels.pop()
-#            index= levelinfo[level]
-#            list_contents[level][index]= list_contents[level+1]
-#        result_list[index]= list_contents[level][index]
-#    #-return the updated list
-#    return result_list
-
-
 def convert_string_to_list(s, separators=[",", ";"]):
     """
 
@@ -580,8 +471,6 @@ def pcr_sort_list(
 
         # Finally, add the new field with the highest value encountered to the list
         pcrfield_sorted_list.append(pcr.ifthen(pcr.defined(new_field), new_field))
-
-        #        if icnt == 3: sys.exit()
 
         # Update counter
         icnt = icnt + 1
@@ -869,7 +758,6 @@ If y and z are parallel, missing values for xi and yi are returned.
     )
     yi = y0 + (xi - x0) * (y1 - y0) / (x1 - x0)
 
-    # return xi, yi
     return xi, yi
 
 

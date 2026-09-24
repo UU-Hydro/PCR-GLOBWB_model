@@ -311,7 +311,6 @@ class qualloc_reporting(object):
                 )
 
         # reporting initialized
-        # return None
         return None
 
     def report(self, model_time, model):
@@ -574,7 +573,6 @@ class qualloc_reporting(object):
         # close down the logger
         self.nc_handler.close_cache()
 
-        # return None
         return None
 
     def update_reportable_variables(self, model):
@@ -729,7 +727,6 @@ class qualloc_reporting(object):
                     rep_name,
                     getattr(model.water_management, var_name)[sector_name],
                 )
-        # return None
         return None
 
 
@@ -888,7 +885,6 @@ dictionaries with the dates provided.
         # close down the logger
         self.nc_handler.close_cache()
 
-        # return None
         return None
 
 

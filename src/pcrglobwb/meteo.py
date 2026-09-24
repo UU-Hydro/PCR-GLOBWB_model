@@ -101,9 +101,6 @@ class Meteo(object):
         # the following values can be negative
         self.avgAnnualTemperature = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
 
-        # TODO: Check whether we have missing values for zero values (if yes, we have to do the following)
-        # ~ self.avgAnnualTemperature = pcr.ifthen(self.landmask, pcr.cover(self.avgAnnualTemperature, 0.0)))
-
     def __init__(self, iniItems, landmask, spinUp):
         object.__init__(self)
 
@@ -229,7 +226,6 @@ class Meteo(object):
         # option to remove drizzle with rounddown
         # - if True, any precipitation values less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 are ignored
         self.rounddownPrecipitation = False
-        # ~ if "rounddownPrecipitation" in
 
         # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
@@ -493,7 +489,6 @@ class Meteo(object):
                     "Temperature forcing will be downscaled to the cloneMap resolution."
                 )
 
-            # ~ if iniItems.meteoDownscalingOptions['downscaleReferenceETPot'] == "True" and self.refETPotMethod != 'Hamon':
             if iniItems.meteoDownscalingOptions["downscaleReferenceETPot"] == "True":
                 self.downscaleReferenceETPotOption = True
                 logger.info(
@@ -520,9 +515,6 @@ class Meteo(object):
                 self.tmpDir,
                 self.inputDir,
             )
-
-            # ~ # - Related to parallelization, dO not mask out cell area
-            # ~ self.cellArea = pcr.ifthen(self.landmask, cellArea)
 
             # creating anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(
@@ -658,15 +650,9 @@ class Meteo(object):
             )
             logger.info(msg)
 
-            # ~ vos.plot_variable(self.temperature)
-            # ~ vos.plot_variable(self.latitudes)
-            # ~ vos.plot_variable(pcr.scalar(currTimeStep.doy))
-
             self.referencePotET = hamon_et0.HamonPotET(
                 self.temperature, pcr.scalar(currTimeStep.doy), self.latitudes
             )
-
-            # ~ vos.plot_variable(self.referencePotET)
 
         if self.refETPotMethod == "Penman-Monteith":
 
@@ -705,11 +691,6 @@ class Meteo(object):
                     self.wind_speed_10m_u_comp**2.0 + self.wind_speed_10m_v_comp**2.0
                 ) ** (0.5)
 
-            # ~ # debug
-            # ~ pcr.aguila(self.wind_speed_10m)
-            # ~ input("Press Enter to continue...")
-            # ~ os.system("killall aguila")
-
             # extraterestrial radiation
 
             if (
@@ -723,7 +704,6 @@ class Meteo(object):
                 # get the day angle (rad)
                 # - julian day
                 julian_day = currTimeStep.doy
-                # ~ julian_day = penman_monteith.shortwave_radiation.get_julian_day_number(currTimeStep._currTimeFull)
                 # - number of days in a year
                 number_days = 365
                 if calendar.isleap(currTimeStep.year):
@@ -782,11 +762,6 @@ class Meteo(object):
                     pcr.max(0.0, self.extraterestrial_radiation / 1e6) / 0.0864
                 )
 
-            # ~ # debug
-            # ~ pcr.aguila(self.extraterestrial_radiation)
-            # ~ input("Press Enter to continue...")
-            # ~ os.system("killall aguila")
-
             # shortwave radiation
 
             if self.iniItems.meteoOptions["shortwave_radiation"].endswith(
@@ -821,13 +796,6 @@ class Meteo(object):
                     solar_constant=118.1,
                 )
 
-                # ~ # initiate short wave radiation class with the the solar constant = 1362 W.m-2
-                # ~ self.sw_rad_model = sw_rad.ShortwaveRadiation(latitude        = self.latitudes, \
-                # ~ elevation       = elevation_meteo, \
-                # ~ temp_annual     = self.avgAnnualTemperature, \
-                # ~ delta_temp_mean = self.avgAnnualDiurnalDeltaTemp, \
-                # ~ solar_constant  = 1362.0)
-
                 # - TODO: set solar_constant in the configuration file
 
                 # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
@@ -861,11 +829,6 @@ class Meteo(object):
                 self.shortwave_radiation = (
                     pcr.max(0.0, self.shortwave_radiation / 1e6) / 0.0864
                 )
-
-            # ~ # debug
-            # ~ pcr.aguila(self.shortwave_radiation)
-            # ~ input("Press Enter to continue...")
-            # ~ os.system("killall aguila")
 
             # longwave radiation
 
@@ -1203,9 +1166,6 @@ class Meteo(object):
             if useFactor == True:
                 factor = pcr.max(0.0, self.precipitation + preSlope * self.anomalyDEM)
 
-                # ~ # avoid too high factor
-                # ~ factor    = pcr.min(self.precipitation * 3.0, factor)
-
                 # avoid zero factor
                 min_limit = drizzle_limit
                 factor = pcr.max(min_limit, factor)
@@ -1216,7 +1176,6 @@ class Meteo(object):
                 factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
 
                 # - do not downscale drizzle
-                # ~ factor = pcr.ifthenelse(pcr.areaaverage(self.precipitation, self.meteoDownscaleIds) > drizzle_limit, factor, 1.00)
                 factor = pcr.ifthenelse(
                     self.precipitation > drizzle_limit, factor, 1.00
                 )
@@ -1370,7 +1329,6 @@ class Meteo(object):
             factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
 
             # - do not downscale small values
-            # ~ factor = pcr.ifthenelse(pcr.areaaverage(self.referencePotET, self.meteoDownscaleIds) > min_limit, factor, 1.00)
             factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00)
 
             factor = pcr.cover(factor, 1.0)
@@ -1576,13 +1534,6 @@ class Meteo(object):
                     int(currTimeStep.year),
                     int(currTimeStep.year),
                 )
-
-            # ~ self.referencePotET = vos.netcdf2PCRobjClone(\
-            # ~ netcdf_file_name, self.refETPotVarName,\
-            # ~ str(currTimeStep.fulldate),
-            # ~ useDoy = method_for_time_index,
-            # ~ cloneMapFileName = self.cloneMap,\
-            # ~ LatitudeLongitude = True)
 
             if (
                 self.using_daily_factor_for_downscaling

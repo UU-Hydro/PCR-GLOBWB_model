@@ -4,21 +4,6 @@ import sys
 import pcraster as pcr
 import pcraster.framework as pcrm
 
-# ~ import shortwave_radiation
-
-# ~ from types import NoneType
-
-# ~ def get_extraterestrial_shortwave_radiation(\
-# ~ latitude, solar_declination, \
-# ~ eccentricity, day_length, solar_constant = 118.1):
-# ~
-# ~ extraterestrial_shortwave_radiation = shortwave_radiation.compute_radsw_ext(latitude, solar_declination, \
-# ~ eccentricity, day_length, solar_constant)
-# ~
-# ~ # Note: Unit must be consistent with the unit of solar_constant, if solar_constant = 118.1, the unit is MJ.day**-1.m**-2
-# ~
-# ~ return extraterestrial_shortwave_radiation
-
 
 def computeDefaultPressure(elevation):
     """computeDefaultPressure: function that returns the \
@@ -265,10 +250,8 @@ must be provided; the latter takes precedence):
         ) * latentHeatVaporization
 
         # -decide on actual vapour pressure [Pa]
-        # ~ if not isinstance(unsatVapPressure, NoneType):
         if unsatVapPressure is not None:
             pass
-        # ~ elif not isinstance(relativeHumidity, NoneType):
         elif relativeHumidity is not None:
             unsatVapPressure = relativeHumidity * satVapPressure
         else:
@@ -291,13 +274,6 @@ must be provided; the latter takes precedence):
             pcr.max(0.0, atmosphericContribution + radiationContribution)
             * timeStepLength
         )
-
-        ##		pcr.report(raTerm,os.path.join('output','raterm.map'))
-        ##		pcr.report(self.atmosphericResistance,os.path.join('output','ra.map'))
-        ##		pcr.report(delta,os.path.join('output','delta.map'))
-        ##		pcr.report(gamma,os.path.join('output','gamma.map'))
-        ##		pcr.report(latentHeatVaporization,os.path.join('output','lv.map'))
-        ##		pcr.report(dGLv,os.path.join('output','dglv.map'))
 
         # -return potential evaporation
         return self.potentialEvaporation

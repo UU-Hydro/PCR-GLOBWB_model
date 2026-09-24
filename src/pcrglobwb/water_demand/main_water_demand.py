@@ -12,10 +12,6 @@ from pcrglobwb.water_demand import (
     thermoelectric_water_demand,
 )
 
-# TODO: FIX THIS, at this moment there is a link to virtualOS.py to the upper folder.
-# ~ from .. import virtualOS as vos
-
-
 logger = logging.getLogger(__name__)
 
 

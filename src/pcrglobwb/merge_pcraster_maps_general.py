@@ -241,15 +241,6 @@ try:
 except:
     pass
 
-# ~ number_of_clone_maps = 53
-# ~ try:
-# ~ number_of_clone_maps = int(sys.argv[5])
-# ~ except:
-# ~ pass
-# ~ areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
-
-# ~ if sys.argv[5] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
-# ~ if sys.argv[5] == "Global_uly": areas = ['M%07d'%i for i in range(1,number_of_clone_maps+1,1)]
 
 # number of clone areas
 number_of_clones = int(sys.argv[5])
@@ -271,26 +262,6 @@ if sys.argv[6] == "defined":
     latMax = ymax
 
 
-# ~ # set clone maps based on the system argument
-# ~ areas = ["M47","M48"]   ### only fot TEST CASE
-
-# ~ try:
-# ~ areas = str(sys.argv[5])
-# ~ areas = list(set(areas.split(",")))
-# ~ if areas[0] == "Global": areas = ['M%02d'%i for i in range(1,number_of_clone_maps+1,1)]
-# ~ except:
-# ~ pass
-# ~
-# ~ try:
-# ~ areas = str(sys.argv[5])
-# ~ areas = list(set(areas.split(",")))
-# ~ print(areas)
-# ~ if areas[0] == "Global_uly" or areas == "Global_uly": areas = ['M%07'%i for i in range(1,number_of_clone_maps+1,1)]
-# ~ except:
-# ~ pass
-# ~
-# ~ print(areas)
-
 # -main script
 # -get clone
 nrRows = int((latMax - latMin) / deltaLat)
@@ -308,8 +279,6 @@ command = 'mapattr -s -R %d -C %d -P "yb2t"  -B -x %f -y %f -l %f %s' % (
 os.system(command)
 setclone(tempCloneMap)
 
-# ~ print areas
-# ~ print areas[0]
 
 # input files where unmerged maps are saved
 inputDir = os.path.join(inputDirRoot, areas[0], "maps")
@@ -330,12 +299,10 @@ print()
 print()
 
 for fileName in list(files.keys()):
-    # ~ print fileName,
     files[fileName] = {}
     ll = []
     outputFileName = os.path.join(outputDir, fileName)
     for area in areas:
-        # ~ print area
         inputFileName = os.path.join(inputDirRoot, area, "maps", fileName)
         if sys.argv[3] == "default":
             inputFileName = os.path.join(inputDirRoot, area, "maps", fileName)
@@ -358,8 +325,6 @@ for fileName in list(files.keys()):
         )
     )
 
-# ~ # this is for testing
-# ~ joinMaps(files[fileName])
 
 print()
 print()

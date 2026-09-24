@@ -45,7 +45,6 @@ class SpinUp(object):
         self.minConvForChanSto = float(iniItems.globalOptions["minConvForChanSto"])
 
         # TODO: including the convergence of ResvSto (reservoir storage)
-        # self.minConvForResvSto = float(iniItems.globalOptions['minConvForResvSto'])
 
         # directory for storing end states (format: pcraster maps)
         self.endStateDir = iniItems.endStateDir

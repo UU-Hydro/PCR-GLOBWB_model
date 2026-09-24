@@ -51,8 +51,6 @@ class SoilAndTopoParameters(object):
                 if var != "slopeLength":
                     vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-        # ~ self.tanslope = pcr.max(self.tanslope, 0.00001)              # In principle, tanslope can be zero. Zero tanslope will provide zero TCL (no interflow)
-
         # covering slopeLength with its maximum value
         self.slopeLength = pcr.cover(self.slopeLength, pcr.mapmaximum(self.slopeLength))
 
@@ -348,8 +346,6 @@ class SoilAndTopoParameters(object):
 
         # soil storage
         if self.numberOfLayers == 2:
-            # ~ self.storCapUpp = (0.30/0.30)*self.soilWaterStorageCap1Inp
-            # ~ self.storCapLow = (1.20/1.20)*self.soilWaterStorageCap2Inp                     # 22 Feb 2014: We can calculate this based on thickness and porosity.
             self.storCapUpp = self.thickUpp * (
                 self.satVolMoistContUpp - self.resVolMoistContUpp
             )
@@ -382,7 +378,6 @@ class SoilAndTopoParameters(object):
         # default values of soil parameters that are constant/uniform for the entire domain:
         self.clappAddCoeff = pcr.scalar(3.0)  # dimensionless
         self.matricSuctionFC = pcr.scalar(1.0)  # unit: m
-        # ~ self.matricSuction50 = pcr.scalar(10./3.)  # unit: m
         self.matricSuction50 = pcr.scalar(3.33)  # unit: m
         self.matricSuctionWP = pcr.scalar(156.0)  # unit: m
         self.maxGWCapRise = pcr.scalar(5.0)  # unit: m

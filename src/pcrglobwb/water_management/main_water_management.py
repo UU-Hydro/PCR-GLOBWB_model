@@ -596,8 +596,6 @@ class WaterManagement(object):
 
         # abstract and allocate desalinated water
         # - this will return the following:
-        #   - self.allocated_demand_per_sector["desalinated_water"]
-        #   - self.allocated_withdrawal_per_sector["desalinated_water"]
         self.abstraction_and_allocation_from_desalination(
             remaining_gross_sectoral_water_demands=self.remaining_gross_sectoral_water_demands,
             currTimeStep=currTimeStep,
@@ -606,7 +604,6 @@ class WaterManagement(object):
         # update the following after abstraction and allocation of desalinated water
         #   - the updated self.remaining_gross_sectoral_water_demands (after desalinated_water use)
         #   - the updated self.satisfied_gross_sectoral_water_demands (after desalinated_water use)
-        # ~ for sector_name in vol_gross_sectoral_water_demands.keys():
         for sector_name in self.sector_names:
             self.satisfied_gross_sectoral_water_demands[
                 sector_name
@@ -620,8 +617,6 @@ class WaterManagement(object):
 
         # abstract and allocate surface water
         # - this will return the following:
-        #   - self.allocated_demand_per_sector["surface_water"]
-        #   - self.allocated_withdrawal_per_sector["surface_water"]
         self.abstraction_and_allocation_from_surface_water(
             remaining_gross_sectoral_water_demands=self.remaining_gross_sectoral_water_demands,
             available_surface_water_volume=self.available_surface_water_volume,
@@ -646,10 +641,6 @@ class WaterManagement(object):
 
         # abstract and allocate groundwater
         # - this will return the following:
-        #   - self.allocated_demand_per_sector["renewable_groundwater"]
-        #   - self.allocated_withdrawal_per_sector["renewable_groundwater"]
-        #   - self.allocated_demand_per_sector["nonrenewable_groundwater"]
-        #   - self.allocated_withdrawal_per_sector["nonrenewable_groundwater"]
         self.abstraction_and_allocation_from_groundwater(
             remaining_gross_sectoral_water_demands=self.remaining_gross_sectoral_water_demands,
             routing=routing,

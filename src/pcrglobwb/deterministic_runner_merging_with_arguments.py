@@ -173,21 +173,8 @@ class DeterministicRunner(DynamicModel):
         # merging initial conditions (pcraster maps) of PCR-GLOBWB
         if self.modelTime.isLastDayOfYear():
 
-            # ~ # - for Ulysses we have to do it on every month
-            # ~ if self.modelTime.isLastDayOfMonth():
-
             msg = "Merging pcraster map files belonging to initial conditions."
             logger.info(msg)
-
-            # ~ # - for a global extent
-            # ~ cmd = 'python '+ self.configuration.path_of_this_module + "/merge_pcraster_maps.py " + str(self.modelTime.fulldate) + " " +\
-            # ~ str(self.configuration.main_output_directory)+"/ states 8 "+\
-            # ~ str("Global")
-            # ~ # - for Ulysses:
-            # ~ # example: python3 merge_pcraster_maps_6_arcmin_ulysses.py ${END_DATE} ${MAIN_OUTPUT_DIR} states 2 Global 71 False
-            # ~ cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_pcraster_maps_6_arcmin_ulysses.py " + str(self.modelTime.fulldate) + " " +\
-            # ~ str(self.configuration.main_output_directory)+"/ states 32 "+\
-            # ~ str("Global 71 False")
 
             # - for general (e.g. africa extent, europe, etc)
             cmd = (
@@ -216,9 +203,6 @@ class DeterministicRunner(DynamicModel):
 
             print(cmd)
 
-            # ~ pietje
-
-            # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
 
             # cleaning up unmerged files (not tested yet)
@@ -297,30 +281,6 @@ class DeterministicRunner(DynamicModel):
             )
             logger.info(msg)
 
-            # ~ cmd = 'python '+ self.configuration.path_of_this_module + "/merge_netcdf.py " + str(self.configuration.main_output_directory) + " " +\
-            # ~ str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
-            # ~ str(nc_report_type)  + " " +\
-            # ~ str(start_date) + " " +\
-            # ~ str(end_date)   + " " +\
-            # ~ str(netcdf_files_that_will_be_merged) + " " +\
-            # ~ str(self.netcdf_format)  + " "  +\
-            # ~ str(self.zlib_option  )  + " "  +\
-            # ~ str(max_number_of_cores) + " "  +\
-            # ~ str("Global")  + " "
-
-            # ~ # - for Ulysses:
-            # ~ # example: python3 merge_netcdf_6_arcmin_ulysses.py ${MAIN_OUTPUT_DIR} ${MAIN_OUTPUT_DIR}/global/netcdf outDailyTotNC ${STARTING_DATE} ${END_DATE} ulyssesQrRunoff,ulyssesDischarge NETCDF4 False 12 Global default_lats
-            # ~ cmd =     'python3 '+ self.configuration.path_of_this_module + "/merge_netcdf_6_arcmin_ulysses.py " + str(self.configuration.main_output_directory) + " " +\
-            # ~ str(self.configuration.main_output_directory) + "/global/netcdf/ "+\
-            # ~ str(nc_report_type)  + " " +\
-            # ~ str(start_date) + " " +\
-            # ~ str(end_date)   + " " +\
-            # ~ str(netcdf_files_that_will_be_merged) + " " +\
-            # ~ str(self.netcdf_format)  + " "  +\
-            # ~ str(self.zlib_option  )  + " "  +\
-            # ~ str(max_number_of_cores) + " "  +\
-            # ~ str("Global default_lats")  + " "
-
             # - for general:
             cmd = (
                 "python3 "
@@ -363,21 +323,9 @@ class DeterministicRunner(DynamicModel):
             msg = "Using the following command line: " + cmd
             logger.info(msg)
 
-            # ~ vos.cmd_line(cmd, using_subprocess = False)
             os.system(cmd)
 
     def check_pcrglobwb_status(self):
-
-        # ~ if self.configuration.globalOptions['cloneAreas'] == "Global" or \
-        # ~ self.configuration.globalOptions['cloneAreas'] == "part_one":
-        # ~ clone_areas = ['M%02d'%i for i in range(1,53+1,1)]
-
-        # ~ # for the Ulysses project
-        # ~ elif self.configuration.globalOptions['cloneAreas'] == "GlobalUlysses":
-        # ~ clone_areas = ['M%07d'%i for i in range(1,71+1,1)]
-
-        # ~ else:
-        # ~ clone_areas = list(set(self.configuration.globalOptions['cloneAreas'].split(",")))
 
         clone_areas = ["M%07d" % i for i in range(1, int(self.number_of_clones) + 1, 1)]
 
@@ -394,12 +342,8 @@ class DeterministicRunner(DynamicModel):
             if self.count_check == 1:
                 logger.info(msg)
             if self.count_check < 7:
-                # ~ logger.debug(msg)		# INACTIVATE THIS AS THIS MAKE A HUGE DEBUG (dbg) FILE
                 self.count_check += 1
             status = os.path.exists(status_file)
-
-            # ~ # for debugging
-            # ~ status = True
 
             if status == False:
                 return status
