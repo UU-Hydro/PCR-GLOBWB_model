@@ -28,15 +28,6 @@ class Reporting(object):
         self._model = model
         self._modelTime = modelTime
 
-        # offline DynQual runs
-        self.offlineRun = configuration.routingOptions["offlineRun"]
-        # water quality modelling
-        self.quality = configuration.routingOptions["quality"]
-        # calculate pollutant loads
-        self.calculateLoads = configuration.routingOptions["calculateLoads"]
-        # calculate pollutant loads per sector
-        self.loadsPerSector = configuration.routingOptions["loadsPerSector"]
-
         self.configuration = configuration
 
         self.initiate_reporting()
@@ -1006,7 +997,7 @@ class Reporting(object):
                 self.salinity * self._model.routing.disChanWaterBody,
             )
 
-            if self.loadsPerSector == "True":
+            if self._model.routing.loadsPerSector:
                 # TDS
                 self.Dom_TDSload = self._model.routing.Dom_TDSload
                 self.Man_TDSload = self._model.routing.Man_TDSload
@@ -1030,7 +1021,7 @@ class Reporting(object):
                 self.organic * self._model.routing.disChanWaterBody,
             )
 
-            if self.loadsPerSector == "True":
+            if self._model.routing.loadsPerSector:
                 # BOD
                 self.Dom_BODload = self._model.routing.Dom_BODload
                 self.Man_BODload = self._model.routing.Man_BODload
@@ -1059,7 +1050,7 @@ class Reporting(object):
                 self.pathogen * self._model.routing.disChanWaterBody * 0.01,
             )
 
-            if self.loadsPerSector == "True":
+            if self._model.routing.loadsPerSector:
                 # FC
                 self.Dom_FCload = self._model.routing.Dom_FCload
                 self.Man_FCload = self._model.routing.Man_FCload
@@ -1297,9 +1288,13 @@ class Reporting(object):
         )
 
         # estimate of the total groundwater storage (m3) and thickness (m); may be negative
-        if (
-            "groundwaterVolumeEstimate"
-            or "groundwaterThicknessEstimate" in self.variables_for_report
+        if any(
+            var in self.variables_for_report
+            for var in (
+                "groundwaterVolumeEstimate",
+                "groundwaterThicknessEstimate",
+                "accuGroundwaterVolumeEstimate",
+            )
         ):
             self.groundwaterThicknessEstimate = (
                 self.storGroundwater + self.storGroundwaterFossil

@@ -6,7 +6,6 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 
 import netCDF4 as nc
 import numpy as np
@@ -1425,57 +1424,55 @@ def isLastDayOfMonth(date):
         return False
 
 
-def getMapAttributesALL(cloneMap, arcDegree=True):
-    cOut, err = subprocess.Popen(
-        str("mapattr -p %s " % (cloneMap)),
-        stdout=subprocess.PIPE,
-        stderr=open(os.devnull),
-        shell=True,
-    ).communicate()
-
-    if err is not None or cOut == []:
-        print(
-            "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
+def readMapAttributes(cloneMap):
+    # attributes of a PCRaster map as reported by mapattr, keyed by attribute name
+    result = subprocess.run(
+        ["mapattr", "-p", str(cloneMap)], capture_output=True, text=True
+    )
+    attributes = {}
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) >= 2:
+            attributes[parts[0]] = parts[-1]
+    required = ("rows", "columns", "cell_length", "xUL", "yUL")
+    if result.returncode != 0 or not all(key in attributes for key in required):
+        raise RuntimeError(
+            f"Cannot read the map attributes of {cloneMap} with mapattr: "
+            f"{result.stderr.strip() or result.stdout.strip()}"
         )
-        sys.exit()
-    cellsize = float(cOut.split()[7])
+    return attributes
+
+
+def getMapAttributesALL(cloneMap, arcDegree=True):
+    attributes = readMapAttributes(cloneMap)
+    cellsize = float(attributes["cell_length"])
     if arcDegree:
         cellsize = round(cellsize * 360000.0) / 360000.0
     mapAttr = {
         "cellsize": float(cellsize),
-        "rows": float(cOut.split()[3]),
-        "cols": float(cOut.split()[5]),
-        "xUL": float(cOut.split()[17]),
-        "yUL": float(cOut.split()[19]),
+        "rows": float(attributes["rows"]),
+        "cols": float(attributes["columns"]),
+        "xUL": float(attributes["xUL"]),
+        "yUL": float(attributes["yUL"]),
     }
     return mapAttr
 
 
 def getMapAttributes(cloneMap, attribute, arcDegree=True):
-    cOut, err = subprocess.Popen(
-        str("mapattr -p %s " % (cloneMap)),
-        stdout=subprocess.PIPE,
-        stderr=open(os.devnull),
-        shell=True,
-    ).communicate()
-    if err is not None or cOut == []:
-        print(
-            "Something wrong with mattattr in virtualOS, maybe clone Map does not exist ? "
-        )
-        sys.exit()
+    attributes = readMapAttributes(cloneMap)
     if attribute == "cellsize":
-        cellsize = float(cOut.split()[7])
+        cellsize = float(attributes["cell_length"])
         if arcDegree:
             cellsize = round(cellsize * 360000.0) / 360000.0
         return cellsize
     if attribute == "rows":
-        return int(cOut.split()[3])
+        return int(attributes["rows"])
     if attribute == "cols":
-        return int(cOut.split()[5])
+        return int(attributes["columns"])
     if attribute == "xUL":
-        return float(cOut.split()[17])
+        return float(attributes["xUL"])
     if attribute == "yUL":
-        return float(cOut.split()[19])
+        return float(attributes["yUL"])
 
 
 def getMapTotal(mapFile):
