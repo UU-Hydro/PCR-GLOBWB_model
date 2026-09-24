@@ -7,8 +7,7 @@ import os
 import platform
 import shutil
 import sys
-
-from six.moves.configparser import RawConfigParser as ConfigParser
+from configparser import RawConfigParser as ConfigParser
 
 from pcrglobwb.common import disclaimer
 from pcrglobwb.common import virtualOS as vos

@@ -21,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         
-      - name: Install pre-commit
+      - name: Set up pre-commit
         run: pip install pre-commit==4.6.2
 
       - name: Run pre-commit

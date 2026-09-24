@@ -5,11 +5,7 @@ import re
 import shutil
 import stat
 import sys
-
-if sys.version[0] == "2":
-    from ConfigParser import RawConfigParser as ConfigParser
-else:
-    from six.moves.configparser import RawConfigParser as ConfigParser
+from configparser import RawConfigParser as ConfigParser
 
 from qualloc.basic_functions import convert_string_to_list, get_decision
 

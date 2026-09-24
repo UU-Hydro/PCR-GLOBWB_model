@@ -5,7 +5,6 @@ from copy import deepcopy
 
 import numpy as np
 import pcraster as pcr
-from six.moves import map
 
 from pcrglobwb import waterBodies
 from pcrglobwb.common import virtualOS as vos

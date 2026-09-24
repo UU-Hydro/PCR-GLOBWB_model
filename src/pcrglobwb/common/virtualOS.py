@@ -13,7 +13,6 @@ import pcraster as pcr
 import pyinterp.backends.xarray
 import xarray as xr
 import zarr
-from six.moves import range
 
 logger = logging.getLogger(__name__)
 
