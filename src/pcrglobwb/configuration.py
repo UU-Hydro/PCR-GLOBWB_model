@@ -3,13 +3,10 @@ from __future__ import print_function
 import datetime
 import glob
 import logging
-import optparse
 import os
 import platform
 import shutil
-import subprocess
 import sys
-import time
 
 from pcrglobwb.common import virtualOS as vos
 

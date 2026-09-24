@@ -1,8 +1,5 @@
-import itertools
 import logging
-import math
 import os
-import types
 from copy import deepcopy
 
 import pcraster as pcr

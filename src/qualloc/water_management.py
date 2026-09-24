@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 import sys
 from copy import deepcopy
 
@@ -10,7 +9,6 @@ from qualloc.allocation import (
     allocate_demand_to_availability_with_options,
     allocate_demand_to_withdrawals,
     get_key,
-    get_zonal_fraction,
     get_zonal_total,
     obtain_allocation_ratio,
 )
@@ -25,7 +23,6 @@ from qualloc.model_time import (
     is_last_day_month,
     match_date_by_julian_number,
 )
-from qualloc.water_quality import water_quality
 
 # global attributes
 # set the logger
@@ -1385,7 +1382,6 @@ total_return_flow_ini                      : total return flow [m3/day]
 
                 # add the gross demand to the long-term gross demand for the
                 # present date
-                pass
 
             # [ net demand ]
             if sector_name in net_demand.keys():
@@ -1398,7 +1394,6 @@ total_return_flow_ini                      : total return flow [m3/day]
 
                 # add the net demand to the long-term net demand for the
                 # present date
-                pass
 
         # get the totals: gross and net
         # (units: m3/day)

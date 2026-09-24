@@ -1,16 +1,12 @@
 import calendar
 import logging
 import math
-import os
 
 import pcraster as pcr
 from pcraster.framework import *
 
 logger = logging.getLogger(__name__)
 
-import pyinterp
-import pyinterp.backends.xarray
-import pyinterp.fill
 
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.evaporation import hamonETPFunctions as hamon_et0

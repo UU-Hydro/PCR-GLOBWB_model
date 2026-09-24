@@ -1,13 +1,9 @@
 import logging
-import re
-import types
 
-import netCDF4 as nc
 import pcraster as pcr
 
 logger = logging.getLogger(__name__)
 
-import numpy as np
 
 from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.ncConverter import *

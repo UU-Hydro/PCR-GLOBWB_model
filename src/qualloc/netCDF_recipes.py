@@ -1,7 +1,7 @@
 import datetime
 import logging
 import sys
-from copy import copy, deepcopy
+from copy import deepcopy
 from types import BuiltinMethodType
 
 import netCDF4 as nc

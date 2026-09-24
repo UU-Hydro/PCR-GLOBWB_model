@@ -4,7 +4,6 @@ import datetime
 import logging
 import os
 import shutil
-import sys
 
 import pcraster as pcr
 from pcraster.framework import DynamicModel

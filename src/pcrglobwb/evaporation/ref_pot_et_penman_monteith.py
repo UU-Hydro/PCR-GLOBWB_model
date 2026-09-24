@@ -1,11 +1,8 @@
 import os
 import sys
 
-import numpy as np
 import pcraster as pcr
 import pcraster.framework as pcrm
-
-from pcrglobwb.common import virtualOS as vos
 
 # ~ import shortwave_radiation
 

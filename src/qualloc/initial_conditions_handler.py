@@ -7,7 +7,6 @@ read_initial_conditions.py: module for setting the initial conditions.
 # TODO: include an update of the initial conditions to inherit warm states during spinup
 # TODO: Make sure non-included components are not updated and initial settings remain consistent
 
-import datetime
 import logging
 
 ###########

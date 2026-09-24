@@ -1,9 +1,6 @@
 import logging
-import os
-import types
 
 import pcraster as pcr
-from pcraster.framework import *
 
 logger = logging.getLogger(__name__)
 

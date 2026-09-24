@@ -9,7 +9,6 @@ import logging
 ###########
 import sys
 from copy import deepcopy
-from math import acos, cos, pi, tan
 
 import numpy as np
 

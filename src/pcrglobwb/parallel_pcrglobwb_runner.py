@@ -7,8 +7,6 @@ import os
 import shutil
 import sys
 
-import pcraster as pcr
-
 from pcrglobwb import configuration
 from pcrglobwb.common import virtualOS as vos
 

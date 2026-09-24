@@ -18,7 +18,6 @@ file_handler.py:
 # Modules #
 ###########
 
-import datetime
 import logging
 import os
 import sys
@@ -28,7 +27,6 @@ import pcraster as pcr
 from qualloc.netCDF_recipes import netCDF_file_info
 from qualloc.spatialDataSet2PCR import (
     compareSpatialAttributes,
-    setClone,
     spatialAttributes,
     spatialDataSet,
 )
@@ -351,7 +349,6 @@ given date. This may concern spatial information or single entries.
                 % (val_str, str(conversion_method))
             )
         except:
-            pass
             logger.error(
                 "%s is not recognized as a netCDF or PCRaster file and cannot be converted"
                 % filename

@@ -1,5 +1,4 @@
 import logging
-import types
 
 import pcraster as pcr
 

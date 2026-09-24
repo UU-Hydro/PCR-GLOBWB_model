@@ -1,8 +1,5 @@
 import logging
 import math
-import os
-import subprocess
-import types
 
 import pcraster as pcr
 from pcraster.framework import *

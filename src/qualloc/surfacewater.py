@@ -2,9 +2,6 @@ import logging
 
 import pcraster as pcr
 
-from qualloc.basic_functions import pcr_get_map_value, pcr_return_val_div_zero
-from qualloc.model_time import match_date_by_julian_number
-
 # global attributes
 logger = logging.getLogger(__name__)
 NoneType = type(None)

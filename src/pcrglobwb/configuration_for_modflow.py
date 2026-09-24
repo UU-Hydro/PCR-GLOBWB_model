@@ -1,11 +1,8 @@
 import datetime
 import glob
 import logging
-import optparse
 import os
 import shutil
-import sys
-import time
 
 from six.moves.configparser import RawConfigParser as ConfigParser
 

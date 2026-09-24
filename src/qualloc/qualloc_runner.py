@@ -18,7 +18,6 @@ import logging
 import os
 import sys
 
-import pcraster as pcr
 from pcraster.framework import DynamicFramework, DynamicModel
 from pcraster.multicore import set_nr_worker_threads
 

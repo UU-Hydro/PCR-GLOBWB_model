@@ -1,10 +1,8 @@
 import logging
-import os
 import sys
 
 import pcraster as pcr
 
-from pcrglobwb.common import virtualOS as vos
 from pcrglobwb.water_demand import (
     domestic_water_demand,
     industry_water_demand,

@@ -4,8 +4,6 @@ import math
 import os
 import shutil
 
-import pcraster as pcr
-
 from pcrglobwb.common import virtualOS as vos
 
 logger = logging.getLogger(__name__)

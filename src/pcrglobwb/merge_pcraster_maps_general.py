@@ -5,7 +5,6 @@ import glob
 import os
 import subprocess
 import sys
-import time as tm
 from multiprocessing import Pool
 
 import numpy as np

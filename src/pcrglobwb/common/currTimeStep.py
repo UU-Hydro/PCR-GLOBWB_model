@@ -3,7 +3,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import datetime
-import time
 
 
 class ModelTime(object):

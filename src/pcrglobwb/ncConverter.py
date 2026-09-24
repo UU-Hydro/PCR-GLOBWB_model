@@ -1,12 +1,6 @@
 from __future__ import print_function
 
 import datetime
-import glob
-import os
-import re
-import subprocess
-import sys
-import time
 
 import netCDF4 as nc
 import numpy as np

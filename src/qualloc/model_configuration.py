@@ -10,8 +10,6 @@ import shutil
 import stat
 import sys
 
-import pcraster as pcr
-
 if sys.version[0] == "2":
     from ConfigParser import RawConfigParser as ConfigParser
 else:

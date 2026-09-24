@@ -13,7 +13,7 @@ import sys
 import netCDF4 as nc
 import numpy as np
 import pcraster as pcr
-import pyinterp
+import pyinterp.backends.xarray
 import xarray as xr
 import zarr
 from six.moves import range
