@@ -14,10 +14,6 @@ file_handler.py:
 
 """
 
-###########
-# Modules #
-###########
-
 import logging
 import os
 import sys
@@ -33,9 +29,6 @@ from qualloc.spatialDataSet2PCR import (
 
 logger = logging.getLogger(__name__)
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n\t", ("",))
 
 development = str.join(
@@ -58,20 +51,13 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-####################
-# Global variables #
-####################
-# parameters - set as global variables
-# these include a default small number for precision,
-# a standard missing value indentifier and
-# a file cache to reduce the opening and closing files.
+# global parameters: missing value identifier, types, file extensions
 missing_value = -999.9
 very_small_number = 1.0e-12
 
-# types
 NoneType = type(None)
 
-# and the default extensions to use:
+# default file extensions
 file_extensions = {
     ".map": "pcraster",
     ".nc": "netcdf",
@@ -80,7 +66,7 @@ file_extensions = {
     "": "",
 }
 
-# general information for file conversions
+# file conversion settings
 
 conversion_methods = {
     "Scalar": float,
@@ -109,14 +95,11 @@ resample_methods = {
     "Ldd": "nearest",
 }
 
-# initialize the cache of netCDF files
+# cache of netCDF files
 nc_info = netCDF_file_info()
 
-#############
-# Functions #
-#############
 
-# The following are generic functions to process files
+# generic functions to process files
 
 
 def compose_filename(filename, path, *args):
@@ -126,13 +109,12 @@ and if not merges it with the path provided, normalizes the path and tests if \
 the file exists. Returns the resulting the filename.
 """
 
-    # check if the file exists, if it is an existing file, then make it absolute
+    # make the file name absolute if the file exists
     if os.path.isfile(filename):
         filename = os.path.abspath(filename)
     else:
         filename = os.path.join(path, filename)
 
-    # normalize the path
     filename = os.path.normpath(filename)
 
     # substitute any additional arguments
@@ -150,7 +132,6 @@ the file exists. Returns the resulting the filename.
                     % filename
                 )
 
-    # return the file
     return filename, os.path.isfile(filename)
 
 
@@ -160,10 +141,8 @@ def file_is_nc(filename):
     returns True if this is the case.
     """
 
-    # test the filename
     file_ext = os.path.splitext(filename)[1]
 
-    # return the test condition
     return file_extensions[file_ext] == "netcdf"
 
 
@@ -173,10 +152,8 @@ def file_is_pcr(filename):
     returns True if this is the case.
     """
 
-    # test the filename
     file_ext = os.path.splitext(filename)[1]
 
-    # return the test condition
     return file_extensions[file_ext] == "pcraster"
 
 
@@ -236,23 +213,20 @@ given date. This may concern spatial information or single entries.
                             non-spatial.
 
 """
-    # initialize var_out as NoneType
     var_out = None
 
-    # ensure the file name and value are strings
     filename = str(filename)
     val_str = str(filename)
     datatype_str = str(datatype)
     if "VALUESCALE." in datatype_str:
         datatype_str = datatype_str.replace("VALUESCALE.", "")
 
-    # first compose the file name and test it exists
+    # compose the file name and check that it exists
     filename, existing_file = compose_filename(filename, inputpath, file_subst_args)
 
-    # check if the file is a netCDF file
     if existing_file and file_is_nc(filename):
 
-        # netCDF: read as such from the cache
+        # netCDF: read from the cache
         var_out = nc_info.read_nc_field(
             filename,
             variablename,
@@ -268,16 +242,13 @@ given date. This may concern spatial information or single entries.
 
         # PCRaster file
 
-        # check and process the spatial data set
         if isinstance(clone_attributes, NoneType):
 
-            # PCRaster maps can only be processed if the clone attributes are
-            # passed on to the functions
+            # PCRaster maps can only be processed if clone attributes are passed
             message_str = "no clone attributes are provided to process the PCRaster map"
             logger.error(message_str)
             sys.exit(message_str)
 
-        # compare extent
         data_attributes = spatialAttributes(filename)
         fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
             compareSpatialAttributes(data_attributes, clone_attributes)
@@ -286,22 +257,19 @@ given date. This may concern spatial information or single entries.
         file_ext = os.path.splitext(filename)[1]
         same_clone = fits_extent and same_resolution and file_ext == ".map"
 
-        # resample method
         resample_method = resample_methods[datatype_str]
 
         print(f"{filename} (fits extent: {fits_extent})")
 
-        # read in the data
         if same_clone:
 
-            # get the map directly
             var_out = pcr.readmap(filename)
             conversion_method = getattr(pcr, datatype_str.lower())
             var_out = conversion_method(var_out)
 
         else:
 
-            # get the variable using gdal_translate
+            # read the variable using gdal_translate
             var_out = getattr(
                 spatialDataSet(
                     variablename,
@@ -321,7 +289,7 @@ given date. This may concern spatial information or single entries.
                 variablename,
             )
 
-        # output avalaible, compose and log the message str
+        # output available: log the message
         message_str = "value of %s read from %s" % (variablename, filename)
         message_str = str.join(
             " ",
@@ -336,7 +304,7 @@ given date. This may concern spatial information or single entries.
 
     else:
 
-        # file type cannot be read
+        # the file type cannot be read
         try:
             var_out = float(val_str)
             if forced_non_spatial:
@@ -354,7 +322,6 @@ given date. This may concern spatial information or single entries.
                 % filename
             )
 
-    # return the output
     return var_out
 
 
@@ -364,11 +331,6 @@ def close_nc_cache():
     nc_info.close_cache()
 
     return None
-
-
-###############################################################################
-# end of functions                                                            #
-###############################################################################
 
 
 def main():

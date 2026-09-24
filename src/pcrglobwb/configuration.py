@@ -32,37 +32,33 @@ class Configuration(object):
         if iniFileName is None:
             raise Exception("Error: No configuration file specified")
 
-        # timestamp of this run, used in logging file names, etc
+        # timestamp of this run, used in log file names etc.
         self._timestamp = datetime.datetime.now()
 
-        # get the full path of iniFileName
         self.iniFileName = os.path.abspath(iniFileName)
 
-        # debug option
         self.debug_mode = debug_mode
 
-        # save cwd for later use, it may be changed later by some util functions
+        # save the cwd; it may be changed later by some utility functions
         self._cwd = os.getcwd()
 
-        # read configuration from given file
         self.parse_configuration_file(self.iniFileName)
 
-        # added this option to be able to run in a sandbox with meteo files and initial conditions
+        # option to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False
         if relative_ini_meteo_paths:
             self.using_relative_path_for_output_directory = True
             self.make_ini_meteo_paths_absolute()
 
-        # option to define an online coupling between PCR-GLOBWB and MODFLOW
+        # option for online coupling between PCR-GLOBWB and MODFLOW
         self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
 
-        # if no_modification, set configuration directly
-        # - this will create directories (output, tmp, etc)
-        # - if modification is required, set_configuration must be called separately
+        # if no_modification, set the configuration directly (creates the output, tmp, etc.
+        # directories); otherwise set_configuration must be called separately
         if no_modification:
             self.set_configuration(system_arguments)
 
-        # the main output directory (required for runs with merging processes)
+        # main output directory (required for runs with merging)
         self.main_output_directory = self.globalOptions["outputDir"]
 
     def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
@@ -81,20 +77,16 @@ class Configuration(object):
 
     def set_configuration(self, system_arguments=None):
 
-        # set all paths, clean output when requested
         self.set_input_files()
         self.create_output_directories()
 
-        # initialize logging
         self.initialize_logging("Default", system_arguments)
 
-        # copy ini file
         self.backup_configuration()
 
-        # repair key names of initial conditions
         self.repair_ini_key_names()
 
-        # options/settings used during debugging to PCR-GLOBWB version 1.0
+        # settings for debugging against PCR-GLOBWB version 1
         self.set_debug_to_version_one()
 
     def make_ini_meteo_paths_absolute(self):
@@ -113,7 +105,7 @@ class Configuration(object):
                     if not os.path.exists(value):
                         print(key, ":", value)
 
-    # make absolute to cwd when config was created
+    # make paths absolute to the cwd at the time the configuration was created
     def make_absolute_path(self, path):
         return os.path.normpath(os.path.join(self._cwd, path))
 
@@ -122,24 +114,21 @@ class Configuration(object):
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
 
-        # set root logger to debug level
         logging.getLogger().setLevel(logging.DEBUG)
 
-        # logging format
         formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s")
 
-        # default logging levels
         log_level_console = "INFO"
         log_level_file = "INFO"
-        # order: DEBUG, INFO, WARNING, ERROR, CRITICAL
+        # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-        # log level based on ini/configuration file:
+        # log level from the ini file
         if "log_level_console" in list(self.globalOptions.keys()):
             log_level_console = self.globalOptions["log_level_console"]
         if "log_level_file" in list(self.globalOptions.keys()):
             log_level_file = self.globalOptions["log_level_file"]
 
-        # log level for debug mode:
+        # log level for debug mode
         if self.debug_mode == True:
             log_level_console = "DEBUG"
             log_level_file = "DEBUG"
@@ -148,13 +137,11 @@ class Configuration(object):
         if not isinstance(console_level, int):
             raise ValueError("Invalid log level: %s", log_level_console)
 
-        # create handler, add to root logger
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         console_handler.setLevel(console_level)
         logging.getLogger().addHandler(console_handler)
 
-        # log file name (and location)
         if log_file_location != "Default":
             self.logFileDir = log_file_location
         log_filename = (
@@ -169,13 +156,12 @@ class Configuration(object):
         if not isinstance(console_level, int):
             raise ValueError("Invalid log level: %s", log_level_file)
 
-        # create handler, add to root logger
         file_handler = logging.FileHandler(log_filename)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(file_level)
         logging.getLogger().addHandler(file_handler)
 
-        # file name for debug log
+        # debug log file name
         dbg_filename = (
             self.logFileDir
             + os.path.basename(self.iniFileName)
@@ -184,27 +170,22 @@ class Configuration(object):
             + ".dbg"
         )
 
-        # create handler, add to root logger
         debug_handler = logging.FileHandler(dbg_filename)
         debug_handler.setFormatter(formatter)
         debug_handler.setLevel(logging.DEBUG)
         logging.getLogger().addHandler(debug_handler)
 
-        # print disclaimer
         disclaimer.print_disclaimer(with_logger=True)
 
         logger.info("Model run started at %s", self._timestamp)
         logger.info("Logging output to %s", log_filename)
         logger.info("Debugging output to %s", dbg_filename)
 
-        # save platform, python, pcrcalc version, path, pythonpath, etc.
-        # - os platform
+        # log the platform, Python and PCRaster versions, paths, etc.
         logger.info("OS platform: %s", str(platform.system()))
         logger.info("OS relesase: %s", str(platform.release()))
-        # - python version
         python_version = str(sys.version)
         logger.info("Python version:\n%s", python_version)
-        # - pcraster
         pcraster_check_filename = (
             self.logFileDir
             + os.path.basename(self.iniFileName)
@@ -218,19 +199,15 @@ class Configuration(object):
             "PCRaster version (output from pcrcalc): see the file %s",
             pcraster_check_filename,
         )
-        # - path
         logger.info("PATH=%s", os.environ["PATH"])
-        # - pythonpath
         if "PYTHONPATH" in os.environ.keys():
             logger.info("PYTHONPATH=%s", os.environ["PYTHONPATH"])
         else:
             logger.info("PYTHONPATH=%s", "N/A")
-        # - hostname
         if "HOSTNAME" in os.environ.keys():
             logger.info("HOSTNAME: %s", os.environ["HOSTNAME"])
         else:
             logger.info("HOSTNAME: %s", "N/A")
-        # - PCRaster NUMBER_OF_WORKING_THREADS
         if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys():
             logger.info(
                 "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
@@ -249,8 +226,6 @@ class Configuration(object):
 
     def backup_configuration(self):
 
-        # copy ini File to logDir:
-
         shutil.copy(
             self.iniFileName,
             self.logFileDir
@@ -266,27 +241,21 @@ class Configuration(object):
         config.optionxform = str
         config.read(modelFileName)
 
-        # all sections provided in the configuration/ini file
         self.allSections = config.sections()
 
-        # read all sections
         for sec in self.allSections:
-            vars(self)[sec] = {}  # example: to instantiate self.globalOptions
-            options = config.options(sec)  # example: logFileDir
+            vars(self)[sec] = {}
+            options = config.options(sec)
             for opt in options:
-                val = config.get(sec, opt)  # value defined in every option
-                self.__getattribute__(sec)[
-                    opt
-                ] = val  # example: self.globalOptions['logFileDir'] = val
+                val = config.get(sec, opt)
+                self.__getattribute__(sec)[opt] = val
 
     def set_input_files(self):
-        # fullPath of CLONE:
         self.cloneMap = vos.getFullPath(
             self.globalOptions["cloneMap"], self.globalOptions["inputDir"]
         )
 
-        # Get the fullPaths of the INPUT directories/files mentioned in
-        #      a list/dictionary:
+        # full paths of the input directories/files
         dirsAndFiles = ["precipitationNC", "temperatureNC", "refETPotFileNC"]
         for item in dirsAndFiles:
             if self.meteoOptions[item] != "None":
@@ -305,32 +274,28 @@ class Configuration(object):
                     self.globalOptions["outputDir"]
                 )
 
-            # making temporary directory:
             self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
 
             self.outNCDir = vos.getFullPath("netcdf/", self.globalOptions["outputDir"])
 
-            # # making backup for the python scripts used:
+            # backup of the Python scripts used
             self.scriptDir = vos.getFullPath(
                 "scripts/", self.globalOptions["outputDir"]
             )
 
-            # working/starting directory where all scripts are stored
+            # starting directory where all scripts are stored
             path_of_this_module = os.path.abspath(os.path.dirname(__file__))
             self.starting_directory = path_of_this_module
 
-            # making log directory:
             self.logFileDir = vos.getFullPath("log/", self.globalOptions["outputDir"])
 
-            # making endStateDir directory:
             self.endStateDir = vos.getFullPath(
                 "states/", self.globalOptions["outputDir"]
             )
 
-            # making pcraster maps directory:
             self.mapsDir = vos.getFullPath("maps/", self.globalOptions["outputDir"])
 
-            # go to pcraster maps directory (so all pcr.report files will be saved in this directory)
+            # go to the PCRaster maps directory (so all pcr.report files are saved there)
             os.chdir(self.mapsDir)
 
         else:
@@ -339,19 +304,20 @@ class Configuration(object):
                     self.globalOptions["outputDir"]
                 )
 
-            # making the root/parent of OUTPUT directory:
+            # root/parent of the output directory
             cleanOutputDir = False
             if cleanOutputDir:
                 try:
                     shutil.rmtree(self.globalOptions["outputDir"])
                 except:
-                    pass  # for new outputDir (not exist yet)
+                    # new outputDir (does not exist yet)
+                    pass
             try:
                 os.makedirs(self.globalOptions["outputDir"])
             except:
-                pass  # for new outputDir (not exist yet)
+                # new outputDir (does not exist yet)
+                pass
 
-            # making temporary directory:
             self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
 
             if os.path.exists(self.tmpDir):
@@ -363,7 +329,7 @@ class Configuration(object):
                 shutil.rmtree(self.outNCDir)
             os.makedirs(self.outNCDir)
 
-            # making backup for the python scripts used:
+            # backup of the Python scripts used
             self.scriptDir = vos.getFullPath(
                 "scripts/", self.globalOptions["outputDir"]
             )
@@ -372,23 +338,21 @@ class Configuration(object):
                 shutil.rmtree(self.scriptDir)
             os.makedirs(self.scriptDir)
 
-            # working/starting directory where all scripts are stored
+            # starting directory where all scripts are stored
             path_of_this_module = os.path.abspath(os.path.dirname(__file__))
             self.starting_directory = path_of_this_module
 
             for filename in glob.glob(os.path.join(path_of_this_module, "*.py")):
                 print(filename)
                 shutil.copy(filename, self.scriptDir)
-            # TODO: Fix this copying (it does not include subfolders)
+            # TODO: fix this copying (it does not include subfolders)
 
-            # making log directory:
             self.logFileDir = vos.getFullPath("log/", self.globalOptions["outputDir"])
             cleanLogDir = True
             if os.path.exists(self.logFileDir) and cleanLogDir:
                 shutil.rmtree(self.logFileDir)
             os.makedirs(self.logFileDir)
 
-            # making endStateDir directory:
             self.endStateDir = vos.getFullPath(
                 "states/", self.globalOptions["outputDir"]
             )
@@ -396,14 +360,13 @@ class Configuration(object):
                 shutil.rmtree(self.endStateDir)
             os.makedirs(self.endStateDir)
 
-            # making pcraster maps directory:
             self.mapsDir = vos.getFullPath("maps/", self.globalOptions["outputDir"])
             cleanMapDir = True
             if os.path.exists(self.mapsDir) and cleanMapDir:
                 shutil.rmtree(self.mapsDir)
             os.makedirs(self.mapsDir)
 
-            # go to pcraster maps directory (so all pcr.report files will be saved in this directory)
+            # go to the PCRaster maps directory (so all pcr.report files are saved there)
             os.chdir(self.mapsDir)
 
     def repair_ini_key_names(self):
@@ -412,7 +375,7 @@ class Configuration(object):
         This is introduced because Edwin was very stupid as once he changed some key names of initial conditions! Yet, it is also useful particularly for runs without complete ini files.
         """
 
-        # temporal resolution of the model
+        # model time step (days)
         self.timeStep = 1.0
         self.timeStepUnit = "day"
         if "timeStep" in list(self.globalOptions.keys()) and "timeStepUnit" in list(
@@ -429,35 +392,32 @@ class Configuration(object):
                 self.timeStep = None
                 self.timeStepUnit = None
 
-        # adjustment for routingOptions
+        # defaults for missing options
         if "routingMethod" not in list(self.routingOptions.keys()):
             logger.warning(
                 'The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.'
             )
             iniItems.routingOptions["routingMethod"] = "accuTravelTime"
 
-        # adjustment for option 'dynamicFloodPlain'
         if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
             msg = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
             msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
             logger.warning(msg)
             self.routingOptions["dynamicFloodPlain"] = "False"
 
-        # adjustment for option 'useMODFLOW'
         if "useMODFLOW" not in list(self.groundwaterOptions.keys()):
             msg = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
             msg += 'We assume "False" for this option.'
             logger.warning(msg)
             self.groundwaterOptions["useMODFLOW"] = "False"
 
-        # adjustment for the option 'historicalIrrigationArea'
         if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
             msg = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'This run assumes "None" for this option.'
             logger.warning(msg)
             self.landSurfaceOptions["historicalIrrigationArea"] = "None"
 
-        # adjustments for the options to read different forcing files for different years (one file for each year):
+        # options to read a different forcing file for each year
         if "precipitation_set_per_year" not in list(self.meteoOptions.keys()):
             self.meteoOptions["precipitation_set_per_year"] = "False"
         if "temperature_set_per_year" not in list(self.meteoOptions.keys()):
@@ -465,7 +425,7 @@ class Configuration(object):
         if "refETPotFileNC_set_per_year" not in list(self.meteoOptions.keys()):
             self.meteoOptions["refETPotFileNC_set_per_year"] = "False"
 
-        # TODO: repair key names while somebody wants to run 3 layer model but use 2 layer initial conditions (and vice versa).
+        # TODO: repair key names when running a 3-layer model with 2-layer initial conditions (and vice versa)
 
     def set_debug_to_version_one(self):
 
@@ -487,4 +447,4 @@ class Configuration(object):
             msg += "\n"
             logger.info(msg)
 
-            # TODO: Set a specific set of configuration options for a debugging run
+            # TODO: set a specific set of configuration options for a debugging run

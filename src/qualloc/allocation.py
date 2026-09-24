@@ -9,18 +9,12 @@ from qualloc.basic_functions import (
     sum_list,
 )
 
-# global variables
-
-# small number to avoid zero divisions in PCRaster
+# small number to avoid division by zero in PCRaster
 very_small_number = 1.0e-12
 
-# type of None, compatible with python 2.6
 NoneType = type(None)
 
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n\t", ("",))
 
 development = str.join("\n\t", ("",))
@@ -36,12 +30,7 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-#############
-# functions #
-#############
 
-
-# get the key
 def get_key(str_list):
 
     if isinstance(str_list, list):
@@ -58,13 +47,11 @@ def get_key(str_list):
 
         key = str.join(d_str, (key, str_list[ix]))
 
-    # return the key
     return key
 
 
-# the following are functions that are based the present allocation in
-# PCR-GLOBWB and use aggregated values over zones using the PCRaster area...
-# functions.
+# functions based on the allocation in PCR-GLOBWB, using values aggregated over
+# zones with the PCRaster area functions
 
 
 def get_zonal_total(local_values, zones):
@@ -85,7 +72,6 @@ the total of the provided zones.
 
 """
 
-    # compute the totals
     return pcr.areatotal(local_values, zones)
 
 
@@ -107,12 +93,10 @@ the total of the provided zones.
 
 """
 
-    # compute the totals
     totals = get_zonal_total(local_values, zones)
 
     fractional_values = pcr_return_val_div_zero(local_values, totals, very_small_number)
 
-    # return the fractional values
     return fractional_values
 
 
@@ -153,15 +137,13 @@ def obtain_allocation_ratio(
 
     """
 
-    # this function computes the allocation ratio on the basis of demand and
-    # availability; these ratios are approximate as the actual availability is
-    # not yet known
+    # allocation ratio based on demand and availability; these ratios are approximate
+    # as the actual availability is not yet known
 
-    # get the total availability, demand fraction per zone and the
-    # potential abstraction on the basis of the demand fraction
+    # total availability, demand fraction per zone and potential abstraction based on
+    # the demand fraction
 
-    # zonal availability is dependent on the availability that is not
-    # yet assigned to withdrawals per source
+    # zonal availability depends on the availability not yet assigned to withdrawals
     zonal_availability = dict(
         (
             source_name,
@@ -172,13 +154,12 @@ def obtain_allocation_ratio(
         for source_name in source_names
     )
 
-    # zonal demand is dependent on the demand that is not yet met
+    # zonal demand depends on the demand not yet met
     zonal_demand_fraction = dict(
         (source_name, get_zonal_fraction(local_values=demand, zones=zones[source_name]))
         for source_name in source_names
     )
 
-    # compute the zonal potential allocation
     zonal_potential_allocation = dict(
         (
             source_name,
@@ -187,7 +168,7 @@ def obtain_allocation_ratio(
         for source_name in source_names
     )
 
-    # all values calculated, next compute the remaining allocation ratio
+    # remaining allocation ratio
     total_zonal_potential_allocation = sum_list(
         list(zonal_potential_allocation.values())
     )
@@ -203,7 +184,6 @@ def obtain_allocation_ratio(
         for source_name in source_names
     )
 
-    # return the allocation ratio
     return zonal_availability, zonal_potential_allocation, allocation_ratio
 
 
@@ -246,22 +226,17 @@ def allocate_demand_to_availability(
                             allocation process.
 
     """
-    # set test verbose for testing
     test_verbose = False
     test_at_iter = False
 
-    # create a deep copy of availability
     availability = deepcopy(availability)
 
-    # set the unmet demand
-    # the iteration of the supplyallocation and
-    # the exit condition
+    # unmet demand, allocation iteration and exit condition
     iter_allocation = 1
     met_demand = pcr.ifthen(demand >= 0, pcr.scalar(0))
     unmet_demand = pcr.max(0, demand - met_demand)
     exit_condition = False
 
-    # initialize the output
     message_str = ""
     withdrawal = dict(
         (source_name, pcr.ifthen(demand >= 0, pcr.scalar(0)))
@@ -276,15 +251,14 @@ def allocate_demand_to_availability(
         pcr.maptotal(pcr.scalar(pcr.defined(met_demand))), 1
     )[0]
 
-    # iterate untill all demand is allocated or the availability is exhausted
+    # iterate until all demand is allocated or the availability is exhausted
     while not exit_condition:
 
         message_str = str.join(
             "\n", (message_str, "allocation iteration %d" % iter_allocation)
         )
 
-        # obtain the allocation ratio that is used to the derive the allocation
-        # per source
+        # allocation ratio used to derive the allocation per source
         zonal_availability, zonal_potential_allocation, allocation_ratio = (
             obtain_allocation_ratio(
                 unmet_demand,
@@ -294,21 +268,19 @@ def allocate_demand_to_availability(
             )
         )
 
-        # get the actual allocation: here we iterate to keep the dictionary alive
+        # actual allocation; iterate to keep the dictionary alive
         for source_name in source_names:
-            # get the zonal allocation as the minimum of the allocated available
-            # supply and the local demand
+            # zonal allocation: minimum of the allocated available supply and the local demand
             zonal_potential_allocation[source_name] = pcr.min(
                 zonal_potential_allocation[source_name],
                 allocation_ratio[source_name] * unmet_demand,
             )
 
-            # update the values of the allocated demand
             allocated_demand[source_name] = (
                 allocated_demand[source_name] + zonal_potential_allocation[source_name]
             )
 
-            # get the increment in the withdrawal
+            # increment of the withdrawal
             withdrawal_increment = (
                 pcr_return_val_div_zero(
                     get_zonal_total(
@@ -321,19 +293,16 @@ def allocate_demand_to_availability(
                 * availability[source_name]
             )
 
-            # update the values of the withdrawal
             withdrawal[source_name] = withdrawal[source_name] + withdrawal_increment
 
-            # update the availability
             availability[source_name] = pcr.max(
                 0, availability[source_name] - withdrawal_increment
             )
 
-        # met demand and unmet demand
         met_demand = sum_list(list(allocated_demand.values()))
         unmet_demand = pcr.max(0, demand - met_demand)
 
-        # get final info and assess the exit condition
+        # assess the exit condition
         mask = unmet_demand > 0
         number_cells_unmet_demand = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
         mask = mask & (
@@ -346,7 +315,6 @@ def allocate_demand_to_availability(
         )
         number_cells_unmet_demand = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
 
-        # update the message string
         message_str = str.join(
             "\n",
             (
@@ -356,7 +324,6 @@ def allocate_demand_to_availability(
             ),
         )
 
-        # set the condition
         exit_condition = pcr.cellvalue(pcr.mapmaximum(pcr.scalar(mask)), 1)[0] == 0
         exit_condition = exit_condition or (
             number_cells_unmet_demand == min_number_cells_unmet_demand
@@ -366,7 +333,6 @@ def allocate_demand_to_availability(
             min_number_cells_unmet_demand, number_cells_unmet_demand
         )
 
-        # test iteration
         if test_verbose and test_at_iter:
             print(message_str, exit_condition, min_number_cells_unmet_demand)
 
@@ -381,7 +347,6 @@ def allocate_demand_to_availability(
         sum_list(list(allocated_demand.values()))
     )
 
-    # update the message_str
     message_str = str.join(
         "\n",
         (
@@ -431,7 +396,6 @@ def allocate_demand_to_availability(
         ),
     )
 
-    # return the output
     return withdrawal, allocated_demand, met_demand, unmet_demand, message_str
 
 
@@ -483,7 +447,6 @@ def allocate_demand_to_availability_with_options(
 
     """
 
-    # initialize the output
     message_str = "allocation of demand to availability with options:"
     withdrawal = dict(
         (source_name, pcr.ifthen(demand >= 0, pcr.scalar(0)))
@@ -494,30 +457,19 @@ def allocate_demand_to_availability_with_options(
         for source_name in source_names
     )
 
-    # initialize the demand
-    # met demand is updated with the allocated total demand
-    # unmet demand is what is still outstanding at the end of each allocation
-    # round and it is initialized here as the demand and updated consecutively
+    # met demand is updated with the allocated total demand; unmet demand is what is
+    # still outstanding after each allocation round (initialized as the demand)
     met_demand = pcr.ifthen(demand >= 0, pcr.scalar(0))
     unmet_demand = demand
 
-    # these are values that progress with the options
+    # values that progress with the options
     remaining_availability = availability.copy()
 
-    # test on options
-    # NOTE: the options are implemented by calling function on the allocation
-    # three times: first for the local use, using single cell IDs as allocation
-    # zones, then with the actual settings and then by including any surplus
-    # over the relevant zones if a deficit exists.
-    # NOTE: the code could be condensed by calling the function within a loop
-    # but that is not so transparent and limits the incorporation of specific
-    # actions. For now, this works...
+    # the options call the allocation function three times: first for local use (single
+    # cell ids as zones), then with the actual zones, and then including any surplus over
+    # the relevant zones if a deficit exists
 
-    ##############
-    # local      #
-    # allocation #
-    ##############
-    # local allocation if implemented
+    # local allocation (if used)
     use_local_first = pcr.spatial(use_local_first)
     use_local_first_flag = (
         pcr.cellvalue(pcr.mapmaximum(pcr.scalar(use_local_first)), 1)[0] == 1
@@ -528,7 +480,7 @@ def allocate_demand_to_availability_with_options(
             "\n", (message_str, "", "* allocating local resources first:")
         )
 
-        # set the temporary zones
+        # temporary zones
         local_zones = dict(
             (
                 source_name,
@@ -550,35 +502,25 @@ def allocate_demand_to_availability_with_options(
             source_names=source_names,
         )
 
-        # update the values:
-        # totals: met demand
+        # update the met demand, withdrawal, allocated demand and remaining availability per source
         met_demand = met_demand + opt_met_demand
 
-        # dictionaries per source: iterate over the source names
         for source_name in source_names:
 
-            # withdrawal
             withdrawal[source_name] = (
                 withdrawal[source_name] + opt_withdrawal[source_name]
             )
-            # allocated demand
             allocated_demand[source_name] = (
                 allocated_demand[source_name] + opt_allocated_demand[source_name]
             )
 
-            # remaining availability
             remaining_availability[source_name] = pcr.max(
                 0, remaining_availability[source_name] - opt_withdrawal[source_name]
             )
 
-        # and update the message_str
         message_str = str.join("\n", (message_str, sub_message_str))
 
-    ##############
-    # zonal      #
-    # allocation #
-    ##############
-    # allocate water with the provided zones
+    # zonal allocation with the provided zones
     if use_allocation_zone:
         message_str = str.join(
             "\n",
@@ -602,35 +544,25 @@ def allocate_demand_to_availability_with_options(
             source_names=source_names,
         )
 
-        # update the values:
-        # totals: met demand
+        # update the met demand, withdrawal, allocated demand and remaining availability per source
         met_demand = met_demand + opt_met_demand
 
-        # dictionaries per source: iterate over the source names
         for source_name in source_names:
 
-            # withdrawal
             withdrawal[source_name] = (
                 withdrawal[source_name] + opt_withdrawal[source_name]
             )
-            # allocated demand
             allocated_demand[source_name] = (
                 allocated_demand[source_name] + opt_allocated_demand[source_name]
             )
 
-            # remaining availability
             remaining_availability[source_name] = pcr.max(
                 0, remaining_availability[source_name] - opt_withdrawal[source_name]
             )
 
-        # and update the message_str
         message_str = str.join("\n", (message_str, sub_message_str))
 
-    #################
-    # surplus       #
-    # re-allocation #
-    #################
-    # reallocate any surplus, if selected
+    # reallocate any surplus (if selected)
     if reallocate_surplus:
         message_str = str.join(
             "\n",
@@ -641,28 +573,21 @@ def allocate_demand_to_availability_with_options(
             ),
         )
 
-        # free up supply iteratively as follows:
-        # 0: initialize the deficit as the unmet demand;
-        #    this will be reduced consecutively with the supply that is freed
-        # iterate over the sources:
+        # free up supply iteratively:
+        # 0: initialize the deficit as the unmet demand; it is reduced by the freed supply
+        # then, per source:
         # 1: determine the zonal deficit for the current allocation zone
-        # 2: get the surplus and the zonal surplus dependent on the supply
-        #    that is needed to satisfy the deficit
-        # 3: before limiting the surplus, determine the ratio so the relative
-        #    contribution from the other sources can be assessed
-        # 4: assess the ratio of the deficit over the surplus that needs to be
-        #    freed
-        # 5: iterate over the other resources and allocate and remove water
-        #    from the available other resources and assign it to the al-
-        #    located supply and in turn, free it from the allocated supply for
-        #    the present source
+        # 2: get the (zonal) surplus from the supply needed to satisfy the deficit
+        # 3: before limiting the surplus, determine the ratio to assess the relative
+        #    contribution of the other sources
+        # 4: determine the ratio of the deficit over the surplus to free
+        # 5: move water from the other sources to the allocated supply, freeing it from the
+        #    allocated supply of the present source
 
-        # initialize the deficit
         deficit = unmet_demand
 
         for source_name in source_names:
 
-            # get the other sources
             other_source_names = source_names[:]
             other_source_names.remove(source_name)
 
@@ -672,13 +597,11 @@ def allocate_demand_to_availability_with_options(
             )
             message_str = str.join("\n", (message_str, s_str))
 
-            # get the zonal deficit
             zonal_deficit = get_zonal_total(
                 local_values=deficit, zones=zones[source_name]
             )
 
-            # get the surplus per cell as the sum of all available supplyfor
-            # the other sources
+            # surplus per cell: the sum of all available supply of the other sources
             surplus = pcr.scalar(0)
             for other_source_name in other_source_names:
                 surplus = surplus + remaining_availability[other_source_name]
@@ -695,27 +618,23 @@ def allocate_demand_to_availability_with_options(
                 for other_source_name in other_source_names
             )
 
-            # get the surplus as the amount that can be actually freed before
-            # getting the zonal surplus
+            # limit the surplus to what can actually be freed, before getting the zonal surplus
             surplus = pcr.min(allocated_demand[source_name], surplus)
             zonal_surplus = get_zonal_total(
                 local_values=surplus, zones=zones[source_name]
             )
 
-            # free up supply: if there is no surplus, no supply can be freed
+            # free up supply; nothing can be freed without surplus
             allocation_ratio = pcr.min(
                 1.0,
                 pcr_return_val_div_zero(
                     zonal_deficit, zonal_surplus, very_small_number
                 ),
             )
-            # get the supply that can be freed
-            # total supply freed is the total per zone
+            # supply that can be freed (total per zone)
             total_supply_freed = pcr.scalar(0)
-            # iterate over the other sources to free up supply
             for other_source_name in other_source_names:
 
-                # get the supply freed
                 supply_freed = (
                     surplus_cont_ratio[other_source_name]
                     * allocation_ratio
@@ -725,10 +644,8 @@ def allocate_demand_to_availability_with_options(
                     )
                 )
 
-                # add the freed supply to the remaining available supply for the
-                # current source, and reduce it from the other;
-                # take it from the allocated demand from the source and add
-                # it to the other
+                # add the freed supply to the remaining availability of the current source and remove
+                # it from the other; move it from the allocated demand of this source to the other
                 remaining_availability[source_name] = (
                     remaining_availability[source_name] + supply_freed
                 )
@@ -742,12 +659,11 @@ def allocate_demand_to_availability_with_options(
                     allocated_demand[other_source_name] + supply_freed
                 )
 
-                # update the total supply freed
                 total_supply_freed = total_supply_freed + get_zonal_total(
                     local_values=supply_freed, zones=zones[source_name]
                 )
 
-            # use the total supply freed to satisfy any outstanding demand
+            # use the freed supply to satisfy any outstanding demand
             deficit = pcr.max(
                 0,
                 deficit
@@ -755,7 +671,7 @@ def allocate_demand_to_availability_with_options(
                 * pcr_return_val_div_zero(deficit, zonal_deficit, very_small_number),
             )
 
-        # now use the freed supply to repeat the reallocation
+        # repeat the reallocation with the freed supply
         (
             opt_withdrawal,
             opt_allocated_demand,
@@ -768,34 +684,25 @@ def allocate_demand_to_availability_with_options(
             zones=zones,
             source_names=source_names,
         )
-        # update the values:
-        # totals: met demand
+        # update the met demand, withdrawal, allocated demand and remaining availability per source
         met_demand = met_demand + opt_met_demand
 
-        # dictionaries per source: iterate over the source names
         for source_name in source_names:
 
-            # withdrawal
             withdrawal[source_name] = (
                 withdrawal[source_name] + opt_withdrawal[source_name]
             )
-            # allocated demand
             allocated_demand[source_name] = (
                 allocated_demand[source_name] + opt_allocated_demand[source_name]
             )
 
-            # remaining availability
             remaining_availability[source_name] = pcr.max(
                 0, remaining_availability[source_name] - opt_withdrawal[source_name]
             )
 
-        # and update the message_str
         message_str = str.join("\n", (message_str, sub_message_str))
 
-    ##########
-    # report #
-    ##########
-    # final allocation known, add the overall statistics
+    # add the overall statistics
     message_str = str.join(
         "\n",
         (
@@ -805,7 +712,6 @@ def allocate_demand_to_availability_with_options(
         ),
     )
 
-    # add the final information to the message string
     demand_stats = pcr_get_statistics(demand)
     met_demand_stats = pcr_get_statistics(met_demand)
     unmet_demand_stats = pcr_get_statistics(
@@ -816,7 +722,6 @@ def allocate_demand_to_availability_with_options(
         sum_list(list(allocated_demand.values()))
     )
 
-    # update the message_str
     message_str = str.join(
         "\n",
         (
@@ -868,7 +773,6 @@ def allocate_demand_to_availability_with_options(
         ),
     )
 
-    # all options processed, return the output
     return withdrawal, allocated_demand, met_demand, unmet_demand, message_str
 
 
@@ -948,12 +852,10 @@ def allocate_demand_to_withdrawals(
     over time per cell.
     """
 
-    # initialize the output
     message_str = "allocation of demand to supply with water quality:"
 
-    # initialize the variables
-    # allocated withdrawal  and demand per sector, grouped per withdrawal and source
-    # total of the met demand per sector
+    # allocated withdrawal and demand per sector (grouped per withdrawal and source)
+    # and total met demand per sector
     allocated_withdrawal_per_sector = {}
     allocated_demand_per_sector = {}
 
@@ -989,11 +891,9 @@ def allocate_demand_to_withdrawals(
 
     remaining_demand_per_sector = deepcopy(demand_per_sector)
 
-    # allocate water withdrawn to pixels
-    # 1st: local use, using single cell IDs as allocation zones
-    # 2nd: actual allocation zones
+    # allocate the withdrawn water to cells: first locally (single cell ids as zones),
+    # then with the actual allocation zones
 
-    # initializing local allocation parameters
     use_local_first = pcr.spatial(use_local_first)
     use_local_first_flag = (
         pcr.cellvalue(pcr.mapmaximum(pcr.scalar(use_local_first)), 1)[0] == 1
@@ -1014,7 +914,7 @@ def allocate_demand_to_withdrawals(
         for source_name in source_names
     )
 
-    # evaluate for local and zonal resources
+    # local and zonal resources
     for option_str, (option_flag, option_mask, option_zones) in {
         "allocating local resources": (
             use_local_first_flag,
@@ -1028,16 +928,12 @@ def allocate_demand_to_withdrawals(
         ),
     }.items():
 
-        # process if the option is True
         if option_flag:
-            # add the option to the message string
             message_str = str.join("\n", (message_str, "", "* %s:" % option_str))
 
-            # evaluate per withdrawal and source
             for withdrawal_name in withdrawal_names:
                 for source_name in source_names:
 
-                    # add the option to the message string
                     message_str = str.join(
                         "\n",
                         (
@@ -1047,16 +943,14 @@ def allocate_demand_to_withdrawals(
                         ),
                     )
 
-                    # initialize variable
                     actual_allocated_withdrawal = pcr.scalar(0)
 
-                    # set the key
                     key = get_key([withdrawal_name, source_name])
 
                     # allocate the withdrawals to the demand per sector
                     for sector_name in sector_names:
 
-                        # set the total zonal withdrawal per sector
+                        # total zonal withdrawal per sector
                         total_zonal_withdrawal = get_zonal_total(
                             local_values=remaining_withdrawal_per_source_sector[
                                 withdrawal_name
@@ -1064,9 +958,8 @@ def allocate_demand_to_withdrawals(
                             zones=option_zones[source_name][sector_name],
                         )
 
-                        # get the allocated withdrawals per cell based on
-                        # the fractional total demand per sector and the total zonal withdrawals;
-                        # this may exceed the demand if the withdrawal is plenty
+                        # allocated withdrawal per cell from the fractional total demand per sector and the
+                        # total zonal withdrawal; may exceed the demand if withdrawal is plentiful
                         allocated_withdrawal = (
                             total_zonal_withdrawal
                             * get_zonal_fraction(
@@ -1079,12 +972,8 @@ def allocate_demand_to_withdrawals(
                             )
                         )
 
-                        # allocate the withdrawals to the demand; this returns
-                        # the amount of withdrawals that are applied locally
-                        # for the current sector from the current supply
-                        # and source; this is a local value in the loop,
-                        # which is subsequently added to the allocated demand
-                        # per sector
+                        # withdrawal applied locally for the current sector, supply and source; added to
+                        # the allocated demand per sector below
                         allocated_withdrawal_demand = pcr.min(
                             allocated_withdrawal,
                             pcr.max(
@@ -1094,13 +983,9 @@ def allocate_demand_to_withdrawals(
                             ),
                         )
 
-                        # update the totals: allocated supply per sector
-                        # the supply that is required is dependent on the supply
-                        # allocated to the demand on the ratio of the zonal totals
-                        # of the allocated_withdrawal_demand and the total zonal
-                        # supply;
-                        # updated here too are the allocated supply per section and
-                        # the actual_allocated_withdrawal
+                        # required supply: the allocated supply scaled by the ratio of the zonal totals of
+                        # allocated_withdrawal_demand and the total zonal supply; also updates the allocated
+                        # supply per section and actual_allocated_withdrawal
                         required_allocated_withdrawal = (
                             remaining_withdrawal_per_source_sector[withdrawal_name][
                                 source_name
@@ -1118,10 +1003,7 @@ def allocate_demand_to_withdrawals(
                             )
                         )
 
-                        # update the totals
-                        # - allocated demand per sector
-                        # - met demand per sector
-                        # - actual allocated withdrawal
+                        # update the allocated demand and met demand per sector and the actual allocated withdrawal
                         allocated_demand_per_sector[key][
                             sector_name
                         ] += allocated_withdrawal_demand
@@ -1136,7 +1018,6 @@ def allocate_demand_to_withdrawals(
 
                         actual_allocated_withdrawal += required_allocated_withdrawal
 
-                        # update remaining withdrawal
                         remaining_withdrawal_per_source_sector[withdrawal_name][
                             source_name
                         ][sector_name] = pcr.max(
@@ -1147,7 +1028,7 @@ def allocate_demand_to_withdrawals(
                             - required_allocated_withdrawal,
                         )
 
-    # aggregating results
+    # aggregate the results
     remaining_withdrawal_per_source = {}
     for withdrawal_name in withdrawal_names:
         remaining_withdrawal_per_source[withdrawal_name] = {}
@@ -1160,9 +1041,7 @@ def allocate_demand_to_withdrawals(
                 )
             )
 
-    # .........................................................................................
-    # add the statistics on the withdrawal, remaining withdrawal, demand and met demand
-    # final allocation known, add the overall statistics
+    # add the overall statistics on withdrawal, remaining withdrawal, demand and met demand
     message_str = str.join(
         "\n",
         (
@@ -1172,15 +1051,12 @@ def allocate_demand_to_withdrawals(
         ),
     )
 
-    # add the final information to the message string
-    # demand and allocation
+    # demand and allocation per sector
     for sector_name in sector_names:
 
-        # get the total and the unmet demand
         demand_stats = pcr_get_statistics(demand_per_sector[sector_name])
         met_demand_stats = pcr_get_statistics(met_demand_per_sector[sector_name])
 
-        # update the message_str
         message_str = str.join(
             "\n",
             (
@@ -1208,13 +1084,11 @@ def allocate_demand_to_withdrawals(
             ),
         )
 
-        # get the allocated supply and demand per sector
         for withdrawal_name in withdrawal_names:
             for source_name in source_names:
                 key = get_key([withdrawal_name, source_name])
                 key_str = get_key([sector_name, "from", key])
 
-                # statistics on withdrawal and demand
                 withdrawal_stats = pcr_get_statistics(
                     allocated_withdrawal_per_sector[key][sector_name]
                 )
@@ -1222,7 +1096,6 @@ def allocate_demand_to_withdrawals(
                     allocated_demand_per_sector[key][sector_name]
                 )
 
-                # update the message_str
                 message_str = str.join(
                     "\n",
                     (
@@ -1261,7 +1134,6 @@ def allocate_demand_to_withdrawals(
     for withdrawal_name in withdrawal_names:
         for source_name in source_names:
             for sector_name in sector_names:
-                # statistics on supply
                 withdrawal_per_source = {
                     "renewable": renewable_withdrawal_per_sector,
                     "nonrenewable": nonrenewable_withdrawal_per_sector,
@@ -1275,7 +1147,6 @@ def allocate_demand_to_withdrawals(
                     ][sector_name]
                 )
 
-                # update the message_str
                 message_str = str.join(
                     "\n",
                     (
@@ -1302,10 +1173,8 @@ def allocate_demand_to_withdrawals(
                     ),
                 )
 
-    # add a blank line at last
     message_str = str.join("\n", (message_str, ""))
 
-    # return the allocated demand, the
     return (
         allocated_withdrawal_per_sector,
         remaining_withdrawal_per_source,

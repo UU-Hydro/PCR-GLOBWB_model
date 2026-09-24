@@ -8,14 +8,13 @@ import pcraster as pcr
 
 from pcrglobwb.common import virtualOS as vos
 
-# TODO: defined the dictionary (e.g. filecache = dict()) to avoid open and closing files
+# TODO: use a file cache (e.g. filecache = dict()) to avoid opening and closing files
 
 
 class PCR2netCDF:
 
     def __init__(self, iniItems, specificAttributeDictionary=None):
 
-        # cloneMap
         pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
 
@@ -25,7 +24,7 @@ class PCR2netCDF:
         ]
         self.longitudes = np.unique(pcr.pcr2numpy(pcr.xcoordinate(cloneMap), vos.MV))
 
-        # Let users decide what their preference regarding latitude order.
+        # let users decide the latitude order
         self.netcdf_y_orientation_follow_cf_convention = False
         if (
             "netcdf_y_orientation_follow_cf_convention"
@@ -37,10 +36,9 @@ class PCR2netCDF:
             self.netcdf_y_orientation_follow_cf_convention = True
             self.latitudes = np.unique(pcr.pcr2numpy(pcr.ycoordinate(cloneMap), vos.MV))
 
-        # set the general netcdf attributes (based on the information given in the ini/configuration file)
+        # general netCDF attributes from the ini file
         self.set_general_netcdf_attributes(iniItems, specificAttributeDictionary)
 
-        # netcdf format and zlib setup
         self.format = "NETCDF3_CLASSIC"
         self.zlib = False
         if "formatNetCDF" in list(iniItems.reportingOptions.keys()):
@@ -49,7 +47,7 @@ class PCR2netCDF:
             if iniItems.reportingOptions["zlib"] == "True":
                 self.zlib = True
 
-        # if given in the ini file, use the netcdf as given in the section 'specific_attributes_for_netcdf_output_files'
+        # use the attributes given in the ini section 'specific_attributes_for_netcdf_output_files'
         if "specific_attributes_for_netcdf_output_files" in iniItems.allSections:
             for key in list(
                 iniItems.specific_attributes_for_netcdf_output_files.keys()
@@ -75,7 +73,7 @@ class PCR2netCDF:
 
     def set_general_netcdf_attributes(self, iniItems, specificAttributeDictionary=None):
 
-        # netCDF attributes (based on the configuration file or specificAttributeDictionary):
+        # netCDF attributes from the configuration file or specificAttributeDictionary
         self.attributeDictionary = {}
         if specificAttributeDictionary == None:
             self.attributeDictionary["institution"] = iniItems.globalOptions[
@@ -98,7 +96,7 @@ class PCR2netCDF:
 
         rootgrp = nc.Dataset(ncFileName, "w", format=self.format)
 
-        # -create dimensions - time is unlimited, others are fixed
+        # time is unlimited, other dimensions are fixed
         rootgrp.createDimension("time", None)
         rootgrp.createDimension("lat", len(self.latitudes))
         rootgrp.createDimension("lon", len(self.longitudes))
@@ -107,7 +105,7 @@ class PCR2netCDF:
         date_time.standard_name = "time"
         date_time.long_name = "Days since 1901-01-01"
 
-        # - fixing for ulysses
+        # fixed reference date for Ulysses
         date_time.units = "days since 1901-01-01"
 
         date_time.calendar = "standard"
@@ -201,7 +199,7 @@ class PCR2netCDF:
             posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp, date_time.units, date_time.calendar)
 
-        # flip variable if necessary (to follow cf_convention)
+        # flip variable if necessary (to follow the CF convention)
         if self.netcdf_y_orientation_follow_cf_convention:
             varField = np.flipud(varField)
 
@@ -227,7 +225,7 @@ class PCR2netCDF:
             )
             varField = varFieldList[shortVarName]
 
-            # flip variable if necessary (to follow cf_convention)
+            # flip variable if necessary (to follow the CF convention)
             if self.netcdf_y_orientation_follow_cf_convention:
                 varField = np.flipud(varField)
 
@@ -240,5 +238,4 @@ class PCR2netCDF:
 
         rootgrp = nc.Dataset(ncFileName, "w")
 
-        # closing the file
         rootgrp.close()

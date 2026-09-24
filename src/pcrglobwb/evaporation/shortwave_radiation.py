@@ -8,11 +8,6 @@ of spatial distributed fields of the incoming radiation per day             #
 
 import datetime
 import math
-
-###########
-# Modules #
-###########
-# -standard modules
 import os
 import sys
 from calendar import isleap
@@ -20,27 +15,15 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-####################
-# global variables #
-####################
-
-# set the global option to radians
 pcr.setglobaloption("radians")
-# FIXME: This setglobaloption affects other parts of PCR-GLOBWB, e.g. the Hamon method.
+# TODO: this setglobaloption affects other parts of PCR-GLOBWB, e.g. the Hamon method
 
 
-# type set to identify None (compatible with pytyon 2.x)
 NoneType = type(None)
 
-# and set pi
 pi = math.pi
 
-#############
-# functions #
-#############
 
-
-# conversions to and from radians
 def deg2rad(a):
 
     return a * pi / 180.0
@@ -49,9 +32,6 @@ def deg2rad(a):
 def rad2deg(a):
 
     return a * 180.0 / pi
-
-
-# julian day and relative julian day
 
 
 def get_julian_day_number(date):
@@ -69,23 +49,19 @@ def get_julian_day_number(date):
 
     """
 
-    # recast as date
     if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
         d = datetime.date(date.year, date.month, date.day)
     else:
         message_str = "ERROR: date needs to have datetime date or datetime format."
         sys.exit(message_str)
 
-    # get the difference
     d0 = datetime.date(d.year, 1, 1)
     td = d - d0
 
-    # and return the number
     julian_day = int(td.days)
     return julian_day
 
 
-# atmospheric pressure correction
 def get_patm_cor(z):
     """
 
@@ -97,7 +73,6 @@ as a function of the surface elevation, z [m]. Returns atm_corr [-].
     return (1.0 - 2.2569e-5 * z) ** 5.2553
 
 
-# transmittance
 def get_tau_o(latitude, tau_o_min=0.774):
     """
 
@@ -119,12 +94,11 @@ al. (2001) on the basis of the data by List (1971).
 
 """
 
-    # set the constants, so tau_o = a - c * phi ** b
+    # constants of tau_o = a - c * phi ** b
     a = 0.947
     b = 2.220
     c = 8.263e-02
 
-    # get tau_o
     tau_o = pcr.max(tau_o_min, a - c * pcr.abs(latitude) ** b)
 
     return tau_o
@@ -157,19 +131,17 @@ def get_tau_v(temp_annual):
 
     """
 
-    # set the constants, so tau_v = a - c * (t_a + d) ** b
+    # constants of tau_v = a - c * (t_a + d) ** b
     a = 0.9636
     b = 1.8232
     c = 9.092e-5
     d = 30.0
 
-    # get tau_v
     tau_v = a - c * pcr.max(0.0, temp_annual + d) ** b
 
     return tau_v
 
 
-# parameter beta to correct for the influence of the relative humidity
 def compute_beta(temp_annual, delta_temp_mean):
     """
 
@@ -208,7 +180,6 @@ is exceeded earlier for colder mean temperatures and the increase is steeper.
     return pcr.max(1.041, 23.753 * delta_temp_mean / (temp_annual + 273.15))
 
 
-# day length correction for relative humidity
 def compute_day_length_correction(day_length):
     """
 
@@ -249,18 +220,14 @@ be smaller than 0.5 * pi (equivalent to Tmax at 3 PM, so Rs/R@Tmax = 1).
 
 """
 
-    # convert the daylength to radians; cast as a scalar PCRaster map
-    # to return a map for sure
+    # convert the day length to radians; cast as a scalar map to always return a map
     dl_rad = pcr.max(6.0, pcr.scalar(day_length)) * 2 * pi / 24
 
-    # compute the ratio
     ratio_rs_rtmax = (1 - 0.25 * (dl_rad - 0.5 * pi) ** 2 / dl_rad**2) ** -1
 
-    # return the ratio
     return ratio_rs_rtmax
 
 
-# saturated vapour pressure
 def compute_sat_pressure(air_temp):
     """
 compute_sat_pressure: function to compute the saturated vapour pressure from \
@@ -278,37 +245,31 @@ The solution is based on Tetens' (1930) relation and distinguishes between \
 air temperatures below and above freezing using the relation by Murray (1967).
 
 """
-    # References
+    # references:
     # Tetens, O. 1930. Über einige meteorologische Begriffe. Z. Geophys 6: 207-309.
     # Murray, F.W. 1967. On the computation of saturation vapour pressure. J. Applied Meteorology 6: 203-204.
 
-    # set the constants as a tuple where the first entry belongs to an air temperature
-    # below freezing, the second entry to an air temperature above freezing:
+    # constants as tuples where the first entry applies below freezing and the second above freezing:
     # e_sat = p * exp((a * air_temp + b) / (air_temp + c))
 
-    # function was developed for air temperature in [K],
-    # so scale the temperature accordingly
+    # the function was developed for air temperature in K
     air_temp = deepcopy(air_temp) + 273.15
 
-    # set the pressure term in [Pa]
+    # pressure term (Pa)
     p = 610.78
-    # set the offset of the temperature ratio:
-    # for air temperature below freezing, the offset c is 265.5, above freezing
-    # it is 237.3 in case the temperature is given in degrees centigrade,
-    # the factor a is 21.875 and 17.27 and the offset b is zero in both cases.
-    # in case the air temperature is given in K, the following values are used:
+    # offsets of the temperature ratio: in degC, c is 265.5 below freezing and 237.3 above freezing,
+    # a is 21.875 and 17.27 and b is zero in both cases; the values below are for K
     a = (21.875, 17.27)
     b = (-5975.2, -4717.3)
     c = (-7.65, -35.85)
 
-    # get the saturated vapour pressure [Pa] depending on the data type
+    # saturated vapour pressure (Pa)
     esat = p * pcr.ifthenelse(
         air_temp < 273.15,
         pcr.exp((a[0] * air_temp + b[0]) / (air_temp + c[0])),
         pcr.exp((a[1] * air_temp + b[1]) / (air_temp + c[1])),
     )
 
-    # return the saturated vapour pressure
     return esat
 
 
@@ -344,7 +305,6 @@ time or over the day.
     )
 
 
-# solar geometry
 def compute_solar_declination(day_angle):
     """
 
@@ -362,7 +322,7 @@ as a function of the day angle in radians.
 
  """
 
-    # compute the solar declination [radians]
+    # solar declination (rad)
     solar_declination = (
         0.006918
         - 0.399912 * pcr.cos(day_angle)
@@ -373,7 +333,6 @@ as a function of the day angle in radians.
         + 0.00148 * pcr.sin(3 * day_angle)
     )
 
-    # return the solar declination
     return solar_declination
 
 
@@ -394,7 +353,7 @@ orbit around the sun as a function of the day angle in radians.
 
  """
 
-    # compute the eccentricity [-]
+    # eccentricity (-)
     eccentricity = (
         1.00011
         + 0.034221 * pcr.cos(day_angle)
@@ -424,7 +383,7 @@ def compute_day_length(latitude, solar_declination):
 
     """
 
-    # compute the day length
+    # day length
     tanterm = pcr.tan(latitude) * pcr.tan(solar_declination)
 
     day_length = 2 * pcr.ifthenelse(
@@ -456,13 +415,10 @@ eccentricity as a function of the latitude and day angle in radians.
 
  """
 
-    # get the solar declination [rad]
     solar_declination = compute_solar_declination(day_angle)
 
-    # get the eccentricity
     eccentricity = compute_eccentricity(day_angle)
 
-    # return the solar declination and eccentricity
     return solar_declination, eccentricity
 
 
@@ -494,7 +450,6 @@ solar_constant specified.
 
   """
 
-    # compute the extraterrestrial shortwave radiation
     radsw_ext = (
         2.0
         / 24.0
@@ -509,17 +464,7 @@ solar_constant specified.
         )
     )
 
-    # return the extraterrestrial shortwave radiation
     return radsw_ext
-
-
-###########
-# classes #
-###########
-
-##########################################
-# start of the shortwave_radiation class #
-##########################################
 
 
 class ShortwaveRadiation(object):
@@ -593,39 +538,31 @@ constant (default MJ/m2/day).
 
 """
 
-        # init object
         object.__init__(self)
 
-        # reduction of the transmittance [-] affected by water vapour in the
-        # atmospheric column on a wet day (Winslow et al., 2001), that is
-        # characterized by precipitation exceeeding the threshold specified
-        # (defined as 1 mm waterslice per day, in units of metres).
+        # reduction of the transmittance (-) by water vapour in the atmospheric column on a
+        # wet day (Winslow et al., 2001), i.e. with precipitation above the threshold
+        # (1 mm/day, in m)
         self.tau_v_red = 0.13
         self.prec_limit = 1.0e-3
 
-        # set the fraction of the extraterrestrial shortwave radiation
-        # that would be received as diffuse radiation in case of full cloudiness
-        # at the earth's surface (Winslow et al., 2001 based on List, 1971)
+        # fraction of the extraterrestrial shortwave radiation received as diffuse radiation
+        # at the surface under full cloudiness (Winslow et al., 2001, based on List, 1971)
         self.max_red_radsw_ext = 0.10
 
-        # set the solar constant
         self.solar_constant = solar_constant
 
-        # set the latitude in radians
+        # latitude (rad)
         self.latitude = latitude
 
-        # set the solar constant
         self.solar_constant = solar_constant
 
-        # initialize the variables:
-        # extraterrestrial shortwave radiation
-        # actual shortwave radiation
+        # extraterrestrial and actual shortwave radiation
         self.radsw_ext = pcr.spatial(pcr.scalar(0))
         self.radsw_act = pcr.spatial(pcr.scalar(0))
 
-        # initialize the other parameters; this is grouped in a function
-        # that can be called outside the __init__ function, so all variables are
-        # set internally.
+        # initialize the other parameters; grouped in a function so it can also be called
+        # outside __init__
         self.tau_o = pcr.spatial(pcr.scalar(1))
         self.tau_a = pcr.spatial(pcr.scalar(1))
         self.tau_v = pcr.spatial(pcr.scalar(1))
@@ -634,9 +571,8 @@ constant (default MJ/m2/day).
         self.beta = pcr.spatial(pcr.scalar(1))
         self.parameter_initialization(latitude, elevation, temp_annual, delta_temp_mean)
 
-        # TODO: Make 'temp_annual' dynamic, calculated based on the last 365 day values.
+        # TODO: make temp_annual dynamic, based on the last 365 days
 
-        # returns None
         return None
 
     def parameter_initialization(
@@ -673,9 +609,8 @@ All variables are also set internally
 
 """
 
-        # TODO: Make 'temp_annual' dynamic, calculated based on the last 365 day values.
+        # TODO: make temp_annual dynamic, based on the last 365 days
 
-        # initialize all variables
         # correction for atmospheric pressure
         patm_cor = get_patm_cor(elevation)
         # components of the transmissivity
@@ -684,7 +619,6 @@ All variables are also set internally
         tau_v = get_tau_v(temp_annual)
         beta = compute_beta(temp_annual, delta_temp_mean)
 
-        # set the internal variables
         self.tau_o = tau_o
         self.tau_a = tau_a
         self.tau_v = tau_v
@@ -738,21 +672,19 @@ precipitation, minimum and maximum daily temperature.
 
 """
 
-        # get the julian day and the number of days
         julian_day = get_julian_day_number(date)
         number_days = 365
         if isleap(date.year):
             number_days = 366
-        # get the day angle [rad]
+        # day angle (rad)
         day_angle = float(julian_day - 1) / number_days * 2 * pi
 
-        # get the solar geometry (declination, eccentricity) and the day length
+        # solar geometry (declination, eccentricity) and day length
         solar_declination, eccentricity = compute_solar_geometry(
             self.latitude, day_angle
         )
         day_length = compute_day_length(self.latitude, solar_declination)
 
-        # extraterrestrial radiation
         self.radsw_ext = extraterrestrial_rad
         if self.radsw_ext is None:
             self.radsw_ext = compute_radsw_ext(
@@ -763,38 +695,32 @@ precipitation, minimum and maximum daily temperature.
                 self.solar_constant,
             )
 
-        # decide whether the day classifies as a wet day on the basis of the
-        # daily precipitation amount
+        # wet day based on the daily precipitation
         wet_day = prec_daily > self.prec_limit
 
-        # relative humidity [1]
+        # relative humidity (-)
         rel_hum = relative_humidity
         if rel_hum is None:
-            # estimate the relative humidity from dewpoint temperature
-            # - if not defined, using the minimum daily temperature as the dewpoint temperature
+            # estimate the relative humidity from the dewpoint temperature; if not defined, use
+            # the minimum daily temperature as dewpoint temperature
             if dew_temperature is None:
                 dew_temperature = temp_min_daily
-            # - if not defined, using the maximum daily temperature as the average temperature
+            # if not defined, use the maximum daily temperature as average temperature
             if temp_avg_daily is None:
                 temp_avg_daily = temp_max_daily
             rel_hum = estimate_relative_humidity(t=temp_avg_daily, tdew=dew_temperature)
 
-        # get the transmittance
-        # tau_cf:             transmittance [-] for a cloud-free atmospheric column,
-        #                     which is computed as
-        #                                 tau_cf = (tau_o * tau_a * tau_v)**(P/Po)
-        # with tau_v modified in case of a wet day
+        # transmittance for a cloud-free atmospheric column (-):
+        # tau_cf = (tau_o * tau_a * tau_v)**(P/Po), with tau_v modified on wet days
         self.tau_cf = (
             self.tau_o
             * self.tau_a
             * pcr.max(0, self.tau_v - pcr.scalar(wet_day) * self.tau_v_red)
         ) ** self.patm_cor
 
-        # get the day length correction
         day_length_correction = compute_day_length_correction(day_length)
 
-        # finally, compute the reduction of the extraterrestrial radiation to
-        # obtain the actual shortwave radiation received at the surface
+        # reduce the extraterrestrial radiation to the actual shortwave radiation at the surface
         red_radsw_ext = pcr.max(
             self.max_red_radsw_ext,
             self.tau_cf
@@ -802,28 +728,14 @@ precipitation, minimum and maximum daily temperature.
             * pcr.max(0.0, 1.0 - self.beta * rel_hum),
         )
 
-        # and update the incoming, actual shortwave radiation at the earth's
-        # surface
         self.radsw_act = red_radsw_ext * self.radsw_ext
 
-        # returns None
         return None
-
-
-########################################
-# end of the shortwave_radiation class #
-########################################
-
-########
-# main #
-########
 
 
 def main():
 
-    # initialization
-    # set the input directory
-    # and the input files
+    # input directory and files
     inputpath = "data"
     clonefilename = os.path.join(inputpath, "Global_CloneMap_30min.map")
     demfilename = os.path.join(inputpath, "gtopo30min.map")
@@ -833,15 +745,11 @@ def main():
     delta_temp_mean_filename = os.path.join(inputpath, "delta_temp_mean.map")
     delta_temp_daily_filename = os.path.join(inputpath, "delta_temp_daily.map")
 
-    # set the date
     date = datetime.datetime(1979, 4, 30)
 
-    # start
-    # set the clone and read in the input maps
     pcr.setclone(clonefilename)
     landmask = pcr.readmap(clonefilename)
 
-    # read in the DEM and the precipitation and temperature file
     dem = pcr.ifthen(landmask, pcr.readmap(demfilename))
     prec_daily = pcr.ifthen(landmask, pcr.readmap(precfilename))
     temp_daily = pcr.ifthen(landmask, pcr.readmap(tempfilename))
@@ -851,21 +759,17 @@ def main():
     temp_min_daily = temp_daily - 0.5 * delta_temp_daily
     temp_max_daily = temp_daily + 0.5 * delta_temp_daily
 
-    # set the latitude in radians
+    # latitude (rad)
     latitude = deg2rad(pcr.ycoordinate(landmask))
 
-    # initialize the shortwave_radiation class
     sw_rad = shortwave_radiation(latitude, dem, temp_annual, delta_temp_mean)
 
-    # update the shortwave radiation for the specified date
     sw_rad.update(date, prec_daily, temp_min_daily, temp_max_daily)
 
-    # finally, show the values
     pcr.aguila(sw_rad.radsw_ext, sw_rad.radsw_act, sw_rad.radsw_act / sw_rad.radsw_ext)
 
 
 if __name__ == "__main__":
 
-    # call main and exit
     main()
     sys.exit("all done")

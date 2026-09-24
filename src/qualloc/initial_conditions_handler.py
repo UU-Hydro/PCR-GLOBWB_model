@@ -4,30 +4,19 @@ read_initial_conditions.py: module for setting the initial conditions.
 
 """
 
-# TODO: include an update of the initial conditions to inherit warm states during spinup
-# TODO: Make sure non-included components are not updated and initial settings remain consistent
+# TODO: update the initial conditions to inherit warm states during spin-up
+# TODO: make sure non-included components are not updated and initial settings remain consistent
 
 import logging
-
-###########
-# modules #
-###########
-# -general modules and packages
 import sys
 from copy import deepcopy
 
 import pcraster as pcr
 
 from qualloc.file_handler import compose_filename, file_is_nc, read_file_entry
-
-# specific packages
-# only file handler is required
 from qualloc.model_time import match_date_by_julian_number
 from qualloc.netCDF_recipes import get_nc_dates
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n", ("",))
 
 development = str.join(
@@ -50,51 +39,35 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-####################
-# global variables #
-####################
 
-# inherit logger
 logger = logging.getLogger(__name__)
 
-# type set to identify None (compatible with pytyon 2.x)
 NoneType = type(None)
 
-# type set to identify PCRaster fields
 pcrFieldType = pcr._pcraster.Field
-
-#############
-# functions #
-#############
 
 
 def test_timed_netcdf(filename, path="", time_interval_days=365):
 
-    # function that tests whether the file is a timed netCDF file and what the
-    # temporal spacing is
+    # test whether the file is a timed netCDF file and what its temporal spacing is
 
-    # set the default values
     timed_netcdf = False
     nc_dates = []
 
-    # update the file name
     filename, file_exists = compose_filename(filename, path)
-
-    # is it an existing netCDF?
 
     if file_is_nc(filename) and file_exists:
 
-        # it is a netcdf file, now get the dates
+        # netCDF file: get the dates
         nc_dates = get_nc_dates(filename)
 
-        # and decide on the content
+        # decide on the content
         for ix in range(1, len(nc_dates)):
 
             delta_time = (nc_dates[ix] - nc_dates[ix - 1]).days
 
             timed_netcdf = timed_netcdf or (delta_time < time_interval_days)
 
-    # return the output
     return timed_netcdf, nc_dates
 
 
@@ -139,43 +112,36 @@ appropriate key and value pairs.
 
 """
 
-    # initialization
-    # first, check on the ini_identifiers; this is only used in the init section
+    # check the ini_identifiers (only used in the init section)
     for ini_identifier in ini_identifiers:
         ix = ini_identifiers.index(ini_identifier)
         if ini_identifier[0] != "_":
             ini_identifiers[ix] = str.join("", ("_", ini_identifier))
 
-    # next, initialize the initial conditions
+    # initialize the initial conditions
     initial_conditions = {}
 
-    # iterate over the names and corresponding info in possible sections
+    # iterate over the sections
     for section_name, section_info in vars(model_configuration).items():
 
-        # process if this is a dictionary
         if isinstance(section_info, dict):
 
-            # get the key value pair and process if it is identified as an
-            # initial setting
+            # process the key-value pairs identified as initial settings
             for key, entry in section_info.items():
 
-                # check if an initial conditions is specified
                 if len(key) > 4 and key not in files_to_exclude:
 
-                    # get suffix and variable name
                     suffix = key[-4:]
                     if suffix in ini_identifiers:
 
-                        # variable name in the netcdf is the same as the
-                        # variable name in the configuration file
+                        # the variable name in the netCDF file equals the name in the configuration file
                         variablename = key[:-4]
 
-                        # if not included, add the section name to the
-                        # initial condtions as an empty dictionary
+                        # add the section as an empty dictionary if not yet present
                         if section_name not in initial_conditions.keys():
                             initial_conditions[section_name] = {}
 
-                        # next, decide on the processing of the data
+                        # decide how to process the data
                         timed_netcdf, nc_dates = test_timed_netcdf(
                             entry, model_configuration.inputpath
                         )
@@ -183,11 +149,10 @@ appropriate key and value pairs.
                         if len(nc_dates) == 0:
                             nc_dates = [date]
 
-                        # add a single field or a time series
+                        # a single field or a time series
                         if timed_netcdf:
 
-                            # initialize the initial conditions as an empty dict,
-                            # add the dates and the corresponding value
+                            # time series: a dictionary of dates and values
 
                             initial_conditions[section_name][variablename] = {}
 
@@ -216,7 +181,6 @@ appropriate key and value pairs.
                             else:
                                 nc_date = date
 
-                            # get the value from the provided entry
                             value = read_file_entry(
                                 filename=entry,
                                 variablename=variablename,
@@ -226,10 +190,9 @@ appropriate key and value pairs.
                                 date_selection_method=date_selection_method,
                                 allow_year_substitution=allow_year_substitution,
                             )
-                            # next, add the value under the reduced key
+                            # add the value under the reduced key
                             initial_conditions[section_name][variablename] = value
 
-                        # log message
                         if isinstance(
                             initial_conditions[section_name][variablename], pcrFieldType
                         ) or isinstance(
@@ -253,7 +216,6 @@ appropriate key and value pairs.
                                 % (variablename, section_name)
                             )
 
-    # all read, return the initial conditions
     return initial_conditions
 
 
@@ -300,42 +262,35 @@ date is generated.
                                 as keys and PCRaster fields as values.
 
 """
-    # check if the initial condition is a dictionary, create one if not
+    # convert the initial condition to a dictionary if it is not one
     if not isinstance(initial_condition, dict):
 
-        # create a dictionary
         value = deepcopy(initial_condition)
         initial_condition = {dates[0]: value}
 
-    # get the available dates of the initial condition
     available_dates = list(initial_condition.keys())
     available_dates.sort()
 
-    # initialize the output initial condition
     initial_condition_dict = dict((date, None) for date in dates)
 
-    # iterate over the dates and get the match and match string
+    # iterate over the dates and get the matching date
     for date in dates:
 
-        # get the date index
         date_index, matched_date, matched_str = match_date_by_julian_number(
             date, available_dates
         )
 
-        # add the matched date to the message string
         message_str = str.join("\n", (message_str, matched_str))
 
-        # get the value
         value = initial_condition[matched_date]
 
-        # update the value if it is not a PCRaster field
         if isinstance(value, NoneType):
 
             message_str = str.join(
                 "\n", (message_str, "initial condition contains a NoneType")
             )
 
-            # set the initial condition to the missing value
+            # no value: use the missing value
             if isinstance(missing_value, NoneType):
                 missing_value = 0
 
@@ -343,10 +298,9 @@ date is generated.
                     "\n", (message_str, "missing value is not defined, reset to zero")
                 )
 
-            # set the missing value
             value = pcr.spatial(pcr_data_func(missing_value))
 
-        # check if the value is not a PCRaster field
+        # convert values that are not a PCRaster field
         if not isinstance(value, pcrFieldType):
             try:
                 value = pcr.spatial(pcr_data_func(value))
@@ -358,28 +312,24 @@ date is generated.
                 (message_str, "initial condition is set from non-spatial information"),
             )
 
-        # and if it is non-spatial type, update
+        # make non-spatial values spatial
         if not value.isSpatial():
             value = pcr.spatial(value)
 
-        # and cast as the right type, this is done always
+        # always cast to the right type
         value = pcr_data_func(value)
 
-        # remove missing values and cover
+        # cover missing values
         if not isinstance(missing_value, NoneType):
             value = pcr.ifthen(value != pcr_data_func(missing_value), value)
 
         if not isinstance(cover_value, NoneType):
             value = pcr.cover(value, pcr_data_func(cover_value))
 
-        # reset the value
         initial_condition[matched_date] = value
 
-        # set the value for the date
         initial_condition_dict[date] = value
 
-    # log the message string
     logger.info(message_str)
 
-    # return the updated initial condition
     return initial_condition_dict

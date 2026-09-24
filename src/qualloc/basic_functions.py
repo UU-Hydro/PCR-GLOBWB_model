@@ -1,17 +1,10 @@
 """ """
 
-###########
-# Modules #
-###########
-
 import sys
 
 import numpy as np
 import pcraster as pcr
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n\t", ("",))
 
 development = str.join(
@@ -34,19 +27,13 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-#####################
-# Global variables #
-####################
 
 very_small_number = 1.0e-12
 convergence_limit = 1.0e-12
 max_number_iterations = 100
 
-#############
-# Functions #
-#############
 
-# The following are generic functions to process lists
+# generic functions to process lists
 
 
 def expand_list(list_in, length, entry=None):
@@ -67,22 +54,18 @@ number of entries.
     =======
     list_out:           list of the desired length
 """
-    # -expands a list until it contains the required number of elements
-    # initialize the output list
+    # expand a list until it contains the required number of elements
     list_out = []
-    # test entry
     if not entry is None:
         if not type(entry) is list:
             entry = [entry]
     else:
         entry = list(list_in)
 
-    # iterate until the length of the output list is met
     while len(list_out) < length:
         for e in entry:
             list_out.append(e)
 
-    # finally, return list
     return list_out[:length]
 
 
@@ -92,7 +75,7 @@ sum_list: generic function that returns the sum of a list of which \
 the entries can be summed (integers, floats, arrays etc.).
 
 """
-    # -sums all entries in a list-like type
+    # sum all entries of a list-like object
     return sum(list_in)
 
 
@@ -102,13 +85,11 @@ product_list: generic function that returns the product of a list of which \
 the entries can be multiplied (integers, floats, arrays etc.).
 
 """
-    # initialize the output
     y = list_in[0]
 
     for ix in range(1, len(list_in)):
         y = y * list_in[ix]
 
-    # return the output
     return y
 
 
@@ -118,10 +99,9 @@ max_dicts: generic function that returns the maximum pcr map from a collection \
 of arrays contained in a dictionary.
 
 """
-    # initialize exit condition
     map_maximum = None
 
-    # get maximum comparing maps in pairs
+    # maximum, comparing maps in pairs
     for key, values in dict_in.items():
         if isinstance(map_maximum, type(None)):
             map_maximum = values
@@ -129,7 +109,6 @@ of arrays contained in a dictionary.
         else:
             map_maximum = pcr.max(values, map_maximum)
 
-    # return the output
     return map_maximum
 
 
@@ -147,10 +126,8 @@ do not match if halt_on_key_error is set respecively False or True \
 
 """
 
-    # create an empty dictionary
     c_dict = {}
 
-    # check on keys
     if len(a_dict) != len(b_dict):
         message_str = "length of keys of dictionaries (%d, %d) do not match" % (
             len(a_dict),
@@ -161,7 +138,6 @@ do not match if halt_on_key_error is set respecively False or True \
         else:
             print("warning: %s" % message_str)
 
-    # extract common keys
     common_keys = []
     if len(a_dict) >= len(b_dict):
         keys = list(a_dict.keys())
@@ -171,14 +147,11 @@ do not match if halt_on_key_error is set respecively False or True \
         if key in a_dict.keys() and key in b_dict.keys():
             common_keys.append(key)
 
-    # sort the common keys
     common_keys.sort()
 
-    # get the values
     for key in common_keys:
         c_dict[key] = a_dict[key] + b_dict[key]
 
-    # and return the resulting dictionary
     return c_dict
 
 
@@ -196,10 +169,8 @@ do not match if halt_on_key_error is set respecively False or True \
 
 """
 
-    # create an empty dictionary
     c_dict = {}
 
-    # check on keys
     if len(a_dict) != len(b_dict):
         message_str = "length of keys of dictionaries (%d, %d) do not match" % (
             len(a_dict),
@@ -210,7 +181,6 @@ do not match if halt_on_key_error is set respecively False or True \
         else:
             print("warning: %s" % message_str)
 
-    # extract common keys
     common_keys = []
     if len(a_dict) >= len(b_dict):
         keys = list(a_dict.keys())
@@ -220,14 +190,11 @@ do not match if halt_on_key_error is set respecively False or True \
         if key in a_dict.keys() and key in b_dict.keys():
             common_keys.append(key)
 
-    # sort the common keys
     common_keys.sort()
 
-    # get the values
     for key in common_keys:
         c_dict[key] = a_dict[key] * b_dict[key]
 
-    # and return the resulting dictionary
     return c_dict
 
 
@@ -248,7 +215,6 @@ def get_decision(question_str, possible_outcomes):
 
     """
 
-    # add options to the question_str
     options = list(possible_outcomes.keys())
     option_str = "("
     for option in options:
@@ -257,16 +223,13 @@ def get_decision(question_str, possible_outcomes):
     option_str = str.join("", (option_str, ")\n> "))
     question_str = str.join(" ", (question_str.rstrip(), option_str))
 
-    # initialize the outcome and selected option
     outcome = None
     selected_option = ""
     while selected_option not in options:
         selected_option = input(question_str)
 
-    # get the answer
     outcome = possible_outcomes[selected_option]
 
-    # return the decision
     return outcome
 
 
@@ -289,26 +252,21 @@ a (nested) list.
 
         separator = separators.pop()
 
-        # get each entry and split it in
-        # sub-levels
+        # split each entry into sub-levels
         for ix in range(len(result_list)):
             ss = result_list[ix]
             result_list[ix] = ss.split(sep=separator)
 
-        # avoid nesting first list
+        # avoid nesting the first list
         if sep_level == 0:
             result_list = result_list[0][:]
 
-        # update sep_level
         sep_level = sep_level + 1
 
-    # return the resulting list
     return result_list
 
 
-# ==============================================================================
-# The following are additional PCRaster functions
-# ==============================================================================
+# additional PCRaster functions
 
 
 def pcr_get_statistics(pcrfield, np_stat_funcs=[np.average, np.min, np.max], mv=-999.9):
@@ -330,9 +288,6 @@ Returns a dictionary with the name of the numpy functions as keys and the count
     stat_val["count"] = a.size
 
     return stat_val
-
-
-# == end of pcr_get_statistics =================================================
 
 
 def pcr_sort_list(
@@ -364,27 +319,21 @@ def pcr_sort_list(
 
     """
 
-    # Check and set data type of input fields.
     pcr_data_type = str(pcrfield_list[0].dataType()).lower()
     recast_type = pcr_data_type != "scalar"
 
-    # Create a copy of the list with original values, this is emptied
-    # by the subsequent process and in its creation it considers the presence
-    # and removal of duplicates if required.
+    # copy the list with original values (emptied by the subsequent process),
+    # removing duplicates if required
     if remove_duplicates:
 
-        # Create a new list to which fields with original values only will be
-        # added.
         pcrfield_list_c = []
 
-        # Duplicates are removed, iterate and compare.
+        # remove duplicates: iterate and compare
         for new_field in pcrfield_list:
 
-            # set the mask with duplicates to False
             duplicate_mask = pcr.boolean(0)
 
-            # Compare this with any fields that were already added to the
-            # copied list.
+            # compare with the fields already added to the copied list
             for old_field in pcrfield_list_c:
                 duplicate_mask = pcr.ifthenelse(
                     pcr.defined(old_field) & pcr.defined(new_field),
@@ -392,44 +341,35 @@ def pcr_sort_list(
                     duplicate_mask,
                 )
 
-            # With the data all processed, remove the duplicates from new_field
-            # and add this to the list.
+            # remove the duplicates from new_field and add it to the list
             pcrfield_list_c.append(pcr.ifthen(pcr.pcrnot(duplicate_mask), new_field))
 
     else:
-        # Duplicates do not have to be removed, just copy the list.
+        # no duplicates to remove: copy the list
         pcrfield_list_c = pcrfield_list[:]
 
     if test_verbose:
         for ix in range(len(pcrfield_list_c)):
             print(ix, pcr.cellvalue(pcrfield_list_c[ix], 1)[0])
 
-    # create the list of output
     pcrfield_sorted_list = []
 
-    # The copy of the list of original values does not contain any duplicates
-    # any more if so required but is not yet sorted. So, new fields are inserted
-    # repeatedly at the beginning of the sorted list that is being composed and
-    # moved iteratively. In this case, missing values are seen as a very high
-    # value and always need propagation towards the end.
-    # Set a counter to check progress and control the flow.
+    # the copied list contains no duplicates (if required) but is not sorted yet; new
+    # fields are repeatedly inserted at the beginning of the sorted list and moved
+    # iteratively; missing values count as very high values and move to the end
     icnt = 0
     while len(pcrfield_list_c) > 0:
 
-        # Pop the last field from the list with copied fields and recast it
-        # as a scalar map.
+        # pop the last field from the copied list and cast it as a scalar map
         new_field = pcr.spatial(pcr.scalar(pcrfield_list_c.pop()))
 
-        # Iterate over the existing fields.
         for ix in range(len(pcrfield_sorted_list)):
 
-            # Set the old_field on the basis of the counter in the existing list;
-            # then use this later to update the actual entry
+            # old field at the counter position in the existing list
             old_field = pcrfield_sorted_list[ix]
 
-            # Create a mask where the old field has to be updated with the
-            # new value and an intermediate field holding the values to
-            # be assigned to the current old field
+            # mask where the old field must be updated with the new value, and an intermediate
+            # field with the values to assign to the old field
             update_mask = pcr.ifthenelse(
                 pcr.defined(old_field),
                 pcr.ifthenelse(
@@ -463,20 +403,17 @@ def pcr_sort_list(
                     "\n",
                 )
 
-            # And remove x and the mask
             x = None
             update_mask = None
             old_field = None
             del x, update_mask, old_field
 
-        # Finally, add the new field with the highest value encountered to the list
+        # add the new field with the highest value to the list
         pcrfield_sorted_list.append(pcr.ifthen(pcr.defined(new_field), new_field))
 
-        # Update counter
         icnt = icnt + 1
 
-    # Once in place, remove any fields that contain only missing values;
-    # this is only invoked if remove_empty_fields is True.
+    # remove fields that contain only missing values (if remove_empty_fields)
     while remove_empty_fields:
         remove_empty_fields = np.all(
             pcr.pcr2numpy(pcr.defined(pcrfield_sorted_list[-1]), 0) == 0
@@ -484,17 +421,13 @@ def pcr_sort_list(
         if remove_empty_fields:
             pcrfield_sorted_list.pop()
 
-    # And recast the type if necessary.
+    # recast the type if necessary
     if recast_type:
         func = getattr(pcr, pcr_data_type)
         for ix in range(len(pcrfield_sorted_list)):
             pcrfield_sorted_list[ix] = func(pcrfield_sorted_list[ix])
 
-    # return the sorted list
     return pcrfield_sorted_list
-
-
-# == end of pcr_sort_list function =============================================
 
 
 def pcr_sign(x):
@@ -504,9 +437,6 @@ when the value in the field is positive."""
     return pcr.ifthenelse(
         pcr.abs(pcr.scalar(x)) != pcr.scalar(x), pcr.boolean(0), pcr.boolean(1)
     )
-
-
-# == end of pcr_sign function ==================================================
 
 
 def pcr_get_map_value(
@@ -556,17 +486,13 @@ otherwise, the value is returned.
 
 """
 
-    # initialize
-    # set the value
     value = {1: None}
 
     # cast all variables as fields
     pcrfield = pcr.spatial(pcr.scalar(pcrfield))
 
-    # test if the location is a PCRaster field
     if type(location) is pcr.Field:
 
-        # set the function
         if type(pcrfunc) is str and len(pcrfunc) > 0:
             pcrfunc = getattr(pcr, pcrfunc)
         else:
@@ -574,13 +500,11 @@ otherwise, the value is returned.
 
         pcrfield = pcr.cover(pcrfunc(pcr.spatial(pcrfield), location), mv)
 
-        # retrieve the locations
         loc_a = pcr.pcr2numpy(location, 0)
         loc_ids = np.unique(loc_a)
         loc_ids = (loc_ids[loc_ids != 0]).tolist()
         loc_ids.sort()
 
-        # insert the values
         val_a = pcr.pcr2numpy(pcrfield, 0)
         for loc_id in loc_ids:
             value[loc_id] = val_a[loc_a == loc_id][0]
@@ -588,24 +512,19 @@ otherwise, the value is returned.
                 "\n", (message_str, "%3d: %s" % (loc_id, format_str % value[loc_id]))
             )
 
-    # location is not a PCRaster field
     else:
 
         # cast location as a list
         if not type(location) is list:
             location = [location]
 
-        # extract the location iteratively
         for loc_id in range(len(location)):
             if type(location[loc_id]) is tuple:
-                # get the value
                 valx, valid = pcr.cellvalue(
                     pcrfield, location[loc_id][0], location[loc_id][1]
                 )
             else:
-                # get the value
                 valx, valid = pcr.cellvalue(pcrfield, location[loc_id])
-            # value returned, process
             if not valid:
                 valx = mv
             # add valx to value and update the message string
@@ -615,20 +534,16 @@ otherwise, the value is returned.
                 (message_str, "%3d: %s" % (loc_id + 1, format_str % value[loc_id + 1])),
             )
 
-    # all data added, print the message string if test_verbose is True
+    # print the message string if test_verbose
     if test_verbose:
         print(message_str)
 
-    # return the direct value
+    # return the value directly
     if len(value) == 1:
         key = list(value.keys())[0]
         value = value[key]
 
-    # return the value and message_str
     return value, message_str
-
-
-# == end of pcr_get_map_value function =========================================
 
 
 def pcr_return_val_div_zero(x, y, y_lim, z_def=0.00, test_absolute=False):
@@ -659,15 +574,12 @@ This function is typically intended to avoid errors when dividing by zero.
 
 """
 
-    # get the sign
     if test_absolute:
-        # test the positive values ofx and y against their original functions
+        # test the positive values of x and y against their original functions
         z_sign = pcr.ifthenelse(
             pcr.abs(x) != x, pcr.scalar(-1), pcr.scalar(1)
         ) * pcr.ifthenelse(pcr.abs(y) != y, pcr.scalar(-1), pcr.scalar(1))
-        # get the result of the division
-        # note that this is done in absolute terms and the sign is reliant on
-        # the value of z_sign
+        # the division is done in absolute terms; the sign follows from z_sign
         z = z_sign * pcr.ifthenelse(
             pcr.abs(y) > pcr.abs(y_lim),
             pcr.abs(x) / pcr.max(pcr.abs(y_lim), pcr.abs(y)),
@@ -676,11 +588,7 @@ This function is typically intended to avoid errors when dividing by zero.
     else:
         z = pcr.ifthenelse(y > y_lim, x / pcr.max(y_lim, y), z_def)
 
-    # return the result, z
     return z
-
-
-# == end of pcr_return_val_div_zero function ===================================
 
 
 def pcr_tanh(x):
@@ -690,9 +598,6 @@ pcr_tanh: returns the hyperbolic tangen for a PCRaster field (x) as \
 
 """
     return (pcr.exp(2.00 * x) - 1.00) / (pcr.exp(2.00 * x) + 1.00)
-
-
-# == end of pcr_tanh function ==================================================
 
 
 def pcr_intersect_linear_functions(x0, x1, y0, y1, z0, z1):
@@ -732,8 +637,7 @@ If y and z are parallel, missing values for xi and yi are returned.
 
 """
 
-    # compute the intersection of the slopes of the functions
-    # if z0 ~ y0, the term, which is the denominator, becomes very large
+    # intersection of the slopes of the functions; if z0 ~ y0, the denominator becomes very large
     ab_term = pcr.ifthenelse(
         z0 != y0,
         1
@@ -747,7 +651,7 @@ If y and z are parallel, missing values for xi and yi are returned.
         1 + very_small_number**-1,
     )
 
-    # get the intersection if not parallel
+    # intersection if not parallel
     xi = pcr.ifthen(
         ab_term != 0,
         pcr.ifthenelse(
@@ -759,9 +663,6 @@ If y and z are parallel, missing values for xi and yi are returned.
     yi = y0 + (xi - x0) * (y1 - y0) / (x1 - x0)
 
     return xi, yi
-
-
-# == end of pcr_intersect_linear_functions =====================================
 
 
 def pcr_hill_climb(
@@ -804,28 +705,23 @@ variable is tested and then the convergence retrieved as a float.
     y_estimate:     the estimate of the dependent variable.
 
 """
-    # set the independent variables as lists
     xvars0 = [y_estimates[0]]
     xvars1 = [y_estimates[1]]
     for xvar in x_values:
         xvars0.append(xvar)
         xvars1.append(xvar)
 
-    # get the new y_estimates
     y_estimates[0] = func(*xvars0)
     y_estimates[1] = func(*xvars1)
 
-    # initialize the number of iterations
-    # and the convergence criterion
     number_iterations = 0
     global_convergence = False
     update_mask = xvars0[0] != xvars1[0]
 
-    # iterate while global convergence has not yet been achieved
+    # iterate until global convergence
     while not global_convergence:
 
-        # guess a new y to evaluate and compute the corresponding y;
-        # propagate the estimate in the tuple of estimates and values
+        # guess a new y, compute the corresponding value and propagate the estimates
         y_guess = pcr.ifthenelse(
             update_mask,
             xvars0[0]
@@ -835,17 +731,14 @@ variable is tested and then the convergence retrieved as a float.
             xvars1[0],
         )
 
-        # update the values
         xvars0[0] = xvars1[0]
         xvars1[0] = y_guess
         y_estimates[0] = y_estimates[1]
         y_estimates[1] = func(*xvars1)
 
-        # check on convergence
-        # this has to be a mask for PCRaster maps
+        # convergence check (a mask for PCRaster maps)
         delta_y = pcr.abs(y_estimates[1] - xvars1[0])
 
-        # evaluate convergence
         update_mask = update_mask & (delta_y >= convergence_limit)
         number_iterations = number_iterations + 1
         global_convergence = (
@@ -853,12 +746,4 @@ variable is tested and then the convergence retrieved as a float.
             == 0
         ) or (number_iterations >= max_number_iterations)
 
-    # return the estimated y value and the number of iterations
     return y_estimates[1], number_iterations
-
-
-# == end of pcr_hillclimb function =============================================
-
-###############################################################################
-# end of the module with additional functions                                 #
-###############################################################################

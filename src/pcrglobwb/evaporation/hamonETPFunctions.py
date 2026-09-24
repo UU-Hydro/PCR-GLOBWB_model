@@ -2,15 +2,11 @@ import math
 
 import pcraster as pcr
 
-#  LET OP!! PCR Pythong computes trigonometric function in degres by default. UNLIKE C, UNLIKE PYTON!
-# Convert all arguments to deg using * 180 / pi
-
-# Note that all following functions use trigonometric function in degres.
+# note: PCRaster computes trigonometric functions in degrees by default (unlike C and Python);
+# convert all arguments to degrees using * 180 / pi
 
 
 def HamonPotET(airT, doy, lat):
-
-    # Note that all following functions use trigonometric function in degres.
 
     reset_globaloption_to_radians = False
     if float(pcr.sin(90.0)) < 1.0:
@@ -21,8 +17,10 @@ def HamonPotET(airT, doy, lat):
 
     dayLen = dayLength(doy, lat)
 
-    pet = 165.1 * 2.0 * dayLen * rhoSat  # // 2 * DAYLEN = daylength as frac
-    pet = pet / 1000  # in meters!
+    # 2 * dayLen = day length as fraction
+    pet = 165.1 * 2.0 * dayLen * rhoSat
+    # mm to m
+    pet = pet / 1000
 
     if reset_globaloption_to_radians:
         pcr.setglobaloption("radians")
@@ -53,14 +51,16 @@ def dayLength(doy, lat):
     arg = pcr.tan(dec) * pcr.tan(lat * 180.0 / math.pi) * -1.0
     h = pcr.scalar(pcr.acos(arg))
     h = h / 180.0 * math.pi
-    h = pcr.ifthenelse(arg > 1.0, 0.0, h)  # /* sun stays below horizon */
-    h = pcr.ifthenelse(arg < -1.0, math.pi, h)  # /* sun stays above horizon */
+    # sun stays below horizon
+    h = pcr.ifthenelse(arg > 1.0, 0.0, h)
+    # sun stays above horizon
+    h = pcr.ifthenelse(arg < -1.0, math.pi, h)
     return h / math.pi
 
 
 def satPressure(airT):
     """calculates saturated vp from airt temperature Murray (1967)"""
-    # airT      - air temperature [degree C] */
+    # airT: air temperature (degC)
     satPressure = pcr.ifthenelse(
         airT >= 0.0,
         0.61078 * pcr.exp(17.26939 * airT / (airT + 237.3)),

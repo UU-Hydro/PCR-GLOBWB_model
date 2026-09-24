@@ -13,13 +13,10 @@ type that is used to initialize the data type of the netCDF file.
  
 """
 
-# all variables are listed: it includes the variable name that is used as the
-# key and identifier and dictionaries that specify the units, standard name and
-# long name and a description, comment and the latex code for the formatted
-#  variable's unit. In addition it includes two boolean variables that identify
-# whether the variable is timed and/or spatial that are used in initializing
-# the netCDF output files. Also defined is a standard 8-character long name that
-# can be used to report PCRaster maps.
+# all variables are listed with their name as key and identifier, and dictionaries with
+# the unit, standard name, long name, description, comment and LaTeX unit; two booleans
+# identify whether the variable is timed and/or spatial (used to initialize the netCDF
+# output files), and an 8-character short name is used to report PCRaster maps
 
 netcdf_variable_name = {}
 netcdf_standard_name = {}
@@ -33,31 +30,10 @@ latex_symbol = {}
 pcr_short_name = {}
 pcr_datatype = {}
 
-###########
-# example #
-###########
+
+# forcing variables: totals for the current time step (m water slice)
 
 
-#####################
-# forcing variables #
-#####################
-# the following variables are present as forcing and stored as totals for the
-# current time step in units of [m water slice]
-# 'precipitation'
-# 'referencepotet'
-# 'groundwater_recharge'
-# 'direct_runoff'
-# 'interflow'
-# 'irrigation_gross_demand'
-# 'domesticgrossdemand'
-# 'domesticnettodemand'
-# 'industrygrossdemand'
-# 'industrynettodemand'
-# 'livestockgrossdemand'
-# 'livestocknettodemand'
-
-
-# precipitation
 netcdf_variable_name = "precipitation_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -70,7 +46,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "prec"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# referencepotet
 netcdf_variable_name = "referencepotet_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -83,7 +58,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "epotref"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# groundwater_recharge
 netcdf_variable_name = "groundwater_recharge_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -96,7 +70,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gwrec"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# direct_runoff
 netcdf_variable_name = "direct_runoff_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -109,7 +82,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "qdir"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# interflow
 netcdf_variable_name = "interflow_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -122,7 +94,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "qssf"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# irrigation_gross_demand
 netcdf_variable_name = "irrigation_gross_demand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -135,7 +106,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "irrdemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# domesticgrossdemand
 netcdf_variable_name = "domesticgrossdemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -148,7 +118,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "domdemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# domesticnettodemand
 netcdf_variable_name = "domesticnettodemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -161,7 +130,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "domdemn"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# livestockgrossdemand
 netcdf_variable_name = "livestockgrossdemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -174,7 +142,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "livdemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# livestocknettodemand
 netcdf_variable_name = "livestocknettodemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -187,7 +154,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "livdemn"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# industrygrossdemand
 netcdf_variable_name = "industrygrossdemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -200,7 +166,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "inddemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# industrynettodemand
 netcdf_variable_name = "industrynettodemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -213,7 +178,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "inddemn"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# manufacturegrossdemand
 netcdf_variable_name = "manufacturegrossdemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -226,7 +190,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "mandemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# manufacturenettodemand
 netcdf_variable_name = "manufacturenettodemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -239,7 +202,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "mandemn"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# thermoelectricgrossdemand
 netcdf_variable_name = "thermoelectricgrossdemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -252,7 +214,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "thrdemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# thermoelectricnettodemand
 netcdf_variable_name = "thermoelectricnettodemand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -265,7 +226,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "thrdemn"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# environment_gross_demand
 netcdf_variable_name = "environment_gross_demand_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -278,7 +238,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "envdemg"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# surface water temperature
 netcdf_variable_name = "surfacewater_temperature_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -291,7 +250,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_tp"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# surface water biochemical oxigen demand
+# surface water biochemical oxygen demand
 netcdf_variable_name = "surfacewater_organic_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -330,7 +289,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_fc"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# groundwater temperature
 netcdf_variable_name = "groundwater_temperature_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -343,7 +301,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_tp"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# groundwater biochemical oxigen demand
+# groundwater biochemical oxygen demand
 netcdf_variable_name = "groundwater_organic_forcing"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -382,15 +340,8 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_fc"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-###############
-# groundwater #
-###############
-# the following variables are pertinent to the groundwater module gwm
-# base_flow : base flow in [m waterslice] per time step
-# recharge  : groundwater recharge in [m waterslice] per time step
-# storage   : groundwater storage in [m water slice]
+# groundwater module: base flow and recharge (m water slice per time step), storage (m water slice)
 
-# total, accumulated base_flow
 netcdf_variable_name = "total_base_flow"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -403,7 +354,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gwm_qbft"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# storage
 netcdf_variable_name = "groundwater_storage"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -416,15 +366,8 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gwm_stor"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-#################
-# surface water #
-#################
-# the following variables are pertinent to the surface module swm
-# runoff    : base flow in [m waterslice] per time step
-# discharge : discharge [m3/s]
-# storage   : surface water storage in [m water slice]
+# surface water module: runoff (m water slice per time step), discharge (m3/s), storage (m water slice)
 
-# discharge
 netcdf_variable_name = "discharge"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -437,7 +380,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "swm_qch"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# storage
 netcdf_variable_name = "surfacewater_storage"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -450,28 +392,9 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "swm_stor"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-#################
-# water quality #
-#################
-# the following variables are pertinent to the water quality module
-# surfacewater_longterm_temperature : long-term surface water temperature
-#                                     in water slice [oC]
-# surfacewater_longterm_organic     : long-term surface water biochemical oxigen demand
-#                                     in water slice [mg/l]
-# surfacewater_longterm_salinity    : long-term surface water total dissolved solids
-#                                     in water slice [mg/l]
-# surfacewater_longterm_pathogen    : long-term surface water fecal coliforms
-#                                     in water slice [cfu/100ml]
-# groundwater_longterm_temperature  : long-term groundwater temperature
-#                                     in water slice [oC]
-# groundwater_longterm_organic      : long-term groundwater biochemical oxigen demand
-#                                     in water slice [mg/l]
-# groundwater_longterm_salinity     : long-term groundwater total dissolved solids
-#                                     in water slice [mg/l]
-# groundwater_longterm_pathogen     : long-term groundwater fecal coliforms
-#                                     in water slice [cfu/100ml]
+# water quality module: long-term temperature (degC), biochemical oxygen demand (mg/L),
+# total dissolved solids (mg/L) and fecal coliforms (cfu/100mL) of surface water and groundwater
 
-# long-term surface water temperature
 netcdf_variable_name = "surfacewater_longterm_temperature"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -484,7 +407,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_tp_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term surface water biochemical oxigen demand
+# long-term surface water biochemical oxygen demand
 netcdf_variable_name = "surfacewater_longterm_organic"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -523,7 +446,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_fc_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term groundwater temperature
 netcdf_variable_name = "groundwater_longterm_temperature"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -536,7 +458,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_tp_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term groundwater biochemical oxigen demand
+# long-term groundwater biochemical oxygen demand
 netcdf_variable_name = "groundwater_longterm_organic"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -575,15 +497,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_fc_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-####################
-# water management #
-####################
-# the following variables are pertinent to the water management module
-# surfacewater_longterm_availability : long-term surface water availability
-#                                      in water slice [m3/m2/month]
-# groundwater_longterm_availability  : long-term groundwater availability
-#                                      in water slice [m3/m2/month]
-# total_gross_demand
+# water management module
 netcdf_variable_name = "total_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -596,7 +510,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "demg_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# total_net_demand
 netcdf_variable_name = "total_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -609,7 +522,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "demn_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# total_consumption
 netcdf_variable_name = "total_consumption"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -622,7 +534,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "cons_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# total_return flow
 netcdf_variable_name = "total_return_flow"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -635,7 +546,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "retf_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# total_withdrawal: water withdrawn locally to meet demand
+# water withdrawn locally to meet the demand
 netcdf_variable_name = "total_withdrawal"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -648,7 +559,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "with_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# total_allocation: allocated water provided to meet the demand
+# water allocated to meet the demand
 netcdf_variable_name = "total_allocation"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -661,7 +572,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "allo_tot"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: domestic_gross_demand
 netcdf_variable_name = "domestic_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -674,7 +584,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "dom_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: domestic_net_demand
 netcdf_variable_name = "domestic_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -687,7 +596,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "dom_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: irrigation_gross_demand
 netcdf_variable_name = "irrigation_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -700,7 +608,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "irr_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: irrigation_net_demand
 netcdf_variable_name = "irrigation_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -713,7 +620,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "irr_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: livestock_gross_demand
 netcdf_variable_name = "livestock_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -726,7 +632,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "liv_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: livestock_net_demand
 netcdf_variable_name = "livestock_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -739,7 +644,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "liv_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: industry_gross_demand
 netcdf_variable_name = "industry_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -752,7 +656,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "ind_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: industry_net_demand
 netcdf_variable_name = "industry_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -765,7 +668,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "ind_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: manufacture_gross_demand
 netcdf_variable_name = "manufacture_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -778,7 +680,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "man_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: manufacture_net_demand
 netcdf_variable_name = "manufacture_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -791,7 +692,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "man_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: thermoelectric_gross_demand
 netcdf_variable_name = "thermoelectric_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -804,7 +704,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "thr_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: thermoelectric_net_demand
 netcdf_variable_name = "thermoelectric_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -817,7 +716,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "thr_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: environment_gross_demand
 netcdf_variable_name = "environment_gross_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -830,7 +728,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "env_dm_gr"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# sectoral demands: environment_net_demand
 netcdf_variable_name = "environment_net_demand"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -843,7 +740,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "env_dm_nt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term surface water discharge
 netcdf_variable_name = "surfacewater_longterm_discharge"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -856,7 +752,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "ds_av_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term surface water runoff
 netcdf_variable_name = "surfacewater_longterm_runoff"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -869,7 +764,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "ro_av_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term groundwater storage
 netcdf_variable_name = "groundwater_longterm_storage"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -882,7 +776,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "st_av_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term domestic gross demand
 netcdf_variable_name = "gross_demand_longterm_domestic"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -895,7 +788,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "dom_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term irrigation gross demand
 netcdf_variable_name = "gross_demand_longterm_irrigation"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -908,7 +800,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "irr_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term livestock gross demand
 netcdf_variable_name = "gross_demand_longterm_livestock"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -921,7 +812,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "liv_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term industry gross demand
 netcdf_variable_name = "gross_demand_longterm_industry"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -934,7 +824,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "ind_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term manufacture gross demand
 netcdf_variable_name = "gross_demand_longterm_manufacture"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -947,7 +836,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "man_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term thermoelectric gross demand
 netcdf_variable_name = "gross_demand_longterm_thermoelectric"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -960,7 +848,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "thr_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term environment gross demand
 netcdf_variable_name = "gross_demand_longterm_environment"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -973,7 +860,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "env_dm_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term surface water potential withdrawal
 netcdf_variable_name = "surfacewater_longterm_potential_withdrawal"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -986,7 +872,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_pw_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# long-term groundwater potential withdrawal
 netcdf_variable_name = "groundwater_longterm_potential_withdrawal"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -999,7 +884,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_pw_lt"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# surface water withdrawal capacity
 netcdf_variable_name = "surfacewater_withdrawal_capacity"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -1012,7 +896,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "sw_wcap"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# groundwater withdrawal capacity
 netcdf_variable_name = "groundwater_withdrawal_capacity"
 netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
 netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
@@ -1025,7 +908,7 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_wcap"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# addition of the allocated water demand
+# allocated water demand per sector
 for pcr_var_key, netcdf_variable_name in {
     "wpotrsw": "potential_withdrawal_renewable_surfacewater",
     "wpotnsw": "potential_withdrawal_nonrenewable_surfacewater",
@@ -1181,7 +1064,6 @@ for pcr_var_key, netcdf_variable_name in {
     "wenvdw": "withdrawal_environment_allocated_to_desalinated_water",
 }.items():
 
-    # add the variable using the dictionary items
     netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
     netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
     netcdf_units[netcdf_variable_name] = "m3/day"
@@ -1192,5 +1074,3 @@ for pcr_var_key, netcdf_variable_name in {
     latex_symbol[netcdf_variable_name] = None
     pcr_short_name[netcdf_variable_name] = pcr_var_key
     pcr_datatype[netcdf_variable_name] = "Scalar"
-
-# /end of variable list /

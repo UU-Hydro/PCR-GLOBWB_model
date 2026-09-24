@@ -30,41 +30,36 @@ class DeterministicRunner(DynamicModel):
 
     def dynamic(self):
 
-        # re-calculate current model time using current pcraster timestep value
+        # update the model time from the current PCRaster time step
         self.modelTime.update(self.currentTimeStep())
 
-        # update model (will pick up current model time from model time object)
+        # update the model (uses the current model time)
 
         self.model.read_forcings()
         self.model.update(report_water_balance=True)
 
-        # do any needed reporting for this time step
         self.reporting.report()
 
 
 def main():
 
-    # print disclaimer
     disclaimer.print_disclaimer()
 
-    # get the full path of configuration/ini file given in the system argument
     iniFileName = os.path.abspath(sys.argv[1])
 
-    # debug option
     debug_mode = False
     if len(sys.argv) > 2:
         if sys.argv[2] == "debug":
             debug_mode = True
 
-    # no modification in the given ini file, use it as it is
+    # use the ini file as given
     no_modification = True
 
-    # use the output directory as given in the system argument
+    # use the output directory given as a command-line argument
     if len(sys.argv) > 3 and sys.argv[3] == "--output_dir":
         no_modification = False
         output_directory = sys.argv[4]
 
-    # object to handle configuration/ini file
     configuration = Configuration(
         iniFileName=iniFileName, debug_mode=debug_mode, no_modification=no_modification
     )
@@ -73,13 +68,12 @@ def main():
         configuration.globalOptions["outputDir"] = output_directory
         configuration.set_configuration()
 
-    # timeStep info: year, month, day, doy, hour, etc
+    # time step info: year, month, day, doy, etc.
     currTimeStep = ModelTime()
 
-    # object for spin_up
     spin_up = SpinUp(configuration)
 
-    # spinningUp
+    # spin-up
     noSpinUps = int(configuration.globalOptions["maxSpinUpsInYears"])
     initial_state = None
     if noSpinUps > 0:
@@ -117,7 +111,7 @@ def main():
 
             initial_state = deterministic_runner.model.getState()
 
-    # Running the deterministic_runner (excluding DA scheme)
+    # run the model (excluding the DA scheme)
     currTimeStep.getStartEndTimeSteps(
         configuration.globalOptions["startTime"], configuration.globalOptions["endTime"]
     )
@@ -131,12 +125,11 @@ def main():
     dynamic_framework.setQuiet(True)
     dynamic_framework.run()
 
-    # for debugging to PCR-GLOBWB version one
+    # debugging against PCR-GLOBWB version 1
     if configuration.debug_to_version_one:
 
         logger.info("\n\n\n\n\n" + "Executing PCR-GLOBWB version 1." + "\n\n\n\n\n")
 
-        # reset modelTime object
         currTimeStep = None
         currTimeStep = ModelTime()
         currTimeStep.getStartEndTimeSteps(
@@ -144,8 +137,7 @@ def main():
             configuration.globalOptions["endTime"],
         )
 
-        # execute PCR-GLOBWB version 1
-        # - including comparing model outputs (from versions one and two)
+        # run PCR-GLOBWB version 1 and compare its outputs with version 2
         pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(
             configuration,
             currTimeStep,
@@ -158,6 +150,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # print disclaimer
     disclaimer.print_disclaimer(with_logger=True)
     sys.exit(main())

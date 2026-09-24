@@ -50,23 +50,22 @@ according to FAO guidelines.
 	longWaveRadiation:    longwave radiation [W.m**-2]
 
 """
-    # Stefan-Boltzmann constant for emission of longwave radiaton [W.m**-2.K**-4]
+    # Stefan-Boltzmann constant for longwave radiation emission (W.m-2.K-4)
     sigma = 5.67e-8
-    # constants according to FAO to correct net longwave radiation for vapour pressure
+    # FAO constants to correct net longwave radiation for vapour pressure
     ea0 = 0.34
     eaFactor = 4.43e-3
-    # -constants, slope and range to convert radiation according to FAO
+    # FAO constants, slope and range to convert radiation
     radCon = 0.25
     radSlope = 0.50
     radDif = 0.35
     radCor = (1 + radDif) / (radCon + radSlope)
 
-    # estimate actual vapor pressure based on relativeHumidity
+    # estimate the actual vapour pressure from relativeHumidity
     if eAct is None:
         satVapPressure = getSaturatedVapourPressure(temperature)
         eAct = relativeHumidity * satVapPressure
 
-    # -longwave radiation
     return (
         sigma
         * (temperature + 273.15) ** 4
@@ -86,7 +85,7 @@ as a function of cloudiness according to FAO guidelines.
 	Output:
   radiationFraction:   fraction shortwave radiation [-]
 \n"""
-    # -table with fraction sunshine hours as function of the cloudiness (Puit & Doornbos)
+    # fraction of sunshine hours as function of cloudiness (Puit & Doornbos)
     sunFracTBL = {
         0: 0.95,
         1: 0.85,
@@ -101,12 +100,11 @@ as a function of cloudiness according to FAO guidelines.
         10: 0.05,
         11: 0.00,
     }
-    # -constants, slope and range to convert radiation according to FAO
+    # FAO constants, slope and range to convert radiation
     radCon = 0.25
     radSlope = 0.50
     radDif = 0.35
     radCor = (1 + radDif) / (radCon + radSlope)
-    # -sunshine fraction
     cld1 = pcr.roundoff(10.0 * cloudiness + 0.5)
     cld0 = cld1 - 1
     sun0 = pcr.scalar(0)
@@ -118,7 +116,7 @@ as a function of cloudiness according to FAO guidelines.
         deltaSun = pcr.ifthenelse(cld1 == key, sunFracTBL[key], deltaSun)
     deltaSun = (deltaSun - sun0) / (cld1 - cld0)
     sunFrac = sun0 + (10 * cloudiness - cld0) * deltaSun
-    # -fraction shortwave radiation
+    # fraction of shortwave radiation
     return pcr.min(1.0, pcr.max(0.0, radCon + radSlope * sunFrac))
 
 
@@ -161,10 +159,8 @@ are included with the following default, constant values:
 
 	"""
         pcrm.StaticModel.__init__(self)
-        # -missing value
         self.MV = -999.9
-        # -constants
-        # Karman constant [-]
+        # von Karman constant (-)
         self.karmanConst = 0.41
         self.cpAir = cpAir
         self.epsilon = epsilon
@@ -176,7 +172,6 @@ are included with the following default, constant values:
         self.canopyResistance = canopyResistance
         self.vegetationHeight = vegetationHeight
 
-        # -initialize potential evapotranspiration
         self.potentialEvaporation = pcr.ifthen(
             pcr.scalar(0) == pcr.scalar(1), pcr.scalar(self.MV)
         )
@@ -221,17 +216,15 @@ must be provided; the latter takes precedence):
 
 \n"""
 
-        # -set constants & properties
         latentHeatVaporization = getLatentHeatVaporization(airTemperature)
         satVapPressure = getSaturatedVapourPressure(airTemperature)
-        # slope of sat vap pressure curve [Pa.degC**-1]
+        # slope of the saturated vapour pressure curve (Pa.degC-1)
         delta = getSlopeVapourPressureCurve(airTemperature, satVapPressure)
-        # psychrometric constant [Pa.degC**-1]
+        # psychrometric constant (Pa.degC-1)
         gamma = getPsychrometricConstant(
             atmosphericPressure, self.cpAir, self.epsilon, latentHeatVaporization
         )
-        # -aerodynamic resistance
-        # zero plane displacement, roughness height for momentum and heat and vapour transfer
+        # aerodynamic resistance: zero plane displacement and roughness heights for momentum and heat/vapour transfer
         Zd = 2.0 / 3.0 * self.vegetationHeight
         Z0m = 0.123 * self.vegetationHeight
         Z0h = 0.1 * Z0m
@@ -241,15 +234,15 @@ must be provided; the latter takes precedence):
             * (self.karmanConst) ** -2
         )
 
-        # atmospheric resistance [s.m**-1]
+        # atmospheric resistance (s.m-1)
         self.atmosphericResistance = raTerm / pcr.max(1.0e-3, windSpeed)
 
-        # -weighing of radiation and mass transfer term [Pa.J.degC**-1*kg**-1]
+        # weighing of radiation and mass transfer term (Pa.J.degC-1.kg-1)
         dGLv = (
             delta + gamma * (1 + self.canopyResistance / self.atmosphericResistance)
         ) * latentHeatVaporization
 
-        # -decide on actual vapour pressure [Pa]
+        # actual vapour pressure (Pa)
         if unsatVapPressure is not None:
             pass
         elif relativeHumidity is not None:
@@ -258,33 +251,28 @@ must be provided; the latter takes precedence):
             sys.exit(
                 " * Halted: either relative humidity or actual vapour pressure should be defined"
             )
-        # -aerodynamic evaporation rate [m.s**-1]
+        # aerodynamic evaporation rate (m.s-1)
         atmosphericContribution = (
             self.rhoAir
             * self.cpAir
             * (satVapPressure - unsatVapPressure)
             / (self.atmosphericResistance * self.rhoWater * dGLv)
         )
-        # -radiation contribution [m.s**-1]
+        # radiation contribution (m.s-1)
 
         radiationContribution = delta * netRadiation / (dGLv * self.rhoWater)
 
-        # -total potential evapotranspiration over time step length
+        # total potential evapotranspiration over the time step
         self.potentialEvaporation = (
             pcr.max(0.0, atmosphericContribution + radiationContribution)
             * timeStepLength
         )
 
-        # -return potential evaporation
         return self.potentialEvaporation
-
-
-# /*** end of class definition ***/
 
 
 def main():
     """test of penman monteith potential evaporation"""
-    # -init
     inputPath = "input"
     outputPath = "output"
     cloneMapFileName = os.path.join(inputPath, "globalclone.map")
@@ -296,25 +284,18 @@ def main():
     shortWaveRadiationFileRoot = os.path.join(inputPath, "maxrad")
     windSpeedFileRoot = os.path.join(inputPath, "cwndclm")
 
-    # -start
-    # -initialize clone map
     pcr.setclone(cloneMapFileName)
-    # -set output map
     if not os.path.isdir(outputPath):
         os.makedirs(outputPath)
-    # -set class
     penMonModel = penmanMonteithET(windHeight=10.0)
-    # -initialize atmospheric pressure
     penMonModel.setDefaultAtmosphericPressure(pcr.readmap(demFileName))
     pcr.report(
         penMonModel.atmosphericPressure,
         os.path.join(outputPath, "atmosphericpressure.map"),
     )
-    # -iterate over months
     for month in months:
         msg = "processing month %2d" % month
         print(msg)
-        # -read files
         cloudiness = 0.001 * pcr.readmap(pcrm.generateNameT(cloudinessFileRoot, month))
         temperature = 0.1 * pcr.readmap(pcrm.generateNameT(temperatureFileRoot, month))
         vapourPressure = 10.0 * pcr.readmap(
@@ -324,7 +305,7 @@ def main():
             pcrm.generateNameT(shortWaveRadiationFileRoot, month)
         )
         windSpeed = pcr.readmap(pcrm.generateNameT(windSpeedFileRoot, month))
-        # -compute fraction short- and longwave radiation
+        # fraction of short- and longwave radiation
         fractionShortWaveRadiation = getShortWaveRadiationFraction(cloudiness)
         shortWaveRadiation = updateShortWaveRadiation(
             shortWaveRadiation, penMonModel.albedo, fractionShortWaveRadiation
@@ -340,7 +321,6 @@ def main():
             longWaveRadiation,
             os.path.join(outputPath, pcrm.generateNameT("radl", month)),
         )
-        # -compute evaporation
         penMonModel.updatePotentialEvaporation(
             pcr.max(0, shortWaveRadiation - longWaveRadiation),
             temperature,

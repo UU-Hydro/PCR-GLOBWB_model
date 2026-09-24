@@ -22,7 +22,6 @@ comment = {}
 latex_symbol = {}
 pcr_short_name = {}
 
-# actualET
 pcrglobwb_variable_name = "actualET"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -35,7 +34,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "eact"
 
-# precipitation
 pcrglobwb_variable_name = "precipitation"
 netcdf_short_name[pcrglobwb_variable_name] = "precipitation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -48,7 +46,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "pr"
 
-# temperature
 pcrglobwb_variable_name = "temperature"
 netcdf_short_name[pcrglobwb_variable_name] = "temperature"
 netcdf_unit[pcrglobwb_variable_name] = "degrees Celcius"
@@ -61,7 +58,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "ta"
 
-# referencePotET
 pcrglobwb_variable_name = "referencePotET"
 netcdf_short_name[pcrglobwb_variable_name] = "reference_potential_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -74,7 +70,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "e0p"
 
-# totalLandSurfacePotET
 pcrglobwb_variable_name = "totalLandSurfacePotET"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_potential_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -90,7 +85,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totLandSurfaceActuaET
 pcrglobwb_variable_name = "totLandSurfaceActuaET"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_actual_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -106,7 +100,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fractionLandSurfaceET
 pcrglobwb_variable_name = "fractionLandSurfaceET"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_evaporation_fraction"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -120,7 +113,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Not including water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# interceptStor
 pcrglobwb_variable_name = "interceptStor"
 netcdf_short_name[pcrglobwb_variable_name] = "interception_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -133,7 +125,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "intstor"
 
-# snowCoverSWE
 pcrglobwb_variable_name = "snowCoverSWE"
 netcdf_short_name[pcrglobwb_variable_name] = "snow_water_equivalent"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -146,7 +137,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "snowcov"
 
-# snowFreeWater
 pcrglobwb_variable_name = "snowFreeWater"
 netcdf_short_name[pcrglobwb_variable_name] = "snow_free_water"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -159,7 +149,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "snowliq"
 
-# topWaterLayer
 pcrglobwb_variable_name = "topWaterLayer"
 netcdf_short_name[pcrglobwb_variable_name] = "top_water_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -171,20 +160,19 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storUppTotal
 pcrglobwb_variable_name = "storUppTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "upper_soil_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
 netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
-netcdf_long_name[pcrglobwb_variable_name] = "upper_soil_storage"  # first 30 cm of soil
+# upper 30 cm of soil
+netcdf_long_name[pcrglobwb_variable_name] = "upper_soil_storage"
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "sUpp"
 
-# storUpp000005
 pcrglobwb_variable_name = "storUpp000005"
 netcdf_short_name[pcrglobwb_variable_name] = "upper_soil_storage_5cm"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -192,13 +180,13 @@ netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 netcdf_long_name[pcrglobwb_variable_name] = (
-    "upper_soil_storage_5cm"  # first 5 cm of soil
+    # upper 5 cm of soil
+    "upper_soil_storage_5cm"
 )
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storUpp005030
 pcrglobwb_variable_name = "storUpp005030"
 netcdf_short_name[pcrglobwb_variable_name] = "upper_soil_storage_5_30cm"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -206,13 +194,13 @@ netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 netcdf_long_name[pcrglobwb_variable_name] = (
-    "upper_soil_storage_5_30cm"  # from 5 to 30 cm of soil
+    # 5 to 30 cm of soil
+    "upper_soil_storage_5_30cm"
 )
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storLow030150
 pcrglobwb_variable_name = "storLow030150"
 netcdf_short_name[pcrglobwb_variable_name] = "lower_soil_storage_30_150cm"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -220,13 +208,13 @@ netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 netcdf_long_name[pcrglobwb_variable_name] = (
-    "lower_soil_storage_30_150cm"  # from 30 to 150 cm of soil
+    # 30 to 150 cm of soil
+    "lower_soil_storage_30_150cm"
 )
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storLowTotal
 pcrglobwb_variable_name = "storLowTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "lower_soil_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -234,14 +222,14 @@ netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 netcdf_long_name[pcrglobwb_variable_name] = (
-    "lower_soil_storage"  # next 30-150 cm of soil
+    # 30 to 150 cm of soil
+    "lower_soil_storage"
 )
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "sLow"
 
-# interceptEvap
 pcrglobwb_variable_name = "interceptEvap"
 netcdf_short_name[pcrglobwb_variable_name] = "interception_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -254,7 +242,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "int_evap"
 
-# actSnowFreeWaterEvap
 pcrglobwb_variable_name = "actSnowFreeWaterEvap"
 netcdf_short_name[pcrglobwb_variable_name] = "snow_free_water_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -269,7 +256,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "scf_evap"
 
-# topWaterLayerEvap
 pcrglobwb_variable_name = "topWaterLayerEvap"
 netcdf_short_name[pcrglobwb_variable_name] = "top_water_layer_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -283,7 +269,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# actBareSoilEvap
 pcrglobwb_variable_name = "actBareSoilEvap"
 netcdf_short_name[pcrglobwb_variable_name] = "bare_soil_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -296,7 +281,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "esact"
 
-# actTranspiTotal
 pcrglobwb_variable_name = "actTranspiTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "total_transpiration"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -311,7 +295,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "tact"
 
-# actTranspiUppTotal
 pcrglobwb_variable_name = "actTranspiUppTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "upper_soil_transpiration"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -326,7 +309,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "tactUpp"
 
-# actTranspiLowTotal
 pcrglobwb_variable_name = "actTranspiLowTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "lower_soil_transpiration"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -341,7 +323,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "tactLow"
 
-# directRunoff
 pcrglobwb_variable_name = "directRunoff"
 netcdf_short_name[pcrglobwb_variable_name] = "direct_runoff"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -354,7 +335,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "qDr"
 
-# interflowTotal
 pcrglobwb_variable_name = "interflowTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "interflow"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -367,7 +347,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "qSf"
 
-# baseflow
 pcrglobwb_variable_name = "baseflow"
 netcdf_short_name[pcrglobwb_variable_name] = "baseflow"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -380,7 +359,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "qBf"
 
-# infiltration
 pcrglobwb_variable_name = "infiltration"
 netcdf_short_name[pcrglobwb_variable_name] = "infiltration"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -393,7 +371,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "infl"
 
-# gwRecharge
 pcrglobwb_variable_name = "gwRecharge"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_recharge"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -408,7 +385,6 @@ comment[pcrglobwb_variable_name] = (
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "rch"
 
-# gwNetCapRise
 pcrglobwb_variable_name = "gwNetCapRise"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_capillary_rise"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -422,7 +398,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalGroundwaterRecharge
 pcrglobwb_variable_name = "totalGroundwaterRecharge"
 netcdf_short_name[pcrglobwb_variable_name] = "total_groundwater_recharge"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -435,7 +410,6 @@ comment[pcrglobwb_variable_name] = "nncluding "
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = None
 
-# irrGrossDemand
 pcrglobwb_variable_name = "irrGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "irrigation_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -447,7 +421,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "not including water consumption for livestock"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrGrossDemandVolume
 pcrglobwb_variable_name = "irrGrossDemandVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "irrigation_gross_demand_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -459,7 +432,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "not including water consumption for livestock"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# nonIrrGrossDemand
 pcrglobwb_variable_name = "nonIrrGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "non_irrigation_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -471,7 +443,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# domesticGrossDemand
 pcrglobwb_variable_name = "domesticGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "domestic_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -483,7 +454,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# industryGrossDemand
 pcrglobwb_variable_name = "industryGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "industry_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -495,7 +465,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# livestockGrossDemand
 pcrglobwb_variable_name = "livestockGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "livestock_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -507,7 +476,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# manufactureGrossDemand
 pcrglobwb_variable_name = "manufactureGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "manufacture_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -519,7 +487,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# thermoelectricGrossDemand
 pcrglobwb_variable_name = "thermoelectricGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "thermoelectric_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -531,7 +498,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# nonIrrGrossDemandVolume
 pcrglobwb_variable_name = "nonIrrGrossDemandVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "non_irrigation_gross_demand_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -543,7 +509,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalGrossDemand
 pcrglobwb_variable_name = "totalGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "total_gross_demand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -555,7 +520,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalGrossDemandVolume
 pcrglobwb_variable_name = "totalGrossDemandVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "total_gross_demand_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -567,7 +531,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# satDegUpp
 pcrglobwb_variable_name = "satDegUpp"
 netcdf_short_name[pcrglobwb_variable_name] = "upper_soil_saturation_degree"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -579,7 +542,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# satDegLow
 pcrglobwb_variable_name = "satDegLow"
 netcdf_short_name[pcrglobwb_variable_name] = "lower_soil_saturation_degree"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -591,7 +553,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# satDegLow
 pcrglobwb_variable_name = "satDegLow"
 netcdf_short_name[pcrglobwb_variable_name] = "lower_soil_saturation_degree"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -603,7 +564,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# satDegTotal
 pcrglobwb_variable_name = "satDegTotal"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "soil_saturation_degree_for_the_entire_soil_layers"
@@ -617,7 +577,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storGroundwater
 pcrglobwb_variable_name = "storGroundwater"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -630,7 +589,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "sGw"
 
-# storGroundwaterFossil
 pcrglobwb_variable_name = "storGroundwaterFossil"
 netcdf_short_name[pcrglobwb_variable_name] = "fossil_groundwater_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -642,7 +600,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storGroundwaterTotal
 pcrglobwb_variable_name = "storGroundwaterTotal"
 netcdf_short_name[pcrglobwb_variable_name] = "total_groundwater_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -654,7 +611,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Non fossil and fossil groundwater storage."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# surfaceWaterAbstraction
 pcrglobwb_variable_name = "surfaceWaterAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "surface_water_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -666,7 +622,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# surfaceWaterAbstractionVolume
 pcrglobwb_variable_name = "surfaceWaterAbstractionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "surface_water_abstraction_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -678,7 +633,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# nonFossilGroundwaterAbstraction
 pcrglobwb_variable_name = "nonFossilGroundwaterAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "non_fossil_groundwater_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -690,7 +644,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fossilGroundwaterAbstraction
 pcrglobwb_variable_name = "fossilGroundwaterAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "fossil_groundwater_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -702,7 +655,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalGroundwaterAbstraction
 pcrglobwb_variable_name = "totalGroundwaterAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "total_groundwater_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -714,7 +666,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Non fossil and fossil groundwater abstraction."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalGroundwaterAbstractionVolume
 pcrglobwb_variable_name = "totalGroundwaterAbstractionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "total_groundwater_abstraction_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -726,7 +677,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Non fossil and fossil groundwater abstraction."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# desalinationAbstraction
 pcrglobwb_variable_name = "desalinationAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "desalination_source_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -738,7 +688,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# desalinationAbstractionVolume
 pcrglobwb_variable_name = "desalinationAbstractionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "desalination_source_abstraction_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -750,7 +699,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalAbstraction
 pcrglobwb_variable_name = "totalAbstraction"
 netcdf_short_name[pcrglobwb_variable_name] = "total_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -764,7 +712,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fracSurfaceWaterAllocation
 pcrglobwb_variable_name = "fracSurfaceWaterAllocation"
 netcdf_short_name[pcrglobwb_variable_name] = "fraction_of_surface_water_allocation"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -778,7 +725,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fracNonFossilGroundwaterAllocation
 pcrglobwb_variable_name = "fracNonFossilGroundwaterAllocation"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "fraction_of_non_fossil_groundwater_allocation"
@@ -794,7 +740,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fracOtherWaterSourceAllocation
 pcrglobwb_variable_name = "fracOtherWaterSourceAllocation"
 netcdf_short_name[pcrglobwb_variable_name] = "fraction_of_other_water_source_allocation"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -808,7 +753,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fracDesalinatedWaterAllocation
 pcrglobwb_variable_name = "fracDesalinatedWaterAllocation"
 netcdf_short_name[pcrglobwb_variable_name] = "fraction_of_desalinated_water_allocation"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -822,7 +766,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalFracWaterSourceAllocation
 pcrglobwb_variable_name = "totalFracWaterSourceAllocation"
 netcdf_short_name[pcrglobwb_variable_name] = "total_fraction_water_allocation"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -836,7 +779,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# waterBodyActEvaporation
 pcrglobwb_variable_name = "waterBodyActEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "water_body_actual_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -850,7 +792,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# waterBodyPotEvaporation
 pcrglobwb_variable_name = "waterBodyPotEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "water_body_potential_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -864,7 +805,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fractionWaterBodyEvaporation
 pcrglobwb_variable_name = "fractionWaterBodyEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "water_body_evaporation_fraction"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -878,7 +818,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalEvaporation
 pcrglobwb_variable_name = "totalEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "total_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -890,7 +829,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including from water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalPotentialEvaporation
 pcrglobwb_variable_name = "totalPotentialEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "total_potential_evaporation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -902,7 +840,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including from water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fractionTotalEvaporation
 pcrglobwb_variable_name = "fractionTotalEvaporation"
 netcdf_short_name[pcrglobwb_variable_name] = "total_evaporation_fraction"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -916,7 +853,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including from water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# runoff
 pcrglobwb_variable_name = "runoff"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_runoff"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -931,7 +867,6 @@ comment[pcrglobwb_variable_name] = (
 latex_symbol[pcrglobwb_variable_name] = None
 pcr_short_name[pcrglobwb_variable_name] = "qLoc"
 
-# accuRunoff
 pcrglobwb_variable_name = "accuRunoff"
 netcdf_short_name[pcrglobwb_variable_name] = "accumulated_land_surface_runoff"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -945,7 +880,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# accuBaseflow
 pcrglobwb_variable_name = "accuBaseflow"
 netcdf_short_name[pcrglobwb_variable_name] = "accumulated_land_surface_baseflow"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -957,7 +891,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# discharge
 pcrglobwb_variable_name = "discharge"
 netcdf_short_name[pcrglobwb_variable_name] = "discharge"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -969,7 +902,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalRunoff
 pcrglobwb_variable_name = "totalRunoff"
 netcdf_short_name[pcrglobwb_variable_name] = "total_runoff"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -981,7 +913,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including local changes at water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# local_water_body_flux
 pcrglobwb_variable_name = "local_water_body_flux"
 netcdf_short_name[pcrglobwb_variable_name] = "local_water_body_flux"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -993,7 +924,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# accuTotalRunoff
 pcrglobwb_variable_name = "accuTotalRunoff"
 netcdf_short_name[pcrglobwb_variable_name] = "accumulated_total_surface_runoff"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -1005,7 +935,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including runoff from water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# net_liquid_water_to_soil
 pcrglobwb_variable_name = "net_liquid_water_to_soil"
 netcdf_short_name[pcrglobwb_variable_name] = "net_liquid_water_to_soil"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1017,7 +946,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalActiveStorageThickness
 pcrglobwb_variable_name = "totalActiveStorageThickness"
 netcdf_short_name[pcrglobwb_variable_name] = "total_thickness_of_active_water_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1029,7 +957,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Not including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalWaterStorageThickness
 pcrglobwb_variable_name = "totalWaterStorageThickness"
 netcdf_short_name[pcrglobwb_variable_name] = "total_thickness_of_water_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1041,7 +968,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalWaterStorageVolume
 pcrglobwb_variable_name = "totalWaterStorageVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "total_volume_of_water_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m3"
@@ -1053,7 +979,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Including fossil groundwater."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# surfaceWaterStorage
 pcrglobwb_variable_name = "surfaceWaterStorage"
 netcdf_short_name[pcrglobwb_variable_name] = "surface_water_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1067,7 +992,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# waterBodyStorage
 pcrglobwb_variable_name = "waterBodyStorage"
 netcdf_short_name[pcrglobwb_variable_name] = "lake_and_reservoir_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m3"
@@ -1081,7 +1005,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# channelStorage
 pcrglobwb_variable_name = "channelStorage"
 netcdf_short_name[pcrglobwb_variable_name] = "channel_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m3"
@@ -1093,7 +1016,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# snowMelt
 pcrglobwb_variable_name = "snowMelt"
 netcdf_short_name[pcrglobwb_variable_name] = "snow_melt"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1105,7 +1027,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# satDegUppSurface
 pcrglobwb_variable_name = "satDegUppSurface"
 netcdf_short_name[pcrglobwb_variable_name] = "near_surface_soil_saturation_degree"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -1119,21 +1040,20 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# storUppSurface
 pcrglobwb_variable_name = "storUppSurface"
 netcdf_short_name[pcrglobwb_variable_name] = "near_surface_soil_storage"
 netcdf_unit[pcrglobwb_variable_name] = "m"
 netcdf_weekly_total_unit[pcrglobwb_variable_name] = None
 netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
-netcdf_long_name[pcrglobwb_variable_name] = None  # first 5 cm of soil
+# upper 5 cm of soil
+netcdf_long_name[pcrglobwb_variable_name] = None
 description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = (
     "This variable can only be reported if 3 layer soil model is used."
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# nonIrrWaterConsumption
 pcrglobwb_variable_name = "nonIrrWaterConsumption"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "consumptive_water_use_for_non_irrigation_demand"
@@ -1147,7 +1067,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# nonIrrReturnFlow
 pcrglobwb_variable_name = "nonIrrReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_non_irrigation_demand_withdrawal"
@@ -1161,7 +1080,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# domesticReturnFlow
 pcrglobwb_variable_name = "domesticReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_domestic_water_withdrawal"
@@ -1175,7 +1093,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# livestockReturnFlow
 pcrglobwb_variable_name = "livestockReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_livestock_water_withdrawal"
@@ -1189,7 +1106,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# industryReturnFlow
 pcrglobwb_variable_name = "industryReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_industry_water_withdrawal"
@@ -1203,7 +1119,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# manufactureReturnFlow
 pcrglobwb_variable_name = "manufactureReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_manufacture_water_withdrawal"
@@ -1217,7 +1132,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# thermoelectricReturnFlow
 pcrglobwb_variable_name = "thermoelectricReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_thermoelectric_water_withdrawal"
@@ -1231,7 +1145,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrWaterConsumption
 pcrglobwb_variable_name = "irrWaterConsumption"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "consumptive_water_use_for_irrigation_demand"
@@ -1245,7 +1158,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrReturnFlow
 pcrglobwb_variable_name = "irrReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = (
     "return_flow_from_irrigation_demand_withdrawal"
@@ -1259,7 +1171,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# land_surface_water_balance
 pcrglobwb_variable_name = "land_surface_water_balance"
 netcdf_short_name[pcrglobwb_variable_name] = "land_surface_water_balance"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1271,7 +1182,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Excluding surface water bodies."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# fraction_of_surface_water
+# fraction of surface water
 pcrglobwb_variable_name = "dynamicFracWat"
 netcdf_short_name[pcrglobwb_variable_name] = "fraction_of_surface_water"
 netcdf_unit[pcrglobwb_variable_name] = "1"
@@ -1283,7 +1194,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Fraction of surface water over the cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# totalPotentialMaximumGrossDemand
 pcrglobwb_variable_name = "totalPotentialMaximumGrossDemand"
 netcdf_short_name[pcrglobwb_variable_name] = "totalPotentialMaximumGrossDemand"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1295,7 +1205,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterAbsReturnFlow
 pcrglobwb_variable_name = "groundwaterAbsReturnFlow"
 netcdf_short_name[pcrglobwb_variable_name] = "return_flow_from_groundwater_abstraction"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1307,7 +1216,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# surfaceWaterInf
 pcrglobwb_variable_name = "surfaceWaterInf"
 netcdf_short_name[pcrglobwb_variable_name] = "surface_water_infiltration"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1320,7 +1228,6 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
 
-# irrigationTranspiration
 pcrglobwb_variable_name = "irrigationTranspiration"
 netcdf_short_name[pcrglobwb_variable_name] = "transpiration_from_irrigation"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1334,7 +1241,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# floodDepth
 pcrglobwb_variable_name = "floodDepth"
 netcdf_short_name[pcrglobwb_variable_name] = "flood_innundation_depth"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1348,7 +1254,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# floodVolume
 pcrglobwb_variable_name = "floodVolume"
 netcdf_short_name[pcrglobwb_variable_name] = "flood_innundation_volume"
 netcdf_unit[pcrglobwb_variable_name] = "m3"
@@ -1362,7 +1267,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# surfaceWaterLevel
 pcrglobwb_variable_name = "surfaceWaterLevel"
 netcdf_short_name[pcrglobwb_variable_name] = "surface_water_level"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1376,7 +1280,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrPaddyWaterWithdrawal
 pcrglobwb_variable_name = "irrPaddyWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "paddy_irrigation_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1388,7 +1291,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrNonPaddyWaterWithdrawal
 pcrglobwb_variable_name = "irrNonPaddyWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "non_paddy_irrigation_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1400,7 +1302,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrigationWaterWithdrawal
 pcrglobwb_variable_name = "irrigationWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "irrigation_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1412,7 +1313,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# domesticWaterWithdrawal
 pcrglobwb_variable_name = "domesticWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "domestic_water_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1424,7 +1324,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# industryWaterWithdrawal
 pcrglobwb_variable_name = "industryWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "industry_water_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1436,7 +1335,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# livestockWaterWithdrawal
 pcrglobwb_variable_name = "livestockWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "livestock_water_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1448,7 +1346,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# manufactureWaterWithdrawal
 pcrglobwb_variable_name = "manufactureWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "manufacture_water_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1460,7 +1357,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# thermoelectricWaterWithdrawal
 pcrglobwb_variable_name = "thermoelectricWaterWithdrawal"
 netcdf_short_name[pcrglobwb_variable_name] = "thermoelectric_water_withdrawal"
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1472,7 +1368,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Flux values given are over the entire cell area."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# domesticWaterWithdrawalVolume
 pcrglobwb_variable_name = "domesticWaterWithdrawalVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1484,7 +1379,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# industryWaterWithdrawalVolume
 pcrglobwb_variable_name = "industryWaterWithdrawalVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1496,7 +1390,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# livestockWaterWithdrawalVolume
 pcrglobwb_variable_name = "livestockWaterWithdrawalVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1508,7 +1401,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# irrigationWaterWithdrawalVolume
 pcrglobwb_variable_name = "irrigationWaterWithdrawalVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1520,7 +1412,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# domesticWaterConsumptionVolume
 pcrglobwb_variable_name = "domesticWaterConsumptionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1532,7 +1423,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# industryWaterConsumptionVolume
 pcrglobwb_variable_name = "industryWaterConsumptionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1544,7 +1434,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# livestockWaterConsumptionVolume
 pcrglobwb_variable_name = "livestockWaterConsumptionVolume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1556,7 +1445,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# precipitation_at_irrigation
 pcrglobwb_variable_name = "precipitation_at_irrigation"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1570,7 +1458,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# evaporation_from_irrigation
 pcrglobwb_variable_name = "evaporation_from_irrigation"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1584,7 +1471,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# netLqWaterToSoil_at_irrigation
 pcrglobwb_variable_name = "netLqWaterToSoil_at_irrigation"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1598,7 +1484,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# transpiration_from_irrigation
 pcrglobwb_variable_name = "transpiration_from_irrigation"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m.day-1"
@@ -1612,7 +1497,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# precipitation_at_irrigation_volume
 pcrglobwb_variable_name = "precipitation_at_irrigation_volume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1624,7 +1508,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# evaporation_from_irrigation_volume
 pcrglobwb_variable_name = "evaporation_from_irrigation_volume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1636,7 +1519,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# netLqWaterToSoil_at_irrigation_volume
 pcrglobwb_variable_name = "netLqWaterToSoil_at_irrigation_volume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1648,7 +1530,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# transpiration_from_irrigation_volume
 pcrglobwb_variable_name = "transpiration_from_irrigation_volume"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1660,7 +1541,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# lake_and_reservoir_inflow (m3/s)
 pcrglobwb_variable_name = "lake_and_reservoir_inflow"
 netcdf_short_name[pcrglobwb_variable_name] = pcrglobwb_variable_name
 netcdf_unit[pcrglobwb_variable_name] = "m3.s"
@@ -1673,11 +1553,8 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
 
-#############################################################################################################
-# MODFLOW variable lists (below)
-#############################################################################################################
+# MODFLOW variables
 
-# groundwaterHeadLayer1
 pcrglobwb_variable_name = "groundwaterHeadLayer1"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_head_for_layer_1"
 netcdf_unit[pcrglobwb_variable_name] = "m."
@@ -1689,7 +1566,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterHeadLayer2
 pcrglobwb_variable_name = "groundwaterHeadLayer2"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_head_for_layer_2"
 netcdf_unit[pcrglobwb_variable_name] = "m."
@@ -1701,7 +1577,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterDepthLayer1
 pcrglobwb_variable_name = "groundwaterDepthLayer1"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_depth_for_layer_1"
 netcdf_unit[pcrglobwb_variable_name] = "m."
@@ -1713,7 +1588,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterDepthLayer2
 pcrglobwb_variable_name = "groundwaterDepthLayer2"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_depth_for_layer_2"
 netcdf_unit[pcrglobwb_variable_name] = "m."
@@ -1725,7 +1599,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterHead
 pcrglobwb_variable_name = "groundwaterHead"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_head_for_top_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m."
@@ -1737,7 +1610,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterDepth
 pcrglobwb_variable_name = "groundwaterDepth"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_depth_for_top_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -1749,7 +1621,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# relativeGroundwaterHead
 pcrglobwb_variable_name = "relativeGroundwaterHead"
 netcdf_short_name[pcrglobwb_variable_name] = "relativeGroundwaterHead"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1761,7 +1632,6 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterVolumeEstimate
 pcrglobwb_variable_name = "groundwaterVolumeEstimate"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_volume_estimate"
 netcdf_unit[pcrglobwb_variable_name] = "m3"
@@ -1775,7 +1645,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# groundwaterThicknessEstimate
 pcrglobwb_variable_name = "groundwaterThicknessEstimate"
 netcdf_short_name[pcrglobwb_variable_name] = "groundwater_thickness_estimate"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1789,7 +1658,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# top_uppermost_layer (for two layer model)
+# for the two-layer model
 pcrglobwb_variable_name = "top_uppermost_layer"
 netcdf_short_name[pcrglobwb_variable_name] = "top_elevation_of_uppermost_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1801,7 +1670,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Zero elevation values indicate mean sea level."
 latex_symbol[pcrglobwb_variable_name] = None
 
-# bottom_uppermost_layer (for two layer model)
+# for the two-layer model
 pcrglobwb_variable_name = "bottom_uppermost_layer"
 netcdf_short_name[pcrglobwb_variable_name] = "bottom_elevation_of_uppermost_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1815,7 +1684,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# bottom_lowermost_layer (for two layer model)
+# for the two-layer model
 pcrglobwb_variable_name = "bottom_lowermost_layer"
 netcdf_short_name[pcrglobwb_variable_name] = "bottom_elevation_of_lowermost_layer"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -1840,16 +1709,10 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
 
-#############################################################################################################
-# eartH2Observe
-#############################################################################################################
-# RvB 23/02/2017 : start of edits
-# eartH2Observe variables added
-# %% E2O - EartH2Oserve variables
+# eartH2Observe (E2O) variables, added by RvB (23 Feb 2017)
 
-# %% Water balance components
+# water balance components
 
-# Precip
 pcrglobwb_variable_name = "Precip"
 netcdf_short_name[pcrglobwb_variable_name] = "Precip"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1864,7 +1727,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Evap
 pcrglobwb_variable_name = "Evap"
 netcdf_short_name[pcrglobwb_variable_name] = "Evap"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1879,7 +1741,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Runoff
 pcrglobwb_variable_name = "Runoff"
 netcdf_short_name[pcrglobwb_variable_name] = "Runoff"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1892,7 +1753,6 @@ description[pcrglobwb_variable_name] = "Average total liquid water draining from
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Qs
 pcrglobwb_variable_name = "Qs"
 netcdf_short_name[pcrglobwb_variable_name] = "Qs"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1907,7 +1767,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Qsb
 pcrglobwb_variable_name = "Qsb"
 netcdf_short_name[pcrglobwb_variable_name] = "Qsb"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1922,7 +1781,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Qsm
 pcrglobwb_variable_name = "Qsm"
 netcdf_short_name[pcrglobwb_variable_name] = "Qsm"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1937,7 +1795,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# PotEvap
 pcrglobwb_variable_name = "PotEvap"
 netcdf_short_name[pcrglobwb_variable_name] = "PotEvap"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1952,7 +1809,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ECanop
 pcrglobwb_variable_name = "ECanop"
 netcdf_short_name[pcrglobwb_variable_name] = "ECanop"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1967,7 +1823,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# TVeg
 pcrglobwb_variable_name = "TVeg"
 netcdf_short_name[pcrglobwb_variable_name] = "TVeg"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1982,7 +1837,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ESoil
 pcrglobwb_variable_name = "ESoil"
 netcdf_short_name[pcrglobwb_variable_name] = "ESoil"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -1995,7 +1849,6 @@ description[pcrglobwb_variable_name] = "Evaporation from bare soil, positive dow
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# EWater
 pcrglobwb_variable_name = "EWater"
 netcdf_short_name[pcrglobwb_variable_name] = "EWater"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2 s-1"
@@ -2010,7 +1863,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# RivOut
 pcrglobwb_variable_name = "RivOut"
 netcdf_short_name[pcrglobwb_variable_name] = "RivOut"
 netcdf_unit[pcrglobwb_variable_name] = "m3 s-1"
@@ -2026,8 +1878,7 @@ comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
 
-# %%ADDED BY JOREN: START
-# transportVolSnow
+# added by Joren
 pcrglobwb_variable_name = "transportVolSnow"
 netcdf_short_name[pcrglobwb_variable_name] = "transportVolSnow"
 netcdf_unit[pcrglobwb_variable_name] = "m^3/day"
@@ -2041,7 +1892,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# incomingVolSnow
 pcrglobwb_variable_name = "incomingVolSnow"
 netcdf_short_name[pcrglobwb_variable_name] = "incomingVolSnow"
 netcdf_unit[pcrglobwb_variable_name] = "m^3/day"
@@ -2055,7 +1905,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# transportFreeWater
 pcrglobwb_variable_name = "transportFreeWater"
 netcdf_short_name[pcrglobwb_variable_name] = "transportFreeWater"
 netcdf_unit[pcrglobwb_variable_name] = "m^3/day"
@@ -2069,7 +1918,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# incomingFreeWater
 pcrglobwb_variable_name = "incomingFreeWater"
 netcdf_short_name[pcrglobwb_variable_name] = "incomingFreeWater"
 netcdf_unit[pcrglobwb_variable_name] = "m^3/day"
@@ -2083,12 +1931,9 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# %%ADDED BY JOREN: STOP
 
+# state variables
 
-# %% State variables
-
-# SWE
 pcrglobwb_variable_name = "SWE"
 netcdf_short_name[pcrglobwb_variable_name] = "SWE"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2103,7 +1948,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# CanopInt
 pcrglobwb_variable_name = "CanopInt"
 netcdf_short_name[pcrglobwb_variable_name] = "SWE"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2118,7 +1962,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# SurfStor
 pcrglobwb_variable_name = "SurfStor"
 netcdf_short_name[pcrglobwb_variable_name] = "SurfStor"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2133,7 +1976,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# SurfMoist
 pcrglobwb_variable_name = "SurfMoist"
 netcdf_short_name[pcrglobwb_variable_name] = "SurfMoist"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2146,7 +1988,6 @@ description[pcrglobwb_variable_name] = "first model layer (SurfLayerThick)"
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# RootMoist
 pcrglobwb_variable_name = "RootMoist"
 netcdf_short_name[pcrglobwb_variable_name] = "RootMoist"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2161,7 +2002,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# GroundMoist
 pcrglobwb_variable_name = "GroundMoist"
 netcdf_short_name[pcrglobwb_variable_name] = "GroundMoist"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2176,7 +2016,6 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = None
 latex_symbol[pcrglobwb_variable_name] = None
 
-# TotMoist
 pcrglobwb_variable_name = "TotMoist"
 netcdf_short_name[pcrglobwb_variable_name] = "TotMoist"
 netcdf_unit[pcrglobwb_variable_name] = "kg m-2"
@@ -2191,14 +2030,10 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = "equals RootMoist"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# RvB 23/02/2017: end of edit
 
+# Ulysses
 
-#############################################################################################################
-# ulysses
-#############################################################################################################
-
-# surface temperature (ulyssesTsurf)
+# surface temperature
 pcrglobwb_variable_name = "ulyssesTsurf"
 netcdf_short_name[pcrglobwb_variable_name] = "Tsurf"
 netcdf_long_name[pcrglobwb_variable_name] = "Average surface temperature"
@@ -2216,7 +2051,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# total precipitation (ulyssesP)
+# total precipitation
 pcrglobwb_variable_name = "ulyssesP"
 netcdf_short_name[pcrglobwb_variable_name] = "P"
 netcdf_long_name[pcrglobwb_variable_name] = "total precipitation"
@@ -2231,7 +2066,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# total evaporation and transpiration, land only (ulyssesET)
+# total evaporation and transpiration, land only
 pcrglobwb_variable_name = "ulyssesET"
 netcdf_short_name[pcrglobwb_variable_name] = "ET"
 netcdf_long_name[pcrglobwb_variable_name] = "Total evapotranspiration"
@@ -2250,7 +2085,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# SWE (ulyssesSWE)
+# snow water equivalent
 pcrglobwb_variable_name = "ulyssesSWE"
 netcdf_short_name[pcrglobwb_variable_name] = "SWE"
 netcdf_long_name[pcrglobwb_variable_name] = "Snow water equivalent"
@@ -2268,7 +2103,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ulyssesSWE_excluding_free_water
 pcrglobwb_variable_name = "ulyssesSWE_excluding_free_water"
 netcdf_short_name[pcrglobwb_variable_name] = "SWE_excluding_free_water"
 netcdf_long_name[pcrglobwb_variable_name] = "Snow water equivalent_excluding_free_water"
@@ -2285,7 +2119,7 @@ description[pcrglobwb_variable_name] = (
 comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Qsm = snowmelt (ulyssesQsm)
+# snowmelt
 pcrglobwb_variable_name = "ulyssesQsm"
 netcdf_short_name[pcrglobwb_variable_name] = "Qsm"
 netcdf_long_name[pcrglobwb_variable_name] = "Snowmelt"
@@ -2303,7 +2137,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# SM: total volumetric of soil moisture (ulyssesSM)
+# total volumetric soil moisture
 pcrglobwb_variable_name = "ulyssesSM"
 netcdf_short_name[pcrglobwb_variable_name] = "SM"
 netcdf_long_name[pcrglobwb_variable_name] = (
@@ -2319,7 +2153,7 @@ description[pcrglobwb_variable_name] = (
 )
 comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 
-# Qr: total runoff (ulyssesQrRunoff)
+# total runoff
 pcrglobwb_variable_name = "ulyssesQrRunoff"
 netcdf_short_name[pcrglobwb_variable_name] = "Qr"
 netcdf_long_name[pcrglobwb_variable_name] = "Total runoff."
@@ -2333,7 +2167,7 @@ comment[pcrglobwb_variable_name] = (
     description[pcrglobwb_variable_name] + " Positive direction is into grid cell."
 )
 
-# gridder river discharge (ulyssesDischarge)
+# gridded river discharge
 pcrglobwb_variable_name = "ulyssesDischarge"
 netcdf_short_name[pcrglobwb_variable_name] = "Q"
 netcdf_long_name[pcrglobwb_variable_name] = "Gridded river discharge."
@@ -2347,7 +2181,6 @@ comment[pcrglobwb_variable_name] = (
     description[pcrglobwb_variable_name] + " Positive indicates downstream direction."
 )
 
-# ulyssesSnowFraction
 pcrglobwb_variable_name = "ulyssesSnowFraction"
 netcdf_short_name[pcrglobwb_variable_name] = "snowFraction"
 netcdf_long_name[pcrglobwb_variable_name] = "snowFraction"
@@ -2359,7 +2192,6 @@ netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 description[pcrglobwb_variable_name] = "Snow fraction over grid cell."
 comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 
-# ulyssesSMUpp
 pcrglobwb_variable_name = "ulyssesSMUpp"
 netcdf_short_name[pcrglobwb_variable_name] = "UppSM"
 netcdf_long_name[pcrglobwb_variable_name] = (
@@ -2375,7 +2207,6 @@ description[pcrglobwb_variable_name] = (
 )
 comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 
-# ulyssesSMLow
 pcrglobwb_variable_name = "ulyssesSMLow"
 netcdf_short_name[pcrglobwb_variable_name] = "LowSM"
 netcdf_long_name[pcrglobwb_variable_name] = (
@@ -2391,7 +2222,6 @@ description[pcrglobwb_variable_name] = (
 )
 comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 
-# ulyssessRefPET
 pcrglobwb_variable_name = "ulyssessRefPET"
 netcdf_short_name[pcrglobwb_variable_name] = "RefPET"
 netcdf_long_name[pcrglobwb_variable_name] = (
@@ -2410,7 +2240,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ulyssessCropPET
 pcrglobwb_variable_name = "ulyssessCropPET"
 netcdf_short_name[pcrglobwb_variable_name] = "CropPET"
 netcdf_long_name[pcrglobwb_variable_name] = (
@@ -2431,7 +2260,6 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ulyssesTWS
 pcrglobwb_variable_name = "ulyssesTWS"
 netcdf_short_name[pcrglobwb_variable_name] = "TWS"
 netcdf_long_name[pcrglobwb_variable_name] = "total_thickness_of_water_storage"
@@ -2445,11 +2273,9 @@ comment[pcrglobwb_variable_name] = description[pcrglobwb_variable_name]
 latex_symbol[pcrglobwb_variable_name] = None
 
 
-#############################################################################################################
 # DynQual
-#############################################################################################################
 
-# Water temperature
+# water temperature
 pcrglobwb_variable_name = "waterTemp"
 netcdf_short_name[pcrglobwb_variable_name] = "waterTemperature"
 netcdf_unit[pcrglobwb_variable_name] = "K"
@@ -2463,7 +2289,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# ice Thickness
+# ice thickness
 pcrglobwb_variable_name = "iceThickness"
 netcdf_short_name[pcrglobwb_variable_name] = "iceThickness"
 netcdf_unit[pcrglobwb_variable_name] = "m"
@@ -2475,7 +2301,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "Thickness of ice layer on channel network"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# powerplant demands (minimum) for temperature dependent technologies
+# minimum power plant demands for temperature-dependent technologies
 pcrglobwb_variable_name = "powerplants_fw_qmin"
 netcdf_short_name[pcrglobwb_variable_name] = "powerplants_fw_qmin"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -2489,7 +2315,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# powerplant demands for temperature dependent technologies
+# power plant demands for temperature-dependent technologies
 pcrglobwb_variable_name = "powerplants_fw_q"
 netcdf_short_name[pcrglobwb_variable_name] = "powerplants_fw_q"
 netcdf_unit[pcrglobwb_variable_name] = "m3.s-1"
@@ -2503,7 +2329,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Tw loads from powerplants
+# unrouted water temperature loads from power plants
 pcrglobwb_variable_name = "PowTwload"
 netcdf_short_name[pcrglobwb_variable_name] = "PowTwload"
 netcdf_unit[pcrglobwb_variable_name] = "W"
@@ -2517,7 +2343,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted TDS loads
+# unrouted total dissolved solids (TDS) loads
 pcrglobwb_variable_name = "TDSload"
 netcdf_short_name[pcrglobwb_variable_name] = "TDSload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2529,7 +2355,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "unrouted TDS loadings (for salinity pollution)"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Domestic TDS loads
+# unrouted domestic TDS loads
 pcrglobwb_variable_name = "Dom_TDSload"
 netcdf_short_name[pcrglobwb_variable_name] = "DomTDSload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2543,7 +2369,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Manufacturing TDS loads
+# unrouted manufacturing TDS loads
 pcrglobwb_variable_name = "Man_TDSload"
 netcdf_short_name[pcrglobwb_variable_name] = "ManTDSload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2557,7 +2383,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Urban Surface Runoff TDS loads
+# unrouted urban surface runoff TDS loads
 pcrglobwb_variable_name = "USR_TDSload"
 netcdf_short_name[pcrglobwb_variable_name] = "USRTDSload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2571,7 +2397,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Irr RF
+# irrigation return flow
 pcrglobwb_variable_name = "Irr_RF"
 netcdf_short_name[pcrglobwb_variable_name] = "Irr_RF"
 netcdf_unit[pcrglobwb_variable_name] = "m3.day-1"
@@ -2583,7 +2409,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "irrigation return flows"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Irr TDS loads
+# unrouted irrigation TDS loads
 pcrglobwb_variable_name = "Irr_TDSload"
 netcdf_short_name[pcrglobwb_variable_name] = "IrrTDSload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2597,7 +2423,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted BOD loads
+# unrouted biochemical oxygen demand (BOD) loads
 pcrglobwb_variable_name = "BODload"
 netcdf_short_name[pcrglobwb_variable_name] = "BODload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2609,7 +2435,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "unrouted BOD loadings (for organic pollution)"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Domestic BOD loads
+# unrouted domestic BOD loads
 pcrglobwb_variable_name = "Dom_BODload"
 netcdf_short_name[pcrglobwb_variable_name] = "DomBODload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2623,7 +2449,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Manufacturing BOD loads
+# unrouted manufacturing BOD loads
 pcrglobwb_variable_name = "Man_BODload"
 netcdf_short_name[pcrglobwb_variable_name] = "ManBODload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2637,7 +2463,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Urban Surface Runoff BOD loads
+# unrouted urban surface runoff BOD loads
 pcrglobwb_variable_name = "USR_BODload"
 netcdf_short_name[pcrglobwb_variable_name] = "USRBODload"
 netcdf_unit[pcrglobwb_variable_name] = "g.day-1"
@@ -2679,7 +2505,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted FC loads
+# unrouted fecal coliform (FC) loads
 pcrglobwb_variable_name = "FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "FCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2691,7 +2517,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "unrouted FC loadings (for pathogen pollution)"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Domestic FC loads
+# unrouted domestic FC loads
 pcrglobwb_variable_name = "Dom_FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "DomFCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2705,7 +2531,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Manufacturing FC loads
+# unrouted manufacturing FC loads
 pcrglobwb_variable_name = "Man_FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "ManFCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2719,7 +2545,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Urban Surface Runoff FC loads
+# unrouted urban surface runoff FC loads
 pcrglobwb_variable_name = "USR_FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "USRFCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2733,7 +2559,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted Intensive Livestock FC loads
+# unrouted intensive livestock FC loads
 pcrglobwb_variable_name = "intLiv_FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "intLivFCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2747,7 +2573,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# unrouted extensive Livestock FC loads
+# unrouted extensive livestock FC loads
 pcrglobwb_variable_name = "extLiv_FCload"
 netcdf_short_name[pcrglobwb_variable_name] = "extLivFCload"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu.day-1"
@@ -2773,7 +2599,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "TDS loadings routed through surface water network"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# in stream TDS loadings (flux)
+# in-stream TDS loadings (flux)
 pcrglobwb_variable_name = "TDSflux"
 netcdf_short_name[pcrglobwb_variable_name] = "TDSflux"
 netcdf_unit[pcrglobwb_variable_name] = "g s-1"
@@ -2787,7 +2613,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Domestic TDS loads
+# routed domestic TDS loads
 pcrglobwb_variable_name = "routedDomTDS"
 netcdf_short_name[pcrglobwb_variable_name] = "routedDomTDS"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2801,7 +2627,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Manufacturing TDS loads
+# routed manufacturing TDS loads
 pcrglobwb_variable_name = "routedManTDS"
 netcdf_short_name[pcrglobwb_variable_name] = "routedManTDS"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2815,7 +2641,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Urban Surface Runoff TDS loads
+# routed urban surface runoff TDS loads
 pcrglobwb_variable_name = "routedUSRTDS"
 netcdf_short_name[pcrglobwb_variable_name] = "routedUSRTDS"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2829,7 +2655,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Irrigation TDS loads
+# routed irrigation TDS loads
 pcrglobwb_variable_name = "routedIrrTDS"
 netcdf_short_name[pcrglobwb_variable_name] = "routedIrrTDS"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2855,7 +2681,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "BOD loadings routed through surface water network"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# in stream BOD loadings (flux)
+# in-stream BOD loadings (flux)
 pcrglobwb_variable_name = "BODflux"
 netcdf_short_name[pcrglobwb_variable_name] = "BODflux"
 netcdf_unit[pcrglobwb_variable_name] = "g s-1"
@@ -2869,7 +2695,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Domestic BOD loads
+# routed domestic BOD loads
 pcrglobwb_variable_name = "routedDomBOD"
 netcdf_short_name[pcrglobwb_variable_name] = "routedDomBOD"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2883,7 +2709,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Manufacturing BOD loads
+# routed manufacturing BOD loads
 pcrglobwb_variable_name = "routedManBOD"
 netcdf_short_name[pcrglobwb_variable_name] = "routedManBOD"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2897,7 +2723,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Urban Surface Runoff BOD loads
+# routed urban surface runoff BOD loads
 pcrglobwb_variable_name = "routedUSRBOD"
 netcdf_short_name[pcrglobwb_variable_name] = "routedUSRBOD"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2911,7 +2737,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Intensive Livestock BOD loads
+# routed intensive livestock BOD loads
 pcrglobwb_variable_name = "routedintLivBOD"
 netcdf_short_name[pcrglobwb_variable_name] = "routedintLivBOD"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2925,7 +2751,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Extensive Livestock BOD loads
+# routed extensive livestock BOD loads
 pcrglobwb_variable_name = "routedextLivBOD"
 netcdf_short_name[pcrglobwb_variable_name] = "routedextLivBOD"
 netcdf_unit[pcrglobwb_variable_name] = "g"
@@ -2951,7 +2777,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "FC loadings routed through surface water network"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# in stream TDS loadings (flux)
+# in-stream FC loadings (flux)
 pcrglobwb_variable_name = "FCflux"
 netcdf_short_name[pcrglobwb_variable_name] = "FCflux"
 netcdf_unit[pcrglobwb_variable_name] = "million cfu s-1"
@@ -2965,7 +2791,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Domestic FC loads
+# routed domestic FC loads
 pcrglobwb_variable_name = "routedDomFC"
 netcdf_short_name[pcrglobwb_variable_name] = "routedDomFC"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu"
@@ -2979,7 +2805,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Manufacturing FC loads
+# routed manufacturing FC loads
 pcrglobwb_variable_name = "routedManFC"
 netcdf_short_name[pcrglobwb_variable_name] = "routedManFC"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu"
@@ -2993,7 +2819,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Urban Surface Runoff FC loads
+# routed urban surface runoff FC loads
 pcrglobwb_variable_name = "routedUSRFC"
 netcdf_short_name[pcrglobwb_variable_name] = "routedUSRFC"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu"
@@ -3007,7 +2833,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Intensive Livestock FC loads
+# routed intensive livestock FC loads
 pcrglobwb_variable_name = "routedintLivFC"
 netcdf_short_name[pcrglobwb_variable_name] = "routedintLivFC"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu"
@@ -3021,7 +2847,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# routed Extensive Livestock FC loads
+# routed extensive livestock FC loads
 pcrglobwb_variable_name = "routedextLivFC"
 netcdf_short_name[pcrglobwb_variable_name] = "routedextLivFC"
 netcdf_unit[pcrglobwb_variable_name] = "million_cfu"
@@ -3035,7 +2861,7 @@ comment[pcrglobwb_variable_name] = (
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Salinity pollution (concentration in TDS mg.l)
+# salinity pollution (TDS concentration, mg/L)
 pcrglobwb_variable_name = "salinity"
 netcdf_short_name[pcrglobwb_variable_name] = "salinity"
 netcdf_unit[pcrglobwb_variable_name] = "mg.l"
@@ -3047,7 +2873,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "In-stream salinity (TDS) concentration in mg.l"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Organic pollution (concentration in BOD mg.l)
+# organic pollution (BOD concentration, mg/L)
 pcrglobwb_variable_name = "organic"
 netcdf_short_name[pcrglobwb_variable_name] = "organic"
 netcdf_unit[pcrglobwb_variable_name] = "mg.l"
@@ -3059,7 +2885,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "In-stream organic (BOD) concentration in mg.l"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Dissolved oxygen (concentration in DO mg.l)
+# dissolved oxygen (DO concentration, mg/L)
 pcrglobwb_variable_name = "dissolved_oxygen"
 netcdf_short_name[pcrglobwb_variable_name] = "dissolved_oxygen"
 netcdf_unit[pcrglobwb_variable_name] = "mg.l"
@@ -3071,7 +2897,7 @@ description[pcrglobwb_variable_name] = None
 comment[pcrglobwb_variable_name] = "In-stream DO concentration in mg.l"
 latex_symbol[pcrglobwb_variable_name] = None
 
-# Pathogen pollution (concentration in FC cfu.100ml)
+# pathogen pollution (FC concentration, cfu/100mL)
 pcrglobwb_variable_name = "pathogen"
 netcdf_short_name[pcrglobwb_variable_name] = "pathogen"
 netcdf_unit[pcrglobwb_variable_name] = "cfu.100ml"

@@ -3,10 +3,6 @@
 import calendar
 import datetime
 import logging
-
-###########
-# Modules #
-###########
 import sys
 from copy import deepcopy
 
@@ -14,9 +10,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n\t", ("",))
 
 development = str.join(
@@ -39,55 +32,45 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-####################
-# global variables #
-####################
-
-# functions #
-
 
 def get_weights_from_dates(dates):
 
-    # returns the weights of the spaced time increments of dates over the total
-    # length; input is a sequence of dates (list, numpy array) and the weights
-    # are stored as a dictionary with the date as key for transparency
+    # weights of the time increments of dates over the total length; input is a
+    # sequence of dates (list, numpy array), output is a dictionary with the dates
+    # as keys
 
-    # get the type of the list
     seq_type = type(dates)
 
-    # cast the dates as a new sequence
     d = deepcopy(dates)
 
     if seq_type == list:
         d = np.array(d)
 
-    # collapse the dates and sort
+    # flatten and sort the dates
     d = d.ravel()
     d.sort()
 
-    # create the weights
     w = np.zeros(d.size)
 
     # add a final date
     d = np.append(d, datetime.datetime(d[0].year + 1, d[0].month, d[0].day))
 
-    # iterate over the weighs to get the date difference
+    # iterate over the weights to get the date differences
     delta_d = d[-1] - d[0]
     for ix in range(w.size):
 
         w[ix] = (d[ix + 1] - d[ix]) / delta_d
 
-    # cast the weights to the desired type and return
+    # cast the weights to the desired type
     if seq_type == list:
         w = w.tolist()
 
-    # return the weights
     return dict((d[ix], w[ix]) for ix in range(len(w)))
 
 
 def get_julian_daynumber(date):
 
-    # returns the integer julian day number for a date provieded in daytime format
+    # integer julian day number of a date
 
     return int((date - datetime.datetime(date.year, 1, 1)).days)
 
@@ -118,19 +101,15 @@ module.
 
 """
 
-    # initialize the message string
     message_str = ""
 
-    # get the julian day number and month for the date
     julian_day = get_julian_daynumber(date)
     month = date.month
     year = date.year
 
-    # make sure dates are an array
     if isinstance(dates, list):
         dates = np.array(dates)
 
-    # get the julian day number and month for the dates
     julian_days = np.zeros(dates.shape, dtype=int)
     months = np.zeros(dates.shape, dtype=int)
     years = np.zeros(dates.shape, dtype=int)
@@ -141,14 +120,11 @@ module.
         years[ix] = sdate.month
         ix = ix + 1
 
-    # set the range of indices
     ixs = np.arange(dates.size, dtype=int)
     ixs.shape = dates.shape
 
-    # compute the deviations
     devs = np.abs(julian_days - julian_day)
 
-    # set the mask
     if within_same_month and np.any(months == month):
         mask = months == month
     else:
@@ -161,20 +137,16 @@ module.
     if year in years:
         mask = mask & (years == year)
 
-    # halt if the mask returns a zero selection
+    # halt if the mask selects nothing
     if np.size(devs[mask]) > 0:
 
-        # get the minimum deviation
         devs = devs[mask]
         ixs = ixs[mask]
 
-        # get the minimimum deviation and date index
         min_dev = devs.min()
         date_index = int(ixs[devs == min_dev][0])
 
-    # get the matched date
     matched_date = dates[date_index]
-    # create the output message string
     message_str = str.join(
         "",
         (
@@ -183,7 +155,6 @@ module.
         ),
     )
 
-    # return the date index, matched date and message string
     return date_index, matched_date, message_str
 
 
@@ -194,16 +165,9 @@ def is_last_day_month(date):
     return today == last_day
 
 
-# -class objects are organized as follows: __init__, __repr__ & __str__ methods
-# read and reports, initializations, functions with child, and childless functions
-
-# -file with class definitions for the CALEROS landscape dynamics model
-# ///start of file with class definitions///
-
-
 class model_time(object):
-    # -definition of the class object handling the timers for the Caleros landscape model
-    # this model initializes and updates the continuous timer and julian day number
+    # timer of the model: initializes and updates the continuous timer and
+    # julian day number
 
     def __init__(
         self,
@@ -213,13 +177,10 @@ class model_time(object):
         time_step_length=1.00,
     ):
 
-        # initialize the object
         object.__init__(self)
 
-        # set seconds per day
         self.seconds_per_day = 86400
 
-        # -start year is the year in which the simulation starts
         self.time_step_length = time_step_length
         self.startyear = startyear
         self.endyear = endyear
@@ -228,7 +189,7 @@ class model_time(object):
         self.enddate = datetime.datetime(self.endyear, 12, 31)
         self.date = self.startdate
 
-        # get the length of the simulation
+        # length of the simulation
         if self.time_increment == "daily":
             self.number_time_steps = (
                 int(((self.enddate - self.date).days) / self.time_step_length) + 1
@@ -238,57 +199,47 @@ class model_time(object):
         else:
             sys.exit("%s cannot be used" % self.time_increment)
 
-        # -report flags
         self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)
 
-        # special markers, set all as False
+        # special markers, all False by default
         self.last_day_of_month = False
         self.last_day_of_year = False
         self.last_time_step = False
 
     def __repr__(self):
-        # -default report on class
         return (
             "this is an instance of the Caleros time class object with date %s"
             % self.__str__
         )
 
     def __str__(self):
-        # -report on timers
         return self.date
 
     def update(self, increment):
-        # update the date by incrementing it by one time step at the time
+        # increment the date by one time step
         if self.time_increment == "daily":
-            # set the time step length in days
             self.time_step_length = 1
             self.date = self.startdate + datetime.timedelta(
                 days=(increment - 1) * self.time_step_length
             )
         elif self.time_increment == "monthly":
-            # get the year and month for the new date
             year = self.startdate.year + (increment - 1) // 12
             if increment % 12 == 0:
                 month = 12
             else:
                 month = increment % 12
-            # set the date and increment
             self.date = datetime.datetime(year, month, 1)
-            # set the time step length in days
             self.time_step_length = calendar.monthrange(year, month)[1]
         else:
             sys.exit("%s cannot be used" % self.time_increment)
 
-        # get the year, month and day
         self.year = self.date.year
         month = self.date.month
         day = self.date.day
 
-        # get the julian day
         self.julianday = get_julian_daynumber(self.date)
 
-        # set the special markers
-        # for daily time increments
+        # special markers for daily time increments
         if self.time_increment == "daily":
             self.report_flags["daily"] = True
             number_days = calendar.monthrange(self.year, month)[1]
@@ -302,17 +253,11 @@ class model_time(object):
             self.report_flags["monthly"] = True
             self.last_day_of_year = month == 12
         else:
-            # should not get here, but all disabled anyway
+            # should not happen; all flags disabled
             self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)
-        # set the last day of the year
         self.report_flags["yearly"] = self.last_day_of_year
 
-        # last time step
         self.last_time_step = increment == self.number_time_steps
 
-        # log the date
         message_str = "processing %s" % self.date
         logger.info(message_str)
-
-
-# /end of timer class/

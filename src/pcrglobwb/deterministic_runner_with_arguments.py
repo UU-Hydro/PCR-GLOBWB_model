@@ -34,7 +34,7 @@ class DeterministicRunner(DynamicModel):
         self.model = PCRGlobWB(configuration, modelTime, initialState, spinUpRun)
         self.reporting = Reporting(configuration, self.model, modelTime)
 
-        # the model paramaters may be modified
+        # the model parameters may be modified
         self.parameter_adjusment = False
         if ("-adjparm" in list(system_argument)) or (
             "prefactorOptions" in configuration.allSections
@@ -42,10 +42,8 @@ class DeterministicRunner(DynamicModel):
             self.adusting_parameters(configuration, system_argument)
             self.parameter_adjusment = True
 
-        # option to include merging processes for pcraster maps and netcdf files:
-        # - default option
+        # option to merge PCRaster maps and netCDF files (default: off)
         self.with_merging = False
-        # - set based on ini file
         if ("with_merging" in configuration.globalOptions.keys()) and (
             configuration.globalOptions["with_merging"] == "False"
         ):
@@ -55,82 +53,82 @@ class DeterministicRunner(DynamicModel):
         ):
             self.with_merging = True
 
-        # for a run with spinUp, we have to disactivate merging
+        # merging is disabled for runs with spin-up
         if spinUpRun == True:
             self.with_merging = False
 
-        # make the configuration available for the other method/function
         self.configuration = configuration
 
     def adusting_parameters(self, configuration, system_argument):
 
-        # global pre-multipliers given in the argument:
+        # global pre-multipliers given as arguments
         if "-adjparm" in list(system_argument):
 
-            # starting adjustment index (sai)
+            # start index of the adjustment arguments
             sai = system_argument.index("-adjparm")
 
             logger.info(
                 "Adjusting some model parameters based on given values in the system argument."
             )
 
-            # pre-multipliers for minSoilDepthFrac, kSat, recessionCoeff, storCap and degreeDayFactor
-            multiplier_for_minSoilDepthFrac = float(
-                system_argument[sai + 1]
-            )  # linear scale
-            multiplier_for_kSat = float(system_argument[sai + 2])  # log scale
-            multiplier_for_recessionCoeff = float(system_argument[sai + 3])  # log scale
-            multiplier_for_storCap = float(system_argument[sai + 4])  # linear scale
-            multiplier_for_degreeDayFactor = float(
-                system_argument[sai + 5]
-            )  # linear scale
+            # pre-multipliers for minSoilDepthFrac (linear), kSat (log), recessionCoeff (log), storCap
+            # (linear) and degreeDayFactor (linear)
+            multiplier_for_minSoilDepthFrac = float(system_argument[sai + 1])
+            multiplier_for_kSat = float(system_argument[sai + 2])
+            multiplier_for_recessionCoeff = float(system_argument[sai + 3])
+            multiplier_for_storCap = float(system_argument[sai + 4])
+            multiplier_for_degreeDayFactor = float(system_argument[sai + 5])
 
-            # pre-multiplier for the reference potential ET
-            self.multiplier_for_refPotET = float(
-                system_argument[sai + 6]
-            )  # linear scale
+            # pre-multiplier for the reference potential ET (linear)
+            self.multiplier_for_refPotET = float(system_argument[sai + 6])
 
-            # pre-multiplier for manningsN
-            multiplier_for_manningsN = float(system_argument[sai + 7])  # linear scale
+            # pre-multiplier for manningsN (linear)
+            multiplier_for_manningsN = float(system_argument[sai + 7])
 
-            # modification for storGroundwaterIni
             storGroundwaterIni_file = str(system_argument[sai + 8])
 
-        # it is also possible to define prefactors via the ini/configuration file:
-        # - this will be overwrite any previous given pre-multipliers
+        # pre-factors can also be defined in the ini file; these overwrite the pre-multipliers
         if "prefactorOptions" in configuration.allSections:
 
             logger.info(
                 "Adjusting some model parameters based on given values in the ini/configuration file."
             )
 
+            # linear; note: does not work for the changing WMIN or Joyce land cover options
             self.multiplier_for_refPotET = float(
                 configuration.prefactorOptions["linear_multiplier_for_refPotET"]
-            )  # linear scale  # Note that this one does NOT work for the changing WMIN or Joyce land cover options.
+            )
+            # linear
             multiplier_for_degreeDayFactor = float(
                 configuration.prefactorOptions["linear_multiplier_for_degreeDayFactor"]
-            )  # linear scale
+            )
+            # linear
             multiplier_for_minSoilDepthFrac = float(
                 configuration.prefactorOptions["linear_multiplier_for_minSoilDepthFrac"]
-            )  # linear scale
+            )
+            # log
             multiplier_for_kSat = float(
                 configuration.prefactorOptions["log_10_multiplier_for_kSat"]
-            )  # log scale
+            )
+            # linear
             multiplier_for_storCap = float(
                 configuration.prefactorOptions["linear_multiplier_for_storCap"]
-            )  # linear scale
+            )
+            # log
             multiplier_for_recessionCoeff = float(
                 configuration.prefactorOptions["log_10_multiplier_for_recessionCoeff"]
-            )  # log scale
+            )
+            # linear
             multiplier_for_manningsN = float(
                 configuration.prefactorOptions["multiplier_for_manningsN"]
-            )  # linear scale
+            )
 
+            # file location (use the full path)
             storGroundwaterIni_file = str(
                 configuration.prefactorOptions["storGroundwaterIni_file"]
-            )  # file location (please use full path)
+            )
 
-        # saving global pre-multipliers to the log file:
+        # log the global pre-multipliers
         msg = "\n"
         msg += "\n"
         msg += "Multiplier values used: " + "\n"
@@ -161,14 +159,11 @@ class DeterministicRunner(DynamicModel):
         )
         msg += "For storGroundwaterIni_file    : " + str(storGroundwaterIni_file) + "\n"
         logger.info(msg)
-        # - also to a txt file
-        f = open(
-            "multiplier.txt", "w"
-        )  # this will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
+        # and write them to a text file in the "maps" folder of outputDir (the cwd, see configuration.py)
+        f = open("multiplier.txt", "w")
         f.write(msg)
         f.close()
 
-        # adjust storGroundwaterIni
         if storGroundwaterIni_file != "Default":
             self.model.groundwater.storGroundwater = vos.readPCRmapClone(
                 storGroundwaterIni_file, configuration.cloneMap, configuration.tmpDir
@@ -178,22 +173,15 @@ class DeterministicRunner(DynamicModel):
             )
         pcr.report(self.model.groundwater.storGroundwater, "storGroundwaterIni.map")
 
-        # set parameter "manningsN" based on the given pre-multiplier
-        # - also saving the adjusted parameter maps to pcraster files
-        # - these will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
-        # "manningsN"
-        # minimum value is zero and using log-scale
+        # adjust the parameters with the pre-multipliers and save the adjusted maps to the "maps"
+        # folder of outputDir (the cwd, see configuration.py)
+        # manningsN: minimum zero, log scale
         self.model.routing.manningsN = (
             multiplier_for_manningsN * self.model.routing.manningsN
         )
-        # report the map
         pcr.report(self.model.routing.manningsN, "manningsN.map")
 
-        # set parameter "recessionCoeff" based on the given pre-multiplier
-        # - also saving the adjusted parameter maps to pcraster files
-        # - these will be stored in the "map" folder of the 'outputDir' (as we set the current working directory to this "map" folder, see configuration.py)
-        # "recessionCoeff"
-        # minimum value is zero and using log-scale
+        # recessionCoeff: minimum zero, log scale
         self.model.groundwater.recessionCoeff = pcr.max(
             0.0,
             (10 ** (multiplier_for_recessionCoeff))
@@ -202,30 +190,25 @@ class DeterministicRunner(DynamicModel):
         self.model.groundwater.recessionCoeff = pcr.min(
             1.0, self.model.groundwater.recessionCoeff
         )
-        # report the map
         pcr.report(self.model.groundwater.recessionCoeff, "recessionCoeff.map")
 
-        # set parameters "kSat", "storCap", "minSoilDepthFrac", and "degreeDayFactor" based on the given pre-multipliers
         for coverType in self.model.landSurface.coverTypes:
 
-            # "degreeDayFactor"
             self.model.landSurface.landCoverObj[coverType].degreeDayFactor = pcr.max(
                 0.0,
                 multiplier_for_degreeDayFactor
                 * self.model.landSurface.landCoverObj[coverType].degreeDayFactor,
             )
-            # report the map
             pcraster_filename = "degreeDayFactor" + "_" + coverType + ".map"
             pcr.report(
                 self.model.landSurface.landCoverObj[coverType].degreeDayFactor,
                 pcraster_filename,
             )
 
-            # "kSat" and "storCap" for 2 layer model
+            # kSat and storCap for the 2-layer model
             if self.model.landSurface.numberOfSoilLayers == 2:
 
-                # "kSat"
-                # minimum value is zero and using-log-scale
+                # kSat: minimum zero, log scale
                 self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp = (
                     pcr.max(
                         0.0,
@@ -244,7 +227,6 @@ class DeterministicRunner(DynamicModel):
                         ].parameters.kSatLow,
                     )
                 )
-                # report the maps
                 pcraster_filename = "kSatUpp" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp,
@@ -256,8 +238,7 @@ class DeterministicRunner(DynamicModel):
                     pcraster_filename,
                 )
 
-                # "storCap"
-                # minimum value is zero
+                # storCap: minimum zero
                 self.model.landSurface.landCoverObj[coverType].parameters.storCapUpp = (
                     pcr.max(
                         0.0,
@@ -276,7 +257,6 @@ class DeterministicRunner(DynamicModel):
                         ].parameters.storCapLow,
                     )
                 )
-                # report the maps
                 pcraster_filename = "storCapUpp" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
@@ -292,11 +272,10 @@ class DeterministicRunner(DynamicModel):
                     pcraster_filename,
                 )
 
-            # "kSat" and "storCap" for 3 layer model
+            # kSat and storCap for the 3-layer model
             if self.model.landSurface.numberOfSoilLayers == 3:
 
-                # "kSat"
-                # minimum value is zero and using-log-scale
+                # kSat: minimum zero, log scale
                 self.model.landSurface.landCoverObj[
                     coverType
                 ].parameters.kSatUpp000005 = pcr.max(
@@ -324,7 +303,6 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.kSatLow030150,
                 )
-                # report the maps
                 pcraster_filename = "kSatUpp000005" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
@@ -347,8 +325,7 @@ class DeterministicRunner(DynamicModel):
                     pcraster_filename,
                 )
 
-                # "storCap"
-                # minimum value is zero
+                # storCap: minimum zero
                 self.model.landSurface.landCoverObj[
                     coverType
                 ].parameters.storCapUpp000005 = pcr.max(
@@ -376,7 +353,6 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.storCapLow030150,
                 )
-                # report the maps
                 pcraster_filename = "storCapUpp000005" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
@@ -399,8 +375,7 @@ class DeterministicRunner(DynamicModel):
                     pcraster_filename,
                 )
 
-            # re-calculate rootZoneWaterStorageCap as the consequence of the modification of "storCap"
-            # This is WMAX in the oldcalc script.
+            # recalculate rootZoneWaterStorageCap (WMAX in the oldcalc script) after modifying storCap
             if self.model.landSurface.numberOfSoilLayers == 2:
                 self.model.landSurface.landCoverObj[
                     coverType
@@ -424,7 +399,6 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.storCapLow030150
                 )
-            # report the map
             pcraster_filename = "rootZoneWaterStorageCap" + "_" + coverType + ".map"
             pcr.report(
                 self.model.landSurface.landCoverObj[
@@ -433,10 +407,9 @@ class DeterministicRunner(DynamicModel):
                 pcraster_filename,
             )
 
-            # "minSoilDepthFrac"
             if multiplier_for_minSoilDepthFrac != 1.0:
 
-                # minimum value is zero
+                # minimum zero
                 self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = (
                     pcr.max(
                         0.0,
@@ -446,28 +419,27 @@ class DeterministicRunner(DynamicModel):
                         ].minSoilDepthFrac,
                     )
                 )
-                # for minSoilDepthFrac - values will be limited by maxSoilDepthFrac
+                # limited by maxSoilDepthFrac
                 self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = (
                     pcr.min(
                         self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,
                         self.model.landSurface.landCoverObj[coverType].maxSoilDepthFrac,
                     )
                 )
-                # maximum value is 1.0
+                # maximum 1.0
                 self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac = (
                     pcr.min(
                         1.0,
                         self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,
                     )
                 )
-                # report the map
                 pcraster_filename = "minSoilDepthFrac" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,
                     pcraster_filename,
                 )
 
-                # re-calculate arnoBeta (as the consequence of the modification of minSoilDepthFrac)
+                # recalculate arnoBeta after modifying minSoilDepthFrac
                 self.model.landSurface.landCoverObj[coverType].arnoBeta = pcr.max(
                     0.001,
                     (
@@ -491,16 +463,14 @@ class DeterministicRunner(DynamicModel):
                     ),
                     0.001,
                 )
-                # report the map
                 pcraster_filename = "arnoBeta" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].arnoBeta,
                     pcraster_filename,
                 )
 
-                # re-calculate rootZoneWaterStorageMin (as the consequence of the modification of minSoilDepthFrac)
-                # This is WMIN in the oldcalc script.
-                # WMIN (unit: m): minimum local soil water capacity within the grid-cell
+                # recalculate rootZoneWaterStorageMin (WMIN in the oldcalc script: minimum local soil
+                # water capacity within the cell, in m) after modifying minSoilDepthFrac
                 self.model.landSurface.landCoverObj[
                     coverType
                 ].rootZoneWaterStorageMin = (
@@ -509,7 +479,6 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.rootZoneWaterStorageCap
                 )
-                # report the map
                 pcraster_filename = "rootZoneWaterStorageMin" + "_" + coverType + ".map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
@@ -518,8 +487,7 @@ class DeterministicRunner(DynamicModel):
                     pcraster_filename,
                 )
 
-                # re-calculate rootZoneWaterStorageRange (as the consequence of the modification of rootZoneWaterStorageRange and minSoilDepthFrac)
-                # WMAX - WMIN (unit: m)
+                # recalculate rootZoneWaterStorageRange (WMAX - WMIN, in m) after modifying storCap and minSoilDepthFrac
                 self.model.landSurface.landCoverObj[
                     coverType
                 ].rootZoneWaterStorageRange = (
@@ -530,7 +498,6 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].rootZoneWaterStorageMin
                 )
-                # report the map
                 pcraster_filename = (
                     "rootZoneWaterStorageRange" + "_" + coverType + ".map"
                 )
@@ -546,35 +513,33 @@ class DeterministicRunner(DynamicModel):
 
     def dynamic(self):
 
-        # re-calculate current model time using current pcraster timestep value
+        # update the model time from the current PCRaster time step
         self.modelTime.update(self.currentTimeStep())
 
-        # read model forcing (will pick up current model time from model time object)
+        # read the forcing (uses the current model time)
         self.model.read_forcings()
 
-        # adjust the reference potential ET according to the given pre-multiplier
+        # adjust the reference potential ET with the pre-multiplier
         if self.parameter_adjusment:
             self.model.meteo.referencePotET = (
                 self.model.meteo.referencePotET * self.multiplier_for_refPotET
             )
 
-        # update model (will pick up current model time from model time object)
-        # - for a run coupled to MODFLOW, water balance checks are not valid due to lateral flow.
+        # update the model; water balance checks are not valid for runs coupled to MODFLOW (lateral flow)
         if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.model.update(report_water_balance=False)
         else:
             self.model.update(report_water_balance=True)
 
-        # do any needed reporting for this time step
         self.reporting.report()
 
-        # at the last day of the month, stop calculation until modflow and related merging process are ready (only for a run with modflow)
+        # at the last day of the month, wait until MODFLOW and merging are ready (only for runs with MODFLOW)
         if self.modelTime.isLastDayOfMonth() and (
             self.configuration.online_coupling_between_pcrglobwb_and_modflow
             or self.with_merging
         ):
 
-            # wait until modflow files are ready
+            # wait until the MODFLOW files are ready
             if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
                 modflow_is_ready = False
                 self.count_check = 0
@@ -587,7 +552,7 @@ class DeterministicRunner(DynamicModel):
                     ):
                         modflow_is_ready = self.check_modflow_status()
 
-            # wait until merged files are ready
+            # wait until the merged files are ready
             merged_files_are_ready = False
             while merged_files_are_ready == False:
                 self.count_check = 0
@@ -642,14 +607,13 @@ class DeterministicRunner(DynamicModel):
 
 def modify_ini_file(original_ini_file, system_argument):
 
-    # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
+    # created by Edwin H. Sutanudjaja in August 2020 for the Ulysses project
 
-    # open and read ini file
     file_ini = open(original_ini_file, "rt")
     file_ini_content = file_ini.read()
     file_ini.close()
 
-    # system argument for replacing outputDir (-mod) ; this is always required
+    # output directory (-mod); always required
     main_output_dir = system_argument[system_argument.index("-mod") + 1]
     file_ini_content = file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
     msg = (
@@ -658,7 +622,7 @@ def modify_ini_file(original_ini_file, system_argument):
     )
     print(msg)
 
-    # system argument for replacing inputDir (-mid)
+    # input directory (-mid)
     if "-mid" in system_argument:
         main_input_dir = system_argument[system_argument.index("-mid") + 1]
         file_ini_content = file_ini_content.replace("MAIN_INPUT_DIR", main_input_dir)
@@ -668,7 +632,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system arguments for modifying startTime (-sd) and endTime (-ed)
+    # optional start (-sd) and end (-ed) dates
     if "-sd" in system_argument:
         starting_date = system_argument[system_argument.index("-sd") + 1]
         file_ini_content = file_ini_content.replace("START_DATE", starting_date)
@@ -686,8 +650,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system arguments for initial condition files
-    # - main initial state folder
+    # optional initial conditions: main initial state folder (-misd)
     if "-misd" in system_argument:
         main_initial_state_folder = system_argument[system_argument.index("-misd") + 1]
         file_ini_content = file_ini_content.replace(
@@ -698,7 +661,7 @@ def modify_ini_file(original_ini_file, system_argument):
             + main_initial_state_folder
         )
         print(msg)
-    # - date for initial states
+    # date for initial states (-dfis)
     if "-dfis" in system_argument:
         date_for_initial_states = system_argument[system_argument.index("-dfis") + 1]
         file_ini_content = file_ini_content.replace(
@@ -724,8 +687,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system argument for modifying forcing files
-    # - precipitationNC = PRECIPITATION_FORCING_FILE
+    # optional forcing files; precipitationNC = PRECIPITATION_FORCING_FILE
     if "-pff" in system_argument:
         precipitation_forcing_file = system_argument[system_argument.index("-pff") + 1]
         file_ini_content = file_ini_content.replace(
@@ -737,7 +699,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # - temperatureNC = TEMPERATURE_FORCING_FILE
+    # temperatureNC = TEMPERATURE_FORCING_FILE
     if "-tff" in system_argument:
         temperature_forcing_file = system_argument[system_argument.index("-tff") + 1]
         file_ini_content = file_ini_content.replace(
@@ -749,7 +711,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # - refETPotFileNC = REF_POT_ET_FORCING_FILE
+    # refETPotFileNC = REF_POT_ET_FORCING_FILE
     if "-rpetff" in system_argument:
         ref_pot_et_forcing_file = system_argument[system_argument.index("-rpetff") + 1]
         file_ini_content = file_ini_content.replace(
@@ -813,7 +775,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system argument for modifying baseflow exponent
+    # optional baseflow exponent
     if "-bfexp" in system_argument:
         baseflow_exponent = system_argument[system_argument.index("-bfexp") + 1]
         file_ini_content = file_ini_content.replace(
@@ -900,9 +862,9 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # folder for saving original and modified ini files
+    # folder for the original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
-    # - for a run that is part of a set of parallel (clone) runs
+    # for a run that is part of a set of parallel (clone) runs
     if (
         system_argument[2] == "parallel"
         or system_argument[2] == "debug_parallel"
@@ -914,12 +876,10 @@ def modify_ini_file(original_ini_file, system_argument):
             main_output_dir, output_folder_with_clone_code, "ini_files"
         )
 
-    # create folder
     if os.path.exists(folder_for_ini_files):
         shutil.rmtree(folder_for_ini_files)
     os.makedirs(folder_for_ini_files)
 
-    # save/copy the original ini file
     shutil.copy(
         original_ini_file,
         os.path.join(
@@ -927,7 +887,6 @@ def modify_ini_file(original_ini_file, system_argument):
         ),
     )
 
-    # save the new ini file
     new_ini_file_name = os.path.join(
         folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used"
     )
@@ -940,19 +899,16 @@ def modify_ini_file(original_ini_file, system_argument):
 
 def main():
 
-    # print disclaimer
     disclaimer.print_disclaimer()
 
-    # get the full path of configuration/ini file given in the system argument
     iniFileName = os.path.abspath(sys.argv[1])
 
-    # modify ini file and return it in a new location
+    # modify the ini file and save it to a new location
     if "-mod" in sys.argv:
         iniFileName = modify_ini_file(
             original_ini_file=iniFileName, system_argument=sys.argv
         )
 
-    # debug option
     debug_mode = False
     if len(sys.argv) > 2:
         if (
@@ -962,7 +918,6 @@ def main():
         ):
             debug_mode = True
 
-    # parallel option
     this_run_is_part_of_a_set_of_parallel_run = False
     if len(sys.argv) > 2:
         if (
@@ -972,39 +927,33 @@ def main():
         ):
             this_run_is_part_of_a_set_of_parallel_run = True
 
-    # object to handle configuration/ini file
     configuration = Configuration(
         iniFileName=iniFileName, debug_mode=debug_mode, no_modification=False
     )
 
-    # for a parallel run (e.g. usually for 5min and 6min runs), we assign a specific directory based on the clone number/code:
+    # a parallel run (e.g. 5 and 6 arcmin runs) gets a specific directory based on the clone code:
     if this_run_is_part_of_a_set_of_parallel_run:
-        # modfiying outputDir, clone-map landmask, etc (based on the given system arguments)
-        # - clone code in string
+        # modify outputDir, clone map, landmask, etc. based on the command-line arguments
         clone_code = str(sys.argv[3])
-        # - output folder
         output_folder_with_clone_code = "M%02i" % int(clone_code)
         configuration.globalOptions["outputDir"] += "/" + output_folder_with_clone_code
-        # - clone map
         configuration.globalOptions["cloneMap"] = configuration.globalOptions[
             "cloneMap"
         ] % (int(clone_code))
-        # - landmask for model calculation
+        # landmask for the model calculation
         if configuration.globalOptions["landmask"] != "None":
             configuration.globalOptions["landmask"] = configuration.globalOptions[
                 "landmask"
             ] % (int(clone_code))
 
-    # set configuration
     configuration.set_configuration(system_arguments=sys.argv)
 
-    # timeStep info: year, month, day, doy, hour, etc
+    # time step info: year, month, day, doy, etc.
     currTimeStep = ModelTime()
 
-    # object for spin_up
     spin_up = SpinUp(configuration)
 
-    # spinning-up
+    # spin-up
     noSpinUps = int(configuration.globalOptions["maxSpinUpsInYears"])
     initial_state = None
     if noSpinUps > 0:
@@ -1042,9 +991,9 @@ def main():
 
             initial_state = deterministic_runner.model.getState()
 
-        # TODO: for a parallel run call merging when the spinUp is done and isolate the states in a separate directory/folder
+        # TODO: for a parallel run, merge when the spin-up is done and keep the states in a separate folder
 
-    # Running the deterministic_runner (excluding DA scheme)
+    # run the model (excluding the DA scheme)
     currTimeStep.getStartEndTimeSteps(
         configuration.globalOptions["startTime"], configuration.globalOptions["endTime"]
     )
@@ -1062,6 +1011,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # print disclaimer
     disclaimer.print_disclaimer(with_logger=True)
     sys.exit(main())

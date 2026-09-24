@@ -111,18 +111,14 @@ def joinMaps(inputTuple):
     MV = inputTuple[6]
     fileNames = inputTuple[7]
     cloneFileName = inputTuple[8]
-    # -echo to screen
     print("combining files for %s" % outputFileName, end=" ")
-    # -get extent
     xMax = xMin + nrCols * cellLength
     yMin = yMax - nrRows * cellLength
     xCoordinates = xMin + np.arange(nrCols + 1) * cellLength
     yCoordinates = yMin + np.arange(nrRows + 1) * cellLength
     yCoordinates = np.flipud(yCoordinates)
     print("between %.2f, %.2f and %.2f, %.2f" % (xMin, yMin, xMax, yMax))
-    # -set output array
     variableArray = np.ones((nrRows, nrCols)) * MV
-    # -iterate over maps
     for fileName in fileNames:
         print(fileName)
         attributeClone = getMapAttributesALL(fileName)
@@ -131,10 +127,9 @@ def joinMaps(inputTuple):
         colsClone = attributeClone["cols"]
         xULClone = attributeClone["xUL"]
         yULClone = attributeClone["yUL"]
-        # check whether both maps have the same attributes and process
+        # check whether both maps have the same resolution
         process, nd = checkResolution(cellLength, cellLengthClone)
         if process:
-            # -get coordinates and locations
             sampleXMin = xULClone
             sampleXMax = xULClone + colsClone * cellLengthClone
             sampleYMin = yULClone - rowsClone * cellLengthClone
@@ -156,16 +151,13 @@ def joinMaps(inputTuple):
             variableCol0 = getPosition(sampleXMin, xCoordinates, nd)
             variableCol1 = getPosition(sampleXMax, xCoordinates, nd)
             variableRow0, variableRow1 = checkRowPosition(variableRow0, variableRow1)
-            # -read sample array
             setclone(fileName)
             sampleArray = pcr2numpy(readmap(fileName), MV)
             sampleNrRows, sampleNrCols = sampleArray.shape
-            # -create mask
             mask = (
                 variableArray[variableRow0:variableRow1, variableCol0:variableCol1]
                 == MV
             ) & (sampleArray[sampleRow0:sampleRow1, sampleCol0:sampleCol1] != MV)
-            # -add values
             print(
                 " adding values in %d, %d rows, columns from (x, y) %.3f, %.3f and %.3f, %.3f to position (row, col) %d, %d and %d, %d"
                 % (
@@ -186,26 +178,21 @@ def joinMaps(inputTuple):
             ] = sampleArray[sampleRow0:sampleRow1, sampleCol0:sampleCol1][mask]
         else:
             print("%s does not match resolution and is not processed" % fileName)
-    # -report output map
     setclone(cloneFileName)
     report(numpy2pcr(Scalar, variableArray, MV), outputFileName)
 
 
-##################################
-######## user input ##############
-##################################
+# user input
 
 MV = 1e20
 
-# chosen date
 year = 1960
-chosenDate = datetime.date(int(year), 12, 31)  # datetime.date(1979,12,31)
+chosenDate = datetime.date(int(year), 12, 31)
 try:
     chosenDate = str(sys.argv[1])
 except:
     pass
 
-# map coordinates and resolution
 deltaLat = 5.0 / 60.0
 deltaLon = 5.0 / 60.0
 latMin = -90.0
@@ -256,8 +243,6 @@ if sys.argv[6] == "Global":
 if sys.argv[6] == "Global_uly":
     areas = ["M%07d" % i for i in range(1, number_of_clone_maps + 1, 1)]
 
-# -main script
-# -get clone
 nrRows = int((latMax - latMin) / deltaLat)
 nrCols = int((lonMax - lonMin) / deltaLon)
 
@@ -273,7 +258,7 @@ command = 'mapattr -s -R %d -C %d -P "yb2t"  -B -x %f -y %f -l %f %s' % (
 os.system(command)
 setclone(tempCloneMap)
 
-# input files where unmerged maps are saved
+# input directory with the unmerged maps
 inputDir = os.path.join(inputDirRoot, areas[0], "maps")
 if sys.argv[4] == "default":
     inputDir = os.path.join(inputDirRoot, areas[0], "maps")
@@ -319,12 +304,11 @@ for fileName in list(files.keys()):
 
 print()
 print()
-pool = Pool(processes=ncores)  # start "ncores" of worker processes
+pool = Pool(processes=ncores)
 pool.map(joinMaps, list(files.values()))
 print()
 print()
 
-# -remove temporary file
 os.remove(tempCloneMap)
 print(" all done")
 print()

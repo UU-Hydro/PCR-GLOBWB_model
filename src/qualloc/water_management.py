@@ -24,31 +24,24 @@ from qualloc.model_time import (
     match_date_by_julian_number,
 )
 
-# global attributes
-# set the logger
 logger = logging.getLogger(__name__)
 
-# type of None, compatible with python 2.6
 NoneType = type(None)
 
-# small number to avoid zero divisions in PCRaster
+# small number to avoid division by zero in PCRaster
 very_small_number = 1.00e-12
 
-# missing_id
+# missing id
 mid = -1
 
-# missing value identifier for water management options, including
-# long-term water availability; missig values are then generated that are
-# then treated in a default value to allocate water demand to resources and
-# update long-term water availability etc.
+# missing value for water management options, including the long-term water availability;
+# missing values are treated with defaults when allocating water demand to resources and
+# updating the long-term availability
 water_management_missing_value = -9.99
 
 # for debugging only
 debug = True
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n\t", ("",))
 
 development = str.join("\n\t", ("",))
@@ -63,11 +56,6 @@ if len(development) > 0:
 
 if len(critical_improvements) > 0:
     sys.exit()
-
-
-#############
-# functions #
-#############
 
 
 def water_balance_check(
@@ -109,26 +97,26 @@ def water_balance_check(
     in_map = pcr.spatial(pcr.scalar(0.0))
     out_map = pcr.spatial(pcr.scalar(0.0))
 
-    # aggregate all water from each side of the process
+    # aggregate all water on each side of the process
     for state_ini in states_ini:
         in_map += state_ini
     for state_end in states_end:
         out_map += state_end
 
-    # aggregate water volumes over the allocation zones
+    # aggregate the water volumes over the allocation zones
     if not isinstance(zones, NoneType):
         in_map = get_zonal_total(in_map, zones)
         out_map = get_zonal_total(out_map, zones)
         cellarea = get_zonal_total(cellarea, zones)
 
-    # estimate the difference from to water-slices
+    # difference as water slice
     diff = (in_map - out_map) / cellarea
     vmin = pcr.cellvalue(pcr.mapminimum(diff), 1)[0]
 
     if vmin >= -threshold:
         msg = "[ %.10s Water Balance ] %s (%s): OK" % (date, process_name, var_name)
         if vmin < 0:
-            msg += " (max mismatch of %.2e m)" % vmin  # %.10f
+            msg += " (max mismatch of %.2e m)" % vmin
         logger.debug(msg)
 
     else:
@@ -183,56 +171,45 @@ def estimate_waterdepth_from_discharge(
                        and the channel parameters (units: m)
     """
 
-    # set the mask where water is present (units: m3/s)
+    # mask where water is present
     discharge_mask = discharge > 0
 
-    # set the number of iterations and convergence
     icnt = 0
     convergence = False
 
-    # and iterate over all time steps
     while icnt < max_iterations and not convergence:
 
-        # set the old water
         waterdepth_old = pcr.max(0.001, waterdepth)
 
-        # get the wetted perimeter [m] for a rectangular channel and the
-        # corresponding alpha of the equation A = alpha * Q ** beta
+        # wetted perimeter (m) of a rectangular channel and the corresponding alpha of the equation
+        # A = alpha * Q ** beta
         wetted_perimeter = channel_width + 2 * waterdepth_old
         alpha = (
             mannings_n * wetted_perimeter ** (2.0 / 3.0) * channel_gradient**-0.5
         ) ** beta
 
-        # compute the new water table
+        # new water depth
         wetted_area = alpha * discharge**beta
         waterdepth = pcr.max(0.001, wetted_area / channel_width)
 
-        # compare the water depth
+        # check convergence of the water depth
         conv_value = pcr.cellvalue(
             pcr.mapmaximum(pcr.abs(waterdepth - waterdepth_old)), 1
         )[0]
         convergence = conv_value < convergence_limit
 
-        # update icnt
         icnt = icnt + 1
 
-    # set the water depth
     waterdepth = pcr.ifthenelse(discharge_mask, waterdepth, pcr.scalar(0))
 
-    # set the message string
     message_str = (
         "water depth converged after %d iterations with a maximum deviation of %.3g"
         % (icnt, conv_value)
     )
     print(message_str)
 
-    # return water depth
     return waterdepth
 
-
-###################
-# class definition #
-###################
 
 """
 water_management: read in the monthly long-term availability for the discharge \
@@ -379,84 +356,61 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         """
 
-        # initialize the object
         object.__init__(self)
 
-        # set model land mask
         self.landmask = landmask
 
-        # set cell area (units: m2)
         self.cellarea = cellarea
 
-        # source names to be used to process the withdrawals
-        # NOTE: names could be used for processing but is largely ignored here
-        # as the processing of the different sources may vary.
+        # source names used to process the withdrawals; largely ignored here, as the processing of the
+        # different sources may vary
         self.source_names = source_names
 
-        # sector names used to process the demand
         self.sector_names = sector_names
 
-        # withdrawal types; renewable and non-renewable; this is hard-coded
+        # withdrawal types (renewable and non-renewable; hard-coded)
         self.withdrawal_names = withdrawal_names
 
-        # set the information on the settings to allocate demand to the avail-
-        # ability; these are currently set hard coded here and refer to the
-        # allocation functions
-        # time increment to be used; currently only monthly and yearly allowed
-        # and this refers to the update of the withdrawals given the
-        # long-term availability
+        # settings to allocate demand to the availability (hard-coded, refer to the allocation functions);
+        # time increment for updating the withdrawals from the long-term availability (monthly or yearly)
         self.time_increment = time_increment
         self.time_step = time_step
         self.time_step_length = time_step_length
 
-        # use_local_first is a boolean PCRaster map that indicates if the local
-        # availability should be used first; the flag is a boolean identifying
-        # its overall setting to True or False for logging purposes
+        # use_local_first: boolean map indicating whether the local availability is used first; the flag
+        # gives its overall setting for logging
         self.use_local_first = pcr.spatial(pcr.boolean(1))
         self.use_local_first_flag = (
             pcr.cellvalue(pcr.mapmaximum(pcr.scalar(self.use_local_first)), 1)[0] == 1
         )
 
-        # reallocate_surplus is a boolean variable (True, False) indicating
-        # that any surplus will be used to satisfy any local demand.
+        # reallocate_surplus: use any surplus to satisfy local demand
         self.reallocate_surplus = True
 
-        # source_unmet_demand: either any or all of the available sources;
-        # formerly, by default set to both surface water and groundwater that
-        # are then allocated proportionally to the withdrawals;
-        # note that this is a sequence of the source names
-        # and that the first is used as default
+        # sources_unmet_demand: sequence of the sources for unmet demand (any or all available sources;
+        # the first is the default); formerly surface water and groundwater, allocated proportionally
+        # to the withdrawals
         self.sources_unmet_demand = ["surfacewater", "groundwater"]
 
-        # pumping capacity flag is a boolean value to determine if groundwater
-        # withdrawal capacity is considered to cap the groundwater abstraction
+        # pumping_capacity_flag: whether the withdrawal capacity caps the groundwater abstraction
         self.pumping_capacity_flag = {
             "surfacewater": surfacewater_pumping_capacity_flag,
             "groundwater": groundwater_pumping_capacity_flag,
         }
 
-        # desalinated water use flag is a boolean value to determine if desalinated
-        # water use is considered to contribute tothe water supply before the
-        # allocation from surface water and groundwater
+        # desalinated_water_use_flag: whether desalinated water contributes to the water supply before
+        # the allocation from surface water and groundwater
         self.desalinated_water_use_flag = desalinated_water_use_flag
 
-        # surface water quality flag is a boolean value to determine if surface
-        # water quality is considered to cap the surface water availability
+        # water_quality_flag: whether surface water quality caps the surface water availability
         self.water_quality_flag = water_quality_flag
 
-        # set the information about withdrawal and allocation, this includes:
-        # [1] the ID per allocation zone for which the available water
-        #     is matched to the demand;
-        # [2] the withdrawal points, where water will be extracted, and that are
-        #     identified by the ID of the allocation zones
-        # [3] the withdrawal capacity at the withdrawal points that limit the
-        #     abstraction in [m3/day].
-        # Currently, all entries are maps (nomimal for the IDs, scalar for the
-        # withdrawal capacity). When the withdrawal capacity is set to None,
-        # the withdrawal is unlimited.
+        # withdrawal and allocation information: (1) the id per allocation zone in which the available
+        # water is matched to the demand, (2) the withdrawal points, identified by the allocation zone
+        # ids, and (3) the withdrawal capacity at the withdrawal points (m3/day); all are maps (nominal
+        # ids, scalar capacity); a withdrawal capacity of None means unlimited withdrawal
 
-        # [ allocation zones ]
-        # define zones per sector
+        # allocation zones per sector
         self.groundwater_allocation_zones = dict(
             (sector_name, groundwater_allocation_zones) for sector_name in sector_names
         )
@@ -467,15 +421,13 @@ total_return_flow_ini                      : total return flow [m3/day]
             (sector_name, desalwater_allocation_zones) for sector_name in sector_names
         )
 
-        # define the sectors that can use water from desalinated source
+        # sectors that can use desalinated water
         self.sector_names_desalwater = ["domestic", "industry", "manufacture"]
 
-        # define the sectors that can withdraw water only from surfacewater and
-        # from its local zone (i.e., same cell)
+        # sectors that can only withdraw surface water from their local zone (i.e. the same cell)
         self.sectors_local_surfacewater = ["thermoelectric", "environment"]
 
-        # update the allocation zone the sectors where water can be withdrawn
-        # only from local zone, thus, each pixel is its own allocation zone
+        # for these sectors, each cell is its own allocation zone
         for sector_name in self.sectors_local_surfacewater:
             if sector_name in self.sector_names:
                 self.surfacewater_allocation_zones[sector_name] = pcr.ifthen(
@@ -502,15 +454,14 @@ total_return_flow_ini                      : total return flow [m3/day]
                     ),
                 )
 
-                # alternative, make all groundwater allocation zones equal to missing values
-                # but, watch out! all later calculations should be covered with zeros
+                # alternatively, set all groundwater allocation zones to missing values; all later calculations
+                # must then be covered with zeros
 
-        # [ withdrawal capacity ]
-        # set withdrawal capacity per source
+        # withdrawal capacity per source
         self.groundwater_withdrawal_capacity = groundwater_withdrawal_capacity
         self.surfacewater_withdrawal_capacity = surfacewater_withdrawal_capacity
 
-        # mask extension of withdrawal capacity
+        # mask the withdrawal capacity
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
             self.groundwater_withdrawal_capacity = pcr.ifthen(
                 self.landmask, pcr.cover(self.groundwater_withdrawal_capacity, 0.0)
@@ -520,16 +471,13 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.landmask, pcr.cover(self.surfacewater_withdrawal_capacity, 0.0)
             )
 
-        # [ withdrawal points ]
+        # withdrawal points
         self.desalwater_withdrawal_points = desalwater_withdrawal_points
         self.groundwater_withdrawal_points = groundwater_withdrawal_points
         self.surfacewater_withdrawal_points = surfacewater_withdrawal_points
 
-        # [ prioritization ]
-        # a dictionary with source and sector; if not specified (None) default is
-        # set to an equal weight; otherwise, priorities are given in ascending
-        # order, the lowest value having the highest priority; priorities can be
-        # defined locally as maps but are spatially compared
+        # prioritization per source and sector: equal weights if None, otherwise priorities in ascending
+        # order (lowest value, highest priority); priorities can be maps but are compared spatially
         source_names_prioritization = deepcopy(self.source_names)
         if desalinated_water_use_flag and "desalwater" not in source_names:
             source_names_prioritization.append("desalwater")
@@ -553,9 +501,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                         self.prioritization[source_name][sector_name],
                     )
 
-        # update the prioritization including the effect of the allocation zones;
-        # sector that can withdraw water only from local sources has higher priority
-        # [ note ] it only applies to surfacewater and groundwater sources
+        # include the effect of the allocation zones: sectors that can only withdraw from local sources
+        # get a higher priority (surface water and groundwater only)
         for source_name in self.source_names:
             zones = getattr(self, "%s_allocation_zones" % source_name)
             for sector_name in self.sector_names:
@@ -567,17 +514,13 @@ total_return_flow_ini                      : total return flow [m3/day]
                     self.prioritization[source_name][sector_name] * n_cells
                 )
 
-        # [ long-term ]
-        # water availability
-        # set long-term variables used to calculate the long-term availability
-        # groundwater_longterm_storage    (units: m at the end of time-step)
-        # surfacewater_longterm_discharge (units: m3/s)
-        # surfacewater_longterm_runoff     (units: m/day)
+        # long-term water availability: groundwater_longterm_storage (m at the end of the time step),
+        # surfacewater_longterm_discharge (m3/s) and surfacewater_longterm_runoff (m/day)
         self.groundwater_longterm_storage = groundwater_longterm_storage
         self.surfacewater_longterm_discharge = surfacewater_longterm_discharge
         self.surfacewater_longterm_runoff = surfacewater_longterm_runoff
 
-        # set a list of sorted dates of long-term water availability
+        # sorted dates of the long-term water availability
         self.groundwater_longterm_storage_dates = sorted(
             list(self.groundwater_longterm_storage.keys())
         )
@@ -588,58 +531,49 @@ total_return_flow_ini                      : total return flow [m3/day]
             list(self.surfacewater_longterm_runoff.keys())
         )
 
-        # water demands
+        # long-term sectoral gross water demands (m/day) and their sorted dates
         for sector_name in self.sector_names:
-            # set long-term sectoral gross water demands
-            # (units: m/day)
             setattr(
                 self,
                 "gross_demand_longterm_%s" % sector_name,
                 gross_demand_longterm[sector_name],
             )
 
-            # set a list of sorted dates of long-term sectoral gross water demands
             setattr(
                 self,
                 "gross_demand_longterm_%s_dates" % sector_name,
                 sorted(list(gross_demand_longterm[sector_name].keys())),
             )
 
-        # pumping capacity
-        # set an initial value for surface and groundwater long-term potential
-        # withdrawal to distribute the pumping capacity (units: m3/day)
+        # initial long-term potential surface water and groundwater withdrawal, to distribute the pumping
+        # capacity (m3/day)
         for source_name in self.source_names:
             if self.pumping_capacity_flag[source_name]:
                 if source_name == "groundwater":
-                    # set long-term groundwater potential withdrawal
-                    # (units: m3/day)
+                    # long-term groundwater potential withdrawal (m3/day) and its sorted dates
                     self.groundwater_longterm_potential_withdrawal = (
                         longterm_potential_withdrawal[source_name]
                     )
 
-                    # set a list of sorted dates of long-term groundwater potential withdrawal
                     self.groundwater_longterm_pot_withdrawal_dates = sorted(
                         list(self.groundwater_longterm_potential_withdrawal.keys())
                     )
 
                 if source_name == "surfacewater":
-                    # set long-term surfacewater potential withdrawal
-                    # (units: m3/day)
+                    # long-term surface water potential withdrawal (m3/day) and its sorted dates
                     self.surfacewater_longterm_potential_withdrawal = (
                         longterm_potential_withdrawal[source_name]
                     )
 
-                    # set a list of sorted dates of long-term surface water potential withdrawal
                     self.surfacewater_longterm_pot_withdrawal_dates = sorted(
                         list(self.surfacewater_longterm_potential_withdrawal.keys())
                     )
 
-        # update weights
-        # set weights to update long-term water availability
+        # weights to update the long-term water availability
         self.groundwater_update_weight = groundwater_update_weight
         self.surfacewater_update_weight = surfacewater_update_weight
 
-        # set weights to update long-term sectoral gross water demand
+        # weights to update the long-term sectoral gross water demand
         for sector_name in self.sector_names:
             setattr(
                 self,
@@ -647,21 +581,18 @@ total_return_flow_ini                      : total return flow [m3/day]
                 gross_demand_update_weight[sector_name],
             )
 
-        # get the total (annual weighted average) long-term availability
-        # they keep the same units as their correspondent monthly long-term counterparts
+        # total (annual weighted average) long-term availability, in the units of the monthly values
         self.groundwater_total_storage = pcr.scalar(0)
         self.surfacewater_total_discharge = pcr.scalar(0)
         self.surfacewater_total_runoff = pcr.scalar(0)
         self.update_annual_water_availability()
 
-        # get the total (annual weighted average) long-term demand
-        # (units: m3/day)
+        # total (annual weighted average) long-term demand (m3/day)
         for sector_name in self.sector_names:
             setattr(self, "gross_demand_total_%s" % sector_name, pcr.scalar(0))
         self.update_annual_water_demand()
 
-        # [ initialize outputs ]
-        # set the sectoral gross and net water demand as volume per cell
+        # sectoral gross and net water demand per cell (volume)
         self.gross_demand = dict(
             (sector_name, pcr.spatial(pcr.scalar(0)))
             for sector_name in self.sector_names
@@ -671,9 +602,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # set the total gross and net demand per cell
-        # as well as the consumption and return flows,
-        # the total withdrawal and total allocated demand
+        # total gross and net demand, consumption, return flow, total withdrawal and total allocated
+        # demand per cell
         self.total_gross_demand = pcr.spatial(pcr.scalar(0))
         self.total_net_demand = pcr.spatial(pcr.scalar(0))
         self.total_consumption = pcr.spatial(pcr.scalar(0))
@@ -681,14 +611,13 @@ total_return_flow_ini                      : total return flow [m3/day]
         self.total_withdrawal = pcr.spatial(pcr.scalar(0))
         self.total_allocation = pcr.spatial(pcr.scalar(0))
 
-        # use the input for the total return flow if provided
-        # (units: m3/day)
+        # use the initial total return flow if provided (m3/day)
         if not isinstance(total_return_flow_ini, NoneType):
             self.total_return_flow = pcr.cover(
                 pcr.scalar(total_return_flow_ini), self.total_return_flow
             )
 
-        # initialize the potetial renewable and non-renewable withdrawal for the sources
+        # potential renewable and non-renewable withdrawal per source
         self.potential_renewable_withdrawal = dict(
             (source_name, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
@@ -698,7 +627,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # idem for the actual ones
+        # actual renewable and non-renewable withdrawal per source
         self.actual_renewable_withdrawal = dict(
             (source_name, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
@@ -708,7 +637,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # idem for the unused withdrawal
+        # unused renewable and non-renewable withdrawal per source
         self.unused_renewable_withdrawal = dict(
             (source_name, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
@@ -718,10 +647,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # allocated withdrawal and demand, organized as nested dictionaries
-        # with combined withdrawal / source names as key of a dictionary
-        # with the sector names as key, as well as the consumption and
-        # return flow at the cell level on the basis of the allocation per cell
+        # allocated withdrawal and demand as nested dictionaries (combined withdrawal/source name, then
+        # sector name), and the consumption and return flow per cell from the allocation
         self.consumed_demand_per_sector = {}
         self.return_flow_demand_per_sector = {}
         self.allocated_withdrawal_per_sector = {}
@@ -769,9 +696,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             (sector_name, pcr.spatial(pcr.scalar(0))) for sector_name in sector_names
         )
 
-        # [ states ]
-        # set the state names
-        # availability
+        # state names: availability
         self.report_state_info = {
             "total_return_flow": "total_return_flow",
             "surfacewater_longterm_discharge": "surfacewater_longterm_discharge",
@@ -796,8 +721,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         "surfacewater_longterm_potential_withdrawal"
                     ] = "surfacewater_longterm_potential_withdrawal"
 
-        # [ reporting ]
-        # create message string on the selected processing
+        # log the selected processing options
         message_str = "water demand options are processed with the following options:"
         for option_str in [
             "time_increment",
@@ -848,10 +772,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 ),
             )
 
-        # log message_str
         logger.info(message_str)
 
-        # returns None
         return None
 
     def update_annual_water_availability(self):
@@ -859,14 +781,11 @@ total_return_flow_ini                      : total return flow [m3/day]
         update the total water availability over the year.
         """
 
-        # log message
         logger.info("annual water availability updated")
 
-        # weights the dates as a dictionary with the latter as key
-        # to get an annual weighted average
+        # annual weighted averages, with the dates as keys
 
-        # update the long-term total groundwater availability (storage)
-        # (units: m at the end of the time-step)
+        # long-term total groundwater availability (storage, m at the end of the time step)
         weights = get_weights_from_dates(self.groundwater_longterm_storage_dates)
         self.groundwater_total_storage = sum(
             list(
@@ -875,8 +794,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
         )
 
-        # update the long-term total surface water availability (discharge)
-        # (units: m3/s)
+        # long-term total surface water availability (discharge, m3/s)
         weights = get_weights_from_dates(self.surfacewater_longterm_discharge_dates)
         self.surfacewater_total_discharge = sum(
             list(
@@ -885,8 +803,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
         )
 
-        # update the long-term total surface water availability (runoff)
-        # (units: m/day)
+        # long-term total surface water availability (runoff, m/day)
         weights = get_weights_from_dates(self.surfacewater_longterm_runoff_dates)
         self.surfacewater_total_runoff = sum(
             list(
@@ -895,7 +812,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
         )
 
-        # returns None
         return None
 
     def update_annual_water_demand(self):
@@ -903,11 +819,9 @@ total_return_flow_ini                      : total return flow [m3/day]
         update the total water availability over the year.
         """
 
-        # log message
         logger.info("annual gross water demands updated")
 
-        # update the long-term total sectoral gross water demands
-        # (units: m3/day)
+        # long-term total sectoral gross water demands (m3/day)
         for sector_name in self.sector_names:
             var_value = getattr(self, "gross_demand_longterm_%s" % sector_name)
             var_dates = getattr(self, "gross_demand_longterm_%s_dates" % sector_name)
@@ -918,7 +832,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 sum(list(weights[date] * var_value[date] for date in var_dates)),
             )
 
-        # returns None
         return None
 
     def update_withdrawal_capacity(
@@ -948,14 +861,10 @@ total_return_flow_ini                      : total return flow [m3/day]
         date                   : string, date of the update
         """
 
-        # scale the regional pumping capacity to the extension of the land mask
-        # and convert units of regional pumping limit:
-        # from billion cubic meters to cubic meters (per year)
-        # (units: m3/year)
+        # scale the regional pumping capacity to the land mask and convert from billion m3 to m3 per year
         regional_pumping_limit = regional_pumping_limit * region_ratios * 1000000000
 
-        # define the long-term potential withdrawal per source
-        # (units: m3/day)
+        # long-term potential withdrawal per source (m3/day)
         if source_name == "groundwater":
             longterm_potential_withdrawal = deepcopy(
                 self.groundwater_longterm_potential_withdrawal
@@ -965,8 +874,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.surfacewater_longterm_potential_withdrawal
             )
 
-        # calculate the rate of water available during the specified month
-        # (units: m3/m3)
+        # rate of water available during the month (m3/m3)
         maximum_monthly_longterm_potential_withdrawal = max_dicts(
             longterm_potential_withdrawal
         )
@@ -981,8 +889,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             very_small_number,
         )
 
-        # update the variable corresponding to the water withdrawal capacity
-        # (units: m3/day)
+        # withdrawal capacity (m3/day)
         withdrawal_capacity = (
             regional_pumping_limit * withdrawal_rate / (12 * time_step_length)
         )
@@ -1032,44 +939,31 @@ total_return_flow_ini                      : total return flow [m3/day]
                                     availability (m3/day)
         """
 
-        # set the message string to log the information
         message_str = (
             "Long-term water availability for %s base on %s time increment"
             % (date, self.time_increment)
         )
 
-        # initialize the monthly average variables
         self.average_groundwater_storage = pcr.spatial(pcr.scalar(0))
         self.average_surfacewater_discharge = pcr.spatial(pcr.scalar(0))
         self.average_surfacewater_runoff = pcr.spatial(pcr.scalar(0))
 
-        # get long-term water availability
-        #
-        # 1st set values from long-term availability
-        # 2nd patch NaNs with pumping capacity (if available)
-        # 3rd fill NaNs with zeros
-        # 4th limit the availability to pumping capacity (if available) and withdrawal points
+        # long-term water availability: set the long-term values, patch missing values with the pumping
+        # capacity (if available), fill the rest with zeros, and limit the availability to the pumping
+        # capacity (if available) and the withdrawal points
 
-        # [ set long-term water availability ] .........................
-        # and panic if it is a missing value ;-p
         if self.time_increment == "monthly":
-            # get the groundwater and surface water availabilty for the matching date
+            # groundwater and surface water availability for the matching date
 
-            # [ groundwater ]
-            # get the time step to update the groundwater availability:
-            # groundwater_storage (units: m per day)
+            # groundwater storage (m per day)
             date_index, matched_date, sub_message_str = match_date_by_julian_number(
                 date, self.groundwater_longterm_storage_dates
             )
             groundwater_storage = self.groundwater_longterm_storage[matched_date]
 
-            # add the message on the matching date to the string
             message_str = str.join("\n", (message_str, sub_message_str))
 
-            # [ surface water ]
-            # get the time step to update the surface water availability:
-            # surfacewater_discharge (units: m3/s)
-            # surfacewater_runoff     (units: m/day)
+            # surface water discharge (m3/s) and runoff (m/day)
             date_index, matched_date, sub_message_str = match_date_by_julian_number(
                 date, self.surfacewater_longterm_discharge_dates
             )
@@ -1080,14 +974,10 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
             surfacewater_runoff = self.surfacewater_longterm_runoff[matched_date]
 
-            # add the message on the matching date to the string
             message_str = str.join("\n", (message_str, sub_message_str))
 
         elif self.time_increment == "yearly":
-            # set the long-term total availability
-            # groundwater_storage    (units: m per day)
-            # surfacewater_discharge (units: m3/s)
-            # surfacewater_runoff     (units: m/day)
+            # long-term totals: groundwater storage (m per day), surface water discharge (m3/s) and runoff (m/day)
             groundwater_storage = self.groundwater_total_storage
             surfacewater_discharge = self.surfacewater_total_discharge
             surfacewater_runoff = self.surfacewater_total_runoff
@@ -1098,19 +988,13 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
             sys.exit()
 
-        # get the surface and groundwater availability for date
-        #
-        # [ surface water ]
-        # get the average daily discharge by adding the discharge from
-        # the cell upstream and the total runoff of the same cell
-        # (units: m3/s)
+        # surface water: average daily discharge from the upstream cell plus the total runoff of this cell (m3/s)
         discharge = (
             pcr.upstream(ldd, surfacewater_discharge)
             + surfacewater_runoff * self.cellarea / time_step_seconds
         )
 
-        # get the average daily water depth corresponding to this discharge
-        # (units: m per day)
+        # average daily water depth for this discharge (m per day)
         channel_depth = estimate_waterdepth_from_discharge(
             discharge=discharge,
             waterdepth=waterdepth,
@@ -1119,14 +1003,13 @@ total_return_flow_ini                      : total return flow [m3/day]
             channel_gradient=channel_gradient,
         )
 
-        # get the surface water availability (units: m3/day)
+        # surface water availability (m3/day)
         surfacewater_availability = channel_depth * channel_width * channel_length
 
-        # [ groundwater ]
-        # get the groundwater availability (units: m3/day)
+        # groundwater availability (m3/day)
         groundwater_availability = groundwater_storage * self.cellarea
 
-        # patch to exclude non-zero availability
+        # exclude non-zero availability
         groundwater_availability = pcr.ifthen(
             groundwater_availability >= 0, groundwater_availability
         )
@@ -1134,10 +1017,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             surfacewater_availability >= 0, surfacewater_availability
         )
 
-        # update the availability (depending on the pumping capacity)
-        # check on possible missing data; note that updates on the local variable
-        # water availability do not interact with the long-term availability
-        # stored internally to the instance of the water management module
+        # check for missing data; updates of the local availability do not affect the long-term
+        # availability stored in the water management instance
         missing_availability = self.landmask & (
             pcr.pcrnot(pcr.defined(groundwater_availability))
             | pcr.pcrnot(pcr.defined(surfacewater_availability))
@@ -1146,22 +1027,20 @@ total_return_flow_ini                      : total return flow [m3/day]
             pcr.cellvalue(pcr.mapmaximum(pcr.scalar(missing_availability)), 1)[0] == 1
         )
 
-        # if cells are missing, first patch with the pumping capacity if available
-        # [ groundwater ]
+        # patch missing cells with the pumping capacity if available: groundwater
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
             groundwater_availability = pcr.cover(
                 groundwater_availability, self.groundwater_withdrawal_capacity
             )
-        # [ surface water ]
+        # surface water
         if not isinstance(self.surfacewater_withdrawal_capacity, NoneType):
             surfacewater_availability = pcr.cover(
                 surfacewater_availability, self.surfacewater_withdrawal_capacity
             )
 
-        # set the warning on the flag of missing availability and if no capacity is defined
+        # warn if availability is missing and no capacity is defined
         if missing_availability_flag:
 
-            # add the warning to the message string
             message_str = str.join(
                 "\n",
                 (
@@ -1209,7 +1088,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             self.landmask, pcr.cover(groundwater_availability, 0)
         )
 
-        # and limit the availability to the pumping capacity
+        # limit the availability to the pumping capacity
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
             message_str = str.join(
                 "\n",
@@ -1234,7 +1113,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.surfacewater_withdrawal_capacity, surfacewater_availability
             )
 
-        # and the availability to the withdrawal points
+        # and to the withdrawal points
         groundwater_availability = pcr.ifthenelse(
             pcr.scalar(self.groundwater_withdrawal_points) != 0,
             groundwater_availability,
@@ -1246,7 +1125,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             0,
         )
 
-        # return the surface and groundwater long-term availability
         return surfacewater_availability, groundwater_availability
 
     def get_longterm_demand_for_date(self, date):
@@ -1266,49 +1144,40 @@ total_return_flow_ini                      : total return flow [m3/day]
                                   for the current day
         """
 
-        # set the message string to log the information
         message_str = (
             "Long-term sectoral gross water demand for %s base on %s time increment"
             % (date, self.time_increment)
         )
 
-        # initialize the gross demand per sector
         gross_demand_per_sector = dict(
             (sector_name, pcr.spatial(pcr.scalar(0)))
             for sector_name in self.sector_names
         )
 
-        # initialize the monthly average gross demand per sector
         self.average_gross_demand = dict(
             (sector_name, pcr.spatial(pcr.scalar(0)))
             for sector_name in self.sector_names
         )
 
-        # set long-term sectoral gross water demand as a dictionary
-        # (units: m/day)
+        # long-term sectoral gross water demand (m/day)
         if self.time_increment == "monthly":
 
-            # get the water demand per sector for the matching date
+            # water demand per sector for the matching date
             for sector_name in self.sector_names:
-                # get the variable names
                 var_value = getattr(self, "gross_demand_longterm_%s" % sector_name)
                 var_dates = getattr(
                     self, "gross_demand_longterm_%s_dates" % sector_name
                 )
 
-                # get the time step to update the sectoral water demand
-                # (units: m/day)
                 date_index, matched_date, sub_message_str = match_date_by_julian_number(
                     date, var_dates
                 )
                 gross_demand_per_sector[sector_name] += var_value[matched_date]
 
-                # add the message on the matching date to the string
                 message_str = str.join("\n", (message_str, sub_message_str))
 
         elif self.time_increment == "yearly":
-            # set the long-term annual sectoral gross demand
-            # (units: m/day)
+            # long-term annual sectoral gross demand (m/day)
             for sector_name in self.sector_names:
                 gross_demand_per_sector[sector_name] += getattr(
                     self, "gross_demand_total_%s" % sector_name
@@ -1320,22 +1189,18 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
             sys.exit()
 
-        # convert units and cover long-term sectoral gross water demand
-        # (units: m3/day)
+        # convert the long-term sectoral gross water demand to volume and cover with zeros over the
+        # land mask (m3/day)
         for sector_name in self.sector_names:
 
-            # convert units from water slice to volume
             gross_demand_per_sector[sector_name] = (
                 gross_demand_per_sector[sector_name] * self.cellarea
             )
 
-            # cover the demand with zeros over the land mask
             gross_demand_per_sector[sector_name] = pcr.ifthen(
                 self.landmask, pcr.cover(gross_demand_per_sector[sector_name], 0)
             )
 
-        # return gross demand per sector
-        # (units: m3/day)
         return gross_demand_per_sector
 
     def update_water_demand_for_date(self, gross_demand, net_demand, date):
@@ -1353,7 +1218,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         date          : date of the update.
         """
 
-        # set the sectoral gross and net water demand
         self.gross_demand = dict(
             (sector_name, pcr.spatial(pcr.scalar(0)))
             for sector_name in self.sector_names
@@ -1363,46 +1227,31 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # iterate over the sector names and update the values if applicable
         for sector_name in self.sector_names:
 
-            # [ gross demand ]
+            # gross demand (m3/day)
             if sector_name in gross_demand.keys():
 
-                # log message
                 logger.debug("%s gross water demand set for %s" % (sector_name, date))
 
-                # set the value (units: m3/day)
                 self.gross_demand[sector_name] = gross_demand[sector_name]
 
-                # add the gross demand to the long-term gross demand for the
-                # present date
-
-            # [ net demand ]
+            # net demand (m3/day)
             if sector_name in net_demand.keys():
 
-                # log message
                 logger.debug("%s net water demand set for %s" % (sector_name, date))
 
-                # set the value(units: m3/day)
                 self.net_demand[sector_name] = net_demand[sector_name]
 
-                # add the net demand to the long-term net demand for the
-                # present date
-
-        # get the totals: gross and net
-        # (units: m3/day)
+        # total gross and net demand (m3/day)
         self.total_gross_demand = sum_list(list(self.gross_demand.values()))
         self.total_net_demand = sum_list(list(self.net_demand.values()))
 
-        # create an updateable gross demand variable
-        # (units: m3/day)
+        # updatable gross demand (m3/day)
         self.gross_demand_remaining = deepcopy(self.gross_demand)
 
-        # log message
         logger.debug("total gross and net demand set for %s" % date)
 
-        # returns None
         return None
 
     def allocate_desalinated_water_for_date(self, availability, date):
@@ -1423,11 +1272,9 @@ total_return_flow_ini                      : total return flow [m3/day]
         date         : date of the update
         """
 
-        # set the message string to log the information
         message_str = "Desalinated water use for %s." % (date)
 
-        # [ set up input data ] .............................................................................................
-        # define starting conditions
+        # input data
         remaining_availability = deepcopy(availability)
 
         unmet_demand_per_sector = deepcopy(self.gross_demand)
@@ -1457,29 +1304,23 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # define allocation zones
         zones_per_sector = self.desalwater_allocation_zones
         zones = self.desalwater_allocation_zones["domestic"]
 
-        # define suitability masks of water quality per sector
-        # considering a perfect water suitability after desalination
-        # (suitability = 1)
+        # desalinated water is perfectly suitable for all sectors (suitability = 1)
         suitability_per_sector = dict(
             (sector_name, pcr.spatial(pcr.scalar(1)))
             for sector_name in self.sector_names
         )
 
-        # define initial exit conditions
         iter_allocation = 1
         exit_condition = False
         max_iter_allocation = 25
 
-        # [ start water distribution ] ......................................................................................
-        # iterate until either the demand is met or the supply is exhausted
+        # distribute water until the demand is met or the supply is exhausted
         while not exit_condition:
 
-            # define initial values of zonal demand and supply
-            # (units: m3/day)
+            # initial zonal demand and supply (m3/day)
             if iter_allocation == 1:
                 totz_demand_old = get_zonal_total(
                     local_values=pcr.max(
@@ -1495,7 +1336,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 totz_demand_old = deepcopy(total_zonal_demand)
                 totz_supply_old = deepcopy(total_zonal_supply)
 
-            # define water availability weights per sector accounting for water quality
+            # water availability weights per sector, accounting for water quality
             source_name = "desalwater"
             weights_per_sector = self.water_quality.get_weights_availability_per_sector(
                 source_name=source_name,
@@ -1507,17 +1348,15 @@ total_return_flow_ini                      : total return flow [m3/day]
                 zones_per_sector=zones_per_sector,
             )
 
-            # evaluate potential water withdrawal
-            # allocate the sectoral gross demand for current day to the demand,
-            # return the withdrawal, allocated demand, met and unmet demands per sector
+            # allocate the sectoral gross demand of the current day and return the withdrawal, allocated,
+            # met and unmet demands per sector
             for sector_name in self.sector_names:
 
-                # calculate the assigned available water per sector
+                # available water assigned per sector
                 remaining_availability_sector = (
                     remaining_availability * weights_per_sector[sector_name]
                 )
 
-                # calculate water withdrawal and allocation
                 (
                     tmp_withdrawal,
                     tmp_allocated_demand,
@@ -1533,7 +1372,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     reallocate_surplus=self.reallocate_surplus,
                 )
 
-                # update water withdrawal and demand values
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
                 )
@@ -1551,13 +1389,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                     + tmp_allocated_demand["desalwater"]
                 )
 
-            # aggregate withdrawals and allocations by source
+            # aggregate withdrawals and allocations
             withdrawal = sum_list(list(withdrawal_per_sector.values()))
 
-            # update remaining water available
             remaining_availability = pcr.max(0, availability - withdrawal)
 
-            # update iteration number and exit condition
+            # update the iteration number and exit condition
             total_zonal_demand = get_zonal_total(
                 local_values=sum_list(list(unmet_demand_per_sector.values())),
                 zones=zones,
@@ -1575,10 +1412,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 pcr.cellvalue(pcr.mapmaximum(pcr.scalar(update_mask)), 1)[0] == 0
             ) | (iter_allocation > max_iter_allocation)
 
-        # [ ends water distribution ] .......................................................................................
-
-        # set desalinated withdrawals and allocation per sector and total
-        # (units: m3/day)
+        # desalinated withdrawals and allocation per sector and total (m3/day)
         self.allocated_withdrawal_per_sector_desalwater = dict(
             (sector_name, withdrawal_per_sector[sector_name])
             for sector_name in self.sector_names
@@ -1595,18 +1429,14 @@ total_return_flow_ini                      : total return flow [m3/day]
             list(self.allocated_demand_per_sector_desalwater.values())
         )
 
-        # update gross sectoral demands substracting the met demand per sector
-        # using desalinated water;
-        # Note: met demands for irrigation, thermoelectric and environment are zero
-        # (units: m3/day)
+        # subtract the demand met by desalinated water from the gross sectoral demands; the met demands
+        # of irrigation, thermoelectric and environment are zero (m3/day)
         for sector_name in self.sector_names:
             self.gross_demand_remaining[sector_name] = pcr.max(
                 0.0, self.gross_demand[sector_name] - met_demand_per_sector[sector_name]
             )
 
-        # update the message str
         message_str = str.join("\n", (message_str, sub_message_str))
-        # log message
         logger.debug(message_str)
 
         return None
@@ -1641,14 +1471,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                        per cell per source
         """
 
-        # set the message string to log the information
         message_str = (
             "Potential water withdrawals estimated for %s based on the %s long-term availability."
             % (date, self.time_increment)
         )
 
-        # [ initialize variables ] ..........................................................................................
-        # potetial renewable and non-renewable withdrawal for the sources
+        # potential renewable and non-renewable withdrawal per source
         self.potential_renewable_withdrawal = dict(
             (source_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0))))
             for source_name in self.source_names
@@ -1678,7 +1506,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # actual renewable and non-renewable withdrawal for the sources
+        # actual renewable and non-renewable withdrawal per source
         self.actual_renewable_withdrawal = dict(
             (source_name, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
@@ -1708,9 +1536,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # [ dictionaries ]
-        # create a dictionaries of the allocation zones, withdrawal capacities and
-        # withdrawal points
+        # dictionaries of the allocation zones, withdrawal capacities and withdrawal points
         withdrawal_capacity = {
             "surfacewater": self.surfacewater_withdrawal_capacity,
             "groundwater": self.groundwater_withdrawal_capacity,
@@ -1726,11 +1552,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             "groundwater": self.groundwater_allocation_zones,
         }
 
-        # [ potential renewable withdrawal ] ................................................................................
-        #
-        # allocate the total gross demand for the current period to the demand
-        # and return the withdrawal, allocated demand and the met and unmet demands
-        # (units: m3/day)
+        # potential renewable withdrawal: allocate the total gross demand of the current period and return
+        # the withdrawal, allocated, met and unmet demands (m3/day)
         withdrawal_per_sector, met_demand_per_sector, sub_message_str = (
             self.allocate_demand_to_renewable_sources(
                 availability=availability,
@@ -1742,7 +1565,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
         )
 
-        # set potential renewable withdrawals per sector, met demands per sector
+        # potential renewable withdrawals and met demands per sector
         self.potential_renewable_withdrawal_per_sector = dict(
             (
                 source_name,
@@ -1767,7 +1590,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # aggregate and set potential renewable withdrawals, met and unmet demands
+        # aggregate the potential renewable withdrawals and met and unmet demands
         met_demand = sum_list(list(met_demand_per_sector.values()))
         unmet_demand = sum_list(list(unmet_demand_per_sector.values()))
         self.potential_renewable_withdrawal = dict(
@@ -1784,17 +1607,11 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # log the message
         logger.debug(sub_message_str)
 
-        # [ potential non-renewable withdrawal ] ............................................................................
-        #
-        # update the potential non-renewable withdrawal with the unmet
-        # demand from groundwater only according to the potential
-        # sources set in sources_unmet_demand for non-renewable withdrawals
-        # if no source for unsustainable abstraction is chosen,
-        # only sustainable withdrawals are allowed
-        # (units: m3/day)
+        # potential non-renewable withdrawal: add the unmet demand from groundwater only, following
+        # sources_unmet_demand; if no source for unsustainable abstraction is chosen, only sustainable
+        # withdrawals are allowed (m3/day)
         source_name = "groundwater"
         self.allocate_unmet_demand_to_nonrenewable_sources(
             unmet_demand_per_sector=unmet_demand_per_sector,
@@ -1803,7 +1620,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             withdrawal_points=withdrawal_points,
         )
 
-        # add the information to the message str
         sub_message_str = str.join(
             " ",
             (
@@ -1823,17 +1639,11 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         message_str = str.join("\n", (message_str, sub_message_str))
 
-        # log the message
         logger.info(message_str)
 
-        # [ potential withdrawal ] ..........................................................................................
-        #
-        # set the ideal surface water and groundwater potential withdrawal
-        # later used to update the long-term potential withdrawal
-        # note:
-        #      unmet_demand_per_sector['thermoelectric'] was popped out in
-        #      allocated_unmet_demand_to_nonrenewable_sources
-        # (units: m3/day)
+        # ideal surface water and groundwater potential withdrawal, used to update the long-term potential
+        # withdrawal; unmet_demand_per_sector['thermoelectric'] was popped in
+        # allocated_unmet_demand_to_nonrenewable_sources (m3/day)
         self.surfacewater_potential_estimated_withdrawal = deepcopy(
             self.potential_renewable_withdrawal["surfacewater"]
         )
@@ -1842,11 +1652,9 @@ total_return_flow_ini                      : total return flow [m3/day]
             + sum_list(list(unmet_demand_per_sector.values()))
         )
 
-        # [ water balance check ] ...........................................................................................
+        # water balance check
         if debug:
-            # evaluate the water balance comparing per sector:
-            # 1) long-term gross demands
-            # 2) long-term potential water withdrawals
+            # per sector: long-term gross demands vs. long-term potential withdrawals
             for sector_name in self.sector_names:
                 water_balance_check(
                     states_ini=[demand[sector_name]],
@@ -1871,9 +1679,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     date=date,
                 )
 
-            # evaluate the water balance comparing per source:
-            # 1) long-term waer availabiliy
-            # 2) long-term potential water withdrawals
+            # per source: long-term water availability vs. long-term potential withdrawals
             for source_name in self.source_names:
                 water_balance_check(
                     states_ini=[availability[source_name]],
@@ -1889,9 +1695,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     date=date,
                 )
 
-            # evaluate the water balance comparing per source:
-            # 1) pumping capacity
-            # 2) long-term potential water withdrawals
+            # per source: pumping capacity vs. long-term potential withdrawals
             for source_name in self.source_names:
                 if self.pumping_capacity_flag[source_name]:
                     water_balance_check(
@@ -1916,7 +1720,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        # returns none
         return None
 
     def allocate_demand_to_renewable_sources(
@@ -1955,8 +1758,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         message_str           : output message
         """
 
-        # [ set up input data ] .............................................................................................
-        # define starting conditions
+        # input data
         remaining_availability = deepcopy(availability)
         unmet_demand_per_sector = deepcopy(demand_per_sector)
 
@@ -1990,19 +1792,18 @@ total_return_flow_ini                      : total return flow [m3/day]
             for source_name in self.source_names
         )
 
-        # define allocation zones
-        # domestic sector typically has the largest zone
+        # allocation zones (the domestic sector typically has the largest zone)
         zones = {
             "surfacewater": zones_per_sector["surfacewater"]["domestic"],
             "groundwater": zones_per_sector["groundwater"]["domestic"],
         }
 
-        # get long-term quality state for current date
+        # long-term quality state for the current date
         constituent_longterm_states = self.water_quality.get_longterm_quality_for_date(
             source_names=self.source_names, date=date
         )
 
-        # define suitability masks of water quality per sector and source
+        # water quality suitability masks per sector and source
         self.suitability_per_sector = {}
         for source_name in self.source_names:
             self.suitability_per_sector[source_name] = (
@@ -2012,18 +1813,16 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-        # define initial exit conditions
         iter_allocation = 1
         exit_condition = False
         max_iter_allocation = 25
         totz_demand_old = {}
         totz_supply_old = {}
 
-        # [ start water distribution ] ......................................................................................
-        # iterate until either the demand is met or the supply is exhausted
+        # distribute water until the demand is met or the supply is exhausted
         while not exit_condition:
 
-            # define initial values of zonal demand and supply
+            # initial zonal demand and supply
             for source_name in self.source_names:
                 if iter_allocation == 1:
                     totz_demand_old[source_name] = get_zonal_total(
@@ -2045,10 +1844,9 @@ total_return_flow_ini                      : total return flow [m3/day]
                         total_zonal_supply[source_name]
                     )
 
-            # evaluate potential water withdrawal
-            # define water availability weights per sector accounting for water quality
+            # water availability weights per sector, accounting for water quality
 
-            # [ surfacewater ]
+            # surface water
             source_name = "surfacewater"
             unmet_demand_per_sector_surfacewater = deepcopy(unmet_demand_per_sector)
             weights_surfacewater_per_sector = (
@@ -2063,18 +1861,17 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-            # [ groundwater ]
+            # groundwater
             source_name = "groundwater"
             unmet_demand_per_sector_groundwater = deepcopy(unmet_demand_per_sector)
 
-            # if thermoelectric sector or environmental flow requirements are evaluated
+            # thermoelectric sector or environmental flow requirements
             for sector_name in self.sectors_local_surfacewater:
                 if sector_name in self.sector_names:
                     unmet_demand_per_sector_groundwater[sector_name] = pcr.spatial(
                         pcr.scalar(0)
                     )
 
-            # get the weights
             weights_groundwater_per_sector = (
                 self.water_quality.get_weights_availability_per_sector(
                     source_name=source_name,
@@ -2087,11 +1884,11 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-            # allocate the sectoral gross demand for current period to the demand
-            # and return the withdrawal, allocated demand and the met and unmet demands per sector
+            # allocate the sectoral gross demand of the current period and return the withdrawal, allocated,
+            # met and unmet demands per sector
             for sector_name in self.sector_names:
 
-                # calculate the assigned available water per sector
+                # available water assigned per sector
                 remaining_availability_surfacewater_sector = (
                     remaining_availability["surfacewater"]
                     * weights_surfacewater_per_sector[sector_name]
@@ -2104,7 +1901,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     * self.suitability_per_sector["groundwater"][sector_name]
                 )
 
-                # calculate water withdrawal and allocation
                 (
                     tmp_withdrawal,
                     tmp_allocated_demand,
@@ -2126,7 +1922,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     reallocate_surplus=reallocate_surplus,
                 )
 
-                # update water withdrawal and demand values
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
                 )
@@ -2146,7 +1941,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         + tmp_allocated_demand[source_name]
                     )
 
-            # aggregate withdrawals and allocations by source
+            # aggregate withdrawals and allocations per source
             withdrawal = dict(
                 (
                     source_name,
@@ -2162,13 +1957,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                 for source_name in self.source_names
             )
 
-            # update remaining water available
             for source_name in self.source_names:
                 remaining_availability[source_name] = pcr.max(
                     0, availability[source_name] - withdrawal[source_name]
                 )
 
-            # update iteration number and exit condition
+            # update the iteration number and exit condition
             total_zonal_demand = {}
             total_zonal_supply = {}
             for source_name in self.source_names:
@@ -2194,7 +1988,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 pcr.cellvalue(pcr.mapmaximum(pcr.scalar(update_mask)), 1)[0] == 0
             ) | (iter_allocation > max_iter_allocation)
 
-        # return potential withdrawals and met demand per sector
         return withdrawal_per_sector, met_demand_per_sector, message_str
 
     def allocate_unmet_demand_to_nonrenewable_sources(
@@ -2225,25 +2018,21 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         message_str = "Non-renewable withdrawals are assigned to the following sources"
 
-        # set variables
         source_name = "groundwater"
         availability = deepcopy(self.potential_renewable_withdrawal[source_name])
         suitability = deepcopy(self.suitability_per_sector[source_name])
         zones = deepcopy(zones_per_sector[source_name])
         withdrawal_capacity = deepcopy(withdrawal_capacity[source_name])
 
-        # filter sectors that can withdraw water also from groundwater
-        # and unmet demands from these sectors
+        # sectors that can also withdraw groundwater, and their unmet demands
         sector_names = deepcopy(self.sector_names)
         for sector_name in self.sectors_local_surfacewater:
             if sector_name in self.sector_names:
                 sector_names.remove(sector_name)
                 unmet_demand_per_sector.pop(sector_name)
 
-        # define remaining withdrawal capacity (if defined) per sector
-        # note:
-        # potential non-renewable withdrawal is also accounted for,
-        # being this variable zero during the beginning of the allocation process
+        # remaining withdrawal capacity per sector (if defined); includes the potential non-renewable
+        # withdrawal, which is zero at the start of the allocation
         if not isinstance(withdrawal_capacity, NoneType):
             withdrawal_capacity_remaining = pcr.max(
                 0,
@@ -2271,15 +2060,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                     withdrawal_capacity_remaining * sector_rate
                 )
 
-        # get the availability per sector considering the water quality,
-        # note that this favours pumping capacity in case water is unavailable
-        # so highlights non-renewable withdrawals
+        # availability per sector considering water quality; this favours the pumping capacity if water
+        # is unavailable, highlighting non-renewable withdrawals
         for sector_name in sector_names:
 
-            # define the withdrawal capacity
-            # if it is not defined, it takes the minimum availability value if
-            # it is not zero, else it makes it 1 to ensure water can always be
-            # withdrawn
+            # withdrawal capacity; if undefined, the minimum non-zero availability, else 1, so water can
+            # always be withdrawn
             if not isinstance(withdrawal_capacity, NoneType):
                 capacity = withdrawal_capacity_remaining
                 availability_per_sector = capacity * suitability[sector_name]
@@ -2293,16 +2079,14 @@ total_return_flow_ini                      : total return flow [m3/day]
                     capacity * suitability[sector_name],
                 )
 
-            # define the availability considering the sectoral water quality
-            # requirements only from the points where water can be withdrawn
+            # availability considering the sectoral water quality requirements, only at the withdrawal points
             availability_per_sector = pcr.ifthenelse(
                 pcr.scalar(withdrawal_points[source_name]) > 0,
                 availability_per_sector,
                 0,
             )
 
-            # get the potential non-renewable withdrawal per sector
-            # (units: m3/day)
+            # potential non-renewable withdrawal per sector (m3/day)
             allocation_rate = pcr_return_val_div_zero(
                 availability_per_sector,
                 get_zonal_total(availability_per_sector, zones[sector_name]),
@@ -2313,14 +2097,14 @@ total_return_flow_ini                      : total return flow [m3/day]
                 unmet_demand_per_sector[sector_name], zones[sector_name]
             )
 
-            # evaluate if pumping capacity limits the allocated demand
+            # whether the pumping capacity limits the allocated demand
             if not isinstance(withdrawal_capacity, NoneType):
                 allocated_demand = pcr.min(
                     allocated_demand,
                     withdrawal_capacity_remaining_per_sector[sector_name],
                 )
 
-            # set variable (units: m3/day)
+            # (m3/day)
             self.potential_nonrenewable_withdrawal_per_sector[source_name][
                 sector_name
             ] = (
@@ -2330,19 +2114,16 @@ total_return_flow_ini                      : total return flow [m3/day]
                 + allocated_demand
             )
 
-        # aggregate potential non-renewable withdrawal from all sectors
-        # (units: m3/day)
+        # aggregate the potential non-renewable withdrawal of all sectors (m3/day)
         self.potential_nonrenewable_withdrawal[source_name] = sum_list(
             list(
                 self.potential_nonrenewable_withdrawal_per_sector[source_name].values()
             )
         )
 
-        # log message
         message_str = str.join(": ", (message_str, source_name))
         logger.debug(message_str)
 
-        # returns None
         return None
 
     def update_shortterm_potential_withdrawals_for_date(self, date):
@@ -2352,11 +2133,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                        sectoral gross water demands per source and supply.
         """
 
-        # re-distribute the gross demand no longer needed
-        # note:
-        #   if short-term gross demands are larger than long-term expectations,
-        #   the system cannot supply this water regardless its existence due to
-        #   infrastructure limitations
+        # redistribute the gross demand that is no longer needed: if short-term gross demands exceed the
+        # long-term expectations, the system cannot supply this water due to infrastructure limitations
 
         # store the long-term variables
         if date.day == 1:
@@ -2367,12 +2145,10 @@ total_return_flow_ini                      : total return flow [m3/day]
                 ),
             }
 
-        # re-distribute water
+        # redistribute water
         for sector_name in self.sector_names:
 
-            # inititalize dictionaries
-            #  - total potential withdrawals (renewable + non-renewable) per source
-            #  - allocation zones per source
+            # total potential withdrawal (renewable + non-renewable) and allocation zones per source
             potential_withdrawal = dict(
                 (
                     source_name,
@@ -2391,7 +2167,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 "groundwater": self.groundwater_allocation_zones[sector_name],
             }
 
-            # obtain the source distribution ratio
+            # source distribution ratio
             zonal_availability, zonal_potential_allocation, allocation_ratio = (
                 obtain_allocation_ratio(
                     demand=self.gross_demand_remaining[sector_name],
@@ -2401,8 +2177,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-            # split the gross demands per water source contribution
-            # (units: m3/day)
+            # split the gross demands per water source (m3/day)
             demands_per_source = dict(
                 (
                     source_name,
@@ -2412,10 +2187,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 for source_name in self.source_names
             )
 
-            # [ updating renewable potential withdrawal ]
-            # re-distribute the gross demands over the long-term potential withdrawals
-            # for renewable resources first
-            # (units: m3/day)
+            # redistribute the gross demands over the long-term potential renewable withdrawals first (m3/day)
             distribution_ratio = dict(
                 (
                     source_name,
@@ -2446,8 +2218,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 for source_name in self.source_names
             )
 
-            # update the potential non-renewable withdrawal
-            # (units: m3/day)
+            # update the potential non-renewable withdrawal (m3/day)
             for source_name in self.source_names:
                 self.potential_renewable_withdrawal_per_sector[source_name][
                     sector_name
@@ -2458,8 +2229,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     ][sector_name],
                 )
 
-            # obtain the outstanding gross water demand
-            # (units: m3/day)
+            # outstanding gross water demand (m3/day)
             outstanding_demand = dict(
                 (
                     source_name,
@@ -2474,10 +2244,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 for source_name in self.source_names
             )
 
-            # [ updating non-renewable potential withdrawal ]
-            # re-distribute the outstanding gross demands over the long-term potential withdrawals
-            # from non-renewable sources finally
-            # (units: m3/day)
+            # then redistribute the outstanding gross demands over the long-term potential non-renewable
+            # withdrawals (m3/day)
             distribution_ratio = dict(
                 (
                     source_name,
@@ -2508,8 +2276,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 for source_name in self.source_names
             )
 
-            # update the potential withdrawal per sector
-            # (units: m3/day)
+            # update the potential withdrawal per sector (m3/day)
             for source_name in self.source_names:
                 self.potential_nonrenewable_withdrawal_per_sector[source_name][
                     sector_name
@@ -2520,8 +2287,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     ][sector_name],
                 )
 
-        # update the total potential withdrawal
-        # (units: m3/day)
+        # update the total potential withdrawal (m3/day)
         for source_name in self.source_names:
             self.potential_renewable_withdrawal[source_name] = sum_list(
                 list(
@@ -2536,18 +2302,15 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-        # log message
         message_str = (
             "Long-term potential withdrawals are updated considering short-term gross demands for %s."
             % (date)
         )
         logger.info(message_str)
 
-        # [ water balance check ] ...........................................................................................
+        # water balance check
         if debug:
-            # evaluate the water balance comparing per source:
-            # 1) long-term potential water withdrawals
-            # 2) short-term potential water withdrawals
+            # per source: long-term vs. short-term potential withdrawals
             for withdrawal_name in self.withdrawal_names:
                 for source_name in self.source_names:
                     water_balance_check(
@@ -2568,9 +2331,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-            # evaluate the water balance comparing per source:
-            # 1) pumping capacity
-            # 2) short-term potential water withdrawals
+            # per source: pumping capacity vs. short-term potential withdrawals
             for source_name in self.source_names:
                 if self.pumping_capacity_flag[source_name]:
                     water_balance_check(
@@ -2619,7 +2380,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         message_str = "updating potential withdrawals per sector"
 
-        # verify potential withdrawals are affected by withdrawal capacity
+        # check whether the potential withdrawals are affected by the withdrawal capacity
         if not isinstance(self.surfacewater_withdrawal_capacity, NoneType):
             if (
                 pcr.cellvalue(
@@ -2656,8 +2417,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     "WARNING !!!!!!!! Sum of potential groundwater renewable and non-renewable withdrawals are larger than groundwater withdrawal capacity"
                 )
 
-        # get total long-term potential renewable and non-renewable withdrawals per sector
-        # (units: m3/day)
+        # total long-term potential renewable and non-renewable withdrawals per sector (m3/day)
         total_potential_withdrawal_per_sector = dict(
             (
                 sector_name,
@@ -2669,11 +2429,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # log message string
         logger.debug(message_str)
 
-        # return the total potential withdrawal
-        # (units: m3/day)
         return total_potential_withdrawal_per_sector
 
     def update_surfacewater_potential_withdrawals(
@@ -2707,16 +2464,12 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         source_name = "surfacewater"
 
-        # [ surface water availability ]
-        # get the short-term potential surface water availability
-        # (units: m3/day)
+        # short-term potential surface water availability (m3/day)
         potential_surfacewater_availability = pcr.max(
             0, surfacewater_available * self.cellarea
         )
 
-        # [ short-term potential withdrawal ]
-        # get suitability per sector considering short-term surface water quality
-        # (units: -)
+        # suitability per sector from the short-term surface water quality (-)
         suitability_per_sector = self.water_quality.get_suitability_per_sector(
             constituent_state=self.water_quality.constituent_shortterm_quality[
                 source_name
@@ -2724,10 +2477,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             sector_names=self.sector_names,
         )
 
-        # get the short-term potential surface water withdrawals
-        # by updating the long-term potential surface water withdrawals
-        # considering the short-term water quality suitability
-        # (units: m3/day)
+        # short-term potential surface water withdrawals: the long-term potential withdrawals updated with
+        # the short-term water quality suitability (m3/day)
         shortterm_potential_withdrawal_per_sector = dict(
             (
                 sector_name,
@@ -2737,17 +2488,13 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # aggregate potential withdrawals from all sectors
-        # (units: m3/day)
+        # aggregate the potential withdrawals of all sectors (m3/day)
         shortterm_potential_withdrawal = sum_list(
             list(shortterm_potential_withdrawal_per_sector.values())
         )
 
-        # get the current potential surface water withdrawals based on the
-        # suitability per sector considering the short-term quality
-        # note:
-        #     this step is needed due to the accuthresholdstate/flux routing
-        # (units: m3/day)
+        # current potential surface water withdrawals from the suitability per sector; needed due to the
+        # accuthresholdstate/flux routing (m3/day)
         potential_withdrawal_per_sector = dict(
             (
                 sector_name,
@@ -2765,9 +2512,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # return potential surface water withdrawals per sector
-        # for current time-step
-        # (units: m3/day)
+        # potential surface water withdrawals per sector for the current time step (m3/day)
         return potential_withdrawal_per_sector
 
     def update_groundwater_potential_withdrawals(
@@ -2803,13 +2548,10 @@ total_return_flow_ini                      : total return flow [m3/day]
         """
         source_name = "groundwater"
 
-        # [ groundwater availability ]
-        # get the short-term groundwater availability
-        # (units: m3 at the end of the period)
+        # short-term groundwater availability (m3 at the end of the period)
         groundwater_availability = pcr.max(0, groundwater_available * self.cellarea)
 
-        # [ short-term potential withdrawal ]
-        # get suitability per sector considering short-term groundwater quality
+        # suitability per sector from the short-term groundwater quality
         suitability_per_sector = self.water_quality.get_suitability_per_sector(
             constituent_state=self.water_quality.constituent_shortterm_quality[
                 source_name
@@ -2817,10 +2559,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             sector_names=self.sector_names,
         )
 
-        # get the short-term potential groundwater withdrawals
-        # by updating the long-term potential groundwater withdrawals
-        # considering the short-term water quality suitability
-        # (units: m3/period)
+        # short-term potential groundwater withdrawals: the long-term potential withdrawals updated with
+        # the short-term water quality suitability (m3/period)
         potential_withdrawal_per_sector = dict(
             (
                 sector_name,
@@ -2831,9 +2571,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # return potential groundwater withdrawals per sector and the
-        # groundwater availability for current time-step
-        # (units: m3/period)
+        # potential groundwater withdrawals per sector and groundwater availability for the current time
+        # step (m3/period)
         return potential_withdrawal_per_sector, groundwater_availability
 
     def update_withdrawals(
@@ -2874,16 +2613,14 @@ total_return_flow_ini                      : total return flow [m3/day]
         date                         : string, current date
         """
 
-        # [ actual withdrawals ] .......................................
+        # actual withdrawals
         self.set_actual_withdrawals(
             source_name,
             renewable_withdrawal_per_sector,
             nonrenewable_withdrawal_per_sector,
         )
 
-        # [ unmet demand ] .............................................
-        # set the unmet demand per sector as the difference of what was potentially
-        # withdrawn and what is actually withdrawn
+        # unmet demand per sector: potential minus actual withdrawal
         unmet_withdrawal_per_sector = dict(
             (
                 sector_name,
@@ -2910,13 +2647,12 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # set a list of selectable source names to process
+        # selectable source names
         source_names = []
         for source_name_to_be_processed in source_names_to_be_processed:
             source_names.append(source_name_to_be_processed)
 
-        # [ update non-renewable withdrawals ] .........................
-        # allocate unmet withdrawals to non-renewable groundwater source
+        # allocate unmet withdrawals to the non-renewable groundwater source
         if "groundwater" in source_names:
             message_str = "Non-renewable withdrawals are assigned to the following sources: groundwater"
             self.allocate_unmet_demand_to_nonrenewable_sources(
@@ -2934,14 +2670,11 @@ total_return_flow_ini                      : total return flow [m3/day]
                     "groundwater": self.groundwater_withdrawal_points,
                 },
             )
-            # log message
             logger.debug(message_str)
 
-        # [ water balance check ] ......................................
+        # water balance check
         if debug:
-            # evaluate the water balance comparing per source:
-            # 1) short-term water availability
-            # 2) actual water withdrawals
+            # per source: short-term water availability vs. actual withdrawals
             water_balance_check(
                 states_ini=[water_available],
                 states_end=[
@@ -2956,9 +2689,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 date=date,
             )
 
-            # evaluate the water balance comparing per source:
-            # 1) pumping capacity
-            # 2) short-term potential water withdrawals
+            # per source: pumping capacity vs. short-term potential withdrawals
             if "groundwater" in source_names:
                 source_name = "groundwater"
                 if self.pumping_capacity_flag[source_name]:
@@ -2984,7 +2715,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        # returns None
         return None
 
     def set_actual_withdrawals(
@@ -3010,7 +2740,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                                              renewable storage for the current source.
         """
 
-        # function to set the actual withdrawals
         self.actual_renewable_withdrawal[source_name] = sum_list(
             list(renewable_withdrawal_per_sector.values())
         )
@@ -3029,7 +2758,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             for sector_name in self.sector_names
         )
 
-        # returns None
         return None
 
     def allocate_withdrawal_to_demand_for_date(self, date, availability):
@@ -3046,17 +2774,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                        with current surface water and groundwater availability
                        (units: m3/day)
         """
-        # set the message string to log the information
         message_str = "Actual water withdrawals allocated to the demand for %s." % date
 
-        # iterate over the renewable and non-renewable withdrawals and per source
-        # to allocate the water demand; allocated withdrawal and demand are set
-        # as internal variables, unused withdrawal and met demand are not used
-        # directly; the remaining, unused withdrawals are kept in a structure
-        # similar to the potential and actual demand for checks, however, and
-        # added to the return flows to avoid balance errors; the sub_message_str
-        # is the text string with the information on the allocation for inspec-
-        # tion and logging (units: m3/day)
+        # allocate the water demand per renewable/non-renewable withdrawal and source; allocated
+        # withdrawal and demand are stored internally, unused withdrawal and met demand are not used
+        # directly; the remaining unused withdrawals are kept for checks and added to the return flows
+        # to avoid balance errors; sub_message_str holds the allocation information for logging (m3/day)
         (
             self.allocated_withdrawal_per_sector,
             unused_withdrawal,
@@ -3077,14 +2800,9 @@ total_return_flow_ini                      : total return flow [m3/day]
             use_local_first=self.use_local_first,
         )
 
-        # update the message_str
-
-        # log the message
         logger.debug(sub_message_str)
 
-        # NOTE: this is a bit silly but just to keep things tractable:
-        # add the unused withdrawals per withdrawal type and source
-        # idem for the actual ones (units: m3/day)
+        # note: add the unused and actual withdrawals per withdrawal type and source (m3/day)
         for withdrawal_name in self.withdrawal_names:
 
             var_str = get_key(["unused", withdrawal_name, "withdrawal"])
@@ -3098,32 +2816,27 @@ total_return_flow_ini                      : total return flow [m3/day]
                 ),
             )
 
-        # iterate over the information on the return flows and the consumption
-        # and the withdrawal and alllocations
-        # total withdrawal is dependent on the actual withdrawals which also
-        # includes unused withdrawals (units: m3/day)
+        # total withdrawal, including unused withdrawals (m3/day)
         self.total_withdrawal = sum_list(
             list(self.actual_renewable_withdrawal.values())
         ) + sum_list(list(self.actual_nonrenewable_withdrawal.values()))
 
-        # initialize the total allocated water, consumption and the return flow
-        # that are updated by iterating over the sectors
+        # total allocated water, consumption and return flow, updated per sector
         self.total_allocation = pcr.spatial(pcr.scalar(0))
         self.total_consumption = pcr.spatial(pcr.scalar(0))
         self.total_return_flow = pcr.spatial(pcr.scalar(0))
 
         for sector_name in self.sector_names:
 
-            # get the return flow ratio (units: -)
+            # return flow ratio (-)
             return_flow_ratio = self.get_return_flow_ratio(
                 gross_demand=self.gross_demand[sector_name],
                 net_demand=self.net_demand[sector_name],
             )
 
-            # iterate over the keys in the allocated demand (units: m3/day)
             for key in self.allocated_demand_per_sector.keys():
 
-                # update the consumption and return flow per sector (units: m3/day)
+                # consumption and return flow per sector (m3/day)
                 self.return_flow_demand_per_sector[key][sector_name] = (
                     return_flow_ratio
                     * self.allocated_demand_per_sector[key][sector_name]
@@ -3135,13 +2848,13 @@ total_return_flow_ini                      : total return flow [m3/day]
                     - self.return_flow_demand_per_sector[key][sector_name],
                 )
 
-                # update the total allocation (units: m3/day)
+                # (m3/day)
                 self.total_allocation = (
                     self.total_allocation
                     + self.allocated_demand_per_sector[key][sector_name]
                 )
 
-                # update the total consumption and return flow (units: m3/day)
+                # (m3/day)
                 self.total_return_flow = (
                     self.total_return_flow
                     + self.return_flow_demand_per_sector[key][sector_name]
@@ -3151,7 +2864,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     + self.consumed_demand_per_sector[key][sector_name]
                 )
 
-            # include water use from desalinated water source if used
+            # include desalinated water use if used
             if self.desalinated_water_use_flag:
                 self.return_flow_demand_per_sector_desalwater[sector_name] = (
                     return_flow_ratio
@@ -3163,13 +2876,11 @@ total_return_flow_ini                      : total return flow [m3/day]
                     - self.return_flow_demand_per_sector_desalwater[sector_name],
                 )
 
-                # update the total allocation
                 self.total_allocation = (
                     self.total_allocation
                     + self.allocated_demand_per_sector_desalwater[sector_name]
                 )
 
-                # update the total consumption and return flow
                 self.total_return_flow = (
                     self.total_return_flow
                     + self.return_flow_demand_per_sector_desalwater[sector_name]
@@ -3179,25 +2890,21 @@ total_return_flow_ini                      : total return flow [m3/day]
                     + self.consumed_demand_per_sector_desalwater[sector_name]
                 )
 
-        # total return flow also contains the unused withdrawals (units: m3/day)
+        # the total return flow also contains the unused withdrawals (m3/day)
         self.total_return_flow = (
             self.total_return_flow
             + sum_list(list(self.unused_renewable_withdrawal.values()))
             + sum_list(list(self.unused_nonrenewable_withdrawal.values()))
         )
 
-        # log the message
         logger.info(message_str)
-        # add the final message
         logger.info(
             "return flows and consumption added on the basis of the allocated demand"
         )
 
-        # [ water balance check ] ...........................................................................................
+        # water balance check
         if debug:
-            # evaluate the water balance comparing per sector:
-            # 1) short-term gross demands
-            # 2) actual allocated demand
+            # per sector: short-term gross demands vs. actual allocated demand
             for sector_name in self.sector_names:
                 water_balance_check(
                     states_ini=[self.gross_demand[sector_name]],
@@ -3223,9 +2930,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     date=date,
                 )
 
-            # evaluate the water balance comparing per source:
-            # 1) short-term water availabilty
-            # 2) actual allocated withdrawal
+            # per source: short-term water availability vs. actual allocated withdrawal
             for source_name in self.source_names:
                 water_balance_check(
                     states_ini=[availability[source_name]],
@@ -3241,9 +2946,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     date=date,
                 )
 
-            # evaluate the water balance comparing per withdrawal, source and sector:
-            # 1) actual allocated demand
-            # 2) actual allocated withdrawal
+            # per withdrawal, source and sector: actual allocated demand vs. actual allocated withdrawal
             for withdrawal_name in self.withdrawal_names:
                 for source_name in self.source_names:
                     for sector_name in self.sector_names:
@@ -3268,9 +2971,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                             date=date,
                         )
 
-            # evaluate the water balance comparing per source:
-            # 1) pumping capacity
-            # 2) actual allocated withdrawal
+            # per source: pumping capacity vs. actual allocated withdrawal
             for source_name in self.source_names:
                 if self.pumping_capacity_flag[source_name]:
                     water_balance_check(
@@ -3295,7 +2996,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        # returns None
         return None
 
     def get_return_flow_ratio(self, gross_demand, net_demand):
@@ -3315,13 +3015,11 @@ total_return_flow_ini                      : total return flow [m3/day]
         return_flow_ratio : return flow ratio [-]
         """
 
-        # get the return flow ratio; small values of gross water demand result
-        # in a return flow ratio of zero
+        # return flow ratio; small gross water demands give a ratio of zero
         return_flow_ratio = pcr.max(
             0.00,
             1.00 - pcr_return_val_div_zero(net_demand, gross_demand, very_small_number),
         )
-        # return the return flow ratio
         return return_flow_ratio
 
     def update_longterm_availability(
@@ -3340,41 +3038,33 @@ total_return_flow_ini                      : total return flow [m3/day]
         date                   : date of the update
         """
 
-        # accumulate the water availability values over the month
+        # accumulate the water availability over the month
         self.average_groundwater_storage += groundwater_storage
         self.average_surfacewater_discharge += surfacewater_discharge
         self.average_surfacewater_runoff += surfacewater_runoff
 
-        # update long-term variables the last day of the month
+        # update the long-term variables on the last day of the month
         if (self.time_step == "monthly") or (
             self.time_step == "daily" and is_last_day_month(date)
         ):
 
-            # get number of steps within the time-step
-            #    - number of days in the month if time-step == daile
-            #    - unity if time-step == monthly
+            # number of steps within the time step: days in the month for daily time steps, one for monthly
             steps = date.day
 
-            # define the updatable date
             update_date = datetime.datetime(date.year, date.month, 1)
 
-            # get the monthly average water availability
-            # by dividing the accumulated values over the number of steps
+            # monthly average: accumulated values divided by the number of steps
             self.average_groundwater_storage /= steps
             self.average_surfacewater_discharge /= steps
             self.average_surfacewater_runoff /= steps
 
-            # [ groundwater storage ] ..................................
-            #
-            # get the time step to update the groundwater storage
+            # groundwater storage
             date_index, matched_date, message_str = match_date_by_julian_number(
                 update_date, self.groundwater_longterm_storage_dates
             )
 
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            # (units: m per day)
+            # replace the value of the matched date by the weighted update; if the long-term value is not
+            # defined, use the present value (m per day)
             groundwater_longterm_storage = self.groundwater_longterm_storage.pop(
                 matched_date
             )
@@ -3383,31 +3073,24 @@ total_return_flow_ini                      : total return flow [m3/day]
                 + (1 - self.groundwater_update_weight) * groundwater_longterm_storage,
                 self.average_groundwater_storage,
             )
-            # reset the date
             self.groundwater_longterm_storage_dates[date_index] = update_date
 
-            # add the value to the dictionary
             self.groundwater_longterm_storage[update_date] = (
                 groundwater_longterm_storage
             )
 
-            # echo to screen
             message_str = str.join(
                 " ", ("groundwater long-term total base flow updated for", message_str)
             )
             logger.debug(message_str)
 
-            # [ surface water discharge ] ..............................
-            #
-            # get the time step to update the surface water availability (monthly)
+            # surface water discharge (monthly)
             date_index, matched_date, message_str = match_date_by_julian_number(
                 update_date, self.surfacewater_longterm_discharge_dates
             )
 
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            # (units: m3/s)
+            # replace the value of the matched date by the weighted update; if the long-term value is not
+            # defined, use the present value (m3/s)
             surfacewater_longterm_discharge = self.surfacewater_longterm_discharge.pop(
                 matched_date
             )
@@ -3418,31 +3101,24 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.average_surfacewater_discharge,
             )
 
-            # reset the date
             self.surfacewater_longterm_discharge_dates[date_index] = update_date
 
-            # add the value to the dictionary
             self.surfacewater_longterm_discharge[update_date] = (
                 surfacewater_longterm_discharge
             )
 
-            # echo to screen
             message_str = str.join(
                 " ", ("surface water long-term discharge updated for", message_str)
             )
             logger.debug(message_str)
 
-            # [ surface water runoff ] ..................................
-            #
-            # get the time step to update the surface water availability (monthly)
+            # surface water runoff (monthly)
             date_index, matched_date, message_str = match_date_by_julian_number(
                 update_date, self.surfacewater_longterm_runoff_dates
             )
 
-            # remove the date from the dictionary and update it with the present value
-            # set the value using the weight, if the long-term availability is not
-            # defined, cover with the present value
-            # (units: m/day)
+            # replace the value of the matched date by the weighted update; if the long-term value is not
+            # defined, use the present value (m/day)
             surfacewater_longterm_runoff = self.surfacewater_longterm_runoff.pop(
                 matched_date
             )
@@ -3452,21 +3128,17 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.average_surfacewater_runoff,
             )
 
-            # reset the date
             self.surfacewater_longterm_runoff_dates[date_index] = update_date
 
-            # add the value to the dictionary
             self.surfacewater_longterm_runoff[update_date] = (
                 surfacewater_longterm_runoff
             )
 
-            # echo to screen
             message_str = str.join(
                 " ", ("surface water long-term total runoff updated for", message_str)
             )
             logger.debug(message_str)
 
-        # returns None
         return None
 
     def update_longterm_demand(self, date):
@@ -3479,62 +3151,50 @@ total_return_flow_ini                      : total return flow [m3/day]
         date                  : date of the update
         """
 
-        # accumulate the gross water demands over the month
-        # (units: m/day)
+        # accumulate the gross water demands over the month (m/day)
         for sector_name in self.sector_names:
             self.average_gross_demand[sector_name] += (
                 self.gross_demand[sector_name] / self.cellarea
             )
 
-        # update long-term variables the last day of the month
+        # update the long-term variables on the last day of the month
         if (self.time_step == "monthly") or (
             self.time_step == "daily" and is_last_day_month(date)
         ):
 
-            # get number of steps within the time-step
-            #    - number of days in the month if time-step == daily
-            #    - unity if time-step == monthly
+            # number of steps within the time step: days in the month for daily time steps, one for monthly
             steps = date.day
 
             for sector_name in self.sector_names:
-                # get the monthly average water availability
-                # by dividing the accumulated values over the number of steps
+                # monthly average: accumulated values divided by the number of steps
                 average_gross_demand = self.average_gross_demand[sector_name] / steps
 
-                # get variables
                 var_value = getattr(self, "gross_demand_longterm_%s" % sector_name)
                 var_dates = getattr(
                     self, "gross_demand_longterm_%s_dates" % sector_name
                 )
                 var_weight = getattr(self, "%s_update_weight" % sector_name)
 
-                # get the time step to update the groundwater storage
                 update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = match_date_by_julian_number(
                     update_date, var_dates
                 )
 
-                # remove the date from the dictionary and update it with the present value
-                # set the value using the weight, if the long-term availability is not
-                # defined, cover with the present value
-                # (units: m/day)
+                # replace the value of the matched date by the weighted update; if the long-term value is not
+                # defined, use the present value (m/day)
                 gross_demand_longterm = var_value.pop(matched_date)
                 gross_demand_longterm = pcr.cover(
                     var_weight * average_gross_demand
                     + (1 - var_weight) * gross_demand_longterm,
                     average_gross_demand,
                 )
-                # reset the date
                 var_dates[date_index] = update_date
 
-                # add the value to the dictionary
                 var_value[update_date] = gross_demand_longterm
 
-                # set variables
                 setattr(self, "gross_demand_longterm_%s" % sector_name, var_value)
                 setattr(self, "gross_demand_longterm_%s_dates" % sector_name, var_dates)
 
-                # echo to screen
                 message_str = str.join(
                     " ",
                     (
@@ -3544,7 +3204,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
                 logger.debug(message_str)
 
-        # returns None
         return None
 
     def update_longterm_potential_withdrawals(self, date):
@@ -3558,29 +3217,27 @@ total_return_flow_ini                      : total return flow [m3/day]
         date : date of the update.
         """
 
-        # update long-term variables the last day of the month
+        # update the long-term variables on the last day of the month
         if (self.time_step == "monthly") or (
             self.time_step == "daily" and is_last_day_month(date)
         ):
 
-            # [ groundwater ]
+            # groundwater
             if self.pumping_capacity_flag["groundwater"]:
-                # get groundwater potential withdrawals for date
-                # (units: m3/day)
+                # groundwater potential withdrawals for the date (m3/day)
                 groundwater_potential_withdrawal = (
                     self.groundwater_potential_estimated_withdrawal
                 )
 
-                # get the time step to update the groundwater potential withdrawal (monthly)
-                # variable matches with groundwater_longterm_avail_dates
+                # time step to update the groundwater potential withdrawal (monthly), matching
+                # groundwater_longterm_avail_dates
                 update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = match_date_by_julian_number(
                     update_date, self.groundwater_longterm_pot_withdrawal_dates
                 )
 
-                # remove the date from the dictionary and update it with the present value
-                # set the value using the weight, if the long-term availability is not
-                # defined, cover with the present value
+                # replace the value of the matched date by the weighted update; if the long-term value is not
+                # defined, use the present value
                 groundwater_longterm_pot_withdrawal = (
                     self.groundwater_longterm_potential_withdrawal.pop(matched_date)
                 )
@@ -3591,38 +3248,33 @@ total_return_flow_ini                      : total return flow [m3/day]
                     groundwater_potential_withdrawal,
                 )
 
-                # reset the date
                 self.groundwater_longterm_pot_withdrawal_dates[date_index] = update_date
 
-                # add the value to the dictionary
                 self.groundwater_longterm_potential_withdrawal[update_date] = (
                     groundwater_longterm_pot_withdrawal
                 )
 
-                # echo to screen
                 message_str = str.join(
                     " ", ("groundwater potential withdrawals updated for", message_str)
                 )
                 logger.debug(message_str)
 
-            # [ surface water ]
+            # surface water
             if self.pumping_capacity_flag["surfacewater"]:
-                # get surface water potential withdrawals for date
-                # (units: m3/day)
+                # surface water potential withdrawals for the date (m3/day)
                 surfacewater_potential_withdrawal = (
                     self.surfacewater_potential_estimated_withdrawal
                 )
 
-                # get the time step to update the groundwater potential withdrawal (monthly)
-                # variable matches with groundwater_longterm_avail_dates
+                # time step to update the surface water potential withdrawal (monthly), matching
+                # groundwater_longterm_avail_dates
                 update_date = datetime.datetime(date.year, date.month, 1)
                 date_index, matched_date, message_str = match_date_by_julian_number(
                     update_date, self.surfacewater_longterm_pot_withdrawal_dates
                 )
 
-                # remove the date from the dictionary and update it with the present value
-                # set the value using the weight, if the long-term availability is not
-                # defined, cover with the present value
+                # replace the value of the matched date by the weighted update; if the long-term value is not
+                # defined, use the present value
                 surfacewater_longterm_pot_withdrawal = (
                     self.surfacewater_longterm_potential_withdrawal.pop(matched_date)
                 )
@@ -3633,24 +3285,20 @@ total_return_flow_ini                      : total return flow [m3/day]
                     surfacewater_potential_withdrawal,
                 )
 
-                # reset the date
                 self.surfacewater_longterm_pot_withdrawal_dates[date_index] = (
                     update_date
                 )
 
-                # add the value to the dictionary
                 self.surfacewater_longterm_potential_withdrawal[update_date] = (
                     surfacewater_longterm_pot_withdrawal
                 )
 
-                # echo to screen
                 message_str = str.join(
                     " ",
                     ("surface water potential withdrawals updated for", message_str),
                 )
                 logger.debug(message_str)
 
-        # returns None
         return None
 
     def get_final_conditions(self):
@@ -3663,17 +3311,10 @@ total_return_flow_ini                      : total return flow [m3/day]
         state_info         : a dictionary with the key and the value
         """
 
-        # initialize states
         state_info = {}
 
-        # iterate over the report name and attribute name
         for report_name, attr_name in self.report_state_info.items():
 
-            # set the state
             state_info[report_name] = getattr(self, attr_name)
 
-        # return results
         return state_info
-
-
-# ///  end of the water management class ///

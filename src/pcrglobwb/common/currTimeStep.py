@@ -11,11 +11,10 @@ class ModelTime(object):
         object.__init__(self)
         self._spinUpStatus = False
 
-    # FIXME: use __init__
+    # TODO: use __init__
     def getStartEndTimeSteps(
         self, strStartTime, strEndTime, showNumberOfTimeSteps=True
     ):
-        # get startTime, endTime, nrOfTimeSteps
         sd = str(strStartTime).split("-")
         self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
         ed = str(strEndTime).split("-")
@@ -24,24 +23,27 @@ class ModelTime(object):
         self._spinUpStatus = False
         if showNumberOfTimeSteps == True:
             logger.info("number of time steps: " + str(self._nrOfTimeSteps))
-        self._monthIdx = 0  # monthly indexes since the simulation starts
-        self._annuaIdx = 0  #  yearly indexes since the simulation starts
+        # monthly index since the start of the simulation
+        self._monthIdx = 0
+        # yearly index since the start of the simulation
+        self._annuaIdx = 0
 
-    # FIXME: use __init__
+    # TODO: use __init__
     def getStartEndTimeStepsForSpinUp(self, strStartTime, noSpinUp, maxSpinUps):
-        # get startTime, endTime, nrOfTimeSteps for SpinUps
         sd = str(strStartTime).split("-")
         self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
 
-        # always use the last day of a year: 31 December of the starting year
+        # always end on 31 December of the starting year
         self._endTime = datetime.date(int(sd[0]), int(12), int(31))
 
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
         self._spinUpStatus = True
         self._noSpinUp = noSpinUp
         self._maxSpinUps = maxSpinUps
-        self._monthIdx = 0  # monthly indexes since the simulation starts
-        self._annuaIdx = 0  #  yearly indexes since the simulation starts
+        # monthly index since the start of the simulation
+        self._monthIdx = 0
+        # yearly index since the start of the simulation
+        self._annuaIdx = 0
 
     def setStartTime(self, date):
         self._startTime = date
@@ -120,14 +122,12 @@ class ModelTime(object):
                 "Spin-Up " + str(self._noSpinUp) + " of " + str(self._maxSpinUps)
             )
 
-        # The following contains hours, minutes, seconds, etc.
+        # including hours, minutes, seconds
         self._currTimeFull = datetime.datetime(self.year, self.month, self.day)
 
-        # check if a certain day is the last day of the month
         if self.isLastDayOfMonth():
             self._monthIdx = self._monthIdx + 1
 
-        # check if a certain day is the last day of the year
         if self.isLastDayOfYear():
             self._annuaIdx = self._annuaIdx + 1
 
@@ -143,13 +143,11 @@ class ModelTime(object):
     def isLastDayOfMonth(self):
         tomorrow = self.currTime + datetime.timedelta(days=1)
 
-        # tomorrow is the first day of the month
         return tomorrow.day == 1
 
     def isLastDayOfYear(self):
         tomorrow = self.currTime + datetime.timedelta(days=1)
 
-        # tomorrow is the first day of the year
         return tomorrow.timetuple().tm_yday == 1
 
     def isLastTimeStep(self):
@@ -159,12 +157,12 @@ class ModelTime(object):
         yesterday = self.currTime - datetime.timedelta(days=1)
         return str(yesterday.strftime("%Y-%m-%d"))
 
-    # FIXME: use isLastDayOfMonth
+    # TODO: use isLastDayOfMonth
     @property
     def endMonth(self):
         return self.isLastDayOfMonth()
 
-    # FIXME: use isLastDayOfYear
+    # TODO: use isLastDayOfYear
     @property
     def endYear(self):
         return self.isLastDayOfYear()

@@ -12,16 +12,14 @@ class LivestockWaterDemand(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
 
-        # make the iniItems for the entire class
         self.iniItems = iniItems
 
-        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
 
-        # get the file information for livestock water demand (unit: m/day)
+        # file information for livestock water demand (m/day)
         self.livestockWaterDemandOption = False
         if iniItems.waterDemandOptions["includeLivestockWaterDemand"] == "True":
             self.livestockWaterDemandOption = True
@@ -38,18 +36,16 @@ class LivestockWaterDemand(object):
 
     def update(self, currTimeStep, read_file=True):
 
-        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
+        # get gross and net demand and return flow fraction, by reading input files or calculating them
         if read_file:
             self.read_livestock_water_demand_from_files(currTimeStep)
         else:
             self.calculate_livestock_water_demand_for_date(currTimeStep)
 
     def read_livestock_water_demand_from_files(self, currTimeStep):
-        # read livestock water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
             if self.livestockWaterDemandOption:
 
-                # reading from a netcdf file
                 if self.livestockWaterDemandFile.endswith(vos.netcdf_suffixes):
                     self.livestockGrossDemand = pcr.max(
                         0.0,
@@ -79,7 +75,6 @@ class LivestockWaterDemand(object):
                         ),
                     )
 
-                # reading from pcraster maps
                 else:
                     string_month = str(currTimeStep.month).zfill(2)
 
@@ -125,14 +120,13 @@ class LivestockWaterDemand(object):
                 self.livestockNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Livestock water demand is NOT included.")
 
-            # gross and netto livestock water demand in m/day
+            # gross and net livestock water demand (m/day)
             self.livestockGrossDemand = pcr.cover(self.livestockGrossDemand, 0.0)
             self.livestockNettoDemand = pcr.cover(self.livestockNettoDemand, 0.0)
             self.livestockNettoDemand = pcr.min(
                 self.livestockGrossDemand, self.livestockNettoDemand
             )
 
-            # return flow fraction
             self.livestockReturnFlowFraction = pcr.max(
                 0.0,
                 1.0

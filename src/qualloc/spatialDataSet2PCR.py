@@ -17,14 +17,12 @@ class setAttributes(object):
 
 
 def setClone(spatialAttributes, tempFileName="temp_clone.map"):
-    # -sets the PCRaster clone on the basis of the map attributes passed
+    # set the PCRaster clone from the given map attributes
 
-    # -remove temporary file if possible
     try:
         os.remove(tempFileName)
     except:
         pass
-    # -create clone map
     command = 'mapattr -s -R %d -C %d -x %f -y %f -l %f -P "yb2t" -B %s' % (
         spatialAttributes.numberRows,
         spatialAttributes.numberCols,
@@ -35,7 +33,6 @@ def setClone(spatialAttributes, tempFileName="temp_clone.map"):
     )
     os.system(command)
     pcr.setclone(tempFileName)
-    # -remove temporary file if possible
     try:
         os.remove(tempFileName)
     except:
@@ -43,7 +40,7 @@ def setClone(spatialAttributes, tempFileName="temp_clone.map"):
 
 
 def checkCoordinate(v1, v2, delta_v1, delta_v2):
-    # -check coordinates on the basis of delta_v, the minimum resolution
+    # check coordinates using delta_v, the minimum resolution
     delta_v = min(abs(delta_v1), abs(delta_v2))
     return abs(v1 - v2) < 0.5 * delta_v
 
@@ -54,16 +51,13 @@ def compareSpatialAttributes(
     """Compares the attributes of two spatial datasets defined by the spatialAttributes instance\
  taking the second input as target.\
  """
-    # -check if the maps have the same dimensions
     sameDimensions = (
         sourceSpatialDataSet.numberCols == targetSpatialDataSet.numberCols
         and sourceSpatialDataSet.numberRows == targetSpatialDataSet.numberRows
     )
-    # -compute resample ratios
     xResampleRatio = sourceSpatialDataSet.xResolution / targetSpatialDataSet.xResolution
     yResampleRatio = sourceSpatialDataSet.yResolution / targetSpatialDataSet.yResolution
-    # -check the position of the corner coordinates and determine whether the target area fits
-    # within the extent of the source data set
+    # check whether the corner coordinates of the target area lie within the source extent
     sameCoordinates = {}
     fitsExtent = True
     for coordKey in ["xLL", "xUR", "yLL", "yUR"]:
@@ -75,26 +69,23 @@ def compareSpatialAttributes(
             getattr(targetSpatialDataSet, resolutionKey),
         )
         fitsExtent &= sameCoordinates[coordKey]
-    # -determine whether the maps fits the extent if the coordinates of the corners do not match
-    # -same resolution
+    # if the corners do not match, determine whether the map fits the extent
     sameResolution = (
         abs(1 - xResampleRatio) < resamplePrecision
         and abs(1 - yResampleRatio) < resamplePrecision
     )
 
-    # -decide on output: does the map to be clipped or warped, and whether it has
-    # to be rescaled or not
+    # output: whether the map must be clipped or warped, and whether it must be rescaled
     return fitsExtent, sameResolution, xResampleRatio, yResampleRatio
-    # /* end of function */
 
 
 class spatialAttributes:
-    # -retrieves attributes of a spatial dataset
+    # attributes of a spatial dataset
 
     def __init__(self, inputFileName, maxLength=-1):
         """Returns the map attributes for the spatial file name specified"""
-        # -max length specifies a cutoff to speed up processing of large datasets with multible bands
-        # -set local variables: mapInformation holds identifier strings and offset for the variables of interest
+        # maxLength: cutoff to speed up processing of large datasets with multiple bands;
+        # mapInformation holds the identifier strings and offsets of the variables of interest
         mapInformation = {}
         mapInformation["dataFormat"] = "Driver", 0, str
         mapInformation["numberRows"] = "Size is", 1, int
@@ -109,48 +100,42 @@ class spatialAttributes:
         mapInformation["minValue"] = "Min=", 0, float
         mapInformation["maxValue"] = "Max=", 0, float
         mapInformation["noDataValue"] = "NoData Value=", 0, float
-        # -set dictionary to hold relevant information
         mapAttributes = {}
-        # -get information with gdalinfo
+        # get information with gdalinfo
         command = 'gdalinfo "%s"' % inputFileName
         cOut, err = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         ).communicate()
 
-        # set the bytes to strings
         err = err.decode("utf-8")
         cOut = cOut.decode("utf-8")
 
-        # halt on error?
         if len(err) > 0 and not err[:7].lower() == "warning":
             sys.exit(
                 "Error: no information could be retrieved for the spatial dataset %s"
                 % inputFileName
             )
 
-        # -get map information
         for mapAttribute, info in mapInformation.items():
             matched = False
             rawList = cOut.split("\n")[:maxLength]
             key = info[0]
             entryNumber = info[1]
             typeInfo = info[2]
-            # -iterate until the entry is found or the list of entries is empty
+            # iterate until the entry is found or the list is empty
             while not matched and len(rawList) > 0:
-                # -pop first entry with white space, including \r removed
+                # pop the first entry, stripping whitespace (including \r)
                 entry = rawList.pop(0).strip()
-                # -if found, set matched true and process
                 if key in entry:
                     matched = True
                     posCnt = entry.find(key)
-                    # -if entry found, get actual value
                     if posCnt >= 0:
                         posCnt += len(key)
                         rawStr = entry[posCnt:].split(",")[entryNumber]
                         rawStr = rawStr.strip("=:() \t")
                         if typeInfo in [int, float]:
                             rawStr = rawStr.split()[0]
-                        # -rawStr of entry returned, process accordingly
+                        # process the raw string of the entry
                         rawStr = rawStr.strip("=:() \t")
                         if typeInfo == int:
                             try:
@@ -172,13 +157,10 @@ class spatialAttributes:
                             mapAttributes[mapAttribute] = rawStr
             if mapAttribute in ["xResolution", "yResolution"]:
                 mapAttributes[mapAttribute] = abs(mapAttributes[mapAttribute])
-            # -set class attributes
             if mapAttribute in mapAttributes.keys():
                 setattr(self, mapAttribute, mapAttributes[mapAttribute])
             else:
                 setattr(self, mapAttribute, None)
-
-    # /* end of spatialAttributes class */
 
 
 class spatialDataSet:
@@ -213,18 +195,14 @@ stores data as numpy array in memory under the variable name specified"""
         burnValue=None,
     ):
 
-        # -set root for temporary file names
         tempFileRoot = "temp_%s" % variableName
-        # -set the source and target file name
         if isinstance(outputFileName, NoneType):
             outputFileName = "%s.map" % tempFileRoot
-        # -SQL string
         if len(sqlStr) > 0 and not isinstance(burnValue, types.NoneType):
             sqlStr = "-where \"%s%s'%s'\"" % (attribute, compareStr, sqlStr)
             sqlStr += " -burn %f" % burnValue
         else:
             sqlStr = ""
-        # -value scale
         if not isinstance(valueScale, str):
             try:
                 valueScale = str(valueScale)
@@ -232,9 +210,8 @@ stores data as numpy array in memory under the variable name specified"""
                 valueScale = "SCALAR"
             valueScale = valueScale.upper()
 
-        # -process particular situations such as shape files and information in bands
+        # handle special cases such as shape files and bands
         if os.path.splitext(inputFileName)[1] == ".shp":
-            # -process shape file
             command = (
                 'gdal_rasterize -a %s %s -ot %s -tr %f %f -te %f %f %f %f  "%s" "%s.tif" -q'
                 % (
@@ -257,7 +234,6 @@ stores data as numpy array in memory under the variable name specified"""
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
             ).communicate()
 
-            # set the bytes to strings
             err = err.decode("utf-8")
             cOut = cOut.decode("utf-8")
 
@@ -268,7 +244,6 @@ stores data as numpy array in memory under the variable name specified"""
                 )
             inputFileName = "%s.tif" % tempFileRoot
         elif band != 0 and not isinstance(band, NoneType):
-            # -process band
             command = (
                 'gdal_translate -ot %s -of PCRaster -b %d -mo VALUESCALE=VS_%s "%s" "%s_%d.map" -q'
                 % (typeStr, band, valueScale, inputFileName, tempFileRoot, band)
@@ -290,9 +265,8 @@ stores data as numpy array in memory under the variable name specified"""
                 )
             inputFileName = "%s_%d.map" % (tempFileRoot, band)
 
-        # -in case the input needs to be warped, process accordingly
         if warp:
-            # -warp dataset and reset resolution
+            # warp the dataset and reset the resolution
             command = (
                 'gdalwarp -of GTiff -ot %s -te %f %f %f %f -tr %f %f -r %s "%s" "%s2.tif" -q -overwrite -nomd'
                 % (
@@ -322,7 +296,7 @@ stores data as numpy array in memory under the variable name specified"""
             xResampleRatio = 1.0
             yResampleRatio = 1.0
 
-        # -convert to PCRaster map of chosen extent
+        # convert to a PCRaster map of the chosen extent
         if not isinstance(pixels, NoneType) and not isinstance(lines, NoneType):
             command = (
                 'gdal_translate -ot %s -of PCRaster -mo VALUESCALE=VS_%s -projwin %f %f %f %f -outsize %s %s "%s" "%s" -q'
@@ -361,7 +335,6 @@ stores data as numpy array in memory under the variable name specified"""
             sys.exit(
                 "Error: no information on resample ratio / output extent is specified"
             )
-        # -echo
         if test:
             print(command)
         cOut, err = subprocess.Popen(
@@ -373,9 +346,7 @@ stores data as numpy array in memory under the variable name specified"""
                 "Error: no information could be retrieved from the spatial dataset %s"
                 % inputFileName
             )
-        # -read resulting map
         setattr(self, variableName, pcr.readmap(outputFileName))
-        # -remove any temporary files
         for tempFileName in os.listdir(os.getcwd()):
             if os.path.splitext(tempFileName)[1] in [".map", ".tif", ".xml"]:
                 if tempFileRoot in tempFileName:
@@ -383,5 +354,3 @@ stores data as numpy array in memory under the variable name specified"""
                         os.remove(tempFileName)
                     except:
                         pass
-
-    # /* end of spatialAttributes class */

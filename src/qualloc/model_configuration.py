@@ -17,13 +17,9 @@ else:
 
 from qualloc.basic_functions import convert_string_to_list, get_decision
 
-# global
 logger = logging.getLogger(__name__)
 
 
-########
-# TODO #
-########
 critical_improvements = str.join("\n", ("",))
 
 development = str.join(
@@ -46,15 +42,12 @@ if len(development) > 0:
 if len(critical_improvements) > 0:
     sys.exit()
 
-####################
-# global variables #
-####################
 
 NoneType = type(None)
 
-# placeholders that the calling program replaces in the configuration file;
-# these match the tokens pcrglobwb's run-with-arguments substitutes in its ini
-# files, so that a cfg and an ini can be driven by the same arguments
+# placeholders that the calling program replaces in the configuration file; they
+# match the tokens PCR-GLOBWB's run-with-arguments substitutes in its ini files,
+# so a cfg and an ini can be driven by the same arguments
 substitutable_tokens = [
     "MAIN_INPUT_DIR",
     "MAIN_OUTPUT_DIR",
@@ -63,10 +56,6 @@ substitutable_tokens = [
 ]
 
 token_pattern = re.compile(r"\b(%s)\b" % str.join("|", substitutable_tokens))
-
-#####################
-# general functions #
-#####################
 
 
 def remove_readonly(func, path, _):
@@ -102,43 +91,39 @@ the CALEROS model.
         **optional_arguments,
     ):
 
-        # init object
         object.__init__(self)
 
-        # echo message to screen
         message_str = "\n%s\nInitializing the QUAlloc model run\n%s\n" % (
             "=" * 80,
             "=" * 80,
         )
         print(message_str)
 
-        # get the configuration file, groups, and secions
+        # configuration file, groups and sections
         self.cfgfilename = cfgfilename
         self.sections = sections
         self.groups = groups
 
-        # timestamp of this run, used in logging file names, etc
+        # timestamp of this run, used in log file names etc.
         self._timestamp = datetime.datetime.now()
         self._timestamp_str = str(self._timestamp.isoformat())
         self._timestamp_str = self._timestamp_str[: self._timestamp_str.find(".")]
         self._timestamp_str = self._timestamp_str.replace(":", ".")
 
-        # debug option
         self.debug_mode = debug_mode
 
         # save the initial root for later use
         self.start_root_path = os.path.abspath(os.path.dirname(__file__))
 
-        # substituted ahead of parsing so that every value is covered, including
-        # those in the optional sections and groups
+        # substitute tokens before parsing so every value is covered, including those
+        # in the optional sections and groups
         self.cfg_content = self.substitute_tokens(self.cfgfilename, replacements)
 
-        # read configuration from given file
         self.parse_configuration_file(
             self.cfgfilename, self.groups, self.sections, subst_args
         )
 
-        # with the configuration set, create all necessary directories
+        # create all necessary directories
         self.create_output_directories()
 
         # copy the configuration file
@@ -146,11 +131,9 @@ the CALEROS model.
             self.cfgfilename, self.logpath, self._timestamp_str
         )
 
-        # initialize the logger
         logfileroot = os.path.splitext(logfileroot)[0]
         self.initialize_logger(logfileroot)
 
-        # logger initialized, add messages
         logger.info("Model run started at %s" % self._timestamp)
         logger.info("Logging output to %s" % self.logfilename)
         logger.info("Debugging output to %s" % self.dbgfilename)
@@ -162,7 +145,7 @@ the CALEROS model.
         return "this object contains information on the model configuration"
 
     def get_items(self, config, section):
-        # -returns a dictionary of all key, value pairs in the current section
+        # dictionary of all key-value pairs in the current section
         options = {}
         for key, value in config.items(section):
             options[key] = value
@@ -198,33 +181,25 @@ the unreplaced token would otherwise surface much later as a missing file.
 
     def parse_configuration_file(self, cfgfilename, groups, sections, subst_args):
 
-        # -initialize and read config parser object
         config = ConfigParser()
         config.optionxform = str
         config.read_string(self.cfg_content)
         sections_present = config.sections()
-        # -process single, preset sections first
+        # process the single, preset sections first
         for section in sections:
-            # -check if section exists (is compulsory for the parameterization of the model)
+            # check whether the section exists (compulsory for the model parameterization)
             if config.has_section(section):
-                # -remove the current section from the ones to be processed
                 sections_present.remove(section)
-                # -process all values
                 try:
-                    # section info
                     section_info = self.get_items(config, section)
-                    # argument substitution
                     for key, value in section_info.items():
                         if "$" in value:
-                            # get the argument position and substitute
                             argposcnt = value.find("$")
                             argpos = int(value[argposcnt + 1 :]) - 1
                             value = str.join(
                                 "", (value[:argposcnt], subst_args[argpos])
                             )
-                            # set the value
                             section_info[key] = value
-                    # set the values
                     setattr(self, section, section_info)
                 except:
                     message_str = (
@@ -238,7 +213,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                     % (section)
                 )
                 sys.exit(message_str)
-        # -process groups and any miscellaneous sections
+        # process groups and miscellaneous sections
         for group in groups:
             try:
                 setattr(self, group, {})
@@ -249,20 +224,18 @@ the unreplaced token would otherwise surface much later as a missing file.
                 sys.exit(message_str)
         for section in sections_present:
             try:
-                # -get name and group name if present
+                # name and group name (if present)
                 namelist = section.split(None, 1)
                 for icnt in range(len(namelist)):
                     namelist[icnt] = namelist[icnt].strip()
                 group = namelist[0]
                 if group in groups:
-                    # -group:
                     entryname = namelist[1]
                     section_info = getattr(self, group)[entryname] = {}
                 else:
                     section = section.replace(" ", "")
-                    # -miscellaneous: section info
+                    # miscellaneous section
                     section_info = self.get_items(config, section)
-                # argument substitution
                 for key, value in section_info.items():
                     if "$" in value:
                         try:
@@ -272,9 +245,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                                 "argument substitution failed on %s in optional section %s"
                                 % (key, section)
                             )
-                        # set the value
                         section_info[key] = value
-                # set the values
                 setattr(self, section, section_info)
 
             except:
@@ -284,7 +255,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                 )
                 sys.exit(message_str)
 
-        # -test if the required entries for any of the groups are present
+        # check that the required entries of every group are present
         for group in groups:
             if len(getattr(self, group).keys()) == 0:
                 message_str = (
@@ -293,7 +264,6 @@ the unreplaced token would otherwise surface much later as a missing file.
                 )
                 sys.exit(message_str)
 
-        # all data read, return None
         return None
 
     def initialize_logger(self, logfileroot):
@@ -304,26 +274,23 @@ to a log file and to the screen at configurable levels.
 
     """
 
-        # set root logger to debug level
         logging.getLogger().setLevel(logging.DEBUG)
 
-        # logging format
         formatter = logging.Formatter(
             "%(asctime)s %(name)s %(levelname)s %(message)s", datefmt="%m-%d %H:%M"
         )
 
-        # default logging levels
         log_level_console = "INFO"
         log_level_file = "INFO"
-        # order: DEBUG, INFO, WARNING, ERROR, CRITICAL
+        # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-        # log level based on ini/configuration file:
+        # log level from the configuration file
         if "log_level_console" in list(self.general.keys()):
             log_level_console = self.general["log_level_console"]
         if "log_level_file" in list(self.general.keys()):
             log_level_file = self.general["log_level_file"]
 
-        # log level for debug mode:
+        # log level for debug mode
         if self.debug_mode == True:
             log_level_console = "DEBUG"
             log_level_file = "DEBUG"
@@ -332,38 +299,32 @@ to a log file and to the screen at configurable levels.
         if not isinstance(console_level, int):
             raise ValueError("Invalid log level: %s", log_level_console)
 
-        # create handler, add to root logger
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         console_handler.setLevel(console_level)
         logging.getLogger().addHandler(console_handler)
 
-        # log file name (and location)
         self.logfilename = str.join("", (logfileroot, ".log"))
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
             raise ValueError("Invalid log level: %s", log_level_file)
 
-        # create handler, add to root logger
         file_handler = logging.FileHandler(self.logfilename)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(file_level)
         logging.getLogger().addHandler(file_handler)
 
-        # file name for debug log
+        # debug log file name
         self.dbgfilename = str.join("", (logfileroot, ".dbg"))
 
-        # create handler, add to root logger
         debug_handler = logging.FileHandler(self.dbgfilename)
         debug_handler.setFormatter(formatter)
         debug_handler.setLevel(logging.DEBUG)
         logging.getLogger().addHandler(debug_handler)
 
-        # add the log file handlers
         self.log_file_handlers = [debug_handler, file_handler]
 
-        # logger set up, return None
         return None
 
     def create_output_directories(self):
@@ -372,7 +333,7 @@ create_output_directories: function to create all the necessary output \
 directories using information from the model configuration.
 
 """
-        # start by checking the input and output path
+        # check the input and output paths
         if not os.path.isabs(self.general["inputpath"]):
             self.general["inputpath"] = os.path.abspath(self.general["inputpath"])
         if not os.path.isdir(self.general["inputpath"]):
@@ -382,7 +343,6 @@ directories using information from the model configuration.
         if not os.path.isabs(self.general["outputpath"]):
             self.general["outputpath"] = os.path.abspath(self.general["outputpath"])
 
-        # create the output path if it does not exist
         if not os.path.isdir(self.general["outputpath"]):
             os.makedirs(self.general["outputpath"])
             message_str = "output path %s does not exist and is created" % (
@@ -390,12 +350,12 @@ directories using information from the model configuration.
             )
             print(message_str)
 
-        # create short names to root of input and output directory
+        # short names for the input and output directories
         self.inputpath = self.general["inputpath"]
         self.outputpath = self.general["outputpath"]
 
-        # create the temporary directory that serves as the working directory
-        # and the log, script, netCDF, states, and table directories
+        # the temporary (working) directory and the log, script, netCDF, states and
+        # table directories
         subdirectories = [
             os.path.join(self.outputpath, subdirectory)
             for subdirectory in [
@@ -409,13 +369,13 @@ directories using information from the model configuration.
             ]
         ]
 
-        # test on existing directories and file input
+        # check for existing directories and files
         files_exist = False
         for subdirectory in subdirectories:
             if os.path.isdir(subdirectory) and not files_exist:
                 files_exist = files_exist or (len(os.listdir(subdirectory)) > 0)
 
-        # decide on progressing if files exist
+        # ask whether to continue if files exist
 
         possible_outcomes = {"yes": True, "no": False}
         if files_exist and self.general["overwrite_output"] == "False":
@@ -439,7 +399,7 @@ directories using information from the model configuration.
                 )
                 result = get_decision(question_str, possible_outcomes)
 
-                # decsion made if result is not yes, halt!
+                # halt unless the answer is yes
                 if not result:
                     sys.exit("run halted!")
                 else:
@@ -447,54 +407,43 @@ directories using information from the model configuration.
             else:
                 sys.exit("run halted!")
 
-        # continue: create the subdirectories
-        # and add them to the object
+        # create the subdirectories and add them to the object
         for subdirectory in subdirectories:
             subdirname = "%spath" % os.path.split(subdirectory)[1]
-            # add or empty
+            # create or empty
             if os.path.isdir(subdirectory):
-                # empty the directory
                 shutil.rmtree(subdirectory, onerror=remove_readonly)
-            # add the subdirectory and add it to the object
             os.makedirs(subdirectory)
             setattr(self, subdirname, subdirectory)
 
-        # all directories created, return None
         return None
 
     def backup_configuration_file(self, cfgfilename, outputpath, replacement_str=""):
 
-        # copies the configuration file
         fn = os.path.split(cfgfilename)[1]
         fn, ext = os.path.splitext(fn)
 
         fn = str.join("", (fn, "_", replacement_str, ext))
         fn = os.path.join(outputpath, fn)
 
-        # written out rather than copied, so the backup records the substituted
-        # paths the run actually used
+        # written out rather than copied, so the backup records the substituted paths
+        # the run actually used
         with open(fn, "w") as backup_file:
             backup_file.write(self.cfg_content)
 
-        # return a string of the backup config file
         return fn
 
     def convert_string_to_input(self, val_str, ftype, **kwargs):
 
-        # initialize the separators
         separators = [","]
 
-        # test data type
         if not isinstance(ftype, type):
             logger.error("data type %s is not a data type" % ftype)
             sys.exit()
 
-        # initialize value
         value = None
 
-        # test if the val_str is None
         if isinstance(val_str, NoneType) or val_str.lower() == "none":
-            # set value to None
             value = None
 
         elif ftype == bool:
@@ -505,7 +454,7 @@ directories using information from the model configuration.
                 value = False
 
         else:
-            # test if the value is a list
+            # test whether the value is a list
             possible_list = False
 
             for separator in separators:
@@ -514,32 +463,21 @@ directories using information from the model configuration.
 
             if possible_list:
 
-                # get the list entries
                 value = convert_string_to_list(val_str, separators)
 
-                # get the entry and convert it to the right data type
+                # convert every entry to the right data type
                 for ix in range(len(value)):
                     value[ix] = ftype(value[ix])
 
-                # logger
                 logger.warning(
                     "include additional separators and data type conversion!"
                 )
 
             else:
 
-                # get the value for a single entry
+                # single entry
                 try:
                     value = ftype(val_str)
                 except:
                     logger.error("%s cannot be converted to %s" % (val_str, ftype))
-        # return the value
         return value
-
-
-# /end of class definition of model configuration object/
-
-###############################################################################
-# end of the module with functions required initialize the model              #
-# configuration object                                                        #
-###############################################################################

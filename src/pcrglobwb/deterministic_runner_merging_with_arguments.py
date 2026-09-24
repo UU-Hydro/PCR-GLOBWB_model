@@ -45,15 +45,13 @@ class DeterministicRunner(DynamicModel):
         self.xmax = configuration.globalMergingAndModflowOptions["xmax"]
         self.ymax = configuration.globalMergingAndModflowOptions["ymax"]
 
-        # model time object
         self.modelTime = modelTime
 
-        # make the configuration available for the other method/function
         self.configuration = configuration
 
-        # indicating whether this run includes modflow or merging processes
+        # whether this run includes MODFLOW or merging
         self.include_merging_or_modflow = True
-        # - For the standard PCR-GLOBWB 5arcmin runs, only the "Global" and "part_one" runs include modflow or merging processes
+        # for the standard 5 arcmin runs, only the "Global" and "part_one" runs include MODFLOW or merging
         if (
             "cloneAreas" in list(self.configuration.globalOptions.keys())
             and self.configuration.globalOptions["cloneAreas"] == "part_two"
@@ -62,11 +60,10 @@ class DeterministicRunner(DynamicModel):
 
         if self.include_merging_or_modflow:
 
-            # netcdf merging options
             self.netcdf_format = self.configuration.mergingOutputOptions["formatNetCDF"]
             self.zlib_option = self.configuration.mergingOutputOptions["zlib"]
 
-            # output files/variables that will be merged
+            # output variables to merge
             nc_report_list = [
                 "outDailyTotNC",
                 "outMonthTotNC",
@@ -83,29 +80,29 @@ class DeterministicRunner(DynamicModel):
                     nc_report_type
                 ]
 
-        # model and reporting objects, required for runs with modflow
+        # model and reporting objects, required for runs with MODFLOW
         if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.model = ModflowCoupling(configuration, modelTime)
             self.reporting = Reporting(configuration, self.model, modelTime)
 
-        # somehow you need to set the clone map as the dynamic framework needs it (and the "self.model" is not always created)
+        # the dynamic framework needs a clone map (and self.model is not always created)
         pcr.setclone(self.configuration.cloneMap)
 
     def initial(self):
 
-        # get or prepare the initial condition for groundwater head
+        # get or prepare the initial groundwater head
         if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
             self.model.get_initial_heads()
 
     def dynamic(self):
 
-        # re-calculate current model time using current pcraster timestep value
+        # update the model time from the current PCRaster time step
         self.modelTime.update(self.currentTimeStep())
 
-        # update/calculate model and daily merging, and report ONLY at the last day of the month
+        # update the model and merge daily, but only report at the last day of the month
         if self.modelTime.isLastDayOfMonth():
 
-            # wait until all pcrglobwb model runs are done
+            # wait until all PCR-GLOBWB runs are done
             pcrglobwb_is_ready = False
             self.count_check = 0
             while pcrglobwb_is_ready == False:
@@ -117,18 +114,17 @@ class DeterministicRunner(DynamicModel):
                 ):
                     pcrglobwb_is_ready = self.check_pcrglobwb_status()
 
-            # merging netcdf files at daily resolution
+            # merge daily netCDF files; TODO: support runs that do not start on 1 January
             start_date = "%04i-%02i-01" % (
                 self.modelTime.year,
                 self.modelTime.month,
-            )  # TODO: Make it flexible for a run starting not on the 1st January.
+            )
             end_date = self.modelTime.fulldate
             self.merging_netcdf_files("outDailyTotNC", start_date, end_date)
 
-            # for runs with modflow
             if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
 
-                # merging pcraster maps that are needed for MODFLOW calculation
+                # merge the PCRaster maps needed for MODFLOW
                 msg = "Merging pcraster map files that are needed for the MODFLOW calculation."
                 logger.info(msg)
                 cmd = (
@@ -143,7 +139,7 @@ class DeterministicRunner(DynamicModel):
                 )
                 vos.cmd_line(cmd, using_subprocess=False)
 
-                # cleaning up unmerged files (not tested yet)
+                # clean up unmerged files (not tested yet)
                 clean_up_pcraster_maps = False
                 if (
                     self.configuration.mergingOutputOptions[
@@ -152,7 +148,8 @@ class DeterministicRunner(DynamicModel):
                     == "True"
                 ):
                     clean_up_pcraster_maps = (
-                        True  # TODO: FIXME: This is NOT working yet.
+                        # TODO: this is not working yet
+                        True
                     )
                 if clean_up_pcraster_maps:
                     files_to_be_removed = glob.glob(
@@ -165,18 +162,18 @@ class DeterministicRunner(DynamicModel):
                         print(f)
                         os.remove(f)
 
-                # update MODFLOW model (It will pick up current model time from the modelTime object)
+                # update MODFLOW (picks up the current model time from modelTime)
                 self.model.update()
-                # reporting is only done at the end of the month
+                # report only at the end of the month
                 self.reporting.report()
 
-        # merging initial conditions (pcraster maps) of PCR-GLOBWB
+        # merge the PCR-GLOBWB initial conditions (PCRaster maps)
         if self.modelTime.isLastDayOfYear():
 
             msg = "Merging pcraster map files belonging to initial conditions."
             logger.info(msg)
 
-            # - for general (e.g. africa extent, europe, etc)
+            # general extents (e.g. Africa, Europe)
             cmd = (
                 "python3 "
                 + self.configuration.path_of_this_module
@@ -205,7 +202,7 @@ class DeterministicRunner(DynamicModel):
 
             os.system(cmd)
 
-            # cleaning up unmerged files (not tested yet)
+            # clean up unmerged files (not tested yet)
             clean_up_pcraster_maps = False
             if (
                 "delete_unmerged_pcraster_maps"
@@ -215,7 +212,8 @@ class DeterministicRunner(DynamicModel):
                 ]
                 == "True"
             ):
-                clean_up_pcraster_maps = True  # TODO: FIXME: This is NOT working yet.
+                # TODO: this is not working yet
+                clean_up_pcraster_maps = True
             if clean_up_pcraster_maps:
                 files_to_be_removed = glob.glob(
                     str(self.configuration.main_output_directory)
@@ -227,29 +225,24 @@ class DeterministicRunner(DynamicModel):
                     print(f)
                     os.remove(f)
 
-        # monthly and annual merging
         if self.modelTime.isLastDayOfYear():
 
-            # merging netcdf files at monthly resolutions
-            start_date = "%04i-01-31" % (
-                self.modelTime.year
-            )  # TODO: Make it flexible for a run starting not on the 1st January.
+            # merge monthly netCDF files; TODO: support runs that do not start on 1 January
+            start_date = "%04i-01-31" % (self.modelTime.year)
             self.merging_netcdf_files("outMonthTotNC", start_date, end_date)
             self.merging_netcdf_files("outMonthAvgNC", start_date, end_date)
             self.merging_netcdf_files("outMonthEndNC", start_date, end_date)
             self.merging_netcdf_files("outMonthMaxNC", start_date, end_date)
 
-            # merging netcdf files at annual resolutions
-            start_date = "%04i-12-31" % (
-                self.modelTime.year
-            )  # TODO: Make it flexible for a run starting not on the 1st January.
+            # merge annual netCDF files; TODO: support runs that do not start on 1 January
+            start_date = "%04i-12-31" % (self.modelTime.year)
             end_date = self.modelTime.fulldate
             self.merging_netcdf_files("outAnnuaTotNC", start_date, end_date)
             self.merging_netcdf_files("outAnnuaAvgNC", start_date, end_date)
             self.merging_netcdf_files("outAnnuaEndNC", start_date, end_date)
             self.merging_netcdf_files("outAnnuaMaxNC", start_date, end_date)
 
-        # make an empty file indicating that merging process is done
+        # create an empty file to indicate that merging is done
         if self.modelTime.isLastDayOfMonth() or self.modelTime.isLastDayOfYear():
 
             outputDirectory = (
@@ -281,7 +274,7 @@ class DeterministicRunner(DynamicModel):
             )
             logger.info(msg)
 
-            # - for general:
+            # general extents
             cmd = (
                 "python3 "
                 + self.configuration.path_of_this_module
@@ -357,14 +350,13 @@ class DeterministicRunner(DynamicModel):
 
 def modify_ini_file(original_ini_file, system_argument):
 
-    # created by Edwin H. Sutanudjaja on August 2020 for the Ulysses project
+    # created by Edwin H. Sutanudjaja in August 2020 for the Ulysses project
 
-    # open and read ini file
     file_ini = open(original_ini_file, "rt")
     file_ini_content = file_ini.read()
     file_ini.close()
 
-    # system argument for replacing outputDir (-mod) ; this is always required
+    # output directory (-mod); always required
     main_output_dir = system_argument[system_argument.index("-mod") + 1]
     file_ini_content = file_ini_content.replace("MAIN_OUTPUT_DIR", main_output_dir)
     msg = (
@@ -373,7 +365,7 @@ def modify_ini_file(original_ini_file, system_argument):
     )
     print(msg)
 
-    # optional system arguments for modifying startTime (-sd) and endTime (-ed)
+    # optional start (-sd) and end (-ed) dates
     if "-sd" in system_argument:
         starting_date = system_argument[system_argument.index("-sd") + 1]
         file_ini_content = file_ini_content.replace("STARTING_DATE", starting_date)
@@ -391,8 +383,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system arguments for initial condition files
-    # - main initial state folder
+    # optional initial conditions: main initial state folder (-misd)
     if "-misd" in system_argument:
         main_initial_state_folder = system_argument[system_argument.index("-misd") + 1]
         file_ini_content = file_ini_content.replace(
@@ -403,7 +394,7 @@ def modify_ini_file(original_ini_file, system_argument):
             + main_initial_state_folder
         )
         print(msg)
-    # - date for initial states
+    # date for initial states (-dfis)
     if "-dfis" in system_argument:
         date_for_initial_states = system_argument[system_argument.index("-dfis") + 1]
         file_ini_content = file_ini_content.replace(
@@ -415,7 +406,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # optional system argument for modifying forcing files
+    # optional forcing files
     if "-pff" in system_argument:
         precipitation_forcing_file = system_argument[system_argument.index("-pff") + 1]
         file_ini_content = file_ini_content.replace(
@@ -447,7 +438,7 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # NUMBER_OF_SPINUP_YEARS
+    # number of spin-up years
     if "-num_of_sp_years" in system_argument:
         number_of_spinup_years = system_argument[
             system_argument.index("-num_of_sp_years") + 1
@@ -461,15 +452,13 @@ def modify_ini_file(original_ini_file, system_argument):
         )
         print(msg)
 
-    # folder for saving original and modified ini files
+    # folder for the original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
 
-    # create folder
     if os.path.exists(folder_for_ini_files):
         shutil.rmtree(folder_for_ini_files)
     os.makedirs(folder_for_ini_files)
 
-    # save/copy the original ini file
     shutil.copy(
         original_ini_file,
         os.path.join(
@@ -477,7 +466,6 @@ def modify_ini_file(original_ini_file, system_argument):
         ),
     )
 
-    # save the new ini file
     new_ini_file_name = os.path.join(
         folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used"
     )
@@ -490,41 +478,36 @@ def modify_ini_file(original_ini_file, system_argument):
 
 def main():
 
-    # print disclaimer
     disclaimer.print_disclaimer()
 
-    # get the full path of configuration/ini file given in the system argument
     iniFileName = os.path.abspath(sys.argv[1])
 
-    # modify ini file and return it in a new location
+    # modify the ini file and save it to a new location
     if "-mod" in sys.argv:
         iniFileName = modify_ini_file(
             original_ini_file=iniFileName, system_argument=sys.argv
         )
 
-    # debug option
     debug_mode = False
     if len(sys.argv) > 2:
         if sys.argv[2] == "debug" or sys.argv[2] == "debug_parallel":
             debug_mode = True
 
-    # options to perform steady state calculation (for modflow)
+    # option to perform a steady-state calculation (for MODFLOW)
     steady_state_only = False
     if len(sys.argv) > 3:
         if sys.argv[3] == "steady-state-only":
             steady_state_only = True
 
-    # object to handle configuration/ini file
     configuration = Configuration(
         iniFileName=iniFileName,
         debug_mode=debug_mode,
         steady_state_only=steady_state_only,
     )
 
-    # timeStep info: year, month, day, doy, hour, etc
+    # time step info: year, month, day, doy, etc.
     currTimeStep = ModelTime()
 
-    # Running the deterministic_runner
     currTimeStep.getStartEndTimeSteps(
         configuration.globalOptions["startTime"], configuration.globalOptions["endTime"]
     )
@@ -539,6 +522,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # print disclaimer
     disclaimer.print_disclaimer(with_logger=True)
     sys.exit(main())

@@ -16,12 +16,12 @@ class SpinUp(object):
 
         self.noSpinUps = None
 
-        # How many soil layers (excluding groundwater):
+        # number of soil layers (excluding groundwater)
         self.numberOfLayers = int(
             iniItems.landSurfaceOptions["numberOfUpperSoilLayers"]
         )
 
-        # option to save the netcdf files of the latest cycle of spin up runs:
+        # option to save the netCDF files of the latest spin-up cycle
         self.spinUpOutputDir = None
         if "spinUpOutputDir" in list(iniItems.globalOptions.keys()):
             self.outNCDir = str(iniItems.outNCDir)
@@ -32,7 +32,6 @@ class SpinUp(object):
             if iniItems.globalOptions["spinUpOutputDir"] == "True":
                 self.spinUpOutputDir = self.outNCDir + "/spin-up/"
 
-        # setting up the convergence parameters
         self.setupConvergence(iniItems)
 
     def setupConvergence(self, iniItems):
@@ -46,13 +45,14 @@ class SpinUp(object):
 
         # TODO: including the convergence of ResvSto (reservoir storage)
 
-        # directory for storing end states (format: pcraster maps)
+        # directory for end states (PCRaster maps)
         self.endStateDir = iniItems.endStateDir
 
     def getIniStates(self, model):
 
         if self.numberOfLayers == 2:
 
+            # (m3)
             self.iniSoilSto = max(
                 1e-20,
                 vos.getMapVolume(
@@ -62,10 +62,11 @@ class SpinUp(object):
                     + model.groundwater.storGroundwater,
                     model.routing.cellArea,
                 ),
-            )  # unit: m3
+            )
 
         if self.numberOfLayers == 3:
 
+            # (m3)
             self.iniSoilSto = max(
                 1e-20,
                 vos.getMapVolume(
@@ -76,14 +77,15 @@ class SpinUp(object):
                     + model.groundwater.storGroundwater,
                     model.routing.cellArea,
                 ),
-            )  # unit: m3
+            )
 
+        # (m3)
         self.iniGwatSto = max(
             1e-20,
             vos.getMapVolume(model.groundwater.storGroundwater, model.routing.cellArea),
-        )  # unit: m3
+        )
         self.iniChanSto = max(1e-20, vos.getMapVolume(model.routing.channelStorage, 1))
-        # unit: m3
+        # (m3)
         self.iniTotlSto = max(
             1e-20,
             self.iniSoilSto
@@ -94,20 +96,22 @@ class SpinUp(object):
                 + model.landSurface.snowCoverSWE,
                 model.routing.cellArea,
             ),
-        )  # unit: m3
+        )
 
     def soilStorageVolume(self, state, cellAreaMap):
 
         if self.numberOfLayers == 2:
+            # (m3)
             return vos.getMapVolume(
                 state["landSurface"]["topWaterLayer"]
                 + state["landSurface"]["storUpp"]
                 + +state["landSurface"]["storLow"]
                 + state["groundwater"]["storGroundwater"],
                 cellAreaMap,
-            )  # unit: m3
+            )
 
         if self.numberOfLayers == 3:
+            # (m3)
             return vos.getMapVolume(
                 state["landSurface"]["topWaterLayer"]
                 + state["landSurface"]["storUpp000005"]
@@ -115,19 +119,18 @@ class SpinUp(object):
                 + state["landSurface"]["storLow030150"]
                 + state["groundwater"]["storGroundwater"],
                 cellAreaMap,
-            )  # unit: m3
+            )
 
     def groundwaterStorageVolume(self, state, cellAreaMap):
-        return vos.getMapVolume(
-            state["groundwater"]["storGroundwater"], cellAreaMap
-        )  # unit: m3
+        # (m3)
+        return vos.getMapVolume(state["groundwater"]["storGroundwater"], cellAreaMap)
 
     def channelStorageVolume(self, state, cellAreaMap):
-        return vos.getMapVolume(
-            state["routing"]["channelStorage"], cellAreaMap
-        )  # unit: m3
+        # (m3)
+        return vos.getMapVolume(state["routing"]["channelStorage"], cellAreaMap)
 
     def totalStorageVolume(self, state, cellAreaMap):
+        # (m3)
         return (
             self.soilStorageVolume(state, cellAreaMap)
             + self.groundwaterStorageVolume(state, cellAreaMap)
@@ -137,11 +140,9 @@ class SpinUp(object):
                 + state["landSurface"]["snowCoverSWE"],
                 cellAreaMap,
             )
-        )  # unit: m3
+        )
 
     def checkConvergence(self, beginState, endState, spinUpRun, cellAreaMap):
-
-        # calculate convergence of soil storage
 
         beginSoilSto = max(1e-20, self.soilStorageVolume(beginState, cellAreaMap))
         endSoilSto = self.soilStorageVolume(endState, cellAreaMap)
@@ -153,8 +154,6 @@ class SpinUp(object):
             % (convSoilSto, spinUpRun, self.noSpinUps)
         )
 
-        # calculate convergence of ground water storage
-
         beginGwatSto = max(
             1e-20, self.groundwaterStorageVolume(beginState, cellAreaMap)
         )
@@ -164,16 +163,12 @@ class SpinUp(object):
 
         logger.info("Delta GwatStorage = %.2f percent" % (convGwatSto))
 
-        # calculate convergence of channel storage
-
         beginChanSto = max(1e-20, self.channelStorageVolume(beginState, cellAreaMap))
         endChanSto = self.channelStorageVolume(endState, cellAreaMap)
 
         convChanSto = math.fabs(100 * (endChanSto - beginChanSto) / beginChanSto)
 
         logger.info("Delta ChanStorage = %.2f percent" % (convChanSto))
-
-        # calculate convergence of total water storage
 
         beginTotlSto = max(1e-20, self.totalStorageVolume(beginState, cellAreaMap))
         endTotlSto = self.totalStorageVolume(endState, cellAreaMap)
@@ -188,12 +183,11 @@ class SpinUp(object):
                 + self.spinUpOutputDir
             )
 
-            # cleaning up the spin-up directory:
+            # clean up the spin-up directory
             if os.path.exists(self.spinUpOutputDir):
                 shutil.rmtree(self.spinUpOutputDir)
             os.makedirs(self.spinUpOutputDir)
 
-            # move files
             for filename in glob.glob(os.path.join(self.outNCDir, "*.nc")):
                 shutil.move(filename, self.spinUpOutputDir)
 

@@ -12,16 +12,14 @@ class DomesticWaterDemand(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
 
-        # make the iniItems for the entire class
         self.iniItems = iniItems
 
-        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
 
-        # get the file information for domestic water demand (unit: m/day)
+        # file information for domestic water demand (m/day)
         self.domesticWaterDemandOption = False
         if iniItems.waterDemandOptions["includeDomesticWaterDemand"] == "True":
             self.domesticWaterDemandOption = True
@@ -38,7 +36,7 @@ class DomesticWaterDemand(object):
 
     def update(self, currTimeStep, read_file=True):
 
-        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
+        # get gross and net demand and return flow fraction, by reading input files or calculating them
         if read_file:
             self.read_domestic_water_demand_from_files(currTimeStep)
         else:
@@ -46,11 +44,9 @@ class DomesticWaterDemand(object):
 
     def read_domestic_water_demand_from_files(self, currTimeStep):
 
-        # read domestic water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
             if self.domesticWaterDemandOption:
 
-                # reading from a netcdf file
                 if self.domesticWaterDemandFile.endswith(vos.netcdf_suffixes):
                     self.domesticGrossDemand = pcr.max(
                         0.0,
@@ -80,7 +76,6 @@ class DomesticWaterDemand(object):
                         ),
                     )
 
-                # reading from pcraster maps
                 else:
                     string_month = str(currTimeStep.month)
                     if currTimeStep.month < 10:
@@ -128,14 +123,13 @@ class DomesticWaterDemand(object):
                 self.domesticNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Domestic water demand is NOT included.")
 
-            # gross and netto domestic water demand in m/day
+            # gross and net domestic water demand (m/day)
             self.domesticGrossDemand = pcr.cover(self.domesticGrossDemand, 0.0)
             self.domesticNettoDemand = pcr.cover(self.domesticNettoDemand, 0.0)
             self.domesticNettoDemand = pcr.min(
                 self.domesticGrossDemand, self.domesticNettoDemand
             )
 
-            # return flow fraction
             self.domesticReturnFlowFraction = pcr.max(
                 0.0,
                 1.0

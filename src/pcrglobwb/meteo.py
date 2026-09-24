@@ -21,10 +21,10 @@ class Meteo(object):
 
         result = {}
 
-        # annual average precipitation from the latest 365 days (unit: m/day)
+        # annual average precipitation over the last 365 days (m/day)
         result["avgAnnualPrecipitation"] = self.avgAnnualPrecipitation
 
-        # annual average temperature and annual average of diurnal temperature difference from the latest 365 days (unit: Celcius)
+        # annual average temperature and diurnal temperature difference over the last 365 days (degC)
         result["avgAnnualTemperature"] = self.avgAnnualTemperature
         result["avgAnnualDiurnalDeltaTemp"] = self.avgAnnualDiurnalDeltaTemp
 
@@ -41,10 +41,8 @@ class Meteo(object):
 
     def initialize_states(self, iniItems, iniConditions):
 
-        # initial conditions (unit: m)
-        if (
-            iniConditions == None
-        ):  # when the model just start (reading the initial conditions from file)
+        # initial conditions (m) at the start of the model (read from file)
+        if iniConditions == None:
 
             if "avgAnnualPrecipitationIni" in list(iniItems.meteoOptions.keys()):
                 self.avgAnnualPrecipitation = vos.readPCRmapClone(
@@ -79,7 +77,7 @@ class Meteo(object):
                 msg = "The initial condition avgAnnualDiurnalDeltaTempIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
                 self.avgAnnualDiurnalDeltaTemp = pcr.scalar(0.0)
 
-        # during/after spinUp
+        # during/after spin-up
         else:
 
             self.avgAnnualPrecipitation = iniConditions["meteo"][
@@ -90,7 +88,7 @@ class Meteo(object):
                 "avgAnnualDiurnalDeltaTemp"
             ]
 
-        # make sure the following values cannot be negative
+        # these values cannot be negative
         self.avgAnnualPrecipitation = pcr.ifthen(
             self.landmask, pcr.max(0.0, pcr.cover(self.avgAnnualPrecipitation, 0.0))
         )
@@ -98,7 +96,7 @@ class Meteo(object):
             self.landmask, pcr.max(0.0, pcr.cover(self.avgAnnualDiurnalDeltaTemp, 0.0))
         )
 
-        # the following values can be negative
+        # these values can be negative
         self.avgAnnualTemperature = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
 
     def __init__(self, iniItems, landmask, spinUp):
@@ -108,7 +106,6 @@ class Meteo(object):
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
 
-        # landmask/area of interest
         self.landmask = landmask
         if iniItems.globalOptions["landmask"] != "None":
             self.landmask = vos.readPCRmapClone(
@@ -117,9 +114,9 @@ class Meteo(object):
                 self.tmpDir,
                 self.inputDir,
             )
-        # NOTE: To ensure water belance consistency during meteo downscaling, perhaps we should not mask out during the calculation process ! (yet, we still have to mask out for reporting and during initial conditions reading)
+        # note: to keep the water balance consistent during downscaling, perhaps we should not mask during the calculation (only for reporting and reading initial conditions)
 
-        # option to ignore snow (temperature will be set to 25 deg C if this option is activated)
+        # option to ignore snow (temperature is set to 25 degC)
         self.ignore_snow = False
         if (
             "ignoreSnow" in list(iniItems.meteoOptions.keys())
@@ -127,9 +124,8 @@ class Meteo(object):
         ):
             self.ignore_snow = True
 
-        self.preFileNC = iniItems.meteoOptions[
-            "precipitationNC"
-        ]  # starting from 19 Feb 2014, we only support netcdf input files
+        # only netCDF input files are supported (since 19 Feb 2014)
+        self.preFileNC = iniItems.meteoOptions["precipitationNC"]
         self.tmpFileNC = iniItems.meteoOptions["temperatureNC"]
 
         self.refETPotMethod = iniItems.meteoOptions["referenceETPotMethod"]
@@ -138,17 +134,17 @@ class Meteo(object):
         )
         logger.info(msg)
 
-        # inititate Penman-Monteith class
+        # Penman-Monteith class
         if self.refETPotMethod == "Penman-Monteith":
             self.penman_monteith = penman_monteith.penmanMonteithET(windHeight=10.00)
             msg = "The Penman Monteith is instantiated for wind input data at 10 m height."
             logger.info(msg)
-            # TODO: Make flexible windHeight
+            # TODO: make windHeight flexible
 
         if self.refETPotMethod == "Input":
             self.etpFileNC = iniItems.meteoOptions["refETPotFileNC"]
 
-        # list of extra meteo variable names, needed for the Peman-Monteith calculation
+        # extra meteo variables needed for the Penman-Monteith method
         self.extra_meteo_var_names = [
             "wind_speed_10m",
             "wind_speed_10m_u_comp",
@@ -165,11 +161,8 @@ class Meteo(object):
             "dewpoint_temperature_avg",
         ]
 
-        # -----------------------------------------------------------------------
-        # NOTE: RvB 13/07/2016 Added correction constant and factor and variable name
-        # to allow for easier use of netCDF climate inpute files
-        # EHS 20/08/2016 modified for more flexibilities.
-        # - meteo conversion factors
+        # RvB (13 Jul 2016): conversion constants and factors and variable names for easier use of netCDF
+        # climate input files; modified by EHS (20 Aug 2016)
         self.preConst = 0.0
         self.preFactor = 1.0
         self.tmpConst = 0.0
@@ -177,16 +170,13 @@ class Meteo(object):
         self.refETPotConst = 0.0
         self.refETPotFactor = 1.0
         self.read_meteo_conversion_factors(iniItems.meteoOptions)
-        # - variable names
         self.preVarName = "precipitation"
         self.tmpVarName = "temperature"
         self.refETPotVarName = "evapotranspiration"
         self.read_meteo_variable_names(iniItems.meteoOptions)
 
-        # latitudes (required for the Hamon and Penman-Monteith method)
-        self.latitudes = pcr.ycoordinate(
-            pcr.defined(self.cloneMap)
-        )  # needed to calculate 'referenceETPot'
+        # latitudes, required to calculate referenceETPot with the Hamon and Penman-Monteith methods
+        self.latitudes = pcr.ycoordinate(pcr.defined(self.cloneMap))
         self.latitudes_in_radian = vos.deg2rad(self.latitudes)
 
         self.lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.defined(self.cloneMap)), np.nan)[
@@ -196,7 +186,7 @@ class Meteo(object):
             0, :
         ]
 
-        # initiate shortwave radiation class, required for the Bristow-Campbell method
+        # shortwave radiation class, required for the Bristow-Campbell method
         self.sw_rad_based_on_bristow_campbell = False
         if ("shortwave_radiation" in iniItems.meteoOptions) and (
             iniItems.meteoOptions["shortwave_radiation"] == "Bristow-Campbell"
@@ -207,7 +197,6 @@ class Meteo(object):
             msg = "The shortwave (solar) radiation will be estimated based on actual shortwave radiation is estimated based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)"
             logger.info(msg)
 
-            # read dem:
             self.elevation_meteo = pcr.cover(
                 vos.readPCRmapClone(
                     iniItems.meteoOptions["dem_for_input_meteo"],
@@ -223,14 +212,12 @@ class Meteo(object):
         if iniItems.timeStep == 1.0 and iniItems.timeStepUnit == "day":
             self.usingDailyTimeStepForcingData = True
 
-        # option to remove drizzle with rounddown
-        # - if True, any precipitation values less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 are ignored
+        # option to remove drizzle: precipitation below 0.00001 m/day (0.01 kg.m-2.day-1) is ignored
         self.rounddownPrecipitation = False
 
-        # forcing downscaling options:
         self.forcingDownscalingOptions(iniItems)
 
-        # option to use netcdf files that are defined per year (one file for each year)
+        # option to use one netCDF file per year
         self.precipitation_set_per_year = (
             iniItems.meteoOptions["precipitation_set_per_year"] == "True"
         )
@@ -241,7 +228,7 @@ class Meteo(object):
             iniItems.meteoOptions["refETPotFileNC_set_per_year"] == "True"
         )
 
-        # option for downscaling meteo using daily climatological factor
+        # option to downscale meteo with a daily climatological factor
         self.using_daily_factor_for_downscaling = False
         if (
             "using_daily_factor_for_downscaling"
@@ -267,10 +254,8 @@ class Meteo(object):
             )
 
             # TODO: expand this for T and ET0
-        # make the iniItems available for the other modules:
         self.iniItems = iniItems
 
-        # get the initial conditions
         self.getICs(iniItems, spinUp)
 
         self.report = True
@@ -285,81 +270,69 @@ class Meteo(object):
         except:
             self.report = False
         if self.report == True:
-            # daily output in netCDF files:
+            # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
-            #
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
                         var,
                         "undefined",
                     )
-            # MONTHly output in netCDF files:
-            # - cummulative
+            # monthly netCDF output: totals
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
-                    # initiating monthlyVarTot (accumulator variable):
+                    # accumulator
                     vars(self)[var + "MonthTot"] = None
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                         var,
                         "undefined",
                     )
-            # - average
+            # averages
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
-                    # initiating monthlyTotAvg (accumulator variable)
+                    # accumulator
                     vars(self)[var + "MonthTot"] = None
-                    # initiating monthlyVarAvg:
                     vars(self)[var + "MonthAvg"] = None
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
                         var,
                         "undefined",
                     )
-            # - last day of the month
+            # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                         var,
                         "undefined",
                     )
-            # YEARly output in netCDF files:
-            # - cummulative
+            # yearly netCDF output: totals
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
-                    # initiating yearly accumulator variable:
+                    # accumulator
                     vars(self)[var + "AnnuaTot"] = None
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                         var,
                         "undefined",
                     )
-            # - average
+            # averages
             if self.outAnnuaAvgNC[0] != "None":
                 for var in self.outAnnuaAvgNC:
-                    # initiating annualyVarAvg:
                     vars(self)[var + "AnnuaAvg"] = None
-                    # initiating annualyTotAvg (accumulator variable)
+                    # accumulator
                     vars(self)[var + "AnnuaTot"] = None
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
                         var,
                         "undefined",
                     )
-            # - last day of the year
+            # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    # creating the netCDF files:
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                         var,
@@ -368,7 +341,7 @@ class Meteo(object):
 
     def read_meteo_conversion_factors(self, meteoOptions):
 
-        # conversion constants and factors for default meteo variables: precipitation, temperature and reference potential evaporation
+        # conversion constants and factors for precipitation, temperature and reference potential evaporation
         if "precipitationConstant" in meteoOptions:
             self.preConst = pcr.cover(
                 vos.readPCRmapClone(
@@ -430,9 +403,8 @@ class Meteo(object):
                 1.0,
             )
 
-        # conversion constants and factors for extra meteo variables
+        # conversion constants and factors for the extra meteo variables
         for meteo_var_name in self.extra_meteo_var_names:
-            # constant
             consta_var_name = "consta_for_" + meteo_var_name
             vars(self)[consta_var_name] = pcr.spatial(pcr.scalar(0.0))
             if consta_var_name in meteoOptions:
@@ -445,7 +417,6 @@ class Meteo(object):
                     ),
                     0.0,
                 )
-            # factor
             factor_var_name = "factor_for_" + meteo_var_name
             vars(self)[factor_var_name] = pcr.spatial(pcr.scalar(1.0))
             if factor_var_name in meteoOptions:
@@ -476,7 +447,6 @@ class Meteo(object):
 
         if "meteoDownscalingOptions" in iniItems.allSections:
 
-            # downscaling options
             if iniItems.meteoDownscalingOptions["downscalePrecipitation"] == "True":
                 self.downscalePrecipitationOption = True
                 logger.info(
@@ -495,8 +465,8 @@ class Meteo(object):
                     "Reference potential evaporation will be downscaled to the cloneMap resolution."
                 )
 
-                # Note that for the Hamon method: referencePotET will be calculated based on temperature,
-                # therefore, we may not have to downscale it (particularly if temperature is already provided at high resolution).
+                # with the Hamon method, referencePotET is calculated from temperature, so it may not need downscaling
+                # (particularly if temperature is already given at high resolution)
 
         if (
             self.downscalePrecipitationOption
@@ -504,7 +474,7 @@ class Meteo(object):
             or self.downscaleReferenceETPotOption
         ):
 
-            # cellArea (m2), needed for downscaling P and ET0
+            # cell area (m2), needed to downscale P and ET0
             if "cellAreaMap" not in list(iniItems.meteoOptions.keys()):
                 iniItems.meteoOptions["cellAreaMap"] = iniItems.routingOptions[
                     "cellAreaMap"
@@ -516,7 +486,7 @@ class Meteo(object):
                 self.inputDir,
             )
 
-            # creating anomaly DEM
+            # anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(
                 iniItems.meteoDownscalingOptions["highResolutionDEM"],
                 self.cloneMap,
@@ -544,28 +514,31 @@ class Meteo(object):
                 pcr.cover(highResolutionDEM * self.cellArea, 0.0),
                 self.meteoDownscaleIds,
             ) / pcr.areatotal(pcr.cover(self.cellArea, 0.0), self.meteoDownscaleIds)
-            self.anomalyDEM = highResolutionDEM - loweResolutionDEM  # unit: meter
+            # (m)
+            self.anomalyDEM = highResolutionDEM - loweResolutionDEM
 
             # temperature lapse rate (netCDF) file
             self.temperLapseRateNC = vos.getFullPath(
                 iniItems.meteoDownscalingOptions["temperLapseRateNC"], self.inputDir
             )
+            # TODO: remove this criterion
             self.temperatCorrelNC = vos.getFullPath(
                 iniItems.meteoDownscalingOptions["temperatCorrelNC"], self.inputDir
-            )  # TODO: Remove this criteria.
+            )
 
             # precipitation lapse rate (netCDF) file
             self.precipLapseRateNC = vos.getFullPath(
                 iniItems.meteoDownscalingOptions["precipLapseRateNC"], self.inputDir
             )
+            # TODO: remove this criterion
             self.precipitCorrelNC = vos.getFullPath(
                 iniItems.meteoDownscalingOptions["precipitCorrelNC"], self.inputDir
-            )  # TODO: Remove this criteria.
+            )
 
         else:
             logger.info("No forcing downscaling is implemented.")
 
-        # forcing smoothing options: - THIS is still experimental. PS: MUST BE TESTED.
+        # forcing smoothing options (experimental; must be tested)
         self.forcingSmoothing = False
         if (
             "meteoDownscalingOptions" in iniItems.allSections
@@ -591,12 +564,11 @@ class Meteo(object):
 
         if name == "precipitation":
 
-            # perturb the precipitation
             self.precipitation = self.precipitation * pcr.min(
                 pcr.max((1 + mapnormal() * parameters["standard_deviation"]), 0.01), 2.0
             )
-            # TODO: Please also make sure that precipitation >= 0
-            # TODO: Add minimum and maximum
+            # TODO: make sure that precipitation >= 0
+            # TODO: add minimum and maximum
 
         else:
             print("Error: only precipitation may be updated at this time")
@@ -604,7 +576,6 @@ class Meteo(object):
 
     def update(self, routing, currTimeStep):
 
-        # Downscaling precipitation
         self.precipitation_before_downscaling = pcr.ifthen(
             self.landmask, self.precipitation
         )
@@ -614,7 +585,7 @@ class Meteo(object):
                 read_factor_from_file=self.using_daily_factor_for_downscaling,
             )
 
-        # downscaling temperature average
+        # downscale the average temperature
         self.temperature_before_downscaling = pcr.ifthen(
             self.landmask, self.temperature
         )
@@ -624,7 +595,7 @@ class Meteo(object):
                 read_factor_from_file=self.using_daily_factor_for_downscaling,
             )
 
-        # downscaling temperature min
+        # downscale the minimum temperature
         if self.air_temperature_min is not None and self.downscaleTemperatureOption:
             self.air_temperature_min = self.downscaleTemperatureFunction(
                 currTimeStep, self.air_temperature_min
@@ -633,7 +604,7 @@ class Meteo(object):
                 self.temperature, self.air_temperature_min
             )
 
-        # downscaling temperature max
+        # downscale the maximum temperature
         if self.air_temperature_max is not None and self.downscaleTemperatureOption:
             self.air_temperature_max = self.downscaleTemperatureFunction(
                 currTimeStep, self.air_temperature_max
@@ -642,7 +613,7 @@ class Meteo(object):
                 self.temperature, self.air_temperature_max
             )
 
-        # calculate or obtain referencePotET
+        # calculate or read referencePotET
         if self.refETPotMethod == "Hamon":
 
             msg = (
@@ -659,7 +630,7 @@ class Meteo(object):
             msg = "Calculating reference potential evaporation based on the Penman-Monteith"
             logger.info(msg)
 
-            # compute actual vapour pressure (Pa) based on relative humidity (rh = e / e_sat)
+            # actual vapour pressure (Pa) from relative humidity (rh = e / e_sat)
             vapourPressure = None
             if self.relative_humidity is not None:
                 msg = "Estimating actual vapour pressure based on relative humidity and temperature"
@@ -669,7 +640,7 @@ class Meteo(object):
                 )
                 vapourPressure = self.relative_humidity * saturatedVapourPressure
 
-            # compute actual vapour pressure (Pa) based on dew point temperature
+            # actual vapour pressure (Pa) from the dew point temperature
             if vapourPressure is None and self.dewpoint_temperature_avg is not None:
                 msg = (
                     "Estimating actual vapour pressure based on dew point temperature."
@@ -679,7 +650,7 @@ class Meteo(object):
                     self.dewpoint_temperature_avg
                 )
 
-                # TODO: If dewpoint_temperature_avg is unavailable, shall we use air_temperature_min?
+                # TODO: if dewpoint_temperature_avg is unavailable, should we use air_temperature_min?
 
             # wind speed (m.s-1)
             if ("wind_speed_10m" not in list(self.iniItems.meteoOptions.keys())) or (
@@ -691,7 +662,7 @@ class Meteo(object):
                     self.wind_speed_10m_u_comp**2.0 + self.wind_speed_10m_v_comp**2.0
                 ) ** (0.5)
 
-            # extraterestrial radiation
+            # extraterrestrial radiation
 
             if (
                 "extraterestrial_radiation"
@@ -701,20 +672,15 @@ class Meteo(object):
                 msg = "Estimating extraterestrial radiation based on Dingman's Physical Geography (2015)"
                 logger.info(msg)
 
-                # get the day angle (rad)
-                # - julian day
+                # day angle (rad) from the julian day
                 julian_day = currTimeStep.doy
-                # - number of days in a year
                 number_days = 365
                 if calendar.isleap(currTimeStep.year):
                     number_days = 366
-                # - day angle (rad)
                 day_angle = float(julian_day - 1) / number_days * 2 * math.pi
 
-                # solar declination
                 solar_declination = sw_rad.compute_solar_declination(day_angle)
 
-                # eccentricity
                 eccentricity = sw_rad.compute_eccentricity(day_angle)
 
                 # day length (hours)
@@ -723,7 +689,7 @@ class Meteo(object):
                     solar_declination=solar_declination,
                 )
 
-                # compute extraterestrial_radiation in MJ/m2/day
+                # extraterrestrial radiation (MJ.m-2.day-1)
                 extraterestrial_radiation = sw_rad.compute_radsw_ext(
                     latitude=self.latitudes_in_radian,
                     solar_declination=solar_declination,
@@ -731,11 +697,11 @@ class Meteo(object):
                     day_length=day_length,
                     solar_constant=118.1,
                 )
-                # TODO: Double check deg and rad values
+                # TODO: double check the deg and rad values
 
                 # TODO: set solar_constant in the configuration file
 
-                # the default unit for the extraterestrial_radiation is J.m-2.day-1
+                # the default unit of extraterestrial_radiation is J.m-2.day-1
                 self.extraterestrial_radiation = extraterestrial_radiation * 1e6
 
             else:
@@ -743,9 +709,9 @@ class Meteo(object):
                 msg = "Extraterestrial radiation is obtained from the input file."
                 logger.info(msg)
 
-            # TODO: There is a case that we don't need extraterestrial shortwave radiation (e.g. if shortwave and longwave have been provided).
+            # TODO: extraterrestrial shortwave radiation is not always needed (e.g. if shortwave and longwave radiation are given)
 
-            # set the extraterestrial radiation unit to W.m-2
+            # convert the extraterrestrial radiation to W.m-2
             if "extraterestrial_radiation_input_in_w_per_m2" in list(
                 self.iniItems.meteoOptions.keys()
             ) and (
@@ -761,8 +727,6 @@ class Meteo(object):
                 self.extraterestrial_radiation = (
                     pcr.max(0.0, self.extraterestrial_radiation / 1e6) / 0.0864
                 )
-
-            # shortwave radiation
 
             if self.iniItems.meteoOptions["shortwave_radiation"].endswith(
                 (".nc", ".nc4", ".nc3")
@@ -785,9 +749,9 @@ class Meteo(object):
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
 
-                # TODO: Note initiating shortwave_radiation module still must be done at every time step as temp_annual and delta_temp_mean is defined on the 'init' part)
+                # TODO: the shortwave radiation module must still be initialized every time step, as temp_annual and delta_temp_mean are defined in init
 
-                # initiate short wave radiation class with the the solar constant = 118.1 MJ/m2/day
+                # shortwave radiation class with solar constant = 118.1 MJ.m-2.day-1
                 self.sw_rad_model = sw_rad.ShortwaveRadiation(
                     latitude=self.latitudes,
                     elevation=self.elevation_meteo,
@@ -796,13 +760,12 @@ class Meteo(object):
                     solar_constant=118.1,
                 )
 
-                # - TODO: set solar_constant in the configuration file
+                # TODO: set solar_constant in the configuration file
 
-                # the 'sw_rad_model' needs the radiation input in MJ/m2/day (given the solar constant = 118.1 MJ/m2/day)
+                # sw_rad_model needs the radiation input in MJ.m-2.day-1 (given the solar constant = 118.1 MJ.m-2.day-1)
                 extraterrestrial_rad_in_watt_per_m2 = self.extraterestrial_radiation
                 extraterrestrial_rad = extraterrestrial_rad_in_watt_per_m2 * 0.0864
 
-                # calculate shortwave_radiation
                 self.sw_rad_model.update(
                     date=currTimeStep._currTimeFull,
                     prec_daily=self.precipitation,
@@ -814,10 +777,10 @@ class Meteo(object):
                     relative_humidity=self.relative_humidity,
                 )
 
-                # using the values from the shortwave radiation model (unit: J.m-2.day-1)
+                # values from the shortwave radiation model (J.m-2.day-1)
                 self.shortwave_radiation = self.sw_rad_model.radsw_act * 1e6
 
-            # set the shortwave radiation unit to W.m-2
+            # convert the shortwave radiation to W.m-2
             if "shortwave_radiation_input_in_w_per_m2" in list(
                 self.iniItems.meteoOptions.keys()
             ) and (
@@ -830,8 +793,6 @@ class Meteo(object):
                     pcr.max(0.0, self.shortwave_radiation / 1e6) / 0.0864
                 )
 
-            # longwave radiation
-
             if "longwave_radiation" in list(
                 self.iniItems.meteoOptions.keys()
             ) and self.iniItems.meteoOptions["longwave_radiation"].endswith(
@@ -841,9 +802,7 @@ class Meteo(object):
                 msg = "Longwave radiation is obtained from the input file."
                 logger.info(msg)
 
-                # make sure that longwave radiation unit is W.m-2
-                # - note that the default unit for the input file defined in the configuration file is J.m-2.day-1
-                # - therefore we have set the longwave radiation unit to W.m-2
+                # convert the longwave radiation to W.m-2 (the default input unit is J.m-2.day-1)
                 if "longwave_radiation_input_in_w_per_m2" in list(
                     self.iniItems.meteoOptions.keys()
                 ) and (
@@ -861,7 +820,7 @@ class Meteo(object):
                 msg = "Longwave radiation is estimated from shortwave radiation, extraterestrial radiation, and actual vapour pressue"
                 logger.info(msg)
 
-                # fraction of shortWaveRadiation (dimensionless)
+                # fraction of shortwave radiation (-)
                 fractionShortWaveRadiation = pcr.cover(
                     pcr.min(
                         1.0, self.shortwave_radiation / self.extraterestrial_radiation
@@ -869,7 +828,7 @@ class Meteo(object):
                     0.0,
                 )
 
-                # longwave radiation (already) in W.m**-2
+                # longwave radiation (already in W.m-2)
                 self.longwave_radiation = penman_monteith.getLongWaveRadiation(
                     self.temperature,
                     vapourPressure,
@@ -877,12 +836,12 @@ class Meteo(object):
                     self.relative_humidity,
                 )
 
-            # calculate net radiation (unit: W.m**-2)
+            # net radiation (W.m-2)
             self.net_radiation = pcr.max(
                 0.0, self.shortwave_radiation - self.longwave_radiation
             )
 
-            # referencePotET in m.day-1
+            # referencePotET (m.day-1)
             self.referencePotET = self.penman_monteith.updatePotentialEvaporation(
                 netRadiation=self.net_radiation,
                 airTemperature=self.temperature,
@@ -893,7 +852,7 @@ class Meteo(object):
                 timeStepLength=86400,
             )
 
-        # Downscaling referenceETPot (based on temperature)
+        # downscale referenceETPot (based on temperature)
         self.referencePotET_before_downscaling = self.referencePotET
         if self.downscaleReferenceETPotOption:
             self.downscaleReferenceETPot(
@@ -901,7 +860,7 @@ class Meteo(object):
                 read_factor_from_file=self.using_daily_factor_for_downscaling,
             )
 
-        # smoothing:
+        # smoothing
         if self.forcingSmoothing == True:
             logger.debug("Forcing data are smoothed.")
             self.precipitation = pcr.windowaverage(
@@ -914,28 +873,24 @@ class Meteo(object):
                 self.referencePotET, self.smoothingWindowsLength
             )
 
-        # rounding temperature values to minimize numerical errors (note only to minimize, not remove)
+        # round temperature values to minimize numerical errors
         self.temperature = pcr.roundoff(self.temperature * 1000.0) / 1000.0
 
-        # ignore snow by setting temperature to 25 deg C
+        # ignore snow by setting the temperature to 25 degC
         if self.ignore_snow:
             self.temperature = pcr.spatial(pcr.scalar(25.0))
 
-        # make sure precipitation and referencePotET are always positive:
+        # precipitation and referencePotET must be positive
         self.precipitation = pcr.max(0.0, self.precipitation)
         self.referencePotET = pcr.max(0.0, self.referencePotET)
 
-        # define precipitation, temperature and referencePotET ONLY at landmask area (for reporting):
+        # only define precipitation, temperature and referencePotET within the landmask (for reporting)
         self.precipitation = pcr.ifthen(self.landmask, self.precipitation)
         self.temperature = pcr.ifthen(self.landmask, self.temperature)
         self.referencePotET = pcr.ifthen(self.landmask, self.referencePotET)
 
-        # updata average long term values
-        # - avgAnnualPrecipitation
-        # - avgAnnualTemperature
-        # - avgAnnualDiurnalDeltaTemp
+        # update the long-term averages
 
-        # avgAnnualPrecipitation
         deltaAnnualPrecipitation = self.precipitation - self.avgAnnualPrecipitation
         self.avgAnnualPrecipitation = (
             self.avgAnnualPrecipitation
@@ -944,7 +899,6 @@ class Meteo(object):
         )
         self.avgAnnualPrecipitation = pcr.max(0.0, self.avgAnnualPrecipitation)
 
-        # avgAnnualTemperature
         deltaAnnualTemperature = self.temperature - self.avgAnnualTemperature
         self.avgAnnualTemperature = (
             self.avgAnnualTemperature
@@ -952,7 +906,6 @@ class Meteo(object):
             / pcr.min(365.0, pcr.max(1.0, routing.timestepsToAvgDischarge))
         )
 
-        # avgAnnualDiurnalDeltaTemp
         if self.air_temperature_max is not None or self.air_temperature_min is not None:
             diurnalDeltaTemp = pcr.max(
                 0.0, self.air_temperature_max - self.air_temperature_min
@@ -971,7 +924,7 @@ class Meteo(object):
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
             )
-            # writing daily output to netcdf files
+            # daily netCDF output
             timestepPCR = currTimeStep.timeStepPCR
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
@@ -983,20 +936,16 @@ class Meteo(object):
                         timestepPCR - 1,
                     )
 
-            # writing monthly output to netcdf files
-            # -cummulative
+            # monthly netCDF output: totals
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
 
-                    # introduce variables at the beginning of simulation or
-                    #     reset variables at the beginning of the month
+                    # initialize at the start of the simulation or reset at the start of the month
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
                         vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
 
-                    # accumulating
                     vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    # reporting at the end of the month:
                     if currTimeStep.endMonth == True:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
@@ -1005,20 +954,17 @@ class Meteo(object):
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
-            # -average
+            # averages
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
-                    # only if a accumulator variable has not been defined:
+                    # only if no accumulator is defined
                     if var not in self.outMonthTotNC:
 
-                        # introduce accumulator at the beginning of simulation or
-                        #     reset accumulator at the beginning of the month
+                        # initialize at the start of the simulation or reset at the start of the month
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
                             vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
-                        # accumulating
                         vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    # calculating average & reporting at the end of the month:
                     if currTimeStep.endMonth == True:
                         vars(self)[var + "MonthAvg"] = (
                             vars(self)[var + "MonthTot"] / currTimeStep.day
@@ -1030,11 +976,9 @@ class Meteo(object):
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
-            #
-            # -last day of the month
+            # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    # reporting at the end of the month:
                     if currTimeStep.endMonth == True:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
@@ -1044,20 +988,16 @@ class Meteo(object):
                             currTimeStep.monthIdx - 1,
                         )
 
-            # writing yearly output to netcdf files
-            # -cummulative
+            # yearly netCDF output: totals
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
 
-                    # introduce variables at the beginning of simulation or
-                    #     reset variables at the beginning of the month
+                    # initialize at the start of the simulation or reset at the start of the year
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                         vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
 
-                    # accumulating
                     vars(self)[var + "AnnuaTot"] += vars(self)[var]
 
-                    # reporting at the end of the year:
                     if currTimeStep.endYear == True:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
@@ -1066,19 +1006,15 @@ class Meteo(object):
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
-            # -average
+            # averages
             if self.outAnnuaAvgNC[0] != "None":
                 for var in self.outAnnuaAvgNC:
-                    # only if a accumulator variable has not been defined:
+                    # only if no accumulator is defined
                     if var not in self.outAnnuaTotNC:
-                        # introduce accumulator at the beginning of simulation or
-                        #     reset accumulator at the beginning of the year
+                        # initialize at the start of the simulation or reset at the start of the year
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                             vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
-                        # accumulating
                         vars(self)[var + "AnnuaTot"] += vars(self)[var]
-                    #
-                    # calculating average & reporting at the end of the year:
                     if currTimeStep.endYear == True:
                         vars(self)[var + "AnnuaAvg"] = (
                             vars(self)[var + "AnnuaTot"] / currTimeStep.doy
@@ -1090,11 +1026,9 @@ class Meteo(object):
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
-            #
-            # -last day of the year
+            # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    # reporting at the end of the year:
                     if currTimeStep.endYear == True:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
@@ -1114,7 +1048,7 @@ class Meteo(object):
         considerCellArea=True,
     ):
 
-        # TODO: add CorrelationCriteria in the config file
+        # TODO: add CorrelationCriteria to the config file
         if read_factor_from_file == True:
 
             doyStep = currTimeStep.doy
@@ -1136,7 +1070,7 @@ class Meteo(object):
             self.precipitation = pcr.ifthenelse(
                 self.precipitation > drizzle_limit, self.precipitation, 0.00
             )
-            # TODO use this one too?
+            # TODO: use this one too?
             self.precipitation = self.precipitation * factor
             self.precipitation = pcr.max(0.0, self.precipitation)
 
@@ -1175,7 +1109,7 @@ class Meteo(object):
 
                 factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
 
-                # - do not downscale drizzle
+                # do not downscale drizzle
                 factor = pcr.ifthenelse(
                     self.precipitation > drizzle_limit, factor, 1.00
                 )
@@ -1198,7 +1132,7 @@ class Meteo(object):
         considerCellArea=True,
     ):
 
-        # TODO: add CorrelationCriteria in the config file
+        # TODO: add CorrelationCriteria to the config file
         if read_factor_from_file == True:
             doyStep = currTimeStep.doy
             if calendar.isleap(currTimeStep.year) and doyStep > 59:
@@ -1219,7 +1153,8 @@ class Meteo(object):
                 cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
-            tmpSlope = pcr.min(0.0, tmpSlope)  # must be negative
+            # must be negative
+            tmpSlope = pcr.min(0.0, tmpSlope)
             tmpCriteria = vos.netcdf2PCRobjClone(
                 self.temperatCorrelNC,
                 dateInput=currTimeStep.month,
@@ -1254,7 +1189,7 @@ class Meteo(object):
         considerCellArea=True,
     ):
 
-        # TODO: add CorrelationCriteria in the config file
+        # TODO: add CorrelationCriteria to the config file
 
         tmpSlope = 1.000 * vos.netcdf2PCRobjClone(
             self.temperLapseRateNC,
@@ -1263,7 +1198,8 @@ class Meteo(object):
             cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
-        tmpSlope = pcr.min(0.0, tmpSlope)  # must be negative
+        # must be negative
+        tmpSlope = pcr.min(0.0, tmpSlope)
         tmpCriteria = vos.netcdf2PCRobjClone(
             self.temperatCorrelNC,
             dateInput=currTimeStep.month,
@@ -1310,12 +1246,12 @@ class Meteo(object):
 
         else:
             if usingHamon:
-                # factor is based on hamon reference potential evaporation using high resolution temperature
+                # factor based on the Hamon reference potential evaporation using the high-resolution temperature
                 factor = hamon_et0.HamonPotET(
                     self.temperature, pcr.scalar(currTimeStep.doy), self.latitudes
                 )
             else:
-                # factor is based on high resolution temperature in Kelvin unit
+                # factor based on the high-resolution temperature (K)
                 factor = self.temperature + zeroCelciusInKelvin
 
             factor = pcr.max(0.0, factor)
@@ -1328,7 +1264,7 @@ class Meteo(object):
 
             factor = factor / pcr.areaaverage(factor, self.meteoDownscaleIds)
 
-            # - do not downscale small values
+            # do not downscale small values
             factor = pcr.ifthenelse(self.referencePotET > min_limit, factor, 1.00)
 
             factor = pcr.cover(factor, 1.0)
@@ -1337,17 +1273,12 @@ class Meteo(object):
 
     def read_forcings(self, currTimeStep):
 
-        # -----------------------------------------------------------------------
-        # NOTE: RvB 13/07/2016 hard-coded reference to the variable names
-        # preciptiation, temperature and evapotranspiration have been replaced
-        # by the variable names used in the netCDF and passed from the ini file
-        # -----------------------------------------------------------------------
+        # RvB (13 Jul 2016): the hard-coded variable names of precipitation, temperature and
+        # evapotranspiration are replaced by the netCDF variable names from the ini file
 
-        # method for finding time indexes in the precipitation netdf file:
-        # - the default one
+        # method to find the time indices in the precipitation netCDF file (default: None, or from the ini file)
         method_for_time_index = None
         method_for_time_index = "daily"
-        # - based on the ini/configuration file (if given)
         if (
             "time_index_method_for_precipitation_netcdf"
             in list(self.iniItems.meteoOptions.keys())
@@ -1358,7 +1289,6 @@ class Meteo(object):
                 "time_index_method_for_precipitation_netcdf"
             ]
 
-        # reading precipitation:
         netcdf_file_name = self.preFileNC
 
         if (
@@ -1405,24 +1335,19 @@ class Meteo(object):
                 LatitudeLongitude=True,
             )
 
-        # -----------------------------------------------------------------------
-        # NOTE: RvB 13/07/2016 added to automatically update precipitation
+        # RvB (13 Jul 2016): apply the conversion constant and factor
         self.precipitation = self.preConst + self.preFactor * self.precipitation
-        # -----------------------------------------------------------------------
 
-        # make sure that precipitation is always positive
         self.precipitation = pcr.max(0.0, self.precipitation)
         self.precipitation = pcr.cover(self.precipitation, 0.0)
 
-        # ignore very small values of precipitation (less than 0.00001 m/day or less than 0.01 kg.m-2.day-1 )
+        # ignore very small precipitation (below 0.00001 m/day or 0.01 kg.m-2.day-1)
         if self.usingDailyTimeStepForcingData and self.rounddownPrecipitation:
             self.precipitation = pcr.rounddown(self.precipitation * 100000.0) / 100000.0
 
-        # method for finding time index in the temperature netdf file:
-        # - the default one
+        # method to find the time indices in the temperature netCDF file (default: None, or from the ini file)
         method_for_time_index = None
         method_for_time_index = "daily"
-        # - based on the ini/configuration file (if given)
         if (
             "time_index_method_for_temperature_netcdf"
             in list(self.iniItems.meteoOptions.keys())
@@ -1433,7 +1358,6 @@ class Meteo(object):
                 "time_index_method_for_temperature_netcdf"
             ]
 
-        # reading temperature
         netcdf_file_name = self.tmpFileNC
 
         if (
@@ -1482,18 +1406,14 @@ class Meteo(object):
                 LatitudeLongitude=True,
             )
 
-        # -----------------------------------------------------------------------
-        # NOTE: RvB 13/07/2016 added to automatically update temperature
+        # RvB (13 Jul 2016): apply the conversion constant and factor
         self.temperature = self.tmpConst + self.tmpFactor * self.temperature
-        # -----------------------------------------------------------------------
 
         if self.refETPotMethod == "Input":
 
-            # method for finding time indexes in the precipitation netdf file:
-            # - the default one
+            # method to find the time indices in the reference potential ET netCDF file (default: None, or from the ini file)
             method_for_time_index = None
             method_for_time_index = "daily"
-            # - based on the ini/configuration file (if given)
             if (
                 "time_index_method_for_ref_pot_et_netcdf"
                 in list(self.iniItems.meteoOptions.keys())
@@ -1506,7 +1426,6 @@ class Meteo(object):
                     "time_index_method_for_ref_pot_et_netcdf"
                 ]
 
-            # reading referencePotET
             netcdf_file_name = self.etpFileNC
 
             if (
@@ -1559,16 +1478,13 @@ class Meteo(object):
                     LatitudeLongitude=True,
                 )
 
-            # -----------------------------------------------------------------------
-            # NOTE: RvB 13/07/2016 added to automatically update reference potential evapotranspiration
+            # RvB (13 Jul 2016): apply the conversion constant and factor
             self.referencePotET = (
                 self.refETPotConst + self.refETPotFactor * self.referencePotET
             )
-            # -----------------------------------------------------------------------
 
-        # extra meteo files/variables (needed for the Penman-Monteith method)
+        # extra meteo variables (needed for the Penman-Monteith method)
         for meteo_var_name in self.extra_meteo_var_names:
-            #
             vars(self)[meteo_var_name] = None
             if meteo_var_name in list(
                 self.iniItems.meteoOptions.keys()
@@ -1576,7 +1492,6 @@ class Meteo(object):
                 (".nc", ".nc4", ".nc3")
             ):
 
-                # read the file
                 method_for_time_index = None
                 method_for_time_index = "daily"
                 netcdf_file_name = vos.getFullPath(
@@ -1590,7 +1505,7 @@ class Meteo(object):
                     cloneMapFileName=self.cloneMap,
                 )
 
-                # apply conversion factor and constant
+                # apply the conversion factor and constant
                 vars(self)[meteo_var_name] = (
                     vars(self)["consta_for_" + meteo_var_name]
                     + vars(self)["factor_for_" + meteo_var_name]

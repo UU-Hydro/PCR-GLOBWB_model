@@ -12,16 +12,14 @@ class IndustryWaterDemand(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
 
-        # make the iniItems for the entire class
         self.iniItems = iniItems
 
-        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
 
-        # get the file information for industry water demand (unit: m/day)
+        # file information for industry water demand (m/day)
         self.industryWaterDemandOption = False
         if iniItems.waterDemandOptions["includeIndustryWaterDemand"] == "True":
             self.industryWaterDemandOption = True
@@ -38,18 +36,16 @@ class IndustryWaterDemand(object):
 
     def update(self, currTimeStep, read_file=True):
 
-        # get the gross and netto demand values (as well as return flow fraction), either by reading input files or calculating them
+        # get gross and net demand and return flow fraction, by reading input files or calculating them
         if read_file:
             self.read_industry_water_demand_from_files(currTimeStep)
         else:
             self.calculate_industry_water_demand_for_date(currTimeStep)
 
     def read_industry_water_demand_from_files(self, currTimeStep):
-        # read industry water demand
         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
             if self.industryWaterDemandOption:
 
-                # reading from a netcdf file
                 if self.industryWaterDemandFile.endswith(vos.netcdf_suffixes):
                     self.industryGrossDemand = pcr.max(
                         0.0,
@@ -79,7 +75,6 @@ class IndustryWaterDemand(object):
                         ),
                     )
 
-                # reading from pcraster maps
                 else:
                     grossFileName = (
                         self.industryWaterDemandFile
@@ -121,14 +116,13 @@ class IndustryWaterDemand(object):
                 self.industryNettoDemand = pcr.spatial(pcr.scalar(0.0))
                 logger.debug("Industry water demand is NOT included.")
 
-            # gross and netto industrial water demand in m/day
+            # gross and net industrial water demand (m/day)
             self.industryGrossDemand = pcr.cover(self.industryGrossDemand, 0.0)
             self.industryNettoDemand = pcr.cover(self.industryNettoDemand, 0.0)
             self.industryNettoDemand = pcr.min(
                 self.industryGrossDemand, self.industryNettoDemand
             )
 
-            # return flow fraction
             self.industryReturnFlowFraction = pcr.max(
                 0.0,
                 1.0

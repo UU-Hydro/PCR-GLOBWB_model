@@ -8,13 +8,12 @@ class SoilAndTopoParameters(object):
     def __init__(self, iniItems, landmask):
         object.__init__(self)
 
-        # cloneMap, tmpDir, inputDir based on the configuration/setting given in the ini/configuration file
         self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
 
-        # How many soil layers (excluding groundwater):
+        # number of soil layers (excluding groundwater)
         self.numberOfLayers = int(
             iniItems.landSurfaceOptions["numberOfUpperSoilLayers"]
         )
@@ -26,11 +25,11 @@ class SoilAndTopoParameters(object):
 
     def readTopo(self, iniItems, optionDict):
 
-        # a dictionary/section of options that will be used
+        # options section to use
         if optionDict == None:
             optionDict = iniItems.landSurfaceOptions
 
-        # maps of elevation attributes:
+        # elevation attributes
         topoParams = ["tanslope", "slopeLength", "orographyBeta"]
         if optionDict["topographyNC"] == str(None):
             for var in topoParams:
@@ -51,10 +50,10 @@ class SoilAndTopoParameters(object):
                 if var != "slopeLength":
                     vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
-        # covering slopeLength with its maximum value
+        # fill missing slopeLength with its maximum value
         self.slopeLength = pcr.cover(self.slopeLength, pcr.mapmaximum(self.slopeLength))
 
-        # maps of relative elevation above flood plains
+        # relative elevation above the floodplain
         dzRel = [
             "dzRel0001",
             "dzRel0005",
@@ -91,11 +90,11 @@ class SoilAndTopoParameters(object):
 
     def readSoilMapOfFAO(self, iniItems, optionDict=None):
 
-        # a dictionary/section of options that will be used
+        # options section to use
         if optionDict == None:
             optionDict = iniItems.landSurfaceOptions
 
-        # soil variable names given either in the ini or netCDF file:
+        # soil parameter names (in the ini or netCDF file)
         soilParameters = [
             "airEntryValue1",
             "airEntryValue2",
@@ -130,8 +129,7 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation
-                    # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
                     vars(self)[var] = pcr.cover(
                         vars(self)[var], pcr.windowaverage(vars(self)[var], 0.75)
                     )
@@ -175,8 +173,7 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation
-                    # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
                     vars(self)[var] = pcr.cover(
                         vars(self)[var], pcr.windowaverage(vars(self)[var], 0.75)
                     )
@@ -203,23 +200,20 @@ class SoilAndTopoParameters(object):
         self.resVolWC2 = pcr.min(self.resVolWC2, self.satVolWC2)
 
         if self.numberOfLayers == 2:
-            self.satVolMoistContUpp = (
-                self.satVolWC1
-            )  # saturated volumetric moisture content (m3.m-3)
+            # saturated volumetric moisture content (m3.m-3)
+            self.satVolMoistContUpp = self.satVolWC1
             self.satVolMoistContLow = self.satVolWC2
-            self.resVolMoistContUpp = (
-                self.resVolWC1
-            )  # residual volumetric moisture content (m3.m-3)
+            # residual volumetric moisture content (m3.m-3)
+            self.resVolMoistContUpp = self.resVolWC1
             self.resVolMoistContLow = self.resVolWC2
-            self.airEntryValueUpp = (
-                self.airEntryValue1
-            )  # air entry value (m) according to soil water retention curve of Clapp & Hornberger (1978)
+            # air entry value (m) of the soil water retention curve (Clapp & Hornberger, 1978)
+            self.airEntryValueUpp = self.airEntryValue1
             self.airEntryValueLow = self.airEntryValue2
-            self.poreSizeBetaUpp = (
-                self.poreSizeBeta1
-            )  # pore size distribution parameter according to Clapp & Hornberger (1978)
+            # pore size distribution parameter (Clapp & Hornberger, 1978)
+            self.poreSizeBetaUpp = self.poreSizeBeta1
             self.poreSizeBetaLow = self.poreSizeBeta2
-            self.kSatUpp = self.KSat1  # saturated hydraulic conductivity (m.day-1)
+            # saturated hydraulic conductivity (m.day-1)
+            self.kSatUpp = self.KSat1
             self.kSatLow = self.KSat2
 
         if self.numberOfLayers == 3:
@@ -239,12 +233,10 @@ class SoilAndTopoParameters(object):
             self.kSatUpp005030 = self.KSat1
             self.kSatLow030150 = self.KSat2
 
-        self.percolationImp = pcr.cover(
-            self.percolationImp, 0.0
-        )  # fractional area where percolation to groundwater store is impeded (dimensionless)
+        # fractional area where percolation to groundwater store is impeded (dimensionless)
+        self.percolationImp = pcr.cover(self.percolationImp, 0.0)
 
-        # soil thickness and storage variable names
-        # as given either in the ini or netCDF file:
+        # soil thickness and storage names (in the ini or netCDF file)
         soilStorages = [
             "firstStorDepth",
             "secondStorDepth",
@@ -269,8 +261,7 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation
-                    # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
                     vars(self)[temp] = pcr.cover(
                         vars(self)[temp], pcr.windowaverage(vars(self)[temp], 0.75)
                     )
@@ -312,8 +303,7 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation
-                    # - TODO: Make a general extrapolation option as a function in the virtualOS.py
+                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
                     vars(self)[temp] = pcr.cover(
                         vars(self)[temp], pcr.windowaverage(vars(self)[temp], 0.75)
                     )
@@ -335,7 +325,6 @@ class SoilAndTopoParameters(object):
 
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
 
-        # layer thickness
         if self.numberOfLayers == 2:
             self.thickUpp = (0.30 / 0.30) * self.firstStorDepthInp
             self.thickLow = (1.20 / 1.20) * self.secondStorDepthInp
@@ -344,7 +333,6 @@ class SoilAndTopoParameters(object):
             self.thickUpp005030 = (0.25 / 0.30) * self.firstStorDepthInp
             self.thickLow030150 = (1.20 / 1.20) * self.secondStorDepthInp
 
-        # soil storage
         if self.numberOfLayers == 2:
             self.storCapUpp = self.thickUpp * (
                 self.satVolMoistContUpp - self.resVolMoistContUpp
@@ -352,9 +340,8 @@ class SoilAndTopoParameters(object):
             self.storCapLow = self.thickLow * (
                 self.satVolMoistContLow - self.resVolMoistContLow
             )
-            self.rootZoneWaterStorageCap = (
-                self.storCapUpp + self.storCapLow
-            )  # This is called as WMAX in the original pcrcalc script.
+            # WMAX in the original pcrcalc script
+            self.rootZoneWaterStorageCap = self.storCapUpp + self.storCapLow
         if self.numberOfLayers == 3:
             self.storCapUpp000005 = self.thickUpp000005 * (
                 self.satVolMoistContUpp000005 - self.resVolMoistContUpp000005
@@ -371,18 +358,21 @@ class SoilAndTopoParameters(object):
 
     def readSoil(self, iniItems, optionDict=None):
 
-        # a dictionary/section of options that will be used
+        # options section to use
         if optionDict == None:
             optionDict = iniItems.landSurfaceOptions
 
-        # default values of soil parameters that are constant/uniform for the entire domain:
-        self.clappAddCoeff = pcr.scalar(3.0)  # dimensionless
-        self.matricSuctionFC = pcr.scalar(1.0)  # unit: m
-        self.matricSuction50 = pcr.scalar(3.33)  # unit: m
-        self.matricSuctionWP = pcr.scalar(156.0)  # unit: m
-        self.maxGWCapRise = pcr.scalar(5.0)  # unit: m
-        #
-        # values defined in the ini/configuration file:
+        # default soil parameters that are uniform for the entire domain (dimensionless)
+        self.clappAddCoeff = pcr.scalar(3.0)
+        # (m)
+        self.matricSuctionFC = pcr.scalar(1.0)
+        # (m)
+        self.matricSuction50 = pcr.scalar(3.33)
+        # (m)
+        self.matricSuctionWP = pcr.scalar(156.0)
+        # (m)
+        self.maxGWCapRise = pcr.scalar(5.0)
+        # values defined in the ini file
         soilParameterConstants = [
             "clappAddCoeff",
             "matricSuctionFC",
@@ -397,24 +387,20 @@ class SoilAndTopoParameters(object):
                     input, self.cloneMap, self.tmpDir, self.inputDir
                 )
 
-        # read soil parameter based on the FAO soil map:
+        # soil parameters based on the FAO soil map
         self.readSoilMapOfFAO(iniItems, optionDict)
 
-        # assign Campbell's (1974) beta coefficient, as well as degree
-        # of saturation at field capacity and corresponding unsaturated hydraulic conductivity
-        #
+        # Campbell's (1974) beta coefficient, degree of saturation at field capacity and the corresponding unsaturated hydraulic conductivity
         if self.numberOfLayers == 2:
 
-            self.campbellBetaUpp = (
-                self.poreSizeBetaUpp * 2.0 + self.clappAddCoeff
-            )  # Campbell's (1974) coefficient ; Rens's line: BCB = 2*BCH + BCH_ADD
+            # Campbell's (1974) coefficient; Rens: BCB = 2*BCH + BCH_ADD
+            self.campbellBetaUpp = self.poreSizeBetaUpp * 2.0 + self.clappAddCoeff
             self.campbellBetaLow = self.poreSizeBetaLow * 2.0 + self.clappAddCoeff
 
+            # degree of saturation at field capacity: THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
             self.effSatAtFieldCapUpp = (
                 self.matricSuctionFC / self.airEntryValueUpp
-            ) ** (
-                -1.0 / self.poreSizeBetaUpp
-            )  # saturation degree at field capacity       : THEFF_FC = (PSI_FC/PSI_A)**(-1/BCH)
+            ) ** (-1.0 / self.poreSizeBetaUpp)
             self.effSatAtFieldCapUpp = pcr.cover(self.effSatAtFieldCapUpp, 1.0)
 
             self.effSatAtFieldCapLow = (
@@ -422,13 +408,13 @@ class SoilAndTopoParameters(object):
             ) ** (-1.0 / self.poreSizeBetaLow)
             self.effSatAtFieldCapLow = pcr.cover(self.effSatAtFieldCapLow, 1.0)
 
+            # unsaturated conductivity at field capacity: KTHEFF_FC = max(0,THEFF_FC[TYPE]**BCB*KS1)
             self.kUnsatAtFieldCapUpp = pcr.max(
                 0.0, (self.effSatAtFieldCapUpp**self.campbellBetaUpp) * self.kSatUpp
-            )  # unsaturated conductivity at field capacity: KTHEFF_FC = max(0,THEFF_FC[TYPE]**BCB*KS1)
+            )
             self.kUnsatAtFieldCapLow = pcr.max(
                 0.0, (self.effSatAtFieldCapLow**self.campbellBetaLow) * self.kSatLow
             )
-        #
         if self.numberOfLayers == 3:
 
             self.campbellBetaUpp000005 = (
@@ -467,9 +453,7 @@ class SoilAndTopoParameters(object):
                 * self.kSatLow030150,
             )
 
-        # calculate degree of saturation at which transpiration is halved (50)
-        # and at wilting point
-        #
+        # degree of saturation at which transpiration is halved (50) and at wilting point
         if self.numberOfLayers == 2:
             self.effSatAt50Upp = (self.matricSuction50 / self.airEntryValueUpp) ** (
                 -1.0 / self.poreSizeBetaUpp
@@ -509,15 +493,14 @@ class SoilAndTopoParameters(object):
                 self.matricSuctionWP / self.airEntryValueLow030150
             ) ** (-1.0 / self.poreSizeBetaLow030150)
 
-        # calculate interflow parameter (TCL):
-        #
+        # interflow parameter (TCL):
         if self.numberOfLayers == 2:
+            # TCL = Duration*(2*KS2*TANSLOPE)/(LSLOPE*(1-THEFF2_FC)*(THETASAT2-THETARES2))
             self.interflowConcTime = (self.kSatLow * self.tanslope * 2.0) / (
                 self.slopeLength
                 * (1.0 - self.effSatAtFieldCapLow)
                 * (self.satVolMoistContLow - self.resVolMoistContLow)
-            )  # TCL = Duration*(2*KS2*TANSLOPE)/(LSLOPE*(1-THEFF2_FC)*(THETASAT2-THETARES2))
-        #
+            )
         if self.numberOfLayers == 3:
             self.interflowConcTime = (self.kSatLow030150 * self.tanslope * 2.0) / (
                 self.slopeLength
