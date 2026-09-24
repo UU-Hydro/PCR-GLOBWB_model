@@ -11,25 +11,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up pixi (lint environment)
+        uses: prefix-dev/setup-pixi@v0.10.2
         with:
-          fetch-depth: 0
+          pixi-version: v0.80.0
+          environments: lint
+          cache: true
 
-      - name: Get changed files
-        id: changed
-        uses: tj-actions/changed-files@v46
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        
-      - name: Set up pre-commit
-        run: pip install pre-commit==4.6.2
-
-      - name: Run pre-commit
-        if: steps.changed.outputs.any_changed == 'true'
-        env:
-          FILES: ${{ steps.changed.outputs.all_changed_files }}
-        run: |
-          pre-commit run --files $FILES --hook-stage manual autoflake-check
-          pre-commit run --files $FILES --hook-stage manual isort-check
-          pre-commit run --files $FILES --hook-stage manual black-check
-          pre-commit run --files $FILES --hook-stage manual flake8-check
+      - name: Run format and lint checks
+        run: pixi run -e lint pre-commit run --all-files --hook-stage manual

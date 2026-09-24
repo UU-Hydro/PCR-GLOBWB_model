@@ -1,4 +1,4 @@
-name: Tests
+name: Unit tests
 
 on: [push, pull_request]
 
@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 jobs:
-  tests:
+  unittests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
