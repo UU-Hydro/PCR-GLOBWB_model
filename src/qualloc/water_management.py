@@ -1,6 +1,3 @@
-# water management module of the QUAlloc model
-
-# modules
 import os
 import sys
 import logging

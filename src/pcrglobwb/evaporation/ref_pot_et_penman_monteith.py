@@ -1,8 +1,3 @@
-# functions and class to compute the potential evapotranspiration
-# using the Penman-Monteith equation following the FAO guidelines
-# from FAO irrigation report 56 (Allen et al.,1998)
-
-#-modules
 import os
 import sys
 from pcrglobwb.common import virtualOS as vos

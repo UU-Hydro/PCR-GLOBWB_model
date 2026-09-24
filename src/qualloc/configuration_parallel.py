@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-#  -*- coding: utf-8 -*-
-#
-# Module to create configuration files from a bash file when a global
-# parallel run is intended
-
-###########
-# Modules #
-###########
 import os, sys
 
 ###########

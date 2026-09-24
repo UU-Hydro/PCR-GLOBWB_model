@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 
 qualloc_runner.py: main file that runs the QUAlloc model that emulates \

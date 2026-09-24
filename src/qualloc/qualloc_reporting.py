@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-#  -*- coding: utf-8 -*-
-
-###########
-# Modules #
-###########
-#-standard modules
 import os, sys
 import logging
 import pcraster as pcr

@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-#  -*- coding: utf-8 -*-
-
-###############################################################################
-# shortwave_radiation.py:                                                     #
-# global shortwave radiation: class instance that allows for the computation  #
-# of spatial distributed fields of the incoming radiation per day             #
-###############################################################################
-
 """
 
 shortwave_radiation.py:                                                     #

@@ -1,8 +1,3 @@
-# water quality module of the QUAlloc model
-
-###########
-# modules #
-###########
 import logging, datetime
 import pcraster as pcr
 

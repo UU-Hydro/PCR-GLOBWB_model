@@ -1,6 +1,3 @@
-# allocation module of the QUAlloc model
-
-# modules
 import sys
 
 from copy import deepcopy

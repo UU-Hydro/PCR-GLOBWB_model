@@ -1,33 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function
 
-#
-# PCR-GLOBWB (PCRaster Global Water Balance) Global Hydrological Model
-#
-# Copyright (C) 2016, Edwin H. Sutanudjaja, Rens van Beek, Niko Wanders, Yoshihide Wada, 
-# Joyce H. C. Bosmans, Niels Drost, Ruud J. van der Ent, Inge E. M. de Graaf, Jannis M. Hoch, 
-# Kor de Jong, Derek Karssenberg, Patricia López López, Stefanie Peßenteiner, Oliver Schmitz, 
-# Menno W. Straatsma, Ekkamol Vannametee, Dominik Wisser, and Marc F. P. Bierkens
-# Faculty of Geosciences, Utrecht University, Utrecht, The Netherlands
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Edwin Husni Sutanudjaja (24 June 2014): This script is to integrate several pcraster maps into one global map.
-#                                         - Used mainly for making a set of initial conditions for 5 arc min runs. 
-
-#-modules
 import os
 import sys
 import subprocess

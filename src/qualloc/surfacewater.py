@@ -1,6 +1,3 @@
-# surface water module of the QUAlloc model
-
-# modules
 import logging
 import pcraster as pcr
 

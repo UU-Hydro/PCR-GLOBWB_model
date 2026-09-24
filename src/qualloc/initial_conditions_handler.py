@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 
 read_initial_conditions.py: module for setting the initial conditions.
