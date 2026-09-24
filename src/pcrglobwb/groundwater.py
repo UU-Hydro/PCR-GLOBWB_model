@@ -181,7 +181,7 @@ class Groundwater(object):
                     "recessionCoeff",
                     cloneMapFileName=self.cloneMap,
                 )
-        except:
+        except Exception:
             self.recessionCoeff = None
             msg = (
                 "The 'recessionCoeff' cannot be read from the file: "
@@ -209,7 +209,7 @@ class Groundwater(object):
             logger.info(msg)
 
             # aquifer width from the landSurfaceOptions (slopeLength)
-            if iniItems.landSurfaceOptions["topographyNC"] == None:
+            if iniItems.landSurfaceOptions["topographyNC"] is None:
                 aquiferWidth = vos.readPCRmapClone(
                     iniItems.landSurfaceOptions["slopeLength"],
                     self.cloneMap,
@@ -393,10 +393,7 @@ class Groundwater(object):
         # TODO: check and recalculate the GLHYMPS map to confirm kSatAquifer in groundwaterPropertiesNC (e.g. parts of the HPA are missing)
 
         # fossil groundwater capacity, based on aquifer thickness and specific yield
-        if (
-            self.limitFossilGroundwaterAbstraction == True
-            and self.limitAbstraction == False
-        ):
+        if self.limitFossilGroundwaterAbstraction and not self.limitAbstraction:
 
             logger.info("Fossil groundwater abstractions are allowed with LIMIT.")
 
@@ -449,9 +446,9 @@ class Groundwater(object):
             self.outAnnuaTotNC = iniItems.groundwaterOptions["outAnnuaTotNC"].split(",")
             self.outAnnuaAvgNC = iniItems.groundwaterOptions["outAnnuaAvgNC"].split(",")
             self.outAnnuaEndNC = iniItems.groundwaterOptions["outAnnuaEndNC"].split(",")
-        except:
+        except Exception:
             self.report = False
-        if self.report == True:
+        if self.report:
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # daily netCDF output
@@ -528,7 +525,7 @@ class Groundwater(object):
     def initialize_states(self, iniItems, iniConditions):
 
         # initial conditions (m) at the start of the model (read from file)
-        if iniConditions == None:
+        if iniConditions is None:
 
             if (
                 "estimateStorGroundwaterIniFromRecharge"
@@ -696,7 +693,7 @@ class Groundwater(object):
         if (
             iniItems.groundwaterOptions["storGroundwaterFossilIni"] == "Maximum"
             and self.limitFossilGroundwaterAbstraction
-            and self.limitAbstraction == False
+            and not self.limitAbstraction
         ):
             logger.info(
                 "Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage."
@@ -715,7 +712,7 @@ class Groundwater(object):
         if (
             iniItems.groundwaterOptions["storGroundwaterFossilIni"] != "Maximum"
             and self.limitFossilGroundwaterAbstraction
-            and self.limitAbstraction == False
+            and not self.limitAbstraction
         ):
             logger.info(
                 "The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity)."
@@ -932,7 +929,7 @@ class Groundwater(object):
 
     def old_style_groundwater_reporting(self, currTimeStep):
 
-        if self.report == True:
+        if self.report:
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
             )
@@ -958,7 +955,7 @@ class Groundwater(object):
 
                     vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
@@ -977,7 +974,7 @@ class Groundwater(object):
                             vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
                         vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         vars(self)[var + "MonthAvg"] = (
                             vars(self)[var + "MonthTot"] / currTimeStep.day
                         )
@@ -991,7 +988,7 @@ class Groundwater(object):
             # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
@@ -1010,7 +1007,7 @@ class Groundwater(object):
 
                     vars(self)[var + "AnnuaTot"] += vars(self)[var]
 
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
@@ -1027,7 +1024,7 @@ class Groundwater(object):
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                             vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
                         vars(self)[var + "AnnuaTot"] += vars(self)[var]
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         vars(self)[var + "AnnuaAvg"] = (
                             vars(self)[var + "AnnuaTot"] / currTimeStep.doy
                         )
@@ -1041,7 +1038,7 @@ class Groundwater(object):
             # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,

@@ -1272,7 +1272,7 @@ class WaterManagement(object):
 
         # abstraction and allocation of fossil groundwater; TODO: skip this for runs without water use
 
-        if self.limitAbstraction == False:
+        if not self.limitAbstraction:
 
             logger.debug("Fossil groundwater abstractions are allowed.")
 
@@ -1293,10 +1293,7 @@ class WaterManagement(object):
             # TODO: make these variables more flexible, especially for more and different sectors
 
         # constrain fossil groundwater abstraction with the regional pumping capacity
-        if (
-            self.limitRegionalAnnualGroundwaterAbstraction
-            and self.limitAbstraction == False
-        ):
+        if self.limitRegionalAnnualGroundwaterAbstraction and not self.limitAbstraction:
 
             logger.debug(
                 "Fossil groundwater abstraction is allowed, BUT limited by the regional annual pumping capacity."
@@ -1332,7 +1329,7 @@ class WaterManagement(object):
             )
 
         # TODO: skip this for runs without water use
-        if self.limitAbstraction == False:
+        if not self.limitAbstraction:
 
             # remaining total demand limited by potVolFossilGroundwaterAbstract (m3)
 
@@ -1452,8 +1449,8 @@ class WaterManagement(object):
             )
 
             if (
-                groundwater.limitFossilGroundwaterAbstraction == False
-                and self.limitAbstraction == False
+                not groundwater.limitFossilGroundwaterAbstraction
+                and not self.limitAbstraction
             ):
 
                 # note: if limitFossilGroundwaterAbstraction is False, fossil groundwater allocation is not needed
@@ -1478,7 +1475,7 @@ class WaterManagement(object):
 
             if (
                 groundwater.limitFossilGroundwaterAbstraction
-                and self.limitAbstraction == False
+                and not self.limitAbstraction
             ):
                 logger.debug(
                     "Fossil groundwater abstractions are allowed, but with limit."

@@ -83,7 +83,7 @@ class PCRGlobWB(object):
     def dumpState(self, outputDirectory, specific_date_string=None):
         # write all states to disk to allow restarting
 
-        if specific_date_string == None:
+        if specific_date_string is None:
             specific_date_string = str(self._modelTime.fulldate)
 
         state = self.getState()

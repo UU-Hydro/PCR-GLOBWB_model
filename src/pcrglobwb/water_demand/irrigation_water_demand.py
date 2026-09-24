@@ -97,7 +97,7 @@ class IrrigationWaterDemand(object):
                     cloneMapFileName=self.cloneMap,
                 )
 
-            except:
+            except Exception:
                 # netCDF file without a time dimension
                 msg = (
                     "The file "
@@ -164,7 +164,7 @@ class IrrigationWaterDemand(object):
                     self.irrigationEfficiency,
                     pcr.windowaverage(self.irrigationEfficiency, 1.50),
                 )
-            except:
+            except Exception:
                 pass
 
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
@@ -662,7 +662,7 @@ class IrrigationWaterDemand(object):
         relActTranspiration = pcr.scalar(1.0)
 
         # note: for the irrigation demand returnTotalEstimation is always True, so this is not used
-        if returnTotalEstimation == False:
+        if not returnTotalEstimation:
             # reduction factor for transpiration (actual over potential transpiration)
             # Rens: FRACTA[TYPE] = (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-(1+BCF[TYPE])/BCF[TYPE]*WFRACB))/(WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-WFRACB))
             relActTranspiration = (
@@ -726,12 +726,12 @@ class IrrigationWaterDemand(object):
 
         # bare soil evaporation (potential); no reduction when returnTotalEstimation
         actBareSoilEvap = self.potBareSoilEvap
-        if self.numberOfLayers == 2 and returnTotalEstimation == False:
+        if self.numberOfLayers == 2 and not returnTotalEstimation:
             # Rens: ES_a[TYPE] = SATFRAC_L*min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+(1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice())
             actBareSoilEvap = self.satAreaFrac * pcr.min(
                 self.potBareSoilEvap, self.parameters.kSatUpp
             ) + (1.0 - self.satAreaFrac) * pcr.min(self.potBareSoilEvap, self.kUnsatUpp)
-        if self.numberOfLayers == 3 and returnTotalEstimation == False:
+        if self.numberOfLayers == 3 and not returnTotalEstimation:
             actBareSoilEvap = self.satAreaFrac * pcr.min(
                 self.potBareSoilEvap, self.parameters.kSatUpp000005
             ) + (1.0 - self.satAreaFrac) * pcr.min(

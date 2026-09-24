@@ -13,7 +13,7 @@ def setClone(spatialAttributes, tempFileName="temp_clone.map"):
 
     try:
         os.remove(tempFileName)
-    except:
+    except Exception:
         pass
     command = 'mapattr -s -R %d -C %d -x %f -y %f -l %f -P "yb2t" -B %s' % (
         spatialAttributes.numberRows,
@@ -27,7 +27,7 @@ def setClone(spatialAttributes, tempFileName="temp_clone.map"):
     pcr.setclone(tempFileName)
     try:
         os.remove(tempFileName)
-    except:
+    except Exception:
         pass
 
 
@@ -132,7 +132,7 @@ class spatialAttributes:
                         if typeInfo == int:
                             try:
                                 mapAttributes[mapAttribute] = int(rawStr)
-                            except:
+                            except Exception:
                                 sys.exit(
                                     "Error: map attributes could not be processed for %s"
                                     % mapAttribute
@@ -140,7 +140,7 @@ class spatialAttributes:
                         elif typeInfo == float:
                             try:
                                 mapAttributes[mapAttribute] = float(rawStr)
-                            except:
+                            except Exception:
                                 sys.exit(
                                     "Error: map attributes could not be processed for %s"
                                     % mapAttribute
@@ -198,7 +198,7 @@ stores data as numpy array in memory under the variable name specified"""
         if not isinstance(valueScale, str):
             try:
                 valueScale = str(valueScale)
-            except:
+            except Exception:
                 valueScale = "SCALAR"
             valueScale = valueScale.upper()
 
@@ -344,5 +344,5 @@ stores data as numpy array in memory under the variable name specified"""
                 if tempFileRoot in tempFileName:
                     try:
                         os.remove(tempFileName)
-                    except:
+                    except Exception:
                         pass

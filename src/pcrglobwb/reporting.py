@@ -79,7 +79,7 @@ class Reporting(object):
                 self.outDailyTotNC = list(
                     set(self.configuration.reportingOptions["outDailyTotNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # monthly totals
@@ -88,7 +88,7 @@ class Reporting(object):
                 self.outMonthTotNC = list(
                     set(self.configuration.reportingOptions["outMonthTotNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # monthly averages
@@ -97,7 +97,7 @@ class Reporting(object):
                 self.outMonthAvgNC = list(
                     set(self.configuration.reportingOptions["outMonthAvgNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # end of month
@@ -106,7 +106,7 @@ class Reporting(object):
                 self.outMonthEndNC = list(
                     set(self.configuration.reportingOptions["outMonthEndNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # monthly maximum
@@ -115,7 +115,7 @@ class Reporting(object):
                 self.outMonthMaxNC = list(
                     set(self.configuration.reportingOptions["outMonthMaxNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # yearly totals
@@ -124,7 +124,7 @@ class Reporting(object):
                 self.outAnnuaTotNC = list(
                     set(self.configuration.reportingOptions["outAnnuaTotNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # yearly averages
@@ -133,7 +133,7 @@ class Reporting(object):
                 self.outAnnuaAvgNC = list(
                     set(self.configuration.reportingOptions["outAnnuaAvgNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # end of year
@@ -142,7 +142,7 @@ class Reporting(object):
                 self.outAnnuaEndNC = list(
                     set(self.configuration.reportingOptions["outAnnuaEndNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # yearly maximum
@@ -151,7 +151,7 @@ class Reporting(object):
                 self.outAnnuaMaxNC = list(
                     set(self.configuration.reportingOptions["outAnnuaMaxNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
 
             # daily upstream average (through the LDD)
@@ -164,7 +164,7 @@ class Reporting(object):
                         ].split(",")
                     )
                 )
-            except:
+            except Exception:
                 pass
 
             # variables to report
@@ -201,7 +201,7 @@ class Reporting(object):
                 self.outDailyTotNC = list(
                     set(self.configuration.reportingOptions["outDailyTotNC"].split(","))
                 )
-            except:
+            except Exception:
                 pass
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
@@ -214,7 +214,7 @@ class Reporting(object):
                     short_name = varDicts.netcdf_short_name[var]
                     unit = varDicts.netcdf_unit[var]
                     long_name = varDicts.netcdf_long_name[var]
-                    if long_name == None:
+                    if long_name is None:
                         long_name = short_name
                     standard_name = short_name
                     if var in list(varDicts.netcdf_standard_name.keys()):
@@ -234,7 +234,7 @@ class Reporting(object):
             self.outWeekTotNC = configuration.reportingOptions["outWeekTotNC"].split(
                 ","
             )
-        except:
+        except Exception:
             pass
         if self.outWeekTotNC[0] != "None":
             for var in self.outWeekTotNC:
@@ -249,7 +249,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_weekly_total_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
 
                 self.netcdfObj.createNetCDF(
@@ -264,7 +264,7 @@ class Reporting(object):
             self.outWeekAvgNC = list(
                 set(self.configuration.reportingOptions["outWeekAvgNC"].split(","))
             )
-        except:
+        except Exception:
             pass
 
         if self.outWeekAvgNC[0] != "None":
@@ -282,7 +282,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
 
                 self.netcdfObj.createNetCDF(
@@ -298,7 +298,7 @@ class Reporting(object):
             self.outMonthTotNC = list(
                 set(self.configuration.reportingOptions["outMonthTotNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outMonthTotNC[0] != "None":
             for var in self.outMonthTotNC:
@@ -313,7 +313,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_monthly_total_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -333,7 +333,7 @@ class Reporting(object):
             self.outMonthAvgNC = list(
                 set(self.configuration.reportingOptions["outMonthAvgNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outMonthAvgNC[0] != "None":
             for var in self.outMonthAvgNC:
@@ -350,7 +350,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -370,7 +370,7 @@ class Reporting(object):
             self.outMonthEndNC = list(
                 set(self.configuration.reportingOptions["outMonthEndNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
@@ -382,7 +382,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -402,7 +402,7 @@ class Reporting(object):
             self.outMonthMaxNC = list(
                 set(self.configuration.reportingOptions["outMonthMaxNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outMonthMaxNC[0] != "None":
             for var in self.outMonthMaxNC:
@@ -414,7 +414,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -434,7 +434,7 @@ class Reporting(object):
             self.outAnnuaTotNC = list(
                 set(self.configuration.reportingOptions["outAnnuaTotNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outAnnuaTotNC[0] != "None":
             for var in self.outAnnuaTotNC:
@@ -449,7 +449,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_yearly_total_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -469,7 +469,7 @@ class Reporting(object):
             self.outAnnuaAvgNC = list(
                 set(self.configuration.reportingOptions["outAnnuaAvgNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outAnnuaAvgNC[0] != "None":
             for var in self.outAnnuaAvgNC:
@@ -486,7 +486,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -506,7 +506,7 @@ class Reporting(object):
             self.outAnnuaEndNC = list(
                 set(self.configuration.reportingOptions["outAnnuaEndNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
@@ -518,7 +518,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -538,7 +538,7 @@ class Reporting(object):
             self.outAnnuaMaxNC = list(
                 set(self.configuration.reportingOptions["outAnnuaMaxNC"].split(","))
             )
-        except:
+        except Exception:
             pass
         if self.outAnnuaMaxNC[0] != "None":
             for var in self.outAnnuaMaxNC:
@@ -550,7 +550,7 @@ class Reporting(object):
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 standard_name = short_name
                 if var in list(varDicts.netcdf_standard_name.keys()):
@@ -574,7 +574,7 @@ class Reporting(object):
                     )
                 )
             )
-        except:
+        except Exception:
             pass
         if self.outDailyTotUpsAvgNC[0] != "None":
             for var in self.outDailyTotUpsAvgNC:
@@ -586,7 +586,7 @@ class Reporting(object):
                 short_name = "upstream_average_" + varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
                 long_name = varDicts.netcdf_long_name[var]
-                if long_name == None:
+                if long_name is None:
                     long_name = short_name
                 long_name = "upstream_average_" + long_name
                 standard_name = short_name
@@ -1359,7 +1359,7 @@ class Reporting(object):
                 )
 
                 # total and report (53 weeks per year)
-                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear == True:
+                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(
@@ -1390,7 +1390,7 @@ class Reporting(object):
                 )
 
                 # average and report (53 weeks per year)
-                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear == True:
+                if self._modelTime.doy % 7 == 0 or self._modelTime.endYear:
 
                     vars(self)[var + "WeekAvg"] = pcr.ifthenelse(
                         vars(self)[var + "_ndays_week"] > 0.0,
@@ -1434,7 +1434,7 @@ class Reporting(object):
                     valid, pcr.scalar(1.0), pcr.scalar(0.0)
                 )
 
-                if self._modelTime.endMonth == True:
+                if self._modelTime.endMonth:
 
                     short_name = varDicts.netcdf_short_name[var]
 
@@ -1472,7 +1472,7 @@ class Reporting(object):
                         valid, pcr.scalar(1.0), pcr.scalar(0.0)
                     )
 
-                if self._modelTime.endMonth == True:
+                if self._modelTime.endMonth:
                     vars(self)[var + "MonthAvg"] = pcr.ifthenelse(
                         vars(self)[var + "_ndays_month"] > 0.0,
                         vars(self)[var + "MonthTot"] / vars(self)[var + "_ndays_month"],
@@ -1490,7 +1490,7 @@ class Reporting(object):
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
 
-                if self._modelTime.endMonth == True:
+                if self._modelTime.endMonth:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(
@@ -1519,7 +1519,7 @@ class Reporting(object):
                     vars(self)[var], vars(self)[var + "MonthMax"]
                 )
 
-                if self._modelTime.endMonth == True:
+                if self._modelTime.endMonth:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(
@@ -1554,7 +1554,7 @@ class Reporting(object):
                     valid, pcr.scalar(1.0), pcr.scalar(0.0)
                 )
 
-                if self._modelTime.endYear == True:
+                if self._modelTime.endYear:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(
@@ -1592,7 +1592,7 @@ class Reporting(object):
                         valid, pcr.scalar(1.0), pcr.scalar(0.0)
                     )
 
-                if self._modelTime.endYear == True:
+                if self._modelTime.endYear:
 
                     vars(self)[var + "AnnuaAvg"] = pcr.ifthenelse(
                         vars(self)[var + "_ndays_year"] > 0.0,
@@ -1612,7 +1612,7 @@ class Reporting(object):
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
 
-                if self._modelTime.endYear == True:
+                if self._modelTime.endYear:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(
@@ -1641,7 +1641,7 @@ class Reporting(object):
                     vars(self)[var], vars(self)[var + "AnnuaMax"]
                 )
 
-                if self._modelTime.endYear == True:
+                if self._modelTime.endYear:
 
                     short_name = varDicts.netcdf_short_name[var]
                     self.netcdfObj.data2NetCDF(

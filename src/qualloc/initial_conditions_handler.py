@@ -304,7 +304,7 @@ date is generated.
         if not isinstance(value, pcrFieldType):
             try:
                 value = pcr.spatial(pcr_data_func(value))
-            except:
+            except Exception:
                 sys.exit("ERROR: %s cannot be converted to a PCRaster field" % value)
 
             message_str = str.join(

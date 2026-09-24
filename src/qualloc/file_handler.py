@@ -126,7 +126,7 @@ the file exists. Returns the resulting the filename.
         if "%" in filename:
             try:
                 filename = filename % (args)
-            except:
+            except Exception:
                 logger.warning(
                     "additional arguments could not be converted into the file name %s"
                     % filename
@@ -316,7 +316,7 @@ given date. This may concern spatial information or single entries.
                 "%s is recognized as a value instead of a netCDF or PCRaster file and is converted into %s"
                 % (val_str, str(conversion_method))
             )
-        except:
+        except Exception:
             logger.error(
                 "%s is not recognized as a netCDF or PCRaster file and cannot be converted"
                 % filename

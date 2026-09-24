@@ -304,7 +304,7 @@ class LandCover(object):
             self.outMonthTotNC = self.iniItemsLC["outMonthTotNC"].split(",")
             self.outMonthAvgNC = self.iniItemsLC["outMonthAvgNC"].split(",")
             self.outMonthEndNC = self.iniItemsLC["outMonthEndNC"].split(",")
-        except:
+        except Exception:
             self.report = False
         if self.report:
             self.outNCDir = iniItems.outNCDir
@@ -394,12 +394,12 @@ class LandCover(object):
 
         # initial values: None
         lc_parameters = {}
-        if get_only_fracVegCover == False:
+        if not get_only_fracVegCover:
             for var in landCovParams + ["arnoBeta"]:
                 lc_parameters[var] = None
 
         # parameters that are fixed for the entire simulation
-        if date_in_string == None:
+        if date_in_string is None:
 
             msg = "Obtaining the land cover parameters that are fixed for the entire simulation."
             logger.debug(msg)
@@ -435,12 +435,12 @@ class LandCover(object):
             lc_parameters["arnoBeta"] = None
             if (
                 "arnoBeta" not in list(self.iniItemsLC.keys())
-                and get_only_fracVegCover == False
+                and not get_only_fracVegCover
             ):
                 self.iniItemsLC["arnoBeta"] = "None"
 
             # option 1 (top priority): a PCRaster file
-            if self.iniItemsLC["arnoBeta"] != "None" and get_only_fracVegCover == False:
+            if self.iniItemsLC["arnoBeta"] != "None" and not get_only_fracVegCover:
 
                 logger.debug(
                     "The parameter arnoBeta: " + str(self.iniItemsLC["arnoBeta"])
@@ -493,7 +493,7 @@ class LandCover(object):
                 )
 
         # land cover parameters that change annually (netCDF files)
-        if date_in_string != None:
+        if date_in_string is not None:
 
             msg = (
                 "Obtaining the land cover parameters (from netcdf files) for the year/date: "
@@ -537,7 +537,7 @@ class LandCover(object):
                             ),
                             0.0,
                         )
-                    except:
+                    except Exception:
                         lc_parameters[var] = vos.readPCRmapClone(
                             ini_option, self.cloneMap, self.tmpDir, self.inputDir
                         )
@@ -598,7 +598,7 @@ class LandCover(object):
         self.rootFraction1 = lc_parameters["rootFraction1"]
         self.rootFraction2 = lc_parameters["rootFraction2"]
 
-        if self.numberOfLayers == 2 and get_only_fracVegCover == False:
+        if self.numberOfLayers == 2 and not get_only_fracVegCover:
 
             # scale the root fractions
             adjRootFrUpp, adjRootFrLow = (
@@ -616,7 +616,7 @@ class LandCover(object):
                 pcr.ifthen(self.landmask, adjRootFrUpp),
                 pcr.ifthen(self.landmask, adjRootFrLow),
             )
-        if self.numberOfLayers == 3 and get_only_fracVegCover == False:
+        if self.numberOfLayers == 3 and not get_only_fracVegCover:
 
             # scale the root fractions
             adjRootFrUpp000005, adjRootFrUpp005030, adjRootFrLow030150 = (
@@ -706,7 +706,7 @@ class LandCover(object):
             # Rens: RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])
             adjRootFrLow = vos.getValDivZero(rootFracLow, (rootFracUpp + rootFracLow))
             # if not defined, put everything in the first layer
-            if self.usingOriginalOldCalcRootTranspirationPartitioningMethod == False:
+            if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
                 adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp, 1.0)))
                 adjRootFrLow = pcr.max(0.0, pcr.scalar(1.0) - adjRootFrUpp)
 
@@ -730,7 +730,7 @@ class LandCover(object):
                 (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
             )
             # if not defined, put everything in the first layer
-            if self.usingOriginalOldCalcRootTranspirationPartitioningMethod == False:
+            if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
                 adjRootFrUpp000005 = pcr.max(
                     0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp000005, 1.0))
                 )
@@ -923,7 +923,7 @@ class LandCover(object):
                 "interflow",
             ]
             for var in initialVars:
-                if iniConditions == None:
+                if iniConditions is None:
                     input = self.iniItemsLC[str(var) + "Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.cloneMap, self.tmpDir, self.inputDir
@@ -947,7 +947,7 @@ class LandCover(object):
                 "interflow",
             ]
             for var in initialVars:
-                if iniConditions == None:
+                if iniConditions is None:
                     input = self.iniItemsLC[str(var) + "Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.cloneMap, self.tmpDir, self.inputDir, cover=0.0
@@ -960,7 +960,7 @@ class LandCover(object):
     def set_land_cover_parameters(self, currTimeStep):
 
         # land cover parameters on the first day of the year or of the simulation
-        if self.noAnnualChangesInLandCoverParameter == False and (
+        if not self.noAnnualChangesInLandCoverParameter and (
             currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1
         ):
             if self.numberOfLayers == 2:
@@ -1011,7 +1011,7 @@ class LandCover(object):
         # interception capacity and cover fraction
         interceptCap = pcr.scalar(self.minInterceptCap)
         coverFraction = pcr.scalar(1.0)
-        if self.interceptCapNC != None and self.coverFractionNC != None:
+        if self.interceptCapNC is not None and self.coverFractionNC is not None:
             interceptCap = pcr.cover(
                 vos.netcdf2PCRobjClone(
                     self.interceptCapNC,
@@ -1129,7 +1129,7 @@ class LandCover(object):
                 ),
             )
 
-        if self.report == True:
+        if self.report:
             # netCDF output: daily
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
@@ -1160,7 +1160,7 @@ class LandCover(object):
                     if currTimeStep.day == 1:
                         vars(self)[var + "Tot"] = pcr.scalar(0.0)
                     vars(self)[var + "Tot"] += vars(self)[var]
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
                             + "/"
@@ -1186,7 +1186,7 @@ class LandCover(object):
                         if currTimeStep.day == 1:
                             vars(self)[var + "Tot"] = pcr.scalar(0.0)
                         vars(self)[var + "Tot"] += vars(self)[var]
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         vars(self)[var + "Avg"] = (
                             vars(self)[var + "Tot"] / currTimeStep.day
                         )
@@ -1206,7 +1206,7 @@ class LandCover(object):
             # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
                             + "/"
@@ -1446,7 +1446,7 @@ class LandCover(object):
         self.actualET += self.actSnowFreeWaterEvap
         # changed by Joren
 
-        if self.transport_water == True:
+        if self.transport_water:
             vos.waterBalanceCheck(
                 [
                     self.snowfall,
@@ -1562,7 +1562,7 @@ class LandCover(object):
         )
 
         # transport snow free water
-        if self.transport_water == True:
+        if self.transport_water:
             frac_of_snow = (
                 exceedingSnow * vos.rad2deg(self.parameters.tanslope) / 90 * self.frho
             ) / self.snowCoverSWE
@@ -2089,7 +2089,7 @@ class LandCover(object):
 
         # no reduction when returnTotalEstimation
         relActTranspiration = pcr.scalar(1.0)
-        if returnTotalEstimation == False:
+        if not returnTotalEstimation:
             # reduction factor for transpiration (actual over potential transpiration)
             # Rens: FRACTA[TYPE] = (WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-(1+BCF[TYPE])/BCF[TYPE]*WFRACB))/(WMAX[TYPE]+BCF[TYPE]*WRANGE[TYPE]*(1-WFRACB))
             relActTranspiration = (
@@ -2154,12 +2154,12 @@ class LandCover(object):
 
         # bare soil evaporation (potential); no reduction when returnTotalEstimation
         actBareSoilEvap = self.potBareSoilEvap
-        if self.numberOfLayers == 2 and returnTotalEstimation == False:
+        if self.numberOfLayers == 2 and not returnTotalEstimation:
             # Rens: ES_a[TYPE] = SATFRAC_L*min(ES_p[TYPE],KS1[TYPE]*Duration*timeslice())+(1-SATFRAC_L)*min(ES_p[TYPE],KTHEFF1*Duration*timeslice())
             actBareSoilEvap = self.satAreaFrac * pcr.min(
                 self.potBareSoilEvap, self.parameters.kSatUpp
             ) + (1.0 - self.satAreaFrac) * pcr.min(self.potBareSoilEvap, self.kUnsatUpp)
-        if self.numberOfLayers == 3 and returnTotalEstimation == False:
+        if self.numberOfLayers == 3 and not returnTotalEstimation:
             actBareSoilEvap = self.satAreaFrac * pcr.min(
                 self.potBareSoilEvap, self.parameters.kSatUpp000005
             ) + (1.0 - self.satAreaFrac) * pcr.min(

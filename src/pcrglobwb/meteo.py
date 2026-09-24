@@ -42,7 +42,7 @@ class Meteo(object):
     def initialize_states(self, iniItems, iniConditions):
 
         # initial conditions (m) at the start of the model (read from file)
-        if iniConditions == None:
+        if iniConditions is None:
 
             if "avgAnnualPrecipitationIni" in list(iniItems.meteoOptions.keys()):
                 self.avgAnnualPrecipitation = vos.readPCRmapClone(
@@ -267,9 +267,9 @@ class Meteo(object):
             self.outAnnuaTotNC = iniItems.meteoOptions["outAnnuaTotNC"].split(",")
             self.outAnnuaAvgNC = iniItems.meteoOptions["outAnnuaAvgNC"].split(",")
             self.outAnnuaEndNC = iniItems.meteoOptions["outAnnuaEndNC"].split(",")
-        except:
+        except Exception:
             self.report = False
-        if self.report == True:
+        if self.report:
             # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
@@ -730,7 +730,7 @@ class Meteo(object):
                     pcr.spatial(pcr.scalar(1.0)) - self.albedo
                 )
 
-            if self.sw_rad_based_on_bristow_campbell == True:
+            if self.sw_rad_based_on_bristow_campbell:
 
                 msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
                 logger.info(msg)
@@ -847,7 +847,7 @@ class Meteo(object):
             )
 
         # smoothing
-        if self.forcingSmoothing == True:
+        if self.forcingSmoothing:
             logger.debug("Forcing data are smoothed.")
             self.precipitation = pcr.windowaverage(
                 self.precipitation, self.smoothingWindowsLength
@@ -906,7 +906,7 @@ class Meteo(object):
         )
         self.avgAnnualDiurnalDeltaTemp = pcr.max(0.0, self.avgAnnualDiurnalDeltaTemp)
 
-        if self.report == True:
+        if self.report:
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
             )
@@ -932,7 +932,7 @@ class Meteo(object):
 
                     vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
@@ -951,7 +951,7 @@ class Meteo(object):
                             vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
                         vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         vars(self)[var + "MonthAvg"] = (
                             vars(self)[var + "MonthTot"] / currTimeStep.day
                         )
@@ -965,7 +965,7 @@ class Meteo(object):
             # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
@@ -984,7 +984,7 @@ class Meteo(object):
 
                     vars(self)[var + "AnnuaTot"] += vars(self)[var]
 
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
@@ -1001,7 +1001,7 @@ class Meteo(object):
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                             vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
                         vars(self)[var + "AnnuaTot"] += vars(self)[var]
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         vars(self)[var + "AnnuaAvg"] = (
                             vars(self)[var + "AnnuaTot"] / currTimeStep.doy
                         )
@@ -1015,7 +1015,7 @@ class Meteo(object):
             # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,
@@ -1035,7 +1035,7 @@ class Meteo(object):
     ):
 
         # TODO: add CorrelationCriteria to the config file
-        if read_factor_from_file == True:
+        if read_factor_from_file:
 
             doyStep = currTimeStep.doy
             if calendar.isleap(currTimeStep.year) and doyStep > 59:
@@ -1083,7 +1083,7 @@ class Meteo(object):
             )
             preSlope = pcr.cover(preSlope, 0.0)
 
-            if useFactor == True:
+            if useFactor:
                 factor = pcr.max(0.0, self.precipitation + preSlope * self.anomalyDEM)
 
                 # avoid zero factor
@@ -1119,7 +1119,7 @@ class Meteo(object):
     ):
 
         # TODO: add CorrelationCriteria to the config file
-        if read_factor_from_file == True:
+        if read_factor_from_file:
             doyStep = currTimeStep.doy
             if calendar.isleap(currTimeStep.year) and doyStep > 59:
                 doyStep = doyStep - 1
@@ -1153,7 +1153,7 @@ class Meteo(object):
             )
             tmpSlope = pcr.cover(tmpSlope, 0.0)
 
-            if useFactor == True:
+            if useFactor:
 
                 temperatureInKelvin = self.temperature + zeroCelciusInKelvin
                 factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
@@ -1196,7 +1196,7 @@ class Meteo(object):
         tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria, tmpSlope, 0.0)
         tmpSlope = pcr.cover(tmpSlope, 0.0)
 
-        if useFactor == True:
+        if useFactor:
             temperatureInKelvin = input_temperature + zeroCelciusInKelvin
             factor = pcr.max(0.0, temperatureInKelvin + tmpSlope * self.anomalyDEM)
             if considerCellArea:
@@ -1218,7 +1218,7 @@ class Meteo(object):
         considerCellArea=True,
         min_limit=0.001,
     ):
-        if read_factor_from_file == True:
+        if read_factor_from_file:
             doyStep = currTimeStep.doy
             if calendar.isleap(currTimeStep.year) and doyStep > 59:
                 doyStep = doyStep - 1
@@ -1285,7 +1285,7 @@ class Meteo(object):
                     int(currTimeStep.year),
                     int(currTimeStep.month),
                 )
-            except:
+            except Exception:
                 netcdf_file_name = self.preFileNC % (
                     int(currTimeStep.month),
                     int(currTimeStep.year),
@@ -1299,8 +1299,8 @@ class Meteo(object):
             )
 
         if (
-            self.using_daily_factor_for_downscaling & self.downscalePrecipitationOption
-            == True
+            self.using_daily_factor_for_downscaling
+            and self.downscalePrecipitationOption
         ):
             self.precipitation = vos.readDownscalingMeteo(
                 netcdf_file_name,
@@ -1356,7 +1356,7 @@ class Meteo(object):
                     int(currTimeStep.month),
                     int(currTimeStep.year),
                 )
-            except:
+            except Exception:
                 netcdf_file_name = self.tmpFileNC % (
                     int(currTimeStep.month),
                     int(currTimeStep.year),
@@ -1369,10 +1369,7 @@ class Meteo(object):
                 int(currTimeStep.year),
             )
 
-        if (
-            self.using_daily_factor_for_downscaling & self.downscaleTemperatureOption
-            == True
-        ):
+        if self.using_daily_factor_for_downscaling and self.downscaleTemperatureOption:
             self.temperature = vos.readDownscalingMeteo(
                 netcdf_file_name,
                 "automatic",
@@ -1427,7 +1424,7 @@ class Meteo(object):
                         int(currTimeStep.month),
                         int(currTimeStep.year),
                     )
-                except:
+                except Exception:
                     netcdf_file_name = self.etpFileNC % (
                         int(currTimeStep.month),
                         int(currTimeStep.year),
@@ -1442,8 +1439,7 @@ class Meteo(object):
 
             if (
                 self.using_daily_factor_for_downscaling
-                & self.downscaleReferenceETPotOption
-                == True
+                and self.downscaleReferenceETPotOption
             ):
                 self.referencePotET = vos.readDownscalingMeteo(
                     netcdf_file_name,

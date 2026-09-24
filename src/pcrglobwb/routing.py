@@ -85,7 +85,7 @@ class Routing(object):
             # routed FC load (cfu), converted to pathogen pollution (cfu/100mL)
             result["routedFC"] = self.routedFC
 
-            if self.offlineRun == False and self.calculateLoads and self.loadsPerSector:
+            if not self.offlineRun and self.calculateLoads and self.loadsPerSector:
                 # pollutants routed per sector (for the analysis of sectoral contributions): domestic
                 # (g TDS)
                 result["routedDomTDS"] = self.routedDomTDS
@@ -625,7 +625,7 @@ class Routing(object):
             # calculate the loadings within the model run
             if (
                 iniItems.routingOptions["calculateLoads"] == "True"
-                and self.offlineRun == False
+                and not self.offlineRun
             ):
                 self.calculateLoads = True
                 logger.info("Loadings calculated within model run.")
@@ -817,7 +817,7 @@ class Routing(object):
 
     def getICs(self, iniItems, iniConditions=None):
 
-        if iniConditions == None:
+        if iniConditions is None:
             logger.info(
                 "Reading initial conditions from pcraster maps listed in the .ini file"
             )
@@ -957,7 +957,7 @@ class Routing(object):
                 )
 
                 # initial average irrigation demand and net liquid water to the soil, for the irrigation return flows
-                if self.calculateLoads and self.offlineRun == False:
+                if self.calculateLoads and not self.offlineRun:
                     self.avg_irrGrossDemand = vos.readPCRmapClone(
                         iniItems.routingOptions["avg_irrGrossDemandIni"],
                         self.cloneMap,
@@ -1096,7 +1096,7 @@ class Routing(object):
                 self.routedFC = iniConditions["routing"]["routedFC"]
 
                 # initial average irrigation demand and net liquid water to the soil, for the irrigation return flows
-                if self.calculateLoads and self.offlineRun == False:
+                if self.calculateLoads and not self.offlineRun:
                     self.avg_irrGrossDemand = iniConditions["routing"][
                         "avg_irrGrossDemand"
                     ]
@@ -1184,7 +1184,7 @@ class Routing(object):
             self.routedFC = pcr.ifthen(self.landmask, pcr.cover(self.routedFC, 0.0))
 
             # per water quality sector
-            if self.calculateLoads and self.offlineRun == False:
+            if self.calculateLoads and not self.offlineRun:
                 self.avg_irrGrossDemand = pcr.ifthen(
                     self.landmask, pcr.cover(self.avg_irrGrossDemand, 0.0)
                 )
@@ -1239,7 +1239,7 @@ class Routing(object):
         # make sure timestepsToAvgDischarge is the same for the entire map
         try:
             self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
-        except:
+        except Exception:
             # try/except because pcr.mapmaximum cannot handle scalar values
             pass
 
@@ -1252,7 +1252,7 @@ class Routing(object):
         )
 
         # initial conditions of water bodies: short-term average inflow (m3/s) and long-term average outflow (m3/s)
-        if iniConditions == None:
+        if iniConditions is None:
             # read the initial conditions from the PCRaster maps in the ini file (at the start of the model)
             self.avgInflow = vos.readPCRmapClone(
                 iniItems.routingOptions["avgLakeReservoirInflowShortIni"],
@@ -1316,11 +1316,11 @@ class Routing(object):
             # TODO: define the relative elevation files in a netCDF file
             None
         )
-        if relativeElevationFileNC != None:
+        if relativeElevationFileNC is not None:
             # TODO: use a netCDF file
             pass
 
-        if relativeElevationFileNC == None:
+        if relativeElevationFileNC is None:
 
             relZFileName = vos.getFullPath(
                 iniItems.routingOptions["relativeElevationFiles"],
@@ -1345,12 +1345,12 @@ class Routing(object):
         relZ = [0.0] * nrZLevels
         for iCnt in range(0, nrZLevels):
 
-            if relativeElevationFileNC == None:
+            if relativeElevationFileNC is None:
                 inputName = relZFileName % (areaFractions[iCnt] * 100)
                 relZ[iCnt] = vos.readPCRmapClone(
                     inputName, self.cloneMap, self.tmpDir, self.inputDir
                 )
-            if relativeElevationFileNC != None:
+            if relativeElevationFileNC is not None:
                 # TODO: use a netCDF file
                 pass
 
@@ -1884,7 +1884,7 @@ class Routing(object):
 
         if (currTimeStep.doy == 1) and (currTimeStep.timeStepPCR > 1):
             self.WaterBodies.getParameterFiles(currTimeStep, self.cellArea, self.lddMap)
-        if self.includeWaterBodies == False:
+        if not self.includeWaterBodies:
             # ignore all lakes and reservoirs
             self.WaterBodies.waterBodyIds = pcr.ifthen(self.landmask, pcr.nominal(-1))
 
@@ -1991,7 +1991,7 @@ class Routing(object):
         self, landSurface, currTimeStep, meteo, definedDynamicFracWat=None
     ):
 
-        if self.no_zero_crop_water_coefficient == False:
+        if not self.no_zero_crop_water_coefficient:
             self.waterKC = 0.0
 
         # potential evaporation from water bodies; if landSurface.actualET < waterKC *
@@ -2017,7 +2017,7 @@ class Routing(object):
         )
 
         # potential evaporation from water bodies over the entire cell area (m/day)
-        if definedDynamicFracWat == None:
+        if definedDynamicFracWat is None:
             dynamicFracWat = self.dynamicFracWat
         waterBodyPotEvap = pcr.max(
             0.0, waterBodyPotEvapOvesSurfaceWaterArea * dynamicFracWat
@@ -2935,7 +2935,7 @@ class Routing(object):
         # DynQual: average irrigation water allocated over the last 30 days (needed for online runs where
         # loadings are calculated in the loop)
         if self.quality:
-            if self.calculateLoads and self.offlineRun == False:
+            if self.calculateLoads and not self.offlineRun:
                 # average irrigation gross demand over the last 30 days
                 irrGrossDemand = deepcopy(landSurface.irrGrossDemand)
                 deltaAno_irrGrossDemand = (
@@ -3049,9 +3049,9 @@ class Routing(object):
             self.outAnnuaTotNC = iniItems.routingOptions["outAnnuaTotNC"].split(",")
             self.outAnnuaAvgNC = iniItems.routingOptions["outAnnuaAvgNC"].split(",")
             self.outAnnuaEndNC = iniItems.routingOptions["outAnnuaEndNC"].split(",")
-        except:
+        except Exception:
             self.report = False
-        if self.report == True:
+        if self.report:
             # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
@@ -3123,7 +3123,7 @@ class Routing(object):
 
     def old_style_routing_reporting(self, currTimeStep):
 
-        if self.report == True:
+        if self.report:
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
             )
@@ -3149,7 +3149,7 @@ class Routing(object):
 
                     vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
@@ -3168,7 +3168,7 @@ class Routing(object):
                             vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
                         vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         vars(self)[var + "MonthAvg"] = (
                             vars(self)[var + "MonthTot"] / currTimeStep.day
                         )
@@ -3182,7 +3182,7 @@ class Routing(object):
             # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
@@ -3201,7 +3201,7 @@ class Routing(object):
 
                     vars(self)[var + "AnnuaTot"] += vars(self)[var]
 
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
@@ -3218,7 +3218,7 @@ class Routing(object):
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                             vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
                         vars(self)[var + "AnnuaTot"] += vars(self)[var]
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         vars(self)[var + "AnnuaAvg"] = (
                             vars(self)[var + "AnnuaTot"] / currTimeStep.doy
                         )
@@ -3232,7 +3232,7 @@ class Routing(object):
             # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,

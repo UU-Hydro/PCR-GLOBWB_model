@@ -1123,7 +1123,7 @@ class qualloc_model(object):
         date = self.model_time.date
 
         # forcing: hydrology; stand-alone QUAlloc
-        if online_coupling_to_quantity == False:
+        if not online_coupling_to_quantity:
             for forcing_variable in forcing_variables.keys():
 
                 var_out = read_file_entry(
@@ -1183,7 +1183,7 @@ class qualloc_model(object):
                 if self.model_flags["water_quality_flag"]:
 
                     # stand-alone QUAlloc
-                    if online_coupling_to_quality == False:
+                    if not online_coupling_to_quality:
                         var_out = read_file_entry(
                             filename=self.water_quality_forcing_info[key]["ncfilename"],
                             variablename=self.water_quality_forcing_info[key][
@@ -1430,7 +1430,7 @@ class qualloc_model(object):
         )
 
         # available surface water; stand-alone QUAlloc
-        if online_coupling_to_quantity == False:
+        if not online_coupling_to_quantity:
             # channel runoff (m/day)
             self.channel_runoff = (
                 self.precipitation
@@ -1476,7 +1476,7 @@ class qualloc_model(object):
         potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
 
         # stand-alone QUAlloc
-        if online_coupling_to_quantity == False:
+        if not online_coupling_to_quantity:
             # actual renewable withdrawals, by routing the total runoff with the potential withdrawals (m3/day)
             actual_withdrawal = self.surfacewater.update(
                 potential_withdrawal=potential_withdrawal,
@@ -1545,7 +1545,7 @@ class qualloc_model(object):
         )
 
         # available groundwater; stand-alone QUAlloc
-        if online_coupling_to_quantity == False:
+        if not online_coupling_to_quantity:
             # total withdrawal of all sectors as water slice (m/day)
             potential_withdrawal = (
                 sum_list(list(potential_withdrawal_per_sector.values())) / self.cellarea
@@ -1600,7 +1600,7 @@ class qualloc_model(object):
         nonrenewable_withdrawal /= self.model_time.time_step_length
 
         # update the storage (renewable groundwater storage before withdrawals, in m); stand-alone QUAlloc
-        if online_coupling_to_quantity == False:
+        if not online_coupling_to_quantity:
             # (m/period)
             self.groundwater.update(
                 renewable_withdrawal * self.model_time.time_step_length / self.cellarea,

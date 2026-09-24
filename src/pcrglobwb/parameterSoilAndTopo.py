@@ -26,7 +26,7 @@ class SoilAndTopoParameters(object):
     def readTopo(self, iniItems, optionDict):
 
         # options section to use
-        if optionDict == None:
+        if optionDict is None:
             optionDict = iniItems.landSurfaceOptions
 
         # elevation attributes
@@ -91,7 +91,7 @@ class SoilAndTopoParameters(object):
     def readSoilMapOfFAO(self, iniItems, optionDict=None):
 
         # options section to use
-        if optionDict == None:
+        if optionDict is None:
             optionDict = iniItems.landSurfaceOptions
 
         # soil parameter names (in the ini or netCDF file)
@@ -359,7 +359,7 @@ class SoilAndTopoParameters(object):
     def readSoil(self, iniItems, optionDict=None):
 
         # options section to use
-        if optionDict == None:
+        if optionDict is None:
             optionDict = iniItems.landSurfaceOptions
 
         # default soil parameters that are uniform for the entire domain (dimensionless)

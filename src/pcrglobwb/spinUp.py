@@ -127,7 +127,7 @@ class SpinUp(object):
 
         logger.info("Delta TotlStorage = %.2f percent" % (convTotlSto))
 
-        if self.spinUpOutputDir != None:
+        if self.spinUpOutputDir is not None:
             logger.info(
                 "Move all netcdf files resulted from the spin-up run to the spin-up directory: "
                 + self.spinUpOutputDir

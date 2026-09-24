@@ -275,7 +275,7 @@ class LandSurface(object):
         if "noLandCoverFractionCorrection" in list(iniItems.landSurfaceOptions.keys()):
             if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True":
                 self.noLandCoverFractionCorrection = True
-        if self.noLandCoverFractionCorrection == False:
+        if not self.noLandCoverFractionCorrection:
             self.scaleNaturalLandCoverFractions()
             if self.includeIrrigation:
                 self.scaleModifiedLandCoverFractions()
@@ -297,8 +297,8 @@ class LandSurface(object):
 
         # noAnnualChangesInLandCoverParameter = False requires noLandCoverFractionCorrection
         if (
-            self.noAnnualChangesInLandCoverParameter == False
-            and self.noLandCoverFractionCorrection == False
+            not self.noAnnualChangesInLandCoverParameter
+            and not self.noLandCoverFractionCorrection
         ):
             self.noLandCoverFractionCorrection = True
             msg = "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
@@ -423,9 +423,9 @@ class LandSurface(object):
             self.outAnnuaTotNC = iniItems.landSurfaceOptions["outAnnuaTotNC"].split(",")
             self.outAnnuaAvgNC = iniItems.landSurfaceOptions["outAnnuaAvgNC"].split(",")
             self.outAnnuaEndNC = iniItems.landSurfaceOptions["outAnnuaEndNC"].split(",")
-        except:
+        except Exception:
             self.report = False
-        if self.report == True:
+        if self.report:
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # daily netCDF output
@@ -510,29 +510,29 @@ class LandSurface(object):
         # initial land cover fractions for runs with dynamicIrrigationArea: non-spin-up runs that start on
         # 1 January must consider the land cover fractions of the previous year
         if (
-            iniConditions == None
-            and start_on_1_Jan == True
+            iniConditions is None
+            and start_on_1_Jan
             and self.dynamicIrrigationArea
-            and self.noLandCoverFractionCorrection == False
+            and not self.noLandCoverFractionCorrection
         ):
             # land cover fractions of the previous year
             self.scaleDynamicIrrigation(starting_year - 1)
             consider_previous_year_land_cover_fraction = True
         # spin-up runs or runs that start after 1 January use the land cover fractions of the current year
         if (
-            consider_previous_year_land_cover_fraction == False
+            not consider_previous_year_land_cover_fraction
             and self.dynamicIrrigationArea
-            and self.noLandCoverFractionCorrection == False
+            and not self.noLandCoverFractionCorrection
         ):
             self.scaleDynamicIrrigation(starting_year)
 
         # initial land cover fractions for runs with noLandCoverFractionCorrection and annual changes in the
         # land cover parameters: non-spin-up runs that start on 1 January must consider the previous year
         if (
-            iniConditions == None
-            and start_on_1_Jan == True
+            iniConditions is None
+            and start_on_1_Jan
             and self.noLandCoverFractionCorrection
-            and self.noAnnualChangesInLandCoverParameter == False
+            and not self.noAnnualChangesInLandCoverParameter
         ):
             # land cover fractions of the previous year
             previous_year = starting_year - 1
@@ -578,9 +578,9 @@ class LandSurface(object):
 
         # spin-up runs or runs that start after 1 January use the land cover fractions of the current year
         if (
-            consider_previous_year_land_cover_fraction == False
+            not consider_previous_year_land_cover_fraction
             and self.noLandCoverFractionCorrection
-            and self.noAnnualChangesInLandCoverParameter == False
+            and not self.noAnnualChangesInLandCoverParameter
         ):
             # land cover fractions of the current year
             one_january_this_year = str(starting_year) + "-01-01"
@@ -625,7 +625,7 @@ class LandSurface(object):
         for var in self.mainStates:
             vars(self)[var] = pcr.scalar(0.0)
         for coverType in self.coverTypes:
-            if iniConditions != None:
+            if iniConditions is not None:
                 self.landCoverObj[coverType].getICsLC(
                     iniItems, iniConditions["landSurface"][coverType]
                 )
@@ -730,7 +730,7 @@ class LandSurface(object):
             self.landCoverObj["grassland"].fracVegCover = (
                 1.0 - self.landCoverObj["forest"].fracVegCover
             )
-        except:
+        except Exception:
             pass
 
         # recalculate the total land cover fraction
@@ -1264,7 +1264,7 @@ class LandSurface(object):
                         "domestic"
                     ]
                 )
-            except:
+            except Exception:
                 self.domesticWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # industry: total allocated water (m3)
@@ -1283,7 +1283,7 @@ class LandSurface(object):
                         "industry"
                     ]
                 )
-            except:
+            except Exception:
                 self.industryWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # livestock: total allocated water (m3)
@@ -1302,7 +1302,7 @@ class LandSurface(object):
                         "livestock"
                     ]
                 )
-            except:
+            except Exception:
                 self.livestockWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # manufacture: total allocated water (m3)
@@ -1321,7 +1321,7 @@ class LandSurface(object):
                         "manufacture"
                     ]
                 )
-            except:
+            except Exception:
                 self.manufactureWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # thermoelectric: total allocated water (m3)
@@ -1340,7 +1340,7 @@ class LandSurface(object):
                         "thermoelectric"
                     ]
                 )
-            except:
+            except Exception:
                 self.thermoelectricWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # irrigation: total allocated water (m3)
@@ -1359,7 +1359,7 @@ class LandSurface(object):
                         "irrigation"
                     ]
                 )
-            except:
+            except Exception:
                 self.irrigationWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
 
             # desalinated water abstraction and allocation, total of all sectors (m)
@@ -1791,7 +1791,7 @@ class LandSurface(object):
 
         if (
             (self.dynamicIrrigationArea and self.includeIrrigation)
-            or self.noAnnualChangesInLandCoverParameter == False
+            or not self.noAnnualChangesInLandCoverParameter
         ) and currTimeStep.doy == 1:
             for var in self.mainStates:
                 logger.info("Transfering states for the variable " + str(var))
@@ -1936,7 +1936,7 @@ class LandSurface(object):
 
     def old_style_land_surface_reporting(self, currTimeStep):
 
-        if self.report == True:
+        if self.report:
             timeStamp = datetime.datetime(
                 currTimeStep.year, currTimeStep.month, currTimeStep.day, 0
             )
@@ -1962,7 +1962,7 @@ class LandSurface(object):
 
                     vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
@@ -1983,7 +1983,7 @@ class LandSurface(object):
                             vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
                         vars(self)[var + "MonthTot"] += vars(self)[var]
 
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         vars(self)[var + "MonthAvg"] = (
                             vars(self)[var + "MonthTot"] / currTimeStep.day
                         )
@@ -1999,7 +1999,7 @@ class LandSurface(object):
             # end of month
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
-                    if currTimeStep.endMonth == True:
+                    if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
@@ -2018,7 +2018,7 @@ class LandSurface(object):
 
                     vars(self)[var + "AnnuaTot"] += vars(self)[var]
 
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
@@ -2037,7 +2037,7 @@ class LandSurface(object):
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
                             vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
                         vars(self)[var + "AnnuaTot"] += vars(self)[var]
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         vars(self)[var + "AnnuaAvg"] = (
                             vars(self)[var + "AnnuaTot"] / currTimeStep.doy
                         )
@@ -2053,7 +2053,7 @@ class LandSurface(object):
             # end of year
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
-                    if currTimeStep.endYear == True:
+                    if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,

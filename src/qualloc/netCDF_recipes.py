@@ -231,7 +231,7 @@ def get_nc_object_attributes(obj, exclude_list=[], exclude_class_objects=True):
                 if not exclude_class_objects:
                     try:
                         dobj[item] = getattr(obj, item)()
-                    except:
+                    except Exception:
                         pass
             else:
                 dobj[item] = getattr(obj, item)
@@ -599,7 +599,7 @@ def add_data_to_netCDF(
         if len(nc_time[:]) > 0:
             try:
                 date_ixs = np.array(nc.date2index(dates, nc_time)).ravel()
-            except:
+            except Exception:
                 date_ixs = np.arange(len(dates)) + len(nc_time[:])
         else:
             date_ixs = np.arange(len(dates)) + len(nc_time[:])
@@ -809,7 +809,7 @@ holding netCDF information to facilitate access."""
                             data_attributes = spatialAttributes(
                                 'NETCDF:"%s":%s' % (ncfilename, variablename)
                             )
-                        except:
+                        except Exception:
 
                             logger.debug(
                                 "%s in %s is treated as a non-spatial dataset"

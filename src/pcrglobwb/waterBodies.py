@@ -108,7 +108,7 @@ class WaterBodies(object):
         else:
             date_used = currTimeStep.fulldate
             year_used = currTimeStep.year
-        if self.onlyNaturalWaterBodies == True:
+        if self.onlyNaturalWaterBodies:
             date_used = self.dateForNaturalCondition
             year_used = self.dateForNaturalCondition[0:4]
 
@@ -349,10 +349,7 @@ class WaterBodies(object):
         )
 
         # a natural run (onlyNaturalWaterBodies) only uses the year 1900: all reservoirs are lakes
-        if (
-            self.onlyNaturalWaterBodies == True
-            and date_used == self.dateForNaturalCondition
-        ):
+        if self.onlyNaturalWaterBodies and date_used == self.dateForNaturalCondition:
             logger.info(
                 "Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes."
             )
@@ -375,7 +372,7 @@ class WaterBodies(object):
             logger.warning("Missing information in some lakes and/or reservoirs.")
 
         # get the initial conditions at the first time step
-        if initial_condition_dictionary != None and currTimeStep.timeStepPCR == 1:
+        if initial_condition_dictionary is not None and currTimeStep.timeStepPCR == 1:
             self.getICs(initial_condition_dictionary)
 
         # initialize storage and average inflow and outflow for new reservoirs (introduced at the
@@ -387,7 +384,7 @@ class WaterBodies(object):
             self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
             self.avgInflow = pcr.ifthen(self.landmask, self.avgInflow)
             self.avgOutflow = pcr.ifthen(self.landmask, self.avgOutflow)
-        except:
+        except Exception:
             pass
         # TODO: remove try/except
 

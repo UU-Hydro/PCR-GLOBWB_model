@@ -62,7 +62,7 @@ def main():
     configuration = Configuration(
         iniFileName=iniFileName, debug_mode=debug_mode, no_modification=no_modification
     )
-    if no_modification == False:
+    if not no_modification:
         configuration.globalOptions["outputDir"] = output_directory
         configuration.set_configuration()
 
@@ -80,7 +80,7 @@ def main():
 
         spinUpRun = 0
         has_converged = False
-        while spinUpRun < noSpinUps and has_converged == False:
+        while spinUpRun < noSpinUps and not has_converged:
             spinUpRun += 1
             currTimeStep.getStartEndTimeStepsForSpinUp(
                 configuration.globalOptions["startTime"], spinUpRun, noSpinUps

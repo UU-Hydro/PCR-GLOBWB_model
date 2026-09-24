@@ -872,7 +872,7 @@ def main():
 
         spinUpRun = 0
         has_converged = False
-        while spinUpRun < noSpinUps and has_converged == False:
+        while spinUpRun < noSpinUps and not has_converged:
             spinUpRun += 1
             currTimeStep.getStartEndTimeStepsForSpinUp(
                 configuration.globalOptions["startTime"], spinUpRun, noSpinUps

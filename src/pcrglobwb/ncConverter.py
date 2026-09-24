@@ -75,7 +75,7 @@ class PCR2netCDF:
 
         # netCDF attributes from the configuration file or specificAttributeDictionary
         self.attributeDictionary = {}
-        if specificAttributeDictionary == None:
+        if specificAttributeDictionary is None:
             self.attributeDictionary["institution"] = iniItems.globalOptions[
                 "institution"
             ]
@@ -126,9 +126,9 @@ class PCR2netCDF:
         shortVarName = varName
         longVarName = varName
         standardVarName = varName
-        if longName != None:
+        if longName is not None:
             longVarName = longName
-        if standardName != None:
+        if standardName is not None:
             standardVarName = standardName
 
         var = rootgrp.createVariable(
@@ -158,7 +158,7 @@ class PCR2netCDF:
         rootgrp = nc.Dataset(ncFileName, "a")
 
         date_time = rootgrp.variables["time"]
-        if posCnt == None:
+        if posCnt is None:
             posCnt = len(date_time)
         date_time[posCnt] = nc.date2num(timeStamp, date_time.units, date_time.calendar)
 

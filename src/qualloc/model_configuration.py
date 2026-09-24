@@ -201,7 +201,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                             )
                             section_info[key] = value
                     setattr(self, section, section_info)
-                except:
+                except Exception:
                     message_str = (
                         "processing information on the compulsory section [%s] raised an error"
                         % (section)
@@ -217,7 +217,7 @@ the unreplaced token would otherwise surface much later as a missing file.
         for group in groups:
             try:
                 setattr(self, group, {})
-            except:
+            except Exception:
                 message_str = (
                     "processing information on the group [%s] raised an error" % (group)
                 )
@@ -240,7 +240,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                     if "$" in value:
                         try:
                             value = subst_args[int(value.lstrip("$")) - 1]
-                        except:
+                        except Exception:
                             message_str = (
                                 "argument substitution failed on %s in optional section %s"
                                 % (key, section)
@@ -248,7 +248,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                         section_info[key] = value
                 setattr(self, section, section_info)
 
-            except:
+            except Exception:
                 message_str = (
                     "processing information on the section [%s] raised an error"
                     % (section)
@@ -291,7 +291,7 @@ to a log file and to the screen at configurable levels.
             log_level_file = self.general["log_level_file"]
 
         # log level for debug mode
-        if self.debug_mode == True:
+        if self.debug_mode:
             log_level_console = "DEBUG"
             log_level_file = "DEBUG"
 
@@ -478,6 +478,6 @@ directories using information from the model configuration.
                 # single entry
                 try:
                     value = ftype(val_str)
-                except:
+                except Exception:
                     logger.error("%s cannot be converted to %s" % (val_str, ftype))
         return value

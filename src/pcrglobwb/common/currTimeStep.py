@@ -21,7 +21,7 @@ class ModelTime(object):
         self._endTime = datetime.date(int(ed[0]), int(ed[1]), int(ed[2]))
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
         self._spinUpStatus = False
-        if showNumberOfTimeSteps == True:
+        if showNumberOfTimeSteps:
             logger.info("number of time steps: " + str(self._nrOfTimeSteps))
         # monthly index since the start of the simulation
         self._monthIdx = 0
@@ -109,7 +109,7 @@ class ModelTime(object):
             self._currTime.day,
         )
 
-        if self.spinUpStatus == True:
+        if self.spinUpStatus:
             logger.info(
                 "Spin-Up " + str(self._noSpinUp) + " of " + str(self._maxSpinUps)
             )

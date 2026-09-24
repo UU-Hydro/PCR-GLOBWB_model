@@ -106,7 +106,7 @@ class Configuration(object):
             log_level_file = self.globalOptions["log_level_file"]
 
         # log level for debug mode
-        if self.debug_mode == True:
+        if self.debug_mode:
             log_level_console = "DEBUG"
             log_level_file = "DEBUG"
 
@@ -196,7 +196,7 @@ class Configuration(object):
                 "N/A",
             )
 
-        if system_arguments != None:
+        if system_arguments is not None:
             logger.info(
                 "The system arguments given to execute this run: %s", system_arguments
             )
@@ -286,12 +286,12 @@ class Configuration(object):
             if cleanOutputDir:
                 try:
                     shutil.rmtree(self.globalOptions["outputDir"])
-                except:
+                except Exception:
                     # new outputDir (does not exist yet)
                     pass
             try:
                 os.makedirs(self.globalOptions["outputDir"])
-            except:
+            except Exception:
                 # new outputDir (does not exist yet)
                 pass
 
