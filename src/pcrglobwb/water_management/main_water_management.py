@@ -26,11 +26,6 @@ class WaterManagement(object):
         if iniItems.waterManagementOptions["limitAbstraction"] == "True":
             self.limitAbstraction = True
 
-        # with MODFLOW, limitAbstraction must be True (abstraction cannot exceed storGroundwater)
-        if "useMODFLOW" in list(iniItems.groundwaterOptions.keys()):
-            if iniItems.groundwaterOptions["useMODFLOW"] == "True":
-                self.limitAbstraction = True
-
         # option for the groundwater pumping capacity (limitRegionalAnnualGroundwaterAbstraction)
         if "pumpingCapacityNC" not in list(iniItems.waterManagementOptions.keys()):
             msg = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file)'
@@ -1263,15 +1258,14 @@ class WaterManagement(object):
 
         # reduce capillary rise so there is always enough water for non-fossil groundwater abstraction (m)
         self.reducedCapRise = volRenewGroundwaterAbstraction / self.cellArea
-        # TODO: check whether this is needed for runs with MODFLOW
 
         # demand to be satisfied by fossil groundwater abstraction, not limited by available water (m3/day)
         self.potVolFossilGroundwaterAbstract = pcr.max(
             0.0, self.potVolGroundwaterAbstract - volRenewGroundwaterAllocation
         )
 
-        # with MODFLOW (limitAbstraction), there is no fossil groundwater abstraction
-        if groundwater.useMODFLOW or self.limitAbstraction:
+        # with limitAbstraction, there is no fossil groundwater abstraction
+        if self.limitAbstraction:
             logger.debug("Fossil groundwater abstractions are NOT allowed")
             volNonRenewGroundwaterAbstraction = pcr.scalar(0.0)
             volNonRenewGroundwaterAllocation = pcr.scalar(0.0)

@@ -1,4 +1,3 @@
-import datetime
 import logging
 import os
 import shutil
@@ -41,21 +40,6 @@ class DeterministicRunner(DynamicModel):
         ):
             self.adusting_parameters(configuration, system_argument)
             self.parameter_adjusment = True
-
-        # option to merge PCRaster maps and netCDF files (default: off)
-        self.with_merging = False
-        if ("with_merging" in configuration.globalOptions.keys()) and (
-            configuration.globalOptions["with_merging"] == "False"
-        ):
-            self.with_merging = False
-        if ("with_merging" in configuration.globalOptions.keys()) and (
-            configuration.globalOptions["with_merging"] == "True"
-        ):
-            self.with_merging = True
-
-        # merging is disabled for runs with spin-up
-        if spinUpRun == True:
-            self.with_merging = False
 
         self.configuration = configuration
 
@@ -525,84 +509,10 @@ class DeterministicRunner(DynamicModel):
                 self.model.meteo.referencePotET * self.multiplier_for_refPotET
             )
 
-        # update the model; water balance checks are not valid for runs coupled to MODFLOW (lateral flow)
-        if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
-            self.model.update(report_water_balance=False)
-        else:
-            self.model.update(report_water_balance=True)
+        # update the model
+        self.model.update(report_water_balance=True)
 
         self.reporting.report()
-
-        # at the last day of the month, wait until MODFLOW and merging are ready (only for runs with MODFLOW)
-        if self.modelTime.isLastDayOfMonth() and (
-            self.configuration.online_coupling_between_pcrglobwb_and_modflow
-            or self.with_merging
-        ):
-
-            # wait until the MODFLOW files are ready
-            if self.configuration.online_coupling_between_pcrglobwb_and_modflow:
-                modflow_is_ready = False
-                self.count_check = 0
-                while modflow_is_ready == False:
-                    if (
-                        datetime.datetime.now().second == 14
-                        or datetime.datetime.now().second == 29
-                        or datetime.datetime.now().second == 34
-                        or datetime.datetime.now().second == 59
-                    ):
-                        modflow_is_ready = self.check_modflow_status()
-
-            # wait until the merged files are ready
-            merged_files_are_ready = False
-            while merged_files_are_ready == False:
-                self.count_check = 0
-                if (
-                    datetime.datetime.now().second == 14
-                    or datetime.datetime.now().second == 29
-                    or datetime.datetime.now().second == 34
-                    or datetime.datetime.now().second == 59
-                ):
-                    merged_files_are_ready = self.check_merging_status()
-
-    def check_modflow_status(self):
-
-        status_file = (
-            str(self.configuration.main_output_directory)
-            + "/modflow/transient/maps/modflow_files_for_"
-            + str(self.modelTime.fulldate)
-            + "_are_ready.txt"
-        )
-        msg = "Waiting for the file: " + status_file
-        if self.count_check == 1:
-            logger.info(msg)
-        if self.count_check < 7:
-            self.count_check += 1
-        status = os.path.exists(status_file)
-        if status == False:
-            return status
-        if status:
-            self.count_check = 0
-        return status
-
-    def check_merging_status(self):
-
-        status_file = (
-            str(self.configuration.main_output_directory)
-            + "/global/maps/merged_files_for_"
-            + str(self.modelTime.fulldate)
-            + "_are_ready.txt"
-        )
-        msg = "Waiting for the file: " + status_file
-        if self.count_check == 1:
-            logger.info(msg)
-        if self.count_check < 7:
-            self.count_check += 1
-        status = os.path.exists(status_file)
-        if status == False:
-            return status
-        if status:
-            self.count_check = 0
-        return status
 
 
 def modify_ini_file(original_ini_file, system_argument):

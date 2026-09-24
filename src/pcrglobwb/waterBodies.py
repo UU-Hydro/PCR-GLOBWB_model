@@ -33,17 +33,6 @@ class WaterBodies(object):
         else:
             self.lddMap = lddMap
 
-        # needed for a modflowOfflineCoupling run
-        if (
-            "modflowOfflineCoupling" in list(iniItems.globalOptions.keys())
-            and iniItems.globalOptions["modflowOfflineCoupling"] == "True"
-            and "routingOptions" not in iniItems.allSections
-        ):
-            logger.info(
-                "The 'routingOptions' are not defined in the configuration ini file. We will adopt them from the 'modflowParameterOptions'."
-            )
-            iniItems.routingOptions = iniItems.modflowParameterOptions
-
         # option to activate the water balance check
         self.debugWaterBalance = True
         if (
@@ -390,7 +379,7 @@ class WaterBodies(object):
             self.getICs(initial_condition_dictionary)
 
         # initialize storage and average inflow and outflow for new reservoirs (introduced at the
-        # beginning of the year); not needed for an offline MODFLOW run
+        # beginning of the year)
         try:
             self.waterBodyStorage = pcr.cover(self.waterBodyStorage, 0.0)
             self.avgInflow = pcr.cover(self.avgInflow, 0.0)
@@ -399,7 +388,6 @@ class WaterBodies(object):
             self.avgInflow = pcr.ifthen(self.landmask, self.avgInflow)
             self.avgOutflow = pcr.ifthen(self.landmask, self.avgOutflow)
         except:
-            # offline MODFLOW run
             pass
         # TODO: remove try/except
 

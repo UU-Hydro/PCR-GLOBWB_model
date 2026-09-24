@@ -828,30 +828,7 @@ class LandSurface(object):
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
         # cell fraction influenced by capillary rise, from the relative groundwater head (m) above the
         # minimum elevation within the cell
-        if groundwater.useMODFLOW == True:
-            dzGroundwater = groundwater.relativeGroundwaterHead
-
-            # update dzGroundwater from the MODFLOW calculation of the previous time step (once a month)
-            if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1:
-
-                # online coupling: read the PCRaster maps
-                directory = (
-                    self.iniItems.main_output_directory + "/modflow/transient/maps/"
-                )
-
-                yesterday = str(currTimeStep.yesterday())
-                filename = (
-                    directory + "relativeGroundwaterHead_" + str(yesterday) + ".map"
-                )
-                dzGroundwater = pcr.ifthen(
-                    self.landmask,
-                    pcr.cover(
-                        vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0
-                    ),
-                )
-
-        else:
-            dzGroundwater = groundwater.storGroundwater / groundwater.specificYield
+        dzGroundwater = groundwater.storGroundwater / groundwater.specificYield
 
         # add a tolerance/influence level (m)
         dzGroundwater += self.soil_topo_parameters["default"].maxGWCapRise
@@ -907,10 +884,6 @@ class LandSurface(object):
             # note: FRACWAT is used here (possibly a small bug fix relative to the GMD paper version)
             FRACWAT = pcr.cover(routing.WaterBodies.fracWat, 0.0)
         FRACWAT = pcr.cover(FRACWAT, 0.0)
-
-        # zero fracWat assumption used for debugging against version 1
-        if routing.zeroFracWatAllAndAlways:
-            FRACWAT = pcr.scalar(0.0)
 
         CRFRAC = pcr.min(
             1.0,

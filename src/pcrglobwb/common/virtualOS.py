@@ -1,10 +1,8 @@
 import calendar
 import datetime
-import glob
 import logging
 import math
 import os
-import random
 import re
 import shutil
 import subprocess
@@ -522,15 +520,6 @@ def readDownscalingMeteo(
     return outPCR
 
 
-def getFileList(inputDir, filePattern):
-    """creates a dictionary of  files meeting the pattern specified"""
-    fileNameList = glob.glob(os.path.join(inputDir, filePattern))
-    ll = {}
-    for fileName in fileNameList:
-        ll[os.path.split(fileName)[-1]] = fileName
-    return ll
-
-
 def checkVariableInNC(ncFile, varName):
 
     logger.debug(
@@ -567,7 +556,6 @@ def netcdf2PCRobjCloneWithoutTime(
             return singleTryNetcdf2PCRobjCloneWithoutTime(
                 ncFile, varName, cloneMapFileName, LatitudeLongitude, specificFillValue
             )
-            iter_try = max_num_of_tries + 100
         except Exception:
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
@@ -726,7 +714,6 @@ def netcdf2PCRobjClone(
                 LatitudeLongitude,
                 specificFillValue,
             )
-            iter_try = max_num_of_tries + 100
         except Exception:
             iter_try = iter_try + 1
             logger.warning("Re-try to read file: " + str(ncFile))
@@ -1175,32 +1162,6 @@ def singleTryNetcdf2PCRobjClone(
     return outPCR
 
 
-def netcdf2PCRobj(ncFile, varName, dateInput):
-    # EHS (04 Apr 2013): convert a netCDF (tss) file to a PCRaster map; the clone map is
-    # defined globally (outside this function)
-
-    f = nc.Dataset(ncFile)
-    varName = str(varName)
-
-    date = dateInput
-    if isinstance(date, str):
-        date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
-    date = datetime.datetime(date.year, date.month, date.day)
-
-    # time index in the netCDF file
-    nctime = f.variables["time"]
-    idx = nc.date2index(date, nctime, calendar=nctime.calendar, select="exact")
-
-    # convert to a PCRaster object
-    outPCR = pcr.numpy2pcr(
-        pcr.Scalar,
-        (f.variables[varName][idx].data),
-        float(f.variables[varName]._FillValue),
-    )
-    f.close()
-    return outPCR
-
-
 def writePCRmapToDir(v, outFileName, outDir):
     # v: input map file name or value; if the input map and cloneMapFileName have different
     # clones, the map is resampled
@@ -1225,7 +1186,6 @@ def readPCRmapClone(
             return singleTryReadPCRmapClone(
                 v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap
             )
-            iter_try = max_num_of_tries + 100
         except Exception:
             iter_try = iter_try + 1
             logger.warning("Re-try to read file/value: " + str(v))
@@ -1456,15 +1416,6 @@ def getFullPath(inputPath, absolutePath, completeFileName=True):
             fullPath = str(fullPath) + "/"
 
     return fullPath
-
-
-def get_random_word(wordLen):
-    word = ""
-    for i in range(wordLen):
-        word += random.choice(
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        )
-    return word
 
 
 def isLastDayOfMonth(date):
@@ -1821,20 +1772,6 @@ def findFirstYearInNCTime(ncTimeVariable):
     )
 
     return first_datetime.year
-
-
-def cmd_line(command_line, using_subprocess=True):
-
-    msg = "Call: " + str(command_line)
-    logger.debug(msg)
-
-    co = command_line
-    if using_subprocess:
-        cOut, err = subprocess.Popen(
-            co, stdout=subprocess.PIPE, stderr=open("/dev/null"), shell=True
-        ).communicate()
-    else:
-        os.system(co)
 
 
 def deg2rad(a):

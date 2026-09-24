@@ -50,30 +50,10 @@ class Configuration(object):
             self.using_relative_path_for_output_directory = True
             self.make_ini_meteo_paths_absolute()
 
-        # option for online coupling between PCR-GLOBWB and MODFLOW
-        self.set_options_for_coupling_betweeen_pcrglobwb_and_modflow()
-
         # if no_modification, set the configuration directly (creates the output, tmp, etc.
         # directories); otherwise set_configuration must be called separately
         if no_modification:
             self.set_configuration(system_arguments)
-
-        # main output directory (required for runs with merging)
-        self.main_output_directory = self.globalOptions["outputDir"]
-
-    def set_options_for_coupling_betweeen_pcrglobwb_and_modflow(self):
-
-        self.online_coupling_between_pcrglobwb_and_modflow = False
-        if (
-            "globalMergingAndModflowOptions" in self.allSections
-            and self.globalMergingAndModflowOptions[
-                "online_coupling_between_pcrglobwb_and_modflow"
-            ]
-            == "True"
-        ):
-
-            self.online_coupling_between_pcrglobwb_and_modflow = True
-            self.groundwaterOptions["useMODFLOW"] = "True"
 
     def set_configuration(self, system_arguments=None):
 
@@ -85,9 +65,6 @@ class Configuration(object):
         self.backup_configuration()
 
         self.repair_ini_key_names()
-
-        # settings for debugging against PCR-GLOBWB version 1
-        self.set_debug_to_version_one()
 
     def make_ini_meteo_paths_absolute(self):
         for section in self.allSections:
@@ -405,12 +382,6 @@ class Configuration(object):
             logger.warning(msg)
             self.routingOptions["dynamicFloodPlain"] = "False"
 
-        if "useMODFLOW" not in list(self.groundwaterOptions.keys()):
-            msg = 'The option "useMODFLOW" is not defined in the "groundwaterOptions" of the configuration file. '
-            msg += 'We assume "False" for this option.'
-            logger.warning(msg)
-            self.groundwaterOptions["useMODFLOW"] = "False"
-
         if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
             msg = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
             msg += 'This run assumes "None" for this option.'
@@ -427,24 +398,4 @@ class Configuration(object):
 
         # TODO: repair key names when running a 3-layer model with 2-layer initial conditions (and vice versa)
 
-    def set_debug_to_version_one(self):
-
-        self.debug_to_version_one = False
-        if "debug_to_version_one" in list(self.globalOptions.keys()):
-            if self.globalOptions["debug_to_version_one"] == "True":
-                self.debug_to_version_one = True
-
-        if self.debug_to_version_one:
-
-            msg = "\n"
-            msg += "\n"
-            msg += "\n"
-            msg += "============================================================================\n"
-            msg += "============================================================================\n"
-            msg += "A special Run for debugging to PCR-GLOBWB version 1\n"
-            msg += "============================================================================\n"
-            msg += "============================================================================\n"
-            msg += "\n"
-            logger.info(msg)
-
-            # TODO: set a specific set of configuration options for a debugging run
+        # TODO: set a specific set of configuration options for a debugging run

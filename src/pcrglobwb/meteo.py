@@ -560,20 +560,6 @@ class Meteo(object):
                 )
                 logger.info(msg)
 
-    def perturb(self, name, **parameters):
-
-        if name == "precipitation":
-
-            self.precipitation = self.precipitation * pcr.min(
-                pcr.max((1 + mapnormal() * parameters["standard_deviation"]), 0.01), 2.0
-            )
-            # TODO: make sure that precipitation >= 0
-            # TODO: add minimum and maximum
-
-        else:
-            print("Error: only precipitation may be updated at this time")
-            return -1
-
     def update(self, routing, currTimeStep):
 
         self.precipitation_before_downscaling = pcr.ifthen(

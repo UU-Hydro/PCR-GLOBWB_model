@@ -8,14 +8,6 @@ import pcraster as pcr
 NoneType = type(None)
 
 
-class setAttributes(object):
-
-    def __init__(self, mapInfo):
-        for key, value in mapInfo.items():
-            setattr(self, key, value)
-        print("map attributes set")
-
-
 def setClone(spatialAttributes, tempFileName="temp_clone.map"):
     # set the PCRaster clone from the given map attributes
 

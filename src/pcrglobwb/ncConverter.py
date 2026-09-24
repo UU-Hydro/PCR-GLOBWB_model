@@ -153,43 +153,6 @@ class PCR2netCDF:
         rootgrp.sync()
         rootgrp.close()
 
-    def changeAtrribute(self, ncFileName, attributeDictionary):
-
-        rootgrp = nc.Dataset(ncFileName, "a")
-
-        for k, v in list(attributeDictionary.items()):
-            setattr(rootgrp, k, v)
-
-        rootgrp.sync()
-        rootgrp.close()
-
-    def addNewVariable(self, ncFileName, varName, varUnits, longName=None):
-
-        rootgrp = nc.Dataset(ncFileName, "a")
-
-        shortVarName = varName
-        longVarName = varName
-        if longName != None:
-            longVarName = longName
-
-        var = rootgrp.createVariable(
-            shortVarName,
-            "f4",
-            (
-                "time",
-                "lat",
-                "lon",
-            ),
-            fill_value=vos.MV,
-            zlib=self.zlib,
-        )
-        var.standard_name = varName
-        var.long_name = longVarName
-        var.units = varUnits
-
-        rootgrp.sync()
-        rootgrp.close()
-
     def data2NetCDF(self, ncFileName, shortVarName, varField, timeStamp, posCnt=None):
 
         rootgrp = nc.Dataset(ncFileName, "a")
@@ -204,32 +167,6 @@ class PCR2netCDF:
             varField = np.flipud(varField)
 
         rootgrp.variables[shortVarName][posCnt, :, :] = varField
-
-        rootgrp.sync()
-        rootgrp.close()
-
-    def dataList2NetCDF(
-        self, ncFileName, shortVarNameList, varFieldList, timeStamp, posCnt=None
-    ):
-
-        rootgrp = nc.Dataset(ncFileName, "a")
-
-        date_time = rootgrp.variables["time"]
-        if posCnt == None:
-            posCnt = len(date_time)
-
-        for shortVarName in shortVarNameList:
-
-            date_time[posCnt] = nc.date2num(
-                timeStamp, date_time.units, date_time.calendar
-            )
-            varField = varFieldList[shortVarName]
-
-            # flip variable if necessary (to follow the CF convention)
-            if self.netcdf_y_orientation_follow_cf_convention:
-                varField = np.flipud(varField)
-
-            rootgrp.variables[shortVarName][posCnt, :, :] = varField
 
         rootgrp.sync()
         rootgrp.close()

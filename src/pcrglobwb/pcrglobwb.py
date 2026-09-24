@@ -1,6 +1,4 @@
 import logging
-import os
-import shutil
 
 import pcraster as pcr
 
@@ -60,21 +58,6 @@ class PCRGlobWB(object):
             self.save_monthly_end_states = (
                 configuration.reportingOptions["save_monthly_end_states"] == "True"
             )
-
-        # option for debugging against PCR-GLOBWB version 1
-        self.debug_to_version_one = False
-        if configuration.debug_to_version_one:
-            self.debug_to_version_one = True
-        if self.debug_to_version_one:
-
-            self.directory_for_initial_maps = vos.getFullPath(
-                "initials/", self.configuration.mapsDir
-            )
-            if os.path.exists(self.directory_for_initial_maps):
-                shutil.rmtree(self.directory_for_initial_maps)
-            os.makedirs(self.directory_for_initial_maps)
-
-            self.dumpState(self.directory_for_initial_maps, "initial")
 
         # whether this run is a spin-up run
         self.spinUpRun = spinUpRun
@@ -143,79 +126,7 @@ class PCRGlobWB(object):
                 outputDirectory,
             )
 
-    def calculateAndDumpMonthlyValuesForMODFLOW(
-        self, outputDirectory, timeStamp="Default"
-    ):
-
-        logger.debug(
-            "Calculating (accumulating and averaging) and dumping some monthly variables for the MODFLOW input."
-        )
-
-        if self._modelTime.day == 1 or self._modelTime.timeStepPCR == 1:
-
-            self.variables = {}
-
-            self.variables["monthly_discharge_cubic_meter_per_second"] = pcr.ifthen(
-                self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody)
-            )
-            self.variables["groundwater_recharge_meter_per_day"] = pcr.ifthen(
-                self.routing.landmask, self.landSurface.gwRecharge
-            )
-            self.variables["groundwater_abstraction_meter_per_day"] = pcr.ifthen(
-                self.routing.landmask, self.landSurface.totalGroundwaterAbstraction
-            )
-
-        self.variables["monthly_discharge_cubic_meter_per_second"] += pcr.ifthen(
-            self.routing.landmask, pcr.max(0.0, self.routing.disChanWaterBody)
-        )
-        self.variables["groundwater_recharge_meter_per_day"] += pcr.ifthen(
-            self.routing.landmask, self.landSurface.gwRecharge
-        )
-        self.variables["groundwater_abstraction_meter_per_day"] += pcr.ifthen(
-            self.routing.landmask, self.landSurface.totalGroundwaterAbstraction
-        )
-
-        if self._modelTime.isLastDayOfMonth():
-
-            # monthly averages of discharge, groundwater recharge and groundwater abstraction
-            number_of_days = min(self._modelTime.day, self._modelTime.timeStepPCR)
-            # (m3/s)
-            self.variables["monthly_discharge_cubic_meter_per_second"] = (
-                self.variables["monthly_discharge_cubic_meter_per_second"]
-                / number_of_days
-            )
-            # (m/day)
-            self.variables["groundwater_recharge_meter_per_day"] = (
-                self.variables["groundwater_recharge_meter_per_day"] / number_of_days
-            )
-            # (m/day)
-            self.variables["groundwater_abstraction_meter_per_day"] = (
-                self.variables["groundwater_abstraction_meter_per_day"] / number_of_days
-            )
-
-            # channel storage at the last day of the month (m/day)
-            self.variables["channel_storage_cubic_meter"] = pcr.ifthen(
-                self.routing.landmask, self.routing.channelStorage
-            )
-
-            # time stamp used in the file name
-            if timeStamp == "Default":
-                timeStamp = str(self._modelTime.fulldate)
-
-            logger.info("Dumping some monthly variables for the MODFLOW input.")
-
-            for variable, map in list(self.variables.items()):
-                vos.writePCRmapToDir(
-                    map, str(variable) + "_" + timeStamp + ".map", outputDirectory
-                )
-
-    def resume(self):
-        # restore the state from disk (used when restarting)
-        pass
-
     # TODO: implement
-    def setState(self, state):
-        logger.error("cannot set state")
 
     def report_summary(
         self,
@@ -605,10 +516,6 @@ class PCRGlobWB(object):
             )
             self.dumpState(self._configuration.endStateDir)
 
-        # monthly values for the online coupling with MODFLOW
-        if self._configuration.online_coupling_between_pcrglobwb_and_modflow:
-            self.calculateAndDumpMonthlyValuesForMODFLOW(self._configuration.mapsDir)
-
         if report_water_balance:
             # excluding surface water bodies
             landWaterStoresAtEnd = self.totalLandWaterStores()
@@ -627,17 +534,3 @@ class PCRGlobWB(object):
                 surfaceWaterStoresAtBeginning,
                 surfaceWaterStoresAtEnd,
             )
-
-        if self._modelTime.isLastDayOfMonth():
-            # create an empty file to indicate that this month is done;
-            # only needed for runs with merging and MODFLOW (skipped for spin-up runs)
-            if self.spinUpRun is not None and self.spinUpRun == False:
-                filename = (
-                    self._configuration.mapsDir
-                    + "/pcrglobwb_files_for_"
-                    + str(self._modelTime.fulldate)
-                    + "_are_ready.txt"
-                )
-                if os.path.exists(filename):
-                    os.remove(filename)
-                open(filename, "w").close()

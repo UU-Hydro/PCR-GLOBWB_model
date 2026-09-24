@@ -183,12 +183,6 @@ are included with the following default, constant values:
         """sets the default atmospheric pressure as function of elevation [m]"""
         self.atmosphericPressure = computeDefaultPressure(pcr.cover(elevation, 0))
 
-    def updateSurfaceProperties(self, albedo, vegetationHeight, canopyResistance):
-        """updates the surface properties: albedo, vegetation height and canopyResistance"""
-        self.albedo = albedo
-        self.canopyResistance = canopyResistance
-        self.vegetationHeight = vegetationHeight
-
     def updatePotentialEvaporation(
         self,
         netRadiation,

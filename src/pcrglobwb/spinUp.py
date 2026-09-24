@@ -48,56 +48,6 @@ class SpinUp(object):
         # directory for end states (PCRaster maps)
         self.endStateDir = iniItems.endStateDir
 
-    def getIniStates(self, model):
-
-        if self.numberOfLayers == 2:
-
-            # (m3)
-            self.iniSoilSto = max(
-                1e-20,
-                vos.getMapVolume(
-                    model.landSurface.topWaterLayer
-                    + model.landSurface.storUpp
-                    + model.landSurface.storLow
-                    + model.groundwater.storGroundwater,
-                    model.routing.cellArea,
-                ),
-            )
-
-        if self.numberOfLayers == 3:
-
-            # (m3)
-            self.iniSoilSto = max(
-                1e-20,
-                vos.getMapVolume(
-                    model.landSurface.topWaterLayer
-                    + model.landSurface.storUpp000005
-                    + model.landSurface.storUpp005030
-                    + model.landSurface.storLow030150
-                    + model.groundwater.storGroundwater,
-                    model.routing.cellArea,
-                ),
-            )
-
-        # (m3)
-        self.iniGwatSto = max(
-            1e-20,
-            vos.getMapVolume(model.groundwater.storGroundwater, model.routing.cellArea),
-        )
-        self.iniChanSto = max(1e-20, vos.getMapVolume(model.routing.channelStorage, 1))
-        # (m3)
-        self.iniTotlSto = max(
-            1e-20,
-            self.iniSoilSto
-            + self.iniChanSto
-            + vos.getMapVolume(
-                model.landSurface.interceptStor
-                + model.landSurface.snowFreeWater
-                + model.landSurface.snowCoverSWE,
-                model.routing.cellArea,
-            ),
-        )
-
     def soilStorageVolume(self, state, cellAreaMap):
 
         if self.numberOfLayers == 2:

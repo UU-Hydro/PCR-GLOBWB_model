@@ -128,7 +128,3 @@ class IndustryWaterDemand(object):
                 1.0
                 - vos.getValDivZero(self.industryNettoDemand, self.industryGrossDemand),
             )
-
-    def calculate_industrial_water_demand_for_date(self, currTimeStep):
-        # TODO: We may want to calculate industry water demand on the fly (read_file = False)
-        pass

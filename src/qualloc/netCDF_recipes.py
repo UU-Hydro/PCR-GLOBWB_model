@@ -212,100 +212,6 @@ def get_date_index(date, dates, date_selection_method, substituted_dates=False):
         )
 
 
-def match_date_in_dates(date, dates, date_selection_method="exact"):
-    """
-
-match_dates: function that allows for date substitution in the water management \
-module.
-
-    Input:
-    ======
-    date:                   date provided;
-    dates:                  array of available dates to which the provided
-                            dates should be matched;
-    date_selection_method:  date selection method, default value is 'exact';
-                            can be 'exact', 'before', or 'after'.
-
-    Output:
-    =======
-    date_index:             date index matching the sought date to the av-
-                            ailable dates;
-    matched_date:           the date in the available dates that matches the
-                            date index;
-    message_str:            message string on the date selction for subsequent
-                            logging.
-
-"""
-
-    date_index = get_date_index(date, dates, date_selection_method)
-
-    message_str = str.join(
-        " ", ("for the water management module", "a %s match is found for date %s")
-    )
-    message_str = message_str % (date_selection_method, date)
-
-    # no match found: substitute the date
-    if isinstance(date_index, NoneType):
-
-        # replacement year, depending on the selection method
-        if date_selection_method == "exact":
-            replacement_year = date.year
-        elif date_selection_method == "before":
-            replacement_year = date.year - 1
-        elif date_selection_method == "after":
-            replacement_year = date.year + 1
-        else:
-            pass
-
-        message_str = str.join(
-            " ",
-            (
-                "for the water management module"
-                "date substitution is allowed to find the %s match",
-                "for year %d for which the dummy year %d is used",
-            ),
-        )
-        message_str = message_str % (date_selection_method, date.year, replacement_year)
-
-        # use the nearest date if the selection method is exact
-        if date_selection_method == "exact":
-            date_selection_method = "nearest"
-
-        replacement_date = update_year_of_date(date, replacement_year, date)
-
-        # replace the year of the dates
-        dates = substitute_years_of_dates(dates, replacement_date)
-
-        date_index = get_date_index(
-            date, dates, date_selection_method, substituted_dates=True
-        )
-
-    # matched date and band
-    matched_date = dates[date_index]
-
-    message_str = str.join(
-        "; ", (message_str, "the date %s is matched to %s" % (date, matched_date))
-    )
-
-    return date_index, matched_date, message_str
-
-
-def print_dictionary(dobj, level=0):
-    """iterates over all items in a dictionary and print key,value pairs"""
-    for key, value in dobj.items():
-        if isinstance(value, list) or isinstance(value, np.ndarray):
-            vals = value[:]
-            value = [vals[0], "...", vals[-1]]
-        print(
-            " " * level * 4,
-            key,
-        )
-        try:
-            print(value)
-        except:
-            print
-
-
 def get_nc_object_attributes(obj, exclude_list=[], exclude_class_objects=True):
     """Reads all information from the netCDF dataset object specified and returns a dictionary
     of key, value pairs; should only be applied on copies of netCDF dataset objects
@@ -1023,14 +929,6 @@ specified netCDF file."""
             self.remove_ncfile_from_cache(ncfilename)
 
         return nc_dims
-
-    def test_var_in_ncfile(self, ncfilename, variablename):
-        """
-test_var_in_ncfile: function that tests if a variable is present in the \
-netCDF file specified.
-     
-"""
-        return variablename in self.variables[ncfilename]
 
     def read_nc_field(
         self,

@@ -31,7 +31,7 @@ class Groundwater(object):
             self.avgNonFossilAllocationShort
         )
 
-        # states needed for coupling with MODFLOW
+        # relative groundwater head and baseflow
         # (m)
         result["relativeGroundwaterHead"] = self.relativeGroundwaterHead
         # (m/day)
@@ -64,10 +64,6 @@ class Groundwater(object):
         self.debugWaterBalance = True
         if iniItems.routingOptions["debugWaterBalance"] == "False":
             self.debugWaterBalance = False
-
-        self.useMODFLOW = False
-        if iniItems.groundwaterOptions["useMODFLOW"] == "True":
-            self.useMODFLOW = True
 
         # exponent of the baseflow reservoir formula (default one)
         if "baseflow_exponent" in list(iniItems.groundwaterOptions.keys()):
@@ -105,11 +101,6 @@ class Groundwater(object):
             == "True"
         ):
             self.limitFossilGroundwaterAbstraction = True
-
-        # with MODFLOW, limitAbstraction must be True (abstraction cannot exceed storGroundwater; no fossil groundwater)
-        if self.useMODFLOW:
-            self.limitAbstraction = True
-            self.limitFossilGroundwaterAbstraction = False
 
         # option to limit regional groundwater abstraction
         if not self.using_qualloc:
@@ -286,14 +277,14 @@ class Groundwater(object):
                     self.inputDir,
                 )
 
-        # total groundwater thickness (m), used to estimate the fossil groundwater capacity (only for
-        # runs without MODFLOW) and the productive aquifer areas, where capillary rise and groundwater
-        # depletion can occur; for runs with MODFLOW, we want to minimize large drawdowns in
-        # non-productive aquifer areas
+        # total groundwater thickness (m), used to estimate the fossil groundwater capacity and the
+        # productive aquifer areas, where capillary rise and groundwater depletion can occur
         totalGroundwaterThickness = None
-        if "estimateOfTotalGroundwaterThickness" in list(
-            iniItems.groundwaterOptions.keys()
-        ) and (self.limitFossilGroundwaterAbstraction or self.useMODFLOW):
+        if (
+            "estimateOfTotalGroundwaterThickness"
+            in list(iniItems.groundwaterOptions.keys())
+            and self.limitFossilGroundwaterAbstraction
+        ):
 
             totalGroundwaterThickness = vos.readPCRmapClone(
                 iniItems.groundwaterOptions["estimateOfTotalGroundwaterThickness"],
@@ -628,7 +619,7 @@ class Groundwater(object):
                 self.inputDir,
             )
 
-            # additional initial conditions, only needed for the online coupling with MODFLOW
+            # additional initial conditions: relative groundwater head and baseflow
             if iniItems.groundwaterOptions["relativeGroundwaterHeadIni"] != "None":
                 self.relativeGroundwaterHead = vos.readPCRmapClone(
                     iniItems.groundwaterOptions["relativeGroundwaterHeadIni"],
@@ -782,26 +773,9 @@ class Groundwater(object):
         )
         pcr.report(self.storGroundwaterFossil, "initial_fossil_gw_water.map")
 
-    def perturb(self, name, **parameters):
-
-        if name == "groundwater":
-
-            # factor to perturb the initial storGroundwater
-            self.storGroundwater = self.storGroundwater * (
-                mapnormal() * parameters["standard_deviation"] + 1
-            )
-            self.storGroundwater = pcr.max(0.0, self.storGroundwater)
-
-        else:
-            print("Error: only groundwater may be updated at this time")
-            return -1
-
     def update(self, landSurface, routing, currTimeStep):
 
-        if self.useMODFLOW:
-            self.update_with_MODFLOW(landSurface, routing, currTimeStep)
-        else:
-            self.update_without_MODFLOW(landSurface, routing, currTimeStep)
+        self.update_storage(landSurface, routing, currTimeStep)
 
         self.calculate_statistics(routing)
 
@@ -810,65 +784,7 @@ class Groundwater(object):
         # old-style reporting; TODO: remove
         self.old_style_groundwater_reporting(currTimeStep)
 
-    def update_with_MODFLOW(self, landSurface, routing, currTimeStep):
-
-        logger.info("Updating groundwater based on the MODFLOW output.")
-
-        # relativeGroundwaterHead, storGroundwater and baseflow are assumed to be constant
-        self.relativeGroundwaterHead = self.relativeGroundwaterHead
-        self.storGroundwater = self.storGroundwater
-        self.baseflow = self.baseflow
-
-        if currTimeStep.day == 1 and currTimeStep.timeStepPCR > 1:
-
-            # online coupling: read the PCRaster maps of the previous day
-            directory = self.iniItems.main_output_directory + "/modflow/transient/maps/"
-            yesterday = str(currTimeStep.yesterday())
-
-            filename = directory + "relativeGroundwaterHead_" + str(yesterday) + ".map"
-            self.relativeGroundwaterHead = pcr.ifthen(
-                self.landmask,
-                pcr.cover(
-                    vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0
-                ),
-            )
-
-            filename = directory + "storGroundwater_" + str(yesterday) + ".map"
-            self.storGroundwater = pcr.ifthen(
-                self.landmask,
-                pcr.cover(
-                    vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0
-                ),
-            )
-
-            filename = directory + "baseflow_" + str(yesterday) + ".map"
-            self.baseflow = pcr.ifthen(
-                self.landmask,
-                pcr.cover(
-                    vos.readPCRmapClone(filename, self.cloneMap, self.tmpDir), 0.0
-                ),
-            )
-
-        # river bed exchange is included in the baseflow (via the MODFLOW river and drain packages)
-        self.surfaceWaterInf = pcr.scalar(0.0)
-
-        self.nonFossilGroundwaterAbs = landSurface.nonFossilGroundwaterAbs
-
-        # fossil groundwater abstraction (must be zero)
-        self.fossilGroundwaterAbstr = landSurface.fossilGroundwaterAbstr
-
-        # groundwater allocation (done in the landSurface module)
-        self.allocNonFossilGroundwater = landSurface.allocNonFossilGroundwater
-        self.fossilGroundwaterAlloc = landSurface.fossilGroundwaterAlloc
-
-        # groundwater allocation (done in the landSurface module)
-        self.allocNonFossilGroundwater = landSurface.allocNonFossilGroundwater
-        self.fossilGroundwaterAlloc = landSurface.fossilGroundwaterAlloc
-
-        # note: unmetDemand is a misnomer; it is the demand satisfied from fossil groundwater
-        self.unmetDemand = self.fossilGroundwaterAlloc
-
-    def update_without_MODFLOW(self, landSurface, routing, currTimeStep):
+    def update_storage(self, landSurface, routing, currTimeStep):
 
         logger.info("Updating groundwater")
 

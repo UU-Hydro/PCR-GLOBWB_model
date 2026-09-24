@@ -45,14 +45,6 @@ class ModelTime(object):
         # yearly index since the start of the simulation
         self._annuaIdx = 0
 
-    def setStartTime(self, date):
-        self._startTime = date
-        self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
-
-    def setEndTime(self, date):
-        self._endTime = date
-        self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
-
     @property
     def spinUpStatus(self):
         return self._spinUpStatus
@@ -133,12 +125,6 @@ class ModelTime(object):
 
     def isFirstTimestep(self):
         return self.timeStepPCR == 1
-
-    def isFirstDayOfMonth(self):
-        return self.day == 1
-
-    def isFirstDayOfYear(self):
-        return self.doy == 1
 
     def isLastDayOfMonth(self):
         tomorrow = self.currTime + datetime.timedelta(days=1)

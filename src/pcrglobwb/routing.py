@@ -19,10 +19,6 @@ class Routing(object):
         result = {}
         return result
 
-    def getVariables(self, names):
-        result = {}
-        return result
-
     def getState(self):
         result = {}
 
@@ -421,11 +417,6 @@ class Routing(object):
                     )
 
                 logger.info(msg)
-
-        # zero fracWat assumption (used for debugging against version 1)
-        self.zeroFracWatAllAndAlways = False
-        if iniItems.debug_to_version_one:
-            self.zeroFracWatAllAndAlways = True
 
         # option to limit the flood depth (to avoid unrealistic flood depths)
         self.maxFloodDepth = None
@@ -1300,24 +1291,6 @@ class Routing(object):
                 self.landmask, pcr.cover(self.waterBodyStorage, 0.0)
             )
 
-    def estimateBankfullDischarge(self, bankfullWidth, factor=4.8):
-
-        # bankfull discharge (m3/s) from the Lacey formula: P = B = 4.8 * (Qbf)**0.5
-
-        bankfullDischarge = (bankfullWidth / factor) ** (2.0)
-
-        return bankfullDischarge
-
-    def estimateBankfullDepth(self, bankfullDischarge):
-
-        # bankfull depth (m) from the Manning formula, assuming a rectangular channel
-
-        bankfullDepth = self.manningsN * ((bankfullDischarge) ** (0.50))
-        bankfullDepth = bankfullDepth / (4.8 * ((self.gradient) ** (0.50)))
-        bankfullDepth = bankfullDepth ** (3.0 / 5.0)
-
-        return bankfullDepth
-
     def estimateBankfullCapacity(self, width, depth, minWidth=5.0, minDepth=1.0):
 
         # bankfull capacity (m3)
@@ -1989,8 +1962,7 @@ class Routing(object):
         # note: this method requires abstraction from fossil groundwater
 
         # infiltration from surface water bodies (channels, lakes and reservoirs) to groundwater, passed on in
-        # the next time step; in the future the interface between PCR-GLOBWB and MODFLOW (based on the
-        # difference between surface water levels and groundwater heads)
+        # the next time step
         self.calculate_exchange_to_groundwater(groundwater, currTimeStep)
 
         # volume released in pits (losses to the ocean/endorheic basins)
@@ -2079,110 +2051,52 @@ class Routing(object):
             0.0, self.waterBodyPotEvap - self.waterBodyEvaporation
         )
 
-    def calculate_evaporation_routing_only(self, currTimeStep, meteo):
-
-        # potential evaporation from water bodies over the entire cell area, not only the water bodies (m/day)
-        self.waterBodyPotEvap = self.calculate_potential_evaporation_routing_only(
-            currTimeStep, meteo
-        )
-
-        # evaporation volume from water bodies (m3), not limited to the available channelStorage
-        volLocEvapWaterBody = self.waterBodyPotEvap * self.cellArea
-        # limited to the available channelStorage
-        volLocEvapWaterBody = pcr.min(
-            pcr.max(0.0, self.channelStorage), volLocEvapWaterBody
-        )
-
-        # update channelStorage (m3) after evaporation from water bodies
-        self.channelStorage = self.channelStorage - volLocEvapWaterBody
-        self.local_input_to_surface_water -= volLocEvapWaterBody
-
-        # evaporation from water bodies (m)
-        self.waterBodyEvaporation = volLocEvapWaterBody / self.cellArea
-        self.waterBodyEvaporation = pcr.ifthen(self.landmask, self.waterBodyEvaporation)
-
-        # remaining potential evaporation from water bodies (m)
-        self.remainWaterBodyPotEvap = pcr.max(
-            0.0, self.waterBodyPotEvap - self.waterBodyEvaporation
-        )
-
-    def calculate_extra_evaporation(self):
-        # limited to the remaining potential evaporation from water bodies (m)
-
-        # evaporation volume from water bodies (m3), limited to the available channelStorage
-        volLocEvapWaterBody = pcr.min(
-            pcr.max(0.0, self.channelStorage),
-            self.remainWaterBodyPotEvap * self.dynamicFracWat * self.cellArea,
-        )
-
-        # update channelStorage (m3) after evaporation from water bodies
-        self.channelStorage = self.channelStorage - volLocEvapWaterBody
-        self.local_input_to_surface_water -= volLocEvapWaterBody
-
-        # update the evaporation from water bodies (m)
-        self.waterBodyEvaporation += volLocEvapWaterBody / self.cellArea
-
-        # remaining potential evaporation from water bodies (m)
-        self.remainWaterBodyPotEvap = pcr.max(
-            0.0, self.remainWaterBodyPotEvap - volLocEvapWaterBody / self.cellArea
-        )
-
     def calculate_exchange_to_groundwater(self, groundwater, currTimeStep):
 
         if self.debugWaterBalance:
             # (m3)
             preStorage = self.channelStorage
 
-        # riverbed infiltration (m3/day), following Inge's principle (later to be based on the MODFLOW
-        # groundwater head, and may then be negative): only if 0 < baseflow < total groundwater abstraction
+        # riverbed infiltration (m3/day), following Inge's principle: only if 0 < baseflow < total groundwater abstraction
         # (fossil and non-fossil); the rate is based on the aquifer saturated conductivity, limited to fracWat
         # and the available channelStorage, and passed to groundwater in the next time step (de Graaf et al.,
         # 2014; Wada et al., 2012; Wada et al., 2010); TODO: improve this concept
-        if groundwater.useMODFLOW:
-
-            # riverbed exchange is calculated within MODFLOW (via baseflow)
-
-            self.riverbedExchange = pcr.scalar(0.0)
-
-        else:
-
-            # (m/day)
-            riverbedConductivity = groundwater.riverBedConductivity
-            # maximum conductivity of 0.1 m/day (Marc Bierkens: resistance of 1 day for a 0.1 m river bed)
-            riverbedConductivity = pcr.min(0.1, riverbedConductivity)
-            # (m)
-            total_groundwater_abstraction = pcr.max(
-                0.0,
-                groundwater.nonFossilGroundwaterAbs
-                + groundwater.fossilGroundwaterAbstr,
-            )
-            self.riverbedExchange = pcr.max(
-                0.0,
-                pcr.min(
-                    pcr.max(0.0, self.channelStorage),
+        # (m/day)
+        riverbedConductivity = groundwater.riverBedConductivity
+        # maximum conductivity of 0.1 m/day (Marc Bierkens: resistance of 1 day for a 0.1 m river bed)
+        riverbedConductivity = pcr.min(0.1, riverbedConductivity)
+        # (m)
+        total_groundwater_abstraction = pcr.max(
+            0.0,
+            groundwater.nonFossilGroundwaterAbs + groundwater.fossilGroundwaterAbstr,
+        )
+        self.riverbedExchange = pcr.max(
+            0.0,
+            pcr.min(
+                pcr.max(0.0, self.channelStorage),
+                pcr.ifthenelse(
+                    groundwater.baseflow > 0.0,
                     pcr.ifthenelse(
-                        groundwater.baseflow > 0.0,
-                        pcr.ifthenelse(
-                            total_groundwater_abstraction > groundwater.baseflow,
-                            riverbedConductivity * self.dynamicFracWat * self.cellArea,
-                            0.0,
-                        ),
+                        total_groundwater_abstraction > groundwater.baseflow,
+                        riverbedConductivity * self.dynamicFracWat * self.cellArea,
                         0.0,
                     ),
+                    0.0,
                 ),
-            )
-            self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
-            # avoid flip-flopping
-            factor = 0.25
-            self.riverbedExchange = pcr.min(
-                self.riverbedExchange,
-                (1.0 - factor) * pcr.max(0.0, self.channelStorage),
-            )
-            self.riverbedExchange = pcr.ifthenelse(
-                self.channelStorage < 0.0, 0.0, self.riverbedExchange
-            )
-            self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
-            self.riverbedExchange = pcr.ifthen(self.landmask, self.riverbedExchange)
+            ),
+        )
+        self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
+        # avoid flip-flopping
+        factor = 0.25
+        self.riverbedExchange = pcr.min(
+            self.riverbedExchange,
+            (1.0 - factor) * pcr.max(0.0, self.channelStorage),
+        )
+        self.riverbedExchange = pcr.ifthenelse(
+            self.channelStorage < 0.0, 0.0, self.riverbedExchange
+        )
+        self.riverbedExchange = pcr.cover(self.riverbedExchange, 0.0)
+        self.riverbedExchange = pcr.ifthen(self.landmask, self.riverbedExchange)
 
         # update channelStorage (m3) after riverbedExchange (m3)
         self.channelStorage -= self.riverbedExchange
@@ -3502,41 +3416,6 @@ class Routing(object):
         sunFrac = sun0 + (10 * self.cloudCover - cld0) * deltaSun
         radFrac = self.radCon + self.radSlope * sunFrac
         self.rsw = radFrac * self.radiation
-
-    def readExtensiveHydro(self, currTimeStep):
-
-        # read the hydrological input directly from netCDF files (daily)
-        self.baseflow = vos.netcdf2PCRobjClone(
-            self.baseflowNC,
-            "baseflow",
-            str(currTimeStep.fulldate),
-            useDoy=None,
-            cloneMapFileName=self.cloneMap,
-            LatitudeLongitude=True,
-        )
-        self.baseflow = pcr.ifthen(self.landmask, self.baseflow)
-
-        self.interflowTotal = vos.netcdf2PCRobjClone(
-            self.interflowNC,
-            "interflow",
-            str(currTimeStep.fulldate),
-            useDoy=None,
-            cloneMapFileName=self.cloneMap,
-            LatitudeLongitude=True,
-        )
-        self.interflowTotal = pcr.ifthen(self.landmask, self.interflowTotal)
-
-        self.directRunoff = vos.netcdf2PCRobjClone(
-            self.directRunoffNC,
-            "direct_runoff",
-            str(currTimeStep.fulldate),
-            useDoy=None,
-            cloneMapFileName=self.cloneMap,
-            LatitudeLongitude=True,
-        )
-        self.directRunoff = pcr.ifthen(self.landmask, self.directRunoff)
-
-        self.runoff = self.directRunoff + self.interflowTotal + self.baseflow
 
     def readPollutantLoadingsInputData(self, currTimeStep):
 

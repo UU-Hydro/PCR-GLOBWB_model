@@ -12,7 +12,6 @@ from pcrglobwb.spinUp import SpinUp
 
 logger = logging.getLogger(__name__)
 
-from pcrglobwb import oldcalc_framework
 from pcrglobwb.common import disclaimer
 
 
@@ -64,7 +63,6 @@ def main():
         iniFileName=iniFileName, debug_mode=debug_mode, no_modification=no_modification
     )
     if no_modification == False:
-        configuration.main_output_directory = output_directory
         configuration.globalOptions["outputDir"] = output_directory
         configuration.set_configuration()
 
@@ -124,29 +122,6 @@ def main():
     )
     dynamic_framework.setQuiet(True)
     dynamic_framework.run()
-
-    # debugging against PCR-GLOBWB version 1
-    if configuration.debug_to_version_one:
-
-        logger.info("\n\n\n\n\n" + "Executing PCR-GLOBWB version 1." + "\n\n\n\n\n")
-
-        currTimeStep = None
-        currTimeStep = ModelTime()
-        currTimeStep.getStartEndTimeSteps(
-            configuration.globalOptions["startTime"],
-            configuration.globalOptions["endTime"],
-        )
-
-        # run PCR-GLOBWB version 1 and compare its outputs with version 2
-        pcrglobwb_one = oldcalc_framework.PCRGlobWBVersionOne(
-            configuration,
-            currTimeStep,
-            deterministic_runner.model.routing.landmask,
-            deterministic_runner.model.routing.cellArea,
-        )
-        dynamic_framework = DynamicFramework(pcrglobwb_one, currTimeStep.nrOfTimeSteps)
-        dynamic_framework.setQuiet(True)
-        dynamic_framework.run()
 
 
 if __name__ == "__main__":
