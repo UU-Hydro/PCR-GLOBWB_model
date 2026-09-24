@@ -52,7 +52,6 @@ class Meteo(object):
                     self.inputDir,
                 )
             else:
-                msg = "The initial condition avgAnnualPrecipitationIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
                 self.avgAnnualPrecipitation = pcr.scalar(0.0)
 
             if "avgAnnualTemperatureIni" in list(iniItems.meteoOptions.keys()):
@@ -63,7 +62,6 @@ class Meteo(object):
                     self.inputDir,
                 )
             else:
-                msg = "The initial condition avgAnnualTemperatureIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
                 self.avgAnnualTemperature = pcr.scalar(0.0)
 
             if "avgAnnualDiurnalDeltaTempIni" in list(iniItems.meteoOptions.keys()):
@@ -74,7 +72,6 @@ class Meteo(object):
                     self.inputDir,
                 )
             else:
-                msg = "The initial condition avgAnnualDiurnalDeltaTempIni is not defined and set to zero. This is needed only for the Bristow-Campbell method."
                 self.avgAnnualDiurnalDeltaTemp = pcr.scalar(0.0)
 
         # during/after spin-up
@@ -473,18 +470,6 @@ class Meteo(object):
             or self.downscaleTemperatureOption
             or self.downscaleReferenceETPotOption
         ):
-
-            # cell area (m2), needed to downscale P and ET0
-            if "cellAreaMap" not in list(iniItems.meteoOptions.keys()):
-                iniItems.meteoOptions["cellAreaMap"] = iniItems.routingOptions[
-                    "cellAreaMap"
-                ]
-            cellArea = vos.readPCRmapClone(
-                iniItems.meteoOptions["cellAreaMap"],
-                self.cloneMap,
-                self.tmpDir,
-                self.inputDir,
-            )
 
             # anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(

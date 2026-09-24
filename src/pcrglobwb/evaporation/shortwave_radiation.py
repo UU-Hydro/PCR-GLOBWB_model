@@ -1,6 +1,5 @@
 import datetime
 import math
-import os
 import sys
 from calendar import isleap
 from copy import deepcopy
@@ -723,45 +722,3 @@ precipitation, minimum and maximum daily temperature.
         self.radsw_act = red_radsw_ext * self.radsw_ext
 
         return None
-
-
-def main():
-
-    # input directory and files
-    inputpath = "data"
-    clonefilename = os.path.join(inputpath, "Global_CloneMap_30min.map")
-    demfilename = os.path.join(inputpath, "gtopo30min.map")
-    precfilename = os.path.join(inputpath, "prec_day0120.map")
-    tempfilename = os.path.join(inputpath, "temp_day0120.map")
-    temp_annual_filename = os.path.join(inputpath, "temp_annual.map")
-    delta_temp_mean_filename = os.path.join(inputpath, "delta_temp_mean.map")
-    delta_temp_daily_filename = os.path.join(inputpath, "delta_temp_daily.map")
-
-    date = datetime.datetime(1979, 4, 30)
-
-    pcr.setclone(clonefilename)
-    landmask = pcr.readmap(clonefilename)
-
-    dem = pcr.ifthen(landmask, pcr.readmap(demfilename))
-    prec_daily = pcr.ifthen(landmask, pcr.readmap(precfilename))
-    temp_daily = pcr.ifthen(landmask, pcr.readmap(tempfilename))
-    temp_annual = pcr.ifthen(landmask, pcr.readmap(temp_annual_filename))
-    delta_temp_mean = pcr.ifthen(landmask, pcr.readmap(delta_temp_mean_filename))
-    delta_temp_daily = pcr.ifthen(landmask, pcr.readmap(delta_temp_daily_filename))
-    temp_min_daily = temp_daily - 0.5 * delta_temp_daily
-    temp_max_daily = temp_daily + 0.5 * delta_temp_daily
-
-    # latitude (rad)
-    latitude = deg2rad(pcr.ycoordinate(landmask))
-
-    sw_rad = shortwave_radiation(latitude, dem, temp_annual, delta_temp_mean)
-
-    sw_rad.update(date, prec_daily, temp_min_daily, temp_max_daily)
-
-    pcr.aguila(sw_rad.radsw_ext, sw_rad.radsw_act, sw_rad.radsw_act / sw_rad.radsw_ext)
-
-
-if __name__ == "__main__":
-
-    main()
-    sys.exit("all done")

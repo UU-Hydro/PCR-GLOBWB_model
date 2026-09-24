@@ -1302,24 +1302,17 @@ total_return_flow_ini                      : total return flow [m3/day]
         exit_condition = False
         max_iter_allocation = 25
 
+        # initial zonal demand and supply (m3/day)
+        totz_demand_old = get_zonal_total(
+            local_values=pcr.max(0, sum_list(list(unmet_demand_per_sector.values()))),
+            zones=zones,
+        )
+        totz_supply_old = get_zonal_total(
+            local_values=remaining_availability, zones=zones
+        )
+
         # distribute water until the demand is met or the supply is exhausted
         while not exit_condition:
-
-            # initial zonal demand and supply (m3/day)
-            if iter_allocation == 1:
-                totz_demand_old = get_zonal_total(
-                    local_values=pcr.max(
-                        0, sum_list(list(unmet_demand_per_sector.values()))
-                    ),
-                    zones=zones,
-                )
-
-                totz_supply_old = get_zonal_total(
-                    local_values=remaining_availability, zones=zones
-                )
-            else:
-                totz_demand_old = deepcopy(total_zonal_demand)
-                totz_supply_old = deepcopy(total_zonal_supply)
 
             # water availability weights per sector, accounting for water quality
             source_name = "desalwater"
@@ -1391,6 +1384,8 @@ total_return_flow_ini                      : total return flow [m3/day]
             update_mask = (total_zonal_demand < totz_demand_old) & (
                 total_zonal_supply < totz_supply_old
             )
+            totz_demand_old = total_zonal_demand
+            totz_supply_old = total_zonal_supply
 
             iter_allocation = iter_allocation + 1
             exit_condition = (
@@ -1576,7 +1571,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         # aggregate the potential renewable withdrawals and met and unmet demands
-        met_demand = sum_list(list(met_demand_per_sector.values()))
         unmet_demand = sum_list(list(unmet_demand_per_sector.values()))
         self.potential_renewable_withdrawal = dict(
             (
@@ -1801,33 +1795,24 @@ total_return_flow_ini                      : total return flow [m3/day]
         iter_allocation = 1
         exit_condition = False
         max_iter_allocation = 25
+
+        # initial zonal demand and supply
         totz_demand_old = {}
         totz_supply_old = {}
+        for source_name in self.source_names:
+            totz_demand_old[source_name] = get_zonal_total(
+                local_values=pcr.max(
+                    0, sum_list(list(unmet_demand_per_sector.values()))
+                ),
+                zones=zones[source_name],
+            )
+            totz_supply_old[source_name] = get_zonal_total(
+                local_values=remaining_availability[source_name],
+                zones=zones[source_name],
+            )
 
         # distribute water until the demand is met or the supply is exhausted
         while not exit_condition:
-
-            # initial zonal demand and supply
-            for source_name in self.source_names:
-                if iter_allocation == 1:
-                    totz_demand_old[source_name] = get_zonal_total(
-                        local_values=pcr.max(
-                            0, sum_list(list(unmet_demand_per_sector.values()))
-                        ),
-                        zones=zones[source_name],
-                    )
-
-                    totz_supply_old[source_name] = get_zonal_total(
-                        local_values=remaining_availability[source_name],
-                        zones=zones[source_name],
-                    )
-                else:
-                    totz_demand_old[source_name] = deepcopy(
-                        total_zonal_demand[source_name]
-                    )
-                    totz_supply_old[source_name] = deepcopy(
-                        total_zonal_supply[source_name]
-                    )
 
             # water availability weights per sector, accounting for water quality
 
@@ -1934,13 +1919,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
                 for source_name in self.source_names
             )
-            allocated_demand = dict(
-                (
-                    source_name,
-                    sum_list(list(allocated_demand_per_sector[source_name].values())),
-                )
-                for source_name in self.source_names
-            )
 
             for source_name in self.source_names:
                 remaining_availability[source_name] = pcr.max(
@@ -1967,6 +1945,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 (total_zonal_demand["groundwater"] < totz_demand_old["groundwater"])
                 & (total_zonal_supply["groundwater"] < totz_supply_old["groundwater"])
             )
+            totz_demand_old = total_zonal_demand
+            totz_supply_old = total_zonal_supply
 
             iter_allocation = iter_allocation + 1
             exit_condition = (

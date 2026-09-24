@@ -372,7 +372,7 @@ class Configuration(object):
             logger.warning(
                 'The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.'
             )
-            iniItems.routingOptions["routingMethod"] = "accuTravelTime"
+            self.routingOptions["routingMethod"] = "accuTravelTime"
 
         if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
             msg = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '

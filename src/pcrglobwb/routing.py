@@ -449,12 +449,6 @@ class Routing(object):
         else:
             logger.info("Water quality modelling not initiated.")
 
-        print("waterTemperature =", self.quality)
-        print("Salinity = ", self.quality)
-        print("Organic = ", self.quality)
-        print("Dissolved oxygen = ", self.quality)
-        print("Pathogen = ", self.quality)
-
         self.WWtPlants = False
         if "WWtPlantsNC" in list(iniItems.routingOptions.keys()):
             self.WWtPlants = True
@@ -1178,7 +1172,7 @@ class Routing(object):
                 * self.specificHeatWater
                 * self.densityWater
             )
-            self.temp_water_height = yMean = self.eta * pow(self.avgDischarge, self.nu)
+            self.temp_water_height = self.eta * pow(self.avgDischarge, self.nu)
             self.routedTDS = pcr.ifthen(self.landmask, pcr.cover(self.routedTDS, 0.0))
             self.routedBOD = pcr.ifthen(self.landmask, pcr.cover(self.routedBOD, 0.0))
             self.routedFC = pcr.ifthen(self.landmask, pcr.cover(self.routedFC, 0.0))
@@ -1334,7 +1328,6 @@ class Routing(object):
                     str(iniItems.routingOptions["relativeElevationLevels"]).split(","),
                 )
             )
-            print(areaFractions)
             # number of levels
             nrZLevels = len(areaFractions)
             # TODO: read areaFractions and nrZLevels automatically

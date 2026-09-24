@@ -1823,13 +1823,6 @@ class LandCover(object):
         self.satAreaFrac = pcr.min(self.satAreaFrac, 1.0)
         self.satAreaFrac = pcr.max(self.satAreaFrac, 0.0)
 
-        # Rens: WACT_L = (BCF[TYPE]+1)*WMAX[TYPE]- BCF[TYPE]*WMIN[TYPE]- (BCF[TYPE]+1)*WRANGE[TYPE]*WFRACB
-        actualW = (
-            (self.arnoBeta + 1.0) * self.parameters.rootZoneWaterStorageCap
-            - self.arnoBeta * self.rootZoneWaterStorageMin
-            - (self.arnoBeta + 1.0) * self.rootZoneWaterStorageRange * self.WFRACB
-        )
-
         # as in the "Original" work of van Beek et al. (2011)
         directRunoffReduction = pcr.scalar(0.0)
         # Rens: to maintain full saturation and continuous groundwater recharge/percolation, directRunoff may be reduced;
@@ -1994,11 +1987,6 @@ class LandCover(object):
                 self.adjRootFrUpp * self.storUpp / dividerTranspFracs,
                 self.adjRootFrUpp,
             )
-            transpFracLow = pcr.ifthenelse(
-                (self.storUpp + self.storLow) > 0.0,
-                self.adjRootFrLow * self.storLow / dividerTranspFracs,
-                self.adjRootFrLow,
-            )
         if self.numberOfLayers == 3:
             dividerTranspFracs = pcr.max(
                 1e-9,
@@ -2015,11 +2003,6 @@ class LandCover(object):
                 (self.storUpp000005 + self.storUpp005030 + self.storLow030150) > 0.0,
                 self.adjRootFrUpp005030 * self.storUpp005030 / dividerTranspFracs,
                 self.adjRootFrUpp005030,
-            )
-            transpFracLow030150 = pcr.ifthenelse(
-                (self.storUpp000005 + self.storUpp005030 + self.storLow030150) > 0.0,
-                self.adjRootFrLow030150 * self.storLow030150 / dividerTranspFracs,
-                self.adjRootFrLow030150,
             )
 
         # no reduction when returnTotalEstimation

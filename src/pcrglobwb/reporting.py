@@ -212,9 +212,9 @@ class Reporting(object):
         # weekly totals
         self.outWeekTotNC = ["None"]
         try:
-            self.outWeekTotNC = self.configuration.reportingOptions["outWeekTotNC"].split(
-                ","
-            )
+            self.outWeekTotNC = self.configuration.reportingOptions[
+                "outWeekTotNC"
+            ].split(",")
         except Exception:
             pass
         if self.outWeekTotNC[0] != "None":
@@ -1251,13 +1251,6 @@ class Reporting(object):
             vars(self)[volVariable] = None
             vars(self)[volVariable] = self._model.routing.cellArea * vars(self)[var]
 
-        # net consumptive water use of the irrigation sector, calculated from annual values
-        irrigation_water_consumption_volume = (
-            self.evaporation_from_irrigation
-            * self._model.routing.cellArea
-            * self.irrigationWaterWithdrawal
-            / (self.precipitation_at_irrigation + self.irrigationWaterWithdrawal)
-        )
         self.precipitation_at_irrigation_volume = (
             self.precipitation_at_irrigation * self._model.routing.cellArea
         )

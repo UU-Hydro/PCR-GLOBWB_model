@@ -630,11 +630,6 @@ class IrrigationWaterDemand(object):
                 self.adjRootFrUpp * self.storUpp / dividerTranspFracs,
                 self.adjRootFrUpp,
             )
-            transpFracLow = pcr.ifthenelse(
-                (self.storUpp + self.storLow) > 0.0,
-                self.adjRootFrLow * self.storLow / dividerTranspFracs,
-                self.adjRootFrLow,
-            )
         if self.numberOfLayers == 3:
             dividerTranspFracs = pcr.max(
                 1e-9,
@@ -651,11 +646,6 @@ class IrrigationWaterDemand(object):
                 (self.storUpp000005 + self.storUpp005030 + self.storLow030150) > 0.0,
                 self.adjRootFrUpp005030 * self.storUpp005030 / dividerTranspFracs,
                 self.adjRootFrUpp005030,
-            )
-            transpFracLow030150 = pcr.ifthenelse(
-                (self.storUpp000005 + self.storUpp005030 + self.storLow030150) > 0.0,
-                self.adjRootFrLow030150 * self.storLow030150 / dividerTranspFracs,
-                self.adjRootFrLow030150,
             )
 
         # no reduction when returnTotalEstimation

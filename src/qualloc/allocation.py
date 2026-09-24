@@ -872,8 +872,6 @@ def allocate_demand_to_withdrawals(
         "nonrenewable": deepcopy(nonrenewable_withdrawal_per_sector),
     }
 
-    remaining_demand_per_sector = deepcopy(demand_per_sector)
-
     # allocate the withdrawn water to cells: first locally (single cell ids as zones),
     # then with the actual allocation zones
 

@@ -43,10 +43,6 @@ def compareSpatialAttributes(
     """Compares the attributes of two spatial datasets defined by the spatialAttributes instance\
  taking the second input as target.\
  """
-    sameDimensions = (
-        sourceSpatialDataSet.numberCols == targetSpatialDataSet.numberCols
-        and sourceSpatialDataSet.numberRows == targetSpatialDataSet.numberRows
-    )
     xResampleRatio = sourceSpatialDataSet.xResolution / targetSpatialDataSet.xResolution
     yResampleRatio = sourceSpatialDataSet.yResolution / targetSpatialDataSet.yResolution
     # check whether the corner coordinates of the target area lie within the source extent

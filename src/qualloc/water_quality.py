@@ -1,5 +1,6 @@
 import datetime
 import logging
+import sys
 
 import pcraster as pcr
 

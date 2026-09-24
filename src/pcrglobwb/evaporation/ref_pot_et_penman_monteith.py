@@ -103,8 +103,6 @@ as a function of cloudiness according to FAO guidelines.
     # FAO constants, slope and range to convert radiation
     radCon = 0.25
     radSlope = 0.50
-    radDif = 0.35
-    radCor = (1 + radDif) / (radCon + radSlope)
     cld1 = pcr.roundoff(10.0 * cloudiness + 0.5)
     cld0 = cld1 - 1
     sun0 = pcr.scalar(0)

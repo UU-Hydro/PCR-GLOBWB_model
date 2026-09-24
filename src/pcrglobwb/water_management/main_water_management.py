@@ -970,11 +970,6 @@ class WaterManagement(object):
             )
         )
 
-        # remaining surface water that can be abstracted (m3)
-        volRemainingSurfaceWater = pcr.max(
-            0.0, available_surface_water_volume - volSurfaceWaterAbstraction
-        )
-
         # total surface water allocation and abstraction for other modules (m)
         self.allocSurfaceWaterAbstract = volSurfaceWaterAllocation / self.cellArea
         self.actSurfaceWaterAbstract = volSurfaceWaterAbstraction / self.cellArea
@@ -1267,8 +1262,6 @@ class WaterManagement(object):
         # with limitAbstraction, there is no fossil groundwater abstraction
         if self.limitAbstraction:
             logger.debug("Fossil groundwater abstractions are NOT allowed")
-            volNonRenewGroundwaterAbstraction = pcr.scalar(0.0)
-            volNonRenewGroundwaterAllocation = pcr.scalar(0.0)
 
         # abstraction and allocation of fossil groundwater; TODO: skip this for runs without water use
 
