@@ -1,6 +1,6 @@
 """
- 
-file_handler.py: 
+
+file_handler.py:
  file_handler holds all the necessary functions to process files for input and
  output.
 
@@ -18,42 +18,44 @@ file_handler.py:
 # Modules #
 ###########
 
+import datetime
+import logging
 import os
 import sys
-import logging
-
-import datetime
 
 import pcraster as pcr
 
-from qualloc.spatialDataSet2PCR import spatialAttributes, spatialDataSet, compareSpatialAttributes, setClone
 from qualloc.netCDF_recipes import netCDF_file_info
+from qualloc.spatialDataSet2PCR import (
+    compareSpatialAttributes,
+    setClone,
+    spatialAttributes,
+    spatialDataSet,
+)
 
 logger = logging.getLogger(__name__)
 
 ########
 # TODO #
 ########
-critical_improvements= str.join('\n\t',\
-             ( \
-              '', \
-              ))
+critical_improvements = str.join("\n\t", ("",))
 
-development= str.join('\n\t',\
-             ( \
-              '', \
-              'include option to read timeseries and tables not in netCDF format', \
-              '', \
-              ))
+development = str.join(
+    "\n\t",
+    (
+        "",
+        "include option to read timeseries and tables not in netCDF format",
+        "",
+    ),
+)
 
-print ('\nDevelopmens for meteo class:')
+print("\nDevelopmens for meteo class:")
 
 if len(critical_improvements) > 0:
-    print('Critical improvements: \n%s' % \
-          critical_improvements)
+    print("Critical improvements: \n%s" % critical_improvements)
 
 if len(development) > 0:
-    print ('Ongoing: \n%s' % development)
+    print("Ongoing: \n%s" % development)
 
 if len(critical_improvements) > 0:
     sys.exit()
@@ -66,48 +68,48 @@ if len(critical_improvements) > 0:
 # a standard missing value indentifier and
 # a file cache to reduce the opening and closing files.
 missing_value = -999.9
-very_small_number =  1.0e-12
+very_small_number = 1.0e-12
 
 # types
 NoneType = type(None)
 
 # and the default extensions to use:
-file_extensions = { \
-        '.map':   'pcraster', \
-        '.nc':    'netcdf', \
-        '.nc4':   'netcdf',\
-        '.tif':   'pcraster', \
-        '':       '',\
-        }
+file_extensions = {
+    ".map": "pcraster",
+    ".nc": "netcdf",
+    ".nc4": "netcdf",
+    ".tif": "pcraster",
+    "": "",
+}
 
 # general information for file conversions
 
-conversion_methods = { \
-                      'Scalar':         float, \
-                      'Nominal':        int, \
-                      'Boolean':        bool, \
-                      'Ordinal':        int, \
-                      'Directional':    float, \
-                      'Ldd':            int, \
-                      }
-datatypes = { \
-                      'Scalar':         'FLOAT32', \
-                      'Nominal':        'INT32', \
-                      'Boolean':        'BYTE', \
-                      'Ordinal':        'FLOAT32', \
-                      'Directional':    'FLOAT32', \
-                      'Ldd':            'BYTE', \
-                      }
+conversion_methods = {
+    "Scalar": float,
+    "Nominal": int,
+    "Boolean": bool,
+    "Ordinal": int,
+    "Directional": float,
+    "Ldd": int,
+}
+datatypes = {
+    "Scalar": "FLOAT32",
+    "Nominal": "INT32",
+    "Boolean": "BYTE",
+    "Ordinal": "FLOAT32",
+    "Directional": "FLOAT32",
+    "Ldd": "BYTE",
+}
 
 
-resample_methods = { \
-                      'Scalar':         'bilinear', \
-                      'Nominal':        'nearest', \
-                      'Boolean':        'nearest', \
-                      'Ordinal':        'nearest', \
-                      'Directional':    'bicubic', \
-                      'Ldd':            'nearest', \
-                      }
+resample_methods = {
+    "Scalar": "bilinear",
+    "Nominal": "nearest",
+    "Boolean": "nearest",
+    "Ordinal": "nearest",
+    "Directional": "bicubic",
+    "Ldd": "nearest",
+}
 
 # initialize the cache of netCDF files
 nc_info = netCDF_file_info()
@@ -118,12 +120,13 @@ nc_info = netCDF_file_info()
 
 # The following are generic functions to process files
 
+
 def compose_filename(filename, path, *args):
-    '''
+    """
 compose_filename: function that checks whether the filename is an absolute path, \
 and if not merges it with the path provided, normalizes the path and tests if \
 the file exists. Returns the resulting the filename.
-'''
+"""
 
     # check if the file exists, if it is an existing file, then make it absolute
     if os.path.isfile(filename):
@@ -136,57 +139,62 @@ the file exists. Returns the resulting the filename.
 
     # substitute any additional arguments
     if args != ():
-        
+
         if not isinstance(args, tuple):
             args = tuple(args)
-        
-        if '%' in filename:
+
+        if "%" in filename:
             try:
                 filename = filename % (args)
             except:
-                logger.warning('additional arguments could not be converted into the file name %s' % filename)
+                logger.warning(
+                    "additional arguments could not be converted into the file name %s"
+                    % filename
+                )
 
     # return the file
     return filename, os.path.isfile(filename)
 
+
 def file_is_nc(filename):
-    '''
-file_is_ncfile: tests if the file extension matches that of a netCDF file;
-returns True if this is the case.
-'''
+    """
+    file_is_ncfile: tests if the file extension matches that of a netCDF file;
+    returns True if this is the case.
+    """
 
     # test the filename
     file_ext = os.path.splitext(filename)[1]
-    
+
     # return the test condition
-    return file_extensions[file_ext] == 'netcdf'
+    return file_extensions[file_ext] == "netcdf"
+
 
 def file_is_pcr(filename):
-    '''
-file_is_ncfile: tests if the file extension matches that of a netCDF file;
-returns True if this is the case.
-'''
+    """
+    file_is_ncfile: tests if the file extension matches that of a netCDF file;
+    returns True if this is the case.
+    """
 
     # test the filename
     file_ext = os.path.splitext(filename)[1]
-    
-    # return the test condition
-    return file_extensions[file_ext] == 'pcraster'
 
-def read_file_entry( \
-                    filename,
-                    variablename, \
-                    inputpath               = '', \
-                    file_subst_args         = (),\
-                    clone_attributes        = None, \
-                    forced_non_spatial      = False, \
-                    datatype                = pcr.Scalar, \
-                    date                    = None, \
-                    date_selection_method   = 'exact', \
-                    allow_year_substitution = False, \
-                    ):
-    
-    '''
+    # return the test condition
+    return file_extensions[file_ext] == "pcraster"
+
+
+def read_file_entry(
+    filename,
+    variablename,
+    inputpath="",
+    file_subst_args=(),
+    clone_attributes=None,
+    forced_non_spatial=False,
+    datatype=pcr.Scalar,
+    date=None,
+    date_selection_method="exact",
+    allow_year_substitution=False,
+):
+    """
 
 read_file_entry: generic function that can read information from file for a \
 given date. This may concern spatial information or single entries.
@@ -229,7 +237,7 @@ given date. This may concern spatial information or single entries.
     var_out:                output for the variable, either spatial or
                             non-spatial.
 
-'''
+"""
     # initialize var_out as NoneType
     var_out = None
 
@@ -237,91 +245,95 @@ given date. This may concern spatial information or single entries.
     filename = str(filename)
     val_str = str(filename)
     datatype_str = str(datatype)
-    if 'VALUESCALE.' in datatype_str:
-        datatype_str = datatype_str.replace('VALUESCALE.', '')
-    
+    if "VALUESCALE." in datatype_str:
+        datatype_str = datatype_str.replace("VALUESCALE.", "")
+
     # first compose the file name and test it exists
     filename, existing_file = compose_filename(filename, inputpath, file_subst_args)
-    
+
     # check if the file is a netCDF file
     if existing_file and file_is_nc(filename):
-        
+
         # netCDF: read as such from the cache
-        var_out =  nc_info.read_nc_field( \
-                    filename, \
-                    variablename, \
-                    clone_attributes        = clone_attributes, \
-                    forced_non_spatial      = forced_non_spatial, \
-                    datatype                = datatype, \
-                    date                    = date, \
-                    date_selection_method   = date_selection_method, \
-                    allow_year_substitution = allow_year_substitution, \
-                    )
+        var_out = nc_info.read_nc_field(
+            filename,
+            variablename,
+            clone_attributes=clone_attributes,
+            forced_non_spatial=forced_non_spatial,
+            datatype=datatype,
+            date=date,
+            date_selection_method=date_selection_method,
+            allow_year_substitution=allow_year_substitution,
+        )
 
     elif existing_file and file_is_pcr(filename):
-   
+
         # PCRaster file
 
         # check and process the spatial data set
         if isinstance(clone_attributes, NoneType):
-            
-            # PCRaster maps can only be processed if the clone attributes are 
+
+            # PCRaster maps can only be processed if the clone attributes are
             # passed on to the functions
-            message_str = 'no clone attributes are provided to process the PCRaster map'
+            message_str = "no clone attributes are provided to process the PCRaster map"
             logger.error(message_str)
             sys.exit(message_str)
-            
+
         # compare extent
         data_attributes = spatialAttributes(filename)
-        fits_extent, same_resolution,  x_resample_ratio, y_resample_ratio = \
-                    compareSpatialAttributes(data_attributes, \
-                                             clone_attributes)
+        fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
+            compareSpatialAttributes(data_attributes, clone_attributes)
+        )
 
         file_ext = os.path.splitext(filename)[1]
-        same_clone = fits_extent and same_resolution and file_ext == '.map'
+        same_clone = fits_extent and same_resolution and file_ext == ".map"
 
         # resample method
         resample_method = resample_methods[datatype_str]
-        
-        
-        print(f'{filename} (fits extent: {fits_extent})')
-        
-        
+
+        print(f"{filename} (fits extent: {fits_extent})")
+
         # read in the data
         if same_clone:
-            
+
             # get the map directly
             var_out = pcr.readmap(filename)
             conversion_method = getattr(pcr, datatype_str.lower())
             var_out = conversion_method(var_out)
-            
+
         else:
-            
+
             # get the variable using gdal_translate
-            var_out = getattr(spatialDataSet( \
-                              variablename, \
-                              filename, \
-                              datatypes[datatype_str], \
-                              datatype, \
-                              clone_attributes.xLL, \
-                              clone_attributes.xUR, \
-                              clone_attributes.yLL, \
-                              clone_attributes.yUR, \
-                              clone_attributes.xResolution, \
-                              clone_attributes.yResolution, \
-                              pixels = clone_attributes.numberCols, \
-                              lines = clone_attributes.numberRows, \
-                              resampleMethod = resample_method, \
-                              ), variablename)
-            
+            var_out = getattr(
+                spatialDataSet(
+                    variablename,
+                    filename,
+                    datatypes[datatype_str],
+                    datatype,
+                    clone_attributes.xLL,
+                    clone_attributes.xUR,
+                    clone_attributes.yLL,
+                    clone_attributes.yUR,
+                    clone_attributes.xResolution,
+                    clone_attributes.yResolution,
+                    pixels=clone_attributes.numberCols,
+                    lines=clone_attributes.numberRows,
+                    resampleMethod=resample_method,
+                ),
+                variablename,
+            )
+
         # output avalaible, compose and log the message str
-        message_str = 'value of %s read from %s' % (variablename, filename)
-        message_str = str.join(' ', \
-                               (message_str, 'in PCRaster format which does not contain variable info'))
+        message_str = "value of %s read from %s" % (variablename, filename)
+        message_str = str.join(
+            " ",
+            (message_str, "in PCRaster format which does not contain variable info"),
+        )
         if not isinstance(date, NoneType):
-            message_str = str.join(' ', \
-                                   (message_str, 'and is unaware of the actual date %s' % date))
-        
+            message_str = str.join(
+                " ", (message_str, "and is unaware of the actual date %s" % date)
+            )
+
         logger.debug(message_str)
 
     else:
@@ -334,32 +346,38 @@ given date. This may concern spatial information or single entries.
             else:
                 conversion_method = getattr(pcr, datatype_str.lower())
             var_out = conversion_method(var_out)
-            logger.debug('%s is recognized as a value instead of a netCDF or PCRaster file and is converted into %s' % \
-                (val_str, str(conversion_method)))
+            logger.debug(
+                "%s is recognized as a value instead of a netCDF or PCRaster file and is converted into %s"
+                % (val_str, str(conversion_method))
+            )
         except:
             pass
-            logger.error('%s is not recognized as a netCDF or PCRaster file and cannot be converted' % \
-                         filename)
+            logger.error(
+                "%s is not recognized as a netCDF or PCRaster file and cannot be converted"
+                % filename
+            )
 
     # return the output
     return var_out
 
 
 def close_nc_cache():
-    
-    '''closes the cache of netCDF input files'''
-    
+    """closes the cache of netCDF input files"""
+
     nc_info.close_cache()
 
     # return None
     return None
 
+
 ###############################################################################
 # end of functions                                                            #
 ###############################################################################
 
+
 def main():
     pass
+
 
 if __name__ == "__main__":
     main()

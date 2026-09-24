@@ -24,14 +24,15 @@ repos:
     stages: [manual]
 
 - repo: https://github.com/psf/black
-  rev: 22.10.0
+  rev: 26.5.1
   hooks:
   - id: black
+    args: [--target-version, py310]
 
   - id: black
     alias: black-check
     name: black (diff check)
-    args: [--check, --diff]
+    args: [--check, --diff, --target-version, py310]
     stages: [manual]
 
 - repo: https://github.com/pycqa/flake8
