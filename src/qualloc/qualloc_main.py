@@ -30,37 +30,6 @@ from qualloc.water_quality import (
 logger = logging.getLogger(__name__)
 
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "streamline input: should be able to read config files but also floats etc.",
-        "add flags!",
-        "include the functions to read the initial conditions and return them!\n",
-        "at the moment domestic, industrial and livestock water demand are read from ",
-        "a single netCDF file as is the case in PCR-GLOBWB to provide the gross and net ",
-        "water demand for these sectors(Gross, Netto sic); for clarity, these entries ",
-        "could be split out here explicitly rather than doing this under the hood in ",
-        "the main; however, a lookup table may still be required to manage the various ",
-        "variable names in the original netCDF files that could be managed more clearly via the cfg file.",
-        "",
-    ),
-)
-
-print("\nDevelopmens for main module:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
-
 NoneType = type(None)
 
 # default forcing variables

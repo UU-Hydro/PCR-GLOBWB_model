@@ -10,31 +10,6 @@ from qualloc.netCDF_recipes import netCDF_output_handler
 
 logger = logging.getLogger(__name__)
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "inherit intervals from model_time",
-        "include a solution to report non-spatial data",
-        "include min and max",
-        "include the variable list, that can hold information on the (non)spatial nature of data",
-        "",
-    ),
-)
-
-print("\nDevelopmens for reporting class:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
 
 pcrFieldType = pcr.Field
 NoneType = type(None)

@@ -13,27 +13,6 @@ from qualloc.spatialDataSet2PCR import (
 
 logger = logging.getLogger(__name__)
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "include option to read timeseries and tables not in netCDF format",
-        "",
-    ),
-)
-
-print("\nDevelopmens for meteo class:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
 
 # global parameters: missing value identifier, types, file extensions
 missing_value = -999.9

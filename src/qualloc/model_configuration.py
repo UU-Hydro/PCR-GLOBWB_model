@@ -16,29 +16,6 @@ from qualloc.basic_functions import convert_string_to_list, get_decision
 logger = logging.getLogger(__name__)
 
 
-critical_improvements = str.join("\n", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "make a general function to process list",
-        "",
-    ),
-)
-
-print("\nDevelopmens for model config class:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
-
 NoneType = type(None)
 
 # placeholders that the calling program replaces in the configuration file; they

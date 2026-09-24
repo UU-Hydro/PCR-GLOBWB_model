@@ -1,9 +1,11 @@
+import datetime
 import logging
 
 import pcraster as pcr
 
 from pcrglobwb import variable_list as varDicts
-from pcrglobwb.ncConverter import *
+from pcrglobwb.common import virtualOS as vos
+from pcrglobwb.ncConverter import PCR2netCDF
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +212,7 @@ class Reporting(object):
         # weekly totals
         self.outWeekTotNC = ["None"]
         try:
-            self.outWeekTotNC = configuration.reportingOptions["outWeekTotNC"].split(
+            self.outWeekTotNC = self.configuration.reportingOptions["outWeekTotNC"].split(
                 ","
             )
         except Exception:

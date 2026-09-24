@@ -13,22 +13,6 @@ from qualloc.model_time import model_time
 from qualloc.qualloc_main import qualloc_model
 from qualloc.qualloc_reporting import qualloc_reporting
 
-critical_improvements = str.join("\n", ("",))
-
-development = str.join("\n\t", ("",))
-if len(critical_improvements) > 0 or len(development) > 0:
-    print("\nDevelopments for qualloc_runner:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
-
 # number of multicore workers
 set_nr_worker_threads(4)
 

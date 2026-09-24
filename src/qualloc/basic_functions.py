@@ -3,29 +3,6 @@ import sys
 import numpy as np
 import pcraster as pcr
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "include generic function to split string to lists",
-        "",
-    ),
-)
-
-print("\nDevelopmens for basic functions:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
-
 very_small_number = 1.0e-12
 convergence_limit = 1.0e-12
 max_number_iterations = 100

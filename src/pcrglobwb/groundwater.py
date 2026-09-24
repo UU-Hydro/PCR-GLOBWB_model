@@ -1,11 +1,11 @@
+import datetime
 import logging
 import math
 
 import pcraster as pcr
-from pcraster.framework import *
 
 from pcrglobwb.common import virtualOS as vos
-from pcrglobwb.ncConverter import *
+from pcrglobwb.ncConverter import PCR2netCDF
 
 logger = logging.getLogger(__name__)
 
@@ -940,7 +940,7 @@ class Groundwater(object):
                     self.netcdfObj.data2NetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
                         var,
-                        pcr2numpy(self.__getattribute__(var), vos.MV),
+                        pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                         timeStamp,
                         timestepPCR - 1,
                     )
@@ -959,7 +959,9 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "MonthTot"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "MonthTot"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -981,7 +983,9 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "MonthAvg"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "MonthAvg"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -992,7 +996,7 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -1011,7 +1015,9 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "AnnuaTot"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "AnnuaTot"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
@@ -1031,7 +1037,9 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "AnnuaAvg"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "AnnuaAvg"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
@@ -1042,7 +1050,7 @@ class Groundwater(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )

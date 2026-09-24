@@ -1,4 +1,3 @@
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
@@ -13,22 +12,6 @@ from qualloc.basic_functions import (
 very_small_number = 1.0e-12
 
 NoneType = type(None)
-
-
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join("\n\t", ("",))
-
-print("\nDevelopmens for main module:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
 
 
 def get_key(str_list):

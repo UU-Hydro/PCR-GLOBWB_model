@@ -42,21 +42,6 @@ water_management_missing_value = -9.99
 # for debugging only
 debug = True
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join("\n\t", ("",))
-
-print("\nDevelopmens for main module:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
 
 def water_balance_check(
     states_ini,

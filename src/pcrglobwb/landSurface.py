@@ -1,3 +1,4 @@
+import datetime
 import logging
 from copy import deepcopy
 
@@ -6,7 +7,7 @@ import pcraster as pcr
 from pcrglobwb import landCover as lc
 from pcrglobwb import parameterSoilAndTopo as parSoilAndTopo
 from pcrglobwb.common import virtualOS as vos
-from pcrglobwb.ncConverter import *
+from pcrglobwb.ncConverter import PCR2netCDF
 from pcrglobwb.water_demand import main_water_demand as water_demand
 from pcrglobwb.water_management import main_water_management as water_management
 from qualloc.model_configuration import configuration_parser

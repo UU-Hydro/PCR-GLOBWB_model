@@ -1,14 +1,15 @@
+import datetime
 import logging
 import os
 from copy import deepcopy
 
+import numpy as np
 import pcraster as pcr
-from pcraster.framework import *
 from six.moves import map
 
 from pcrglobwb import waterBodies
 from pcrglobwb.common import virtualOS as vos
-from pcrglobwb.ncConverter import *
+from pcrglobwb.ncConverter import PCR2netCDF
 
 logger = logging.getLogger(__name__)
 
@@ -1164,7 +1165,7 @@ class Routing(object):
             self.iceThickness = pcr.ifthen(
                 self.landmask, pcr.cover(self.iceThickness, 0.0)
             )
-            self.dissolved_oxygen = (1 - 0.0001148 * self.elevation) * exp(
+            self.dissolved_oxygen = (1 - 0.0001148 * self.elevation) * pcr.exp(
                 -139.34411
                 + (157570.1) / (self.waterTemp)
                 - (66423080.0) / (self.waterTemp**2)
@@ -3134,7 +3135,7 @@ class Routing(object):
                     self.netcdfObj.data2NetCDF(
                         str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
                         var,
-                        pcr2numpy(self.__getattribute__(var), vos.MV),
+                        pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                         timeStamp,
                         timestepPCR - 1,
                     )
@@ -3153,7 +3154,9 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "MonthTot"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "MonthTot"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -3175,7 +3178,9 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "MonthAvg"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "MonthAvg"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -3186,7 +3191,7 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -3205,7 +3210,9 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "AnnuaTot"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "AnnuaTot"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
@@ -3225,7 +3232,9 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var + "AnnuaAvg"), vos.MV),
+                            pcr.pcr2numpy(
+                                self.__getattribute__(var + "AnnuaAvg"), vos.MV
+                            ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
@@ -3236,7 +3245,7 @@ class Routing(object):
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
                             var,
-                            pcr2numpy(self.__getattribute__(var), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
                         )
@@ -4365,12 +4374,12 @@ class Routing(object):
         self.waterTemp_C = self.waterTemp - pcr.scalar(273.15)
 
         # BOD (non-conservative; depends on water temperature only): temperature-dependent decay
-        self.BODdecay_temperature = cover(
+        self.BODdecay_temperature = pcr.cover(
             self.k_BOD * (self.watertempcorrection_BOD ** (self.waterTemp_C - 20)), 0.0
         )
 
         # FC (non-conservative; depends on temperature, solar radiation and sedimentation): temperature-dependent decay
-        self.FCdecay_temperature = cover(
+        self.FCdecay_temperature = pcr.cover(
             self.darkinactivation_FC
             * (self.watertempcorrection_FC ** (self.waterTemp_C - 20)),
             0.0,
@@ -4378,23 +4387,23 @@ class Routing(object):
 
         # solar radiation dependent decay, with a minimum water depth of 0.1 m for the decay coefficients
         self.water_height_pathogen = pcr.max(self.water_height, 0.1)
-        self.FCdecay_solarradiation = cover(
+        self.FCdecay_solarradiation = pcr.cover(
             self.sunlightinactivation_FC
             * (self.rsw / (self.attenuation_FC * self.water_height_pathogen))
-            * (1 - (exp(-(self.attenuation_FC * self.water_height_pathogen)))),
+            * (1 - (pcr.exp(-(self.attenuation_FC * self.water_height_pathogen)))),
             0.0,
         )
 
         # sedimentation (day-1)
         self.FCdecay_sedimentation = pcr.ifthenelse(
             self.water_height_pathogen > self.threshold_FC_settlingdepth,
-            cover(self.settlingvelocity_FC / self.water_height, 0.0),
+            pcr.cover(self.settlingvelocity_FC / self.water_height, 0.0),
             0,
         )
 
     def qualityRouting(self, timeSec):
 
-        channelTransFrac = cover(
+        channelTransFrac = pcr.cover(
             pcr.max(
                 pcr.min(
                     (self.subDischarge * timeSec) / self.channelStorageTimeBefore, 1.0
@@ -4456,7 +4465,7 @@ class Routing(object):
             self.BODload * (timeSec / vos.secondsPerDay())
         )
         dBODLat = channelTransFrac * self.routedBOD
-        self.BODdecay = exp(
+        self.BODdecay = pcr.exp(
             -(self.BODdecay_temperature) * (timeSec / vos.secondsPerDay())
         )
         self.routedBOD = (
@@ -4511,7 +4520,7 @@ class Routing(object):
         # pathogen (FC) routing
         self.routedFC = self.routedFC + (self.FCload * (timeSec / vos.secondsPerDay()))
         dFCLat = channelTransFrac * self.routedFC
-        self.FCdecay = exp(
+        self.FCdecay = pcr.exp(
             -(
                 self.FCdecay_temperature
                 + self.FCdecay_solarradiation
@@ -4577,10 +4586,12 @@ class Routing(object):
             ),
             0.0,
         )
-        lakeTransFrac = cover(ifthen(self.WaterBodies.waterBodyOut, lakeTransFrac), 0.0)
+        lakeTransFrac = pcr.cover(
+            pcr.ifthen(self.WaterBodies.waterBodyOut, lakeTransFrac), 0.0
+        )
 
         # water temperature (energy in the water body)
-        energyTotal = cover(
+        energyTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -4592,20 +4603,22 @@ class Routing(object):
             ),
             self.totEW * self.dynamicFracWat * self.cellArea,
         )
-        self.volumeEW = cover(
-            ifthen(
+        self.volumeEW = pcr.cover(
+            pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 energyTotal * lakeTransFrac,
             ),
             energyTotal,
         )
-        self.remainingVolumeEW = cover(
-            ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * energyTotal),
+        self.remainingVolumeEW = pcr.cover(
+            pcr.ifthen(
+                self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * energyTotal
+            ),
             0.0,
         )
 
         # salinity (TDS in the water body)
-        wbTDSTotal = cover(
+        wbTDSTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -4615,19 +4628,20 @@ class Routing(object):
             ),
             self.routedTDS,
         )
-        self.routedTDS = cover(
-            ifthen(
+        self.routedTDS = pcr.cover(
+            pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 wbTDSTotal * lakeTransFrac,
             ),
             wbTDSTotal,
         )
-        self.wbRemainingTDS = cover(
-            ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbTDSTotal), 0.0
+        self.wbRemainingTDS = pcr.cover(
+            pcr.ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbTDSTotal),
+            0.0,
         )
 
         if self.loadsPerSector:
-            wbDomTDSTotal = cover(
+            wbDomTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4637,21 +4651,21 @@ class Routing(object):
                 ),
                 self.routedDomTDS,
             )
-            self.routedDomTDS = cover(
-                ifthen(
+            self.routedDomTDS = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbDomTDSTotal * lakeTransFrac,
                 ),
                 wbDomTDSTotal,
             )
-            self.wbRemainingDomTDS = cover(
-                ifthen(
+            self.wbRemainingDomTDS = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbDomTDSTotal
                 ),
                 0.0,
             )
 
-            wbManTDSTotal = cover(
+            wbManTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4661,21 +4675,21 @@ class Routing(object):
                 ),
                 self.routedManTDS,
             )
-            self.routedManTDS = cover(
-                ifthen(
+            self.routedManTDS = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbManTDSTotal * lakeTransFrac,
                 ),
                 wbManTDSTotal,
             )
-            self.wbRemainingManTDS = cover(
-                ifthen(
+            self.wbRemainingManTDS = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbManTDSTotal
                 ),
                 0.0,
             )
 
-            wbUSRTDSTotal = cover(
+            wbUSRTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4685,21 +4699,21 @@ class Routing(object):
                 ),
                 self.routedUSRTDS,
             )
-            self.routedUSRTDS = cover(
-                ifthen(
+            self.routedUSRTDS = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbUSRTDSTotal * lakeTransFrac,
                 ),
                 wbUSRTDSTotal,
             )
-            self.wbRemainingUSRTDS = cover(
-                ifthen(
+            self.wbRemainingUSRTDS = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbUSRTDSTotal
                 ),
                 0.0,
             )
 
-            wbIrrTDSTotal = cover(
+            wbIrrTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4709,22 +4723,22 @@ class Routing(object):
                 ),
                 self.routedIrrTDS,
             )
-            self.routedIrrTDS = cover(
-                ifthen(
+            self.routedIrrTDS = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbIrrTDSTotal * lakeTransFrac,
                 ),
                 wbIrrTDSTotal,
             )
-            self.wbRemainingIrrTDS = cover(
-                ifthen(
+            self.wbRemainingIrrTDS = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbIrrTDSTotal
                 ),
                 0.0,
             )
 
         # organic (BOD in the water body)
-        wbBODTotal = cover(
+        wbBODTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -4734,19 +4748,20 @@ class Routing(object):
             ),
             self.routedBOD,
         )
-        self.routedBOD = cover(
-            ifthen(
+        self.routedBOD = pcr.cover(
+            pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 wbBODTotal * lakeTransFrac,
             ),
             wbBODTotal,
         )
-        self.wbRemainingBOD = cover(
-            ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbBODTotal), 0.0
+        self.wbRemainingBOD = pcr.cover(
+            pcr.ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbBODTotal),
+            0.0,
         )
 
         if self.loadsPerSector:
-            wbDomBODTotal = cover(
+            wbDomBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4756,21 +4771,21 @@ class Routing(object):
                 ),
                 self.routedDomBOD,
             )
-            self.routedDomBOD = cover(
-                ifthen(
+            self.routedDomBOD = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbDomBODTotal * lakeTransFrac,
                 ),
                 wbDomBODTotal,
             )
-            self.wbRemainingDomBOD = cover(
-                ifthen(
+            self.wbRemainingDomBOD = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbDomBODTotal
                 ),
                 0.0,
             )
 
-            wbManBODTotal = cover(
+            wbManBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4780,21 +4795,21 @@ class Routing(object):
                 ),
                 self.routedManBOD,
             )
-            self.routedManBOD = cover(
-                ifthen(
+            self.routedManBOD = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbManBODTotal * lakeTransFrac,
                 ),
                 wbManBODTotal,
             )
-            self.wbRemainingManBOD = cover(
-                ifthen(
+            self.wbRemainingManBOD = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbManBODTotal
                 ),
                 0.0,
             )
 
-            wbUSRBODTotal = cover(
+            wbUSRBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4804,21 +4819,21 @@ class Routing(object):
                 ),
                 self.routedUSRBOD,
             )
-            self.routedUSRBOD = cover(
-                ifthen(
+            self.routedUSRBOD = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbUSRBODTotal * lakeTransFrac,
                 ),
                 wbUSRBODTotal,
             )
-            self.wbRemainingUSRBOD = cover(
-                ifthen(
+            self.wbRemainingUSRBOD = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbUSRBODTotal
                 ),
                 0.0,
             )
 
-            wbintLivBODTotal = cover(
+            wbintLivBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4828,22 +4843,22 @@ class Routing(object):
                 ),
                 self.routedintLivBOD,
             )
-            self.routedintLivBOD = cover(
-                ifthen(
+            self.routedintLivBOD = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbintLivBODTotal * lakeTransFrac,
                 ),
                 wbintLivBODTotal,
             )
-            self.wbRemainingintLivBOD = cover(
-                ifthen(
+            self.wbRemainingintLivBOD = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut,
                     (1 - lakeTransFrac) * wbintLivBODTotal,
                 ),
                 0.0,
             )
 
-            wbextLivBODTotal = cover(
+            wbextLivBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4853,15 +4868,15 @@ class Routing(object):
                 ),
                 self.routedextLivBOD,
             )
-            self.routedextLivBOD = cover(
-                ifthen(
+            self.routedextLivBOD = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbextLivBODTotal * lakeTransFrac,
                 ),
                 wbextLivBODTotal,
             )
-            self.wbRemainingextLivBOD = cover(
-                ifthen(
+            self.wbRemainingextLivBOD = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut,
                     (1 - lakeTransFrac) * wbextLivBODTotal,
                 ),
@@ -4869,7 +4884,7 @@ class Routing(object):
             )
 
         # pathogen (FC in the water body)
-        wbFCTotal = cover(
+        wbFCTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -4879,19 +4894,20 @@ class Routing(object):
             ),
             self.routedFC,
         )
-        self.routedFC = cover(
-            ifthen(
+        self.routedFC = pcr.cover(
+            pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 wbFCTotal * lakeTransFrac,
             ),
             wbFCTotal,
         )
-        self.wbRemainingFC = cover(
-            ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbFCTotal), 0.0
+        self.wbRemainingFC = pcr.cover(
+            pcr.ifthen(self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbFCTotal),
+            0.0,
         )
 
         if self.loadsPerSector:
-            wbDomFCTotal = cover(
+            wbDomFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4901,21 +4917,21 @@ class Routing(object):
                 ),
                 self.routedDomFC,
             )
-            self.routedDomFC = cover(
-                ifthen(
+            self.routedDomFC = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbDomFCTotal * lakeTransFrac,
                 ),
                 wbDomFCTotal,
             )
-            self.wbRemainingDomFC = cover(
-                ifthen(
+            self.wbRemainingDomFC = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbDomFCTotal
                 ),
                 0.0,
             )
 
-            wbManFCTotal = cover(
+            wbManFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4925,21 +4941,21 @@ class Routing(object):
                 ),
                 self.routedManFC,
             )
-            self.routedManFC = cover(
-                ifthen(
+            self.routedManFC = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbManFCTotal * lakeTransFrac,
                 ),
                 wbManFCTotal,
             )
-            self.wbRemainingManFC = cover(
-                ifthen(
+            self.wbRemainingManFC = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbManFCTotal
                 ),
                 0.0,
             )
 
-            wbUSRFCTotal = cover(
+            wbUSRFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4949,21 +4965,21 @@ class Routing(object):
                 ),
                 self.routedUSRFC,
             )
-            self.routedUSRFC = cover(
-                ifthen(
+            self.routedUSRFC = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbUSRFCTotal * lakeTransFrac,
                 ),
                 wbUSRFCTotal,
             )
-            self.wbRemainingUSRFC = cover(
-                ifthen(
+            self.wbRemainingUSRFC = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbUSRFCTotal
                 ),
                 0.0,
             )
 
-            wbintLivFCTotal = cover(
+            wbintLivFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4973,21 +4989,21 @@ class Routing(object):
                 ),
                 self.routedintLivFC,
             )
-            self.routedintLivFC = cover(
-                ifthen(
+            self.routedintLivFC = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbintLivFCTotal * lakeTransFrac,
                 ),
                 wbintLivFCTotal,
             )
-            self.wbRemainingintLivFC = cover(
-                ifthen(
+            self.wbRemainingintLivFC = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbintLivFCTotal
                 ),
                 0.0,
             )
 
-            wbextLivFCTotal = cover(
+            wbextLivFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -4997,15 +5013,15 @@ class Routing(object):
                 ),
                 self.routedextLivFC,
             )
-            self.routedextLivFC = cover(
-                ifthen(
+            self.routedextLivFC = pcr.cover(
+                pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     wbextLivFCTotal * lakeTransFrac,
                 ),
                 wbextLivFCTotal,
             )
-            self.wbRemainingextLivFC = cover(
-                ifthen(
+            self.wbRemainingextLivFC = pcr.cover(
+                pcr.ifthen(
                     self.WaterBodies.waterBodyOut, (1 - lakeTransFrac) * wbextLivFCTotal
                 ),
                 0.0,
@@ -5016,7 +5032,7 @@ class Routing(object):
         # water temperature (energy averaged over the water body)
         self.totalVolumeEW = self.volumeEW + self.remainingVolumeEW
 
-        energyTotal = cover(
+        energyTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -5026,7 +5042,7 @@ class Routing(object):
             ),
             self.totalVolumeEW,
         )
-        energyAverageLakeCell = cover(
+        energyAverageLakeCell = pcr.cover(
             energyTotal
             * self.cellArea
             / pcr.areatotal(
@@ -5035,7 +5051,7 @@ class Routing(object):
             ),
             energyTotal,
         )
-        self.totEW = cover(
+        self.totEW = pcr.cover(
             energyAverageLakeCell / (self.dynamicFracWat * self.cellArea), 1e-16
         )
 
@@ -5043,9 +5059,9 @@ class Routing(object):
             self.channelStorageNow
         ) / (self.dynamicFracWat * self.cellArea)
 
-        iceReductionFactor = ifthen(
+        iceReductionFactor = pcr.ifthen(
             self.landmask,
-            cover(self.dynamicFracWatBeforeRouting / self.dynamicFracWat, 1.0),
+            pcr.cover(self.dynamicFracWatBeforeRouting / self.dynamicFracWat, 1.0),
         )
 
         self.deltaIceThickness = iceReductionFactor * self.deltaIceThickness
@@ -5099,7 +5115,7 @@ class Routing(object):
         self.waterTemp_C = self.waterTemp - pcr.scalar(273.15)
 
         # salinity (TDS averaged over the water body)
-        wbTDSTotal = cover(
+        wbTDSTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -5109,7 +5125,7 @@ class Routing(object):
             ),
             self.routedTDS,
         )
-        self.routedTDS = cover(
+        self.routedTDS = pcr.cover(
             wbTDSTotal
             * self.cellArea
             / pcr.areatotal(
@@ -5120,7 +5136,7 @@ class Routing(object):
         )
 
         if self.loadsPerSector:
-            wbDomTDSTotal = cover(
+            wbDomTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5132,7 +5148,7 @@ class Routing(object):
                 ),
                 self.routedDomTDS,
             )
-            self.routedDomTDS = cover(
+            self.routedDomTDS = pcr.cover(
                 wbDomTDSTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5142,7 +5158,7 @@ class Routing(object):
                 wbDomTDSTotal,
             )
 
-            wbManTDSTotal = cover(
+            wbManTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5154,7 +5170,7 @@ class Routing(object):
                 ),
                 self.routedManTDS,
             )
-            self.routedManTDS = cover(
+            self.routedManTDS = pcr.cover(
                 wbManTDSTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5164,7 +5180,7 @@ class Routing(object):
                 wbManTDSTotal,
             )
 
-            wbUSRTDSTotal = cover(
+            wbUSRTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5176,7 +5192,7 @@ class Routing(object):
                 ),
                 self.routedUSRTDS,
             )
-            self.routedUSRTDS = cover(
+            self.routedUSRTDS = pcr.cover(
                 wbUSRTDSTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5186,7 +5202,7 @@ class Routing(object):
                 wbUSRTDSTotal,
             )
 
-            wbIrrTDSTotal = cover(
+            wbIrrTDSTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5198,7 +5214,7 @@ class Routing(object):
                 ),
                 self.routedIrrTDS,
             )
-            self.routedIrrTDS = cover(
+            self.routedIrrTDS = pcr.cover(
                 wbIrrTDSTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5209,7 +5225,7 @@ class Routing(object):
             )
 
         # organic (BOD averaged over the water body)
-        wbBODTotal = cover(
+        wbBODTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -5219,7 +5235,7 @@ class Routing(object):
             ),
             self.routedBOD,
         )
-        self.routedBOD = cover(
+        self.routedBOD = pcr.cover(
             wbBODTotal
             * self.cellArea
             / pcr.areatotal(
@@ -5230,7 +5246,7 @@ class Routing(object):
         )
 
         if self.loadsPerSector:
-            wbDomBODTotal = cover(
+            wbDomBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5242,7 +5258,7 @@ class Routing(object):
                 ),
                 self.routedDomBOD,
             )
-            self.routedDomBOD = cover(
+            self.routedDomBOD = pcr.cover(
                 wbDomBODTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5252,7 +5268,7 @@ class Routing(object):
                 wbDomBODTotal,
             )
 
-            wbManBODTotal = cover(
+            wbManBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5264,7 +5280,7 @@ class Routing(object):
                 ),
                 self.routedManBOD,
             )
-            self.routedManBOD = cover(
+            self.routedManBOD = pcr.cover(
                 wbManBODTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5274,7 +5290,7 @@ class Routing(object):
                 wbManBODTotal,
             )
 
-            wbUSRBODTotal = cover(
+            wbUSRBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5286,7 +5302,7 @@ class Routing(object):
                 ),
                 self.routedUSRBOD,
             )
-            self.routedUSRBOD = cover(
+            self.routedUSRBOD = pcr.cover(
                 wbUSRBODTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5296,7 +5312,7 @@ class Routing(object):
                 wbUSRBODTotal,
             )
 
-            wbintLivBODTotal = cover(
+            wbintLivBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5309,7 +5325,7 @@ class Routing(object):
                 ),
                 self.routedintLivBOD,
             )
-            self.routedintLivBOD = cover(
+            self.routedintLivBOD = pcr.cover(
                 wbintLivBODTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5319,7 +5335,7 @@ class Routing(object):
                 wbintLivBODTotal,
             )
 
-            wbextLivBODTotal = cover(
+            wbextLivBODTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5332,7 +5348,7 @@ class Routing(object):
                 ),
                 self.routedextLivBOD,
             )
-            self.routedextLivBOD = cover(
+            self.routedextLivBOD = pcr.cover(
                 wbextLivBODTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5343,7 +5359,7 @@ class Routing(object):
             )
 
         # pathogen (FC averaged over the water body)
-        wbFCTotal = cover(
+        wbFCTotal = pcr.cover(
             pcr.ifthen(
                 pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                 pcr.areatotal(
@@ -5353,7 +5369,7 @@ class Routing(object):
             ),
             self.routedFC,
         )
-        self.routedFC = cover(
+        self.routedFC = pcr.cover(
             wbFCTotal
             * self.cellArea
             / pcr.areatotal(
@@ -5364,7 +5380,7 @@ class Routing(object):
         )
 
         if self.loadsPerSector:
-            wbDomFCTotal = cover(
+            wbDomFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5376,7 +5392,7 @@ class Routing(object):
                 ),
                 self.routedDomFC,
             )
-            self.routedDomFC = cover(
+            self.routedDomFC = pcr.cover(
                 wbDomFCTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5386,7 +5402,7 @@ class Routing(object):
                 wbDomFCTotal,
             )
 
-            wbManFCTotal = cover(
+            wbManFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5398,7 +5414,7 @@ class Routing(object):
                 ),
                 self.routedManFC,
             )
-            self.routedManFC = cover(
+            self.routedManFC = pcr.cover(
                 wbManFCTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5408,7 +5424,7 @@ class Routing(object):
                 wbManFCTotal,
             )
 
-            wbUSRFCTotal = cover(
+            wbUSRFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5420,7 +5436,7 @@ class Routing(object):
                 ),
                 self.routedUSRFC,
             )
-            self.routedUSRFC = cover(
+            self.routedUSRFC = pcr.cover(
                 wbUSRFCTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5430,7 +5446,7 @@ class Routing(object):
                 wbUSRFCTotal,
             )
 
-            wbintLivFCTotal = cover(
+            wbintLivFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5443,7 +5459,7 @@ class Routing(object):
                 ),
                 self.routedintLivFC,
             )
-            self.routedintLivFC = cover(
+            self.routedintLivFC = pcr.cover(
                 wbintLivFCTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5453,7 +5469,7 @@ class Routing(object):
                 wbintLivFCTotal,
             )
 
-            wbextLivFCTotal = cover(
+            wbextLivFCTotal = pcr.cover(
                 pcr.ifthen(
                     pcr.scalar(self.WaterBodies.waterBodyIds) > 0.0,
                     pcr.areatotal(
@@ -5466,7 +5482,7 @@ class Routing(object):
                 ),
                 self.routedextLivFC,
             )
-            self.routedextLivFC = cover(
+            self.routedextLivFC = pcr.cover(
                 wbextLivFCTotal
                 * self.cellArea
                 / pcr.areatotal(
@@ -5502,7 +5518,7 @@ class Routing(object):
         # dissolved oxygen concentration (Streeter-Phelps equation)
         self.k1 = self.BODdecay_temperature * self.organic
         # oxygen saturation (mg/L)
-        self.DOsat = (1 - 0.0001148 * self.elevation) * exp(
+        self.DOsat = (1 - 0.0001148 * self.elevation) * pcr.exp(
             -139.34411
             + (157570.1) / (self.waterTemp)
             - (66423080.0) / (self.waterTemp**2)

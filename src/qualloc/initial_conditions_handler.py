@@ -11,29 +11,6 @@ from qualloc.file_handler import compose_filename, file_is_nc, read_file_entry
 from qualloc.model_time import match_date_by_julian_number
 from qualloc.netCDF_recipes import get_nc_dates
 
-critical_improvements = str.join("\n", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "*** dictionaries of initial conditions can be saved but not be read correctly!",
-        "",
-    ),
-)
-
-print("\nDevelopmens for caleros_runner:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
-
 logger = logging.getLogger(__name__)
 
 NoneType = type(None)

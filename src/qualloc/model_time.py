@@ -8,28 +8,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-critical_improvements = str.join("\n\t", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "make time increment variable",
-        "",
-    ),
-)
-
-print("\nDevelopmens for time class:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
-
 
 def get_weights_from_dates(dates):
 

@@ -20,28 +20,6 @@ logger = logging.getLogger(__name__)
 # a cache of all open netCDF file objects, and stores of all non-dimensional variables with
 # their dimensions and with their time steps
 
-critical_improvements = str.join("\n", ("",))
-
-development = str.join(
-    "\n\t",
-    (
-        "",
-        "make netCDFs accessible via a root and for multiple years",
-        "make sure scaled netCDFs are read correctly",
-        "",
-    ),
-)
-
-print("\nDevelopmens for netCDF recipes class:")
-
-if len(critical_improvements) > 0:
-    print("Critical improvements: \n%s" % critical_improvements)
-
-if len(development) > 0:
-    print("Ongoing: \n%s" % development)
-
-if len(critical_improvements) > 0:
-    sys.exit()
 
 NoneType = type(None)
 DictType = type(dict)
