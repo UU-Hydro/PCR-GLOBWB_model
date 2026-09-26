@@ -37,18 +37,18 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     --clone-map "$CLONE_MAP" \
     --log-level "$LOG_LEVEL" --file-level "$FILE_LEVEL"
 
-# # ---------------------------------------------------------------------------
-# # 2/3 QUAlloc on the reported PCR-GLOBWB output
-# # ---------------------------------------------------------------------------
-# echo "=== 2/3 offline_pcrglobwb_qualloc"
-# pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-#     qualloc-run \
-#     "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_5arcminutes.cfg" \
-#     --output-dir "$DATA_DIR/output/5arcminutes/offline_pcrglobwb_qualloc" \
-#     --input-dir "$INPUT_DIR" \
-#     --clone-map "$CLONE_MAP" \
-#     --pcrglobwb-output-dir "$DATA_DIR/output/5arcminutes/pcrglobwb" \
-#     --log-level "$LOG_LEVEL" --file-level "$FILE_LEVEL"
+# ---------------------------------------------------------------------------
+# 2/3 QUAlloc on the reported PCR-GLOBWB output
+# ---------------------------------------------------------------------------
+echo "=== 2/3 offline_pcrglobwb_qualloc"
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
+    qualloc-run \
+    "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_5arcminutes.cfg" \
+    --output-dir "$DATA_DIR/output/5arcminutes/offline_pcrglobwb_qualloc" \
+    --input-dir "$INPUT_DIR" \
+    --clone-map "$CLONE_MAP" \
+    --pcrglobwb-output-dir "$DATA_DIR/output/5arcminutes/pcrglobwb" \
+    --log-level "$LOG_LEVEL" --file-level "$FILE_LEVEL"
 
 # # ---------------------------------------------------------------------------
 # # 3/3 QUAlloc stepped from inside PCR-GLOBWB
