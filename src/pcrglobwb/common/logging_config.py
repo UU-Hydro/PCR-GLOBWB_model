@@ -60,8 +60,7 @@ def add_log_level_arguments(parser):
 
 
 def start_logging(console_level="INFO", file_level="INFO"):
-    """Log to stderr now and hold the run.log records until ``set_log_dir``.
-    """
+    """Log to stderr now and hold the run.log records until ``set_log_dir``."""
     global _console_handler, _file_handler, _run_start, _log_file, _manifest
     global _simulation_date
     # rich only on a terminal: redirected (e.g. SLURM) output would be wrapped at 80 columns
