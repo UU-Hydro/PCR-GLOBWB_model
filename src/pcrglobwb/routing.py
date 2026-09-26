@@ -5095,7 +5095,7 @@ class Routing(object):
                 self.temperatureKelvin,
             )
 
-        self.waterTemp = min(
+        self.waterTemp = pcr.min(
             pcr.ifthenelse(
                 self.waterTemp < self.iceThresTemp + 0.1,
                 self.iceThresTemp + 0.1,
