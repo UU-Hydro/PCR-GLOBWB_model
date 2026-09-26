@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 import pcraster as pcr
 
@@ -84,8 +82,9 @@ a (nested) list.
 """
 
     if not isinstance(s, str):
-
-        sys.exit("function requires a string to split it in smaller parts")
+        raise TypeError(
+            "convert_string_to_list requires a string, got %s" % type(s).__name__
+        )
 
     result_list = [s]
     sep_level = 0

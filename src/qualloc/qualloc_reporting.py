@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 import pcraster as pcr
 
@@ -699,9 +698,13 @@ dictionaries with the dates provided.
                         values = [initial_conditions[module][variablename]]
 
                     else:
-                        sys.exit(
-                            "initial conditions of type %s cannot be used"
-                            % str(type(initial_conditions[module][variablename]))
+                        raise TypeError(
+                            "initial condition %s of %s has unexpected type %s"
+                            % (
+                                variablename,
+                                module,
+                                type(initial_conditions[module][variablename]).__name__,
+                            )
                         )
 
                     # write the information to the netCDF file

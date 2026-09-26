@@ -1,6 +1,5 @@
 import datetime
 import logging
-import sys
 from copy import deepcopy
 from types import BuiltinMethodType
 
@@ -184,8 +183,8 @@ def get_date_index(date, dates, date_selection_method, substituted_dates=False):
         return np.arange(dates.size)[time_delta == time_delta.min()][0]
 
     else:
-        sys.exit(
-            "index date_selection_method %s is not allowed or does not yield a result"
+        raise ValueError(
+            "unknown date_selection_method %s; use exact, before, after or nearest"
             % date_selection_method
         )
 
@@ -617,8 +616,11 @@ def add_data_to_netCDF(
 
         req_size = req_size * (dim_slices[dim_key][1] - dim_slices[dim_key][0])
 
-    while variable_array.size != req_size:
-        sys.exit("array sizes do not match!")
+    if variable_array.size != req_size:
+        raise ValueError(
+            "array size %d does not match the required size %d for variable %s"
+            % (variable_array.size, req_size, name)
+        )
 
     # a simple update is possible if the variable array has the size of a single time step
 
@@ -951,13 +953,10 @@ depending on the type of match specified.
                 % (variablename, ncfilename)
             )
 
-        # dimensions, to decide how the data are processed
-        nc_dims = self.obtain_dimensions(ncfilename, variablename)
-
         # halt if the variable is not found
-        if nc_dims == ():
-            logger.error(
-                "neCDF file %s does not contain information on the requested variable %s"
+        if variablename not in self.variables.get(ncfilename, {}):
+            raise KeyError(
+                "netCDF file %s does not contain information on the requested variable %s"
                 % (ncfilename, variablename)
             )
 
@@ -989,9 +988,7 @@ depending on the type of match specified.
                     )
 
                     if date_selection_method == "exact":
-
-                        logger.error(message_str)
-                        sys.exit(message_str)
+                        raise ValueError(message_str)
 
                 date_index = nc.date2index(
                     date,

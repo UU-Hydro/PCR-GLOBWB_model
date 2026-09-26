@@ -1,11 +1,18 @@
+import argparse
 import logging
 import os
 import sys
 
 from pcraster.framework import DynamicFramework, DynamicModel
 
-from pcrglobwb.common import disclaimer
 from pcrglobwb.common.currTimeStep import ModelTime
+from pcrglobwb.common.logging_config import (
+    TimeStepProgress,
+    add_log_level_arguments,
+    log_run_status,
+    set_log_dir,
+    start_logging,
+)
 from pcrglobwb.configuration import Configuration
 from pcrglobwb.pcrglobwb import PCRGlobWB
 from pcrglobwb.reporting import Reporting
@@ -22,6 +29,7 @@ class DeterministicRunner(DynamicModel):
         self.modelTime = modelTime
         self.model = PCRGlobWB(configuration, modelTime, initialState)
         self.reporting = Reporting(configuration, self.model, modelTime)
+        self.progress = TimeStepProgress(modelTime.nrOfTimeSteps)
 
     def initial(self):
         pass
@@ -30,6 +38,7 @@ class DeterministicRunner(DynamicModel):
 
         # update the model time from the current PCRaster time step
         self.modelTime.update(self.currentTimeStep())
+        self.progress.start_step(self.currentTimeStep(), self.modelTime.currTime)
 
         # update the model (uses the current model time)
 
@@ -38,32 +47,26 @@ class DeterministicRunner(DynamicModel):
 
         self.reporting.report()
 
+        self.progress.end_step(self.modelTime.isLastDayOfYear())
 
+
+@log_run_status
 def main():
 
-    disclaimer.print_disclaimer()
-
-    iniFileName = os.path.abspath(sys.argv[1])
-
-    debug_mode = False
-    if len(sys.argv) > 2:
-        if sys.argv[2] == "debug":
-            debug_mode = True
-
-    # use the ini file as given
-    no_modification = True
-
-    # use the output directory given as a command-line argument
-    if len(sys.argv) > 3 and sys.argv[3] == "--output_dir":
-        no_modification = False
-        output_directory = sys.argv[4]
-
-    configuration = Configuration(
-        iniFileName=iniFileName, debug_mode=debug_mode, no_modification=no_modification
+    parser = argparse.ArgumentParser(
+        description="Run PCR-GLOBWB from an ini file.", allow_abbrev=False
     )
-    if not no_modification:
-        configuration.globalOptions["outputDir"] = output_directory
-        configuration.set_configuration()
+    parser.add_argument("ini_file", help="PCR-GLOBWB ini file")
+    add_log_level_arguments(parser)
+    args = parser.parse_args()
+
+    iniFileName = os.path.abspath(args.ini_file)
+
+    start_logging(args.log_level, args.file_level)
+
+    configuration = Configuration(iniFileName=iniFileName)
+    configuration.set_configuration()
+    set_log_dir(configuration.logFileDir)
 
     # time step info: year, month, day, doy, etc.
     currTimeStep = ModelTime()
@@ -124,5 +127,4 @@ def main():
 
 
 if __name__ == "__main__":
-    disclaimer.print_disclaimer(with_logger=True)
     sys.exit(main())

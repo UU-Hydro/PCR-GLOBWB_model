@@ -2,7 +2,6 @@
 # TODO: make sure non-included components are not updated and initial settings remain consistent
 
 import logging
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
@@ -176,15 +175,20 @@ appropriate key and value pairs.
                         elif isinstance(
                             initial_conditions[section_name][variablename], NoneType
                         ):
-                            logger.warning(
-                                "initial conditions for %s on %s unsuccessfully read and set to None"
-                                % (variablename, date)
+                            raise ValueError(
+                                "initial condition %s of %s could not be read for %s"
+                                % (variablename, section_name, date)
                             )
-                            sys.exit()
                         else:
-                            sys.exit(
-                                "initial condition %s of %s cannot be read"
-                                % (variablename, section_name)
+                            raise TypeError(
+                                "initial condition %s of %s has unexpected type %s"
+                                % (
+                                    variablename,
+                                    section_name,
+                                    type(
+                                        initial_conditions[section_name][variablename]
+                                    ).__name__,
+                                )
                             )
 
     return initial_conditions
@@ -275,8 +279,10 @@ date is generated.
         if not isinstance(value, pcrFieldType):
             try:
                 value = pcr.spatial(pcr_data_func(value))
-            except Exception:
-                sys.exit("ERROR: %s cannot be converted to a PCRaster field" % value)
+            except Exception as exc:
+                raise ValueError(
+                    "%s cannot be converted to a PCRaster field" % value
+                ) from exc
 
             message_str = str.join(
                 "\n",

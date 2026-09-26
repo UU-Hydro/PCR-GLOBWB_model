@@ -10,6 +10,6 @@ CLONE_MAP="clone_maps/tugela_30arcseconds.clone.map"
 
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$CONFIG_DIR/pcrglobwb_30arcseconds.ini" \
-    -mod "$OUTPUT_DIR" \
-    -mid "$DATA_DIR" \
-    -clonemap "$CLONE_MAP"
+    --output-dir "$OUTPUT_DIR" \
+    --input-dir "$DATA_DIR" \
+    --clone-map "$CLONE_MAP"

@@ -13,14 +13,14 @@ PCRGLOBWB_OUTPUT_DIR="$REPO_ROOT/output/pcrglobwb/30arcseconds"
 
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcseconds.ini" \
-    -mod "$PCRGLOBWB_OUTPUT_DIR" \
-    -mid "$DATA_DIR" \
-    -clonemap "$CLONE_MAP"
+    --output-dir "$PCRGLOBWB_OUTPUT_DIR" \
+    --input-dir "$DATA_DIR" \
+    --clone-map "$CLONE_MAP"
 
 # step 2: QUAlloc on that output. Nothing it decides reaches PCR-GLOBWB.
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-    python -m qualloc.qualloc_runner "$CONFIG_DIR/qualloc_30arcseconds.cfg" \
-    -mod "$OUTPUT_DIR" \
-    -mid "$DATA_DIR" \
-    -clonemap "$CLONE_MAP" \
-    -pcrglobwb_mod "$PCRGLOBWB_OUTPUT_DIR"
+    qualloc-run "$CONFIG_DIR/qualloc_30arcseconds.cfg" \
+    --output-dir "$OUTPUT_DIR" \
+    --input-dir "$DATA_DIR" \
+    --clone-map "$CLONE_MAP" \
+    --pcrglobwb-output-dir "$PCRGLOBWB_OUTPUT_DIR"

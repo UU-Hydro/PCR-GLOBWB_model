@@ -8,4 +8,4 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
     pcrglobwb-run "$REPO_ROOT/configuration/run/pcrglobwb/pcrglobwb_5arcminutes.ini"
 
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-    python -m qualloc.qualloc_runner "$CONFIG_DIR/qualloc_5arcminutes.cfg"
+    qualloc-run "$CONFIG_DIR/qualloc_5arcminutes.cfg"

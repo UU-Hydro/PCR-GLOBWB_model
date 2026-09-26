@@ -1,6 +1,5 @@
 import datetime
 import logging
-import sys
 
 import pcraster as pcr
 
@@ -191,11 +190,10 @@ class water_quality(object):
                     ] = constituent_state
 
         else:
-            logger.error(
-                "the option %s for the time increment in the water quality module is not allowed!"
-                % self.time_increment
+            raise ValueError(
+                "time increment %s is not allowed in the water quality module; "
+                "use monthly or yearly" % self.time_increment
             )
-            sys.exit()
 
         logger.info(message_str)
 

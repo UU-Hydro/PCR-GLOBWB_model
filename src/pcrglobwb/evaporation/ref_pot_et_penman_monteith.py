@@ -1,8 +1,10 @@
+import logging
 import os
-import sys
 
 import pcraster as pcr
 import pcraster.framework as pcrm
+
+logger = logging.getLogger(__name__)
 
 
 def computeDefaultPressure(elevation):
@@ -238,8 +240,8 @@ must be provided; the latter takes precedence):
         elif relativeHumidity is not None:
             unsatVapPressure = relativeHumidity * satVapPressure
         else:
-            sys.exit(
-                " * Halted: either relative humidity or actual vapour pressure should be defined"
+            raise ValueError(
+                "either relative humidity or actual vapour pressure must be defined"
             )
         # aerodynamic evaporation rate (m.s-1)
         atmosphericContribution = (
@@ -284,8 +286,6 @@ def main():
         os.path.join(outputPath, "atmosphericpressure.map"),
     )
     for month in months:
-        msg = "processing month %2d" % month
-        print(msg)
         cloudiness = 0.001 * pcr.readmap(pcrm.generateNameT(cloudinessFileRoot, month))
         temperature = 0.1 * pcr.readmap(pcrm.generateNameT(temperatureFileRoot, month))
         vapourPressure = 10.0 * pcr.readmap(
@@ -325,5 +325,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print(main.__doc__)
     main()

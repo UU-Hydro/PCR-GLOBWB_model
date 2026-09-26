@@ -86,7 +86,6 @@ class PCR2netCDF:
             for ncAttributeKey, ncAttribute in list(
                 specificAttributeDictionary.items()
             ):
-                print(ncAttributeKey, ncAttribute)
                 self.attributeDictionary[ncAttributeKey] = ncAttribute
 
     def createNetCDF(
