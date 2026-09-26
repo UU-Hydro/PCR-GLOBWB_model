@@ -364,7 +364,6 @@ class LandSurface(object):
                 "water_quality",
             ]
             groups = []
-            subst_args = []
 
             # the placeholders in the QUAlloc cfg are filled from this ini, which run-with-arguments has
             # already substituted with the same values, so both models are driven by one set of arguments
@@ -381,7 +380,6 @@ class LandSurface(object):
                 cfgfilename=qualloc_config_file,
                 sections=sections,
                 groups=groups,
-                subst_args=subst_args,
                 replacements=replacements,
             )
 

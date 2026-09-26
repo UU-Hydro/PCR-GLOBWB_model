@@ -1,14 +1,21 @@
 # TODO: move spin-up to a separate class to reduce the size of this runner
 # TODO: include general spin-up settings as global variables for easy adaptation
 
-import logging
+import argparse
 import os
-import sys
 
 from pcraster.framework import DynamicFramework, DynamicModel
 from pcraster.multicore import set_nr_worker_threads
 
-from qualloc.model_configuration import configuration_parser
+from pcrglobwb.common.arguments import add_placeholder_arguments, placeholder_values
+from pcrglobwb.common.logging_config import (
+    TimeStepProgress,
+    add_log_level_arguments,
+    log_run_status,
+    set_log_dir,
+    start_logging,
+)
+from qualloc.model_configuration import configuration_parser, substitutable_flags
 from qualloc.model_time import model_time
 from qualloc.qualloc_main import qualloc_model
 from qualloc.qualloc_reporting import qualloc_reporting
@@ -18,20 +25,8 @@ set_nr_worker_threads(4)
 
 NoneType = type(None)
 
-logger = logging.getLogger(__name__)
-
 # allowed time increments
 allowed_time_increments = ["monthly", "daily"]
-
-# command-line flags and the configuration placeholders they fill; the names
-# match those of PCR-GLOBWB's run-with-arguments so a coupled run can pass the
-# same values to both models
-argument_tokens = {
-    "-mid": "MAIN_INPUT_DIR",
-    "-mod": "MAIN_OUTPUT_DIR",
-    "-clonemap": "CLONEMAP",
-    "-pcrglobwb_mod": "PCRGLOBWB_OUTPUT_DIR",
-}
 
 
 class qualloc_runner(DynamicModel):
@@ -47,6 +42,7 @@ class qualloc_runner(DynamicModel):
             self.model_configuration, self.model_time, model_flags, initial_conditions
         )
         self.reporting = qualloc_reporting(self.model_configuration)
+        self.progress = TimeStepProgress(model_time.number_time_steps)
 
         return None
 
@@ -61,6 +57,7 @@ class qualloc_runner(DynamicModel):
     def dynamic(self):
 
         self.model_time.update(self.currentTimeStep())
+        self.progress.start_step(self.currentTimeStep(), self.model_time.date)
 
         self.model.update()
 
@@ -69,6 +66,8 @@ class qualloc_runner(DynamicModel):
         if self.model_time.report_flags["yearly"]:
             # end of year: report the states so the run can be restarted
             self.model.finalize_year()
+
+        self.progress.end_step(self.model_time.report_flags["yearly"])
 
         if self.model_time.last_time_step:
 
@@ -79,45 +78,20 @@ class qualloc_runner(DynamicModel):
             return self.model.initial_conditions
 
 
+@log_run_status
 def main():
     # parse the command-line options and arguments (including the configuration file) and run the model
 
-    # split the command line into the flags of argument_tokens and the remaining
-    # arguments: the configuration file, followed by the positional substitution
-    # arguments
-    replacements = {}
-    arguments = []
+    parser = argparse.ArgumentParser(
+        description="Run QUAlloc from a cfg file.", allow_abbrev=False
+    )
+    parser.add_argument("cfgfilename", help="QUAlloc cfg file")
+    add_placeholder_arguments(parser, substitutable_flags)
+    add_log_level_arguments(parser)
+    args = parser.parse_args()
 
-    system_argument = sys.argv[1:]
-    argument_cnt = 0
-
-    while argument_cnt < len(system_argument):
-
-        argument = system_argument[argument_cnt]
-
-        if argument in argument_tokens:
-
-            if argument_cnt + 1 == len(system_argument):
-                sys.exit("%s is not followed by a value" % argument)
-
-            replacements[argument_tokens[argument]] = system_argument[argument_cnt + 1]
-            argument_cnt += 2
-
-        else:
-            arguments.append(argument)
-            argument_cnt += 1
-
-    # substitution arguments that make the input file more generic
-    subst_args = []
-
-    # note: the error is currently disabled
-    if len(arguments) < 1:
-        cfgfilename = "qualloc_basic_setup.cfg"
-
-    else:
-        cfgfilename = arguments[0]
-        subst_args = arguments[1:]
-    cfgfilename = os.path.abspath(cfgfilename)
+    replacements = placeholder_values(args, substitutable_flags)
+    cfgfilename = os.path.abspath(args.cfgfilename)
 
     # configuration object
     sections = [
@@ -130,13 +104,16 @@ def main():
         "water_quality",
     ]
     groups = []
+    start_logging(args.log_level, args.file_level)
     model_configuration = configuration_parser(
         cfgfilename=cfgfilename,
         sections=sections,
         groups=groups,
-        subst_args=subst_args,
         replacements=replacements,
     )
+
+    set_log_dir(model_configuration.logpath)
+
     os.chdir(model_configuration.temppath)
 
     # time object; called pcr_time here and recast to model_time in the dynamic
@@ -146,7 +123,6 @@ def main():
     time_increment = model_configuration.time["time_increment"]
 
     if time_increment not in allowed_time_increments:
-        message_str = ""
         message_str = str.join(
             " ",
             (
@@ -155,8 +131,7 @@ def main():
                 str.join(", ", allowed_time_increments),
             ),
         )
-        logger.error(message_str)
-        sys.exit()
+        raise ValueError(message_str)
 
     pcr_time = model_time(startyear, endyear, time_increment)
 
@@ -175,12 +150,8 @@ def main():
     qualloc_model.setQuiet(True)
     initial_conditions = qualloc_model.run()
 
-    # close the log files and change directory
-    logging.shutdown()
     os.chdir(model_configuration.start_root_path)
 
 
 if __name__ == "__main__":
     main()
-    logging.shutdown()
-    print("all done")

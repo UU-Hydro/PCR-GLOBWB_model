@@ -1,7 +1,6 @@
 import calendar
 import datetime
 import logging
-import sys
 from copy import deepcopy
 
 import numpy as np
@@ -173,7 +172,10 @@ class model_time(object):
         elif self.time_increment == "monthly":
             self.number_time_steps = int((endyear - startyear) + 1) * 12
         else:
-            sys.exit("%s cannot be used" % self.time_increment)
+            raise ValueError(
+                "time increment %s cannot be used; use daily or monthly"
+                % self.time_increment
+            )
 
         self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)
 
@@ -207,7 +209,10 @@ class model_time(object):
             self.date = datetime.datetime(year, month, 1)
             self.time_step_length = calendar.monthrange(year, month)[1]
         else:
-            sys.exit("%s cannot be used" % self.time_increment)
+            raise ValueError(
+                "time increment %s cannot be used; use daily or monthly"
+                % self.time_increment
+            )
 
         self.year = self.date.year
         month = self.date.month

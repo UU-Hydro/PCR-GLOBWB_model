@@ -1,9 +1,11 @@
+import logging
 import os
 import subprocess
-import sys
 import types
 
 import pcraster as pcr
+
+logger = logging.getLogger(__name__)
 
 NoneType = type(None)
 
@@ -99,9 +101,9 @@ class spatialAttributes:
         cOut = cOut.decode("utf-8")
 
         if len(err) > 0 and not err[:7].lower() == "warning":
-            sys.exit(
-                "Error: no information could be retrieved for the spatial dataset %s"
-                % inputFileName
+            raise RuntimeError(
+                "gdalinfo could not read the spatial dataset %s: %s"
+                % (inputFileName, err.strip())
             )
 
         for mapAttribute, info in mapInformation.items():
@@ -128,19 +130,19 @@ class spatialAttributes:
                         if typeInfo == int:
                             try:
                                 mapAttributes[mapAttribute] = int(rawStr)
-                            except Exception:
-                                sys.exit(
-                                    "Error: map attributes could not be processed for %s"
-                                    % mapAttribute
-                                )
+                            except Exception as exc:
+                                raise ValueError(
+                                    "map attribute %s could not be processed from %r"
+                                    % (mapAttribute, rawStr)
+                                ) from exc
                         elif typeInfo == float:
                             try:
                                 mapAttributes[mapAttribute] = float(rawStr)
-                            except Exception:
-                                sys.exit(
-                                    "Error: map attributes could not be processed for %s"
-                                    % mapAttribute
-                                )
+                            except Exception as exc:
+                                raise ValueError(
+                                    "map attribute %s could not be processed from %r"
+                                    % (mapAttribute, rawStr)
+                                ) from exc
                         else:
                             mapAttributes[mapAttribute] = rawStr
             if mapAttribute in ["xResolution", "yResolution"]:
@@ -217,7 +219,7 @@ stores data as numpy array in memory under the variable name specified"""
                 )
             )
             if test:
-                print(command)
+                logger.debug(command)
             cOut, err = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
             ).communicate()
@@ -226,9 +228,9 @@ stores data as numpy array in memory under the variable name specified"""
             cOut = cOut.decode("utf-8")
 
             if err != "" and not err[:7].lower() == "warning":
-                sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                raise RuntimeError(
+                    "gdal_rasterize could not process the spatial dataset %s: %s"
+                    % (inputFileName, err.strip())
                 )
             inputFileName = "%s.tif" % tempFileRoot
         elif band != 0 and not isinstance(band, NoneType):
@@ -237,7 +239,7 @@ stores data as numpy array in memory under the variable name specified"""
                 % (typeStr, band, valueScale, inputFileName, tempFileRoot, band)
             )
             if test:
-                print(command)
+                logger.debug(command)
             cOut, err = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
             ).communicate()
@@ -247,9 +249,9 @@ stores data as numpy array in memory under the variable name specified"""
                 and b"warning" not in err.lower()
                 and not os.path.isfile("%s_%d.map" % (tempFileRoot, band))
             ):
-                sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                raise RuntimeError(
+                    "gdal_translate could not process the spatial dataset %s: %s"
+                    % (inputFileName, err.decode("utf-8").strip())
                 )
             inputFileName = "%s_%d.map" % (tempFileRoot, band)
 
@@ -271,14 +273,14 @@ stores data as numpy array in memory under the variable name specified"""
                 )
             )
             if test:
-                print(command)
+                logger.debug(command)
             cOut, err = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
             ).communicate()
             if err != "" and not err[:7].lower() == "warning":
-                sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                raise RuntimeError(
+                    "gdalwarp could not process the spatial dataset %s: %s"
+                    % (inputFileName, err.decode("utf-8").strip())
                 )
             inputFileName = "%s2.tif" % tempFileRoot
             xResampleRatio = 1.0
@@ -320,19 +322,19 @@ stores data as numpy array in memory under the variable name specified"""
                 )
             )
         else:
-            sys.exit(
-                "Error: no information on resample ratio / output extent is specified"
+            raise ValueError(
+                "either pixels and lines or resample ratios must be specified"
             )
         if test:
-            print(command)
+            logger.debug(command)
         cOut, err = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         ).communicate()
 
         if len(err) > 0 and b"warning" not in err.lower():
-            sys.exit(
-                "Error: no information could be retrieved from the spatial dataset %s"
-                % inputFileName
+            raise RuntimeError(
+                "gdal_translate could not process the spatial dataset %s: %s"
+                % (inputFileName, err.decode("utf-8").strip())
             )
         setattr(self, variableName, pcr.readmap(outputFileName))
         for tempFileName in os.listdir(os.getcwd()):

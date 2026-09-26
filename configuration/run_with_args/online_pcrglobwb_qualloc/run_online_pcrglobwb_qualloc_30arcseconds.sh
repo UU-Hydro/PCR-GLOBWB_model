@@ -10,7 +10,7 @@ CLONE_MAP="clone_maps/tugela_30arcseconds.clone.map"
 
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$CONFIG_DIR/online_pcrglobwb_qualloc_30arcseconds.ini" \
-    -mod "$OUTPUT_DIR" \
-    -mid "$DATA_DIR" \
-    -clonemap "$CLONE_MAP" \
-    -qcf "$CONFIG_DIR/qualloc_30arcseconds.cfg"
+    --output-dir "$OUTPUT_DIR" \
+    --input-dir "$DATA_DIR" \
+    --clone-map "$CLONE_MAP" \
+    --qualloc-config "$CONFIG_DIR/qualloc_30arcseconds.cfg"

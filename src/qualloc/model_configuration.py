@@ -1,12 +1,11 @@
 import datetime
 import logging
 import os
-import re
 import shutil
 import stat
-import sys
 from configparser import RawConfigParser as ConfigParser
 
+from pcrglobwb.common.arguments import fill_placeholders
 from qualloc.basic_functions import convert_string_to_list, get_decision
 
 logger = logging.getLogger(__name__)
@@ -14,17 +13,13 @@ logger = logging.getLogger(__name__)
 
 NoneType = type(None)
 
-# placeholders that the calling program replaces in the configuration file; they
-# match the tokens PCR-GLOBWB's run-with-arguments substitutes in its ini files,
-# so a cfg and an ini can be driven by the same arguments
-substitutable_tokens = [
-    "MAIN_INPUT_DIR",
-    "MAIN_OUTPUT_DIR",
-    "PCRGLOBWB_OUTPUT_DIR",
-    "CLONEMAP",
+# command-line flags whose placeholders the calling program replaces in the configuration file
+substitutable_flags = [
+    "--input-dir",
+    "--output-dir",
+    "--pcrglobwb-output-dir",
+    "--clone-map",
 ]
-
-token_pattern = re.compile(r"\b(%s)\b" % str.join("|", substitutable_tokens))
 
 
 def remove_readonly(func, path, _):
@@ -54,19 +49,13 @@ the CALEROS model.
         cfgfilename,
         sections=[],
         groups=[],
-        debug_mode=False,
-        subst_args=[],
         replacements={},
         **optional_arguments,
     ):
 
         object.__init__(self)
 
-        message_str = "\n%s\nInitializing the QUAlloc model run\n%s\n" % (
-            "=" * 80,
-            "=" * 80,
-        )
-        print(message_str)
+        logger.info("Initializing the QUAlloc model run")
 
         # configuration file, groups and sections
         self.cfgfilename = cfgfilename
@@ -79,33 +68,23 @@ the CALEROS model.
         self._timestamp_str = self._timestamp_str[: self._timestamp_str.find(".")]
         self._timestamp_str = self._timestamp_str.replace(":", ".")
 
-        self.debug_mode = debug_mode
-
         # save the initial root for later use
         self.start_root_path = os.path.abspath(os.path.dirname(__file__))
 
         # substitute tokens before parsing so every value is covered, including those
         # in the optional sections and groups
-        self.cfg_content = self.substitute_tokens(self.cfgfilename, replacements)
+        with open(self.cfgfilename) as cfgfile:
+            self.cfg_content = fill_placeholders(
+                cfgfile.read(), replacements, substitutable_flags, self.cfgfilename
+            )
 
-        self.parse_configuration_file(
-            self.cfgfilename, self.groups, self.sections, subst_args
-        )
+        self.parse_configuration_file(self.cfgfilename, self.groups, self.sections)
 
         # create all necessary directories
         self.create_output_directories()
 
         # copy the configuration file
-        logfileroot = self.backup_configuration_file(
-            self.cfgfilename, self.logpath, self._timestamp_str
-        )
-
-        logfileroot = os.path.splitext(logfileroot)[0]
-        self.initialize_logger(logfileroot)
-
-        logger.info("Model run started at %s" % self._timestamp)
-        logger.info("Logging output to %s" % self.logfilename)
-        logger.info("Debugging output to %s" % self.dbgfilename)
+        self.backup_configuration_file(self.cfgfilename, self.logpath)
 
     def __repr__(self):
         return "this is an instance of the model configuration class object"
@@ -120,35 +99,7 @@ the CALEROS model.
             options[key] = value
         return options
 
-    def substitute_tokens(self, cfgfilename, replacements):
-        """
-
-substitute_tokens: function that returns the contents of the configuration file \
-with each of the substitutable tokens replaced by the value the calling program \
-passed for it. Halts the run if the file uses a token that was not passed, as \
-the unreplaced token would otherwise surface much later as a missing file.
-
-"""
-
-        with open(cfgfilename) as cfgfile:
-            cfg_content = cfgfile.read()
-
-        missing_tokens = sorted(
-            set(token_pattern.findall(cfg_content)) - set(replacements.keys())
-        )
-
-        if len(missing_tokens) > 0:
-            message_str = (
-                "configuration file %s uses the placeholder(s) %s, for which no value was passed"
-                % (cfgfilename, str.join(", ", missing_tokens))
-            )
-            sys.exit(message_str)
-
-        return token_pattern.sub(
-            lambda match: replacements[match.group(1)], cfg_content
-        )
-
-    def parse_configuration_file(self, cfgfilename, groups, sections, subst_args):
+    def parse_configuration_file(self, cfgfilename, groups, sections):
 
         config = ConfigParser()
         config.optionxform = str
@@ -161,36 +112,28 @@ the unreplaced token would otherwise surface much later as a missing file.
                 sections_present.remove(section)
                 try:
                     section_info = self.get_items(config, section)
-                    for key, value in section_info.items():
-                        if "$" in value:
-                            argposcnt = value.find("$")
-                            argpos = int(value[argposcnt + 1 :]) - 1
-                            value = str.join(
-                                "", (value[:argposcnt], subst_args[argpos])
-                            )
-                            section_info[key] = value
                     setattr(self, section, section_info)
-                except Exception:
+                except Exception as exc:
                     message_str = (
                         "processing information on the compulsory section [%s] raised an error"
                         % (section)
                     )
-                    sys.exit(message_str)
+                    raise ValueError(message_str) from exc
             else:
                 message_str = (
-                    "configuration file does not contain information for the compulsory section [%s] "
+                    "configuration file does not contain information for the compulsory section [%s]"
                     % (section)
                 )
-                sys.exit(message_str)
+                raise ValueError(message_str)
         # process groups and miscellaneous sections
         for group in groups:
             try:
                 setattr(self, group, {})
-            except Exception:
+            except Exception as exc:
                 message_str = (
                     "processing information on the group [%s] raised an error" % (group)
                 )
-                sys.exit(message_str)
+                raise ValueError(message_str) from exc
         for section in sections_present:
             try:
                 # name and group name (if present)
@@ -205,94 +148,23 @@ the unreplaced token would otherwise surface much later as a missing file.
                     section = section.replace(" ", "")
                     # miscellaneous section
                     section_info = self.get_items(config, section)
-                for key, value in section_info.items():
-                    if "$" in value:
-                        try:
-                            value = subst_args[int(value.lstrip("$")) - 1]
-                        except Exception:
-                            message_str = (
-                                "argument substitution failed on %s in optional section %s"
-                                % (key, section)
-                            )
-                        section_info[key] = value
                 setattr(self, section, section_info)
 
-            except Exception:
+            except Exception as exc:
                 message_str = (
                     "processing information on the section [%s] raised an error"
                     % (section)
                 )
-                sys.exit(message_str)
+                raise ValueError(message_str) from exc
 
         # check that the required entries of every group are present
         for group in groups:
             if len(getattr(self, group).keys()) == 0:
                 message_str = (
-                    "configuration file does not contain the necessary information on %s "
+                    "configuration file does not contain the necessary information on %s"
                     % (group)
                 )
-                sys.exit(message_str)
-
-        return None
-
-    def initialize_logger(self, logfileroot):
-        """
-
-initialize_logger: function that initializes the logger that prints messages \
-to a log file and to the screen at configurable levels.
-
-    """
-
-        logging.getLogger().setLevel(logging.DEBUG)
-
-        formatter = logging.Formatter(
-            "%(asctime)s %(name)s %(levelname)s %(message)s", datefmt="%m-%d %H:%M"
-        )
-
-        log_level_console = "INFO"
-        log_level_file = "INFO"
-        # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
-
-        # log level from the configuration file
-        if "log_level_console" in list(self.general.keys()):
-            log_level_console = self.general["log_level_console"]
-        if "log_level_file" in list(self.general.keys()):
-            log_level_file = self.general["log_level_file"]
-
-        # log level for debug mode
-        if self.debug_mode:
-            log_level_console = "DEBUG"
-            log_level_file = "DEBUG"
-
-        console_level = getattr(logging, log_level_console.upper(), logging.INFO)
-        if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_console)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        console_handler.setLevel(console_level)
-        logging.getLogger().addHandler(console_handler)
-
-        self.logfilename = str.join("", (logfileroot, ".log"))
-
-        file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
-        if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_file)
-
-        file_handler = logging.FileHandler(self.logfilename)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(file_level)
-        logging.getLogger().addHandler(file_handler)
-
-        # debug log file name
-        self.dbgfilename = str.join("", (logfileroot, ".dbg"))
-
-        debug_handler = logging.FileHandler(self.dbgfilename)
-        debug_handler.setFormatter(formatter)
-        debug_handler.setLevel(logging.DEBUG)
-        logging.getLogger().addHandler(debug_handler)
-
-        self.log_file_handlers = [debug_handler, file_handler]
+                raise ValueError(message_str)
 
         return None
 
@@ -307,17 +179,17 @@ directories using information from the model configuration.
             self.general["inputpath"] = os.path.abspath(self.general["inputpath"])
         if not os.path.isdir(self.general["inputpath"]):
             message_str = "input path %s does not exist" % (self.general["inputpath"])
-            sys.exit(message_str)
+            raise FileNotFoundError(message_str)
 
         if not os.path.isabs(self.general["outputpath"]):
             self.general["outputpath"] = os.path.abspath(self.general["outputpath"])
 
         if not os.path.isdir(self.general["outputpath"]):
             os.makedirs(self.general["outputpath"])
-            message_str = "output path %s does not exist and is created" % (
-                self.general["outputpath"]
+            logger.info(
+                "output path %s does not exist and is created",
+                self.general["outputpath"],
             )
-            print(message_str)
 
         # short names for the input and output directories
         self.inputpath = self.general["inputpath"]
@@ -370,11 +242,17 @@ directories using information from the model configuration.
 
                 # halt unless the answer is yes
                 if not result:
-                    sys.exit("run halted!")
+                    raise RuntimeError(
+                        "run halted: existing output not overwritten "
+                        "(set overwrite_output = True to skip this question)"
+                    )
                 else:
-                    print("run continues, existing data are overwritten")
+                    logger.warning("run continues, existing data are overwritten")
             else:
-                sys.exit("run halted!")
+                raise RuntimeError(
+                    "run halted: existing output not overwritten "
+                    "(set overwrite_output = True to skip this question)"
+                )
 
         # create the subdirectories and add them to the object
         for subdirectory in subdirectories:
@@ -387,13 +265,9 @@ directories using information from the model configuration.
 
         return None
 
-    def backup_configuration_file(self, cfgfilename, outputpath, replacement_str=""):
+    def backup_configuration_file(self, cfgfilename, outputpath):
 
-        fn = os.path.split(cfgfilename)[1]
-        fn, ext = os.path.splitext(fn)
-
-        fn = str.join("", (fn, "_", replacement_str, ext))
-        fn = os.path.join(outputpath, fn)
+        fn = os.path.join(outputpath, os.path.basename(cfgfilename))
 
         # written out rather than copied, so the backup records the substituted paths
         # the run actually used
@@ -407,8 +281,7 @@ directories using information from the model configuration.
         separators = [","]
 
         if not isinstance(ftype, type):
-            logger.error("data type %s is not a data type" % ftype)
-            sys.exit()
+            raise TypeError("data type %s is not a data type" % ftype)
 
         value = None
 

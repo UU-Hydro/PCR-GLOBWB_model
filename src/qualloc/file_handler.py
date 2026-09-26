@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 import pcraster as pcr
 
@@ -209,8 +208,7 @@ given date. This may concern spatial information or single entries.
 
             # PCRaster maps can only be processed if clone attributes are passed
             message_str = "no clone attributes are provided to process the PCRaster map"
-            logger.error(message_str)
-            sys.exit(message_str)
+            raise ValueError(message_str)
 
         data_attributes = spatialAttributes(filename)
         fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
@@ -222,7 +220,7 @@ given date. This may concern spatial information or single entries.
 
         resample_method = resample_methods[datatype_str]
 
-        print(f"{filename} (fits extent: {fits_extent})")
+        logger.debug("%s (fits extent: %s)", filename, fits_extent)
 
         if same_clone:
 

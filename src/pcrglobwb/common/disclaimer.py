@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def print_disclaimer(with_logger=False):
+def print_disclaimer():
 
     disclaimer_message = "\n"
     disclaimer_message += "\n"
@@ -47,7 +47,4 @@ def print_disclaimer(with_logger=False):
     )
     disclaimer_message += "\n"
 
-    if with_logger:
-        logger.info(disclaimer_message)
-    else:
-        print(disclaimer_message)
+    logger.info(disclaimer_message)

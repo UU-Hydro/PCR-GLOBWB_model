@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 
 import pcraster as pcr
@@ -7,6 +8,8 @@ from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     sum_list,
 )
+
+logger = logging.getLogger(__name__)
 
 # small number to avoid division by zero in PCRaster
 very_small_number = 1.0e-12
@@ -209,9 +212,6 @@ def allocate_demand_to_availability(
                             allocation process.
 
     """
-    test_verbose = False
-    test_at_iter = False
-
     availability = deepcopy(availability)
 
     # unmet demand, allocation iteration and exit condition
@@ -316,8 +316,13 @@ def allocate_demand_to_availability(
             min_number_cells_unmet_demand, number_cells_unmet_demand
         )
 
-        if test_verbose and test_at_iter:
-            print(message_str, exit_condition, min_number_cells_unmet_demand)
+        logger.debug(
+            "allocation iteration %d: %d cells with unmet demand (minimum %d), exit: %s",
+            iter_allocation - 1,
+            number_cells_unmet_demand,
+            min_number_cells_unmet_demand,
+            exit_condition,
+        )
 
     # add the final information to the message string
     demand_stats = pcr_get_statistics(demand)

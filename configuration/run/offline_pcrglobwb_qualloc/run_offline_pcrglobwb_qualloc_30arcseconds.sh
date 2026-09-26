@@ -8,4 +8,4 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
     pcrglobwb-run "$REPO_ROOT/configuration/run/pcrglobwb/pcrglobwb_30arcseconds.ini"
 
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-    python -m qualloc.qualloc_runner "$CONFIG_DIR/qualloc_30arcseconds.cfg"
+    qualloc-run "$CONFIG_DIR/qualloc_30arcseconds.cfg"

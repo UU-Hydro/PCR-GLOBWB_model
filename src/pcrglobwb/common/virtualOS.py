@@ -1583,43 +1583,6 @@ def waterBalanceCheck(
             logger.error(msg)
 
 
-def waterBalance(
-    fluxesIn,
-    fluxesOut,
-    deltaStorages,
-    processName,
-    PrintOnlyErrors,
-    dateStr,
-    threshold=1e-5,
-):
-    """Returns the water balance for a list of input, output, and storage map files and"""
-
-    inMap = pcr.spatial(pcr.scalar(0.0))
-    dsMap = pcr.spatial(pcr.scalar(0.0))
-    outMap = pcr.spatial(pcr.scalar(0.0))
-    inflow = 0
-    outflow = 0
-    deltaS = 0
-    for fluxIn in fluxesIn:
-        inflow += getMapTotal(fluxIn)
-        inMap += fluxIn
-    for fluxOut in fluxesOut:
-        outflow += getMapTotal(fluxOut)
-        outMap += fluxOut
-    for deltaStorage in deltaStorages:
-        deltaS += getMapTotal(deltaStorage)
-        dsMap += deltaStorage
-
-    a, b, c = getMinMaxMean(inMap + dsMap - outMap)
-    if abs(a) > threshold or abs(b) > threshold:
-        print("WBError %s Min %f Max %f Mean %f" % (processName, a, b, c))
-
-    wb = inMap + dsMap - outMap
-    _ = pcr.cellvalue(pcr.mapmaximum(pcr.abs(wb)), 1, 1)[0]
-
-    return inMap + dsMap - outMap
-
-
 def waterAbstractionAndAllocation(
     water_demand_volume,
     available_water_volume,

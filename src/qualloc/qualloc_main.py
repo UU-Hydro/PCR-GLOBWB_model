@@ -1,7 +1,6 @@
 import datetime
 import logging
 import os
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
@@ -141,7 +140,7 @@ class qualloc_model(object):
             )
             setClone(self.model_configuration.clone_attributes)
         else:
-            sys.exit("clone file %s does not exist" % clone_file)
+            raise FileNotFoundError("clone file %s does not exist" % clone_file)
 
         message_str = str.join(
             "\n",
