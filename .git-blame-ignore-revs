@@ -1,0 +1,5 @@
+# Commits that only reformat code; ignored by `git blame` and GitHub's blame view.
+# Enable locally with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Format with isort and black 26.5.1
+1e9a3fbe539fc2cfea2a272aa564a9ce8c481e9e

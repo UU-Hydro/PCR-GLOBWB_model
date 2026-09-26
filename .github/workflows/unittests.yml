@@ -1,4 +1,4 @@
-name: Format and Lint
+name: Unit tests
 
 on: [push, pull_request]
 
@@ -6,18 +6,18 @@ permissions:
   contents: read
 
 jobs:
-  format-lint:
+  unittests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up pixi (lint environment)
+      - name: Set up pixi (default environment)
         uses: prefix-dev/setup-pixi@v0.10.2
         with:
           pixi-version: v0.80.0
-          environments: lint
+          environments: default
           cache: true
 
-      - name: Run format and lint checks
-        run: pixi run -e lint pre-commit run --all-files --hook-stage manual
+      - name: Run tests
+        run: pixi run python -m unittest discover -s tests -v
