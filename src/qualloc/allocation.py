@@ -45,46 +45,38 @@ def obtain_allocation_ratio(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
     zones: dict[str, pcr.Field] | None = None,
-    zonal_availability: dict[str, pcr.Field] | None = None
-):
+    zonal_availability: dict[str, pcr.Field] | None = None,
+) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field], dict[str, pcr.Field]]:
     """
+    Splits the demand over the sources in proportion to their potential allocation:
+    the cell's share of the zone's demand times the zone's availability, per source.
 
     Input:
     ======
-    demand:                 demand per cell as a scalar PCRaster field;
-    availability:           availability per cell per source, same
-                            unit as the total demand and organized as a dict-
-                            ionary with the source names as keys and scalar
-                            PCRaster fields as values; availability can be spec-
-                            ified for any or all cells within a zone;
-    zones:                  zones over which the demand and availability are
-                            totaled; organized as a dictionary with the source
-                            names as keys and nominal PCRaster fields as values;
-    source_names:           list of names of the available sources.
+    demand (pcr.Field):             scalar demand per cell;
+    availability (dict[str, pcr.Field]):
+                                    scalar availability per cell per source;
+    zones (dict[str, pcr.Field] | None):
+                                    nominal allocation zones per source; if None,
+                                    every cell is its own zone;
+    zonal_availability (dict[str, pcr.Field] | None):
+                                    availability per zone per source; if None, it
+                                    is computed from availability and zones.
 
     Output:
     =======
-    zonal_availability:     availability per zone organized as
-                            a dictionary with the sources as keys and as values
-                            scalar PCRaster fields of the ratio
-    zonal_potential_allocation:
-                            potential allocation per zone,  organized as
-                            a dictionary with the sources as keys and as values
-                            scalar PCRaster fields of the ratio;
-    allocation_ratio:       allocation of the demand as ratio subdivided over
-                            the sources on the basis of the availability,
-                            organized as a dictionary with the sources as keys
-                            and as values scalar PCRaster fields of the ratio.
-
+    zonal_availability (dict[str, pcr.Field]):
+                                    availability per zone per source;
+    potential_allocation (dict[str, pcr.Field]):
+                                    the cell's share of the zonal demand times the
+                                    zonal availability, per source;
+    source_share (dict[str, pcr.Field]):
+                                    share of the cell's demand per source; sums to
+                                    one over the sources wherever there is a
+                                    potential allocation.
     """
 
-    # allocation ratio based on demand and availability; these ratios are approximate
-    # as the actual availability is not yet known
-
-    # total availability, demand fraction per zone and potential abstraction based on
-    # the demand fraction
-
-    # zonal availability depends on the availability not yet assigned to withdrawals
+    # zonal availability of the supply not yet withdrawn; computed if not provided
     if zonal_availability is None:
         if zones is not None:
             zonal_availability = {
