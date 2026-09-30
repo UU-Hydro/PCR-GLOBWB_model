@@ -1,20 +1,28 @@
-from copy import deepcopy
-
 import pcraster as pcr
 
 from qualloc.basic_functions import (
     pcr_get_statistics,
     pcr_return_val_div_zero,
-    sum_list,
 )
 
 # small number to avoid division by zero in PCRaster
 very_small_number = 1.0e-12
 
-NoneType = type(None)
-
 
 def get_key(str_list):
+    """
+    Joins a list of strings into a key separated by underscores, e.g.
+    ["renewable", "groundwater"] gives "renewable_groundwater"; no underscore is
+    added after an empty string.
+
+    Input:
+    ======
+    str_list (list[str]):           parts of the key.
+
+    Output:
+    =======
+    key (str):                      the joined key.
+    """
 
     if isinstance(str_list, list):
         key = str_list[0]
@@ -37,9 +45,10 @@ def allocate_demand_to_availability(
     demand: pcr.Field,
     available: dict[str, pcr.Field],
     zones: dict[str, pcr.Field] | None,
-    verbose: bool = False,
     max_iterations: int = 100,
-    relative_tolerance: float = 1e-6
+    relative_tolerance: float = 1e-6,
+    summarize: bool = False,
+    verbose: bool = False,
 ) -> tuple[pcr.Field, dict[str, pcr.Field], dict[str, pcr.Field], str]:
     """
     Allocates the demand to the available supply of one or more sources.
@@ -59,10 +68,11 @@ def allocate_demand_to_availability(
     zones (dict[str, pcr.Field] | None):
                                     nominal allocation zones per source; if None,
                                     every cell is its own zone;
-    verbose (bool):                 print the progress of every iteration;
     max_iterations (int):           maximum number of iterations;
     relative_tolerance (float):     fraction of the initial demand and supply below
-                                    which they count as zero.
+                                    which they count as zero;
+    summarize (bool):               add statistics to the message;
+    verbose (bool):                 print the progress of every iteration.
 
     Output:
     =======
@@ -73,7 +83,8 @@ def allocate_demand_to_availability(
     allocated (dict[str, pcr.Field]):
                                     demand allocated per source, i.e. where the
                                     water is delivered, not where it is withdrawn;
-    message (str):                  log of the iterations and statistics.
+    message (str):                  log of the allocation, with statistics if
+                                    summarize.
     """
     
     demand = pcr.max(demand, 0)
@@ -81,13 +92,25 @@ def allocate_demand_to_availability(
     demand_initial = demand
     available_initial = dict(available)
 
+    # unmet demand and untapped supply below these tolerances count as zero, which
+    # keeps rounding leftovers from extending the iterations
     demand_tolerance = relative_tolerance * demand
     available_tolerance = relative_tolerance * sum(list(available.values()))
 
     unmet = demand
     untapped = dict(available)
-    allocated = {s: pcr.scalar(0) for s in untapped.keys()}
-    
+    allocated = {s: pcr.ifthen(pcr.defined(demand), pcr.scalar(0)) for s in available.keys()}
+
+    # nothing to allocate if there is no unmet demand
+    mask = unmet > demand_tolerance
+    n_unmet = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
+    if n_unmet == 0:
+        message = "All demand is initially met."
+        return unmet, untapped, allocated, message
+
+    # zonal untapped supply per source; it is computed once and then reduced by the
+    # withdrawn fraction, as every cell in a zone loses the same fraction; without
+    # zones, every cell is its own zone
     if zones is not None:
         zonal_untapped = {
             s: pcr.areatotal(
@@ -99,18 +122,11 @@ def allocate_demand_to_availability(
     else:
         zonal_untapped = {s: untapped[s] for s in untapped.keys()}
 
-    mask = unmet > demand_tolerance
-    n_unmet = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
     n_unmet_start = n_unmet
-
-    if n_unmet == 0:
-        message = "All demand is initially met."
-        return unmet, untapped, allocated, message
-
-    message = "allocation of demand to availability:"
     iteration = 1
     while iteration <= max_iterations:
 
+        # zonal unmet demand per source
         if zones is not None:
             zonal_unmet = {
                 s: pcr.areatotal(
@@ -141,7 +157,8 @@ def allocate_demand_to_availability(
         }
 
         # Source share:
-        # The source allocation as the proportion of the total allocation
+        # The potential allocation of a source as a proportion of the total potential
+        # allocation over all sources
         potential_allocation_total = sum(list(potential_allocation.values()))
         source_share = {
             s: pcr_return_val_div_zero(
@@ -162,6 +179,7 @@ def allocate_demand_to_availability(
             for s in potential_allocation.keys()
         }
 
+        # zonal allocation per source
         if zones is not None:
             zonal_allocation = {
                 s: pcr.areatotal(
@@ -174,7 +192,8 @@ def allocate_demand_to_availability(
             zonal_allocation = {s: allocation[s] for s in allocation.keys()}
 
         # Withdrawal fraction:
-        # Proportion of the (local and zonal) availability
+        # The zonal allocation as a proportion of the zonal untapped supply; every cell
+        # in the zone loses this fraction of its untapped supply
         withdrawal_fraction = {
             s: pcr_return_val_div_zero(
                     zonal_allocation[s],
@@ -185,107 +204,107 @@ def allocate_demand_to_availability(
         }
         withdrawal_fraction = {s: pcr.min(withdrawal_fraction[s], 1) for s in withdrawal_fraction.keys()}
 
-        # Register
+        # Update the unmet demand, the (zonal) untapped supply and the allocated demand
         unmet = pcr.max(unmet - sum(list(allocation.values())), 0)
         untapped = {s: pcr.max(untapped[s] * (1 - withdrawal_fraction[s]), 0) for s in untapped.keys()}
         zonal_untapped = {s: pcr.max(zonal_untapped[s] * (1 - withdrawal_fraction[s]), 0) for s in zonal_untapped.keys()}
         allocated = {s: allocated[s] + allocation[s] for s in allocated.keys()}
 
-        # Exit conditions
+        # Exit conditions: the number of cells with unmet demand, and of those that
+        # also have untapped supply left
         mask = unmet > demand_tolerance
         n_unmet_current = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
         mask = mask & (sum(list(untapped.values())) > available_tolerance)
         n_available = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
 
         # Reporting
-        message_iteration = "allocation iteration %d\n" % iteration
-        message_iteration += "cells with unmet demand: %6d / %6d in total\n" % (n_unmet_current, n_unmet_start)
         if verbose:
+            message_iteration = "allocation iteration %d\n" % iteration
+            message_iteration += "cells with unmet demand: %6d / %6d in total\n" % (n_unmet_current, n_unmet_start)
             print(message_iteration)
-        message = str.join(
-            "\n", (message, message_iteration)
-        )
 
-        # Skip the loop if there is no more unmet demand
+        # Stop if there is no more unmet demand
         if n_unmet_current == 0:
             break
-        # Skip the loop if there is no more availability
+        # Stop if no cell with unmet demand has untapped supply left
         if not n_available:
             break
-        # Skip the loop if there is not progress
+        # Stop if the number of cells with unmet demand no longer decreases
         if n_unmet_current >= n_unmet:
             break
 
         n_unmet = n_unmet_current
         iteration = iteration + 1
 
-    met = demand_initial - unmet
-    withdrawn = {s: available_initial[s] - untapped[s] for s in untapped.keys()}
+    message = "allocation of demand to availability"
 
-    # add the final information to the message string
-    demand_stats = pcr_get_statistics(demand_initial)
-    met_stats = pcr_get_statistics(met)
-    unmet_stats = pcr_get_statistics(unmet)
-    available_stats = pcr_get_statistics(sum(list(available_initial.values())))
-    withdrawn_stats = pcr_get_statistics(sum(list(withdrawn.values())))
-    untapped_stats = pcr_get_statistics(sum(list(untapped.values())))
+    if summarize:
+        met = demand_initial - unmet
+        withdrawn = {s: available_initial[s] - untapped[s] for s in untapped.keys()}
 
-    message = str.join(
-        "\n",
-        (
-            message,
-            "statistics:",
-            "=" * len("statistics:"),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "initial demand",
-                demand_stats["count"],
-                demand_stats["average"],
-                demand_stats["min"],
-                demand_stats["max"],
+        demand_stats = pcr_get_statistics(demand_initial)
+        met_stats = pcr_get_statistics(met)
+        unmet_stats = pcr_get_statistics(unmet)
+        available_stats = pcr_get_statistics(sum(list(available_initial.values())))
+        withdrawn_stats = pcr_get_statistics(sum(list(withdrawn.values())))
+        untapped_stats = pcr_get_statistics(sum(list(untapped.values())))
+
+        message = str.join(
+            "\n",
+            (
+                message,
+                "statistics:",
+                "=" * len("statistics:"),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "initial demand",
+                    demand_stats["count"],
+                    demand_stats["average"],
+                    demand_stats["min"],
+                    demand_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "met demand",
+                    met_stats["count"],
+                    met_stats["average"],
+                    met_stats["min"],
+                    met_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "unmet demand",
+                    unmet_stats["count"],
+                    unmet_stats["average"],
+                    unmet_stats["min"],
+                    unmet_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "initial available",
+                    available_stats["count"],
+                    available_stats["average"],
+                    available_stats["min"],
+                    available_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "withdrawn available",
+                    withdrawn_stats["count"],
+                    withdrawn_stats["average"],
+                    withdrawn_stats["min"],
+                    withdrawn_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "untapped available",
+                    untapped_stats["count"],
+                    untapped_stats["average"],
+                    untapped_stats["min"],
+                    untapped_stats["max"],
+                ),
             ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "met demand",
-                met_stats["count"],
-                met_stats["average"],
-                met_stats["min"],
-                met_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "unmet demand",
-                unmet_stats["count"],
-                unmet_stats["average"],
-                unmet_stats["min"],
-                unmet_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "initial available",
-                available_stats["count"],
-                available_stats["average"],
-                available_stats["min"],
-                available_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "withdrawn available",
-                withdrawn_stats["count"],
-                withdrawn_stats["average"],
-                withdrawn_stats["min"],
-                withdrawn_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "untapped available",
-                untapped_stats["count"],
-                untapped_stats["average"],
-                untapped_stats["min"],
-                untapped_stats["max"],
-            ),
-        ),
-    )
+        )
 
     return unmet, untapped, allocated, message
 
@@ -297,6 +316,7 @@ def allocate_demand_to_availability_with_options(
     use_local_first: pcr.Field,
     use_allocation_zone: bool = True,
     reallocate_surplus: bool = True,
+    summarize: bool = False,
 ) -> tuple[pcr.Field, dict[str, pcr.Field], dict[str, pcr.Field], str]:
     """
     Allocates the demand to the available supply of one or more sources in up to
@@ -318,7 +338,8 @@ def allocate_demand_to_availability_with_options(
     zones (dict[str, pcr.Field]):   nominal allocation zones per source;
     use_local_first (pcr.Field):    boolean; cells that use their own supply first;
     use_allocation_zone (bool):     apply step 2;
-    reallocate_surplus (bool):      apply step 3.
+    reallocate_surplus (bool):      apply step 3;
+    summarize (bool):               add statistics to the message.
 
     Output:
     =======
@@ -336,7 +357,8 @@ def allocate_demand_to_availability_with_options(
     
     message = "allocation of demand to availability with options:"
 
-    # local allocation (if used)
+    # local allocation (if used): every cell is its own zone; cells outside
+    # use_local_first get no demand or supply in this step
     use_local = pcr.cellvalue(pcr.maptotal(pcr.scalar(use_local_first)), 1)[0] > 0
     if use_local:
         message = str.join(
@@ -350,18 +372,20 @@ def allocate_demand_to_availability_with_options(
             opt_unmet,
             opt_untapped,
             opt_allocated,
-            sub_message_str,
+            opt_message,
         ) = allocate_demand_to_availability(
             demand=unmet_local,
             available=untapped_local,
             zones=None,
+            summarize=summarize,
         )
 
-        # update the met demand, withdrawal, allocated demand and untapped supply per source
+        # update the unmet demand, untapped supply and allocated demand; cells outside
+        # use_local_first keep their values
         unmet = pcr.ifthenelse(use_local_first, opt_unmet, unmet)
         untapped = {s: pcr.ifthenelse(use_local_first, opt_untapped[s], untapped[s]) for s in untapped.keys()}
         allocated = {s: allocated[s] + opt_allocated[s] for s in allocated.keys()}
-        message = str.join("\n", (message, sub_message_str))
+        message = str.join("\n", (message, opt_message))
 
     # zonal allocation (if used) with the provided zones
     if use_allocation_zone:
@@ -378,18 +402,19 @@ def allocate_demand_to_availability_with_options(
             opt_unmet,
             opt_untapped,
             opt_allocated,
-            sub_message_str,
+            opt_message,
         ) = allocate_demand_to_availability(
             demand=unmet,
             available=untapped,
             zones=zones,
+            summarize=summarize,
         )
 
-        # update the met demand, withdrawal, allocated demand and untapped supply per source
+        # update the unmet demand, untapped supply and allocated demand
         unmet = opt_unmet
         untapped = {s: opt_untapped[s] for s in opt_untapped.keys()}
         allocated = {s: allocated[s] + opt_allocated[s] for s in allocated.keys()}
-        message = str.join("\n", (message, sub_message_str))
+        message = str.join("\n", (message, opt_message))
 
     # reallocate any surplus (if used)
     if reallocate_surplus and len(available) > 1:
@@ -402,16 +427,19 @@ def allocate_demand_to_availability_with_options(
             ),
         )
 
-        # free up supply iteratively:
+        # free up supply per source:
         # 0: initialize the deficit as the unmet demand; it is reduced by the freed supply
         # then, per source:
-        # 1: determine the zonal deficit for the current allocation zone
-        # 2: get the (zonal) surplus from the supply needed to satisfy the deficit
-        # 3: before limiting the surplus, determine the ratio to assess the relative
-        #    contribution of the other sources
-        # 4: determine the ratio of the deficit over the surplus to free
-        # 5: move water from the other sources to the allocated supply, freeing it from the
-        #    allocated supply of the present source
+        # 1: determine the zonal deficit over the zones of the source
+        # 2: determine the surplus, i.e. the untapped supply of the other sources in the
+        #    same cell, and the share of each other source in it
+        # 3: limit the surplus to the demand allocated to this source and determine the
+        #    fraction of the zonal surplus needed to cover the zonal deficit
+        # 4: move allocated demand from this source to the other sources, which take it
+        #    from their untapped supply in the same cell
+        # 5: return the freed supply to the cells it was withdrawn from
+        # finally, allocate the unmet demand again over the zones, now with the freed
+        # supply
 
         deficit = unmet
 
@@ -430,7 +458,7 @@ def allocate_demand_to_availability_with_options(
             )
 
             # Source share:
-            # The source surplus as the proportion of the total surplus
+            # The untapped supply of each other source as a proportion of the surplus
             surplus = sum([untapped[s] for s in other_sources])
             source_share = {
                 s: pcr_return_val_div_zero(
@@ -446,7 +474,8 @@ def allocate_demand_to_availability_with_options(
                 zones[source],
             )
 
-            # free up supply; nothing can be freed without surplus
+            # fraction of the zonal surplus to free: enough to cover the zonal deficit,
+            # at most all of it; nothing can be freed without surplus
             allocation_ratio = pcr.min(
                 pcr_return_val_div_zero(
                     zonal_deficit,
@@ -456,7 +485,8 @@ def allocate_demand_to_availability_with_options(
                 1,
             )
 
-            # supply that can be freed (total per zone)
+            # free the supply per other source; total_supply_freed is the zonal total
+            # and withdrawn_source the withdrawal of this source before freeing
             total_supply_freed = pcr.scalar(0)
             withdrawn_source = available_initial[source] - untapped[source]
             for other_source in other_sources:
@@ -513,423 +543,257 @@ def allocate_demand_to_availability_with_options(
             opt_unmet,
             opt_untapped,
             opt_allocated,
-            sub_message_str,
+            opt_message,
         ) = allocate_demand_to_availability(
             demand=unmet,
             available=untapped,
             zones=zones,
+            summarize=summarize,
         )
-        # update the met demand, withdrawal, allocated demand and untapped supply per source
+
+        # update the unmet demand, untapped supply and allocated demand
         unmet = opt_unmet
         untapped = {s: opt_untapped[s] for s in opt_untapped.keys()}
         allocated = {s: allocated[s] + opt_allocated[s] for s in allocated.keys()}
-        message = str.join("\n", (message, sub_message_str))
+        message = str.join("\n", (message, opt_message))
 
-    # add the overall statistics
-    message = str.join(
-        "\n",
-        (
-            message,
-            "",
-            "* overall allocation of the available supply resources over the provided zones:",
-        ),
-    )
-
-    met = demand_initial - unmet
-    withdrawn = {s: available_initial[s] - untapped[s] for s in untapped.keys()}
-    
-    demand_stats = pcr_get_statistics(demand_initial)
-    met_stats = pcr_get_statistics(met)
-    unmet_stats = pcr_get_statistics(unmet)
-    available_stats = pcr_get_statistics(sum(list(available_initial.values())))
-    withdrawn_stats = pcr_get_statistics(sum(list(withdrawn.values())))
-    untapped_stats = pcr_get_statistics(sum(list(untapped.values())))
-
-    message = str.join(
-        "\n",
-        (
-            message,
-            "statistics:",
-            "=" * len("statistics:"),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "initial demand",
-                demand_stats["count"],
-                demand_stats["average"],
-                demand_stats["min"],
-                demand_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "met demand",
-                met_stats["count"],
-                met_stats["average"],
-                met_stats["min"],
-                met_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "unmet demand",
-                unmet_stats["count"],
-                unmet_stats["average"],
-                unmet_stats["min"],
-                unmet_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "initial available",
-                available_stats["count"],
-                available_stats["average"],
-                available_stats["min"],
-                available_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "withdrawn available",
-                withdrawn_stats["count"],
-                withdrawn_stats["average"],
-                withdrawn_stats["min"],
-                withdrawn_stats["max"],
-            ),
-            "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-            % (
-                "untapped available",
-                untapped_stats["count"],
-                untapped_stats["average"],
-                untapped_stats["min"],
-                untapped_stats["max"],
-            ),
-        ),
-    )
-
-    return unmet, untapped, allocated, message
-
-
-def allocate_demand_to_withdrawals(
-    withdrawal_names,
-    source_names,
-    sector_names,
-    demand_per_sector,
-    renewable_withdrawal_per_sector,
-    nonrenewable_withdrawal_per_sector,
-    zones_per_sector,
-    use_local_first,
-):
-    """
-    allocate_demand_to_withdrawals:
-                            function that allocates the supply to \
-                            the demand per sector.
-
-    input:
-    =====
-    withdrawal_names      : list with withdrawal names to be processed
-                            (i.e., renewable and non-renewable)
-    source_names          : list with source names to be processed
-                            (i.e., surfacewater and groundwater)
-    sector_names          : list with sector names to be processed
-    demand_per_sector     : dictionary with the sector names as keys and as
-                            values the corresponding sectoral demand as scalar
-    renewable_withdrawal_per_sector :
-                            dictionary with source names (string) as keys with
-                            another dictionary with sector names (string) as keys
-                            and PCRaster maps with actual water withdrawal from
-                            renewable sources
-    nonrenewable_withdrawal_per_sector :
-                            dictionary with source names (string) as keys with
-                            another dictionary with sector names (string) as keys
-                            and PCRaster maps with actual water withdrawal from
-                            non-renewable sources
-    zones_per_sector      : dictionary with source names (string) as keys with
-                            another dictionary with sector names (string) as keys
-                            and PCRaster maps with zones over which the demand and
-                            availability are totaled
-    use_local_first        : boolean PCRaster map that indicates if the local
-                            availability should be used first
-
-    output:
-    ======
-    allocated_supply_per_sector:
-                            supply, allocated to the different sectors, organ-
-                            ized as a dictionary with the combined key of sup-
-                            ply - source name as a composite key and a nested
-                            dictionary as value with the sector name as key and
-                            a scalar PCRaster field of the allocated supply per
-                            cell as value;
-    remaining_supply_per_source:
-                            a dictionary organized similarly as the input
-                            supply_per_source but now with any supply that is
-                            not allocated to meet the demand;
-    allocated_demand_per_sector:
-                            demand, allocated to the different sectors, organ-
-                            ized as a dictionary with the combined key of sup-
-                            ply - source name as a composite key and a nested
-                            dictionary as value with the sector name as key and
-                            a scalar PCRaster field of the allocated demand per
-                            cell as value; the supply is what is locally
-                            withdrawn, the demand is what is locally allocated
-                            to meet the demand and over the appropriate alloc-
-                            ation zone should balance;
-    met_demand_per_sector:  dictionary organzized as the input demand_per_sector
-                            with the sector names as keys and as values the
-                            demand per sector that is actually met;
-    message_str:            a message string that provides an overview of the
-                            allocation process, including the number of iter-
-                            ations and the allocated supply/demand.
-
-    The package requires all input to be compatible with spatial, scalar PCRaster
-    fields and the values of supply and demand to have the same value, being volume
-    over time per cell.
-    """
-
-    message_str = "allocation of demand to supply with water quality:"
-
-    # allocated withdrawal and demand per sector (grouped per withdrawal and source)
-    # and total met demand per sector
-    allocated_withdrawal_per_sector = {}
-    allocated_demand_per_sector = {}
-
-    for withdrawal_name in withdrawal_names:
-        for source_name in source_names:
-            key = get_key([withdrawal_name, source_name])
-            allocated_withdrawal_per_sector[key] = dict(
-                (
-                    sector_name,
-                    pcr.ifthen(demand_per_sector[sector_name] >= 0, pcr.scalar(0)),
-                )
-                for sector_name in sector_names
-            )
-
-            allocated_demand_per_sector[key] = dict(
-                (
-                    sector_name,
-                    pcr.ifthen(demand_per_sector[sector_name] >= 0, pcr.scalar(0)),
-                )
-                for sector_name in sector_names
-            )
-
-    met_demand_per_sector = dict(
-        (sector_name, pcr.ifthen(demand_per_sector[sector_name] >= 0, pcr.scalar(0)))
-        for sector_name in sector_names
-    )
-
-    # total remaining withdrawal and demand per source
-    remaining_withdrawal_per_source_sector = {
-        "renewable": deepcopy(renewable_withdrawal_per_sector),
-        "nonrenewable": deepcopy(nonrenewable_withdrawal_per_sector),
-    }
-
-    # allocate the withdrawn water to cells: first locally (single cell ids as zones),
-    # then with the actual allocation zones
-
-    use_local_first = pcr.spatial(use_local_first)
-    use_local_first_flag = (
-        pcr.cellvalue(pcr.mapmaximum(pcr.scalar(use_local_first)), 1)[0] == 1
-    )
-    local_zones = dict(
-        (
-            source_name,
-            dict(
-                (
-                    sector_name,
-                    pcr.ifthen(
-                        use_local_first, pcr.nominal(pcr.uniqueid(use_local_first))
-                    ),
-                )
-                for sector_name in sector_names
-            ),
-        )
-        for source_name in source_names
-    )
-
-    # local and zonal resources
-    for option_str, (option_flag, option_mask, option_zones) in {
-        "allocating local resources": (
-            use_local_first_flag,
-            use_local_first,
-            local_zones,
-        ),
-        "allocating zonal resources": (
-            True,
-            pcr.spatial(pcr.boolean(1)),
-            zones_per_sector,
-        ),
-    }.items():
-
-        if option_flag:
-            message_str = str.join("\n", (message_str, "", "* %s:" % option_str))
-
-            for withdrawal_name in withdrawal_names:
-                for source_name in source_names:
-
-                    message_str = str.join(
-                        "\n",
-                        (
-                            message_str,
-                            "- allocating demand to %s %s withdrawal"
-                            % (withdrawal_name, source_name),
-                        ),
-                    )
-
-                    actual_allocated_withdrawal = pcr.scalar(0)
-
-                    key = get_key([withdrawal_name, source_name])
-
-                    # allocate the withdrawals to the demand per sector
-                    for sector_name in sector_names:
-
-                        # total zonal withdrawal per sector
-                        total_zonal_withdrawal = get_zonal_total(
-                            local_values=remaining_withdrawal_per_source_sector[
-                                withdrawal_name
-                            ][source_name][sector_name],
-                            zones=option_zones[source_name][sector_name],
-                        )
-
-                        # allocated withdrawal per cell from the fractional total demand per sector and the
-                        # total zonal withdrawal; may exceed the demand if withdrawal is plentiful
-                        allocated_withdrawal = (
-                            total_zonal_withdrawal
-                            * get_zonal_fraction(
-                                local_values=pcr.max(
-                                    0,
-                                    demand_per_sector[sector_name]
-                                    - met_demand_per_sector[sector_name],
-                                ),
-                                zones=option_zones[source_name][sector_name],
-                            )
-                        )
-
-                        # withdrawal applied locally for the current sector, supply and source; added to
-                        # the allocated demand per sector below
-                        allocated_withdrawal_demand = pcr.min(
-                            allocated_withdrawal,
-                            pcr.max(
-                                0,
-                                demand_per_sector[sector_name]
-                                - met_demand_per_sector[sector_name],
-                            ),
-                        )
-
-                        # required supply: the allocated supply scaled by the ratio of the zonal totals of
-                        # allocated_withdrawal_demand and the total zonal supply; also updates the allocated
-                        # supply per section and actual_allocated_withdrawal
-                        required_allocated_withdrawal = (
-                            remaining_withdrawal_per_source_sector[withdrawal_name][
-                                source_name
-                            ][sector_name]
-                            * pcr.min(
-                                1.0,
-                                pcr_return_val_div_zero(
-                                    get_zonal_total(
-                                        local_values=allocated_withdrawal_demand,
-                                        zones=option_zones[source_name][sector_name],
-                                    ),
-                                    total_zonal_withdrawal,
-                                    very_small_number,
-                                ),
-                            )
-                        )
-
-                        # update the allocated demand and met demand per sector and the actual allocated withdrawal
-                        allocated_demand_per_sector[key][
-                            sector_name
-                        ] += allocated_withdrawal_demand
-
-                        met_demand_per_sector[
-                            sector_name
-                        ] += allocated_withdrawal_demand
-
-                        allocated_withdrawal_per_sector[key][
-                            sector_name
-                        ] += required_allocated_withdrawal
-
-                        actual_allocated_withdrawal += required_allocated_withdrawal
-
-                        remaining_withdrawal_per_source_sector[withdrawal_name][
-                            source_name
-                        ][sector_name] = pcr.max(
-                            0.0,
-                            remaining_withdrawal_per_source_sector[withdrawal_name][
-                                source_name
-                            ][sector_name]
-                            - required_allocated_withdrawal,
-                        )
-
-    # aggregate the results
-    remaining_withdrawal_per_source = {}
-    for withdrawal_name in withdrawal_names:
-        remaining_withdrawal_per_source[withdrawal_name] = {}
-        for source_name in source_names:
-            remaining_withdrawal_per_source[withdrawal_name][source_name] = sum_list(
-                list(
-                    remaining_withdrawal_per_source_sector[withdrawal_name][
-                        source_name
-                    ].values()
-                )
-            )
-
-    # add the overall statistics on withdrawal, remaining withdrawal, demand and met demand
-    message_str = str.join(
-        "\n",
-        (
-            message_str,
-            "",
-            "* overall allocation of the supply to meet demand over the provided zones:",
-        ),
-    )
-
-    # demand and allocation per sector
-    for sector_name in sector_names:
-
-        demand_stats = pcr_get_statistics(demand_per_sector[sector_name])
-        met_demand_stats = pcr_get_statistics(met_demand_per_sector[sector_name])
-
-        message_str = str.join(
+    if summarize:
+        message = str.join(
             "\n",
             (
-                message_str,
+                message,
                 "",
-                "=" * len("statistics - %s demand:" % sector_name),
-                "statistics - %s demand:" % sector_name,
-                "=" * len("statistics - %s demand:" % sector_name),
-                "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                "* overall allocation of the available supply resources over the provided zones:",
+            ),
+        )
+
+        met = demand_initial - unmet
+        withdrawn = {s: available_initial[s] - untapped[s] for s in untapped.keys()}
+
+        demand_stats = pcr_get_statistics(demand_initial)
+        met_stats = pcr_get_statistics(met)
+        unmet_stats = pcr_get_statistics(unmet)
+        available_stats = pcr_get_statistics(sum(list(available_initial.values())))
+        withdrawn_stats = pcr_get_statistics(sum(list(withdrawn.values())))
+        untapped_stats = pcr_get_statistics(sum(list(untapped.values())))
+
+        message = str.join(
+            "\n",
+            (
+                message,
+                "statistics:",
+                "=" * len("statistics:"),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
                 % (
-                    "demand",
+                    "initial demand",
                     demand_stats["count"],
                     demand_stats["average"],
                     demand_stats["min"],
                     demand_stats["max"],
                 ),
-                "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
                 % (
                     "met demand",
-                    met_demand_stats["count"],
-                    met_demand_stats["average"],
-                    met_demand_stats["min"],
-                    met_demand_stats["max"],
+                    met_stats["count"],
+                    met_stats["average"],
+                    met_stats["min"],
+                    met_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "unmet demand",
+                    unmet_stats["count"],
+                    unmet_stats["average"],
+                    unmet_stats["min"],
+                    unmet_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "initial available",
+                    available_stats["count"],
+                    available_stats["average"],
+                    available_stats["min"],
+                    available_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "withdrawn available",
+                    withdrawn_stats["count"],
+                    withdrawn_stats["average"],
+                    withdrawn_stats["min"],
+                    withdrawn_stats["max"],
+                ),
+                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                % (
+                    "untapped available",
+                    untapped_stats["count"],
+                    untapped_stats["average"],
+                    untapped_stats["min"],
+                    untapped_stats["max"],
                 ),
             ),
         )
 
-        for withdrawal_name in withdrawal_names:
-            for source_name in source_names:
-                key = get_key([withdrawal_name, source_name])
-                key_str = get_key([sector_name, "from", key])
+    return unmet, untapped, allocated, message
 
-                withdrawal_stats = pcr_get_statistics(
-                    allocated_withdrawal_per_sector[key][sector_name]
-                )
-                demand_stats = pcr_get_statistics(
-                    allocated_demand_per_sector[key][sector_name]
-                )
 
-                message_str = str.join(
+def allocate_withdrawals_to_demand(
+    demand: dict[str, pcr.Field],
+    withdrawal: dict[str, dict[str, pcr.Field]],
+    zones: dict[str, dict[str, pcr.Field]] | None,
+    summarize: bool = False,
+) -> tuple[
+    dict[str, pcr.Field],
+    dict[str, dict[str, pcr.Field]],
+    dict[str, dict[str, pcr.Field]],
+    str,
+]:
+    """
+    Allocates the withdrawn water to the demand per sector.
+
+    Each source's withdrawal for a sector is allocated to the unmet demand of that
+    sector in a single pass, one source at a time in the order of withdrawal, which
+    sets the priority: a cell claims a share of the zone's unused withdrawal equal
+    to its share of the zone's unmet demand, limited to its unmet demand. What a
+    zone allocates is taken from its cells in proportion to their unused withdrawal.
+
+    Input:
+    ======
+    demand (dict[str, pcr.Field]):  scalar demand per sector; negatives count as 0;
+    withdrawal (dict[str, dict[str, pcr.Field]]):
+                                    scalar withdrawal per source per sector;
+                                    negatives count as 0;
+    zones (dict[str, dict[str, pcr.Field]] | None):
+                                    nominal allocation zones per source per sector;
+                                    if None, every cell is its own zone;
+    summarize (bool):               add statistics to the message.
+
+    Output:
+    =======
+    unmet (dict[str, pcr.Field]):   unmet demand per sector;
+                                    met = max(demand, 0) - unmet;
+    unused (dict[str, dict[str, pcr.Field]]):
+                                    unused withdrawal per source per sector;
+                                    used = max(withdrawal, 0) - unused;
+    allocated (dict[str, dict[str, pcr.Field]]):
+                                    demand allocated per source per sector;
+    message (str):                  log of the allocation, with statistics if
+                                    summarize.
+    """
+
+    demand = {se: pcr.max(demand[se], 0) for se in demand.keys()}
+    withdrawal = {so: {se: pcr.max(withdrawal[so][se], 0) for se in withdrawal[so]} for so in withdrawal.keys()}
+    demand_initial = dict(demand)
+    withdrawal_initial = {so: dict(withdrawal[so]) for so in withdrawal.keys()}
+
+    unmet = dict(demand)
+    unused = {so: dict(withdrawal[so])for so in withdrawal.keys()}
+    allocated = {so: {se: pcr.ifthen(pcr.defined(demand[se]), pcr.scalar(0)) for se in withdrawal[so]} for so in withdrawal.keys()}
+
+    # one pass per source and sector: with a single source, the allocation is exact
+    # after one pass; the order of the sources sets the priority
+    for source in withdrawal:
+        for sector in demand:
+
+            # skip sources without withdrawal for this sector, e.g. non-renewable
+            # surface water
+            if pcr.cellvalue(pcr.maptotal(unused[source][sector]), 1)[0] == 0:
+                continue
+
+            # zonal totals; without zones, every cell is its own zone
+            if zones is not None:
+                zonal_unused = pcr.areatotal(unused[source][sector], zones[source][sector])
+                zonal_unmet = pcr.areatotal(unmet[sector], zones[source][sector])
+            else:
+                zonal_unused = unused[source][sector]
+                zonal_unmet = unmet[sector]
+
+            # Demand share:
+            # The local demand as a proportion of the zonal demand
+            demand_share = pcr_return_val_div_zero(unmet[sector], zonal_unmet, very_small_number)
+
+            # Potential allocation:
+            # The demand share of the zonal withdrawal
+            potential_allocation = demand_share * zonal_unused
+
+            # Allocation:
+            # Minimum of the potential allocation and the unmet demand
+            allocation = pcr.min(potential_allocation, unmet[sector])
+
+            if zones is not None:
+                zonal_allocation = pcr.areatotal(allocation, zones[source][sector])
+            else:
+                zonal_allocation = allocation
+
+            # Withdrawal fraction:
+            # The zonal allocation as a proportion of the zonal unused withdrawal; every
+            # cell in the zone loses this fraction of its unused withdrawal
+            withdrawal_fraction = pcr_return_val_div_zero(zonal_allocation, zonal_unused, very_small_number)
+            withdrawal_fraction = pcr.min(withdrawal_fraction, 1)
+
+            # update the unmet demand, unused withdrawal and allocated demand
+            unmet[sector] = pcr.max(unmet[sector] - allocation, 0)
+            unused[source][sector] = pcr.max(unused[source][sector] * (1 - withdrawal_fraction), 0)
+            allocated[source][sector] = allocated[source][sector] + allocation
+
+    message = "allocation of withdrawals to demand"
+
+    if summarize:
+        met = {se: demand_initial[se] - unmet[se] for se in demand_initial.keys()}
+        used = {so: {se: withdrawal_initial[so][se] - unused[so][se] for se in withdrawal_initial[so].keys()} for so in withdrawal_initial.keys()}
+
+        for sector in unmet.keys():
+            demand_stats = pcr_get_statistics(demand_initial[sector])
+            met_stats = pcr_get_statistics(met[sector])
+            unmet_stats = pcr_get_statistics(unmet[sector])
+            
+            message = str.join(
+                "\n",
+                (
+                    message,
+                    "",
+                    "=" * len("statistics - %s demand:" % sector),
+                    "statistics - %s demand:" % sector,
+                    "=" * len("statistics - %s demand:" % sector),
+                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                    % (
+                        "initial demand",
+                        demand_stats["count"],
+                        demand_stats["average"],
+                        demand_stats["min"],
+                        demand_stats["max"],
+                    ),
+                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                    % (
+                        "met demand",
+                        met_stats["count"],
+                        met_stats["average"],
+                        met_stats["min"],
+                        met_stats["max"],
+                    ),
+                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                    % (
+                        "unmet demand",
+                        unmet_stats["count"],
+                        unmet_stats["average"],
+                        unmet_stats["min"],
+                        unmet_stats["max"],
+                    ),
+                )
+            )
+
+            for source in unused.keys():
+                withdrawal_stats = pcr_get_statistics(withdrawal_initial[source][sector])
+                used_stats = pcr_get_statistics(used[source][sector])
+                unused_stats = pcr_get_statistics(unused[source][sector])
+                
+                message = str.join(
                     "\n",
                     (
-                        message_str,
+                        message,
                         "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
                         % (
-                            "%s - %s" % ("supply", key_str),
+                            "%s - %s" % ("initial withdrawal", source),
                             withdrawal_stats["count"],
                             withdrawal_stats["average"],
                             withdrawal_stats["min"],
@@ -937,75 +801,227 @@ def allocate_demand_to_withdrawals(
                         ),
                         "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
                         % (
-                            "%s - %s" % ("demand", key_str),
-                            demand_stats["count"],
-                            demand_stats["average"],
-                            demand_stats["min"],
-                            demand_stats["max"],
+                            "%s - %s" % ("used withdrawal", source),
+                            used_stats["count"],
+                            used_stats["average"],
+                            used_stats["min"],
+                            used_stats["max"],
+                        ),
+                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                        % (
+                            "%s - %s" % ("unused withdrawal", source),
+                            unused_stats["count"],
+                            unused_stats["average"],
+                            unused_stats["min"],
+                            unused_stats["max"],
                         ),
                     ),
                 )
 
-    # overall supply
-    message_str = str.join(
+    return unmet, unused, allocated, message
+
+
+def allocate_withdrawals_to_demand_with_options(
+    demand: dict[str, pcr.Field],
+    renewable: dict[str, dict[str, pcr.Field]],
+    nonrenewable: dict[str, dict[str, pcr.Field]],
+    zones: dict[str, dict[str, pcr.Field]],
+    use_local_first: pcr.Field,
+    summarize: bool = False,
+) -> tuple[
+    dict[str, pcr.Field],
+    dict[str, dict[str, dict[str, pcr.Field]]],
+    dict[str, dict[str, dict[str, pcr.Field]]],
+    str,
+]:
+    """
+    Allocates the renewable and non-renewable withdrawals to the demand per sector
+    in up to two steps with allocate_withdrawals_to_demand, each for the renewable
+    withdrawals first and then for the non-renewable ones:
+
+    1. local (use_local_first): cells first use their own withdrawal;
+    2. zonal: the unmet demand is allocated over the zones.
+
+    Input:
+    ======
+    demand (dict[str, pcr.Field]):  scalar demand per sector; negatives count as 0;
+    renewable (dict[str, dict[str, pcr.Field]]):
+                                    renewable withdrawal per source per sector;
+                                    negatives count as 0;
+    nonrenewable (dict[str, dict[str, pcr.Field]]):
+                                    non-renewable withdrawal per source per sector;
+                                    negatives count as 0;
+    zones (dict[str, dict[str, pcr.Field]]):
+                                    nominal allocation zones per source per sector;
+    use_local_first (pcr.Field):    boolean; cells that use their own withdrawal
+                                    first;
+    summarize (bool):               add statistics to the message.
+
+    Output:
+    =======
+    unmet (dict[str, pcr.Field]):   unmet demand per sector;
+                                    met = max(demand, 0) - unmet;
+    unused (dict[str, dict[str, dict[str, pcr.Field]]]):
+                                    unused withdrawal per withdrawal type
+                                    ("renewable", "nonrenewable"), source and sector;
+    allocated (dict[str, dict[str, dict[str, pcr.Field]]]):
+                                    demand allocated per withdrawal type, source
+                                    and sector;
+    message (str):                  log of the steps, with statistics if summarize.
+    """
+
+    demand = {se: pcr.max(demand[se], 0) for se in demand.keys()}
+    renewable ={so: {se: pcr.max(renewable[so][se], 0) for se in renewable[so]} for so in renewable.keys()}
+    nonrenewable = {so: {se: pcr.max(nonrenewable[so][se], 0) for se in nonrenewable[so]} for so in nonrenewable.keys()}
+    withdrawal_initial = {
+        "renewable": {so: dict(renewable[so]) for so in renewable.keys()},
+        "nonrenewable": {so: dict(nonrenewable[so]) for so in nonrenewable.keys()}
+    }
+
+    unmet = dict(demand)
+    unused = {"renewable": {so: dict(renewable[so]) for so in renewable.keys()},
+              "nonrenewable": {so: dict(nonrenewable[so]) for so in nonrenewable.keys()}
+    }
+    allocated = {"renewable": {so: {se: pcr.scalar(0) for se in renewable[so]} for so in renewable.keys()},
+                 "nonrenewable": {so: {se: pcr.scalar(0) for se in nonrenewable[so]} for so in nonrenewable.keys()}
+    }
+
+    message = "allocation of demand to supply with water quality:"
+
+    # local allocation (if used): every cell is its own zone; cells outside
+    # use_local_first get no demand or withdrawal in this step
+    use_local = pcr.cellvalue(pcr.maptotal(pcr.scalar(use_local_first)), 1)[0] > 0
+    if use_local:
+        message = str.join(
+            "\n",
+            (
+                message,
+                "",
+                "allocating local withdrawals",
+            ),
+        )
+
+        # renewable before non-renewable withdrawals
+        for kind in unused.keys():
+
+            message = str.join(
+                "\n",
+                (
+                    message,
+                    "- allocating demand to %s withdrawal" % kind
+                ),
+            )
+
+            unmet_local = {se: pcr.ifthenelse(use_local_first, unmet[se], 0) for se in unmet.keys()}
+            unused_local = {so: {se: pcr.ifthenelse(use_local_first, unused[kind][so][se], 0) for se in unused[kind][so]} for so in unused[kind].keys()}
+
+            (
+                opt_unmet,
+                opt_unused,
+                opt_allocated,
+                opt_message,
+            ) = allocate_withdrawals_to_demand(
+                demand=unmet_local,
+                withdrawal=unused_local,
+                zones=None,
+                summarize=summarize,
+            )
+
+            # update the unmet demand, unused withdrawal and allocated demand; cells
+            # outside use_local_first keep their values
+            unmet = {se: pcr.ifthenelse(use_local_first, opt_unmet[se], unmet[se]) for se in unmet.keys()}
+            unused[kind] ={so: {se: pcr.ifthenelse(use_local_first, opt_unused[so][se], unused[kind][so][se]) for se in opt_unused[so]} for so in opt_unused.keys()}
+            allocated[kind] = {so: {se: allocated[kind][so][se] + opt_allocated[so][se] for se in opt_allocated[so]} for so in opt_allocated.keys()}
+            message = str.join("\n", (message, opt_message))
+
+    # zonal allocation, renewable before non-renewable withdrawals
+    message = str.join(
         "\n",
         (
-            message_str,
+            message,
             "",
-            "=" * len("statistics - supply"),
-            "statistics - supply",
-            "=" * len("statistics - supply"),
+            "allocating zonal withdrawals",
         ),
     )
 
-    for withdrawal_name in withdrawal_names:
-        for source_name in source_names:
-            for sector_name in sector_names:
-                withdrawal_per_source = {
-                    "renewable": renewable_withdrawal_per_sector,
-                    "nonrenewable": nonrenewable_withdrawal_per_sector,
-                }
-                total_withdrawal_stats = pcr_get_statistics(
-                    withdrawal_per_source[withdrawal_name][source_name][sector_name]
-                )
-                remaining_withdrawal_stats = pcr_get_statistics(
-                    remaining_withdrawal_per_source_sector[withdrawal_name][
-                        source_name
-                    ][sector_name]
-                )
+    for kind in unused.keys():
+            
+        message = str.join(
+            "\n",
+            (
+                message,
+                "- allocating demand to %s withdrawal" % kind
+            ),
+        )
 
-                message_str = str.join(
-                    "\n",
-                    (
-                        message_str,
-                        "",
-                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                        % (
-                            "total supply %s - %s - %s"
-                            % (withdrawal_name, source_name, sector_name),
-                            total_withdrawal_stats["count"],
-                            total_withdrawal_stats["average"],
-                            total_withdrawal_stats["min"],
-                            total_withdrawal_stats["max"],
+        (
+            opt_unmet,
+            opt_unused,
+            opt_allocated,
+            opt_message,
+        ) = allocate_withdrawals_to_demand(
+            demand=unmet,
+            withdrawal=unused[kind],
+            zones=zones,
+            summarize=summarize,
+        )
+
+        # update the unmet demand, unused withdrawal and allocated demand
+        unmet = {se: opt_unmet[se] for se in opt_unmet.keys()}
+        unused[kind] = {so: {se: opt_unused[so][se] for se in opt_unused[so]} for so in opt_unused.keys()}
+        allocated[kind] = {so: {se: allocated[kind][so][se] + opt_allocated[so][se] for se in opt_allocated[so]} for so in opt_allocated.keys()}
+        message = str.join("\n", (message, opt_message))
+
+    if summarize:
+        message = str.join(
+            "\n",
+            (
+                message,
+                "",
+                "=" * len("statistics - supply"),
+                "statistics - supply",
+                "=" * len("statistics - supply"),
+            ),
+        )
+
+        used = {k: {so: {se: withdrawal_initial[k][so][se] - unused[k][so][se] for se in unused[k][so].keys()} for so in unused[k].keys()} for k in unused.keys()}
+
+        for kind in unused.keys():
+            for source in unused[kind].keys():
+                for sector in unused[kind][source].keys():
+                    withdrawal_stats = pcr_get_statistics(withdrawal_initial[kind][source][sector])
+                    used_stats = pcr_get_statistics(used[kind][source][sector])
+                    unused_stats = pcr_get_statistics(unused[kind][source][sector])
+                    
+                    message = str.join(
+                        "\n",
+                        (
+                            message,
+                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                            % (
+                                "%s - %s - %s - %s" % ("initial withdrawal", kind, source, sector),
+                                withdrawal_stats["count"],
+                                withdrawal_stats["average"],
+                                withdrawal_stats["min"],
+                                withdrawal_stats["max"],
+                            ),
+                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                            % (
+                                "%s - %s - %s - %s" % ("used withdrawal", kind, source, sector),
+                                used_stats["count"],
+                                used_stats["average"],
+                                used_stats["min"],
+                                used_stats["max"],
+                            ),
+                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
+                            % (
+                                "%s - %s - %s - %s" % ("unused withdrawal", kind, source, sector),
+                                unused_stats["count"],
+                                unused_stats["average"],
+                                unused_stats["min"],
+                                unused_stats["max"],
+                            ),
                         ),
-                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                        % (
-                            "remaining supply %s - %s - %s"
-                            % (withdrawal_name, source_name, sector_name),
-                            remaining_withdrawal_stats["count"],
-                            remaining_withdrawal_stats["average"],
-                            remaining_withdrawal_stats["min"],
-                            remaining_withdrawal_stats["max"],
-                        ),
-                    ),
-                )
+                    )
 
-    message_str = str.join("\n", (message_str, ""))
-
-    return (
-        allocated_withdrawal_per_sector,
-        remaining_withdrawal_per_source,
-        allocated_demand_per_sector,
-        met_demand_per_sector,
-        message_str,
-    )
+    return unmet, unused, allocated, message
