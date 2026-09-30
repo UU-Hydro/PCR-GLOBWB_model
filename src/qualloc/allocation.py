@@ -39,6 +39,111 @@ def group_sources_by_zones(
     return {"_".join(members): members for members in groups.values()}
 
 
+def combine_sources(
+    available: dict[str, pcr.Field],
+    zones: dict[str, pcr.Field] | None,
+    groups: dict[str, list[str]],
+) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field] | None]:
+    """
+    Combines the sources of each group into one source: their supply is summed and
+    their shared zone map is kept.
+
+    Input:
+    ======
+    available (dict[str, pcr.Field]):
+                                    scalar supply per cell per source;
+    zones (dict[str, pcr.Field] | None):
+                                    nominal allocation zones per source;
+    groups (dict[str, list[str]]):  sources per group.
+
+    Output:
+    =======
+    group_available (dict[str, pcr.Field]):
+                                    summed supply per group;
+    group_zones (dict[str, pcr.Field] | None):
+                                    zone map per group; None if zones is None.
+    """
+
+    group_available = {
+        g: sum(available[s] for s in members) for g, members in groups.items()
+    }
+    if zones is None:
+        return group_available, None
+
+    group_zones = {g: zones[members[0]] for g, members in groups.items()}
+    return group_available, group_zones
+
+
+def split_sources(
+    available: dict[str, pcr.Field],
+    zones: dict[str, pcr.Field] | None,
+    groups: dict[str, list[str]],
+    group_untapped: dict[str, pcr.Field],
+    group_allocated: dict[str, pcr.Field],
+) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field]]:
+    """
+    Splits the untapped supply and allocated demand of each group back over its
+    sources. All sources in a group lose the same fraction of their supply in every
+    iteration, so each keeps the group's untapped fraction and gets the group's
+    allocation in proportion to its share of the zonal supply.
+
+    Input:
+    ======
+    available (dict[str, pcr.Field]):
+                                    scalar supply per cell per source;
+    zones (dict[str, pcr.Field] | None):
+                                    nominal allocation zones per source;
+    groups (dict[str, list[str]]):  sources per group;
+    group_untapped (dict[str, pcr.Field]):
+                                    untapped supply per group;
+    group_allocated (dict[str, pcr.Field]):
+                                    demand allocated per group.
+
+    Output:
+    =======
+    untapped (dict[str, pcr.Field]):
+                                    untapped supply per source;
+    allocated (dict[str, pcr.Field]):
+                                    demand allocated per source.
+    """
+
+    untapped = {}
+    allocated = {}
+    for g, members in groups.items():
+
+        # a single source is its own group
+        if len(members) == 1:
+            untapped[members[0]] = group_untapped[g]
+            allocated[members[0]] = group_allocated[g]
+            continue
+
+        # untapped supply: the group's untapped fraction of each source's supply
+        group_available = sum(available[s] for s in members)
+        untapped_fraction = pcr_return_val_div_zero(
+            group_untapped[g], group_available, very_small_number
+        )
+
+        # allocated demand: in proportion to each source's share of the zonal supply;
+        # without zones, every cell is its own zone
+        if zones is not None:
+            zonal_available = {s: pcr.areatotal(available[s], zones[s]) for s in members}
+        else:
+            zonal_available = {s: available[s] for s in members}
+        zonal_available_total = sum(list(zonal_available.values()))
+
+        for s in members:
+            untapped[s] = available[s] * untapped_fraction
+            allocated[s] = group_allocated[g] * pcr_return_val_div_zero(
+                zonal_available[s], zonal_available_total, very_small_number
+            )
+
+    # in the original order of the sources
+    untapped = {s: untapped[s] for s in available.keys()}
+    allocated = {s: allocated[s] for s in available.keys()}
+
+    return untapped, allocated
+
+
 def obtain_allocation_ratio(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
@@ -181,6 +286,59 @@ def allocate_demand_to_availability(
 
     demand = pcr.max(demand, 0)
     available = {s: pcr.max(available[s], 0) for s in available.keys()}
+
+    # allocate the sources as they are if none share a zone map, or if there is no
+    # demand (splitting the groups back would only cost zonal totals)
+    groups = group_sources_by_zones(zones, list(available.keys()))
+    has_demand = pcr.cellvalue(pcr.maptotal(pcr.scalar(demand > 0)), 1)[0] > 0
+    if len(groups) == len(available) or not has_demand:
+        return _allocate_demand_to_availability(
+            demand=demand,
+            available=available,
+            zones=zones,
+            max_iterations=max_iterations,
+            relative_tolerance=relative_tolerance,
+            summarize=summarize,
+            verbose=verbose,
+        )
+
+    # otherwise, allocate the combined sources and split the result back per source
+    group_available, group_zones = combine_sources(available, zones, groups)
+
+    unmet, group_untapped, group_allocated, message = _allocate_demand_to_availability(
+        demand=demand,
+        available=group_available,
+        zones=group_zones,
+        max_iterations=max_iterations,
+        relative_tolerance=relative_tolerance,
+        summarize=summarize,
+        verbose=verbose,
+    )
+
+    untapped, allocated = split_sources(
+        available, zones, groups, group_untapped, group_allocated
+    )
+
+    return unmet, untapped, allocated, message
+
+
+def _allocate_demand_to_availability(
+    demand: pcr.Field,
+    available: dict[str, pcr.Field],
+    zones: dict[str, pcr.Field] | None,
+    max_iterations: int = 100,
+    relative_tolerance: float = 1e-6,
+    summarize: bool = False,
+    verbose: bool = False,
+) -> tuple[pcr.Field, dict[str, pcr.Field], dict[str, pcr.Field], str]:
+    """
+    Allocates the demand to the available supply of each source as given, without
+    combining sources that share a zone map; see allocate_demand_to_availability
+    for the method, input and output.
+    """
+
+    demand = pcr.max(demand, 0)
+    available = {s: pcr.max(available[s], 0) for s in available.keys()}
     demand_initial = demand
     available_initial = dict(available)
 
@@ -220,61 +378,6 @@ def allocate_demand_to_availability(
     n_available = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
     if n_available == 0:
         message = "No available supply to meet the unmet demand."
-        return unmet, untapped, allocated, message
-
-    # sources that share the same zone map behave as one source with their summed
-    # supply: allocate the groups (each unique, so no further grouping) and split
-    # the result back per source
-    groups = group_sources_by_zones(zones, list(available.keys()))
-    if len(groups) < len(available):
-        group_available = {
-            g: sum(available[s] for s in members) for g, members in groups.items()
-        }
-        group_zones = (
-            None
-            if zones is None
-            else {g: zones[members[0]] for g, members in groups.items()}
-        )
-
-        unmet, group_untapped, group_allocated, message = (
-            allocate_demand_to_availability(
-                demand=demand,
-                available=group_available,
-                zones=group_zones,
-                max_iterations=max_iterations,
-                relative_tolerance=relative_tolerance,
-                summarize=summarize,
-                verbose=verbose,
-            )
-        )
-
-        # split back: all sources in a group lose the same fraction of their supply
-        # in every iteration, so they keep the group's untapped fraction and get the
-        # group's allocation in proportion to their share of the zonal supply
-        untapped = {}
-        allocated = {}
-        for g, members in groups.items():
-            if len(members) == 1:
-                untapped[members[0]] = group_untapped[g]
-                allocated[members[0]] = group_allocated[g]
-                continue
-
-            zonal_available = zonal_available = {s: zonal_untapped[s] for s in members}
-            zonal_available_total = sum(list(zonal_available.values()))
-
-            untapped_fraction = pcr_return_val_div_zero(
-                group_untapped[g], group_available[g], very_small_number
-            )
-            for s in members:
-                untapped[s] = available[s] * untapped_fraction
-                allocated[s] = group_allocated[g] * pcr_return_val_div_zero(
-                    zonal_available[s], zonal_available_total, very_small_number
-                )
-
-        # return the sources in their original order
-        untapped = {s: untapped[s] for s in available.keys()}
-        allocated = {s: allocated[s] for s in available.keys()}
-
         return unmet, untapped, allocated, message
 
     n_unmet_start = n_unmet
