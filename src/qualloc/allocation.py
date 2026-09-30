@@ -41,6 +41,104 @@ def get_key(str_list):
     return key
 
 
+def obtain_allocation_ratio(
+    demand: pcr.Field,
+    availability: dict[str, pcr.Field],
+    zones: dict[str, pcr.Field] | None = None,
+    zonal_availability: dict[str, pcr.Field] | None = None
+):
+    """
+
+    Input:
+    ======
+    demand:                 demand per cell as a scalar PCRaster field;
+    availability:           availability per cell per source, same
+                            unit as the total demand and organized as a dict-
+                            ionary with the source names as keys and scalar
+                            PCRaster fields as values; availability can be spec-
+                            ified for any or all cells within a zone;
+    zones:                  zones over which the demand and availability are
+                            totaled; organized as a dictionary with the source
+                            names as keys and nominal PCRaster fields as values;
+    source_names:           list of names of the available sources.
+
+    Output:
+    =======
+    zonal_availability:     availability per zone organized as
+                            a dictionary with the sources as keys and as values
+                            scalar PCRaster fields of the ratio
+    zonal_potential_allocation:
+                            potential allocation per zone,  organized as
+                            a dictionary with the sources as keys and as values
+                            scalar PCRaster fields of the ratio;
+    allocation_ratio:       allocation of the demand as ratio subdivided over
+                            the sources on the basis of the availability,
+                            organized as a dictionary with the sources as keys
+                            and as values scalar PCRaster fields of the ratio.
+
+    """
+
+    # allocation ratio based on demand and availability; these ratios are approximate
+    # as the actual availability is not yet known
+
+    # total availability, demand fraction per zone and potential abstraction based on
+    # the demand fraction
+
+    # zonal availability depends on the availability not yet assigned to withdrawals
+    if zonal_availability is None:
+        if zones is not None:
+            zonal_availability = {
+                s: pcr.areatotal(availability[s], zones[s])
+                for s in availability.keys()
+            }
+        else:
+            zonal_availability = {s: availability[s] for s in availability.keys()}
+    
+    # zonal unmet demand per source
+    if zones is not None:
+        zonal_demand = {
+            s: pcr.areatotal(
+                demand,
+                zones[s],
+            )
+            for s in zones.keys()
+        }
+    else:
+        zonal_demand = {s: demand for s in zonal_availability.keys()}
+
+    # Demand share:
+    # The local demand as a proportion of the zonal demand
+    demand_share = {
+        s: pcr_return_val_div_zero(
+            demand,
+            zonal_demand[s],
+            very_small_number,
+        )
+        for s in zonal_demand.keys()
+    }
+
+    # Potential allocation:
+    # The demand share of the zonal availability
+    potential_allocation = {
+        s: demand_share[s] * zonal_availability[s] for s in zonal_availability.keys()
+    }
+
+    # Source share:
+    # The potential allocation of a source as a proportion of the total potential
+    # allocation over all sources
+    potential_allocation_total = sum(list(potential_allocation.values()))
+    source_share = {
+        s: pcr_return_val_div_zero(
+            potential_allocation[s],
+            potential_allocation_total,
+            very_small_number,
+        )
+        for s in potential_allocation.keys()
+    }
+
+    return zonal_availability, potential_allocation, source_share
+
+
 def allocate_demand_to_availability(
     demand: pcr.Field,
     available: dict[str, pcr.Field],
@@ -128,47 +226,12 @@ def allocate_demand_to_availability(
     iteration = 1
     while iteration <= max_iterations:
 
-        # zonal unmet demand per source
-        if zones is not None:
-            zonal_unmet = {
-                s: pcr.areatotal(
-                    unmet,
-                    zones[s],
-                )
-                for s in zones.keys()
-            }
-        else:
-            zonal_unmet = {s: unmet for s in zonal_untapped.keys()}
-
-        # Demand share:
-        # The local demand as a proportion of the zonal demand
-        demand_share = {
-            s: pcr_return_val_div_zero(
-                unmet,
-                zonal_unmet[s],
-                very_small_number,
-            )
-            for s in zonal_unmet.keys()
-        }
-
-        # Potential allocation:
-        # The demand share of the zonal availability
-        potential_allocation = {
-            s: demand_share[s] * zonal_untapped[s] for s in zonal_untapped.keys()
-        }
-
-        # Source share:
-        # The potential allocation of a source as a proportion of the total potential
-        # allocation over all sources
-        potential_allocation_total = sum(list(potential_allocation.values()))
-        source_share = {
-            s: pcr_return_val_div_zero(
-                potential_allocation[s],
-                potential_allocation_total,
-                very_small_number,
-            )
-            for s in potential_allocation.keys()
-        }
+        _, potential_allocation, source_share = obtain_allocation_ratio(
+            demand=unmet,
+            availability=untapped,
+            zones=zones,
+            zonal_availability=zonal_untapped,
+        )
 
         # Allocation:
         # Minimum of the potential allocation and the source share of the unmet demand

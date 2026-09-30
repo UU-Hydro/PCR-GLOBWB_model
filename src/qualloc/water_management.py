@@ -7,9 +7,8 @@ import pcraster as pcr
 
 from qualloc.allocation import (
     allocate_demand_to_availability_with_options,
-    allocate_demand_to_withdrawals,
+    allocate_withdrawals_to_demand_with_options,
     get_key,
-    get_zonal_total,
     obtain_allocation_ratio,
 )
 from qualloc.basic_functions import (
@@ -90,9 +89,9 @@ def water_balance_check(
 
     # aggregate the water volumes over the allocation zones
     if not isinstance(zones, NoneType):
-        in_map = get_zonal_total(in_map, zones)
-        out_map = get_zonal_total(out_map, zones)
-        cellarea = get_zonal_total(cellarea, zones)
+        in_map = pcr.areatotal(in_map, zones)
+        out_map = pcr.areatotal(out_map, zones)
+        cellarea = pcr.areatotal(cellarea, zones)
 
     # difference as water slice
     diff = (in_map - out_map) / cellarea
@@ -491,7 +490,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         for source_name in self.source_names:
             zones = getattr(self, "%s_allocation_zones" % source_name)
             for sector_name in self.sector_names:
-                n_cells = get_zonal_total(
+                n_cells = pcr.areatotal(
                     pcr.ifthen(pcr.defined(zones[sector_name]), pcr.scalar(1)),
                     zones[sector_name],
                 )
@@ -864,7 +863,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             longterm_potential_withdrawal
         )
 
-        total_maximum_monthly_longterm_potential_withdrawal = get_zonal_total(
+        total_maximum_monthly_longterm_potential_withdrawal = pcr.areatotal(
             maximum_monthly_longterm_potential_withdrawal, region_ids
         )
 
@@ -1303,12 +1302,12 @@ total_return_flow_ini                      : total return flow [m3/day]
         max_iter_allocation = 25
 
         # initial zonal demand and supply (m3/day)
-        totz_demand_old = get_zonal_total(
-            local_values=pcr.max(0, sum_list(list(unmet_demand_per_sector.values()))),
-            zones=zones,
+        totz_demand_old = pcr.areatotal(
+            pcr.max(0, sum_list(list(unmet_demand_per_sector.values()))),
+            zones,
         )
-        totz_supply_old = get_zonal_total(
-            local_values=remaining_availability, zones=zones
+        totz_supply_old = pcr.areatotal(
+            remaining_availability, zones
         )
 
         # distribute water until the demand is met or the supply is exhausted
@@ -1335,20 +1334,26 @@ total_return_flow_ini                      : total return flow [m3/day]
                     remaining_availability * weights_per_sector[sector_name]
                 )
 
+                available_sector = {"desalwater": remaining_availability_sector}
+                zones_sector = {"desalwater": zones_per_sector[sector_name]}
                 (
-                    tmp_withdrawal,
-                    tmp_allocated_demand,
-                    tmp_met_demand,
                     tmp_unmet_demand,
+                    tmp_untapped,
+                    tmp_allocated_demand,
                     sub_message_str,
                 ) = allocate_demand_to_availability_with_options(
                     demand=unmet_demand_per_sector[sector_name],
-                    availability={"desalwater": remaining_availability_sector},
-                    zones={"desalwater": zones_per_sector[sector_name]},
-                    source_names=["desalwater"],
+                    available=available_sector,
+                    zones=zones_sector,
                     use_local_first=self.use_local_first,
                     reallocate_surplus=self.reallocate_surplus,
                 )
+                tmp_met_demand = (
+                    pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
+                )
+                tmp_withdrawal = {
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s] for s in available_sector
+                }
 
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
@@ -1373,12 +1378,12 @@ total_return_flow_ini                      : total return flow [m3/day]
             remaining_availability = pcr.max(0, availability - withdrawal)
 
             # update the iteration number and exit condition
-            total_zonal_demand = get_zonal_total(
-                local_values=sum_list(list(unmet_demand_per_sector.values())),
-                zones=zones,
+            total_zonal_demand = pcr.areatotal(
+                sum_list(list(unmet_demand_per_sector.values())),
+                zones,
             )
-            total_zonal_supply = get_zonal_total(
-                local_values=remaining_availability, zones=zones
+            total_zonal_supply = pcr.areatotal(
+                remaining_availability, zones
             )
 
             update_mask = (total_zonal_demand < totz_demand_old) & (
@@ -1800,15 +1805,15 @@ total_return_flow_ini                      : total return flow [m3/day]
         totz_demand_old = {}
         totz_supply_old = {}
         for source_name in self.source_names:
-            totz_demand_old[source_name] = get_zonal_total(
-                local_values=pcr.max(
+            totz_demand_old[source_name] = pcr.areatotal(
+                pcr.max(
                     0, sum_list(list(unmet_demand_per_sector.values()))
                 ),
-                zones=zones[source_name],
+                zones[source_name],
             )
-            totz_supply_old[source_name] = get_zonal_total(
-                local_values=remaining_availability[source_name],
-                zones=zones[source_name],
+            totz_supply_old[source_name] = pcr.areatotal(
+                remaining_availability[source_name],
+                zones[source_name],
             )
 
         # distribute water until the demand is met or the supply is exhausted
@@ -1870,27 +1875,35 @@ total_return_flow_ini                      : total return flow [m3/day]
                     * weights_groundwater_per_sector[sector_name]
                     * self.suitability_per_sector["groundwater"][sector_name]
                 )
-
+                
+                available_sector = {
+                    "surfacewater": remaining_availability_surfacewater_sector,
+                    "groundwater": remaining_availability_groundwater_sector,
+                }
+                zones_sector = {
+                    "groundwater": zones_per_sector["groundwater"][sector_name],
+                    "surfacewater": zones_per_sector["surfacewater"][sector_name],
+                }
+                available_sector = {s: available_sector[s] for s in self.source_names}
+                zones_sector = {s: zones_sector[s] for s in self.source_names}
                 (
-                    tmp_withdrawal,
-                    tmp_allocated_demand,
-                    tmp_met_demand,
                     tmp_unmet_demand,
+                    tmp_untapped,
+                    tmp_allocated_demand,
                     message_str,
                 ) = allocate_demand_to_availability_with_options(
                     demand=unmet_demand_per_sector[sector_name],
-                    availability={
-                        "surfacewater": remaining_availability_surfacewater_sector,
-                        "groundwater": remaining_availability_groundwater_sector,
-                    },
-                    zones={
-                        "surfacewater": zones_per_sector["surfacewater"][sector_name],
-                        "groundwater": zones_per_sector["groundwater"][sector_name],
-                    },
-                    source_names=self.source_names,
+                    available=available_sector,
+                    zones=zones_sector,
                     use_local_first=use_local_first,
                     reallocate_surplus=reallocate_surplus,
                 )
+                tmp_met_demand = (
+                    pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
+                )
+                tmp_withdrawal = {
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s] for s in available_sector
+                }
 
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
@@ -1929,13 +1942,13 @@ total_return_flow_ini                      : total return flow [m3/day]
             total_zonal_demand = {}
             total_zonal_supply = {}
             for source_name in self.source_names:
-                total_zonal_demand[source_name] = get_zonal_total(
-                    local_values=sum_list(list(unmet_demand_per_sector.values())),
-                    zones=zones[source_name],
+                total_zonal_demand[source_name] = pcr.areatotal(
+                    sum_list(list(unmet_demand_per_sector.values())),
+                    zones[source_name],
                 )
-                total_zonal_supply[source_name] = get_zonal_total(
-                    local_values=remaining_availability[source_name],
-                    zones=zones[source_name],
+                total_zonal_supply[source_name] = pcr.areatotal(
+                    remaining_availability[source_name],
+                    zones[source_name],
                 )
 
             update_mask = (
@@ -2011,10 +2024,10 @@ total_return_flow_ini                      : total return flow [m3/day]
             withdrawal_capacity_remaining_per_sector = {}
             for sector_name in sector_names:
                 sector_rate = pcr_return_val_div_zero(
-                    get_zonal_total(
+                    pcr.areatotal(
                         unmet_demand_per_sector[sector_name], zones[sector_name]
                     ),
-                    get_zonal_total(
+                    pcr.areatotal(
                         sum_list(list(unmet_demand_per_sector.values())),
                         zones[sector_name],
                     ),
@@ -2054,11 +2067,11 @@ total_return_flow_ini                      : total return flow [m3/day]
             # potential non-renewable withdrawal per sector (m3/day)
             allocation_rate = pcr_return_val_div_zero(
                 availability_per_sector,
-                get_zonal_total(availability_per_sector, zones[sector_name]),
+                pcr.areatotal(availability_per_sector, zones[sector_name]),
                 very_small_number,
             )
 
-            allocated_demand = allocation_rate * get_zonal_total(
+            allocated_demand = allocation_rate * pcr.areatotal(
                 unmet_demand_per_sector[sector_name], zones[sector_name]
             )
 
@@ -2138,7 +2151,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                     demand=self.gross_demand_remaining[sector_name],
                     availability=potential_withdrawal,
                     zones=zones,
-                    source_names=self.source_names,
                 )
             )
 
@@ -2160,7 +2172,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         self.longterm_potential_withdrawals_per_sector["renewable"][
                             source_name
                         ][sector_name],
-                        get_zonal_total(
+                        pcr.areatotal(
                             self.longterm_potential_withdrawals_per_sector["renewable"][
                                 source_name
                             ][sector_name],
@@ -2176,7 +2188,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 (
                     source_name,
                     distribution_ratio[source_name]
-                    * get_zonal_total(
+                    * pcr.areatotal(
                         demands_per_source[source_name], zones[source_name]
                     ),
                 )
@@ -2218,7 +2230,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         self.longterm_potential_withdrawals_per_sector["nonrenewable"][
                             source_name
                         ][sector_name],
-                        get_zonal_total(
+                        pcr.areatotal(
                             self.longterm_potential_withdrawals_per_sector[
                                 "nonrenewable"
                             ][source_name][sector_name],
@@ -2234,7 +2246,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 (
                     source_name,
                     distribution_ratio[source_name]
-                    * get_zonal_total(
+                    * pcr.areatotal(
                         outstanding_demand[source_name], zones[source_name]
                     ),
                 )
@@ -2727,7 +2739,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
     def allocate_withdrawal_to_demand_for_date(self, date, availability):
         """
-        allocate_demand_to_withdrawals:
+        allocate_withdrawals_to_demand_with_options:
                        function that internally allocates the gross demand to the
                        sources on a cell-by-cell basis given the actual withdrawals
                        and updates the consumption and return flows
@@ -2745,25 +2757,45 @@ total_return_flow_ini                      : total return flow [m3/day]
         # withdrawal and demand are stored internally, unused withdrawal and met demand are not used
         # directly; the remaining unused withdrawals are kept for checks and added to the return flows
         # to avoid balance errors; sub_message_str holds the allocation information for logging (m3/day)
-        (
-            self.allocated_withdrawal_per_sector,
-            unused_withdrawal,
-            self.allocated_demand_per_sector,
-            met_demands,
-            sub_message_str,
-        ) = allocate_demand_to_withdrawals(
-            withdrawal_names=self.withdrawal_names,
-            source_names=self.source_names,
-            sector_names=self.sector_names,
-            demand_per_sector=self.gross_demand_remaining,
-            renewable_withdrawal_per_sector=self.actual_renewable_withdrawal_per_sector,
-            nonrenewable_withdrawal_per_sector=self.actual_nonrenewable_withdrawal_per_sector,
-            zones_per_sector={
+        zones = {
                 "surfacewater": self.surfacewater_allocation_zones,
                 "groundwater": self.groundwater_allocation_zones,
-            },
+            }
+        zones = {s: zones[s] for s in self.source_names}
+        (
+            _,
+            unused,
+            allocated,
+            sub_message_str,
+        ) = allocate_withdrawals_to_demand_with_options(
+            demand=self.gross_demand_remaining,
+            renewable=self.actual_renewable_withdrawal_per_sector,
+            nonrenewable=self.actual_nonrenewable_withdrawal_per_sector,
+            zones=zones,
             use_local_first=self.use_local_first,
         )
+        
+        # allocated demand and withdrawal per withdrawal type and source, keyed as
+        # before (e.g. renewable_groundwater) for the return flows and reporting
+        withdrawal = {
+            "renewable": self.actual_renewable_withdrawal_per_sector,
+            "nonrenewable": self.actual_nonrenewable_withdrawal_per_sector,
+        }
+        self.allocated_demand_per_sector = {
+            get_key([w, s]): allocated[w][s] for w in allocated for s in allocated[w]
+        }
+        self.allocated_withdrawal_per_sector = {
+            get_key([w, s]): {
+                sector: pcr.max(withdrawal[w][s][sector], 0) - unused[w][s][sector]
+                for sector in unused[w][s]
+            }
+            for w in unused
+            for s in unused[w]
+        }
+        unused_withdrawal = {
+            w: {s: sum_list(list(unused[w][s].values())) for s in unused[w]}
+            for w in unused
+        }
 
         logger.debug(sub_message_str)
 
