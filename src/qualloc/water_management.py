@@ -8,7 +8,6 @@ import pcraster as pcr
 from qualloc.allocation import (
     allocate_demand_to_availability_with_options,
     allocate_withdrawals_to_demand_with_options,
-    get_key,
     obtain_allocation_ratio,
 )
 from qualloc.basic_functions import (
@@ -641,7 +640,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         for withdrawal_name in self.withdrawal_names:
             for source_name in self.source_names:
 
-                key = get_key([withdrawal_name, source_name])
+                key = "_".join([withdrawal_name, source_name])
 
                 self.allocated_withdrawal_per_sector[key] = dict(
                     (sector_name, pcr.spatial(pcr.scalar(0)))
@@ -2782,10 +2781,10 @@ total_return_flow_ini                      : total return flow [m3/day]
             "nonrenewable": self.actual_nonrenewable_withdrawal_per_sector,
         }
         self.allocated_demand_per_sector = {
-            get_key([w, s]): allocated[w][s] for w in allocated for s in allocated[w]
+            "_".join([w, s]): allocated[w][s] for w in allocated for s in allocated[w]
         }
         self.allocated_withdrawal_per_sector = {
-            get_key([w, s]): {
+            "_".join([w, s]): {
                 sector: pcr.max(withdrawal[w][s][sector], 0) - unused[w][s][sector]
                 for sector in unused[w][s]
             }
@@ -2802,7 +2801,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         # note: add the unused and actual withdrawals per withdrawal type and source (m3/day)
         for withdrawal_name in self.withdrawal_names:
 
-            var_str = get_key(["unused", withdrawal_name, "withdrawal"])
+            var_str = "_".join(["unused", withdrawal_name, "withdrawal"])
 
             setattr(
                 self,

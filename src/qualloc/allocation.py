@@ -9,36 +9,34 @@ from qualloc.basic_functions import (
 very_small_number = 1.0e-12
 
 
-def get_key(str_list):
+def group_sources_by_zones(
+    zones: dict[str, pcr.Field] | None,
+    sources: list[str],
+) -> dict[str, list[str]]:
     """
-    Joins a list of strings into a key separated by underscores, e.g.
-    ["renewable", "groundwater"] gives "renewable_groundwater"; no underscore is
-    added after an empty string.
+    Groups the sources that share the same zone map (the same object); without
+    zones, every cell is its own zone for all sources, so they form one group.
 
     Input:
     ======
-    str_list (list[str]):           parts of the key.
+    zones (dict[str, pcr.Field] | None):
+                                    nominal allocation zones per source;
+    sources (list[str]):            names of the sources.
 
     Output:
     =======
-    key (str):                      the joined key.
+    groups (dict[str, list[str]]):  sources per group, in the order of sources; the
+                                    key joins the source names with underscores.
     """
 
-    if isinstance(str_list, list):
-        key = str_list[0]
-    else:
-        key = str(str_list)
+    # identical maps are recognized by object, not by content: pcr_same_map can be
+    # used beforehand to make identical zone maps the same object
+    groups = {}
+    for s in sources:
+        key = None if zones is None else id(zones[s])
+        groups.setdefault(key, []).append(s)
 
-    for ix in range(1, len(str_list)):
-
-        if str_list[ix - 1] == "":
-            d_str = ""
-        else:
-            d_str = "_"
-
-        key = str.join(d_str, (key, str_list[ix]))
-
-    return key
+    return {"_".join(members): members for members in groups.values()}
 
 
 def obtain_allocation_ratio(
@@ -149,6 +147,10 @@ def allocate_demand_to_availability(
     withdrawn from its cells in proportion to their untapped supply. Iterates
     until the demand is met, the supply is exhausted or no progress is made.
 
+    Sources that share the same zone map (the same object) are allocated as one
+    source with their summed supply and split back afterwards, which gives the same
+    result with fewer zonal totals.
+
     Input:
     ======
     demand (pcr.Field):             scalar demand per cell; negatives count as 0;
@@ -182,11 +184,6 @@ def allocate_demand_to_availability(
     demand_initial = demand
     available_initial = dict(available)
 
-    # unmet demand and untapped supply below these tolerances count as zero, which
-    # keeps rounding leftovers from extending the iterations
-    demand_tolerance = relative_tolerance * demand
-    available_tolerance = relative_tolerance * sum(list(available.values()))
-
     unmet = demand
     untapped = dict(available)
     allocated = {
@@ -194,7 +191,9 @@ def allocate_demand_to_availability(
     }
 
     # nothing to allocate if there is no unmet demand
-    mask = unmet > demand_tolerance
+    # unmet demand below these tolerances count as zero
+    unmet_tolerance = relative_tolerance * unmet
+    mask = unmet > unmet_tolerance
     n_unmet = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
     if n_unmet == 0:
         message = "All demand is initially met."
@@ -213,6 +212,70 @@ def allocate_demand_to_availability(
         }
     else:
         zonal_untapped = {s: untapped[s] for s in untapped.keys()}
+
+    # nothing to allocate if there is no untapped supply
+    # untapped supply below these tolerances count as zero
+    zonal_untapped_tolerance = relative_tolerance * sum(list(zonal_untapped.values()))
+    mask = mask & (sum(list(zonal_untapped.values())) > zonal_untapped_tolerance)
+    n_available = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
+    if n_available == 0:
+        message = "No available supply to meet the unmet demand."
+        return unmet, untapped, allocated, message
+
+    # sources that share the same zone map behave as one source with their summed
+    # supply: allocate the groups (each unique, so no further grouping) and split
+    # the result back per source
+    groups = group_sources_by_zones(zones, list(available.keys()))
+    if len(groups) < len(available):
+        group_available = {
+            g: sum(available[s] for s in members) for g, members in groups.items()
+        }
+        group_zones = (
+            None
+            if zones is None
+            else {g: zones[members[0]] for g, members in groups.items()}
+        )
+
+        unmet, group_untapped, group_allocated, message = (
+            allocate_demand_to_availability(
+                demand=demand,
+                available=group_available,
+                zones=group_zones,
+                max_iterations=max_iterations,
+                relative_tolerance=relative_tolerance,
+                summarize=summarize,
+                verbose=verbose,
+            )
+        )
+
+        # split back: all sources in a group lose the same fraction of their supply
+        # in every iteration, so they keep the group's untapped fraction and get the
+        # group's allocation in proportion to their share of the zonal supply
+        untapped = {}
+        allocated = {}
+        for g, members in groups.items():
+            if len(members) == 1:
+                untapped[members[0]] = group_untapped[g]
+                allocated[members[0]] = group_allocated[g]
+                continue
+
+            zonal_available = zonal_available = {s: zonal_untapped[s] for s in members}
+            zonal_available_total = sum(list(zonal_available.values()))
+
+            untapped_fraction = pcr_return_val_div_zero(
+                group_untapped[g], group_available[g], very_small_number
+            )
+            for s in members:
+                untapped[s] = available[s] * untapped_fraction
+                allocated[s] = group_allocated[g] * pcr_return_val_div_zero(
+                    zonal_available[s], zonal_available_total, very_small_number
+                )
+
+        # return the sources in their original order
+        untapped = {s: untapped[s] for s in available.keys()}
+        allocated = {s: allocated[s] for s in available.keys()}
+
+        return unmet, untapped, allocated, message
 
     n_unmet_start = n_unmet
     iteration = 1
@@ -276,10 +339,10 @@ def allocate_demand_to_availability(
 
         # Exit conditions: the number of cells with unmet demand, and of those that
         # also have untapped supply left
-        mask = unmet > demand_tolerance
+        mask = unmet > unmet_tolerance
         n_unmet_current = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
-        mask = mask & (sum(list(untapped.values())) > available_tolerance)
-        n_available = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
+        mask = mask & (sum(list(zonal_untapped.values())) > zonal_untapped_tolerance)
+        n_available_current = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
 
         # Reporting
         if verbose:
@@ -294,7 +357,7 @@ def allocate_demand_to_availability(
         if n_unmet_current == 0:
             break
         # Stop if no cell with unmet demand has untapped supply left
-        if not n_available:
+        if not n_available_current:
             break
         # Stop if the number of cells with unmet demand no longer decreases
         if n_unmet_current >= n_unmet:
@@ -391,10 +454,10 @@ def allocate_demand_to_availability_with_options(
 
     1. local (use_local_first): cells first use their own supply;
     2. zonal (use_allocation_zone): the unmet demand is allocated over the zones;
-    3. surplus (reallocate_surplus, two or more sources): allocations that other
-       sources can cover from their untapped supply in the same cell are moved to
-       them; the freed supply returns to where it was withdrawn and is allocated
-       again over the zones.
+    3. surplus (reallocate_surplus, sources with two or more different zone maps):
+       allocations that other sources can cover from their untapped supply in the
+       same cell are moved to them; the freed supply returns to where it was
+       withdrawn and is allocated again over the zones.
 
     Input:
     ======
@@ -486,8 +549,11 @@ def allocate_demand_to_availability_with_options(
         allocated = {s: allocated[s] + opt_allocated[s] for s in allocated.keys()}
         message = str.join("\n", (message, opt_message))
 
-    # reallocate any surplus (if used)
-    if reallocate_surplus and len(available) > 1:
+    # reallocate any surplus (if used); sources that all share one zone map have
+    # nothing to free: after the zonal step, every zone has either no unmet demand
+    # or no untapped supply left
+    n_zone_groups = len(group_sources_by_zones(zones, list(available.keys())))
+    if reallocate_surplus and n_zone_groups > 1:
         message = str.join(
             "\n",
             (

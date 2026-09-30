@@ -175,3 +175,13 @@ This function is typically intended to avoid errors when dividing by zero.
         z = pcr.ifthenelse(y > y_lim, x / pcr.max(y_lim, y), z_def)
 
     return z
+
+
+def pcr_same_map(map_a: pcr.Field, map_b: pcr.Field) -> bool:
+    """Returns True if both maps have the same values and missing values."""
+    differs = pcr.ifthenelse(
+        pcr.defined(map_a) & pcr.defined(map_b),
+        map_a != map_b,
+        pcr.defined(map_a) != pcr.defined(map_b),
+    )
+    return pcr.cellvalue(pcr.mapmaximum(pcr.scalar(differs)), 1)[0] == 0

@@ -6,7 +6,7 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from qualloc.basic_functions import pcr_return_val_div_zero, sum_list
+from qualloc.basic_functions import pcr_return_val_div_zero, sum_list, pcr_same_map
 from qualloc.file_handler import close_nc_cache, compose_filename, read_file_entry
 from qualloc.groundwater import groundwater
 from qualloc.initial_conditions_handler import (
@@ -512,6 +512,12 @@ class qualloc_model(object):
             self.landmask & (desalwater_allocation_zones != 0),
             desalwater_allocation_zones,
         )
+
+        # identical zone maps share one object, so the allocation can combine sources
+        if pcr_same_map(surfacewater_allocation_zones, groundwater_allocation_zones):
+            surfacewater_allocation_zones = groundwater_allocation_zones
+        if pcr_same_map(desalwater_allocation_zones, groundwater_allocation_zones):
+            desalwater_allocation_zones = groundwater_allocation_zones
 
         # withdrawal points
         groundwater_withdrawal_points = read_file_entry(
