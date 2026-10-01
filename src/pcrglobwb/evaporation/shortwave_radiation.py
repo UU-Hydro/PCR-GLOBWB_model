@@ -15,16 +15,6 @@ NoneType = type(None)
 pi = math.pi
 
 
-def deg2rad(a):
-
-    return a * pi / 180.0
-
-
-def rad2deg(a):
-
-    return a * 180.0 / pi
-
-
 def get_julian_day_number(date):
     """
 
