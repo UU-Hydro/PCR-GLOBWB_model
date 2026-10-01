@@ -176,13 +176,14 @@ appropriate key and value pairs.
                         elif isinstance(
                             initial_conditions[section_name][variablename], NoneType
                         ):
-                            logger.warning(
+                            msg = (
                                 "initial conditions for %s on %s unsuccessfully read and set to None"
                                 % (variablename, date)
                             )
-                            sys.exit()
+                            logger.warning(msg)
+                            raise RuntimeError(msg)
                         else:
-                            sys.exit(
+                            raise RuntimeError(
                                 "initial condition %s of %s cannot be read"
                                 % (variablename, section_name)
                             )

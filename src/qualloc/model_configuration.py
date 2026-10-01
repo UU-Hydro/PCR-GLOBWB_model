@@ -407,8 +407,9 @@ directories using information from the model configuration.
         separators = [","]
 
         if not isinstance(ftype, type):
-            logger.error("data type %s is not a data type" % ftype)
-            sys.exit()
+            msg = "data type %s is not a data type" % ftype
+            logger.error(msg)
+            raise TypeError(msg)
 
         value = None
 

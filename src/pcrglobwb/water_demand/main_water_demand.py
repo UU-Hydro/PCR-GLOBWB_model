@@ -1,5 +1,4 @@
 import logging
-import sys
 
 import pcraster as pcr
 
@@ -37,8 +36,7 @@ class WaterDemand(object):
             msg += "Industrial demands already account for Manufacturing and Thermoelectric, thus water demands will be double counted.\n"
             msg += 'Set either "includeIndustryWaterDemand" to "False" or\n'
             msg += '           "includeManufactureWaterDemand" and "includeThermoelectricWaterDemand" to "False".'
-            logger.warning(msg)
-            sys.exit()
+            raise ValueError(msg)
 
         self.water_demand_domestic = domestic_water_demand.DomesticWaterDemand(
             iniItems, self.landmask
