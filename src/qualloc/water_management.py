@@ -186,11 +186,11 @@ def estimate_waterdepth_from_discharge(
 
     waterdepth = pcr.ifthenelse(discharge_mask, waterdepth, pcr.scalar(0))
 
-    message_str = (
-        "water depth converged after %d iterations with a maximum deviation of %.3g"
-        % (icnt, conv_value)
+    logger.info(
+        "water depth converged after %d iterations with a maximum deviation of %.3g",
+        icnt,
+        conv_value,
     )
-    print(message_str)
 
     return waterdepth
 

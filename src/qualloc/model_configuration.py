@@ -62,12 +62,6 @@ the CALEROS model.
 
         object.__init__(self)
 
-        message_str = "\n%s\nInitializing the QUAlloc model run\n%s\n" % (
-            "=" * 80,
-            "=" * 80,
-        )
-        print(message_str)
-
         # configuration file, groups and sections
         self.cfgfilename = cfgfilename
         self.sections = sections
@@ -92,7 +86,9 @@ the CALEROS model.
             self.cfgfilename, self.groups, self.sections, subst_args
         )
 
-        # create all necessary directories
+        # the log files live in the output directories, so messages raised while
+        # creating them are logged once the logger exists
+        self.deferred_messages = []
         self.create_output_directories()
 
         # copy the configuration file
@@ -103,9 +99,14 @@ the CALEROS model.
         logfileroot = os.path.splitext(logfileroot)[0]
         self.initialize_logger(logfileroot)
 
+        logger.info(
+            "\n%s\nInitializing the QUAlloc model run\n%s\n", "=" * 80, "=" * 80
+        )
         logger.info("Model run started at %s" % self._timestamp)
         logger.info("Logging output to %s" % self.logfilename)
         logger.info("Debugging output to %s" % self.dbgfilename)
+        for deferred_message in self.deferred_messages:
+            logger.info(deferred_message)
 
     def __repr__(self):
         return "this is an instance of the model configuration class object"
@@ -314,10 +315,10 @@ directories using information from the model configuration.
 
         if not os.path.isdir(self.general["outputpath"]):
             os.makedirs(self.general["outputpath"])
-            message_str = "output path %s does not exist and is created" % (
-                self.general["outputpath"]
+            self.deferred_messages.append(
+                "output path %s did not exist and was created"
+                % self.general["outputpath"]
             )
-            print(message_str)
 
         # short names for the input and output directories
         self.inputpath = self.general["inputpath"]
