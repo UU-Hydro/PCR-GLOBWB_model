@@ -171,58 +171,6 @@ class IrrigationWaterDemand(object):
         self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)
         self.irrigationEfficiency = pcr.ifthen(self.landmask, self.irrigationEfficiency)
 
-    def estimate_paddy_infiltration_loss(self, iniPaddyOptions):
-        # due to compaction, the infiltration/percolation loss rate can be much smaller than the saturated
-        # conductivity; Wada et al. (2014) assume a factor 10
-        if self.numberOfLayers == 2:
-            # (m/day)
-            design_percolation_loss = self.parameters.kSatUpp / 10.0
-        if self.numberOfLayers == 3:
-            # (m/day)
-            design_percolation_loss = self.parameters.kSatUpp000005 / 10.0
-
-        # it can be even smaller in well-puddled paddy fields, which avoids salinization; default minimum
-        # and maximum percolation loss are FAO values (http://www.fao.org/docrep/s2022e/s2022e08.htm)
-        min_percolation_loss = 0.006
-        max_percolation_loss = 0.008
-        # minimum and maximum percolation loss from the ini file
-        if (
-            "minPercolationLoss" in list(iniPaddyOptions.keys())
-            and iniPaddyOptions["minPercolationLoss"] != "None"
-        ):
-            min_percolation_loss = vos.readPCRmapClone(
-                iniPaddyOptions["minPercolationLoss"],
-                self.cloneMap,
-                self.tmpDir,
-                self.inputDir,
-            )
-        if (
-            "maxPercolationLoss" in list(iniPaddyOptions.keys())
-            and iniPaddyOptions["maxPercolationLoss"] != "None"
-        ):
-            max_percolation_loss = vos.readPCRmapClone(
-                iniPaddyOptions["maxPercolationLoss"],
-                self.cloneMap,
-                self.tmpDir,
-                self.inputDir,
-            )
-        # percolation loss in paddy fields (m/day)
-        design_percolation_loss = pcr.max(
-            min_percolation_loss, pcr.min(max_percolation_loss, design_percolation_loss)
-        )
-        # if the soil is already 'good', use its original infiltration/percolation rate
-        if self.numberOfLayers == 2:
-            design_percolation_loss = pcr.min(
-                self.parameters.kSatUpp, design_percolation_loss
-            )
-        if self.numberOfLayers == 3:
-            design_percolation_loss = pcr.min(
-                self.parameters.kSatUpp000005, design_percolation_loss
-            )
-
-        # design_percolation_loss is the maximum loss in paddy fields
-        return design_percolation_loss
-
     def calculateTotAvlWaterCapacityInRootZone(self):
         # total water capacity in the root zone (upper soil layers); depends on the land cover type
 
