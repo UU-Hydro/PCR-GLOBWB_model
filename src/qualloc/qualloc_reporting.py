@@ -5,6 +5,7 @@ import sys
 import pcraster as pcr
 
 from qualloc import qualloc_variable_list as variable_attr
+from qualloc.allocation import get_key
 from qualloc.netCDF_recipes import netCDF_output_handler
 
 logger = logging.getLogger(__name__)
@@ -563,13 +564,13 @@ class qualloc_reporting(object):
         for withdrawal_name in model.water_management.withdrawal_names:
             for source_name in model.water_management.source_names:
 
-                alloc_key = "_".join([withdrawal_name, source_name])
+                alloc_key = get_key([withdrawal_name, source_name])
 
                 # per sector: var_name is the model variable to read, rep_name the reportable variable
                 for sector_name in model.water_management.sector_names:
                     for rep_root, var_name in allocation_info.items():
 
-                        rep_name = "_".join(
+                        rep_name = get_key(
                             [rep_root, sector_name, "allocated", "to", alloc_key]
                         )
 
@@ -586,7 +587,7 @@ class qualloc_reporting(object):
         for sector_name in model.water_management.sector_names:
             for rep_root, var_name in allocation_info.items():
 
-                rep_name = "_".join(
+                rep_name = get_key(
                     [rep_root, sector_name, "allocated", "to", "desalinated", "water"]
                 )
 

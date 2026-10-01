@@ -4,6 +4,7 @@ import sys
 
 import pcraster as pcr
 
+from qualloc.allocation import get_zonal_total
 from qualloc.basic_functions import max_dicts, pcr_return_val_div_zero, sum_list
 from qualloc.model_time import (
     get_weights_from_dates,
@@ -389,11 +390,11 @@ class water_quality(object):
                 priority_sector = prioritization_per_sector[sector_name] ** -1
 
             # sectoral water demand per zone
-            demand_sector_area = pcr.areatotal(
+            demand_sector_area = get_zonal_total(
                 demand_per_sector[sector_name], zones_per_sector[sector_name]
             )
 
-            demand_total_area = pcr.areatotal(
+            demand_total_area = get_zonal_total(
                 sum_list(list(demand_per_sector.values())),
                 zones_per_sector[sector_name],
             )
@@ -408,13 +409,13 @@ class water_quality(object):
             else:
                 suitability_sector = pcr.spatial(pcr.scalar(1))
 
-            suitability_sector_area = pcr.areatotal(
+            suitability_sector_area = get_zonal_total(
                 suitability_sector, zones_per_sector[sector_name]
             )
 
             # suitable water availability
             availability_suitable_sector = suitability_sector * availability
-            availability_suitable_sector_area = pcr.areatotal(
+            availability_suitable_sector_area = get_zonal_total(
                 availability_suitable_sector, zones_per_sector[sector_name]
             )
 
