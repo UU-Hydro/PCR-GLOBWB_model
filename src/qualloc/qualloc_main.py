@@ -6,7 +6,7 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from qualloc.basic_functions import pcr_return_val_div_zero, sum_list, pcr_same_map
+from qualloc.basic_functions import pcr_return_val_div_zero, pcr_same_map, sum_list
 from qualloc.file_handler import close_nc_cache, compose_filename, read_file_entry
 from qualloc.groundwater import groundwater
 from qualloc.initial_conditions_handler import (

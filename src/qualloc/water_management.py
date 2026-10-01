@@ -1354,7 +1354,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                     pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
                 )
                 tmp_withdrawal = {
-                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s] for s in available_sector
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s]
+                    for s in available_sector
                 }
 
                 met_demand_per_sector[sector_name] = (
@@ -1877,7 +1878,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     * weights_groundwater_per_sector[sector_name]
                     * self.suitability_per_sector["groundwater"][sector_name]
                 )
-                
+
                 available_sector = {
                     "surfacewater": remaining_availability_surfacewater_sector,
                     "groundwater": remaining_availability_groundwater_sector,
@@ -1903,7 +1904,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                     pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
                 )
                 tmp_withdrawal = {
-                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s] for s in available_sector
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s]
+                    for s in available_sector
                 }
 
                 met_demand_per_sector[sector_name] = (
@@ -2760,9 +2762,9 @@ total_return_flow_ini                      : total return flow [m3/day]
         # directly; the remaining unused withdrawals are kept for checks and added to the return flows
         # to avoid balance errors; sub_message_str holds the allocation information for logging (m3/day)
         zones = {
-                "surfacewater": self.surfacewater_allocation_zones,
-                "groundwater": self.groundwater_allocation_zones,
-            }
+            "surfacewater": self.surfacewater_allocation_zones,
+            "groundwater": self.groundwater_allocation_zones,
+        }
         (
             _,
             unused,
@@ -2778,7 +2780,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             zones=zones,
             use_local_first=self.use_local_first,
         )
-        
+
         # allocated demand and withdrawal per withdrawal type and source, keyed as
         # before (e.g. renewable_groundwater) for the return flows and reporting
         withdrawal = {
