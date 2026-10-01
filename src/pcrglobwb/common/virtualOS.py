@@ -1416,13 +1416,6 @@ def getFullPath(inputPath, absolutePath, completeFileName=True):
     return fullPath
 
 
-def isLastDayOfMonth(date):
-    if (date + datetime.timedelta(days=1)).day == 1:
-        return True
-    else:
-        return False
-
-
 def readMapAttributes(cloneMap):
     # attributes of a PCRaster map as reported by mapattr, keyed by attribute name
     result = subprocess.run(
