@@ -80,8 +80,6 @@ def water_balance_check(
                    is closed (units: m water-slice)
     """
 
-    global _zonal_cellarea_cache
-
     in_map = pcr.spatial(pcr.scalar(0.0))
     out_map = pcr.spatial(pcr.scalar(0.0))
 
