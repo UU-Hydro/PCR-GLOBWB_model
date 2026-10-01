@@ -313,7 +313,7 @@ def allocate_demand_to_availability(
     max_iterations: int = 100,
     relative_tolerance: float = 1e-6,
     summarize: bool = False,
-    verbose: bool = False,a
+    verbose: bool = False,
 ) -> tuple[pcr.Field, dict[str, pcr.Field], dict[str, pcr.Field], str]:
     """
     Allocates the demand to the available supply of one or more sources.
