@@ -41,6 +41,7 @@ water_management_missing_value = -9.99
 
 # for debugging only
 debug = True
+_zonal_cellarea_cache: dict[int, tuple[pcr.Field, pcr.Field]] = {}
 
 
 def water_balance_check(
@@ -79,6 +80,8 @@ def water_balance_check(
                    is closed (units: m water-slice)
     """
 
+    global _zonal_cellarea_cache
+
     in_map = pcr.spatial(pcr.scalar(0.0))
     out_map = pcr.spatial(pcr.scalar(0.0))
 
@@ -90,12 +93,18 @@ def water_balance_check(
 
     # aggregate the water volumes over the allocation zones
     if not isinstance(zones, NoneType):
-        in_map = get_zonal_total(in_map, zones)
-        out_map = get_zonal_total(out_map, zones)
-        cellarea = get_zonal_total(cellarea, zones)
+        in_out_map = get_zonal_total(in_map - out_map, zones)
+        cached = _zonal_cellarea_cache.get(id(zones))
+        if cached is None or cached[0] is not zones:
+            cached = (zones, get_zonal_total(cellarea, zones))
+            _zonal_cellarea_cache[id(zones)] = cached
+        zonal_cellarea = cached[1]
+    else:
+        in_out_map = in_map - out_map
+        zonal_cellarea = cellarea
 
     # difference as water slice
-    diff = (in_map - out_map) / cellarea
+    diff = in_out_map / zonal_cellarea
     vmin = pcr.cellvalue(pcr.mapminimum(diff), 1)[0]
 
     if vmin >= -threshold:
@@ -114,7 +123,7 @@ def water_balance_check(
         logger.error(msg)
 
         if flag_debug:
-            pcr.aguila(diff, diff * cellarea)
+            pcr.aguila(diff, diff * zonal_cellarea)
 
         if not flag_warning:
             sys.exit()
