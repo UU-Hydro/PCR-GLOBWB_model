@@ -400,6 +400,7 @@ class LandSurface(object):
                 self.qualloc_model_time,
                 model_flags,
                 initial_conditions,
+                online_coupling=self.using_qualloc,
             )
             self.qualloc_model.initialize(online_coupling=self.using_qualloc)
 

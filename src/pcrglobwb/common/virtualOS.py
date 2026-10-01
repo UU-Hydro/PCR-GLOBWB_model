@@ -1416,6 +1416,37 @@ def getFullPath(inputPath, absolutePath, completeFileName=True):
     return fullPath
 
 
+def set_clone(cloneMapFileName=None):
+    """Set the PCRaster clone for the whole process and return pcr.clone().
+
+    - The first call with a clone map sets the clone.
+    - Later calls with a map on the same grid change nothing (e.g. spin-up runs that
+      rebuild the model).
+    - Without a clone map the clone already set is returned; it raises if none is set.
+    """
+
+    def grid():
+        # pcr.clone() follows later setclone calls, so its values are copied out
+        c = pcr.clone()
+        return c.nrRows(), c.nrCols(), c.cellSize(), c.west(), c.north()
+
+    current_grid = grid()
+    # pcr.clone() does not raise when no clone is set; it reports zero rows
+    if current_grid[0] == 0:
+        if cloneMapFileName is None:
+            raise RuntimeError("no clone has been set to inherit; give a clone map")
+        pcr.setclone(cloneMapFileName)
+        logger.info("clone set from " + cloneMapFileName)
+    elif cloneMapFileName is not None:
+        pcr.setclone(cloneMapFileName)
+        if grid() != current_grid:
+            pcr.setclone(*current_grid)
+            raise RuntimeError(
+                f"the clone is already set to a different grid than {cloneMapFileName}"
+            )
+    return pcr.clone()
+
+
 def readMapAttributes(cloneMap):
     # attributes of a PCRaster map as reported by mapattr, keyed by attribute name
     result = subprocess.run(

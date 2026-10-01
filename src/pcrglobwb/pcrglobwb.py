@@ -14,7 +14,7 @@ class PCRGlobWB(object):
         self._configuration = configuration
         self._modelTime = currTimeStep
 
-        pcr.setclone(configuration.cloneMap)
+        vos.set_clone(configuration.cloneMap)
 
         self.lddMap = vos.readPCRmapClone(
             configuration.routingOptions["lddMap"],
