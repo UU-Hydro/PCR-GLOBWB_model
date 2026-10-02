@@ -14,7 +14,6 @@ class ManufactureWaterDemand(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -53,7 +52,6 @@ class ManufactureWaterDemand(object):
                             varName="manufactureGrossDemand",
                             dateInput=currTimeStep.fulldate,
                             useDoy="monthly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),
@@ -67,7 +65,6 @@ class ManufactureWaterDemand(object):
                             varName="manufactureNettoDemand",
                             dateInput=currTimeStep.fulldate,
                             useDoy="monthly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),

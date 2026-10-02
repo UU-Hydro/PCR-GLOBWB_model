@@ -14,7 +14,6 @@ class WaterManagement(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -68,7 +67,6 @@ class WaterManagement(object):
         # cell area (m2)
         cellArea = vos.readPCRmapClone(
             iniItems.routingOptions["cellAreaMap"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -180,7 +178,6 @@ class WaterManagement(object):
                         iniItems.waterManagementOptions[
                             "irrigationSurfaceWaterAbstractionFractionData"
                         ],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -195,7 +192,6 @@ class WaterManagement(object):
                         iniItems.waterManagementOptions[
                             "irrigationSurfaceWaterAbstractionFractionDataQuality"
                         ],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -223,7 +219,6 @@ class WaterManagement(object):
             iniItems.waterManagementOptions[
                 "threshold_to_maximize_irrigation_surface_water"
             ],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -243,7 +238,6 @@ class WaterManagement(object):
             iniItems.waterManagementOptions[
                 "threshold_to_minimize_fossil_groundwater_irrigation"
             ],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -260,7 +254,6 @@ class WaterManagement(object):
             )
         self.maximumDailyGroundwaterAbstraction = vos.readPCRmapClone(
             iniItems.waterManagementOptions["maximumDailyGroundwaterAbstraction"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -277,7 +270,6 @@ class WaterManagement(object):
             ] = "0.020"
         self.maximumDailyFossilGroundwaterAbstraction = vos.readPCRmapClone(
             iniItems.waterManagementOptions["maximumDailyFossilGroundwaterAbstraction"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -309,7 +301,6 @@ class WaterManagement(object):
                             iniItems.waterManagementOptions[
                                 "maximumNonIrrigationSurfaceWaterAbstractionFractionData"
                             ],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         ),
@@ -342,7 +333,6 @@ class WaterManagement(object):
                         iniItems.waterManagementOptions[
                             "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
                         ],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -360,7 +350,6 @@ class WaterManagement(object):
     def get_allocation_zone(self, zonal_map_file_name):
         allocSegments = vos.readPCRmapClone(
             zonal_map_file_name,
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
             isLddMap=False,
@@ -728,7 +717,6 @@ class WaterManagement(object):
                             "automatic",
                             currTimeStep.fulldate,
                             useDoy="monthly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),
@@ -1032,7 +1020,6 @@ class WaterManagement(object):
                     "region_ids",
                     currTimeStep.fulldate,
                     useDoy="yearly",
-                    cloneMapFileName=self.cloneMap,
                 )
 
                 other_ids = (
@@ -1055,7 +1042,6 @@ class WaterManagement(object):
                             "regional_pumping_limit",
                             currTimeStep.fulldate,
                             useDoy="yearly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),

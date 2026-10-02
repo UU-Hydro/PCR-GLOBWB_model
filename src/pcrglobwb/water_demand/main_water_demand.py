@@ -19,7 +19,6 @@ class WaterDemand(object):
     def __init__(self, iniItems, landmask, landCoverTypeNames, landCoverObjects):
         object.__init__(self)
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask

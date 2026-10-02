@@ -14,7 +14,6 @@ class DomesticWaterDemand(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -56,7 +55,6 @@ class DomesticWaterDemand(object):
                                 varName="domesticGrossDemand",
                                 dateInput=currTimeStep.fulldate,
                                 useDoy="monthly",
-                                cloneMapFileName=self.cloneMap,
                             ),
                             0.0,
                         ),
@@ -70,7 +68,6 @@ class DomesticWaterDemand(object):
                                 varName="domesticNettoDemand",
                                 dateInput=currTimeStep.fulldate,
                                 useDoy="monthly",
-                                cloneMapFileName=self.cloneMap,
                             ),
                             0.0,
                         ),
@@ -93,7 +90,6 @@ class DomesticWaterDemand(object):
                         pcr.cover(
                             vos.readPCRmapClone(
                                 v=grossFileName,
-                                cloneMapFileName=self.cloneMap,
                                 tmpDir=self.tmpDir,
                             ),
                             0.0,
@@ -112,7 +108,6 @@ class DomesticWaterDemand(object):
                         pcr.cover(
                             vos.readPCRmapClone(
                                 v=nettoFileName,
-                                cloneMapFileName=self.cloneMap,
                                 tmpDir=self.tmpDir,
                             ),
                             0.0,

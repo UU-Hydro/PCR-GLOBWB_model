@@ -12,7 +12,6 @@ class WaterBodies(object):
     def __init__(self, iniItems, landmask, onlyNaturalWaterBodies=False, lddMap=None):
         object.__init__(self)
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -22,7 +21,6 @@ class WaterBodies(object):
         if lddMap is None:
             self.lddMap = vos.readPCRmapClone(
                 iniItems.routingOptions["lddMap"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
                 True,
@@ -78,12 +76,12 @@ class WaterBodies(object):
         if "minResvrFrac" in list(iniItems.routingOptions.keys()):
             minResvrFrac = iniItems.routingOptions["minResvrFrac"]
             self.minResvrFrac = vos.readPCRmapClone(
-                minResvrFrac, self.cloneMap, self.tmpDir, self.inputDir
+                minResvrFrac, self.tmpDir, self.inputDir
             )
         if "maxResvrFrac" in list(iniItems.routingOptions.keys()):
             maxResvrFrac = iniItems.routingOptions["maxResvrFrac"]
             self.maxResvrFrac = vos.readPCRmapClone(
-                maxResvrFrac, self.cloneMap, self.tmpDir, self.inputDir
+                maxResvrFrac, self.tmpDir, self.inputDir
             )
 
     def getParameterFiles(
@@ -120,13 +118,11 @@ class WaterBodies(object):
                 "fracWaterInp",
                 date_used,
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
             )
         else:
             if self.fracWaterInp != "None":
                 self.fracWat = vos.readPCRmapClone(
                     self.fracWaterInp + str(year_used) + ".map",
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -145,13 +141,11 @@ class WaterBodies(object):
                 "waterBodyIds",
                 date_used,
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
             )
         else:
             if self.waterBodyIdsInp != "None":
                 self.waterBodyIds = vos.readPCRmapClone(
                     self.waterBodyIdsInp + str(year_used) + ".map",
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -199,7 +193,6 @@ class WaterBodies(object):
                     "resSfAreaInp",
                     date_used,
                     useDoy="yearly",
-                    cloneMapFileName=self.cloneMap,
                 )
             )
         else:
@@ -209,7 +202,6 @@ class WaterBodies(object):
                     * 1000.0
                     * vos.readPCRmapClone(
                         self.resSfAreaInp + str(year_used) + ".map",
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -244,13 +236,11 @@ class WaterBodies(object):
                 "waterBodyTyp",
                 date_used,
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
             )
         else:
             if self.waterBodyTypInp != "None":
                 self.waterBodyTyp = vos.readPCRmapClone(
                     self.waterBodyTypInp + str(year_used) + ".map",
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -295,7 +285,6 @@ class WaterBodies(object):
                     "resMaxCapInp",
                     date_used,
                     useDoy="yearly",
-                    cloneMapFileName=self.cloneMap,
                 )
             )
         else:
@@ -305,7 +294,6 @@ class WaterBodies(object):
                     * 1000.0
                     * vos.readPCRmapClone(
                         self.resMaxCapInp + str(year_used) + ".map",
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )

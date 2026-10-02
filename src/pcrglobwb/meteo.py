@@ -47,7 +47,6 @@ class Meteo(object):
             if "avgAnnualPrecipitationIni" in list(iniItems.meteoOptions.keys()):
                 self.avgAnnualPrecipitation = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualPrecipitationIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -57,7 +56,6 @@ class Meteo(object):
             if "avgAnnualTemperatureIni" in list(iniItems.meteoOptions.keys()):
                 self.avgAnnualTemperature = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualTemperatureIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -67,7 +65,6 @@ class Meteo(object):
             if "avgAnnualDiurnalDeltaTempIni" in list(iniItems.meteoOptions.keys()):
                 self.avgAnnualDiurnalDeltaTemp = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualDiurnalDeltaTempIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -99,7 +96,6 @@ class Meteo(object):
     def __init__(self, iniItems, landmask, spinUp):
         object.__init__(self)
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
 
@@ -107,7 +103,6 @@ class Meteo(object):
         if iniItems.globalOptions["landmask"] != "None":
             self.landmask = vos.readPCRmapClone(
                 iniItems.globalOptions["landmask"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -173,15 +168,11 @@ class Meteo(object):
         self.read_meteo_variable_names(iniItems.meteoOptions)
 
         # latitudes, required to calculate referenceETPot with the Hamon and Penman-Monteith methods
-        self.latitudes = pcr.ycoordinate(pcr.defined(self.cloneMap))
+        self.latitudes = pcr.ycoordinate(pcr.boolean(1.0))
         self.latitudes_in_radian = vos.deg2rad(self.latitudes)
 
-        self.lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.defined(self.cloneMap)), np.nan)[
-            0, :
-        ]
-        self.lat = pcr.pcr2numpy(pcr.ycoordinate(pcr.defined(self.cloneMap)), np.nan)[
-            0, :
-        ]
+        self.lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.boolean(1.0)), np.nan)[0, :]
+        self.lat = pcr.pcr2numpy(pcr.ycoordinate(pcr.boolean(1.0)), np.nan)[0, :]
 
         # shortwave radiation class, required for the Bristow-Campbell method
         self.sw_rad_based_on_bristow_campbell = False
@@ -197,7 +188,6 @@ class Meteo(object):
             self.elevation_meteo = pcr.cover(
                 vos.readPCRmapClone(
                     iniItems.meteoOptions["dem_for_input_meteo"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -343,7 +333,6 @@ class Meteo(object):
             self.preConst = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["precipitationConstant"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -353,7 +342,6 @@ class Meteo(object):
             self.preFactor = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["precipitationFactor"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -363,7 +351,6 @@ class Meteo(object):
             self.tmpConst = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["temperatureConstant"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -373,7 +360,6 @@ class Meteo(object):
             self.tmpFactor = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["temperatureFactor"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -383,7 +369,6 @@ class Meteo(object):
             self.refETPotConst = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["referenceEPotConstant"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -393,7 +378,6 @@ class Meteo(object):
             self.refETPotFactor = pcr.cover(
                 vos.readPCRmapClone(
                     meteoOptions["referenceEPotFactor"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 ),
@@ -408,7 +392,6 @@ class Meteo(object):
                 vars(self)[consta_var_name] = pcr.cover(
                     vos.readPCRmapClone(
                         meteoOptions[consta_var_name],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -420,7 +403,6 @@ class Meteo(object):
                 vars(self)[factor_var_name] = pcr.cover(
                     vos.readPCRmapClone(
                         meteoOptions[factor_var_name],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -474,7 +456,6 @@ class Meteo(object):
             # anomaly DEM
             highResolutionDEM = vos.readPCRmapClone(
                 iniItems.meteoDownscalingOptions["highResolutionDEM"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -482,7 +463,6 @@ class Meteo(object):
             highResolutionDEM = pcr.max(highResolutionDEM, 0.0)
             self.meteoDownscaleIds = vos.readPCRmapClone(
                 iniItems.meteoDownscalingOptions["meteoDownscaleIds"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
                 isLddMap=False,
@@ -491,7 +471,6 @@ class Meteo(object):
             )
             self.cellArea = vos.readPCRmapClone(
                 iniItems.routingOptions["cellAreaMap"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -535,7 +514,6 @@ class Meteo(object):
                 self.forcingSmoothing = True
                 self.smoothingWindowsLength = vos.readPCRmapClone(
                     iniItems.meteoDownscalingOptions["smoothingWindowsLength"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -1037,13 +1015,11 @@ class Meteo(object):
                 self.precip_downscaling_factor_file,
                 doyStep,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
             )
             drizzle_limit = vos.readDownscalingZarr(
                 self.precip_drydays_file,
                 currTimeStep.month,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
             )
 
             self.precipitation = pcr.ifthenelse(
@@ -1058,7 +1034,6 @@ class Meteo(object):
                 self.precipLapseRateNC,
                 dateInput=currTimeStep.month,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
             preSlope = pcr.cover(preSlope, 0.0)
@@ -1068,7 +1043,6 @@ class Meteo(object):
                 self.precipitCorrelNC,
                 dateInput=currTimeStep.month,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
             preSlope = pcr.ifthenelse(
@@ -1120,7 +1094,6 @@ class Meteo(object):
                 self.temp_downscaling_factor_file,
                 doyStep,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
             )
             self.temperature = self.temperature + factor
 
@@ -1129,7 +1102,6 @@ class Meteo(object):
                 self.temperLapseRateNC,
                 dateInput=currTimeStep.month,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
             # must be negative
@@ -1138,7 +1110,6 @@ class Meteo(object):
                 self.temperatCorrelNC,
                 dateInput=currTimeStep.month,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
             tmpSlope = pcr.ifthenelse(
@@ -1174,7 +1145,6 @@ class Meteo(object):
             self.temperLapseRateNC,
             dateInput=currTimeStep.month,
             useDoy="Yes",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
         # must be negative
@@ -1183,7 +1153,6 @@ class Meteo(object):
             self.temperatCorrelNC,
             dateInput=currTimeStep.month,
             useDoy="Yes",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
         tmpSlope = pcr.ifthenelse(tmpCriteria < maxCorrelationCriteria, tmpSlope, 0.0)
@@ -1219,7 +1188,6 @@ class Meteo(object):
                 self.evap_downscaling_factor_file,
                 doyStep,
                 useDoy="Yes",
-                cloneMapFileName=self.cloneMap,
             )
             self.referencePotET = self.referencePotET * factor
 
@@ -1300,7 +1268,6 @@ class Meteo(object):
                 "automatic",
                 str(currTimeStep.fulldate),
                 useDoy=method_for_time_index,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
 
@@ -1310,7 +1277,6 @@ class Meteo(object):
                 "automatic",
                 str(currTimeStep.fulldate),
                 useDoy=method_for_time_index,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
 
@@ -1368,7 +1334,6 @@ class Meteo(object):
                 "automatic",
                 str(currTimeStep.fulldate),
                 useDoy=method_for_time_index,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
 
@@ -1378,7 +1343,6 @@ class Meteo(object):
                 "automatic",
                 str(currTimeStep.fulldate),
                 useDoy=method_for_time_index,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
             )
 
@@ -1439,7 +1403,6 @@ class Meteo(object):
                     "automatic",
                     str(currTimeStep.fulldate),
                     useDoy=method_for_time_index,
-                    cloneMapFileName=self.cloneMap,
                     LatitudeLongitude=True,
                 )
 
@@ -1449,7 +1412,6 @@ class Meteo(object):
                     "automatic",
                     str(currTimeStep.fulldate),
                     useDoy=method_for_time_index,
-                    cloneMapFileName=self.cloneMap,
                     LatitudeLongitude=True,
                 )
 
@@ -1477,7 +1439,6 @@ class Meteo(object):
                     varName="automatic",
                     dateInput=str(currTimeStep.fulldate),
                     useDoy=method_for_time_index,
-                    cloneMapFileName=self.cloneMap,
                 )
 
                 # apply the conversion factor and constant

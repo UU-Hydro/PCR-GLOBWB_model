@@ -22,7 +22,6 @@ class LandCover(object):
     ):
         object.__init__(self)
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -75,7 +74,6 @@ class LandCover(object):
         if self.interceptionModuleType == "Modified":
             self.minInterceptCap = vos.readPCRmapClone(
                 self.iniItemsLC["minInterceptCap"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -142,14 +140,11 @@ class LandCover(object):
         ]
         for var in snowParams:
             input = self.iniItemsLC[str(var)]
-            vars(self)[var] = vos.readPCRmapClone(
-                input, self.cloneMap, self.tmpDir, self.inputDir
-            )
+            vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
             vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))
 
         self.cellArea = vos.readPCRmapClone(
             iniItems.routingOptions["cellAreaMap"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -162,15 +157,12 @@ class LandCover(object):
             self.snowTransport = self.iniItemsLC["snowTransport"]
             for var in ["Hv", "frho"]:
                 input = self.iniItemsLC[str(var)]
-                vars(self)[var] = vos.readPCRmapClone(
-                    input, self.cloneMap, self.tmpDir, self.inputDir
-                )
+                vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
                 vars(self)[var] = pcr.spatial(pcr.scalar(vars(self)[var]))
 
             self.reverseLDD = pcr.ldd(
                 vos.readPCRmapClone(
                     iniItems.landSurfaceOptions["invertedDEM"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -236,9 +228,7 @@ class LandCover(object):
         landCovParamsAdd = ["minTopWaterLayer", "minCropKC"]
         for var in landCovParamsAdd:
             input = self.iniItemsLC[str(var)]
-            vars(self)[var] = vos.readPCRmapClone(
-                input, self.cloneMap, self.tmpDir, self.inputDir
-            )
+            vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
             if input != "None":
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
 
@@ -247,7 +237,6 @@ class LandCover(object):
         if self.iniItemsLC["name"].startswith("irr") and self.name != "irrPaddy":
             self.cropDeplFactor = vos.readPCRmapClone(
                 self.iniItemsLC["cropDeplFactor"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -410,7 +399,7 @@ class LandCover(object):
                 for var in landCovParams:
                     input = self.iniItemsLC[str(var)]
                     lc_parameters[var] = vos.readPCRmapClone(
-                        input, self.cloneMap, self.tmpDir, self.inputDir
+                        input, self.tmpDir, self.inputDir
                     )
                     if input != "None":
                         lc_parameters[var] = pcr.cover(lc_parameters[var], 0.0)
@@ -421,9 +410,7 @@ class LandCover(object):
                 )
                 for var in landCovParams:
                     lc_parameters[var] = pcr.cover(
-                        vos.netcdf2PCRobjCloneWithoutTime(
-                            landCoverPropertiesNC, var, cloneMapFileName=self.cloneMap
-                        ),
+                        vos.netcdf2PCRobjCloneWithoutTime(landCoverPropertiesNC, var),
                         0.0,
                     )
 
@@ -447,7 +434,6 @@ class LandCover(object):
                 )
                 lc_parameters["arnoBeta"] = vos.readPCRmapClone(
                     self.iniItemsLC["arnoBeta"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -466,7 +452,7 @@ class LandCover(object):
                         + str(self.iniItemsLC["arnoBeta"])
                     )
                     lc_parameters["arnoBeta"] = vos.netcdf2PCRobjCloneWithoutTime(
-                        landCoverPropertiesNC, "arnoBeta", self.cloneMap
+                        landCoverPropertiesNC, "arnoBeta"
                     )
 
             # option 3: approximated from minSoilDepthFrac and maxSoilDepthFrac
@@ -519,7 +505,6 @@ class LandCover(object):
                             var,
                             date_in_string,
                             useDoy="yearly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     )
@@ -530,7 +515,6 @@ class LandCover(object):
                             pcr.spatial(
                                 vos.readPCRmapClone(
                                     ini_option,
-                                    self.cloneMap,
                                     self.tmpDir,
                                     self.inputDir,
                                 )
@@ -539,7 +523,7 @@ class LandCover(object):
                         )
                     except Exception:
                         lc_parameters[var] = vos.readPCRmapClone(
-                            ini_option, self.cloneMap, self.tmpDir, self.inputDir
+                            ini_option, self.tmpDir, self.inputDir
                         )
 
             # if not defined, approximate arnoBeta from minSoilDepthFrac and maxSoilDepthFrac
@@ -658,7 +642,6 @@ class LandCover(object):
         ):
             min_percolation_loss = vos.readPCRmapClone(
                 iniPaddyOptions["minPercolationLoss"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -668,7 +651,6 @@ class LandCover(object):
         ):
             min_percolation_loss = vos.readPCRmapClone(
                 iniPaddyOptions["maxPercolationLoss"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -926,7 +908,7 @@ class LandCover(object):
                 if iniConditions is None:
                     input = self.iniItemsLC[str(var) + "Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
-                        input, self.cloneMap, self.tmpDir, self.inputDir
+                        input, self.tmpDir, self.inputDir
                     )
                     vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 else:
@@ -950,7 +932,7 @@ class LandCover(object):
                 if iniConditions is None:
                     input = self.iniItemsLC[str(var) + "Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
-                        input, self.cloneMap, self.tmpDir, self.inputDir, cover=0.0
+                        input, self.tmpDir, self.inputDir, cover=0.0
                     )
                     vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
                 else:
@@ -998,7 +980,6 @@ class LandCover(object):
                     "kc",
                     currTimeStep.fulldate,
                     useDoy="daily_seasonal",
-                    cloneMapFileName=self.cloneMap,
                 ),
                 0.0,
             )
@@ -1018,7 +999,6 @@ class LandCover(object):
                     "interceptCapInput",
                     currTimeStep.fulldate,
                     useDoy="daily_seasonal",
-                    cloneMapFileName=self.cloneMap,
                 ),
                 0.0,
             )
@@ -1030,7 +1010,6 @@ class LandCover(object):
                     "coverFractionInput",
                     currTimeStep.fulldate,
                     useDoy="daily_seasonal",
-                    cloneMapFileName=self.cloneMap,
                 ),
                 0.0,
             )

@@ -150,7 +150,7 @@ class DeterministicRunner(DynamicModel):
 
         if storGroundwaterIni_file != "Default":
             self.model.groundwater.storGroundwater = vos.readPCRmapClone(
-                storGroundwaterIni_file, configuration.cloneMap, configuration.tmpDir
+                storGroundwaterIni_file, configuration.tmpDir
             )
             self.model.groundwater.storGroundwater = pcr.ifthen(
                 self.landmask, pcr.cover(self.model.groundwater.storGroundwater, 0.0)
