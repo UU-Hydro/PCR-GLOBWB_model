@@ -9,6 +9,7 @@ from qualloc.allocation import (
     allocate_demand_to_availability_with_options,
     allocate_withdrawals_to_demand_with_options,
     get_key,
+    get_zonal_minimum,
     get_zonal_total,
     obtain_allocation_ratio,
 )
@@ -402,14 +403,14 @@ total_return_flow_ini                      : total return flow [m3/day]
         # ids, and (3) the withdrawal capacity at the withdrawal points (m3/day); all are maps (nominal
         # ids, scalar capacity); a withdrawal capacity of None means unlimited withdrawal
 
-        # allocation zones per sector
-        self.groundwater_allocation_zones = dict(
+        # allocation zones per sector, or None if every cell is its own zone
+        self.groundwater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, groundwater_allocation_zones) for sector_name in sector_names
         )
-        self.surfacewater_allocation_zones = dict(
+        self.surfacewater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, surfacewater_allocation_zones) for sector_name in sector_names
         )
-        self.desalwater_allocation_zones = dict(
+        self.desalwater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, desalwater_allocation_zones) for sector_name in sector_names
         )
 
@@ -422,29 +423,8 @@ total_return_flow_ini                      : total return flow [m3/day]
         # for these sectors, each cell is its own allocation zone
         for sector_name in self.sectors_local_surfacewater:
             if sector_name in self.sector_names:
-                self.surfacewater_allocation_zones[sector_name] = pcr.ifthen(
-                    pcr.scalar(surfacewater_allocation_zones) > 0,
-                    pcr.nominal(
-                        pcr.uniqueid(
-                            pcr.ifthen(
-                                pcr.scalar(surfacewater_allocation_zones) > 0,
-                                pcr.boolean(1),
-                            )
-                        )
-                    ),
-                )
-
-                self.groundwater_allocation_zones[sector_name] = pcr.ifthen(
-                    pcr.scalar(groundwater_allocation_zones) > 0,
-                    pcr.nominal(
-                        pcr.uniqueid(
-                            pcr.ifthen(
-                                pcr.scalar(groundwater_allocation_zones) > 0,
-                                pcr.boolean(1),
-                            )
-                        )
-                    ),
-                )
+                self.surfacewater_allocation_zones[sector_name] = None
+                self.groundwater_allocation_zones[sector_name] = None
 
                 # alternatively, set all groundwater allocation zones to missing values; all later calculations
                 # must then be covered with zeros
@@ -499,8 +479,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             zones = getattr(self, "%s_allocation_zones" % source_name)
             for sector_name in self.sector_names:
                 n_cells = get_zonal_total(
-                    pcr.ifthen(pcr.defined(zones[sector_name]), pcr.scalar(1)),
-                    zones[sector_name],
+                    pcr.spatial(pcr.scalar(1)), zones[sector_name]
                 )
                 self.prioritization[source_name][sector_name] = (
                     self.prioritization[source_name][sector_name] * n_cells
@@ -2058,7 +2037,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 capacity = withdrawal_capacity_remaining
                 availability_per_sector = capacity * suitability[sector_name]
             else:
-                capacity = pcr.areaminimum(availability, zones[sector_name])
+                capacity = get_zonal_minimum(availability, zones[sector_name])
                 capacity = pcr.ifthenelse(capacity > 0, capacity, pcr.scalar(1))
 
                 availability_per_sector = pcr.ifthenelse(

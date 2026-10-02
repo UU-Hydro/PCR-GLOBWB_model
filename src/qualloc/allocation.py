@@ -33,16 +33,17 @@ def get_key(str_list):
 # zones with the PCRaster area functions
 
 
-def get_zonal_total(local_values, zones):
+def get_zonal_total(local_values: pcr.Field, zones: pcr.Field | None) -> pcr.Field:
     """
-get_zonal_fraction: function that computes the fractional value per cell over \
-the total of the provided zones.
+get_zonal_total: function that computes the total of the local values per zone \
+and assigns it to every cell in the zone.
 
     Input:
     ======
     local values:            local cell values as a scalar PCRaster field;
     zones:                   zones over which the totals are computed as
-                             a nominal PCRaster field.
+                             a nominal PCRaster field, or None if every cell
+                             is its own zone.
 
     Output:
     =======
@@ -50,11 +51,37 @@ the total of the provided zones.
                              PCRaster field.
 
 """
-
+    # without zones, every cell is its own zone
+    if zones is None:
+        return local_values
     return pcr.areatotal(local_values, zones)
 
 
-def get_zonal_fraction(local_values, zones):
+def get_zonal_minimum(local_values: pcr.Field, zones: pcr.Field | None) -> pcr.Field:
+    """
+get_zonal_minimum: function that computes the minimum of the local values per zone \
+and assigns it to every cell in the zone.
+
+    Input:
+    ======
+    local values:            local cell values as a scalar PCRaster field;
+    zones:                   zones over which the minimum values are computed as
+                             a nominal PCRaster field, or None if every cell
+                             is its own zone.
+
+    Output:
+    =======
+    minimums:                minimum values over the zones per cell as a scalar
+                             PCRaster field.
+
+"""
+    # without zones, every cell is its own zone
+    if zones is None:
+        return local_values
+    return pcr.areaminimum(local_values, zones)
+
+
+def get_zonal_fraction(local_values: pcr.Field, zones: pcr.Field | None) -> pcr.Field:
     """
 get_zonal_fraction: function that computes the fractional value per cell over \
 the total of the provided zones.
@@ -63,7 +90,10 @@ the total of the provided zones.
     ======
     local values:            local cell values as a scalar PCRaster field;
     zones:                   zones over which the fractional values for the
-                             cells are computed as a nominal PCRaster field.
+                             cells are computed as a nominal PCRaster field,
+                             or None if every cell is its own zone (the
+                             fraction is then 1 where the local value is
+                             positive).
 
     Output:
     =======
@@ -80,17 +110,19 @@ the total of the provided zones.
 
 
 def group_sources_by_zones(
-    zones: dict[str, pcr.Field] | None,
+    zones: dict[str, pcr.Field | None],
     sources: list[str],
 ) -> dict[str, list[str]]:
     """
-    Groups the sources that share the same zone map (the same object); without
-    zones, every cell is its own zone for all sources, so they form one group.
+    Groups the sources that share the same zone map (the same object); sources
+    without zones (None) have every cell as their own zone, so they form one group
+    as well.
 
     Input:
     ======
-    zones (dict[str, pcr.Field] | None):
-                                    nominal allocation zones per source;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     sources (list[str]):            names of the sources.
 
     Output:
@@ -103,7 +135,7 @@ def group_sources_by_zones(
     # pcr_share_identical_maps can be used beforehand to make them the same object
     groups = {}
     for s in sources:
-        key = None if zones is None else id(zones[s])
+        key = None if zones[s] is None else id(zones[s])
         groups.setdefault(key, []).append(s)
 
     return {get_key(members): members for members in groups.values()}
@@ -111,9 +143,9 @@ def group_sources_by_zones(
 
 def combine_sources(
     availability: dict[str, pcr.Field],
-    zones: dict[str, pcr.Field] | None,
+    zones: dict[str, pcr.Field | None],
     groups: dict[str, list[str]],
-) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field] | None]:
+) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field | None]]:
     """
     Combines the sources of each group into one source: their supply is summed and
     their shared zone map is kept.
@@ -122,31 +154,30 @@ def combine_sources(
     ======
     availability (dict[str, pcr.Field]):
                                     scalar supply per cell per source;
-    zones (dict[str, pcr.Field] | None):
-                                    nominal allocation zones per source;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     groups (dict[str, list[str]]):  sources per group.
 
     Output:
     =======
     group_availability (dict[str, pcr.Field]):
                                     summed supply per group;
-    group_zones (dict[str, pcr.Field] | None):
-                                    zone map per group; None if zones is None.
+    group_zones (dict[str, pcr.Field | None]):
+                                    zone map per group, or None if every cell is
+                                    its own zone.
     """
 
     group_availability = {
         g: sum_list([availability[s] for s in members]) for g, members in groups.items()
     }
-    if zones is None:
-        return group_availability, None
-
     group_zones = {g: zones[members[0]] for g, members in groups.items()}
     return group_availability, group_zones
 
 
 def split_sources(
     availability: dict[str, pcr.Field],
-    zones: dict[str, pcr.Field] | None,
+    zones: dict[str, pcr.Field | None],
     groups: dict[str, list[str]],
     group_untapped: dict[str, pcr.Field],
     group_allocated: dict[str, pcr.Field],
@@ -161,8 +192,9 @@ def split_sources(
     ======
     availability (dict[str, pcr.Field]):
                                     scalar supply per cell per source;
-    zones (dict[str, pcr.Field] | None):
-                                    nominal allocation zones per source;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     groups (dict[str, list[str]]):  sources per group;
     group_untapped (dict[str, pcr.Field]):
                                     untapped supply per group;
@@ -193,14 +225,10 @@ def split_sources(
             group_untapped[g], group_availability, very_small_number
         )
 
-        # allocated demand: in proportion to each source's share of the zonal supply;
-        # without zones, every cell is its own zone
-        if zones is not None:
-            zonal_availability = {
-                s: get_zonal_total(availability[s], zones[s]) for s in members
-            }
-        else:
-            zonal_availability = {s: availability[s] for s in members}
+        # allocated demand: in proportion to each source's share of the zonal supply
+        zonal_availability = {
+            s: get_zonal_total(availability[s], zones[s]) for s in members
+        }
         zonal_availability_total = sum_list(list(zonal_availability.values()))
 
         for s in members:
@@ -220,7 +248,7 @@ def obtain_allocation_ratio(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
     source_names: list[str],
-    zones: dict[str, pcr.Field] | None = None,
+    zones: dict[str, pcr.Field | None],
     zonal_availability: dict[str, pcr.Field] | None = None,
 ) -> tuple[dict[str, pcr.Field], dict[str, pcr.Field], dict[str, pcr.Field]]:
     """
@@ -232,9 +260,9 @@ def obtain_allocation_ratio(
     demand (pcr.Field):             scalar demand per cell;
     availability (dict[str, pcr.Field]):
                                     scalar availability per cell per source;
-    zones (dict[str, pcr.Field] | None):
-                                    nominal allocation zones per source; if None,
-                                    every cell is its own zone;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     zonal_availability (dict[str, pcr.Field] | None):
                                     availability per zone per source; if None, it
                                     is computed from availability and zones.
@@ -254,24 +282,18 @@ def obtain_allocation_ratio(
 
     # zonal availability of the supply not yet withdrawn; computed if not provided
     if zonal_availability is None:
-        if zones is not None:
-            zonal_availability = {
-                s: get_zonal_total(availability[s], zones[s]) for s in source_names
-            }
-        else:
-            zonal_availability = {s: availability[s] for s in source_names}
+        zonal_availability = {
+            s: get_zonal_total(availability[s], zones[s]) for s in source_names
+        }
 
     # zonal unmet demand per source
-    if zones is not None:
-        zonal_demand = {
-            s: get_zonal_total(
-                demand,
-                zones[s],
-            )
-            for s in source_names
-        }
-    else:
-        zonal_demand = {s: demand for s in source_names}
+    zonal_demand = {
+        s: get_zonal_total(
+            demand,
+            zones[s],
+        )
+        for s in source_names
+    }
 
     # Demand share:
     # The local demand as a proportion of the zonal demand
@@ -310,7 +332,7 @@ def allocate_demand_to_availability(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
     source_names: list[str],
-    zones: dict[str, pcr.Field] | None,
+    zones: dict[str, pcr.Field | None],
     max_iterations: int = 100,
     relative_tolerance: float = 1e-6,
     summarize: bool = False,
@@ -325,9 +347,9 @@ def allocate_demand_to_availability(
     withdrawn from its cells in proportion to their untapped supply. Iterates
     until the demand is met, the supply is exhausted or no progress is made.
 
-    Sources that share the same zone map (the same object) are allocated as one
-    source with their summed supply and split back afterwards, which gives the same
-    result with fewer zonal totals.
+    Sources that share the same zone map (the same object), or that have no zones,
+    are allocated as one source with their summed supply and split back afterwards,
+    which gives the same result with fewer zonal totals.
 
     Input:
     ======
@@ -335,9 +357,9 @@ def allocate_demand_to_availability(
     availability (dict[str, pcr.Field]):
                                     scalar supply per cell per source; negatives
                                     count as 0;
-    zones (dict[str, pcr.Field] | None):
-                                    nominal allocation zones per source; if None,
-                                    every cell is its own zone;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     max_iterations (int):           maximum number of iterations;
     relative_tolerance (float):     fraction of the initial demand and supply below
                                     which they count as zero;
@@ -401,7 +423,7 @@ def _allocate_demand_to_availability(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
     source_names: list[str],
-    zones: dict[str, pcr.Field] | None,
+    zones: dict[str, pcr.Field | None],
     max_iterations: int = 100,
     relative_tolerance: float = 1e-6,
     summarize: bool = False,
@@ -436,18 +458,14 @@ def _allocate_demand_to_availability(
         return unmet, untapped, allocated, message
 
     # zonal untapped supply per source; it is computed once and then reduced by the
-    # withdrawn fraction, as every cell in a zone loses the same fraction; without
-    # zones, every cell is its own zone
-    if zones is not None:
-        zonal_untapped = {
-            s: get_zonal_total(
-                untapped[s],
-                zones[s],
-            )
-            for s in source_names
-        }
-    else:
-        zonal_untapped = {s: untapped[s] for s in source_names}
+    # withdrawn fraction, as every cell in a zone loses the same fraction
+    zonal_untapped = {
+        s: get_zonal_total(
+            untapped[s],
+            zones[s],
+        )
+        for s in source_names
+    }
 
     # nothing to allocate if there is no untapped supply
     # untapped supply below these tolerances count as zero
@@ -483,16 +501,13 @@ def _allocate_demand_to_availability(
         }
 
         # zonal allocation per source
-        if zones is not None:
-            zonal_allocation = {
-                s: get_zonal_total(
-                    allocation[s],
-                    zones[s],
-                )
-                for s in source_names
-            }
-        else:
-            zonal_allocation = {s: allocation[s] for s in source_names}
+        zonal_allocation = {
+            s: get_zonal_total(
+                allocation[s],
+                zones[s],
+            )
+            for s in source_names
+        }
 
         # Withdrawal fraction:
         # The zonal allocation as a proportion of the zonal untapped supply; every cell
@@ -629,7 +644,7 @@ def allocate_demand_to_availability_with_options(
     demand: pcr.Field,
     availability: dict[str, pcr.Field],
     source_names: list[str],
-    zones: dict[str, pcr.Field],
+    zones: dict[str, pcr.Field | None],
     use_local_first: pcr.Field,
     use_allocation_zone: bool = True,
     reallocate_surplus: bool = True,
@@ -652,7 +667,9 @@ def allocate_demand_to_availability_with_options(
     availability (dict[str, pcr.Field]):
                                     scalar supply per cell per source; negatives
                                     count as 0;
-    zones (dict[str, pcr.Field]):   nominal allocation zones per source;
+    zones (dict[str, pcr.Field | None]):
+                                    nominal allocation zones per source, or None
+                                    if every cell is its own zone;
     use_local_first (pcr.Field):    boolean; cells that use their own supply first;
     use_allocation_zone (bool):     apply step 2;
     reallocate_surplus (bool):      apply step 3;
@@ -687,6 +704,7 @@ def allocate_demand_to_availability_with_options(
         untapped_local = {
             s: pcr.ifthenelse(use_local_first, untapped[s], 0) for s in source_names
         }
+        zones_local = {s: None for s in source_names}
 
         (
             opt_unmet,
@@ -697,7 +715,7 @@ def allocate_demand_to_availability_with_options(
             demand=unmet_local,
             availability=untapped_local,
             source_names=source_names,
-            zones=None,
+            zones=zones_local,
             summarize=summarize,
         )
 
@@ -968,7 +986,7 @@ def allocate_withdrawals_to_demand(
     withdrawal: dict[str, dict[str, pcr.Field]],
     source_names: list[str],
     sector_names: list[str],
-    zones: dict[str, dict[str, pcr.Field]] | None,
+    zones: dict[str, dict[str, pcr.Field | None]],
     summarize: bool = False,
 ) -> tuple[
     dict[str, pcr.Field],
@@ -991,9 +1009,9 @@ def allocate_withdrawals_to_demand(
     withdrawal (dict[str, dict[str, pcr.Field]]):
                                     scalar withdrawal per source per sector;
                                     negatives count as 0;
-    zones (dict[str, dict[str, pcr.Field]] | None):
-                                    nominal allocation zones per source per sector;
-                                    if None, every cell is its own zone;
+    zones (dict[str, dict[str, pcr.Field | None]]):
+                                    nominal allocation zones per source per sector,
+                                    or None if every cell is its own zone;
     summarize (bool):               add statistics to the message.
 
     Output:
@@ -1038,14 +1056,10 @@ def allocate_withdrawals_to_demand(
                 continue
 
             # zonal totals; without zones, every cell is its own zone
-            if zones is not None:
-                zonal_unused = get_zonal_total(
-                    unused[source][sector], zones[source][sector]
-                )
-                zonal_unmet = get_zonal_total(unmet[sector], zones[source][sector])
-            else:
-                zonal_unused = unused[source][sector]
-                zonal_unmet = unmet[sector]
+            zonal_unused = get_zonal_total(
+                unused[source][sector], zones[source][sector]
+            )
+            zonal_unmet = get_zonal_total(unmet[sector], zones[source][sector])
 
             # Demand share:
             # The local demand as a proportion of the zonal demand
@@ -1061,10 +1075,7 @@ def allocate_withdrawals_to_demand(
             # Minimum of the potential allocation and the unmet demand
             allocation = pcr.min(potential_allocation, unmet[sector])
 
-            if zones is not None:
-                zonal_allocation = get_zonal_total(allocation, zones[source][sector])
-            else:
-                zonal_allocation = allocation
+            zonal_allocation = get_zonal_total(allocation, zones[source][sector])
 
             # Withdrawal fraction:
             # The zonal allocation as a proportion of the zonal unused withdrawal; every
@@ -1178,7 +1189,7 @@ def allocate_withdrawals_to_demand_with_options(
     withdrawal_names: list[str],
     source_names: list[str],
     sector_names: list[str],
-    zones: dict[str, dict[str, pcr.Field]],
+    zones: dict[str, dict[str, pcr.Field | None]],
     use_local_first: pcr.Field,
     summarize: bool = False,
 ) -> tuple[
@@ -1204,8 +1215,9 @@ def allocate_withdrawals_to_demand_with_options(
     nonrenewable (dict[str, dict[str, pcr.Field]]):
                                     non-renewable withdrawal per source per sector;
                                     negatives count as 0;
-    zones (dict[str, dict[str, pcr.Field]]):
-                                    nominal allocation zones per source per sector;
+    zones (dict[str, dict[str, pcr.Field | None]]):
+                                    nominal allocation zones per source per sector,
+                                    or None if every cell is its own zone;
     use_local_first (pcr.Field):    boolean; cells that use their own withdrawal
                                     first;
     summarize (bool):               add statistics to the message.
@@ -1287,6 +1299,7 @@ def allocate_withdrawals_to_demand_with_options(
                 }
                 for so in source_names
             }
+            zones_local = {so: {se: None for se in sector_names} for so in source_names}
 
             (
                 opt_unmet,
@@ -1298,7 +1311,7 @@ def allocate_withdrawals_to_demand_with_options(
                 withdrawal=unused_local,
                 source_names=source_names,
                 sector_names=sector_names,
-                zones=None,
+                zones=zones_local,
                 summarize=summarize,
             )
 
