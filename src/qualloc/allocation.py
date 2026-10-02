@@ -99,8 +99,8 @@ def group_sources_by_zones(
                                     key joins the source names with underscores.
     """
 
-    # identical maps are recognized by object, not by content: pcr_same_map can be
-    # used beforehand to make identical zone maps the same object
+    # identical maps are recognized by object, not by content:
+    # pcr_share_identical_maps can be used beforehand to make them the same object
     groups = {}
     for s in sources:
         key = None if zones is None else id(zones[s])

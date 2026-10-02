@@ -6,7 +6,11 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from qualloc.basic_functions import pcr_return_val_div_zero, pcr_same_map, sum_list
+from qualloc.basic_functions import (
+    pcr_return_val_div_zero,
+    pcr_share_identical_maps,
+    sum_list,
+)
 from qualloc.file_handler import close_nc_cache, compose_filename, read_file_entry
 from qualloc.groundwater import groundwater
 from qualloc.initial_conditions_handler import (
@@ -514,10 +518,17 @@ class qualloc_model(object):
         )
 
         # identical zone maps share one object, so the allocation can combine sources
-        if pcr_same_map(surfacewater_allocation_zones, groundwater_allocation_zones):
-            surfacewater_allocation_zones = groundwater_allocation_zones
-        if pcr_same_map(desalwater_allocation_zones, groundwater_allocation_zones):
-            desalwater_allocation_zones = groundwater_allocation_zones
+        # (group_sources_by_zones groups them by object); add new sources here
+        allocation_zones = pcr_share_identical_maps(
+            {
+                "groundwater": groundwater_allocation_zones,
+                "surfacewater": surfacewater_allocation_zones,
+                "desalwater": desalwater_allocation_zones,
+            }
+        )
+        groundwater_allocation_zones = allocation_zones["groundwater"]
+        surfacewater_allocation_zones = allocation_zones["surfacewater"]
+        desalwater_allocation_zones = allocation_zones["desalwater"]
 
         # withdrawal points
         groundwater_withdrawal_points = read_file_entry(
@@ -807,6 +818,7 @@ class qualloc_model(object):
         )
 
         # remove temporary variables
+        allocation_zones = None
         groundwater_allocation_zones = None
         surfacewater_allocation_zones = None
         groundwater_withdrawal_points = None
@@ -824,6 +836,7 @@ class qualloc_model(object):
         withdrawal_names = None
 
         del (
+            allocation_zones,
             groundwater_allocation_zones,
             surfacewater_allocation_zones,
             groundwater_withdrawal_points,
