@@ -1,6 +1,5 @@
 import datetime
 import logging
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
@@ -117,7 +116,7 @@ def water_balance_check(
             pcr.aguila(diff, diff * cellarea)
 
         if not flag_warning:
-            sys.exit()
+            raise RuntimeError(msg)
 
 
 def estimate_waterdepth_from_discharge(
@@ -187,11 +186,11 @@ def estimate_waterdepth_from_discharge(
 
     waterdepth = pcr.ifthenelse(discharge_mask, waterdepth, pcr.scalar(0))
 
-    message_str = (
-        "water depth converged after %d iterations with a maximum deviation of %.3g"
-        % (icnt, conv_value)
+    logger.info(
+        "water depth converged after %d iterations with a maximum deviation of %.3g",
+        icnt,
+        conv_value,
     )
-    print(message_str)
 
     return waterdepth
 
@@ -968,10 +967,12 @@ total_return_flow_ini                      : total return flow [m3/day]
             surfacewater_runoff = self.surfacewater_total_runoff
 
         else:
-            logger.error(
+            msg = (
                 "the option %s for the time increment in the water management module is not allowed!"
+                % self.time_increment
             )
-            sys.exit()
+            logger.error(msg)
+            raise ValueError(msg)
 
         # surface water: average daily discharge from the upstream cell plus the total runoff of this cell (m3/s)
         discharge = (
@@ -1169,10 +1170,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
 
         else:
-            logger.error(
+            msg = (
                 "the option %s for the time increment in the water management module is not allowed!"
+                % self.time_increment
             )
-            sys.exit()
+            logger.error(msg)
+            raise ValueError(msg)
 
         # convert the long-term sectoral gross water demand to volume and cover with zeros over the
         # land mask (m3/day)

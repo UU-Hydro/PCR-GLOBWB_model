@@ -146,7 +146,6 @@ def main():
     time_increment = model_configuration.time["time_increment"]
 
     if time_increment not in allowed_time_increments:
-        message_str = ""
         message_str = str.join(
             " ",
             (
@@ -156,7 +155,7 @@ def main():
             ),
         )
         logger.error(message_str)
-        sys.exit()
+        raise ValueError(message_str)
 
     pcr_time = model_time(startyear, endyear, time_increment)
 
@@ -183,4 +182,3 @@ def main():
 if __name__ == "__main__":
     main()
     logging.shutdown()
-    print("all done")
