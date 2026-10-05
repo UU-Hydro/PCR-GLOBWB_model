@@ -6,8 +6,9 @@ import pcraster as pcr
 
 from qualloc.allocation import (
     allocate_demand_to_availability_with_options,
-    allocate_demand_to_withdrawals,
+    allocate_withdrawals_to_demand_with_options,
     get_key,
+    get_zonal_minimum,
     get_zonal_total,
     obtain_allocation_ratio,
 )
@@ -40,6 +41,7 @@ water_management_missing_value = -9.99
 
 # for debugging only
 debug = True
+_zonal_cellarea_cache: dict[int, tuple[pcr.Field, pcr.Field]] = {}
 
 
 def water_balance_check(
@@ -89,12 +91,18 @@ def water_balance_check(
 
     # aggregate the water volumes over the allocation zones
     if not isinstance(zones, NoneType):
-        in_map = get_zonal_total(in_map, zones)
-        out_map = get_zonal_total(out_map, zones)
-        cellarea = get_zonal_total(cellarea, zones)
+        in_out_map = get_zonal_total(in_map - out_map, zones)
+        cached = _zonal_cellarea_cache.get(id(zones))
+        if cached is None or cached[0] is not zones:
+            cached = (zones, get_zonal_total(cellarea, zones))
+            _zonal_cellarea_cache[id(zones)] = cached
+        zonal_cellarea = cached[1]
+    else:
+        in_out_map = in_map - out_map
+        zonal_cellarea = cellarea
 
     # difference as water slice
-    diff = (in_map - out_map) / cellarea
+    diff = in_out_map / zonal_cellarea
     vmin = pcr.cellvalue(pcr.mapminimum(diff), 1)[0]
 
     if vmin >= -threshold:
@@ -113,7 +121,7 @@ def water_balance_check(
         logger.error(msg)
 
         if flag_debug:
-            pcr.aguila(diff, diff * cellarea)
+            pcr.aguila(diff, diff * zonal_cellarea)
 
         if not flag_warning:
             raise RuntimeError(msg)
@@ -394,14 +402,14 @@ total_return_flow_ini                      : total return flow [m3/day]
         # ids, and (3) the withdrawal capacity at the withdrawal points (m3/day); all are maps (nominal
         # ids, scalar capacity); a withdrawal capacity of None means unlimited withdrawal
 
-        # allocation zones per sector
-        self.groundwater_allocation_zones = dict(
+        # allocation zones per sector, or None if every cell is its own zone
+        self.groundwater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, groundwater_allocation_zones) for sector_name in sector_names
         )
-        self.surfacewater_allocation_zones = dict(
+        self.surfacewater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, surfacewater_allocation_zones) for sector_name in sector_names
         )
-        self.desalwater_allocation_zones = dict(
+        self.desalwater_allocation_zones: dict[str, pcr.Field | None] = dict(
             (sector_name, desalwater_allocation_zones) for sector_name in sector_names
         )
 
@@ -414,29 +422,8 @@ total_return_flow_ini                      : total return flow [m3/day]
         # for these sectors, each cell is its own allocation zone
         for sector_name in self.sectors_local_surfacewater:
             if sector_name in self.sector_names:
-                self.surfacewater_allocation_zones[sector_name] = pcr.ifthen(
-                    pcr.scalar(surfacewater_allocation_zones) > 0,
-                    pcr.nominal(
-                        pcr.uniqueid(
-                            pcr.ifthen(
-                                pcr.scalar(surfacewater_allocation_zones) > 0,
-                                pcr.boolean(1),
-                            )
-                        )
-                    ),
-                )
-
-                self.groundwater_allocation_zones[sector_name] = pcr.ifthen(
-                    pcr.scalar(groundwater_allocation_zones) > 0,
-                    pcr.nominal(
-                        pcr.uniqueid(
-                            pcr.ifthen(
-                                pcr.scalar(groundwater_allocation_zones) > 0,
-                                pcr.boolean(1),
-                            )
-                        )
-                    ),
-                )
+                self.surfacewater_allocation_zones[sector_name] = None
+                self.groundwater_allocation_zones[sector_name] = None
 
                 # alternatively, set all groundwater allocation zones to missing values; all later calculations
                 # must then be covered with zeros
@@ -491,8 +478,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             zones = getattr(self, "%s_allocation_zones" % source_name)
             for sector_name in self.sector_names:
                 n_cells = get_zonal_total(
-                    pcr.ifthen(pcr.defined(zones[sector_name]), pcr.scalar(1)),
-                    zones[sector_name],
+                    pcr.spatial(pcr.scalar(1)), zones[sector_name]
                 )
                 self.prioritization[source_name][sector_name] = (
                     self.prioritization[source_name][sector_name] * n_cells
@@ -1338,20 +1324,28 @@ total_return_flow_ini                      : total return flow [m3/day]
                     remaining_availability * weights_per_sector[sector_name]
                 )
 
+                available_sector = {"desalwater": remaining_availability_sector}
+                zones_sector = {"desalwater": zones_per_sector[sector_name]}
                 (
-                    tmp_withdrawal,
-                    tmp_allocated_demand,
-                    tmp_met_demand,
                     tmp_unmet_demand,
+                    tmp_untapped,
+                    tmp_allocated_demand,
                     sub_message_str,
                 ) = allocate_demand_to_availability_with_options(
                     demand=unmet_demand_per_sector[sector_name],
-                    availability={"desalwater": remaining_availability_sector},
-                    zones={"desalwater": zones_per_sector[sector_name]},
+                    availability=available_sector,
+                    zones=zones_sector,
                     source_names=["desalwater"],
                     use_local_first=self.use_local_first,
                     reallocate_surplus=self.reallocate_surplus,
                 )
+                tmp_met_demand = (
+                    pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
+                )
+                tmp_withdrawal = {
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s]
+                    for s in available_sector
+                }
 
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
@@ -1874,26 +1868,34 @@ total_return_flow_ini                      : total return flow [m3/day]
                     * self.suitability_per_sector["groundwater"][sector_name]
                 )
 
+                available_sector = {
+                    "surfacewater": remaining_availability_surfacewater_sector,
+                    "groundwater": remaining_availability_groundwater_sector,
+                }
+                zones_sector = {
+                    "groundwater": zones_per_sector["groundwater"][sector_name],
+                    "surfacewater": zones_per_sector["surfacewater"][sector_name],
+                }
                 (
-                    tmp_withdrawal,
-                    tmp_allocated_demand,
-                    tmp_met_demand,
                     tmp_unmet_demand,
+                    tmp_untapped,
+                    tmp_allocated_demand,
                     message_str,
                 ) = allocate_demand_to_availability_with_options(
                     demand=unmet_demand_per_sector[sector_name],
-                    availability={
-                        "surfacewater": remaining_availability_surfacewater_sector,
-                        "groundwater": remaining_availability_groundwater_sector,
-                    },
-                    zones={
-                        "surfacewater": zones_per_sector["surfacewater"][sector_name],
-                        "groundwater": zones_per_sector["groundwater"][sector_name],
-                    },
+                    availability=available_sector,
+                    zones=zones_sector,
                     source_names=self.source_names,
                     use_local_first=use_local_first,
                     reallocate_surplus=reallocate_surplus,
                 )
+                tmp_met_demand = (
+                    pcr.max(unmet_demand_per_sector[sector_name], 0) - tmp_unmet_demand
+                )
+                tmp_withdrawal = {
+                    s: pcr.max(available_sector[s], 0) - tmp_untapped[s]
+                    for s in available_sector
+                }
 
                 met_demand_per_sector[sector_name] = (
                     met_demand_per_sector[sector_name] + tmp_met_demand
@@ -2038,7 +2040,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 capacity = withdrawal_capacity_remaining
                 availability_per_sector = capacity * suitability[sector_name]
             else:
-                capacity = pcr.areaminimum(availability, zones[sector_name])
+                capacity = get_zonal_minimum(availability, zones[sector_name])
                 capacity = pcr.ifthenelse(capacity > 0, capacity, pcr.scalar(1))
 
                 availability_per_sector = pcr.ifthenelse(
@@ -2730,7 +2732,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
     def allocate_withdrawal_to_demand_for_date(self, date, availability):
         """
-        allocate_demand_to_withdrawals:
+        allocate_withdrawals_to_demand_with_options:
                        function that internally allocates the gross demand to the
                        sources on a cell-by-cell basis given the actual withdrawals
                        and updates the consumption and return flows
@@ -2748,25 +2750,47 @@ total_return_flow_ini                      : total return flow [m3/day]
         # withdrawal and demand are stored internally, unused withdrawal and met demand are not used
         # directly; the remaining unused withdrawals are kept for checks and added to the return flows
         # to avoid balance errors; sub_message_str holds the allocation information for logging (m3/day)
+        zones = {
+            "surfacewater": self.surfacewater_allocation_zones,
+            "groundwater": self.groundwater_allocation_zones,
+        }
         (
-            self.allocated_withdrawal_per_sector,
-            unused_withdrawal,
-            self.allocated_demand_per_sector,
-            met_demands,
+            _,
+            unused,
+            allocated,
             sub_message_str,
-        ) = allocate_demand_to_withdrawals(
+        ) = allocate_withdrawals_to_demand_with_options(
+            demand=self.gross_demand_remaining,
+            renewable=self.actual_renewable_withdrawal_per_sector,
+            nonrenewable=self.actual_nonrenewable_withdrawal_per_sector,
             withdrawal_names=self.withdrawal_names,
             source_names=self.source_names,
             sector_names=self.sector_names,
-            demand_per_sector=self.gross_demand_remaining,
-            renewable_withdrawal_per_sector=self.actual_renewable_withdrawal_per_sector,
-            nonrenewable_withdrawal_per_sector=self.actual_nonrenewable_withdrawal_per_sector,
-            zones_per_sector={
-                "surfacewater": self.surfacewater_allocation_zones,
-                "groundwater": self.groundwater_allocation_zones,
-            },
+            zones=zones,
             use_local_first=self.use_local_first,
         )
+
+        # allocated demand and withdrawal per withdrawal type and source, keyed as
+        # before (e.g. renewable_groundwater) for the return flows and reporting
+        withdrawal = {
+            "renewable": self.actual_renewable_withdrawal_per_sector,
+            "nonrenewable": self.actual_nonrenewable_withdrawal_per_sector,
+        }
+        self.allocated_demand_per_sector = {
+            get_key([w, s]): allocated[w][s] for w in allocated for s in allocated[w]
+        }
+        self.allocated_withdrawal_per_sector = {
+            get_key([w, s]): {
+                sector: pcr.max(withdrawal[w][s][sector], 0) - unused[w][s][sector]
+                for sector in unused[w][s]
+            }
+            for w in unused
+            for s in unused[w]
+        }
+        unused_withdrawal = {
+            w: {s: sum_list(list(unused[w][s].values())) for s in unused[w]}
+            for w in unused
+        }
 
         logger.debug(sub_message_str)
 

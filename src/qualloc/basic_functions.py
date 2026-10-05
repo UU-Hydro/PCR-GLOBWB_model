@@ -175,3 +175,36 @@ This function is typically intended to avoid errors when dividing by zero.
         z = pcr.ifthenelse(y > y_lim, x / pcr.max(y_lim, y), z_def)
 
     return z
+
+
+def pcr_same_map(map_a: pcr.Field, map_b: pcr.Field) -> bool:
+    """Returns True if both maps have the same values and missing values."""
+    differs = pcr.ifthenelse(
+        pcr.defined(map_a) & pcr.defined(map_b),
+        map_a != map_b,
+        pcr.defined(map_a) != pcr.defined(map_b),
+    )
+    return pcr.cellvalue(pcr.mapmaximum(pcr.scalar(differs)), 1)[0] == 0
+
+
+def pcr_share_identical_maps(maps: dict[str, pcr.Field]) -> dict[str, pcr.Field]:
+    """
+    Returns the maps with identical maps (same values and missing values) replaced
+    by one object: each map takes the first identical map before it, in the order of
+    maps. Identical maps can then be recognized by object, e.g. to group sources
+    that share a zone map.
+    """
+
+    # identical is transitive, so each map is only compared with the distinct maps
+    distinct_maps = []
+    shared_maps = {}
+    for key, map_a in maps.items():
+        for map_b in distinct_maps:
+            if map_a is map_b or pcr_same_map(map_a, map_b):
+                shared_maps[key] = map_b
+                break
+        else:
+            distinct_maps.append(map_a)
+            shared_maps[key] = map_a
+
+    return shared_maps
