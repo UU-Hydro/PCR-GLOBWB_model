@@ -52,7 +52,6 @@ class Reporting(object):
             else:
                 specificAttributeDictionary = None
             self.netcdfObj = PCR2netCDF(self.configuration, specificAttributeDictionary)
-            print("works")
 
             # netCDF output: daily
             self.outDailyTotNC = ["None"]

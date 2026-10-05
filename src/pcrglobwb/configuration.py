@@ -44,6 +44,8 @@ class Configuration(object):
 
         # option to run in a sandbox with meteo files and initial conditions
         self.using_relative_path_for_output_directory = False
+        # reported in initialize_logging, as the logger does not exist yet
+        self.missing_ini_files = []
         if relative_ini_meteo_paths:
             self.using_relative_path_for_output_directory = True
             self.make_ini_meteo_paths_absolute()
@@ -76,9 +78,9 @@ class Configuration(object):
                     sec[key] = os.path.abspath(value)
 
             for key, value in list(sec.items()):
-                if key.endswith("Ini"):
+                if key.endswith("Ini") and value is not None and value != "None":
                     if not os.path.exists(value):
-                        print(key, ":", value)
+                        self.missing_ini_files.append((key, value))
 
     # make paths absolute to the cwd at the time the configuration was created
     def make_absolute_path(self, path):
@@ -155,6 +157,8 @@ class Configuration(object):
         logger.info("Model run started at %s", self._timestamp)
         logger.info("Logging output to %s", log_filename)
         logger.info("Debugging output to %s", dbg_filename)
+        for key, value in self.missing_ini_files:
+            logger.warning("%s: initial condition file %s does not exist", key, value)
 
         # log the platform, Python and PCRaster versions, paths, etc.
         logger.info("OS platform: %s", str(platform.system()))
@@ -318,7 +322,6 @@ class Configuration(object):
             self.starting_directory = path_of_this_module
 
             for filename in glob.glob(os.path.join(path_of_this_module, "*.py")):
-                print(filename)
                 shutil.copy(filename, self.scriptDir)
             # TODO: fix this copying (it does not include subfolders)
 

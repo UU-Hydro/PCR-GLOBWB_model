@@ -36,8 +36,7 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
 # 2/3 QUAlloc on the reported PCR-GLOBWB output
 # ---------------------------------------------------------------------------
 echo "=== 2/3 offline_pcrglobwb_qualloc"
-pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
-    python -m qualloc.qualloc_runner \
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" qualloc-run \
     "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_30arcseconds.cfg" \
     -mod "$DATA_DIR/output/30arcseconds/offline_pcrglobwb_qualloc" \
     -mid "$INPUT_DIR" \

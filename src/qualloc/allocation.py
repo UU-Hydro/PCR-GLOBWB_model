@@ -1,3 +1,5 @@
+import logging
+
 import pcraster as pcr
 
 from qualloc.basic_functions import (
@@ -5,6 +7,8 @@ from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     sum_list,
 )
+
+logger = logging.getLogger(__name__)
 
 # small number to avoid division by zero in PCRaster
 very_small_number = 1.0e-12

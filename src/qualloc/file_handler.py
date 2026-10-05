@@ -222,8 +222,6 @@ given date. This may concern spatial information or single entries.
 
         resample_method = resample_methods[datatype_str]
 
-        print(f"{filename} (fits extent: {fits_extent})")
-
         if same_clone:
 
             var_out = pcr.readmap(filename)

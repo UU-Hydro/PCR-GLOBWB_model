@@ -284,8 +284,6 @@ def main():
         os.path.join(outputPath, "atmosphericpressure.map"),
     )
     for month in months:
-        msg = "processing month %2d" % month
-        print(msg)
         cloudiness = 0.001 * pcr.readmap(pcrm.generateNameT(cloudinessFileRoot, month))
         temperature = 0.1 * pcr.readmap(pcrm.generateNameT(temperatureFileRoot, month))
         vapourPressure = 10.0 * pcr.readmap(
@@ -325,5 +323,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print(main.__doc__)
     main()
