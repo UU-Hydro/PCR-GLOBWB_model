@@ -400,7 +400,7 @@ class LandSurface(object):
                 initial_conditions,
                 online_coupling=self.using_qualloc,
             )
-            self.qualloc_model.initialize(online_coupling=self.using_qualloc)
+            self.qualloc_model.initialize()
 
             self.qualloc_reporting = qualloc_reporting(self.qualloc_model_configuration)
             self.qualloc_reporting.initialize()

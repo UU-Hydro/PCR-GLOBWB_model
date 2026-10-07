@@ -138,7 +138,8 @@ class qualloc_model(object):
         self.model_time = model_time
         self.time_step = self.model_time.time_increment
 
-        if not online_coupling:
+        self.online_coupling = online_coupling
+        if not self.online_coupling:
             clone_file, _ = compose_filename(
                 model_configuration.general["clone"], model_configuration.inputpath
             )
@@ -175,7 +176,6 @@ class qualloc_model(object):
 
     def initialize(
         self,
-        online_coupling=False,
         landmask=None,
         cellarea=None,
         groundwater_alpha=None,
@@ -265,8 +265,8 @@ class qualloc_model(object):
             forcing_variables.pop(del_key, None)
 
         # coupled QUAlloc
-        if online_coupling:
-            del_keys = ["precipitation", "referencePotET", "direct_runoff", "interflow"]
+        if self.online_coupling:
+            del_keys =["precipitation", "referencePotET", "direct_runoff", "interflow"]
             for del_key in del_keys:
                 if del_key in forcing_variables.keys():
                     forcing_variables.pop(del_key, None)
