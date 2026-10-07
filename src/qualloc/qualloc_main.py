@@ -266,7 +266,7 @@ class qualloc_model(object):
 
         # coupled QUAlloc
         if self.online_coupling:
-            del_keys =["precipitation", "referencePotET", "direct_runoff", "interflow"]
+            del_keys = ["precipitation", "referencePotET", "direct_runoff", "interflow"]
             for del_key in del_keys:
                 if del_key in forcing_variables.keys():
                     forcing_variables.pop(del_key, None)
