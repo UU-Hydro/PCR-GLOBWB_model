@@ -1400,7 +1400,6 @@ def set_clone(cloneMapFileName=None):
     elif cloneMapFileName is not None:
         pcr.setclone(cloneMapFileName)
         if grid() != current_grid:
-            pcr.setclone(*current_grid)
             raise RuntimeError(
                 f"the clone is already set to a different grid than {cloneMapFileName}"
             )
