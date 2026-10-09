@@ -29,7 +29,6 @@ class Reporting(object):
         ):
             self.landmask_for_reporting = vos.readPCRmapClone(
                 configuration.reportingOptions["landmask_for_reporting"],
-                configuration.cloneMap,
                 configuration.tmpDir,
                 configuration.globalOptions["inputDir"],
             )

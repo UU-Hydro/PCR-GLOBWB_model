@@ -21,7 +21,6 @@ class IrrigationWaterDemand(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -40,7 +39,6 @@ class IrrigationWaterDemand(object):
 
         self.cropDeplFactor = vos.readPCRmapClone(
             self.iniItemsIrrLC["cropDeplFactor"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -78,7 +76,6 @@ class IrrigationWaterDemand(object):
         if self.ini_items_for_irrigation_efficiency.endswith(".map"):
             self.irrigationEfficiency = vos.readPCRmapClone(
                 self.ini_items_for_irrigation_efficiency,
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -94,7 +91,6 @@ class IrrigationWaterDemand(object):
                     "automatic",
                     currTimeStep,
                     useDoy="yearly",
-                    cloneMapFileName=self.cloneMap,
                 )
 
             except Exception:
@@ -107,7 +103,6 @@ class IrrigationWaterDemand(object):
                 logger.warning(msg)
                 self.irrigationEfficiency = vos.readPCRmapClone(
                     self.ini_items_for_irrigation_efficiency,
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )

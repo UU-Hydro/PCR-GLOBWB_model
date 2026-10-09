@@ -8,27 +8,19 @@ import pcraster as pcr
 NoneType = type(None)
 
 
-def setClone(spatialAttributes, tempFileName="temp_clone.map"):
-    # set the PCRaster clone from the given map attributes
-
-    try:
-        os.remove(tempFileName)
-    except Exception:
-        pass
-    command = 'mapattr -s -R %d -C %d -x %f -y %f -l %f -P "yb2t" -B %s' % (
-        spatialAttributes.numberRows,
-        spatialAttributes.numberCols,
-        spatialAttributes.xLL,
-        spatialAttributes.yUR,
-        spatialAttributes.xResolution,
-        tempFileName,
+def cloneAttributes():
+    clone = pcr.clone()
+    rows, cols, cellsize = clone.nrRows(), clone.nrCols(), clone.cellSize()
+    return types.SimpleNamespace(
+        numberRows=rows,
+        numberCols=cols,
+        xResolution=cellsize,
+        yResolution=cellsize,
+        xLL=clone.west(),
+        xUR=clone.west() + cols * cellsize,
+        yLL=clone.north() - rows * cellsize,
+        yUR=clone.north(),
     )
-    os.system(command)
-    pcr.setclone(tempFileName)
-    try:
-        os.remove(tempFileName)
-    except Exception:
-        pass
 
 
 def checkCoordinate(v1, v2, delta_v1, delta_v2):

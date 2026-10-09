@@ -15,7 +15,6 @@ class PCR2netCDF:
 
     def __init__(self, iniItems, specificAttributeDictionary=None):
 
-        pcr.setclone(iniItems.cloneMap)
         cloneMap = pcr.boolean(1.0)
 
         # latitudes and longitudes

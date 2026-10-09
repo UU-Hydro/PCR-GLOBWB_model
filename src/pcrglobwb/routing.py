@@ -131,7 +131,6 @@ class Routing(object):
 
         self.lddMap = lddMap
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
 
@@ -162,7 +161,6 @@ class Routing(object):
 
         self.lddMap = vos.readPCRmapClone(
             iniItems.routingOptions["lddMap"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
             True,
@@ -177,7 +175,6 @@ class Routing(object):
         if iniItems.globalOptions["landmask"] != "None":
             self.landmask = vos.readPCRmapClone(
                 iniItems.globalOptions["landmask"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -191,13 +188,12 @@ class Routing(object):
         # cell area (m2)
         self.cellArea = vos.readPCRmapClone(
             iniItems.routingOptions["cellAreaMap"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
 
         # model resolution (arc-degree)
-        self.cellSizeInArcDeg = vos.getMapAttributes(self.cloneMap, "cellsize")
+        self.cellSizeInArcDeg = vos.getCloneAttributes()["cellsize"]
 
         # maximum number of time steps for long-term average flows (default: 5 years = 1825 days)
         self.maxTimestepsToAvgDischargeLong = 1825.0
@@ -208,9 +204,7 @@ class Routing(object):
         routingParameters = ["gradient", "manningsN"]
         for var in routingParameters:
             input = iniItems.routingOptions[str(var)]
-            vars(self)[var] = vos.readPCRmapClone(
-                input, self.cloneMap, self.tmpDir, self.inputDir
-            )
+            vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
 
         # parameters to estimate the channel dimensions (used in getRoutingParamAvgDischarge)
         self.eta = 0.25
@@ -225,7 +219,6 @@ class Routing(object):
                 self.minChannelWidth = pcr.cover(
                     vos.readPCRmapClone(
                         iniItems.routingOptions["minimumChannelWidth"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -239,7 +232,6 @@ class Routing(object):
                 self.predefinedChannelWidth = pcr.cover(
                     vos.readPCRmapClone(
                         iniItems.routingOptions["constantChannelWidth"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -253,7 +245,6 @@ class Routing(object):
                 self.predefinedChannelDepth = pcr.cover(
                     vos.readPCRmapClone(
                         iniItems.routingOptions["constantChannelDepth"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -276,7 +267,6 @@ class Routing(object):
                 self.channelLength = pcr.cover(
                     vos.readPCRmapClone(
                         iniItems.routingOptions["channelLength"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     ),
@@ -363,9 +353,7 @@ class Routing(object):
 
             # Manning's n of the floodplain areas
             input = iniItems.routingOptions["floodplainManningsN"]
-            self.floodplainManN = vos.readPCRmapClone(
-                input, self.cloneMap, self.tmpDir, self.inputDir
-            )
+            self.floodplainManN = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
 
             # reduction parameter of the smoothing interval and error threshold
             self.reductionKK = 0.5
@@ -393,7 +381,6 @@ class Routing(object):
                 self.usingFixedBankfullCapacity = True
                 self.predefinedBankfullCapacity = vos.readPCRmapClone(
                     iniItems.routingOptions["bankfullCapacity"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -423,7 +410,6 @@ class Routing(object):
         if "maxFloodDepth" in list(iniItems.routingOptions.keys()):
             self.maxFloodDepth = vos.readPCRmapClone(
                 iniItems.routingOptions["maxFloodDepth"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -544,7 +530,7 @@ class Routing(object):
             )
             # (mg/L)
             self.backgroundSalinity = vos.netcdf2PCRobjCloneWithoutTime(
-                self.backgroundSalinityNC, "bgTDS", self.cloneMap
+                self.backgroundSalinityNC, "bgTDS"
             )
 
             # organic pollution: first-order degradation coefficient at 20 degC (van Vliet et al., 2021)
@@ -559,7 +545,6 @@ class Routing(object):
             self.elevation = vos.netcdf2PCRobjCloneWithoutTime(
                 self.elevation_path,
                 "dem_average",
-                self.cloneMap,
                 True,
                 None,
                 self.inputDir,
@@ -574,7 +559,6 @@ class Routing(object):
             # solar radiation dependent decay: total suspended solids (Beusen et al., 2005)
             self.tss = vos.readPCRmapClone(
                 iniItems.routingOptions["TSSmap"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -650,15 +634,15 @@ class Routing(object):
                 )
                 # (g/capita/day)
                 self.DomTDS_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Dom_ExcrLoadNC, "Dom_Fixed_TDSload", self.cloneMap
+                    self.Dom_ExcrLoadNC, "Dom_Fixed_TDSload"
                 )
                 # (g/capita/day)
                 self.DomBOD_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Dom_ExcrLoadNC, "Dom_Fixed_BODload", self.cloneMap
+                    self.Dom_ExcrLoadNC, "Dom_Fixed_BODload"
                 )
                 # (cfu/capita/day)
                 self.DomFC_ExcrLoad = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Dom_ExcrLoadNC, "Dom_Fixed_FCload", self.cloneMap
+                    self.Dom_ExcrLoadNC, "Dom_Fixed_FCload"
                 )
 
                 # manufacturing: average (regional) effluent concentrations
@@ -667,15 +651,15 @@ class Routing(object):
                 )
                 # (mg/L, i.e. g/m3)
                 self.ManTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Man_EfflConcNC, "Man_Fixed_TDSload", self.cloneMap
+                    self.Man_EfflConcNC, "Man_Fixed_TDSload"
                 )
                 # (mg/L, i.e. g/m3)
                 self.ManBOD_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Man_EfflConcNC, "Man_Fixed_BODload", self.cloneMap
+                    self.Man_EfflConcNC, "Man_Fixed_BODload"
                 )
                 # (cfu/100mL)
                 self.ManFC_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Man_EfflConcNC, "Man_Fixed_FCload", self.cloneMap
+                    self.Man_EfflConcNC, "Man_Fixed_FCload"
                 )
 
                 # urban surface runoff: urban fraction, from 0 (no urban) to 1 (all urban)
@@ -688,15 +672,15 @@ class Routing(object):
                 )
                 # (mg/L, i.e. g/m3)
                 self.USRTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.USR_EfflConcNC, "USR_Fixed_TDSload", self.cloneMap
+                    self.USR_EfflConcNC, "USR_Fixed_TDSload"
                 )
                 # (mg/L, i.e. g/m3)
                 self.USRBOD_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.USR_EfflConcNC, "USR_Fixed_BODload", self.cloneMap
+                    self.USR_EfflConcNC, "USR_Fixed_BODload"
                 )
                 # (cfu/100mL)
                 self.USRFC_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.USR_EfflConcNC, "USR_Fixed_FCload", self.cloneMap
+                    self.USR_EfflConcNC, "USR_Fixed_FCload"
                 )
 
                 # livestock: gridded populations, 2010, 5 arcmin (Gilbert et al., 2018)
@@ -709,67 +693,67 @@ class Routing(object):
                 )
                 # (g/stock/day)
                 self.Bufallo_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "bufallo_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "bufallo_BODload"
                 )
                 # (g/stock/day)
                 self.Chicken_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "chicken_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "chicken_BODload"
                 )
                 # (g/stock/day)
                 self.Cow_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "cow_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "cow_BODload"
                 )
                 # (g/stock/day)
                 self.Duck_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "duck_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "duck_BODload"
                 )
                 # (g/stock/day)
                 self.Goat_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "goat_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "goat_BODload"
                 )
                 # (g/stock/day)
                 self.Horse_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "horse_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "horse_BODload"
                 )
                 # (g/stock/day)
                 self.Pig_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "pig_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "pig_BODload"
                 )
                 # (g/stock/day)
                 self.Sheep_BODload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "sheep_BODload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "sheep_BODload"
                 )
                 # (cfu/stock/day)
                 self.Bufallo_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "bufallo_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "bufallo_FCload"
                 )
                 # (cfu/stock/day)
                 self.Chicken_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "chicken_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "chicken_FCload"
                 )
                 # (cfu/stock/day)
                 self.Cow_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "cow_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "cow_FCload"
                 )
                 # (cfu/stock/day)
                 self.Duck_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "duck_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "duck_FCload"
                 )
                 # (cfu/stock/day)
                 self.Goat_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "goat_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "goat_FCload"
                 )
                 # (cfu/stock/day)
                 self.Horse_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "horse_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "horse_FCload"
                 )
                 # (cfu/stock/day)
                 self.Pig_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "pig_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "pig_FCload"
                 )
                 # (cfu/stock/day)
                 self.Sheep_FCload = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Liv_ExcrLoadNC, "sheep_FCload", self.cloneMap
+                    self.Liv_ExcrLoadNC, "sheep_FCload"
                 )
 
                 # irrigation: soil concentration averaged over the topsoil and subsoil
@@ -778,7 +762,7 @@ class Routing(object):
                 )
                 # (mg/L)
                 self.IrrTDS_EfflConc = vos.netcdf2PCRobjCloneWithoutTime(
-                    self.Irr_EfflConcNC, "soil_TDS", self.cloneMap
+                    self.Irr_EfflConcNC, "soil_TDS"
                 )
 
             else:
@@ -818,44 +802,37 @@ class Routing(object):
             # read the initial conditions from the PCRaster maps in the ini file (at the start of the model)
             self.timestepsToAvgDischarge = vos.readPCRmapClone(
                 iniItems.routingOptions["timestepsToAvgDischargeIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
 
             self.channelStorage = vos.readPCRmapClone(
                 iniItems.routingOptions["channelStorageIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.readAvlChannelStorage = vos.readPCRmapClone(
                 iniItems.routingOptions["readAvlChannelStorageIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.avgDischarge = vos.readPCRmapClone(
                 iniItems.routingOptions["avgDischargeLongIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.m2tDischarge = vos.readPCRmapClone(
                 iniItems.routingOptions["m2tDischargeLongIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.avgBaseflow = vos.readPCRmapClone(
                 iniItems.routingOptions["avgBaseflowLongIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.riverbedExchange = vos.readPCRmapClone(
                 iniItems.routingOptions["riverbedExchangeIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -863,7 +840,6 @@ class Routing(object):
             # initial condition introduced in version 2.0.2: avgDischargeShort
             self.avgDischargeShort = vos.readPCRmapClone(
                 iniItems.routingOptions["avgDischargeShortIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -871,7 +847,6 @@ class Routing(object):
             # initial conditions needed for the kinematic wave methods
             self.subDischarge = vos.readPCRmapClone(
                 iniItems.routingOptions["subDischargeIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
@@ -880,13 +855,11 @@ class Routing(object):
             if self.using_qualloc:
                 self.discharge = vos.readPCRmapClone(
                     iniItems.routingOptions["dischargeIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
                 self.runoff = vos.readPCRmapClone(
                     iniItems.routingOptions["runoffIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -895,21 +868,18 @@ class Routing(object):
                     # salinity pollution
                     self.salinity = vos.readPCRmapClone(
                         iniItems.routingOptions["salinityIni"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
                     # organic pollution
                     self.organic = vos.readPCRmapClone(
                         iniItems.routingOptions["organicIni"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
                     # pathogen pollution
                     self.pathogen = vos.readPCRmapClone(
                         iniItems.routingOptions["pathogenIni"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -918,34 +888,29 @@ class Routing(object):
             if self.quality:
                 self.waterTemp = vos.readPCRmapClone(
                     iniItems.routingOptions["waterTemperatureIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
                 self.iceThickness = vos.readPCRmapClone(
                     iniItems.routingOptions["iceThicknessIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
                 # salinity pollution
                 self.routedTDS = vos.readPCRmapClone(
                     iniItems.routingOptions["routedTDSIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
                 # organic pollution
                 self.routedBOD = vos.readPCRmapClone(
                     iniItems.routingOptions["routedBODIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
                 # pathogen pollution
                 self.routedFC = vos.readPCRmapClone(
                     iniItems.routingOptions["routedFCIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -954,13 +919,11 @@ class Routing(object):
                 if self.calculateLoads and not self.offlineRun:
                     self.avg_irrGrossDemand = vos.readPCRmapClone(
                         iniItems.routingOptions["avg_irrGrossDemandIni"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
                     self.avg_netLqWaterToSoil = vos.readPCRmapClone(
                         iniItems.routingOptions["avg_netLqWaterToSoilIni"],
-                        self.cloneMap,
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -969,85 +932,71 @@ class Routing(object):
                     if self.loadsPerSector:
                         self.routedDomTDS = vos.readPCRmapClone(
                             iniItems.routingOptions["routedDomTDSIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedDomBOD = vos.readPCRmapClone(
                             iniItems.routingOptions["routedDomBODIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedDomFC = vos.readPCRmapClone(
                             iniItems.routingOptions["routedDomFCIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedManTDS = vos.readPCRmapClone(
                             iniItems.routingOptions["routedManTDSIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedManBOD = vos.readPCRmapClone(
                             iniItems.routingOptions["routedManBODIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedManFC = vos.readPCRmapClone(
                             iniItems.routingOptions["routedManFCIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedUSRTDS = vos.readPCRmapClone(
                             iniItems.routingOptions["routedUSRTDSIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedUSRBOD = vos.readPCRmapClone(
                             iniItems.routingOptions["routedUSRBODIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedUSRFC = vos.readPCRmapClone(
                             iniItems.routingOptions["routedUSRFCIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedintLivBOD = vos.readPCRmapClone(
                             iniItems.routingOptions["routedintLivBODIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedintLivFC = vos.readPCRmapClone(
                             iniItems.routingOptions["routedintLivFCIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedextLivBOD = vos.readPCRmapClone(
                             iniItems.routingOptions["routedextLivBODIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedextLivFC = vos.readPCRmapClone(
                             iniItems.routingOptions["routedextLivFCIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
                         self.routedIrrTDS = vos.readPCRmapClone(
                             iniItems.routingOptions["routedIrrTDSIni"],
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
@@ -1250,20 +1199,17 @@ class Routing(object):
             # read the initial conditions from the PCRaster maps in the ini file (at the start of the model)
             self.avgInflow = vos.readPCRmapClone(
                 iniItems.routingOptions["avgLakeReservoirInflowShortIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             self.avgOutflow = vos.readPCRmapClone(
                 iniItems.routingOptions["avgLakeReservoirOutflowLongIni"],
-                self.cloneMap,
                 self.tmpDir,
                 self.inputDir,
             )
             if iniItems.routingOptions["waterBodyStorageIni"] is not None:
                 self.waterBodyStorage = vos.readPCRmapClone(
                     iniItems.routingOptions["waterBodyStorageIni"],
-                    self.cloneMap,
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -1340,9 +1286,7 @@ class Routing(object):
 
             if relativeElevationFileNC is None:
                 inputName = relZFileName % (areaFractions[iCnt] * 100)
-                relZ[iCnt] = vos.readPCRmapClone(
-                    inputName, self.cloneMap, self.tmpDir, self.inputDir
-                )
+                relZ[iCnt] = vos.readPCRmapClone(inputName, self.tmpDir, self.inputDir)
             if relativeElevationFileNC is not None:
                 # TODO: use a netCDF file
                 pass
@@ -1997,7 +1941,6 @@ class Routing(object):
                 "kc",
                 currTimeStep.fulldate,
                 useDoy="month",
-                cloneMapFileName=self.cloneMap,
             )
             self.waterKC = pcr.ifthen(self.landmask, pcr.cover(waterKC, 0.0))
             self.waterKC = pcr.max(self.minCropWaterKC, self.waterKC)
@@ -2117,7 +2060,6 @@ class Routing(object):
                 "plant_id",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -2129,7 +2071,6 @@ class Routing(object):
                 "zone_id",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -2198,7 +2139,6 @@ class Routing(object):
                     upstream_discharge_input_file,
                     "automatic",
                     str(currTimeStep.fulldate),
-                    cloneMapFileName=self.cloneMap,
                     useDoy=None,
                 )
                 total_upstream_discharge = total_upstream_discharge + pcr.cover(
@@ -3372,7 +3312,6 @@ class Routing(object):
                 "cld",
                 str(currTimeStep.fulldate),
                 useDoy="monthly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=-999.0,
             ) / pcr.scalar(100)
@@ -3382,7 +3321,6 @@ class Routing(object):
                 "vap",
                 str(currTimeStep.fulldate),
                 useDoy="monthly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=-999.0,
             )
@@ -3392,7 +3330,6 @@ class Routing(object):
                 "tas",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=-999.0,
             ) + pcr.scalar(273.15)
@@ -3402,7 +3339,6 @@ class Routing(object):
             "rsds",
             str(currTimeStep.fulldate),
             useDoy="daily",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=-999.0,
         )
@@ -3427,7 +3363,6 @@ class Routing(object):
                 "Population",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3438,7 +3373,6 @@ class Routing(object):
                 "urban_fraction",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3451,7 +3385,6 @@ class Routing(object):
                 "BufalloPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3463,7 +3396,6 @@ class Routing(object):
                 "ChickenPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3475,7 +3407,6 @@ class Routing(object):
                 "CowPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3487,7 +3418,6 @@ class Routing(object):
                 "DuckPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3499,7 +3429,6 @@ class Routing(object):
                 "GoatPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3511,7 +3440,6 @@ class Routing(object):
                 "HorsePop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3523,7 +3451,6 @@ class Routing(object):
                 "PigPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3535,7 +3462,6 @@ class Routing(object):
                 "SheepPop",
                 str(currTimeStep.fulldate),
                 useDoy=None,
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3560,7 +3486,6 @@ class Routing(object):
                 "WW_ct",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3571,7 +3496,6 @@ class Routing(object):
                 "WW_bs",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3582,7 +3506,6 @@ class Routing(object):
                 "WW_od",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3593,7 +3516,6 @@ class Routing(object):
                 "TDS_removal",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3604,7 +3526,6 @@ class Routing(object):
                 "BOD_removal",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -3615,7 +3536,6 @@ class Routing(object):
                 "FC_removal",
                 str(currTimeStep.fulldate),
                 useDoy="yearly",
-                cloneMapFileName=self.cloneMap,
                 LatitudeLongitude=True,
                 specificFillValue=None,
             )
@@ -4130,7 +4050,6 @@ class Routing(object):
             "TDSload",
             str(currTimeStep.fulldate),
             useDoy=None,
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
         self.TDSload = pcr.ifthen(self.landmask, self.TDSload)
@@ -4141,7 +4060,6 @@ class Routing(object):
             "BODload",
             str(currTimeStep.fulldate),
             useDoy=None,
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
         self.BODload = pcr.ifthen(self.landmask, self.BODload)
@@ -4152,7 +4070,6 @@ class Routing(object):
             "FCload",
             str(currTimeStep.fulldate),
             useDoy=None,
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
         )
         self.FCload = pcr.ifthen(self.landmask, self.FCload)

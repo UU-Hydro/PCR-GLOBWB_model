@@ -95,7 +95,6 @@ class LandSurface(object):
     def __init__(self, iniItems, landmask, initialState=None):
         object.__init__(self)
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -105,7 +104,6 @@ class LandSurface(object):
         # cell area (m2)
         self.cellArea = vos.readPCRmapClone(
             iniItems.routingOptions["cellAreaMap"],
-            self.cloneMap,
             self.tmpDir,
             self.inputDir,
         )
@@ -400,8 +398,9 @@ class LandSurface(object):
                 self.qualloc_model_time,
                 model_flags,
                 initial_conditions,
+                online_coupling=self.using_qualloc,
             )
-            self.qualloc_model.initialize(online_coupling=self.using_qualloc)
+            self.qualloc_model.initialize()
 
             self.qualloc_reporting = qualloc_reporting(self.qualloc_model_configuration)
             self.qualloc_reporting.initialize()
@@ -847,7 +846,6 @@ class LandSurface(object):
                         "fracWaterInp",
                         currTimeStep.fulldate,
                         useDoy="yearly",
-                        cloneMapFileName=self.cloneMap,
                     )
                 else:
                     if routing.WaterBodies.fracWaterInp != "None":
@@ -855,7 +853,6 @@ class LandSurface(object):
                             routing.WaterBodies.fracWaterInp
                             + str(currTimeStep.year)
                             + ".map",
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
@@ -868,13 +865,11 @@ class LandSurface(object):
                         "fracWaterInp",
                         currTimeStep.fulldate,
                         useDoy="yearly",
-                        cloneMapFileName=self.cloneMap,
                     )
                 else:
                     if routing.WaterBodies.fracWaterInp != "None":
                         routing.WaterBodies.fracWat = vos.readPCRmapClone(
                             routing.WaterBodies.fracWaterInp,
-                            self.cloneMap,
                             self.tmpDir,
                             self.inputDir,
                         )
@@ -1046,7 +1041,6 @@ class LandSurface(object):
                     "irrigationArea",
                     fulldateInString,
                     useDoy="yearly",
-                    cloneMapFileName=self.cloneMap,
                 ),
                 0.0,
             )
@@ -1059,9 +1053,7 @@ class LandSurface(object):
             )
             # (m2; the input file is in hectare)
             self.irrigationArea = 10000.0 * pcr.cover(
-                vos.readPCRmapClone(
-                    irrigation_pcraster_file, self.cloneMap, self.tmpDir
-                ),
+                vos.readPCRmapClone(irrigation_pcraster_file, self.tmpDir),
                 0.0,
             )
 

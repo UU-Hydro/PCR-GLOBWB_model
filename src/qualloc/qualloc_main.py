@@ -1,11 +1,11 @@
 import datetime
 import logging
 import os
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
 
+from pcrglobwb.common import virtualOS as vos
 from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     pcr_share_identical_maps,
@@ -18,7 +18,7 @@ from qualloc.initial_conditions_handler import (
     get_initial_conditions,
 )
 from qualloc.qualloc_reporting import qualloc_report_initial_conditions
-from qualloc.spatialDataSet2PCR import setClone, spatialAttributes
+from qualloc.spatialDataSet2PCR import cloneAttributes
 from qualloc.surfacewater import surfacewater
 from qualloc.water_management import (
     very_small_number,
@@ -75,7 +75,12 @@ PCRaster input ignores the name and is unaffected.
 class qualloc_model(object):
 
     def __init__(
-        self, model_configuration, model_time, model_flags={}, initial_conditions=None
+        self,
+        model_configuration,
+        model_time,
+        model_flags={},
+        initial_conditions=None,
+        online_coupling=False,
     ):
 
         object.__init__(self)
@@ -133,19 +138,13 @@ class qualloc_model(object):
         self.model_time = model_time
         self.time_step = self.model_time.time_increment
 
-        # set the clone from the spatial attributes
-        clone_file, file_exists = compose_filename(
-            model_configuration.general["clone"], model_configuration.inputpath
-        )
-        if file_exists:
-            setattr(
-                self.model_configuration,
-                "clone_attributes",
-                spatialAttributes(clone_file),
+        self.online_coupling = online_coupling
+        if not self.online_coupling:
+            clone_file, _ = compose_filename(
+                model_configuration.general["clone"], model_configuration.inputpath
             )
-            setClone(self.model_configuration.clone_attributes)
-        else:
-            sys.exit("clone file %s does not exist" % clone_file)
+            vos.set_clone(clone_file)
+        self.model_configuration.clone_attributes = cloneAttributes()
 
         message_str = str.join(
             "\n",
@@ -177,7 +176,6 @@ class qualloc_model(object):
 
     def initialize(
         self,
-        online_coupling=False,
         landmask=None,
         cellarea=None,
         groundwater_alpha=None,
@@ -267,7 +265,7 @@ class qualloc_model(object):
             forcing_variables.pop(del_key, None)
 
         # coupled QUAlloc
-        if online_coupling:
+        if self.online_coupling:
             del_keys = ["precipitation", "referencePotET", "direct_runoff", "interflow"]
             for del_key in del_keys:
                 if del_key in forcing_variables.keys():

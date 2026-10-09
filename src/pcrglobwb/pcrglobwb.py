@@ -14,11 +14,10 @@ class PCRGlobWB(object):
         self._configuration = configuration
         self._modelTime = currTimeStep
 
-        pcr.setclone(configuration.cloneMap)
+        vos.set_clone(configuration.cloneMap)
 
         self.lddMap = vos.readPCRmapClone(
             configuration.routingOptions["lddMap"],
-            configuration.cloneMap,
             configuration.tmpDir,
             configuration.globalOptions["inputDir"],
             True,
@@ -29,7 +28,6 @@ class PCRGlobWB(object):
         if configuration.globalOptions["landmask"] != "None":
             self.landmask = vos.readPCRmapClone(
                 configuration.globalOptions["landmask"],
-                configuration.cloneMap,
                 configuration.tmpDir,
                 configuration.globalOptions["inputDir"],
             )

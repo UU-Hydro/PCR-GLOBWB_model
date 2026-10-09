@@ -37,15 +37,12 @@ def readUpstreamDischarge(
     varName="automatic",
     dateInput=None,
     useDoy=None,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
 ):
     logger.debug(f"Reading Upstream Discharge: {ncFile}")
-    lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.defined(cloneMapFileName)), np.nan)[0, :]
-    lat = np.sort(
-        pcr.pcr2numpy(pcr.ycoordinate(pcr.defined(cloneMapFileName)), np.nan)[:, 0]
-    )
+    lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.boolean(1.0)), np.nan)[0, :]
+    lat = np.sort(pcr.pcr2numpy(pcr.ycoordinate(pcr.boolean(1.0)), np.nan)[:, 0])
 
     ds = xr.open_dataset(ncFile, chunks="auto", engine="netcdf4")
     ds = ds.sel(time=dateInput).compute()
@@ -63,7 +60,6 @@ def readDownscalingZarr(
     ncFile,
     dateInput=None,
     useDoy=None,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
 ):
@@ -82,7 +78,7 @@ def readDownscalingZarr(
     dims = ["time", xRef, yRef]
     varName = [item for item in keys if item not in dims][0]
 
-    attributeClone = getMapAttributesALL(cloneMapFileName)
+    attributeClone = getCloneAttributes()
     cellsizeClone = attributeClone["cellsize"]
     rowsClone = attributeClone["rows"]
     colsClone = attributeClone["cols"]
@@ -108,8 +104,8 @@ def readDownscalingZarr(
     cropData = f[varName].get_basic_selection((timeID, xslice, yslice))[:]
     cropData = np.nan_to_num(cropData).T
 
-    lon = pcr.pcr2numpy(pcr.xcoordinate(cloneMapFileName), np.nan)[0, :]
-    lat = pcr.pcr2numpy(pcr.ycoordinate(cloneMapFileName), np.nan)[:, 0]
+    lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.boolean(1.0)), np.nan)[0, :]
+    lat = pcr.pcr2numpy(pcr.ycoordinate(pcr.boolean(1.0)), np.nan)[:, 0]
     cropData = xr.DataArray(
         cropData,
         dims=["latitude", "longitude"],
@@ -134,7 +130,6 @@ def readDownscalingMeteo(
     varName="automatic",
     dateInput=None,
     useDoy=None,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
 ):
@@ -412,7 +407,7 @@ def readDownscalingMeteo(
     )
     logger.debug("Using the datetime " + str(date_string))
 
-    attributeClone = getMapAttributesALL(cloneMapFileName)
+    attributeClone = getCloneAttributes()
     cellsizeClone = attributeClone["cellsize"]
     rowsClone = attributeClone["rows"]
     colsClone = attributeClone["cols"]
@@ -478,10 +473,8 @@ def readDownscalingMeteo(
     else:
         # standard netCDF file
         cropData = f.variables[varName][int(idx), yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
-    lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.defined(cloneMapFileName)), np.nan)[0, :]
-    lat = np.sort(
-        pcr.pcr2numpy(pcr.ycoordinate(pcr.defined(cloneMapFileName)), np.nan)[:, 0]
-    )
+    lon = pcr.pcr2numpy(pcr.xcoordinate(pcr.boolean(1.0)), np.nan)[0, :]
+    lat = np.sort(pcr.pcr2numpy(pcr.ycoordinate(pcr.boolean(1.0)), np.nan)[:, 0])
 
     array = xr.DataArray(
         cropData,
@@ -542,7 +535,6 @@ def checkVariableInNC(ncFile, varName):
 def netcdf2PCRobjCloneWithoutTime(
     ncFile,
     varName,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
     absolutePath=None,
@@ -552,7 +544,7 @@ def netcdf2PCRobjCloneWithoutTime(
     while iter_try < max_num_of_tries:
         try:
             return singleTryNetcdf2PCRobjCloneWithoutTime(
-                ncFile, varName, cloneMapFileName, LatitudeLongitude, specificFillValue
+                ncFile, varName, LatitudeLongitude, specificFillValue
             )
         except Exception:
             iter_try = iter_try + 1
@@ -561,14 +553,13 @@ def netcdf2PCRobjCloneWithoutTime(
     if iter_try >= max_num_of_tries:
         logger.error("CANNOT READ file: " + str(ncFile))
         return singleTryNetcdf2PCRobjCloneWithoutTime(
-            ncFile, varName, cloneMapFileName, LatitudeLongitude, specificFillValue
+            ncFile, varName, LatitudeLongitude, specificFillValue
         )
 
 
 def singleTryNetcdf2PCRobjCloneWithoutTime(
     ncFile,
     varName,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
     absolutePath=None,
@@ -607,32 +598,15 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
         except Exception:
             pass
 
-    sameClone = True
-    # check whether the clone and input maps have the same attributes
-    if cloneMapFileName is not None:
-        attributeClone = getMapAttributesALL(cloneMapFileName)
-        cellsizeClone = attributeClone["cellsize"]
-        rowsClone = attributeClone["rows"]
-        colsClone = attributeClone["cols"]
-        xULClone = attributeClone["xUL"]
-        yULClone = attributeClone["yUL"]
-        # attributes of the input (netCDF)
-        cellsizeInput = f.variables["lat"][0] - f.variables["lat"][1]
-        cellsizeInput = float(cellsizeInput)
-        rowsInput = len(f.variables["lat"])
-        colsInput = len(f.variables["lon"])
-        xULInput = f.variables["lon"][0] - 0.5 * cellsizeInput
-        yULInput = f.variables["lat"][0] + 0.5 * cellsizeInput
-        if cellsizeClone != cellsizeInput:
-            sameClone = False
-        if rowsClone != rowsInput:
-            sameClone = False
-        if colsClone != colsInput:
-            sameClone = False
-        if xULClone != xULInput:
-            sameClone = False
-        if yULClone != yULInput:
-            sameClone = False
+    attributeClone = getCloneAttributes()
+    cellsizeClone = attributeClone["cellsize"]
+    rowsClone = attributeClone["rows"]
+    colsClone = attributeClone["cols"]
+    xULClone = attributeClone["xUL"]
+    yULClone = attributeClone["yUL"]
+    attributeInput = getNetcdfGridAttributes(f)
+    cellsizeInput = attributeInput["cellsize"]
+    sameClone = isSameClone(attributeInput)
 
     factor = 1
     yslice = slice(None)
@@ -695,7 +669,6 @@ def netcdf2PCRobjClone(
     varName="automatic",
     dateInput=None,
     useDoy=None,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
 ):
@@ -708,7 +681,6 @@ def netcdf2PCRobjClone(
                 varName,
                 dateInput,
                 useDoy,
-                cloneMapFileName,
                 LatitudeLongitude,
                 specificFillValue,
             )
@@ -723,7 +695,6 @@ def netcdf2PCRobjClone(
             varName,
             dateInput,
             useDoy,
-            cloneMapFileName,
             LatitudeLongitude,
             specificFillValue,
         )
@@ -734,7 +705,6 @@ def singleTryNetcdf2PCRobjClone(
     varName="automatic",
     dateInput=None,
     useDoy=None,
-    cloneMapFileName=None,
     LatitudeLongitude=True,
     specificFillValue=None,
 ):
@@ -1062,32 +1032,15 @@ def singleTryNetcdf2PCRobjClone(
     )
     logger.debug("Using the datetime " + str(date_string))
 
-    sameClone = True
-    # check whether the clone and input maps have the same attributes
-    if cloneMapFileName is not None:
-        attributeClone = getMapAttributesALL(cloneMapFileName)
-        cellsizeClone = attributeClone["cellsize"]
-        rowsClone = attributeClone["rows"]
-        colsClone = attributeClone["cols"]
-        xULClone = attributeClone["xUL"]
-        yULClone = attributeClone["yUL"]
-        # attributes of the input (netCDF)
-        cellsizeInput = f.variables["lat"][0] - f.variables["lat"][1]
-        cellsizeInput = float(cellsizeInput)
-        rowsInput = len(f.variables["lat"])
-        colsInput = len(f.variables["lon"])
-        xULInput = f.variables["lon"][0] - 0.5 * cellsizeInput
-        yULInput = f.variables["lat"][0] + 0.5 * cellsizeInput
-        if cellsizeClone != cellsizeInput:
-            sameClone = False
-        if rowsClone != rowsInput:
-            sameClone = False
-        if colsClone != colsInput:
-            sameClone = False
-        if xULClone != xULInput:
-            sameClone = False
-        if yULClone != yULInput:
-            sameClone = False
+    attributeClone = getCloneAttributes()
+    cellsizeClone = attributeClone["cellsize"]
+    rowsClone = attributeClone["rows"]
+    colsClone = attributeClone["cols"]
+    xULClone = attributeClone["xUL"]
+    yULClone = attributeClone["yUL"]
+    attributeInput = getNetcdfGridAttributes(f)
+    cellsizeInput = attributeInput["cellsize"]
+    sameClone = isSameClone(attributeInput)
 
     factor = 1
     yslice = slice(None)
@@ -1161,8 +1114,8 @@ def singleTryNetcdf2PCRobjClone(
 
 
 def writePCRmapToDir(v, outFileName, outDir):
-    # v: input map file name or value; if the input map and cloneMapFileName have different
-    # clones, the map is resampled
+    # v: input map file name or value; if the input map and the clone have different
+    # grids, the map is resampled
     fullFileName = getFullPath(outFileName, outDir)
     logger.debug("Writing a pcraster map to : " + str(fullFileName))
     pcr.report(v, fullFileName)
@@ -1170,7 +1123,6 @@ def writePCRmapToDir(v, outFileName, outDir):
 
 def readPCRmapClone(
     v,
-    cloneMapFileName,
     tmpDir,
     absolutePath=None,
     isLddMap=False,
@@ -1182,7 +1134,7 @@ def readPCRmapClone(
     while iter_try < max_num_of_tries:
         try:
             return singleTryReadPCRmapClone(
-                v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap
+                v, tmpDir, absolutePath, isLddMap, cover, isNomMap
             )
         except Exception:
             iter_try = iter_try + 1
@@ -1191,21 +1143,20 @@ def readPCRmapClone(
     if iter_try >= max_num_of_tries:
         logger.error("CANNOT READ file: " + str(v))
         return singleTryReadPCRmapClone(
-            v, cloneMapFileName, tmpDir, absolutePath, isLddMap, cover, isNomMap
+            v, tmpDir, absolutePath, isLddMap, cover, isNomMap
         )
 
 
 def singleTryReadPCRmapClone(
     v,
-    cloneMapFileName,
     tmpDir,
     absolutePath=None,
     isLddMap=False,
     cover=None,
     isNomMap=False,
 ):
-    # v: input map file name or value; if the input map and cloneMapFileName have different
-    # clones, the map is resampled
+    # v: input map file name or value; if the input map and the clone have different
+    # grids, the map is resampled
     logger.debug("read file/value: " + str(v))
 
     if v == "None":
@@ -1226,9 +1177,7 @@ def singleTryReadPCRmapClone(
 
             try:
                 # netCDF file without time
-                PCRmap = netcdf2PCRobjCloneWithoutTime(
-                    ncFile=v, varName="automatic", cloneMapFileName=cloneMapFileName
-                )
+                PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile=v, varName="automatic")
             except Exception:
                 # netCDF file with time
                 PCRmap = netcdf2PCRobjClone(
@@ -1236,20 +1185,19 @@ def singleTryReadPCRmapClone(
                     varName="automatic",
                     dateInput=None,
                     useDoy=None,
-                    cloneMapFileName=cloneMapFileName,
                 )
 
         else:
 
             # PCRaster format
 
-            sameClone = isSameClone(v, cloneMapFileName)
+            sameClone = isSameClone(getPCRasterGridAttributes(v))
             if sameClone:
                 PCRmap = pcr.readmap(v)
             else:
                 # resample using GDAL
                 output = tmpDir + "temp.map"
-                _ = gdalwarpPCR(v, output, cloneMapFileName, tmpDir, isLddMap, isNomMap)
+                _ = gdalwarpPCR(v, output, tmpDir, isLddMap, isNomMap)
                 # read and delete the temporary file
                 PCRmap = pcr.readmap(output)
                 if os.path.isdir(tmpDir):
@@ -1276,35 +1224,52 @@ def singleTryReadPCRmapClone(
     return PCRmap
 
 
-def isSameClone(inputMapFileName, cloneMapFileName):
-    attributeInput = getMapAttributesALL(inputMapFileName)
-    cellsizeInput = attributeInput["cellsize"]
-    rowsInput = attributeInput["rows"]
-    colsInput = attributeInput["cols"]
-    xULInput = attributeInput["xUL"]
-    yULInput = attributeInput["yUL"]
-    attributeClone = getMapAttributesALL(cloneMapFileName)
-    cellsizeClone = attributeClone["cellsize"]
-    rowsClone = attributeClone["rows"]
-    colsClone = attributeClone["cols"]
-    xULClone = attributeClone["xUL"]
-    yULClone = attributeClone["yUL"]
-    # check whether both maps have the same attributes
-    sameClone = True
-    if cellsizeClone != cellsizeInput:
-        sameClone = False
-    if rowsClone != rowsInput:
-        sameClone = False
-    if colsClone != colsInput:
-        sameClone = False
-    if xULClone != xULInput:
-        sameClone = False
-    if yULClone != yULInput:
-        sameClone = False
-    return sameClone
+def isSameClone(attributeInput):
+    # rounded to 6 significant digits: mapattr prints only 6, and it absorbs floating point drift in derived corners
+    attributeClone = getCloneAttributes(arcDegree=False)
+    return all(
+        float(f"{attributeClone[key]:.6g}") == float(f"{attributeInput[key]:.6g}")
+        for key in attributeClone
+    )
 
 
-def gdalwarpPCR(input, output, cloneOut, tmpDir, isLddMap=False, isNominalMap=False):
+def getNetcdfGridAttributes(f):
+    lat = f.variables["lat"]
+    lon = f.variables["lon"]
+    cellsize = float(lat[0] - lat[1])
+    return {
+        "cellsize": cellsize,
+        "rows": len(lat),
+        "cols": len(lon),
+        "xUL": float(lon[0]) - 0.5 * cellsize,
+        "yUL": float(lat[0]) + 0.5 * cellsize,
+    }
+
+
+def getPCRasterGridAttributes(mapFile):
+    result = subprocess.run(
+        ["mapattr", "-p", str(mapFile)], capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Cannot read the map attributes of {mapFile} with mapattr: "
+            f"{result.stderr.strip() or result.stdout.strip()}"
+        )
+    attributes = {}
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) >= 2:
+            attributes[parts[0]] = parts[-1]
+    return {
+        "cellsize": float(attributes["cell_length"]),
+        "rows": int(attributes["rows"]),
+        "cols": int(attributes["columns"]),
+        "xUL": float(attributes["xUL"]),
+        "yUL": float(attributes["yUL"]),
+    }
+
+
+def gdalwarpPCR(input, output, tmpDir, isLddMap=False, isNominalMap=False):
     # 19 Mar 2013, Edwin H. Sutanudjaja; all input maps must be PCRaster maps
     # remove temporary files
     co = "rm " + str(tmpDir) + "*.*"
@@ -1324,8 +1289,7 @@ def gdalwarpPCR(input, output, cloneOut, tmpDir, isLddMap=False, isNominalMap=Fa
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
-    # attributes of the PCRaster map
-    cloneAtt = getMapAttributesALL(cloneOut)
+    cloneAtt = getCloneAttributes()
     xmin = cloneAtt["xUL"]
     ymin = cloneAtt["yUL"] - cloneAtt["rows"] * cloneAtt["cellsize"]
     xmax = cloneAtt["xUL"] + cloneAtt["cols"] * cloneAtt["cellsize"]
@@ -1348,10 +1312,6 @@ def gdalwarpPCR(input, output, cloneOut, tmpDir, isLddMap=False, isNominalMap=Fa
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
     co = "gdal_translate -of PCRaster " + str(tmpDir) + "tmp_out.tif " + str(output)
-    cOut, err = subprocess.Popen(
-        co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
-    ).communicate()
-    co = "mapattr -c " + str(cloneOut) + " " + str(output)
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
@@ -1416,55 +1376,48 @@ def getFullPath(inputPath, absolutePath, completeFileName=True):
     return fullPath
 
 
-def readMapAttributes(cloneMap):
-    # attributes of a PCRaster map as reported by mapattr, keyed by attribute name
-    result = subprocess.run(
-        ["mapattr", "-p", str(cloneMap)], capture_output=True, text=True
-    )
-    attributes = {}
-    for line in result.stdout.splitlines():
-        parts = line.split()
-        if len(parts) >= 2:
-            attributes[parts[0]] = parts[-1]
-    required = ("rows", "columns", "cell_length", "xUL", "yUL")
-    if result.returncode != 0 or not all(key in attributes for key in required):
-        raise RuntimeError(
-            f"Cannot read the map attributes of {cloneMap} with mapattr: "
-            f"{result.stderr.strip() or result.stdout.strip()}"
-        )
-    return attributes
+def set_clone(cloneMapFileName=None):
+    """Set the PCRaster clone for the whole process and return pcr.clone().
+
+    - The first call with a clone map sets the clone.
+    - Later calls with a map on the same grid change nothing (e.g. spin-up runs that
+      rebuild the model).
+    - Without a clone map the clone already set is returned; it raises if none is set.
+    """
+
+    def grid():
+        # pcr.clone() follows later setclone calls, so its values are copied out
+        c = pcr.clone()
+        return c.nrRows(), c.nrCols(), c.cellSize(), c.west(), c.north()
+
+    current_grid = grid()
+    # pcr.clone() does not raise when no clone is set; it reports zero rows
+    if current_grid[0] == 0:
+        if cloneMapFileName is None:
+            raise RuntimeError("no clone has been set to inherit; give a clone map")
+        pcr.setclone(cloneMapFileName)
+        logger.info("clone set from " + cloneMapFileName)
+    elif cloneMapFileName is not None:
+        pcr.setclone(cloneMapFileName)
+        if grid() != current_grid:
+            raise RuntimeError(
+                f"the clone is already set to a different grid than {cloneMapFileName}"
+            )
+    return pcr.clone()
 
 
-def getMapAttributesALL(cloneMap, arcDegree=True):
-    attributes = readMapAttributes(cloneMap)
-    cellsize = float(attributes["cell_length"])
+def getCloneAttributes(arcDegree=True):
+    clone = pcr.clone()
+    cellsize = clone.cellSize()
     if arcDegree:
         cellsize = round(cellsize * 360000.0) / 360000.0
-    mapAttr = {
-        "cellsize": float(cellsize),
-        "rows": float(attributes["rows"]),
-        "cols": float(attributes["columns"]),
-        "xUL": float(attributes["xUL"]),
-        "yUL": float(attributes["yUL"]),
+    return {
+        "cellsize": cellsize,
+        "rows": clone.nrRows(),
+        "cols": clone.nrCols(),
+        "xUL": clone.west(),
+        "yUL": clone.north(),
     }
-    return mapAttr
-
-
-def getMapAttributes(cloneMap, attribute, arcDegree=True):
-    attributes = readMapAttributes(cloneMap)
-    if attribute == "cellsize":
-        cellsize = float(attributes["cell_length"])
-        if arcDegree:
-            cellsize = round(cellsize * 360000.0) / 360000.0
-        return cellsize
-    if attribute == "rows":
-        return int(attributes["rows"])
-    if attribute == "cols":
-        return int(attributes["columns"])
-    if attribute == "xUL":
-        return float(attributes["xUL"])
-    if attribute == "yUL":
-        return float(attributes["yUL"])
 
 
 def getMapTotal(mapFile):

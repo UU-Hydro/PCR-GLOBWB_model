@@ -14,7 +14,6 @@ class IndustryWaterDemand(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -55,7 +54,6 @@ class IndustryWaterDemand(object):
                                 varName="industryGrossDemand",
                                 dateInput=currTimeStep.fulldate,
                                 useDoy="monthly",
-                                cloneMapFileName=self.cloneMap,
                             ),
                             0.0,
                         ),
@@ -69,7 +67,6 @@ class IndustryWaterDemand(object):
                                 varName="industryNettoDemand",
                                 dateInput=currTimeStep.fulldate,
                                 useDoy="monthly",
-                                cloneMapFileName=self.cloneMap,
                             ),
                             0.0,
                         ),
@@ -87,7 +84,6 @@ class IndustryWaterDemand(object):
                         pcr.cover(
                             vos.readPCRmapClone(
                                 v=grossFileName,
-                                cloneMapFileName=self.cloneMap,
                                 tmpDir=self.tmpDir,
                             ),
                             0.0,
@@ -105,7 +101,6 @@ class IndustryWaterDemand(object):
                         pcr.cover(
                             vos.readPCRmapClone(
                                 v=nettoFileName,
-                                cloneMapFileName=self.cloneMap,
                                 tmpDir=self.tmpDir,
                             ),
                             0.0,

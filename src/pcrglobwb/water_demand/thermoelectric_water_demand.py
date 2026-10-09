@@ -14,7 +14,6 @@ class ThermoelectricWaterDemand(object):
 
         self.iniItems = iniItems
 
-        self.cloneMap = iniItems.cloneMap
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
         self.landmask = landmask
@@ -54,7 +53,6 @@ class ThermoelectricWaterDemand(object):
                             varName="thermoelectricGrossDemand",
                             dateInput=currTimeStep.fulldate,
                             useDoy="monthly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),
@@ -68,7 +66,6 @@ class ThermoelectricWaterDemand(object):
                             varName="thermoelectricNettoDemand",
                             dateInput=currTimeStep.fulldate,
                             useDoy="monthly",
-                            cloneMapFileName=self.cloneMap,
                         ),
                         0.0,
                     ),
@@ -115,7 +112,6 @@ class ThermoelectricWaterDemand(object):
             "capacity",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -125,7 +121,6 @@ class ThermoelectricWaterDemand(object):
             "ntotal",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -135,7 +130,6 @@ class ThermoelectricWaterDemand(object):
             "nelec",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -145,7 +139,6 @@ class ThermoelectricWaterDemand(object):
             "alpha",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -155,7 +148,6 @@ class ThermoelectricWaterDemand(object):
             "beta",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -165,7 +157,6 @@ class ThermoelectricWaterDemand(object):
             "omega",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -175,7 +166,6 @@ class ThermoelectricWaterDemand(object):
             "EZ",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -185,7 +175,6 @@ class ThermoelectricWaterDemand(object):
             "gamma",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -195,7 +184,6 @@ class ThermoelectricWaterDemand(object):
             "lambda",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -205,7 +193,6 @@ class ThermoelectricWaterDemand(object):
             "con_ratio",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -217,7 +204,6 @@ class ThermoelectricWaterDemand(object):
             "capacity",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -227,7 +213,6 @@ class ThermoelectricWaterDemand(object):
             "withdrawals",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -237,7 +222,6 @@ class ThermoelectricWaterDemand(object):
             "con_ratio",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -249,7 +233,6 @@ class ThermoelectricWaterDemand(object):
             "capacity",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -259,7 +242,6 @@ class ThermoelectricWaterDemand(object):
             "withdrawals",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -269,7 +251,6 @@ class ThermoelectricWaterDemand(object):
             "con_ratio",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
@@ -282,7 +263,6 @@ class ThermoelectricWaterDemand(object):
             "waterTemperature",
             str(currTimeStep.fulldate),
             useDoy="yearly",
-            cloneMapFileName=self.cloneMap,
             LatitudeLongitude=True,
             specificFillValue=None,
         )
