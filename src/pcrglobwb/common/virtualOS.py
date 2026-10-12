@@ -1457,6 +1457,22 @@ def getValDivZero(x, y, y_lim=smallNumber, z_def=0.0):
     return pcr.ifthenelse(y > y_lim, x / pcr.max(y_lim, y), z_def)
 
 
+def fillWithWindowAverage(map, windowLengths, mask):
+    # window lengths are in map units (degrees on a geographic clone)
+    # filling stops once every mask cell is defined: values inside the mask
+    # match the unmasked result, cells outside it may stay MV
+    for windowLength in windowLengths:
+        defined = pcr.scalar(pcr.defined(map))
+        if pcr.cellvalue(pcr.mapmaximum(defined), 1)[0] == 0:
+            break
+        defined = pcr.ifthen(mask, defined)
+        minDefined, valid = pcr.cellvalue(pcr.mapminimum(defined), 1)
+        if not valid or minDefined == 1:
+            break
+        map = pcr.cover(map, pcr.windowaverage(map, windowLength))
+    return map
+
+
 def regridData2FinerGrid(rescaleFac, coarse, MV):
     if rescaleFac == 1:
         return coarse

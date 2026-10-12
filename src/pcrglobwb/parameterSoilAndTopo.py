@@ -122,24 +122,8 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 0.75)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
+                    vars(self)[var] = vos.fillWithWindowAverage(
+                        vars(self)[var], [0.75] + [1.00] * 5, self.landmask
                     )
 
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.0)
@@ -166,24 +150,8 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 0.75)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
-                    )
-                    vars(self)[var] = pcr.cover(
-                        vars(self)[var], pcr.windowaverage(vars(self)[var], 1.00)
+                    vars(self)[var] = vos.fillWithWindowAverage(
+                        vars(self)[var], [0.75] + [1.00] * 5, self.landmask
                     )
 
                 vars(self)[var] = pcr.cover(vars(self)[var], 0.01)
@@ -254,24 +222,8 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 0.75)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
+                    vars(self)[temp] = vos.fillWithWindowAverage(
+                        vars(self)[temp], [0.75] + [1.05] * 5, self.landmask
                     )
 
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
@@ -296,24 +248,8 @@ class SoilAndTopoParameters(object):
 
                 if extrapolate:
 
-                    # extrapolation; TODO: make a general extrapolation function in virtualOS.py
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 0.75)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
-                    )
-                    vars(self)[temp] = pcr.cover(
-                        vars(self)[temp], pcr.windowaverage(vars(self)[temp], 1.05)
+                    vars(self)[temp] = vos.fillWithWindowAverage(
+                        vars(self)[temp], [0.75] + [1.05] * 5, self.landmask
                     )
 
                 vars(self)[temp] = pcr.cover(vars(self)[temp], 0.0)
