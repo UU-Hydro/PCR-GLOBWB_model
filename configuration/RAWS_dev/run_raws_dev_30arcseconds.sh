@@ -25,7 +25,6 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 # 1/3 PCR-GLOBWB on its own
 # ---------------------------------------------------------------------------
-echo "=== 1/3 pcrglobwb"
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcseconds.ini" \
     -mod "$DATA_DIR/output/30arcseconds/pcrglobwb" \
@@ -35,7 +34,6 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
 # ---------------------------------------------------------------------------
 # 2/3 QUAlloc on the reported PCR-GLOBWB output
 # ---------------------------------------------------------------------------
-echo "=== 2/3 offline_pcrglobwb_qualloc"
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" qualloc-run \
     "$REPO_ROOT/configuration/run_with_args/offline_pcrglobwb_qualloc/qualloc_30arcseconds.cfg" \
     -mod "$DATA_DIR/output/30arcseconds/offline_pcrglobwb_qualloc" \
@@ -46,7 +44,6 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" qualloc-run \
 # ---------------------------------------------------------------------------
 # 3/3 QUAlloc stepped from inside PCR-GLOBWB
 # ---------------------------------------------------------------------------
-echo "=== 3/3 online_pcrglobwb_qualloc"
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
     "$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/online_pcrglobwb_qualloc_30arcseconds.ini" \
     -mod "$DATA_DIR/output/30arcseconds/online_pcrglobwb_qualloc" \
