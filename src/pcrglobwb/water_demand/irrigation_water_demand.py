@@ -127,37 +127,10 @@ class IrrigationWaterDemand(object):
                 * pcr.clone().cellSize(),
             )
             try:
-                self.irrigationEfficiency = pcr.cover(
+                self.irrigationEfficiency = vos.fillWithWindowAverage(
                     self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, window_size),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, window_size),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, window_size),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, window_size),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, window_size),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, 0.75),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, 1.00),
-                )
-                self.irrigationEfficiency = pcr.cover(
-                    self.irrigationEfficiency,
-                    pcr.windowaverage(self.irrigationEfficiency, 1.50),
+                    [window_size] * 5 + [0.75, 1.00, 1.50],
+                    self.landmask,
                 )
             except Exception:
                 pass

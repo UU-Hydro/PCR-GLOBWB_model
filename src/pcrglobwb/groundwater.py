@@ -296,22 +296,8 @@ class Groundwater(object):
                 extrapolateGroundwaterThickness = False
 
             if extrapolateGroundwaterThickness:
-                # extrapolate totalGroundwaterThickness; TODO: make a general extrapolation function in virtualOS.py
-                totalGroundwaterThickness = pcr.cover(
-                    totalGroundwaterThickness,
-                    pcr.windowaverage(totalGroundwaterThickness, 0.75),
-                )
-                totalGroundwaterThickness = pcr.cover(
-                    totalGroundwaterThickness,
-                    pcr.windowaverage(totalGroundwaterThickness, 0.75),
-                )
-                totalGroundwaterThickness = pcr.cover(
-                    totalGroundwaterThickness,
-                    pcr.windowaverage(totalGroundwaterThickness, 0.75),
-                )
-                totalGroundwaterThickness = pcr.cover(
-                    totalGroundwaterThickness,
-                    pcr.windowaverage(totalGroundwaterThickness, 1.00),
+                totalGroundwaterThickness = vos.fillWithWindowAverage(
+                    totalGroundwaterThickness, [0.75] * 3 + [1.00], self.landmask
                 )
 
             totalGroundwaterThickness = pcr.cover(totalGroundwaterThickness, 0.0)
