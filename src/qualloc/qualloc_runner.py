@@ -33,6 +33,13 @@ argument_tokens = {
     "-pcrglobwb_mod": "PCRGLOBWB_OUTPUT_DIR",
 }
 
+# date flags (YYYY-MM-DD, as for PCR-GLOBWB); QUAlloc runs whole years, so only
+# the year is passed on
+date_tokens = {
+    "-sd": "START_YEAR",
+    "-ed": "END_YEAR",
+}
+
 
 class qualloc_runner(DynamicModel):
 
@@ -95,12 +102,16 @@ def main():
 
         argument = system_argument[argument_cnt]
 
-        if argument in argument_tokens:
+        if argument in argument_tokens or argument in date_tokens:
 
             if argument_cnt + 1 == len(system_argument):
                 sys.exit("%s is not followed by a value" % argument)
 
-            replacements[argument_tokens[argument]] = system_argument[argument_cnt + 1]
+            value = system_argument[argument_cnt + 1]
+            if argument in date_tokens:
+                replacements[date_tokens[argument]] = value[0:4]
+            else:
+                replacements[argument_tokens[argument]] = value
             argument_cnt += 2
 
         else:
