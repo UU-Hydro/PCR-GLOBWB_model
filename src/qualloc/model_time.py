@@ -165,15 +165,13 @@ class model_time(object):
         self.enddate = datetime.datetime(self.endyear, 12, 31)
         self.date = self.startdate
 
-        # length of the simulation
-        if self.time_increment == "daily":
-            self.number_time_steps = (
-                int(((self.enddate - self.date).days) / self.time_step_length) + 1
-            )
-        elif self.time_increment == "monthly":
-            self.number_time_steps = int((endyear - startyear) + 1) * 12
-        else:
+        if self.time_increment != "daily":
             sys.exit("%s cannot be used" % self.time_increment)
+
+        # length of the simulation
+        self.number_time_steps = (
+            int(((self.enddate - self.date).days) / self.time_step_length) + 1
+        )
 
         self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)
 
@@ -193,21 +191,10 @@ class model_time(object):
 
     def update(self, increment):
         # increment the date by one time step
-        if self.time_increment == "daily":
-            self.time_step_length = 1
-            self.date = self.startdate + datetime.timedelta(
-                days=(increment - 1) * self.time_step_length
-            )
-        elif self.time_increment == "monthly":
-            year = self.startdate.year + (increment - 1) // 12
-            if increment % 12 == 0:
-                month = 12
-            else:
-                month = increment % 12
-            self.date = datetime.datetime(year, month, 1)
-            self.time_step_length = calendar.monthrange(year, month)[1]
-        else:
-            sys.exit("%s cannot be used" % self.time_increment)
+        self.time_step_length = 1
+        self.date = self.startdate + datetime.timedelta(
+            days=(increment - 1) * self.time_step_length
+        )
 
         self.year = self.date.year
         month = self.date.month
@@ -215,22 +202,14 @@ class model_time(object):
 
         self.julianday = get_julian_daynumber(self.date)
 
-        # special markers for daily time increments
-        if self.time_increment == "daily":
-            self.report_flags["daily"] = True
-            number_days = calendar.monthrange(self.year, month)[1]
-            self.report_flags["monthly"] = day == number_days
-            if self.report_flags["monthly"] and month == 12:
-                self.last_day_of_year = True
-            else:
-                self.last_day_of_year = False
-        elif self.time_increment == "monthly":
-            self.report_flags["daily"] = False
-            self.report_flags["monthly"] = True
-            self.last_day_of_year = month == 12
+        # special markers
+        self.report_flags["daily"] = True
+        number_days = calendar.monthrange(self.year, month)[1]
+        self.report_flags["monthly"] = day == number_days
+        if self.report_flags["monthly"] and month == 12:
+            self.last_day_of_year = True
         else:
-            # should not happen; all flags disabled
-            self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)
+            self.last_day_of_year = False
         self.report_flags["yearly"] = self.last_day_of_year
 
         self.last_time_step = increment == self.number_time_steps

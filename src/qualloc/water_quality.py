@@ -201,7 +201,7 @@ class water_quality(object):
 
         return constituent_longterm_states
 
-    def update_longterm_quality(self, source_names, time_step, date):
+    def update_longterm_quality(self, source_names, date):
         """
         update_longterm_quality:
                                   function that updates the quality
@@ -220,12 +220,9 @@ class water_quality(object):
                 setattr(self, key, average)
 
         # update the long-term water quality on the last day of the month
-        if (time_step == "monthly") or (
-            time_step == "daily" and is_last_day_month(date)
-        ):
+        if is_last_day_month(date):
 
-            # number of steps within the time step: days in the month for daily time
-            # steps, one for monthly time steps
+            # number of days in the month
             steps = date.day
 
             for source_name in source_names:
