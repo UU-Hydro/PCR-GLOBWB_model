@@ -374,6 +374,8 @@ class LandSurface(object):
             ]:
                 if option in iniItems.waterManagementOptions:
                     replacements[token] = iniItems.waterManagementOptions[option]
+            replacements["START_YEAR"] = iniItems.globalOptions["startTime"][0:4]
+            replacements["END_YEAR"] = iniItems.globalOptions["endTime"][0:4]
 
             self.qualloc_model_configuration = configuration_parser(
                 cfgfilename=qualloc_config_file,

@@ -559,6 +559,12 @@ def modify_ini_file(original_ini_file, system_argument):
             + end_date
         )
         print(msg)
+    for token, flag in [("START_DATE", "-sd"), ("END_DATE", "-ed")]:
+        if token in file_ini_content:
+            sys.exit(
+                "%s uses the placeholder %s; pass it with %s"
+                % (original_ini_file, token, flag)
+            )
 
     # optional initial conditions: main initial state folder (-misd)
     if "-misd" in system_argument:

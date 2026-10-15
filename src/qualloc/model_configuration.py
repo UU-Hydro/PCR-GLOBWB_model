@@ -22,6 +22,8 @@ substitutable_tokens = [
     "MAIN_OUTPUT_DIR",
     "PCRGLOBWB_OUTPUT_DIR",
     "CLONEMAP",
+    "START_YEAR",
+    "END_YEAR",
 ]
 
 token_pattern = re.compile(r"\b(%s)\b" % str.join("|", substitutable_tokens))
