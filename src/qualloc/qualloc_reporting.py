@@ -461,21 +461,6 @@ class qualloc_reporting(object):
 
     def update_reportable_variables(self, model):
 
-        # update all reportable variables; forcing variables in m water slice per time step
-        for forcing_variable, info in model.forcing_info.items():
-            setattr(
-                self,
-                forcing_variable.lower() + "forcing",
-                getattr(model, forcing_variable.lower()),
-            )
-
-        for forcing_variable, info in model.water_quality_forcing_info.items():
-            setattr(
-                self,
-                forcing_variable.lower() + "forcing",
-                getattr(model, forcing_variable.lower()),
-            )
-
         # groundwater
         self.groundwater_recharge = model.groundwater.total_recharge
         self.groundwater_storage = model.groundwater.storage

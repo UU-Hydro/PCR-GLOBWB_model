@@ -400,7 +400,6 @@ class LandSurface(object):
                 self.qualloc_model_time,
                 model_flags,
                 initial_conditions,
-                online_coupling=self.using_qualloc,
             )
             self.qualloc_model.initialize()
 
@@ -1195,7 +1194,6 @@ class LandSurface(object):
             # update QUAlloc for the current date
             self.qualloc_model_time.update(currTimeStep.timeStepPCR)
             self.qualloc_model.update(
-                online_coupling_to_quantity=self.using_qualloc,
                 irrigationGrossDemand=vol_gross_sectoral_water_demands["irrigation"]
                 / routing.cellArea,
                 domesticGrossDemand=self.water_demand.water_demand_domestic.domesticGrossDemand,
