@@ -5,13 +5,12 @@ from copy import deepcopy
 
 import pcraster as pcr
 
-from pcrglobwb.common import virtualOS as vos
 from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     pcr_share_identical_maps,
     sum_list,
 )
-from qualloc.file_handler import close_nc_cache, compose_filename, read_file_entry
+from qualloc.file_handler import close_nc_cache, read_file_entry
 from qualloc.groundwater import groundwater
 from qualloc.initial_conditions_handler import (
     get_initial_condition_as_timed_dict,
@@ -36,26 +35,22 @@ logger = logging.getLogger(__name__)
 
 NoneType = type(None)
 
-# default forcing variables
-forcing_variables = {
-    "precipitation": "precipitation",
-    "referencePotET": "refpot_evaporation",
-    "groundwater_recharge": "groundwater_recharge",
-    "direct_runoff": "direct_runoff",
-    "interflow": "interflow",
-    "irrigationGrossDemand": "irrigation_water_demand",
-    "domesticGrossDemand": "domestic_water_demand",
-    "domesticNettoDemand": "domestic_water_demand",
-    "industryGrossDemand": "industrial_water_demand",
-    "industryNettoDemand": "industrial_water_demand",
-    "livestockGrossDemand": "livestock_water_demand",
-    "livestockNettoDemand": "livestock_water_demand",
-    "manufactureGrossDemand": "manufacture_water_demand",
-    "manufactureNettoDemand": "manufacture_water_demand",
-    "thermoelectricGrossDemand": "thermoelectric_water_demand",
-    "thermoelectricNettoDemand": "thermoelectric_water_demand",
-    "environmentGrossDemand": "environment_water_demand",
-}
+# lower-cased names of the water demand keyword arguments of update(); must match
+# the keys of the forcing dictionary built there
+demand_forcing_variables = (
+    "irrigationgrossdemand",
+    "domesticgrossdemand",
+    "domesticnettodemand",
+    "industrygrossdemand",
+    "industrynettodemand",
+    "livestockgrossdemand",
+    "livestocknettodemand",
+    "manufacturegrossdemand",
+    "manufacturenettodemand",
+    "thermoelectricgrossdemand",
+    "thermoelectricnettodemand",
+    "environmentgrossdemand",
+)
 
 
 def ncvariable_name(section, key, default=None):
@@ -80,7 +75,6 @@ class qualloc_model(object):
         model_time,
         model_flags={},
         initial_conditions=None,
-        online_coupling=False,
     ):
 
         object.__init__(self)
@@ -136,14 +130,7 @@ class qualloc_model(object):
         self.initial_conditions = initial_conditions
 
         self.model_time = model_time
-        self.time_step = self.model_time.time_increment
 
-        self.online_coupling = online_coupling
-        if not self.online_coupling:
-            clone_file, _ = compose_filename(
-                model_configuration.general["clone"], model_configuration.inputpath
-            )
-            vos.set_clone(clone_file)
         self.model_configuration.clone_attributes = cloneAttributes()
 
         message_str = str.join(
@@ -174,22 +161,7 @@ class qualloc_model(object):
 
         return None
 
-    def initialize(
-        self,
-        landmask=None,
-        cellarea=None,
-        groundwater_alpha=None,
-        total_base_flow_ini=None,
-        groundwater_storage_ini=None,
-        ldd=None,
-        fraction_water=None,
-        water_cropfactor=None,
-        channel_gradient=None,
-        channel_width=None,
-        channel_length=None,
-        mannings_n=None,
-        surfacewater_storage_ini=None,
-    ):
+    def initialize(self):
 
         # stand-alone QUAlloc: read the land mask
         self.landmask = read_file_entry(
@@ -242,84 +214,11 @@ class qualloc_model(object):
             self.model_configuration, self.initial_conditions, self.model_flags
         )
 
-        # forcing: all dynamic input for the selected time step
-        inputpath = self.model_configuration.general["inputpath"]
-        allow_year_substitution = True
-        date_selection_method = "exact"
-        datatype = pcr.Scalar
-
-        # totals and rates
-        forcing_totals = self.model_configuration.convert_string_to_input(
-            self.model_configuration.forcing["totals"], str
-        )
-        forcing_rates = self.model_configuration.convert_string_to_input(
-            self.model_configuration.forcing["rates"], str
-        )
-
-        # remove unused forcing variables (sectors)
-        del_keys = []
-        for forcing_variable, ncfileroot in forcing_variables.items():
-            if f"{ncfileroot}_ncfile" not in self.model_configuration.forcing.keys():
-                del_keys.append(forcing_variable)
-        for del_key in del_keys:
-            forcing_variables.pop(del_key, None)
-
-        # coupled QUAlloc
-        if self.online_coupling:
-            del_keys = ["precipitation", "referencePotET", "direct_runoff", "interflow"]
-            for del_key in del_keys:
-                if del_key in forcing_variables.keys():
-                    forcing_variables.pop(del_key, None)
-
-        self.forcing_info = {}
-        for forcing_variable, ncfileroot in forcing_variables.items():
-
-            # netCDF file name and the variable it holds
-            ncfilename = self.model_configuration.forcing["%s_ncfile" % ncfileroot]
-            ncvariable = ncvariable_name(
-                self.model_configuration.forcing, ncfileroot, forcing_variable
-            )
-
-            # type of variable
-            if ncfileroot in forcing_totals:
-                total_to_rate = True
-            elif ncfileroot in forcing_rates:
-                total_to_rate = False
-            else:
-                total_to_rate = False
-
-            self.forcing_info[forcing_variable] = {
-                "ncfilename": ncfilename,
-                "ncvariable": ncvariable,
-                "inputpath": inputpath,
-                "datatype": datatype,
-                "date_selection_method": date_selection_method,
-                "allow_year_substitution": allow_year_substitution,
-                "total_to_rate": total_to_rate,
-            }
-
-        logger.info("forcing information initialized")
-
-        # groundwater; stand-alone QUAlloc: read the groundwater alpha
+        # groundwater
         self.initial_conditions["groundwater"]["groundwater_storage"] = pcr.ifthen(
             self.landmask,
             pcr.cover(self.initial_conditions["groundwater"]["groundwater_storage"], 0),
         )
-        alpha = read_file_entry(
-            filename=self.model_configuration.groundwater["alpha"],
-            variablename="alpha",
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        alpha_default = read_file_entry(
-            filename=self.model_configuration.groundwater["alpha_default"],
-            variablename="alpha",
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        alpha = pcr.ifthen(self.landmask, pcr.cover(alpha, alpha_default))
 
         # initial total base flow and groundwater storage
         total_base_flow_ini = self.initial_conditions["groundwater"]["total_base_flow"]
@@ -328,20 +227,19 @@ class qualloc_model(object):
         ]
 
         self.groundwater = groundwater(
-            alpha=alpha,
+            landmask=self.landmask,
             total_base_flow_ini=total_base_flow_ini,
             storage_ini=groundwater_storage_ini,
         )
 
-        alpha = None
-        alpha_default = None
         total_base_flow_ini = None
         groundwater_storage_ini = None
-        del alpha, alpha_default, total_base_flow_ini, groundwater_storage_ini
+        del total_base_flow_ini, groundwater_storage_ini
 
-        # surface water: ldd, fractional water area, channel properties and initial storage
-
-        # stand-alone QUAlloc
+        # surface water: ldd, channel properties and initial storage; the initial
+        # storage is the starting water depth of the Manning iteration in the
+        # long-term availability when the run starts on the 1st of a month, before
+        # update() has copied in PCR-GLOBWB's channel storage
         self.initial_conditions["surfacewater"]["surfacewater_storage"] = pcr.ifthen(
             self.landmask,
             pcr.cover(
@@ -358,24 +256,6 @@ class qualloc_model(object):
             inputpath=self.model_configuration.general["inputpath"],
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Ldd,
-        )
-        fraction_water = read_file_entry(
-            filename=self.model_configuration.surfacewater["fraction_water"],
-            variablename=ncvariable_name(
-                self.model_configuration.surfacewater, "fraction_water"
-            ),
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        water_cropfactor = read_file_entry(
-            filename=self.model_configuration.surfacewater["water_cropfactor"],
-            variablename=ncvariable_name(
-                self.model_configuration.surfacewater, "water_cropfactor"
-            ),
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
         )
         channel_gradient = read_file_entry(
             filename=self.model_configuration.surfacewater["channel_gradient"],
@@ -416,9 +296,6 @@ class qualloc_model(object):
 
         self.surfacewater = surfacewater(
             ldd=ldd,
-            cellarea=self.cellarea,
-            fraction_water=fraction_water,
-            water_cropfactor=water_cropfactor,
             channel_gradient=channel_gradient,
             channel_width=channel_width,
             channel_length=channel_length,
@@ -427,21 +304,15 @@ class qualloc_model(object):
         )
 
         ldd = None
-        fraction_water = None
-        water_cropfactor = None
         channel_gradient = None
         channel_width = None
-        channel_depth = None
         channel_length = None
         mannings_n = None
         surfacewater_storage_ini = None
         del (
             ldd,
-            fraction_water,
-            water_cropfactor,
             channel_gradient,
             channel_width,
-            channel_depth,
             channel_length,
             mannings_n,
             surfacewater_storage_ini,
@@ -774,7 +645,6 @@ class qualloc_model(object):
             landmask=self.landmask,
             cellarea=self.cellarea,
             time_increment=self.model_configuration.water_management["time_increment"],
-            time_step=self.model_time.time_increment,
             time_step_length=self.model_time.time_step_length,
             desalwater_allocation_zones=desalwater_allocation_zones,
             desalwater_withdrawal_points=desalwater_withdrawal_points,
@@ -856,24 +726,14 @@ class qualloc_model(object):
         self.gross_demand_forcing_vars = {}
         self.net_demand_forcing_vars = {}
 
-        for forcing_variable in forcing_variables.keys():
-            for sector_name in self.water_management.sector_names:
-                for demand_name_root in ["%s_gross_demand", "%sgrossdemand"]:
-                    if forcing_variable.lower() == (demand_name_root % sector_name):
-                        self.gross_demand_forcing_vars[sector_name] = (
-                            forcing_variable.lower()
-                        )
+        for sector_name in self.water_management.sector_names:
+            gross_demand_name = "%sgrossdemand" % sector_name
+            if gross_demand_name in demand_forcing_variables:
+                self.gross_demand_forcing_vars[sector_name] = gross_demand_name
 
-                for demand_name_root in [
-                    "%s_net_demand",
-                    "%snetdemand",
-                    "%s_netto_demand",
-                    "%snettodemand",
-                ]:
-                    if forcing_variable.lower() == (demand_name_root % sector_name):
-                        self.net_demand_forcing_vars[sector_name] = (
-                            forcing_variable.lower()
-                        )
+            net_demand_name = "%snettodemand" % sector_name
+            if net_demand_name in demand_forcing_variables:
+                self.net_demand_forcing_vars[sector_name] = net_demand_name
 
         # check for missing sectors
         for sector_name in self.gross_demand_forcing_vars.keys():
@@ -905,6 +765,13 @@ class qualloc_model(object):
             )
 
         logger.info(message_str)
+
+        self.forcing_variables = ["groundwater_recharge"] + list(
+            dict.fromkeys(
+                list(self.gross_demand_forcing_vars.values())
+                + list(self.net_demand_forcing_vars.values())
+            )
+        )
 
         # water quality: standard constituents
         constituent_names = ["temperature", "organic", "salinity", "pathogen"]
@@ -1076,7 +943,6 @@ class qualloc_model(object):
 
     def update(
         self,
-        online_coupling_to_quantity=False,
         irrigationGrossDemand=None,
         domesticGrossDemand=None,
         domesticNettoDemand=None,
@@ -1108,54 +974,32 @@ class qualloc_model(object):
 
         date = self.model_time.date
 
-        # forcing: hydrology; stand-alone QUAlloc
-        if not online_coupling_to_quantity:
-            for forcing_variable in forcing_variables.keys():
+        # forcing from PCR-GLOBWB, in m/day
+        forcing = {
+            "groundwater_recharge": groundwater_recharge,
+            "irrigationgrossdemand": irrigationGrossDemand,
+            "domesticgrossdemand": domesticGrossDemand,
+            "domesticnettodemand": domesticNettoDemand,
+            "industrygrossdemand": industryGrossDemand,
+            "industrynettodemand": industryNettoDemand,
+            "livestockgrossdemand": livestockGrossDemand,
+            "livestocknettodemand": livestockNettoDemand,
+            "manufacturegrossdemand": manufactureGrossDemand,
+            "manufacturenettodemand": manufactureNettoDemand,
+            "thermoelectricgrossdemand": thermoelectricGrossDemand,
+            "thermoelectricnettodemand": thermoelectricNettoDemand,
+            "environmentgrossdemand": environmentGrossDemand,
+        }
+        for forcing_variable in self.forcing_variables:
+            # clip to the land mask
+            var_out = pcr.ifthen(self.landmask, pcr.cover(forcing[forcing_variable], 0))
 
-                var_out = read_file_entry(
-                    filename=self.forcing_info[forcing_variable]["ncfilename"],
-                    variablename=self.forcing_info[forcing_variable]["ncvariable"],
-                    inputpath=self.forcing_info[forcing_variable]["inputpath"],
-                    clone_attributes=self.model_configuration.clone_attributes,
-                    datatype=self.forcing_info[forcing_variable]["datatype"],
-                    date=date,
-                    date_selection_method=self.forcing_info[forcing_variable][
-                        "date_selection_method"
-                    ],
-                    allow_year_substitution=self.forcing_info[forcing_variable][
-                        "allow_year_substitution"
-                    ],
-                )
+            setattr(self, forcing_variable, var_out)
 
-                # clip to the land mask
-                var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
-
-                # convert totals to rates (m/month to m/day); by default, precipitation, referencePotET,
-                # groundwater_recharge, direct_runoff, interflow and irrigation are in m/month and the domestic,
-                # industry, livestock, manufacture, thermoelectric and environment demands in m/day
-                if self.forcing_info[forcing_variable]["total_to_rate"]:
-                    var_out = var_out / self.model_time.time_step_length
-
-                setattr(self, forcing_variable.lower(), var_out)
-
-                logger.debug(
-                    "information on %s read for %s" % (forcing_variable.lower(), date)
-                )
-
-        # coupled QUAlloc (PCR-GLOBWB): forcing variables in m/day
-        else:
-            for forcing_variable in forcing_variables.keys():
-                var_out = eval(forcing_variable)
-
-                # clip to the land mask
-                var_out = pcr.ifthen(self.landmask, pcr.cover(var_out, 0))
-
-                setattr(self, forcing_variable.lower(), var_out)
-
-                logger.debug(
-                    "information on %s imported from PCR-GLOBWB2 for %s"
-                    % (forcing_variable.lower(), date)
-                )
+            logger.debug(
+                "information on %s imported from PCR-GLOBWB2 for %s"
+                % (forcing_variable, date)
+            )
 
         # forcing: water quality
         constituent_shortterm_quality = {}
@@ -1415,42 +1259,11 @@ class qualloc_model(object):
             self.water_management.get_total_potential_withdrawal(source_name)
         )
 
-        # available surface water; stand-alone QUAlloc
-        if not online_coupling_to_quantity:
-            # channel runoff (m/day)
-            self.channel_runoff = (
-                self.precipitation
-                - self.surfacewater.water_cropfactor * self.referencepotet
-            )
+        # surface water availability is the channel storage (m/day)
+        surfacewater_available = deepcopy(surfacewater_storage)
 
-            # return flow (m/day)
-            total_return_flow = self.water_management.total_return_flow / self.cellarea
-
-            # total runoff (m/day)
-            self.surfacewater.get_total_runoff(
-                direct_runoff=self.direct_runoff,
-                interflow=self.interflow,
-                base_flow=self.groundwater.total_base_flow
-                / self.model_time.time_step_length,
-                channel_runoff=self.channel_runoff,
-                return_flow=total_return_flow,
-                date=date,
-            )
-
-            # available surface water: storage at the start of the time step plus the total runoff over
-            # the time step (m/day)
-            surfacewater_available = (
-                self.surfacewater.storage * self.surfacewater.fraction_water
-                + self.surfacewater.total_runoff
-            )
-
-        # coupled QUAlloc
-        else:
-            # surface water availability is the channel storage (m/day)
-            surfacewater_available = deepcopy(surfacewater_storage)
-
-            # total runoff (m/day)
-            self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff)
+        # total runoff (m/day)
+        self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff)
 
         # actual withdrawals: short-term potential surface water withdrawal per sector, based on water
         # quality and the actual surface water availability (m3/day)
@@ -1461,30 +1274,18 @@ class qualloc_model(object):
 
         potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
 
-        # stand-alone QUAlloc
-        if not online_coupling_to_quantity:
-            # actual renewable withdrawals, by routing the total runoff with the potential withdrawals (m3/day)
-            actual_withdrawal = self.surfacewater.update(
-                potential_withdrawal=potential_withdrawal,
-                time_step_seconds=self.model_time.seconds_per_day,
-            )
+        # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
+        actual_withdrawal = pcr.ifthen(
+            pcr.defined(self.surfacewater.ldd),
+            pcr.max(
+                0,
+                pcr.min(potential_withdrawal, surfacewater_available * self.cellarea),
+            ),
+        )
 
-        # coupled QUAlloc
-        else:
-            # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
-            actual_withdrawal = pcr.ifthen(
-                pcr.defined(self.surfacewater.ldd),
-                pcr.max(
-                    0,
-                    pcr.min(
-                        potential_withdrawal, surfacewater_available * self.cellarea
-                    ),
-                ),
-            )
-
-            # discharge (m3/s) and surface water storage (m) of the surface water module
-            self.surfacewater.storage = deepcopy(surfacewater_storage)
-            self.surfacewater.discharge = deepcopy(surfacewater_discharge)
+        # discharge (m3/s) and surface water storage (m) of the surface water module
+        self.surfacewater.storage = deepcopy(surfacewater_storage)
+        self.surfacewater.discharge = deepcopy(surfacewater_discharge)
 
         # redistribute the renewable withdrawal by sector (m3/day)
         renewable_withdrawal = deepcopy(actual_withdrawal)
@@ -1530,38 +1331,13 @@ class qualloc_model(object):
             self.water_management.get_total_potential_withdrawal(source_name)
         )
 
-        # available groundwater; stand-alone QUAlloc
-        if not online_coupling_to_quantity:
-            # total withdrawal of all sectors as water slice (m/day)
-            potential_withdrawal = (
-                sum_list(list(potential_withdrawal_per_sector.values())) / self.cellarea
-            )
+        # groundwater availability is the groundwater storage (m/day)
+        storage = deepcopy(groundwater_storage)
+        groundwater_available = deepcopy(storage)
 
-            # update the total base flow and total recharge (m/period)
-            self.groundwater.get_storage(
-                recharge=self.groundwater_recharge,
-                potential_withdrawal=potential_withdrawal,
-                time_step_length=self.model_time.time_step_length,
-                date=self.model_time.date,
-            )
-
-            # available groundwater: storage at the start of the period (month) plus the total recharge
-            # minus the total base flow over the period (m at the end of the period)
-            storage = self.groundwater.storage + (
-                self.groundwater.total_recharge - self.groundwater.total_base_flow
-            )
-
-            groundwater_available = deepcopy(storage)
-
-        # coupled QUAlloc
-        else:
-            # groundwater availability is the groundwater storage (m/day)
-            storage = deepcopy(groundwater_storage)
-            groundwater_available = deepcopy(storage)
-
-            # total recharge and total base flow (m/day)
-            self.groundwater.total_recharge = deepcopy(self.groundwater_recharge)
-            self.groundwater.total_base_flow = deepcopy(groundwater_baseflow)
+        # total recharge and total base flow (m/day)
+        self.groundwater.total_recharge = deepcopy(self.groundwater_recharge)
+        self.groundwater.total_base_flow = deepcopy(groundwater_baseflow)
 
         # actual withdrawals: short-term potential groundwater withdrawal per sector, based on water
         # quality and the actual groundwater availability (m3/period)
@@ -1585,20 +1361,8 @@ class qualloc_model(object):
         renewable_withdrawal /= self.model_time.time_step_length
         nonrenewable_withdrawal /= self.model_time.time_step_length
 
-        # update the storage (renewable groundwater storage before withdrawals, in m); stand-alone QUAlloc
-        if not online_coupling_to_quantity:
-            # (m/period)
-            self.groundwater.update(
-                renewable_withdrawal * self.model_time.time_step_length / self.cellarea,
-                nonrenewable_withdrawal
-                * self.model_time.time_step_length
-                / self.cellarea,
-            )
-
-        # coupled QUAlloc
-        else:
-            # groundwater storage for the current date
-            self.groundwater.storage = deepcopy(groundwater_storage)
+        # groundwater storage for the current date
+        self.groundwater.storage = deepcopy(groundwater_storage)
 
         # redistribute the renewable withdrawals by sector (m3/day)
         renewable_withdrawal_per_sector = dict(
@@ -1671,7 +1435,6 @@ class qualloc_model(object):
         # long-term water quality (degC, mg/L, cfu/100mL)
         self.water_management.water_quality.update_longterm_quality(
             source_names=self.water_management.source_names,
-            time_step=self.model_time.time_increment,
             date=date,
         )
 

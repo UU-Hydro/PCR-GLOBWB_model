@@ -20,7 +20,6 @@ NoneType = type(None)
 substitutable_tokens = [
     "MAIN_INPUT_DIR",
     "MAIN_OUTPUT_DIR",
-    "PCRGLOBWB_OUTPUT_DIR",
     "CLONEMAP",
     "START_YEAR",
     "END_YEAR",

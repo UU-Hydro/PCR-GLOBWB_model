@@ -290,7 +290,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         landmask,
         cellarea,
         time_increment,
-        time_step,
         time_step_length,
         desalwater_allocation_zones,
         desalwater_withdrawal_points,
@@ -366,7 +365,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         # settings to allocate demand to the availability (hard-coded, refer to the allocation functions);
         # time increment for updating the withdrawals from the long-term availability (monthly or yearly)
         self.time_increment = time_increment
-        self.time_step = time_step
         self.time_step_length = time_step_length
 
         # use_local_first: boolean map indicating whether the local availability is used first; the flag
@@ -3036,11 +3034,9 @@ total_return_flow_ini                      : total return flow [m3/day]
         self.average_surfacewater_runoff += surfacewater_runoff
 
         # update the long-term variables on the last day of the month
-        if (self.time_step == "monthly") or (
-            self.time_step == "daily" and is_last_day_month(date)
-        ):
+        if is_last_day_month(date):
 
-            # number of steps within the time step: days in the month for daily time steps, one for monthly
+            # number of days in the month
             steps = date.day
 
             update_date = datetime.datetime(date.year, date.month, 1)
@@ -3150,11 +3146,9 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
 
         # update the long-term variables on the last day of the month
-        if (self.time_step == "monthly") or (
-            self.time_step == "daily" and is_last_day_month(date)
-        ):
+        if is_last_day_month(date):
 
-            # number of steps within the time step: days in the month for daily time steps, one for monthly
+            # number of days in the month
             steps = date.day
 
             for sector_name in self.sector_names:
@@ -3210,9 +3204,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         """
 
         # update the long-term variables on the last day of the month
-        if (self.time_step == "monthly") or (
-            self.time_step == "daily" and is_last_day_month(date)
-        ):
+        if is_last_day_month(date):
 
             # groundwater
             if self.pumping_capacity_flag["groundwater"]:
