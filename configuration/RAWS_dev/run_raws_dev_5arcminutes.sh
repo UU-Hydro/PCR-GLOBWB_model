@@ -14,7 +14,7 @@ START_DATE=2000-01-01
 END_DATE=2000-01-07
 
 INPUT_DIR="$DATA_DIR/CATALOGUE/TEST_CASES/tugela"
-CLONE_MAP="clone_maps/tugela_5arcminutes.clone.map"
+CLONE_MAP="clone_maps/tugela_5arcminutes"
 
 # ---------------------------------------------------------------------------
 # get data
