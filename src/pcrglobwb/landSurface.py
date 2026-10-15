@@ -355,7 +355,6 @@ class LandSurface(object):
             sections = [
                 "general",
                 "time",
-                "forcing",
                 "groundwater",
                 "surfacewater",
                 "water_management",
