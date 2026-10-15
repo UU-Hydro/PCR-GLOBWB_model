@@ -215,26 +215,11 @@ class qualloc_model(object):
             self.model_configuration, self.initial_conditions, self.model_flags
         )
 
-        # groundwater; stand-alone QUAlloc: read the groundwater alpha
+        # groundwater
         self.initial_conditions["groundwater"]["groundwater_storage"] = pcr.ifthen(
             self.landmask,
             pcr.cover(self.initial_conditions["groundwater"]["groundwater_storage"], 0),
         )
-        alpha = read_file_entry(
-            filename=self.model_configuration.groundwater["alpha"],
-            variablename="alpha",
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        alpha_default = read_file_entry(
-            filename=self.model_configuration.groundwater["alpha_default"],
-            variablename="alpha",
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        alpha = pcr.ifthen(self.landmask, pcr.cover(alpha, alpha_default))
 
         # initial total base flow and groundwater storage
         total_base_flow_ini = self.initial_conditions["groundwater"]["total_base_flow"]
@@ -243,20 +228,19 @@ class qualloc_model(object):
         ]
 
         self.groundwater = groundwater(
-            alpha=alpha,
+            landmask=self.landmask,
             total_base_flow_ini=total_base_flow_ini,
             storage_ini=groundwater_storage_ini,
         )
 
-        alpha = None
-        alpha_default = None
         total_base_flow_ini = None
         groundwater_storage_ini = None
-        del alpha, alpha_default, total_base_flow_ini, groundwater_storage_ini
+        del total_base_flow_ini, groundwater_storage_ini
 
-        # surface water: ldd, fractional water area, channel properties and initial storage
-
-        # stand-alone QUAlloc
+        # surface water: ldd, channel properties and initial storage; the initial
+        # storage is the starting water depth of the Manning iteration in the
+        # long-term availability when the run starts on the 1st of a month, before
+        # update() has copied in PCR-GLOBWB's channel storage
         self.initial_conditions["surfacewater"]["surfacewater_storage"] = pcr.ifthen(
             self.landmask,
             pcr.cover(
@@ -273,24 +257,6 @@ class qualloc_model(object):
             inputpath=self.model_configuration.general["inputpath"],
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Ldd,
-        )
-        fraction_water = read_file_entry(
-            filename=self.model_configuration.surfacewater["fraction_water"],
-            variablename=ncvariable_name(
-                self.model_configuration.surfacewater, "fraction_water"
-            ),
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
-        water_cropfactor = read_file_entry(
-            filename=self.model_configuration.surfacewater["water_cropfactor"],
-            variablename=ncvariable_name(
-                self.model_configuration.surfacewater, "water_cropfactor"
-            ),
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
         )
         channel_gradient = read_file_entry(
             filename=self.model_configuration.surfacewater["channel_gradient"],
@@ -331,9 +297,6 @@ class qualloc_model(object):
 
         self.surfacewater = surfacewater(
             ldd=ldd,
-            cellarea=self.cellarea,
-            fraction_water=fraction_water,
-            water_cropfactor=water_cropfactor,
             channel_gradient=channel_gradient,
             channel_width=channel_width,
             channel_length=channel_length,
@@ -342,21 +305,15 @@ class qualloc_model(object):
         )
 
         ldd = None
-        fraction_water = None
-        water_cropfactor = None
         channel_gradient = None
         channel_width = None
-        channel_depth = None
         channel_length = None
         mannings_n = None
         surfacewater_storage_ini = None
         del (
             ldd,
-            fraction_water,
-            water_cropfactor,
             channel_gradient,
             channel_width,
-            channel_depth,
             channel_length,
             mannings_n,
             surfacewater_storage_ini,
