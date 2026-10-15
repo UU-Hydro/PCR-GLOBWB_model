@@ -42,7 +42,7 @@ datatypes = {
     "Boolean": "BYTE",
     "Ordinal": "FLOAT32",
     "Directional": "FLOAT32",
-    "Ldd": "BYTE",
+    "Ldd": "INT32",
 }
 
 
@@ -1115,6 +1115,7 @@ depending on the type of match specified.
                     ),
                     variablename,
                 )
+                var_out = getattr(pcr, datatype_str.lower())(var_out)
 
             else:
                 # data can be converted directly using numpy2pcr

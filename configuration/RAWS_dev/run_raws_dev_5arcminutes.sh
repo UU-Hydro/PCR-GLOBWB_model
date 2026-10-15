@@ -13,8 +13,8 @@ DATA_DIR="${REPO_ROOT}/../data"
 START_DATE=2000-01-01
 END_DATE=2000-01-07
 
-INPUT_DIR="$DATA_DIR/CATALOGUE/TEST_CASES/tugela"
-CLONE_MAP="clone_maps/tugela_5arcminutes"
+INPUT_DIR="$DATA_DIR/CATALOGUE/TEST_CASES/rhine"
+CLONE_MAP="clone_maps/sub_basins/5arcminutes/rhine_5arcminutes_1_1"
 
 # ---------------------------------------------------------------------------
 # get data
