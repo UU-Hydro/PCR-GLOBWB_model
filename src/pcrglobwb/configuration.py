@@ -378,15 +378,15 @@ class Configuration(object):
             self.routingOptions["routingMethod"] = "accuTravelTime"
 
         if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
-            msg = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
+            )
             self.routingOptions["dynamicFloodPlain"] = "False"
 
         if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
-            msg = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "None" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. This run assumes "None" for this option.'
+            )
             self.landSurfaceOptions["historicalIrrigationArea"] = "None"
 
         # options to read a different forcing file for each year

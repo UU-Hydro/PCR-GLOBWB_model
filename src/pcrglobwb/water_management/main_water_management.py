@@ -27,11 +27,9 @@ class WaterManagement(object):
 
         # option for the groundwater pumping capacity (limitRegionalAnnualGroundwaterAbstraction)
         if "pumpingCapacityNC" not in list(iniItems.waterManagementOptions.keys()):
-            msg = 'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file)'
-            msg += "is not defined in the configuration file. "
-            msg += "We assume no annual groundwater pumping limit used in this run. "
-            msg += "It may result too high groundwater abstraction."
-            logger.warning(msg)
+            logger.warning(
+                'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) is not defined in the configuration file. We assume no annual groundwater pumping limit used in this run. It may result too high groundwater abstraction.'
+            )
             iniItems.waterManagementOptions["pumpingCapacityNC"] = "None"
 
         # option to limit regional groundwater abstraction
@@ -208,9 +206,9 @@ class WaterManagement(object):
         if "threshold_to_maximize_irrigation_surface_water" not in list(
             iniItems.waterManagementOptions.keys()
         ):
-            msg = 'The option "threshold_to_maximize_irrigation_surface_water" is not defined in the "waterManagementOptions" of the configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "threshold_to_maximize_irrigation_surface_water" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "1.0" for this option.'
+            )
             iniItems.waterManagementOptions[
                 "threshold_to_maximize_irrigation_surface_water"
             ] = "1.0"
@@ -227,9 +225,9 @@ class WaterManagement(object):
         if "threshold_to_minimize_fossil_groundwater_irrigation" not in list(
             iniItems.waterManagementOptions.keys()
         ):
-            msg = 'The option "threshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "waterManagementOptions" of configuration file. '
-            msg += 'This run assumes "1.0" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "threshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "waterManagementOptions" of configuration file. This run assumes "1.0" for this option.'
+            )
             iniItems.waterManagementOptions[
                 "threshold_to_minimize_fossil_groundwater_irrigation"
             ] = "1.0"
@@ -246,9 +244,9 @@ class WaterManagement(object):
         if "maximumDailyGroundwaterAbstraction" not in list(
             iniItems.waterManagementOptions.keys()
         ):
-            msg = 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. '
-            msg += 'This run assumes "0.050 m/day" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "maximumDailyGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "0.050 m/day" for this option.'
+            )
             iniItems.waterManagementOptions["maximumDailyGroundwaterAbstraction"] = (
                 "0.050"
             )
@@ -262,9 +260,9 @@ class WaterManagement(object):
         if "maximumDailyFossilGroundwaterAbstraction" not in list(
             iniItems.waterManagementOptions.keys()
         ):
-            msg = 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. '
-            msg += 'This run assumes "0.020 m/day" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "0.020 m/day" for this option.'
+            )
             iniItems.waterManagementOptions[
                 "maximumDailyFossilGroundwaterAbstraction"
             ] = "0.020"
@@ -1433,10 +1431,9 @@ class WaterManagement(object):
             ):
 
                 # note: if limitFossilGroundwaterAbstraction is False, fossil groundwater allocation is not needed
-                msg = "Fossil groundwater abstractions are without limit for satisfying local demand. "
-                msg = "Allocation for fossil groundwater abstraction is NOT needed/implemented. "
-                msg += "However, the fossil groundwater abstraction rate still consider the maximumDailyGroundwaterAbstraction."
-                logger.debug(msg)
+                logger.debug(
+                    "Fossil groundwater abstractions are without limit for satisfying local demand. Allocation for fossil groundwater abstraction is NOT needed/implemented. However, the fossil groundwater abstraction rate still consider the maximumDailyGroundwaterAbstraction."
+                )
 
                 # fossil groundwater abstraction (m3)
                 self.fossilGroundwaterAbstrVol = self.potVolFossilGroundwaterAbstract

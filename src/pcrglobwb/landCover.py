@@ -106,11 +106,10 @@ class LandCover(object):
             "allowNegativePercolation" in list(self.iniItemsLC.keys())
             and self.iniItemsLC["allowNegativePercolation"] == "True"
         ):
-            msg = "Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n"
-            msg += (
+            logger.warning(
+                "Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n"
                 "Note that this option is only relevant for the two layer soil model."
             )
-            logger.warning(msg)
             self.allowNegativePercolation = True
 
         # in Rens's original oldcalc script, roots/transpiration may only be defined in the bottom layer
@@ -125,9 +124,10 @@ class LandCover(object):
             ]
             == "True"
         ):
-            msg = "Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n"
-            msg += "There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s)."
-            logger.warning(msg)
+            logger.warning(
+                "Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n"
+                "There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s)."
+            )
             self.usingOriginalOldCalcRootTranspirationPartitioningMethod = True
 
         # snow module type and parameters
@@ -262,14 +262,9 @@ class LandCover(object):
                 self.iniItemsLC["coverFractionNC"], self.inputDir
             )
         else:
-            msg = (
-                "The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: "
-                + self.name
-                + "\n"
-            )
             logger.warning(
-                "This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero."
-                + "\n"
+                f"The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: {self.name}\n"
+                "This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.\n"
             )
             self.coverFractionNC = None
             self.interceptCapNC = None

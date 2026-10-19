@@ -223,19 +223,10 @@ def readDownscalingMeteo(
                         date = datetime.datetime(
                             first_year_in_nc_file, date.month, date.day
                         )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
+                    logger.warning(
+                        f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
+                        f"using {date.year}-{date.month}-{date.day} instead."
                     )
-                    msg += f"The date {dateInput} is NOT available. "
-                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
-                    msg += "\n"
-                    logger.warning(msg)
                 if date.year > last_year_in_nc_file:
                     if (
                         date.day == 29
@@ -248,19 +239,10 @@ def readDownscalingMeteo(
                         date = datetime.datetime(
                             last_year_in_nc_file, date.month, date.day
                         )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
+                    logger.warning(
+                        f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
+                        f"using {date.year}-{date.month}-{date.day} instead."
                     )
-                    msg += f"The date {dateInput} is NOT available. "
-                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
-                    msg += "\n"
-                    logger.warning(msg)
             try:
                 idx = nc.date2index(
                     date,
@@ -294,25 +276,7 @@ def readDownscalingMeteo(
                         calendar=f.variables["time"].calendar,
                         select="after",
                     )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
-                    )
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
-                    )
-                    msg += "\n"
+                    select = "after"
                 else:
                     try:
                         idx = nc.date2index(
@@ -321,25 +285,7 @@ def readDownscalingMeteo(
                             calendar=f.variables["time"].calendar,
                             select="before",
                         )
-                        msg = "\n"
-                        msg += (
-                            "WARNING related to the netcdf file: "
-                            + str(ncFile)
-                            + " ; variable: "
-                            + str(varName)
-                            + " !!!!!!"
-                            + "\n"
-                        )
-                        msg += (
-                            "The date "
-                            + str(date.year)
-                            + "-"
-                            + str(date.month)
-                            + "-"
-                            + str(date.day)
-                            + " 00:00:00 is NOT available. The 'before' option is used while selecting netcdf time."
-                        )
-                        msg += "\n"
+                        select = "before"
                     except Exception:
                         idx = nc.date2index(
                             date,
@@ -347,33 +293,16 @@ def readDownscalingMeteo(
                             calendar=f.variables["time"].calendar,
                             select="after",
                         )
-                        msg = "\n"
-                        msg += (
-                            "WARNING related to the netcdf file: "
-                            + str(ncFile)
-                            + " ; variable: "
-                            + str(varName)
-                            + " !!!!!!"
-                            + "\n"
-                        )
-                        msg += (
-                            "The date "
-                            + str(date.year)
-                            + "-"
-                            + str(date.month)
-                            + "-"
-                            + str(date.day)
-                            + " 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
-                        )
-                        msg += "\n"
-                logger.warning(msg)
+                        select = "after"
                 date_string = nc.num2date(
                     f.variables["time"][int(idx)],
                     f.variables["time"].units,
                     f.variables["time"].calendar,
                 )
-                logger.warning(f"Using the datetime {date_string}")
-                logger.warning(msg)
+                logger.warning(
+                    f"Date {date.year}-{date.month}-{date.day} 00:00:00 NOT available in {ncFile} "
+                    f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
+                )
 
     idx = int(idx)
     logger.debug(f"Using the date index {idx}")
@@ -823,19 +752,10 @@ def singleTryNetcdf2PCRobjClone(
                         date = datetime.datetime(
                             first_year_in_nc_file, date.month, date.day
                         )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
+                    logger.warning(
+                        f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
+                        f"using {date.year}-{date.month}-{date.day} instead."
                     )
-                    msg += f"The date {dateInput} is NOT available. "
-                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
-                    msg += "\n"
-                    logger.warning(msg)
                 if date.year > last_year_in_nc_file:
                     if (
                         date.day == 29
@@ -848,19 +768,10 @@ def singleTryNetcdf2PCRobjClone(
                         date = datetime.datetime(
                             last_year_in_nc_file, date.month, date.day
                         )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
+                    logger.warning(
+                        f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
+                        f"using {date.year}-{date.month}-{date.day} instead."
                     )
-                    msg += f"The date {dateInput} is NOT available. "
-                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
-                    msg += "\n"
-                    logger.warning(msg)
             try:
                 idx = nc.date2index(
                     date,
@@ -894,25 +805,7 @@ def singleTryNetcdf2PCRobjClone(
                         calendar=f.variables["time"].calendar,
                         select="after",
                     )
-                    msg = "\n"
-                    msg += (
-                        "WARNING related to the netcdf file: "
-                        + str(ncFile)
-                        + " ; variable: "
-                        + str(varName)
-                        + " !!!!!!"
-                        + "\n"
-                    )
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
-                    )
-                    msg += "\n"
+                    select = "after"
                 else:
                     try:
                         idx = nc.date2index(
@@ -921,25 +814,7 @@ def singleTryNetcdf2PCRobjClone(
                             calendar=f.variables["time"].calendar,
                             select="before",
                         )
-                        msg = "\n"
-                        msg += (
-                            "WARNING related to the netcdf file: "
-                            + str(ncFile)
-                            + " ; variable: "
-                            + str(varName)
-                            + " !!!!!!"
-                            + "\n"
-                        )
-                        msg += (
-                            "The date "
-                            + str(date.year)
-                            + "-"
-                            + str(date.month)
-                            + "-"
-                            + str(date.day)
-                            + " 00:00:00 is NOT available. The 'before' option is used while selecting netcdf time."
-                        )
-                        msg += "\n"
+                        select = "before"
                     except Exception:
                         idx = nc.date2index(
                             date,
@@ -947,33 +822,16 @@ def singleTryNetcdf2PCRobjClone(
                             calendar=f.variables["time"].calendar,
                             select="after",
                         )
-                        msg = "\n"
-                        msg += (
-                            "WARNING related to the netcdf file: "
-                            + str(ncFile)
-                            + " ; variable: "
-                            + str(varName)
-                            + " !!!!!!"
-                            + "\n"
-                        )
-                        msg += (
-                            "The date "
-                            + str(date.year)
-                            + "-"
-                            + str(date.month)
-                            + "-"
-                            + str(date.day)
-                            + " 00:00:00 is NOT available. The 'after' option is used while selecting netcdf time."
-                        )
-                        msg += "\n"
-                logger.warning(msg)
+                        select = "after"
                 date_string = nc.num2date(
                     f.variables["time"][int(idx)],
                     f.variables["time"].units,
                     f.variables["time"].calendar,
                 )
-                logger.warning(f"Using the datetime {date_string}")
-                logger.warning(msg)
+                logger.warning(
+                    f"Date {date.year}-{date.month}-{date.day} 00:00:00 NOT available in {ncFile} "
+                    f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
+                )
 
     idx = int(idx)
     logger.debug(f"Using the date index {idx}")
@@ -1475,24 +1333,11 @@ def waterBalanceCheck(
     if abs(a) > threshold or abs(b) > threshold:
         if PrintOnlyErrors:
 
-            msg = "\n"
-            msg += "\n"
-            msg = "\n"
-            msg += "\n"
-            msg += "##############################################################################################################################################\n"
-            msg += "WARNING !!!!!!!! Water Balance Error %s Min %f Max %f Mean %f" % (
-                processName,
-                a,
-                b,
-                c,
+            bar = "#" * 142
+            logger.error(
+                f"\n\n{bar}\nWARNING !!!!!!!! Water Balance Error {processName} "
+                f"Min {a:f} Max {b:f} Mean {c:f}\n{bar}\n\n\n\n"
             )
-            msg += "\n"
-            msg += "##############################################################################################################################################\n"
-            msg += "\n"
-            msg += "\n"
-            msg += "\n"
-
-            logger.error(msg)
 
 
 def findLastYearInNCTime(ncTimeVariable):

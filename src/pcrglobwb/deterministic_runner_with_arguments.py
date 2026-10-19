@@ -113,22 +113,21 @@ class DeterministicRunner(DynamicModel):
             )
 
         # log the global pre-multipliers
-        msg = "\n"
-        msg += "\n"
-        msg += "Multiplier values used: \n"
-        msg += f"For minSoilDepthFrac           : {multiplier_for_minSoilDepthFrac}\n"
-        msg += f"For kSat (log-scale)           : {multiplier_for_kSat}\n"
-        msg += f"For recessionCoeff (log-scale) : {multiplier_for_recessionCoeff}\n"
-        msg += f"For storCap                    : {multiplier_for_storCap}\n"
-        msg += f"For degreeDayFactor            : {multiplier_for_degreeDayFactor}\n"
-        msg += f"For refPotET                   : {self.multiplier_for_refPotET}\n"
-        msg += f"For multiplier_for_manningsN   : {multiplier_for_manningsN}\n"
-        msg += f"For storGroundwaterIni_file    : {storGroundwaterIni_file}\n"
+        msg = (
+            "\n\nMultiplier values used: \n"
+            f"For minSoilDepthFrac           : {multiplier_for_minSoilDepthFrac}\n"
+            f"For kSat (log-scale)           : {multiplier_for_kSat}\n"
+            f"For recessionCoeff (log-scale) : {multiplier_for_recessionCoeff}\n"
+            f"For storCap                    : {multiplier_for_storCap}\n"
+            f"For degreeDayFactor            : {multiplier_for_degreeDayFactor}\n"
+            f"For refPotET                   : {self.multiplier_for_refPotET}\n"
+            f"For multiplier_for_manningsN   : {multiplier_for_manningsN}\n"
+            f"For storGroundwaterIni_file    : {storGroundwaterIni_file}\n"
+        )
         logger.info(msg)
         # and write them to a text file in the "maps" folder of outputDir (the cwd, see configuration.py)
-        f = open("multiplier.txt", "w")
-        f.write(msg)
-        f.close()
+        with open("multiplier.txt", "w") as f:
+            f.write(msg)
 
         if storGroundwaterIni_file != "Default":
             self.model.groundwater.storGroundwater = vos.readPCRmapClone(

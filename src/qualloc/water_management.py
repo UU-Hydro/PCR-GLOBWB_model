@@ -112,13 +112,11 @@ def water_balance_check(
         logger.debug(msg)
 
     else:
-        msg = "\n#################################################################################################################################################################\n"
-        msg += (
-            "WARNING !!!!!!!! [ Water Balance Error ] %s (%s): max mismatch of %.10f m [ %s ]"
-            % (process_name, var_name, vmin, date)
+        bar = "#" * 161
+        logger.error(
+            f"\n{bar}\nWARNING !!!!!!!! [ Water Balance Error ] {process_name} ({var_name}): "
+            f"max mismatch of {vmin:.10f} m [ {date} ]\n{bar}\n"
         )
-        msg += "\n#################################################################################################################################################################\n"
-        logger.error(msg)
 
         if flag_debug:
             pcr.aguila(diff, diff * zonal_cellarea)
