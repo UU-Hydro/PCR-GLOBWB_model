@@ -28,7 +28,7 @@ class WaterManagement(object):
         # option for the groundwater pumping capacity (limitRegionalAnnualGroundwaterAbstraction)
         if "pumpingCapacityNC" not in list(iniItems.waterManagementOptions.keys()):
             logger.warning(
-                'The "pumpingCapacityNC" (annual groundwater pumping capacity limit netcdf file) is not defined in the configuration file. We assume no annual groundwater pumping limit used in this run. It may result too high groundwater abstraction.'
+                "No pumpingCapacityNC: no pumping limit; abstraction may be too high"
             )
             iniItems.waterManagementOptions["pumpingCapacityNC"] = "None"
 
@@ -168,9 +168,7 @@ class WaterManagement(object):
                 "False",
             ]:
 
-                logger.info(
-                    "Using/incorporating the predefined surface water source of Siebert et al. (2010) for satisfying irrigation and livestock demand."
-                )
+                logger.info("Siebert et al. (2010) sw source for irrigation/livestock")
                 self.swAbstractionFractionData = pcr.cover(
                     vos.readPCRmapClone(
                         iniItems.waterManagementOptions[
@@ -289,9 +287,7 @@ class WaterManagement(object):
                 != "False"
             ):
 
-                logger.info(
-                    "Set the maximum fraction for predefined surface water source for satisfying domestic and industrial demand."
-                )
+                logger.info("Setting max sw source fraction for domestic/industrial")
                 self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(
                     1.0,
                     pcr.cover(
@@ -321,9 +317,7 @@ class WaterManagement(object):
             != "False"
         ):
 
-            logger.info(
-                "Set the predefined fraction of surface water source for satisfying domestic and industrial demand."
-            )
+            logger.info("Setting predefined sw source fraction for domestic/industrial")
             self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = pcr.min(
                 1.0,
                 pcr.cover(
@@ -749,9 +743,7 @@ class WaterManagement(object):
                 prioritizing_local_source=self.prioritizeLocalSourceToMeetWaterDemand,
             )
         else:
-            logger.debug(
-                "Supply from desalination water is only for satisfying local demand (no network)."
-            )
+            logger.debug("Desalination supply: local demand only (no network)")
             volDesalinationAbstraction = pcr.min(
                 volDesalinationWaterUse, volTotalRemainingDemand
             )
@@ -926,9 +918,7 @@ class WaterManagement(object):
                 prioritizing_local_source=self.prioritizeLocalSourceToMeetWaterDemand,
             )
         else:
-            logger.debug(
-                "Supply from surface water is only for satisfying local demand (no network)."
-            )
+            logger.debug("Surface water supply: local demand only (no network)")
             volSurfaceWaterAbstraction = pcr.min(
                 available_surface_water_volume, surface_water_demand
             )
@@ -1008,9 +998,7 @@ class WaterManagement(object):
 
         if self.limitRegionalAnnualGroundwaterAbstraction:
 
-            logger.debug(
-                "Total groundwater abstraction is limited by regional annual pumping capacity."
-            )
+            logger.debug("Total groundwater abstraction capped by pumping capacity")
             if currTimeStep.doy == 1 or currTimeStep.timeStepPCR == 1:
 
                 self.groundwater_pumping_region_ids = vos.netcdf2PCRobjClone(
@@ -1063,18 +1051,14 @@ class WaterManagement(object):
                     minimum_value, self.regionalAnnualGroundwaterAbstractionLimit
                 )
         else:
-            logger.debug(
-                "Total groundwater abstraction is NOT limited by regional annual pumping capacity."
-            )
+            logger.debug("Total groundwater abstraction NOT capped by pumping capacity")
             self.groundwater_pumping_region_ids = None
             self.regionalAnnualGroundwaterAbstractionLimit = None
 
         # constrain groundwater abstraction with the regional annual pumping capacity
         if self.limitRegionalAnnualGroundwaterAbstraction:
 
-            logger.debug(
-                "Total groundwater abstraction is limited by regional annual pumping capacity."
-            )
+            logger.debug("Total groundwater abstraction capped by pumping capacity")
 
             # total groundwater abstraction over the last 365 days (m3)
             tolerating_days = 0.0
@@ -1181,9 +1165,7 @@ class WaterManagement(object):
                 prioritizing_local_source=self.prioritizeLocalSourceToMeetWaterDemand,
             )
         else:
-            logger.debug(
-                "Supply from renewable groundwater is only for satisfying local demand (no network)."
-            )
+            logger.debug("Renewable groundwater supply: local demand only (no network)")
             volRenewGroundwaterAbstraction = pcr.min(
                 readAvlStorGroundwater, self.potVolGroundwaterAbstract
             )
@@ -1272,9 +1254,7 @@ class WaterManagement(object):
         # constrain fossil groundwater abstraction with the regional pumping capacity
         if self.limitRegionalAnnualGroundwaterAbstraction and not self.limitAbstraction:
 
-            logger.debug(
-                "Fossil groundwater abstraction is allowed, BUT limited by the regional annual pumping capacity."
-            )
+            logger.debug("Fossil groundwater allowed, but capped by pumping capacity")
 
             # total groundwater abstraction over the last 365 days (m3), including non-fossil groundwater
             annualGroundwaterAbstraction += volRenewGroundwaterAbstraction
@@ -1668,9 +1648,7 @@ class WaterManagement(object):
                     swAbstractionFractionDict["max_for_non_irrigation"],
                 )
         else:
-            logger.debug(
-                "NOT using/incorporating the predefined fractions of surface water source."
-            )
+            logger.debug("NOT using the predefined surface water source fractions")
 
         return swAbstractionFractionDict
 

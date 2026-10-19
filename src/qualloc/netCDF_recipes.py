@@ -951,22 +951,14 @@ depending on the type of match specified.
             and not self.spatialattributes[ncfilename][variablename]
         ):
 
-            logger.error(
-                "No clone attributes are specified to extract spatial information for variable %s from %s",
-                variablename,
-                ncfilename,
-            )
+            logger.error("No clone attributes for %s in %s", variablename, ncfilename)
 
         # dimensions, to decide how the data are processed
         nc_dims = self.obtain_dimensions(ncfilename, variablename)
 
         # halt if the variable is not found
         if nc_dims == ():
-            logger.error(
-                "neCDF file %s does not contain information on the requested variable %s",
-                ncfilename,
-                variablename,
-            )
+            logger.error("%s does not contain variable %s", ncfilename, variablename)
 
         # timed variable: get the position and band
         if self.variables[ncfilename][variablename]["timed_variable"]:
@@ -1027,22 +1019,9 @@ depending on the type of match specified.
                     else:
                         pass
 
-                    message_str = str.join(
-                        " ",
-                        (
-                            "for variable %s",
-                            "date substitution is allowed to find the %s match",
-                            "for year %d for which the dummy year %d is used",
-                        ),
-                    )
                     logger.warning(
-                        message_str
-                        % (
-                            variablename,
-                            date_selection_method,
-                            date.year,
-                            replacement_year,
-                        )
+                        f"{variablename}: dummy year {replacement_year} for {date.year}"
+                        f" ({date_selection_method} match)"
                     )
 
                     # use the nearest date if the selection method is exact

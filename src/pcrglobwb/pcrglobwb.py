@@ -237,9 +237,7 @@ class PCRGlobWB(object):
 
             logger.info("")
             # TODO: improve these water balance checks
-            logger.info(
-                "The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages)."
-            )
+            logger.info("Summary excludes lake, reservoir and channel storage")
 
             totalCellArea = vos.getMapTotal(
                 pcr.ifthen(self.landmask, self.routing.cellArea)

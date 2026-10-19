@@ -66,9 +66,7 @@ class Groundwater(object):
 
         # exponent of the baseflow reservoir formula (default one)
         if "baseflow_exponent" in list(iniItems.groundwaterOptions.keys()):
-            logger.info(
-                "The exponent for the groundwater reservoir formula is set according to the baseflow_exponent values in the groundwaterOptions of the configuration file."
-            )
+            logger.info("Reading baseflow_exponent from groundwaterOptions")
             self.baseflow_exponent = vos.readPCRmapClone(
                 iniItems.groundwaterOptions["baseflow_exponent"],
                 self.tmpDir,
@@ -168,20 +166,14 @@ class Groundwater(object):
             if groundwaterPropertiesNC == "None":
                 self.recessionCoeff = None
             else:
-                logger.info(
-                    "The 'recessionCoeff' will be obtained from the file: "
-                    + groundwaterPropertiesNC
-                )
+                logger.info(f"Reading recessionCoeff from {groundwaterPropertiesNC}")
                 self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(
                     groundwaterPropertiesNC,
                     "recessionCoeff",
                 )
         except Exception:
             self.recessionCoeff = None
-            logger.warning(
-                "The 'recessionCoeff' cannot be read from the file: "
-                + groundwaterPropertiesNC
-            )
+            logger.warning(f"Cannot read recessionCoeff from {groundwaterPropertiesNC}")
         # TODO: remove try/except
 
         # recession coefficient from the given PCRaster file
@@ -198,9 +190,7 @@ class Groundwater(object):
             iniItems.groundwaterOptions.keys()
         ):
 
-            logger.info(
-                "Calculating the groundwater linear reccesion coefficient based on the given parameters."
-            )
+            logger.info("Calculating the groundwater linear recession coefficient")
 
             # aquifer width from the landSurfaceOptions (slopeLength)
             if iniItems.landSurfaceOptions["topographyNC"] is None:
@@ -371,9 +361,7 @@ class Groundwater(object):
 
             logger.info("Fossil groundwater abstractions are allowed with LIMIT.")
 
-            logger.info(
-                "Estimating fossil groundwater capacities based on aquifer thicknesses and specific yield."
-            )
+            logger.info("Fossil groundwater capacity = thickness * specific yield")
             # TODO: use this aquifer thickness to define the extent of the productive aquifer
 
             # capacity (m) of renewable groundwater, to correct the initial fossil groundwater capacity;
@@ -525,9 +513,7 @@ class Groundwater(object):
                     self.inputDir,
                 )
             else:
-                logger.info(
-                    "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
-                )
+                logger.info("Estimating initial storGroundwater from daily recharge")
                 daily_gw_recharge = vos.readPCRmapClone(
                     iniItems.groundwaterOptions["dailyGroundwaterRechargeIni"],
                     self.tmpDir,
@@ -606,12 +592,8 @@ class Groundwater(object):
                     self.inputDir,
                 )
             else:
-                logger.warning(
-                    "The initial state of avgStorGroundwaterIni is not defined in the configuration file. Yet, this is only relevant if non linear grdundwater reservoir is used."
-                )
-                logger.warning(
-                    "This run uses storGroundwaterIni = avgStorGroundwaterIni."
-                )
+                logger.warning("No avgStorGroundwaterIni (non-linear reservoir only)")
+                logger.warning("Using avgStorGroundwaterIni = storGroundwaterIni")
                 self.avgStorGroundwater = self.storGroundwater
 
             self.gwRecharge = vos.readPCRmapClone(
@@ -660,9 +642,7 @@ class Groundwater(object):
             and self.limitFossilGroundwaterAbstraction
             and not self.limitAbstraction
         ):
-            logger.info(
-                "Assuming 'full' fossilWaterCap as the initial condition for fossil groundwater storage."
-            )
+            logger.info("Initial fossil groundwater storage = fossilWaterCap (full)")
             self.storGroundwaterFossil = self.fossilWaterCap
         if iniItems.groundwaterOptions["storGroundwaterFossilIni"] != "Maximum":
             logger.info(
@@ -678,9 +658,7 @@ class Groundwater(object):
             and self.limitFossilGroundwaterAbstraction
             and not self.limitAbstraction
         ):
-            logger.info(
-                "The pre-defined initial condition for fossil groundwater is limited by fossilWaterCap (full capacity)."
-            )
+            logger.info("Initial fossil groundwater storage capped at fossilWaterCap")
             self.storGroundwaterFossil = pcr.min(
                 self.storGroundwaterFossil, self.fossilWaterCap
             )

@@ -364,28 +364,24 @@ class Configuration(object):
                 float(self.globalOptions["timeStep"]) != 1.0
                 or self.globalOptions["timeStepUnit"] != "day"
             ):
-                logger.error(
-                    "The model runs only on daily time step. Please check your ini/configuration file"
-                )
+                logger.error("Only a daily time step is supported; check the ini file")
                 self.timeStep = None
                 self.timeStepUnit = None
 
         # defaults for missing options
         if "routingMethod" not in list(self.routingOptions.keys()):
-            logger.warning(
-                'The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.'
-            )
+            logger.warning('No routingMethod in routingOptions; using "accuTravelTime"')
             self.routingOptions["routingMethod"] = "accuTravelTime"
 
         if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
             logger.warning(
-                'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
+                'No dynamicFloodPlain; using "False": flood plain extent is constant'
             )
             self.routingOptions["dynamicFloodPlain"] = "False"
 
         if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
             logger.warning(
-                'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. This run assumes "None" for this option.'
+                'No historicalIrrigationArea in landSurfaceOptions; using "None"'
             )
             self.landSurfaceOptions["historicalIrrigationArea"] = "None"
 

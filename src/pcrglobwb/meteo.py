@@ -121,16 +121,12 @@ class Meteo(object):
         self.tmpFileNC = iniItems.meteoOptions["temperatureNC"]
 
         self.refETPotMethod = iniItems.meteoOptions["referenceETPotMethod"]
-        logger.info(
-            f"Method for the reference potential evaporation: {self.refETPotMethod}"
-        )
+        logger.info(f"Reference potential evaporation method: {self.refETPotMethod}")
 
         # Penman-Monteith class
         if self.refETPotMethod == "Penman-Monteith":
             self.penman_monteith = penman_monteith.penmanMonteithET(windHeight=10.00)
-            logger.info(
-                "The Penman Monteith is instantiated for wind input data at 10 m height."
-            )
+            logger.info("Penman-Monteith instantiated for wind data at 10 m height")
             # TODO: make windHeight flexible
 
         if self.refETPotMethod == "Input":
@@ -182,9 +178,7 @@ class Meteo(object):
 
             self.sw_rad_based_on_bristow_campbell = True
 
-            logger.info(
-                "The shortwave (solar) radiation will be estimated based on actual shortwave radiation is estimated based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)"
-            )
+            logger.info("Shortwave radiation: Bristow-Campbell (Winslow et al., 2001)")
 
             self.elevation_meteo = pcr.cover(
                 vos.readPCRmapClone(
@@ -441,9 +435,7 @@ class Meteo(object):
 
             if iniItems.meteoDownscalingOptions["downscaleReferenceETPot"] == "True":
                 self.downscaleReferenceETPotOption = True
-                logger.info(
-                    "Reference potential evaporation will be downscaled to the cloneMap resolution."
-                )
+                logger.info("Downscaling reference potential evaporation to cloneMap")
 
                 # with the Hamon method, referencePotET is calculated from temperature, so it may not need downscaling
                 # (particularly if temperature is already given at high resolution)
@@ -575,16 +567,12 @@ class Meteo(object):
 
         if self.refETPotMethod == "Penman-Monteith":
 
-            logger.info(
-                "Calculating reference potential evaporation based on the Penman-Monteith"
-            )
+            logger.info("Calculating reference potential evaporation (Penman-Monteith)")
 
             # actual vapour pressure (Pa) from relative humidity (rh = e / e_sat)
             vapourPressure = None
             if self.relative_humidity is not None:
-                logger.info(
-                    "Estimating actual vapour pressure based on relative humidity and temperature"
-                )
+                logger.info("Estimating vapour pressure from humidity and temperature")
                 saturatedVapourPressure = penman_monteith.getSaturatedVapourPressure(
                     self.temperature
                 )
@@ -617,9 +605,7 @@ class Meteo(object):
                 not in list(self.iniItems.meteoOptions.keys())
             ) or (self.iniItems.meteoOptions["extraterestrial_radiation"] == "None"):
 
-                logger.info(
-                    "Estimating extraterestrial radiation based on Dingman's Physical Geography (2015)"
-                )
+                logger.info("Estimating extraterrestrial radiation (Dingman, 2015)")
 
                 # day angle (rad) from the julian day
                 julian_day = currTimeStep.doy
@@ -688,9 +674,7 @@ class Meteo(object):
 
             if self.iniItems.meteoOptions["shortwave_radiation"] == "None":
 
-                logger.info(
-                    "Estimating shortwave (solar) radiation based on the input of net radiation and albedo."
-                )
+                logger.info("Shortwave radiation from net radiation and albedo")
 
                 self.shortwave_radiation = self.surface_net_solar_radiation / (
                     pcr.spatial(pcr.scalar(1.0)) - self.albedo
@@ -698,9 +682,7 @@ class Meteo(object):
 
             if self.sw_rad_based_on_bristow_campbell:
 
-                logger.info(
-                    "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
-                )
+                logger.info("Shortwave radiation: Bristow-Campbell (Winslow, 2001)")
 
                 # TODO: the shortwave radiation module must still be initialized every time step, as temp_annual and delta_temp_mean are defined in init
 

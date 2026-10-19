@@ -185,10 +185,7 @@ class Reporting(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
 
-                    logger.info(
-                        "Creating the netcdf file for daily reporting for variable %s.",
-                        str(var),
-                    )
+                    logger.info("Creating daily netcdf for %s", var)
 
                     short_name = varDicts.netcdf_short_name[var]
                     unit = varDicts.netcdf_unit[var]
@@ -220,10 +217,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}WeekTot"] = None
 
-                logger.info(
-                    "Creating the netcdf file for weekly accumulation reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating weekly accumulation netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_weekly_total_unit[var]
@@ -253,10 +247,7 @@ class Reporting(object):
 
                 vars(self)[f"{var}WeekAvg"] = None
 
-                logger.info(
-                    "Creating the netcdf file for weekly average reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating weekly average netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -284,10 +275,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}MonthTot"] = None
 
-                logger.info(
-                    "Creating the netcdf file for monthly accumulation reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating monthly accumulation netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_monthly_total_unit[var]
@@ -321,10 +309,7 @@ class Reporting(object):
 
                 vars(self)[f"{var}MonthAvg"] = None
 
-                logger.info(
-                    "Creating the netcdf file for monthly average reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating monthly average netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -353,10 +338,7 @@ class Reporting(object):
             pass
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
-                logger.info(
-                    "Creating the netcdf file for monthly end reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating monthly end netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -385,10 +367,7 @@ class Reporting(object):
             pass
         if self.outMonthMaxNC[0] != "None":
             for var in self.outMonthMaxNC:
-                logger.info(
-                    "Creating the netcdf file for monthly maximum reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating monthly maximum netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -420,10 +399,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}AnnuaTot"] = None
 
-                logger.info(
-                    "Creating the netcdf file for annual accumulation reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating annual accumulation netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_yearly_total_unit[var]
@@ -457,10 +433,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}AnnuaTot"] = None
 
-                logger.info(
-                    "Creating the netcdf file for annual average reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating annual average netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -489,10 +462,7 @@ class Reporting(object):
             pass
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
-                logger.info(
-                    "Creating the netcdf file for annual end reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating annual end netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -521,10 +491,7 @@ class Reporting(object):
             pass
         if self.outAnnuaMaxNC[0] != "None":
             for var in self.outAnnuaMaxNC:
-                logger.info(
-                    "Creating the netcdf file for annual maximum reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating annual maximum netcdf for %s", var)
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -557,10 +524,7 @@ class Reporting(object):
             pass
         if self.outDailyTotUpsAvgNC[0] != "None":
             for var in self.outDailyTotUpsAvgNC:
-                logger.info(
-                    "Creating the netcdf file for daily upstream average (through LDD) reporting for variable %s.",
-                    str(var),
-                )
+                logger.info("Creating daily upstream average (LDD) netcdf for %s", var)
 
                 short_name = f"upstream_average_{varDicts.netcdf_short_name[var]}"
                 unit = varDicts.netcdf_unit[var]

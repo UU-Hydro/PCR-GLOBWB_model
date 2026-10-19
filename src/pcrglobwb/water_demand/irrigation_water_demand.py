@@ -95,11 +95,7 @@ class IrrigationWaterDemand(object):
 
             except Exception:
                 # netCDF file without a time dimension
-                logger.warning(
-                    "The file "
-                    + (ncFileIn)
-                    + " has no time dimension. Constant values will be used."
-                )
+                logger.warning(f"{ncFileIn}: no time dimension, using constant values")
                 self.irrigationEfficiency = vos.readPCRmapClone(
                     self.ini_items_for_irrigation_efficiency,
                     self.tmpDir,

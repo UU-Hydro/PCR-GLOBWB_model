@@ -192,11 +192,7 @@ def estimate_waterdepth_from_discharge(
 
     waterdepth = pcr.ifthenelse(discharge_mask, waterdepth, pcr.scalar(0))
 
-    logger.info(
-        "water depth converged after %d iterations with a maximum deviation of %.3g",
-        icnt,
-        conv_value,
-    )
+    logger.info("Water depth converged: %d iterations, max dev %.3g", icnt, conv_value)
 
     return waterdepth
 
@@ -2262,10 +2258,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-        logger.info(
-            "Long-term potential withdrawals are updated considering short-term gross demands for %s.",
-            date,
-        )
+        logger.info("Long-term withdrawals updated with short-term demands: %s", date)
 
         # water balance check
         if debug:
@@ -2879,9 +2872,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         logger.info(message_str)
-        logger.info(
-            "return flows and consumption added on the basis of the allocated demand"
-        )
+        logger.info("Return flows and consumption added from the allocated demand")
 
         # water balance check
         if debug:

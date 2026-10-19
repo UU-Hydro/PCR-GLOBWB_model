@@ -68,9 +68,7 @@ class LandCover(object):
         if self.interceptionModuleType == "Original" and "minInterceptCap" in list(
             self.iniItemsLC.keys()
         ):
-            logger.warning(
-                'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
-            )
+            logger.warning("Original interception ignores minInterceptCap; canopy only")
         if self.interceptionModuleType == "Modified":
             self.minInterceptCap = vos.readPCRmapClone(
                 self.iniItemsLC["minInterceptCap"],
@@ -95,9 +93,7 @@ class LandCover(object):
                 "improvedArnoSchemeMethod"
             ]
             if self.improvedArnoSchemeMethod == "Original":
-                logger.warning(
-                    "Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff."
-                )
+                logger.warning("Old Improved Arno Scheme: no directRunoff reduction")
 
         # in Rens's original oldcalc script (2-layer model), the percolation percUpp (P1) can be negative;
         # Edwin changed a few lines to avoid this (see updateSoilStates)
@@ -384,9 +380,7 @@ class LandCover(object):
         # parameters that are fixed for the entire simulation
         if date_in_string is None:
 
-            logger.debug(
-                "Obtaining the land cover parameters that are fixed for the entire simulation."
-            )
+            logger.debug("Obtaining land cover parameters fixed for the whole run")
 
             if self.iniItemsLC["landCoverMapsNC"] == str(None):
                 # PCRaster maps
@@ -440,10 +434,7 @@ class LandCover(object):
 
                 if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
 
-                    logger.debug(
-                        "The parameter arnoBeta is defined in the netcdf file "
-                        + str(self.iniItemsLC["arnoBeta"])
-                    )
+                    logger.debug(f"arnoBeta read from {landCoverPropertiesNC}")
                     lc_parameters["arnoBeta"] = vos.netcdf2PCRobjCloneWithoutTime(
                         landCoverPropertiesNC, "arnoBeta"
                     )
@@ -451,9 +442,7 @@ class LandCover(object):
             # option 3: approximated from minSoilDepthFrac and maxSoilDepthFrac
             if lc_parameters["arnoBeta"] is None and not get_only_fracVegCover:
 
-                logger.debug(
-                    "The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values."
-                )
+                logger.debug("Approximating arnoBeta from min/maxSoilDepthFrac")
 
                 # make sure maxSoilDepthFrac >= minSoilDepthFrac; maxSoilDepthFrac is only needed for arnoBeta,
                 # minSoilDepthFrac also for rootZoneWaterStorageMin
@@ -474,10 +463,7 @@ class LandCover(object):
         # land cover parameters that change annually (netCDF files)
         if date_in_string is not None:
 
-            logger.debug(
-                "Obtaining the land cover parameters (from netcdf files) for the year/date: "
-                + str(date_in_string)
-            )
+            logger.debug(f"Obtaining netcdf land cover parameters for {date_in_string}")
 
             if get_only_fracVegCover:
                 landCovParams = ["fracVegCover"]
@@ -521,9 +507,7 @@ class LandCover(object):
             # if not defined, approximate arnoBeta from minSoilDepthFrac and maxSoilDepthFrac
             if not get_only_fracVegCover and lc_parameters["arnoBeta"] is None:
 
-                logger.debug(
-                    "The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values."
-                )
+                logger.debug("Approximating arnoBeta from min/maxSoilDepthFrac")
 
                 # make sure maxSoilDepthFrac >= minSoilDepthFrac; maxSoilDepthFrac is only needed for arnoBeta,
                 # minSoilDepthFrac also for rootZoneWaterStorageMin

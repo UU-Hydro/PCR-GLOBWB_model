@@ -637,9 +637,7 @@ class LandSurface(object):
         # historical irrigation area (ha)
         self.dynamicIrrigationArea = False
         if iniItems.landSurfaceOptions["historicalIrrigationArea"] != "None":
-            logger.info(
-                "Using the dynamicIrrigationArea option. Extent of irrigation areas is based on the file provided in the 'historicalIrrigationArea'."
-            )
+            logger.info("Dynamic irrigation area from historicalIrrigationArea file")
             self.dynamicIrrigationArea = True
 
         if self.dynamicIrrigationArea:
@@ -754,12 +752,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(check_map)
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(
-                "total of 'Natural Area' fractions is not equal to 1.0 ... Min %f Max %f Mean %f",
-                a,
-                b,
-                c,
-            )
+            logger.error("Natural area total != 1.0: Min %f Max %f Mean %f", a, b, c)
 
     def scaleModifiedLandCoverFractions(self):
         """rescales the land cover fractions with irrigation areas"""
@@ -812,12 +805,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(totalArea - pcr.scalar(1.0))
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(
-                "fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f",
-                a,
-                b,
-                c,
-            )
+            logger.error("Land cover total != 1.0: Min %f Max %f Mean %f", a, b, c)
 
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
         # cell fraction influenced by capillary rise, from the relative groundwater head (m) above the
@@ -1099,10 +1087,7 @@ class LandSurface(object):
         # total potential evaporation per land cover type, partitioned into bare soil evaporation and
         # transpiration (totalPotET, potBareSoilEvap, potTranspiration)
         for coverType in self.coverTypes:
-            logger.info(
-                "Calculate potential evaporation and partition this to bare soil evaporation and transpiration: "
-                + str(coverType)
-            )
+            logger.info(f"Calculating and partitioning potential ET: {coverType}")
             self.landCoverObj[coverType].getPotET(meteo, currTimeStep)
 
         # interception module per land cover type (throughfall, interceptStor, snowfall, liquidPrecip,
@@ -1837,19 +1822,9 @@ class LandSurface(object):
                 a, b, c = vos.getMinMaxMean(check_map)
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
-                    logger.warning(
-                        "Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f",
-                        a,
-                        b,
-                        c,
-                    )
+                    logger.warning("Bad state transfer: Min %f Max %f Mean %f", a, b, c)
                 else:
-                    logger.info(
-                        "Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f",
-                        a,
-                        b,
-                        c,
-                    )
+                    logger.info("States transferred OK: Min %f Max %f Mean %f", a, b, c)
 
         # on the last day of the year, save the land cover fractions (used in the next time step)
         if (

@@ -51,9 +51,7 @@ class DeterministicRunner(DynamicModel):
             # start index of the adjustment arguments
             sai = system_argument.index("-adjparm")
 
-            logger.info(
-                "Adjusting some model parameters based on given values in the system argument."
-            )
+            logger.info("Adjusting model parameters from the system arguments")
 
             # pre-multipliers for minSoilDepthFrac (linear), kSat (log), recessionCoeff (log), storCap
             # (linear) and degreeDayFactor (linear)
@@ -74,9 +72,7 @@ class DeterministicRunner(DynamicModel):
         # pre-factors can also be defined in the ini file; these overwrite the pre-multipliers
         if "prefactorOptions" in configuration.allSections:
 
-            logger.info(
-                "Adjusting some model parameters based on given values in the ini/configuration file."
-            )
+            logger.info("Adjusting model parameters from the ini file")
 
             # linear; note: does not work for the changing WMIN or Joyce land cover options
             self.multiplier_for_refPotET = float(

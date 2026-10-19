@@ -179,15 +179,11 @@ def readDownscalingMeteo(
     else:
         date = dateInput
         if useDoy == "Yes":
-            logger.debug(
-                "Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)"
-            )
+            logger.debug("Finding the date from climatology doy index (1 to 366)")
             idx = int(dateInput) - 1
         # needed for netCDF files that contain only 12 monthly values (e.g. cropCoefficientWaterNC)
         elif useDoy == "month":
-            logger.debug(
-                "Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)"
-            )
+            logger.debug("Finding the date from climatology month index (1 to 12)")
             # make sure the date has the correct format
             if isinstance(date, str):
                 date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
@@ -250,25 +246,9 @@ def readDownscalingMeteo(
                     calendar=f.variables["time"].calendar,
                     select="exact",
                 )
-                logger.debug(
-                    "The date "
-                    + str(date.year)
-                    + "-"
-                    + str(date.month)
-                    + "-"
-                    + str(date.day)
-                    + " 00:00:00 is available. The 'exact' option is used while selecting netcdf time."
-                )
+                logger.debug(f"{date:%Y-%m-%d} found in netcdf; using select='exact'")
             except Exception:
-                logger.debug(
-                    "The date "
-                    + str(date.year)
-                    + "-"
-                    + str(date.month)
-                    + "-"
-                    + str(date.day)
-                    + " 00:00:00 is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
-                )
+                logger.debug(f"{date:%Y-%m-%d} not found; select='exact' not possible")
                 if useDoy == "daily":
                     idx = nc.date2index(
                         date,
@@ -326,11 +306,7 @@ def readDownscalingMeteo(
 
     # correction for files with an additional level dimension (e.g. WFDEI forcing: time, height/level, lat, lon)
     if f.variables[varName].ndim == 4:
-        logger.warning(
-            "WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude",
-            ncFile,
-            varName,
-        )
+        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
         # file with an additional layer/dimension (original data)
         cropData = f.variables[varName][int(idx), 0, :, :]
     else:
@@ -372,11 +348,7 @@ def readDownscalingMeteo(
     # retrieve the data slice from the netCDF file
 
     if f.variables[varName].ndim == 4:
-        logger.warning(
-            "WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude",
-            ncFile,
-            varName,
-        )
+        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
         # file with an additional layer
         cropData = f.variables[varName][int(idx), 0, yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
     else:
@@ -422,9 +394,7 @@ def readDownscalingMeteo(
 
 def checkVariableInNC(ncFile, varName):
 
-    logger.debug(
-        f"Check whether the variable: {varName} is defined in the file: {ncFile}"
-    )
+    logger.debug(f"Checking whether {varName} is defined in {ncFile}")
 
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
@@ -519,12 +489,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
 
         factor = int(round(float(cellsizeInput) / float(cellsizeClone)))
         if factor > 1:
-            logger.debug(
-                "Resample: input cell size = "
-                + str(float(cellsizeInput))
-                + " ; output/clone cell size = "
-                + str(float(cellsizeClone))
-            )
+            logger.debug(f"Resampling cell size {cellsizeInput} to {cellsizeClone}")
 
         diffX = np.abs(f.variables["lon"][:] - (xULClone + 0.5 * cellsizeInput))
         xIdxSta = np.argmin(diffX)
@@ -708,15 +673,11 @@ def singleTryNetcdf2PCRobjClone(
 
         date = dateInput
         if useDoy == "Yes":
-            logger.debug(
-                "Finding the date based on the given climatology doy index (1 to 366, or index 0 to 365)"
-            )
+            logger.debug("Finding the date from climatology doy index (1 to 366)")
             idx = int(dateInput) - 1
         # needed for netCDF files that contain only 12 monthly values (e.g. cropCoefficientWaterNC)
         elif useDoy == "month":
-            logger.debug(
-                "Finding the date based on the given climatology month index (1 to 12, or index 0 to 11)"
-            )
+            logger.debug("Finding the date from climatology month index (1 to 12)")
             # make sure the date has the correct format
             if isinstance(date, str):
                 date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
@@ -779,25 +740,9 @@ def singleTryNetcdf2PCRobjClone(
                     calendar=f.variables["time"].calendar,
                     select="exact",
                 )
-                logger.debug(
-                    "The date "
-                    + str(date.year)
-                    + "-"
-                    + str(date.month)
-                    + "-"
-                    + str(date.day)
-                    + " 00:00:00 is available. The 'exact' option is used while selecting netcdf time."
-                )
+                logger.debug(f"{date:%Y-%m-%d} found in netcdf; using select='exact'")
             except Exception:
-                logger.debug(
-                    "The date "
-                    + str(date.year)
-                    + "-"
-                    + str(date.month)
-                    + "-"
-                    + str(date.day)
-                    + " 00:00:00 is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
-                )
+                logger.debug(f"{date:%Y-%m-%d} not found; select='exact' not possible")
                 if useDoy == "daily":
                     idx = nc.date2index(
                         date,
@@ -860,12 +805,7 @@ def singleTryNetcdf2PCRobjClone(
 
         factor = int(round(float(cellsizeInput) / float(cellsizeClone)))
         if factor > 1:
-            logger.debug(
-                "Resample: input cell size = "
-                + str(float(cellsizeInput))
-                + " ; output/clone cell size = "
-                + str(float(cellsizeClone))
-            )
+            logger.debug(f"Resampling cell size {cellsizeInput} to {cellsizeClone}")
 
         diffX = np.abs(f.variables["lon"][:] - (xULClone + 0.5 * cellsizeInput))
         xIdxSta = np.argmin(diffX)
@@ -879,11 +819,7 @@ def singleTryNetcdf2PCRobjClone(
 
     # retrieve the data slice from the netCDF file
     if f.variables[varName].ndim == 4:
-        logger.warning(
-            "WARNING: the netCDF file %s has an additional dimension for variable %s ; the last two are read as latitude, longitude",
-            ncFile,
-            varName,
-        )
+        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
         # file with an additional layer
         cropData = f.variables[varName][int(idx), 0, yslice, xslice]
     else:

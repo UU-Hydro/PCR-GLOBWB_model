@@ -274,16 +274,9 @@ given date. This may concern spatial information or single entries.
             else:
                 conversion_method = getattr(pcr, datatype_str.lower())
             var_out = conversion_method(var_out)
-            logger.debug(
-                "%s is recognized as a value instead of a netCDF or PCRaster file and is converted into %s",
-                val_str,
-                str(conversion_method),
-            )
+            logger.debug("%s is a value; converted to %s", val_str, conversion_method)
         except Exception:
-            logger.error(
-                "%s is not recognized as a netCDF or PCRaster file and cannot be converted",
-                filename,
-            )
+            logger.error("%s: not a netCDF/PCRaster file, cannot convert", filename)
 
     return var_out
 
