@@ -255,15 +255,16 @@ class water_quality(object):
 
                     getattr(self, var)[update_date] = constituent_longterm_quality
 
-                    message_str = str.join(
-                        " ",
-                        (
-                            "%s from %s availability updated for"
-                            % (constituent_name, source_name),
-                            message_str,
-                        ),
+                    logger.debug(
+                        str.join(
+                            " ",
+                            (
+                                "%s from %s availability updated for"
+                                % (constituent_name, source_name),
+                                message_str,
+                            ),
+                        )
                     )
-                    logger.debug(message_str)
 
         return None
 

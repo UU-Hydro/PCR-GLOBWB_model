@@ -1035,13 +1035,15 @@ depending on the type of match specified.
                             "for year %d for which the dummy year %d is used",
                         ),
                     )
-                    message_str = message_str % (
-                        variablename,
-                        date_selection_method,
-                        date.year,
-                        replacement_year,
+                    logger.warning(
+                        message_str
+                        % (
+                            variablename,
+                            date_selection_method,
+                            date.year,
+                            replacement_year,
+                        )
                     )
-                    logger.warning(message_str)
 
                     # use the nearest date if the selection method is exact
                     if date_selection_method == "exact":

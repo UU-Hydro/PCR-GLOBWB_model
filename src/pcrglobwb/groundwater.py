@@ -66,8 +66,9 @@ class Groundwater(object):
 
         # exponent of the baseflow reservoir formula (default one)
         if "baseflow_exponent" in list(iniItems.groundwaterOptions.keys()):
-            msg = "The exponent for the groundwater reservoir formula is set according to the baseflow_exponent values in the groundwaterOptions of the configuration file."
-            logger.info(msg)
+            logger.info(
+                "The exponent for the groundwater reservoir formula is set according to the baseflow_exponent values in the groundwaterOptions of the configuration file."
+            )
             self.baseflow_exponent = vos.readPCRmapClone(
                 iniItems.groundwaterOptions["baseflow_exponent"],
                 self.tmpDir,
@@ -167,22 +168,20 @@ class Groundwater(object):
             if groundwaterPropertiesNC == "None":
                 self.recessionCoeff = None
             else:
-                msg = (
+                logger.info(
                     "The 'recessionCoeff' will be obtained from the file: "
                     + groundwaterPropertiesNC
                 )
-                logger.info(msg)
                 self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(
                     groundwaterPropertiesNC,
                     "recessionCoeff",
                 )
         except Exception:
             self.recessionCoeff = None
-            msg = (
+            logger.warning(
                 "The 'recessionCoeff' cannot be read from the file: "
                 + groundwaterPropertiesNC
             )
-            logger.warning(msg)
         # TODO: remove try/except
 
         # recession coefficient from the given PCRaster file
@@ -199,8 +198,9 @@ class Groundwater(object):
             iniItems.groundwaterOptions.keys()
         ):
 
-            msg = "Calculating the groundwater linear reccesion coefficient based on the given parameters."
-            logger.info(msg)
+            logger.info(
+                "Calculating the groundwater linear reccesion coefficient based on the given parameters."
+            )
 
             # aquifer width from the landSurfaceOptions (slopeLength)
             if iniItems.landSurfaceOptions["topographyNC"] is None:
@@ -525,8 +525,9 @@ class Groundwater(object):
                     self.inputDir,
                 )
             else:
-                msg = "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
-                logger.info(msg)
+                logger.info(
+                    "Estimating initial conditions of storGroundwater based on the daily groundwater recharge rate given in the configuration file."
+                )
                 daily_gw_recharge = vos.readPCRmapClone(
                     iniItems.groundwaterOptions["dailyGroundwaterRechargeIni"],
                     self.tmpDir,
@@ -605,10 +606,12 @@ class Groundwater(object):
                     self.inputDir,
                 )
             else:
-                msg = "The initial state of avgStorGroundwaterIni is not defined in the configuration file. Yet, this is only relevant if non linear grdundwater reservoir is used."
-                logger.warning(msg)
-                msg = "This run uses storGroundwaterIni = avgStorGroundwaterIni."
-                logger.warning(msg)
+                logger.warning(
+                    "The initial state of avgStorGroundwaterIni is not defined in the configuration file. Yet, this is only relevant if non linear grdundwater reservoir is used."
+                )
+                logger.warning(
+                    "This run uses storGroundwaterIni = avgStorGroundwaterIni."
+                )
                 self.avgStorGroundwater = self.storGroundwater
 
             self.gwRecharge = vos.readPCRmapClone(

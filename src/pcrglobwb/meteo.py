@@ -121,14 +121,16 @@ class Meteo(object):
         self.tmpFileNC = iniItems.meteoOptions["temperatureNC"]
 
         self.refETPotMethod = iniItems.meteoOptions["referenceETPotMethod"]
-        msg = f"Method for the reference potential evaporation: {self.refETPotMethod}"
-        logger.info(msg)
+        logger.info(
+            f"Method for the reference potential evaporation: {self.refETPotMethod}"
+        )
 
         # Penman-Monteith class
         if self.refETPotMethod == "Penman-Monteith":
             self.penman_monteith = penman_monteith.penmanMonteithET(windHeight=10.00)
-            msg = "The Penman Monteith is instantiated for wind input data at 10 m height."
-            logger.info(msg)
+            logger.info(
+                "The Penman Monteith is instantiated for wind input data at 10 m height."
+            )
             # TODO: make windHeight flexible
 
         if self.refETPotMethod == "Input":
@@ -180,8 +182,9 @@ class Meteo(object):
 
             self.sw_rad_based_on_bristow_campbell = True
 
-            msg = "The shortwave (solar) radiation will be estimated based on actual shortwave radiation is estimated based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)"
-            logger.info(msg)
+            logger.info(
+                "The shortwave (solar) radiation will be estimated based on actual shortwave radiation is estimated based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)"
+            )
 
             self.elevation_meteo = pcr.cover(
                 vos.readPCRmapClone(
@@ -515,11 +518,10 @@ class Meteo(object):
                     self.tmpDir,
                     self.inputDir,
                 )
-                msg = (
+                logger.info(
                     "Forcing data will be smoothed with 'windowaverage' using the window length:"
                     + str(iniItems.meteoDownscalingOptions["smoothingWindowsLength"])
                 )
-                logger.info(msg)
 
     def update(self, routing, currTimeStep):
 
@@ -563,10 +565,9 @@ class Meteo(object):
         # calculate or read referencePotET
         if self.refETPotMethod == "Hamon":
 
-            msg = (
+            logger.info(
                 "Calculating reference potential evaporation based on the Hamon method"
             )
-            logger.info(msg)
 
             self.referencePotET = hamon_et0.HamonPotET(
                 self.temperature, pcr.scalar(currTimeStep.doy), self.latitudes
@@ -574,14 +575,16 @@ class Meteo(object):
 
         if self.refETPotMethod == "Penman-Monteith":
 
-            msg = "Calculating reference potential evaporation based on the Penman-Monteith"
-            logger.info(msg)
+            logger.info(
+                "Calculating reference potential evaporation based on the Penman-Monteith"
+            )
 
             # actual vapour pressure (Pa) from relative humidity (rh = e / e_sat)
             vapourPressure = None
             if self.relative_humidity is not None:
-                msg = "Estimating actual vapour pressure based on relative humidity and temperature"
-                logger.info(msg)
+                logger.info(
+                    "Estimating actual vapour pressure based on relative humidity and temperature"
+                )
                 saturatedVapourPressure = penman_monteith.getSaturatedVapourPressure(
                     self.temperature
                 )
@@ -589,10 +592,9 @@ class Meteo(object):
 
             # actual vapour pressure (Pa) from the dew point temperature
             if vapourPressure is None and self.dewpoint_temperature_avg is not None:
-                msg = (
+                logger.info(
                     "Estimating actual vapour pressure based on dew point temperature."
                 )
-                logger.info(msg)
                 vapourPressure = penman_monteith.getSaturatedVapourPressure(
                     self.dewpoint_temperature_avg
                 )
@@ -603,8 +605,7 @@ class Meteo(object):
             if ("wind_speed_10m" not in list(self.iniItems.meteoOptions.keys())) or (
                 self.iniItems.meteoOptions["wind_speed_10m"] == "None"
             ):
-                msg = "Calculating wind speed based on their u and v components"
-                logger.info(msg)
+                logger.info("Calculating wind speed based on their u and v components")
                 self.wind_speed_10m = (
                     self.wind_speed_10m_u_comp**2.0 + self.wind_speed_10m_v_comp**2.0
                 ) ** (0.5)
@@ -616,8 +617,9 @@ class Meteo(object):
                 not in list(self.iniItems.meteoOptions.keys())
             ) or (self.iniItems.meteoOptions["extraterestrial_radiation"] == "None"):
 
-                msg = "Estimating extraterestrial radiation based on Dingman's Physical Geography (2015)"
-                logger.info(msg)
+                logger.info(
+                    "Estimating extraterestrial radiation based on Dingman's Physical Geography (2015)"
+                )
 
                 # day angle (rad) from the julian day
                 julian_day = currTimeStep.doy
@@ -653,8 +655,9 @@ class Meteo(object):
 
             else:
 
-                msg = "Extraterestrial radiation is obtained from the input file."
-                logger.info(msg)
+                logger.info(
+                    "Extraterestrial radiation is obtained from the input file."
+                )
 
             # TODO: extraterrestrial shortwave radiation is not always needed (e.g. if shortwave and longwave radiation are given)
 
@@ -679,13 +682,15 @@ class Meteo(object):
                 (".nc", ".nc4", ".nc3")
             ):
 
-                msg = "Shortwave (solar) radiation is obtained from the input file."
-                logger.info(msg)
+                logger.info(
+                    "Shortwave (solar) radiation is obtained from the input file."
+                )
 
             if self.iniItems.meteoOptions["shortwave_radiation"] == "None":
 
-                msg = "Estimating shortwave (solar) radiation based on the input of net radiation and albedo."
-                logger.info(msg)
+                logger.info(
+                    "Estimating shortwave (solar) radiation based on the input of net radiation and albedo."
+                )
 
                 self.shortwave_radiation = self.surface_net_solar_radiation / (
                     pcr.spatial(pcr.scalar(1.0)) - self.albedo
@@ -693,8 +698,9 @@ class Meteo(object):
 
             if self.sw_rad_based_on_bristow_campbell:
 
-                msg = "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
-                logger.info(msg)
+                logger.info(
+                    "Estimating shortwave (solar) radiation based on an adaptation of the Bristow-Campbell model by Winslow et al (2001)."
+                )
 
                 # TODO: the shortwave radiation module must still be initialized every time step, as temp_annual and delta_temp_mean are defined in init
 
@@ -746,8 +752,7 @@ class Meteo(object):
                 (".nc", ".nc4", ".nc3")
             ):
 
-                msg = "Longwave radiation is obtained from the input file."
-                logger.info(msg)
+                logger.info("Longwave radiation is obtained from the input file.")
 
                 # convert the longwave radiation to W.m-2 (the default input unit is J.m-2.day-1)
                 if "longwave_radiation_input_in_w_per_m2" in list(
@@ -764,8 +769,9 @@ class Meteo(object):
 
             else:
 
-                msg = "Longwave radiation is estimated from shortwave radiation, extraterestrial radiation, and actual vapour pressue"
-                logger.info(msg)
+                logger.info(
+                    "Longwave radiation is estimated from shortwave radiation, extraterestrial radiation, and actual vapour pressue"
+                )
 
                 # fraction of shortwave radiation (-)
                 fractionShortWaveRadiation = pcr.cover(

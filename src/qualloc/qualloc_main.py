@@ -129,31 +129,29 @@ class qualloc_model(object):
 
         self.model_configuration.clone_attributes = cloneAttributes()
 
-        message_str = str.join(
-            "\n",
-            (
-                "",
-                "",
-                "#" * 80,
-                f"# {'QUAlloc water use and allocation model':76} #",
-                "#" * 80,
-                "",
-                "",
-            ),
-        )
-        logger.info(message_str)
-
-        message_str = (
-            "run started at %s for %s over %s - %s using %s time increments"
-            % (
-                self.model_configuration._timestamp_str,
-                self.model_configuration.general["scenarioname"],
-                self.model_time.date,
-                self.model_time.enddate,
-                self.model_time.time_increment,
+        logger.info(
+            str.join(
+                "\n",
+                (
+                    "",
+                    "",
+                    "#" * 80,
+                    f"# {'QUAlloc water use and allocation model':76} #",
+                    "#" * 80,
+                    "",
+                    "",
+                ),
             )
         )
-        logger.info(message_str)
+
+        logger.info(
+            "run started at %s for %s over %s - %s using %s time increments",
+            self.model_configuration._timestamp_str,
+            self.model_configuration.general["scenarioname"],
+            self.model_time.date,
+            self.model_time.enddate,
+            self.model_time.time_increment,
+        )
 
         return None
 
@@ -800,15 +798,16 @@ class qualloc_model(object):
                         ]
                     else:
                         ncfilename = "0.0"
-                        message_str = str.join(
-                            "\n",
-                            (
-                                "Concentration values of %s for %s source"
-                                % (constituent_name, source_name),
-                                "were not specified, a value of zero is assigned.",
-                            ),
+                        logger.info(
+                            str.join(
+                                "\n",
+                                (
+                                    "Concentration values of %s for %s source"
+                                    % (constituent_name, source_name),
+                                    "were not specified, a value of zero is assigned.",
+                                ),
+                            )
                         )
-                        logger.info(message_str)
 
                 # zero concentrations if water quality is not evaluated
                 else:
@@ -869,8 +868,7 @@ class qualloc_model(object):
             surfacewater_update_weight,
         )
 
-        message_str = "Water quality module is activated"
-        logger.info(message_str)
+        logger.info("Water quality module is activated")
 
         setattr(self.water_management, "water_quality", self.water_quality)
 

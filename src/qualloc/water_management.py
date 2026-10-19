@@ -1409,8 +1409,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 0.0, self.gross_demand[sector_name] - met_demand_per_sector[sector_name]
             )
 
-        message_str = str.join("\n", (message_str, sub_message_str))
-        logger.debug(message_str)
+        logger.debug(str.join("\n", (message_str, sub_message_str)))
 
         return None
 
@@ -1609,9 +1608,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             )["average"],
         )
 
-        message_str = str.join("\n", (message_str, sub_message_str))
-
-        logger.info(message_str)
+        logger.info(str.join("\n", (message_str, sub_message_str)))
 
         # ideal surface water and groundwater potential withdrawal, used to update the long-term potential
         # withdrawal; unmet_demand_per_sector['thermoelectric'] was popped in
@@ -2087,8 +2084,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
         )
 
-        message_str = str.join(": ", (message_str, source_name))
-        logger.debug(message_str)
+        logger.debug(str.join(": ", (message_str, source_name)))
 
         return None
 
@@ -2268,11 +2264,10 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-        message_str = (
-            "Long-term potential withdrawals are updated considering short-term gross demands for %s."
-            % (date)
+        logger.info(
+            "Long-term potential withdrawals are updated considering short-term gross demands for %s.",
+            date,
         )
-        logger.info(message_str)
 
         # water balance check
         if debug:
@@ -3064,10 +3059,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                 groundwater_longterm_storage
             )
 
-            message_str = str.join(
-                " ", ("groundwater long-term total base flow updated for", message_str)
+            logger.debug(
+                str.join(
+                    " ",
+                    ("groundwater long-term total base flow updated for", message_str),
+                )
             )
-            logger.debug(message_str)
 
             # surface water discharge (monthly)
             date_index, matched_date, message_str = match_date_by_julian_number(
@@ -3092,10 +3089,11 @@ total_return_flow_ini                      : total return flow [m3/day]
                 surfacewater_longterm_discharge
             )
 
-            message_str = str.join(
-                " ", ("surface water long-term discharge updated for", message_str)
+            logger.debug(
+                str.join(
+                    " ", ("surface water long-term discharge updated for", message_str)
+                )
             )
-            logger.debug(message_str)
 
             # surface water runoff (monthly)
             date_index, matched_date, message_str = match_date_by_julian_number(
@@ -3119,10 +3117,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                 surfacewater_longterm_runoff
             )
 
-            message_str = str.join(
-                " ", ("surface water long-term total runoff updated for", message_str)
+            logger.debug(
+                str.join(
+                    " ",
+                    ("surface water long-term total runoff updated for", message_str),
+                )
             )
-            logger.debug(message_str)
 
         return None
 
@@ -3176,14 +3176,15 @@ total_return_flow_ini                      : total return flow [m3/day]
                 setattr(self, f"gross_demand_longterm_{sector_name}", var_value)
                 setattr(self, f"gross_demand_longterm_{sector_name}_dates", var_dates)
 
-                message_str = str.join(
-                    " ",
-                    (
-                        f"{sector_name} long-term gross demand updated for",
-                        message_str,
-                    ),
+                logger.debug(
+                    str.join(
+                        " ",
+                        (
+                            f"{sector_name} long-term gross demand updated for",
+                            message_str,
+                        ),
+                    )
                 )
-                logger.debug(message_str)
 
         return None
 
@@ -3233,10 +3234,12 @@ total_return_flow_ini                      : total return flow [m3/day]
                     groundwater_longterm_pot_withdrawal
                 )
 
-                message_str = str.join(
-                    " ", ("groundwater potential withdrawals updated for", message_str)
+                logger.debug(
+                    str.join(
+                        " ",
+                        ("groundwater potential withdrawals updated for", message_str),
+                    )
                 )
-                logger.debug(message_str)
 
             # surface water
             if self.pumping_capacity_flag["surfacewater"]:
@@ -3272,11 +3275,15 @@ total_return_flow_ini                      : total return flow [m3/day]
                     surfacewater_longterm_pot_withdrawal
                 )
 
-                message_str = str.join(
-                    " ",
-                    ("surface water potential withdrawals updated for", message_str),
+                logger.debug(
+                    str.join(
+                        " ",
+                        (
+                            "surface water potential withdrawals updated for",
+                            message_str,
+                        ),
+                    )
                 )
-                logger.debug(message_str)
 
         return None
 

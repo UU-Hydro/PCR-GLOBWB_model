@@ -268,7 +268,7 @@ def readDownscalingMeteo(
                     calendar=f.variables["time"].calendar,
                     select="exact",
                 )
-                msg = (
+                logger.debug(
                     "The date "
                     + str(date.year)
                     + "-"
@@ -277,9 +277,8 @@ def readDownscalingMeteo(
                     + str(date.day)
                     + " 00:00:00 is available. The 'exact' option is used while selecting netcdf time."
                 )
-                logger.debug(msg)
             except Exception:
-                msg = (
+                logger.debug(
                     "The date "
                     + str(date.year)
                     + "-"
@@ -288,7 +287,6 @@ def readDownscalingMeteo(
                     + str(date.day)
                     + " 00:00:00 is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
                 )
-                logger.debug(msg)
                 if useDoy == "daily":
                     idx = nc.date2index(
                         date,
@@ -870,7 +868,7 @@ def singleTryNetcdf2PCRobjClone(
                     calendar=f.variables["time"].calendar,
                     select="exact",
                 )
-                msg = (
+                logger.debug(
                     "The date "
                     + str(date.year)
                     + "-"
@@ -879,9 +877,8 @@ def singleTryNetcdf2PCRobjClone(
                     + str(date.day)
                     + " 00:00:00 is available. The 'exact' option is used while selecting netcdf time."
                 )
-                logger.debug(msg)
             except Exception:
-                msg = (
+                logger.debug(
                     "The date "
                     + str(date.year)
                     + "-"
@@ -890,7 +887,6 @@ def singleTryNetcdf2PCRobjClone(
                     + str(date.day)
                     + " 00:00:00 is NOT available. The 'exact' option CANNOT be used while selecting netcdf time."
                 )
-                logger.debug(msg)
                 if useDoy == "daily":
                     idx = nc.date2index(
                         date,

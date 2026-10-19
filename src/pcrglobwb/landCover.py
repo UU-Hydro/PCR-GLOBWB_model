@@ -50,27 +50,27 @@ class LandCover(object):
         self.interceptionModuleType = "Original"
         if "interceptionModuleType" in list(self.iniItemsLC.keys()):
             if self.iniItemsLC["interceptionModuleType"] == "Modified":
-                msg = 'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
-                logger.info(msg)
+                logger.info(
+                    'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
+                )
                 self.interceptionModuleType = "Modified"
             else:
                 if self.iniItemsLC["interceptionModuleType"] != "Original":
-                    msg = (
+                    logger.info(
                         "The interceptionModuleType "
                         + self.iniItemsLC["interceptionModuleType"]
                         + " is NOT known."
                     )
-                    logger.info(msg)
-                msg = 'The "Original" interceptionModuleType is used.'
-                logger.info(msg)
+                logger.info('The "Original" interceptionModuleType is used.')
 
         # minimum interception capacity (only for the "Modified" interception module)
         self.minInterceptCap = 0.0
         if self.interceptionModuleType == "Original" and "minInterceptCap" in list(
             self.iniItemsLC.keys()
         ):
-            msg = 'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
-            logger.warning(msg)
+            logger.warning(
+                'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
+            )
         if self.interceptionModuleType == "Modified":
             self.minInterceptCap = vos.readPCRmapClone(
                 self.iniItemsLC["minInterceptCap"],
@@ -267,11 +267,10 @@ class LandCover(object):
                 + self.name
                 + "\n"
             )
-            msg = (
+            logger.warning(
                 "This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero."
                 + "\n"
             )
-            logger.warning(msg)
             self.coverFractionNC = None
             self.interceptCapNC = None
 
@@ -390,8 +389,9 @@ class LandCover(object):
         # parameters that are fixed for the entire simulation
         if date_in_string is None:
 
-            msg = "Obtaining the land cover parameters that are fixed for the entire simulation."
-            logger.debug(msg)
+            logger.debug(
+                "Obtaining the land cover parameters that are fixed for the entire simulation."
+            )
 
             if self.iniItemsLC["landCoverMapsNC"] == str(None):
                 # PCRaster maps
@@ -479,11 +479,10 @@ class LandCover(object):
         # land cover parameters that change annually (netCDF files)
         if date_in_string is not None:
 
-            msg = (
+            logger.debug(
                 "Obtaining the land cover parameters (from netcdf files) for the year/date: "
                 + str(date_in_string)
             )
-            logger.debug(msg)
 
             if get_only_fracVegCover:
                 landCovParams = ["fracVegCover"]

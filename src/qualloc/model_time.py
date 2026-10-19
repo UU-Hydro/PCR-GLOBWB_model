@@ -214,5 +214,4 @@ class model_time(object):
 
         self.last_time_step = increment == self.number_time_steps
 
-        message_str = f"processing {self.date}"
-        logger.info(message_str)
+        logger.info(f"processing {self.date}")

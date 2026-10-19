@@ -492,9 +492,10 @@ class Routing(object):
                 self.sunFracTBL = vos.getFullPath(
                     "sunhoursfrac.tbl", os.path.abspath(os.path.dirname(__file__))
                 )
-                msg = f"Using the default sunhoursfrac.tbl stored on {self.sunFracTBL}"
                 # sunshine fraction table
-                logger.info(msg)
+                logger.info(
+                    f"Using the default sunhoursfrac.tbl stored on {self.sunFracTBL}"
+                )
 
             # paths to additional meteorological variables
             self.cloudFileNC = vos.getFullPath(
@@ -1249,8 +1250,7 @@ class Routing(object):
         # elevation above the floodplain; floodVolume (m3): flood volume above the bankfull capacity;
         # kSlope (-): slope used in the interpolation; mInterval (m3): smoothing interval of the interpolation
 
-        msg = "Get the profile of relative elevation (relZ, unit: m) !!!"
-        logger.info(msg)
+        logger.info("Get the profile of relative elevation (relZ, unit: m) !!!")
 
         relativeElevationFileNC = (
             # TODO: define the relative elevation files in a netCDF file
@@ -2537,8 +2537,7 @@ class Routing(object):
 
         for i_loop in range(number_of_loops):
 
-            msg = f"sub-daily time step {i_loop + 1} from {number_of_loops}"
-            logger.info(msg)
+            logger.info(f"sub-daily time step {i_loop + 1} from {number_of_loops}")
 
             if self.debugWaterBalance:
                 preStorage = pcr.ifthen(self.landmask, channelStorageForRouting)

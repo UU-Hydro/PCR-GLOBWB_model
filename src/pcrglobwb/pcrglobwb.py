@@ -236,28 +236,28 @@ class PCRGlobWB(object):
         if self._modelTime.isLastDayOfYear() or self._modelTime.isLastTimeStep():
 
             logger.info("")
-            msg = "The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages)."
             # TODO: improve these water balance checks
-            logger.info(msg)
+            logger.info(
+                "The following summary values do not include storages in surface water bodies (lake, reservoir and channel storages)."
+            )
 
             totalCellArea = vos.getMapTotal(
                 pcr.ifthen(self.landmask, self.routing.cellArea)
             )
-            msg = f"Total area = {totalCellArea / 1000000.0:e} km2"
-            logger.info(msg)
+            logger.info(f"Total area = {totalCellArea / 1000000.0:e} km2")
 
             deltaStorageOneYear = vos.getMapVolume(
                 pcr.ifthen(self.landmask, landWaterStoresAtBeginning)
                 - pcr.ifthen(self.landmask, self.storageAtFirstDay),
                 self.routing.cellArea,
             )
-            msg = "Delta total storage days 1 to %i in %i = %e km3 = %e mm" % (
+            logger.info(
+                "Delta total storage days 1 to %i in %i = %e km3 = %e mm",
                 int(self._modelTime.doy),
                 int(self._modelTime.year),
                 deltaStorageOneYear / 1e9,
                 deltaStorageOneYear * 1000 / totalCellArea,
             )
-            logger.info(msg)
 
             variableList = [
                 "precipitation",
@@ -276,78 +276,77 @@ class PCRGlobWB(object):
                 )
 
                 # TODO: the calculation does not always start on day 1
-                msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
+                logger.info(
+                    "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
                     var,
                     int(self._modelTime.doy),
                     int(self._modelTime.year),
                     volume / 1e9,
                     volume * 1000 / totalCellArea,
                 )
-                logger.info(msg)
 
             logger.info("")
-            msg = "The following summary is for surface water bodies."
-            logger.info(msg)
+            logger.info("The following summary is for surface water bodies.")
 
             deltaChannelStorageOneYear = vos.getMapTotal(
                 pcr.ifthen(self.landmask, surfaceWaterStoresAtEnd)
                 - pcr.ifthen(self.landmask, self.channelVolumeAtFirstDay)
             )
-            msg = "Delta surface water storage days 1 to %i in %i = %e km3 = %e mm" % (
+            logger.info(
+                "Delta surface water storage days 1 to %i in %i = %e km3 = %e mm",
                 int(self._modelTime.doy),
                 int(self._modelTime.year),
                 deltaChannelStorageOneYear / 1e9,
                 deltaChannelStorageOneYear * 1000 / totalCellArea,
             )
-            logger.info(msg)
 
             variableList = ["waterBodyEvaporation"]
             for var in variableList:
                 volume = vos.getMapVolume(
                     self.__getattribute__(f"{var}Acc"), self.routing.cellArea
                 )
-                msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
+                logger.info(
+                    "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
                     var,
                     int(self._modelTime.doy),
                     int(self._modelTime.year),
                     volume / 1e9,
                     volume * 1000 / totalCellArea,
                 )
-                logger.info(msg)
 
             surfaceWaterInputTotal = vos.getMapTotal(self.surfaceWaterInputAcc)
-            msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
+            logger.info(
+                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
                 "surfaceWaterInput",
                 int(self._modelTime.doy),
                 int(self._modelTime.year),
                 surfaceWaterInputTotal / 1e9,
                 surfaceWaterInputTotal * 1000 / totalCellArea,
             )
-            logger.info(msg)
 
             dischargeAtPitTotal = vos.getMapTotal(self.dischargeAtPitAcc)
-            msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
+            logger.info(
+                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
                 "dischargeAtPitTotal",
                 int(self._modelTime.doy),
                 int(self._modelTime.year),
                 dischargeAtPitTotal / 1e9,
                 dischargeAtPitTotal * 1000 / totalCellArea,
             )
-            logger.info(msg)
 
             surfaceWaterBalance = (
                 deltaChannelStorageOneYear
                 - surfaceWaterInputTotal
                 + dischargeAtPitTotal
             )
-            msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
+            logger.info(
+                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
                 "surfaceWaterBalance",
                 int(self._modelTime.doy),
                 int(self._modelTime.year),
                 surfaceWaterBalance / 1e9,
                 surfaceWaterBalance * 1000 / totalCellArea,
             )
-            logger.info(msg)
 
     def getState(self):
         result = {}
