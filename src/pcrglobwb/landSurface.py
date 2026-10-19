@@ -291,12 +291,9 @@ class LandSurface(object):
             and not self.noLandCoverFractionCorrection
         ):
             self.noLandCoverFractionCorrection = True
-            msg = "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
+            logger.warning(
+                "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
+            )
 
         self.using_qualloc = False
         if "using_qualloc" in iniItems.waterManagementOptions.keys():
