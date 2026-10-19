@@ -179,24 +179,12 @@ class Configuration(object):
             pcraster_check_filename,
         )
         logger.info("PATH=%s", os.environ["PATH"])
-        if "PYTHONPATH" in os.environ.keys():
-            logger.info("PYTHONPATH=%s", os.environ["PYTHONPATH"])
-        else:
-            logger.info("PYTHONPATH=%s", "N/A")
-        if "HOSTNAME" in os.environ.keys():
-            logger.info("HOSTNAME: %s", os.environ["HOSTNAME"])
-        else:
-            logger.info("HOSTNAME: %s", "N/A")
-        if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys():
-            logger.info(
-                "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
-                os.environ["PCRASTER_NR_WORKER_THREADS"],
-            )
-        else:
-            logger.info(
-                "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
-                "N/A",
-            )
+        logger.info("PYTHONPATH=%s", os.environ.get("PYTHONPATH", "N/A"))
+        logger.info("HOSTNAME: %s", os.environ.get("HOSTNAME", "N/A"))
+        logger.info(
+            "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
+            os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A"),
+        )
 
         if system_arguments is not None:
             logger.info(
