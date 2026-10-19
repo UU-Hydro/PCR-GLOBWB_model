@@ -762,8 +762,10 @@ class LandSurface(object):
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
             logger.error(
-                "total of 'Natural Area' fractions is not equal to 1.0 ... Min %f Max %f Mean %f"
-                % (a, b, c)
+                "total of 'Natural Area' fractions is not equal to 1.0 ... Min %f Max %f Mean %f",
+                a,
+                b,
+                c,
             )
 
     def scaleModifiedLandCoverFractions(self):
@@ -818,8 +820,10 @@ class LandSurface(object):
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
             logger.error(
-                "fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f"
-                % (a, b, c)
+                "fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f",
+                a,
+                b,
+                c,
             )
 
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
@@ -1841,13 +1845,17 @@ class LandSurface(object):
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
                     logger.warning(
-                        "Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f"
-                        % (a, b, c)
+                        "Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f",
+                        a,
+                        b,
+                        c,
                     )
                 else:
                     logger.info(
-                        "Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f"
-                        % (a, b, c)
+                        "Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f",
+                        a,
+                        b,
+                        c,
                     )
 
         # on the last day of the year, save the land cover fractions (used in the next time step)

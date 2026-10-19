@@ -595,8 +595,9 @@ dictionaries with the dates provided.
 
                 for variablename in variablenames:
                     logger.debug(
-                        "Creating netCDF output file for initial condition %s for %s"
-                        % (variablename, module)
+                        "Creating netCDF output file for initial condition %s for %s",
+                        variablename,
+                        module,
                     )
 
                     ncfilename = os.path.join(
@@ -662,8 +663,9 @@ dictionaries with the dates provided.
                         )
 
                     logger.debug(
-                        "Information written for initial condition %s for %s"
-                        % (variablename, module)
+                        "Information written for initial condition %s for %s",
+                        variablename,
+                        module,
                     )
 
         logger.info(f"Reported initial conditions for {date}")

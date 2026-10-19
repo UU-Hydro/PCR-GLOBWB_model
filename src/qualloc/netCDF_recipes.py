@@ -790,8 +790,9 @@ holding netCDF information to facilitate access."""
                         except Exception:
 
                             logger.debug(
-                                "%s in %s is treated as a non-spatial dataset"
-                                % (variablename, ncfilename)
+                                "%s in %s is treated as a non-spatial dataset",
+                                variablename,
+                                ncfilename,
                             )
 
                         if not isinstance(data_attributes, NoneType):
@@ -834,15 +835,17 @@ holding netCDF information to facilitate access."""
 
                             # appears to be non-spatial
                             logger.debug(
-                                "%s in %s is treated as a spatial dataset"
-                                % (variablename, ncfilename)
+                                "%s in %s is treated as a spatial dataset",
+                                variablename,
+                                ncfilename,
                             )
 
                     else:
                         # definitely non-spatial
                         logger.debug(
-                            "%s in %s is defined as a non-spatial dataset"
-                            % (variablename, ncfilename)
+                            "%s in %s is defined as a non-spatial dataset",
+                            variablename,
+                            ncfilename,
                         )
 
                     # the variable is timed if the first dimension is time
@@ -853,14 +856,16 @@ holding netCDF information to facilitate access."""
                         )
 
                         logger.debug(
-                            "%s in %s is defined as a temporal dataset"
-                            % (variablename, ncfilename)
+                            "%s in %s is defined as a temporal dataset",
+                            variablename,
+                            ncfilename,
                         )
 
                     else:
                         logger.debug(
-                            "%s in %s is defined as a non-temporal dataset"
-                            % (variablename, ncfilename)
+                            "%s in %s is defined as a non-temporal dataset",
+                            variablename,
+                            ncfilename,
                         )
 
                     # add the missing value information (attribute nc_mv_id_str, '_FillValue') of all
@@ -947,8 +952,9 @@ depending on the type of match specified.
         ):
 
             logger.error(
-                "No clone attributes are specified to extract spatial information for variable %s from %s"
-                % (variablename, ncfilename)
+                "No clone attributes are specified to extract spatial information for variable %s from %s",
+                variablename,
+                ncfilename,
             )
 
         # dimensions, to decide how the data are processed
@@ -957,8 +963,9 @@ depending on the type of match specified.
         # halt if the variable is not found
         if nc_dims == ():
             logger.error(
-                "neCDF file %s does not contain information on the requested variable %s"
-                % (ncfilename, variablename)
+                "neCDF file %s does not contain information on the requested variable %s",
+                ncfilename,
+                variablename,
             )
 
         # timed variable: get the position and band
@@ -1091,8 +1098,9 @@ depending on the type of match specified.
                     if not same_resolution:
 
                         logger.error(
-                            "data of type LDD as read from %s for %s can not be resampled"
-                            % (ncfilename, variablename)
+                            "data of type LDD as read from %s for %s can not be resampled",
+                            ncfilename,
+                            variablename,
                         )
 
                 # different areas: get the actual area using gdal_translate
