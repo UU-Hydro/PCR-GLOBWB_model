@@ -45,7 +45,7 @@ datatypes = {
     "Boolean": "BYTE",
     "Ordinal": "FLOAT32",
     "Directional": "FLOAT32",
-    "Ldd": "BYTE",
+    "Ldd": "INT32",
 }
 
 
@@ -249,6 +249,7 @@ given date. This may concern spatial information or single entries.
                 ),
                 variablename,
             )
+            var_out = getattr(pcr, datatype_str.lower())(var_out)
 
         # output available: log the message
         message_str = "value of %s read from %s" % (variablename, filename)
