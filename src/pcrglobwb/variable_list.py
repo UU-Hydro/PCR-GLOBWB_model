@@ -1982,7 +1982,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 description[pcrglobwb_variable_name] = "Average of total precipitation (Rainf+Snowf)."
 comment[pcrglobwb_variable_name] = (
-    description[pcrglobwb_variable_name] + " Positive direction is downwards."
+    f"{description[pcrglobwb_variable_name]} Positive direction is downwards."
 )
 latex_symbol[pcrglobwb_variable_name] = None
 
@@ -2084,7 +2084,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 description[pcrglobwb_variable_name] = "Average total liquid water draining from land. "
 comment[pcrglobwb_variable_name] = (
-    description[pcrglobwb_variable_name] + " Positive direction is into grid cell."
+    f"{description[pcrglobwb_variable_name]} Positive direction is into grid cell."
 )
 
 # gridded river discharge
@@ -2098,7 +2098,7 @@ netcdf_monthly_total_unit[pcrglobwb_variable_name] = None
 netcdf_yearly_total_unit[pcrglobwb_variable_name] = None
 description[pcrglobwb_variable_name] = "Water volume leaving the cell."
 comment[pcrglobwb_variable_name] = (
-    description[pcrglobwb_variable_name] + " Positive indicates downstream direction."
+    f"{description[pcrglobwb_variable_name]} Positive indicates downstream direction."
 )
 
 pcrglobwb_variable_name = "ulyssesSnowFraction"
@@ -2156,7 +2156,7 @@ description[pcrglobwb_variable_name] = (
     "reference potential evaporation, averaged over a grid cell."
 )
 comment[pcrglobwb_variable_name] = (
-    description[pcrglobwb_variable_name] + " Positive direction is downwards."
+    f"{description[pcrglobwb_variable_name]} Positive direction is downwards."
 )
 latex_symbol[pcrglobwb_variable_name] = None
 

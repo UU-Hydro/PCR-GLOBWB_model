@@ -122,7 +122,7 @@ class WaterBodies(object):
         else:
             if self.fracWaterInp != "None":
                 self.fracWat = vos.readPCRmapClone(
-                    self.fracWaterInp + str(year_used) + ".map",
+                    f"{self.fracWaterInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -145,7 +145,7 @@ class WaterBodies(object):
         else:
             if self.waterBodyIdsInp != "None":
                 self.waterBodyIds = vos.readPCRmapClone(
-                    self.waterBodyIdsInp + str(year_used) + ".map",
+                    f"{self.waterBodyIdsInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -201,7 +201,7 @@ class WaterBodies(object):
                     1000.0
                     * 1000.0
                     * vos.readPCRmapClone(
-                        self.resSfAreaInp + str(year_used) + ".map",
+                        f"{self.resSfAreaInp}{year_used}.map",
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -240,7 +240,7 @@ class WaterBodies(object):
         else:
             if self.waterBodyTypInp != "None":
                 self.waterBodyTyp = vos.readPCRmapClone(
-                    self.waterBodyTypInp + str(year_used) + ".map",
+                    f"{self.waterBodyTypInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -293,7 +293,7 @@ class WaterBodies(object):
                     1000.0
                     * 1000.0
                     * vos.readPCRmapClone(
-                        self.resMaxCapInp + str(year_used) + ".map",
+                        f"{self.resMaxCapInp}{year_used}.map",
                         self.tmpDir,
                         self.inputDir,
                     )

@@ -785,7 +785,7 @@ holding netCDF information to facilitate access."""
                         try:
 
                             data_attributes = spatialAttributes(
-                                'NETCDF:"%s":%s' % (ncfilename, variablename)
+                                f'NETCDF:"{ncfilename}":{variablename}'
                             )
                         except Exception:
 
@@ -875,7 +875,7 @@ holding netCDF information to facilitate access."""
 
                         self.variables[ncfilename][variablename][nc_mv_id_str] = mv
 
-            logger.info("neCDF file %s added to cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} added to cache")
 
     def remove_ncfile_from_cache(self, ncfilename):
         """closes the netCDF file and remove all information from the \
@@ -891,7 +891,7 @@ specified netCDF file."""
             del self.dimensions[ncfilename]
             del self.variables[ncfilename]
 
-            logger.info("neCDF file %s removed from cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} removed from cache")
 
     def obtain_dimensions(self, ncfilename, variablename):
         """gets the dimensions as a tuple from a netCDF file if the variable is matched"""
@@ -931,7 +931,7 @@ depending on the type of match specified.
 
         if date_selection_method not in date_selection_methods:
             logger.error(
-                "date selection method %s is not available" % date_selection_method
+                f"date selection method {date_selection_method} is not available"
             )
 
         # add the netCDF file to the cache if not included yet
@@ -1080,7 +1080,7 @@ depending on the type of match specified.
                 if datatype == pcr.Ldd or datatype == str(pcr.Ldd):
 
                     data_attributes = spatialAttributes(
-                        'NETCDF:"%s":%s' % (ncfilename, variablename)
+                        f'NETCDF:"{ncfilename}":{variablename}'
                     )
 
                     fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
@@ -1099,7 +1099,7 @@ depending on the type of match specified.
                 var_out = getattr(
                     spatialDataSet(
                         variablename,
-                        'NETCDF:"%s":%s' % (ncfilename, variablename),
+                        f'NETCDF:"{ncfilename}":{variablename}',
                         datatypes[datatype_str],
                         datatype,
                         clone_attributes.xLL,
@@ -1156,9 +1156,9 @@ depending on the type of match specified.
                 # all values
                 var_out = self.variables[ncfilename][variablename][:]
 
-        message_str = "value of %s read from %s" % (variablename, ncfilename)
+        message_str = f"value of {variablename} read from {ncfilename}"
         if self.variables[ncfilename][variablename]["timed_variable"]:
-            message_str = str.join(" ", (message_str, "for %s" % date))
+            message_str = str.join(" ", (message_str, f"for {date}"))
             if not true_date or matched_date != date:
                 message_str = str.join(
                     " ",
@@ -1264,8 +1264,8 @@ output netCDF files.
     def get_general_netcdf_attributes(self, model_configuration):
 
         nc_default_attributes = {
-            "title": "QUAlloc run for %s" % model_configuration.general["scenarioname"],
-            "history": "Created on %s" % model_configuration._timestamp_str,
+            "title": f"QUAlloc run for {model_configuration.general['scenarioname']}",
+            "history": f"Created on {model_configuration._timestamp_str}",
             "institution": "Dept. Physical Geography, Utrecht University (r.vanbeek@uu.nl)",
         }
         nc_global_attributes = {}
@@ -1300,7 +1300,7 @@ holding netCDF information to facilitate access."""
 
             self.cache[ncfilename] = nc.Dataset(ncfilename, "w", format=self.nc_format)
 
-            logger.info("neCDF file %s added to cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} added to cache")
 
     def remove_ncfile_from_cache(self, ncfilename):
         """closes the netCDF file and remove all information from the \
@@ -1312,7 +1312,7 @@ specified netCDF file."""
             self.cache[ncfilename].close()
             del self.cache[ncfilename]
 
-            logger.info("neCDF file %s removed from cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} removed from cache")
 
     def initialize_ncfile(self, ncfilename):
         """
@@ -1368,7 +1368,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
         for dim_key in var_dim_keys:
             if dim_key not in nc_dim_keys:
 
-                logger.debug("dimension %s added to %s" % (dim_key, ncfilename))
+                logger.debug(f"dimension {dim_key} added to {ncfilename}")
 
                 dim_info = self.dimension_info[dim_key]
 
@@ -1413,7 +1413,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
         if ncfilename not in self.dimensions.keys():
             self.dimensions[ncfilename] = {variablename: var_dim_keys}
 
-        logger.debug("variable %s added to %s" % (variablename, ncfilename))
+        logger.debug(f"variable {variablename} added to {ncfilename}")
 
         add_variable_to_netCDF(
             ncfilename=ncfilename,

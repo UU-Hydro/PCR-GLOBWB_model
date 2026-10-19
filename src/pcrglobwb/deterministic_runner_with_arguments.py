@@ -115,33 +115,15 @@ class DeterministicRunner(DynamicModel):
         # log the global pre-multipliers
         msg = "\n"
         msg += "\n"
-        msg += "Multiplier values used: " + "\n"
-        msg += (
-            "For minSoilDepthFrac           : "
-            + str(multiplier_for_minSoilDepthFrac)
-            + "\n"
-        )
-        msg += "For kSat (log-scale)           : " + str(multiplier_for_kSat) + "\n"
-        msg += (
-            "For recessionCoeff (log-scale) : "
-            + str(multiplier_for_recessionCoeff)
-            + "\n"
-        )
-        msg += "For storCap                    : " + str(multiplier_for_storCap) + "\n"
-        msg += (
-            "For degreeDayFactor            : "
-            + str(multiplier_for_degreeDayFactor)
-            + "\n"
-        )
-        msg += (
-            "For refPotET                   : "
-            + str(self.multiplier_for_refPotET)
-            + "\n"
-        )
-        msg += (
-            "For multiplier_for_manningsN   : " + str(multiplier_for_manningsN) + "\n"
-        )
-        msg += "For storGroundwaterIni_file    : " + str(storGroundwaterIni_file) + "\n"
+        msg += "Multiplier values used: \n"
+        msg += f"For minSoilDepthFrac           : {multiplier_for_minSoilDepthFrac}\n"
+        msg += f"For kSat (log-scale)           : {multiplier_for_kSat}\n"
+        msg += f"For recessionCoeff (log-scale) : {multiplier_for_recessionCoeff}\n"
+        msg += f"For storCap                    : {multiplier_for_storCap}\n"
+        msg += f"For degreeDayFactor            : {multiplier_for_degreeDayFactor}\n"
+        msg += f"For refPotET                   : {self.multiplier_for_refPotET}\n"
+        msg += f"For multiplier_for_manningsN   : {multiplier_for_manningsN}\n"
+        msg += f"For storGroundwaterIni_file    : {storGroundwaterIni_file}\n"
         logger.info(msg)
         # and write them to a text file in the "maps" folder of outputDir (the cwd, see configuration.py)
         f = open("multiplier.txt", "w")
@@ -183,7 +165,7 @@ class DeterministicRunner(DynamicModel):
                 multiplier_for_degreeDayFactor
                 * self.model.landSurface.landCoverObj[coverType].degreeDayFactor,
             )
-            pcraster_filename = "degreeDayFactor" + "_" + coverType + ".map"
+            pcraster_filename = f"degreeDayFactor_{coverType}.map"
             pcr.report(
                 self.model.landSurface.landCoverObj[coverType].degreeDayFactor,
                 pcraster_filename,
@@ -211,12 +193,12 @@ class DeterministicRunner(DynamicModel):
                         ].parameters.kSatLow,
                     )
                 )
-                pcraster_filename = "kSatUpp" + "_" + coverType + ".map"
+                pcraster_filename = f"kSatUpp_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].parameters.kSatUpp,
                     pcraster_filename,
                 )
-                pcraster_filename = "kSatLow" + "_" + coverType + ".map"
+                pcraster_filename = f"kSatLow_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].parameters.kSatLow,
                     pcraster_filename,
@@ -241,14 +223,14 @@ class DeterministicRunner(DynamicModel):
                         ].parameters.storCapLow,
                     )
                 )
-                pcraster_filename = "storCapUpp" + "_" + coverType + ".map"
+                pcraster_filename = f"storCapUpp_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
                     ].parameters.storCapUpp,
                     pcraster_filename,
                 )
-                pcraster_filename = "storCapLow" + "_" + coverType + ".map"
+                pcraster_filename = f"storCapLow_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
@@ -287,21 +269,21 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.kSatLow030150,
                 )
-                pcraster_filename = "kSatUpp000005" + "_" + coverType + ".map"
+                pcraster_filename = f"kSatUpp000005_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
                     ].parameters.kSatUpp000005,
                     pcraster_filename,
                 )
-                pcraster_filename = "kSatUpp005030" + "_" + coverType + ".map"
+                pcraster_filename = f"kSatUpp005030_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
                     ].parameters.kSatUpp005030,
                     pcraster_filename,
                 )
-                pcraster_filename = "kSatLow030150" + "_" + coverType + ".map"
+                pcraster_filename = f"kSatLow030150_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
@@ -337,21 +319,21 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.storCapLow030150,
                 )
-                pcraster_filename = "storCapUpp000005" + "_" + coverType + ".map"
+                pcraster_filename = f"storCapUpp000005_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
                     ].parameters.storCapUpp000005,
                     pcraster_filename,
                 )
-                pcraster_filename = "storCapUpp005030" + "_" + coverType + ".map"
+                pcraster_filename = f"storCapUpp005030_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
                     ].parameters.storCapUpp005030,
                     pcraster_filename,
                 )
-                pcraster_filename = "storCapLow030150" + "_" + coverType + ".map"
+                pcraster_filename = f"storCapLow030150_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
@@ -383,7 +365,7 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.storCapLow030150
                 )
-            pcraster_filename = "rootZoneWaterStorageCap" + "_" + coverType + ".map"
+            pcraster_filename = f"rootZoneWaterStorageCap_{coverType}.map"
             pcr.report(
                 self.model.landSurface.landCoverObj[
                     coverType
@@ -417,7 +399,7 @@ class DeterministicRunner(DynamicModel):
                         self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,
                     )
                 )
-                pcraster_filename = "minSoilDepthFrac" + "_" + coverType + ".map"
+                pcraster_filename = f"minSoilDepthFrac_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].minSoilDepthFrac,
                     pcraster_filename,
@@ -447,7 +429,7 @@ class DeterministicRunner(DynamicModel):
                     ),
                     0.001,
                 )
-                pcraster_filename = "arnoBeta" + "_" + coverType + ".map"
+                pcraster_filename = f"arnoBeta_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[coverType].arnoBeta,
                     pcraster_filename,
@@ -463,7 +445,7 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].parameters.rootZoneWaterStorageCap
                 )
-                pcraster_filename = "rootZoneWaterStorageMin" + "_" + coverType + ".map"
+                pcraster_filename = f"rootZoneWaterStorageMin_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
@@ -482,9 +464,7 @@ class DeterministicRunner(DynamicModel):
                         coverType
                     ].rootZoneWaterStorageMin
                 )
-                pcraster_filename = (
-                    "rootZoneWaterStorageRange" + "_" + coverType + ".map"
-                )
+                pcraster_filename = f"rootZoneWaterStorageRange_{coverType}.map"
                 pcr.report(
                     self.model.landSurface.landCoverObj[
                         coverType
@@ -562,8 +542,7 @@ def modify_ini_file(original_ini_file, system_argument):
     for token, flag in [("START_DATE", "-sd"), ("END_DATE", "-ed")]:
         if token in file_ini_content:
             sys.exit(
-                "%s uses the placeholder %s; pass it with %s"
-                % (original_ini_file, token, flag)
+                f"{original_ini_file} uses the placeholder {token}; pass it with {flag}"
             )
 
     # optional initial conditions: main initial state folder (-misd)
@@ -722,7 +701,7 @@ def modify_ini_file(original_ini_file, system_argument):
         clonemap = system_argument[system_argument.index("-clonemap") + 1]
         file_ini_content = file_ini_content.replace("CLONEMAP", clonemap)
         msg = (
-            "The clonemap is set based on the system argument (-clonemap): " + clonemap
+            f"The clonemap is set based on the system argument (-clonemap): {clonemap}"
         )
         print(msg)
 
@@ -787,7 +766,7 @@ def modify_ini_file(original_ini_file, system_argument):
         or system_argument[2] == "debug-parallel"
     ):
         clone_code = str(system_argument[3])
-        output_folder_with_clone_code = "M%02i" % int(clone_code)
+        output_folder_with_clone_code = f"M{int(clone_code):02}"
         folder_for_ini_files = os.path.join(
             main_output_dir, output_folder_with_clone_code, "ini_files"
         )
@@ -799,12 +778,12 @@ def modify_ini_file(original_ini_file, system_argument):
     shutil.copy(
         original_ini_file,
         os.path.join(
-            folder_for_ini_files, os.path.basename(original_ini_file) + ".original"
+            folder_for_ini_files, f"{os.path.basename(original_ini_file)}.original"
         ),
     )
 
     new_ini_file_name = os.path.join(
-        folder_for_ini_files, os.path.basename(original_ini_file) + ".modified_and_used"
+        folder_for_ini_files, f"{os.path.basename(original_ini_file)}.modified_and_used"
     )
     new_ini_file = open(new_ini_file_name, "w")
     new_ini_file.write(file_ini_content)
@@ -851,8 +830,8 @@ def main():
     if this_run_is_part_of_a_set_of_parallel_run:
         # modify outputDir, clone map, landmask, etc. based on the command-line arguments
         clone_code = str(sys.argv[3])
-        output_folder_with_clone_code = "M%02i" % int(clone_code)
-        configuration.globalOptions["outputDir"] += "/" + output_folder_with_clone_code
+        output_folder_with_clone_code = f"M{int(clone_code):02}"
+        configuration.globalOptions["outputDir"] += f"/{output_folder_with_clone_code}"
         configuration.globalOptions["cloneMap"] = configuration.globalOptions[
             "cloneMap"
         ] % (int(clone_code))
@@ -874,7 +853,7 @@ def main():
     initial_state = None
     if noSpinUps > 0:
 
-        logger.info("Spin-Up #Total Years: " + str(noSpinUps))
+        logger.info(f"Spin-Up #Total Years: {noSpinUps}")
 
         spinUpRun = 0
         has_converged = False
@@ -883,7 +862,7 @@ def main():
             currTimeStep.getStartEndTimeStepsForSpinUp(
                 configuration.globalOptions["startTime"], spinUpRun, noSpinUps
             )
-            logger.info("Spin-Up Run No. " + str(spinUpRun))
+            logger.info(f"Spin-Up Run No. {spinUpRun}")
             deterministic_runner = DeterministicRunner(
                 configuration, currTimeStep, initial_state, sys.argv, spinUpRun=True
             )

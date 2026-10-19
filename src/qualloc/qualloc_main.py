@@ -62,7 +62,7 @@ PCRaster input ignores the name and is unaffected.
     if isinstance(default, NoneType):
         default = key
 
-    return section.get("%s_ncvariable" % key, default)
+    return section.get(f"{key}_ncvariable", default)
 
 
 class qualloc_model(object):
@@ -135,7 +135,7 @@ class qualloc_model(object):
                 "",
                 "",
                 "#" * 80,
-                "# %-76s #" % ("QUAlloc water use and allocation model"),
+                f"# {'QUAlloc water use and allocation model':76} #",
                 "#" * 80,
                 "",
                 "",
@@ -450,7 +450,7 @@ class qualloc_model(object):
         # long-term gross sectoral water demand (m/day)
         gross_demand_longterm = {}
         for sector_name in sector_names:
-            var = "gross_demand_longterm_%s" % sector_name
+            var = f"gross_demand_longterm_{sector_name}"
             self.initial_conditions["water_management"][var] = (
                 get_initial_condition_as_timed_dict(
                     self.initial_conditions["water_management"][var],
@@ -522,7 +522,7 @@ class qualloc_model(object):
         # weights per sector
         gross_demand_update_weight = {}
         for sector_name in sector_names:
-            var = "%s_update_weight" % sector_name
+            var = f"{sector_name}_update_weight"
             gross_demand_update_weight[sector_name] = read_file_entry(
                 filename=self.model_configuration.water_management[var],
                 variablename=var,
@@ -555,7 +555,7 @@ class qualloc_model(object):
         for source_name in source_names_prioritization:
             for sector_name in sector_names:
 
-                key = "prioritization_%s_%s" % (source_name, sector_name)
+                key = f"prioritization_{source_name}_{sector_name}"
 
                 if key in self.model_configuration.water_management.keys():
 
@@ -661,11 +661,11 @@ class qualloc_model(object):
         self.net_demand_forcing_vars = {}
 
         for sector_name in self.water_management.sector_names:
-            gross_demand_name = "%sgrossdemand" % sector_name
+            gross_demand_name = f"{sector_name}grossdemand"
             if gross_demand_name in demand_forcing_variables:
                 self.gross_demand_forcing_vars[sector_name] = gross_demand_name
 
-            net_demand_name = "%snettodemand" % sector_name
+            net_demand_name = f"{sector_name}nettodemand"
             if net_demand_name in demand_forcing_variables:
                 self.net_demand_forcing_vars[sector_name] = net_demand_name
 
@@ -716,7 +716,7 @@ class qualloc_model(object):
             constituent_limits[sector_name] = {}
 
             for constituent_name in constituent_names:
-                var = "limit_%s_%s" % (constituent_name, sector_name)
+                var = f"limit_{constituent_name}_{sector_name}"
 
                 if var in self.model_configuration.water_quality.keys():
                     limit = self.model_configuration.water_quality[var]
@@ -748,11 +748,11 @@ class qualloc_model(object):
         # initial conditions module
         for source_name in self.water_management.source_names:
             for constituent_name in constituent_names:
-                var = "%s_longterm_%s" % (source_name, constituent_name)
+                var = f"{source_name}_longterm_{constituent_name}"
 
                 if self.model_flags["water_quality_flag"]:
                     # whether the constituent has long-term water quality data
-                    if var + "_ini" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ini" in self.model_configuration.water_quality.keys():
                         constituent_longterm_quality = self.initial_conditions[
                             "water_quality"
                         ][var]
@@ -789,13 +789,13 @@ class qualloc_model(object):
 
         for source_name in self.water_management.source_names:
             for constituent_name in constituent_names:
-                var = "%s_%s" % (source_name, constituent_name)
+                var = f"{source_name}_{constituent_name}"
 
                 # whether the constituent has short-term water quality data
                 if self.model_flags["water_quality_flag"]:
-                    if var + "_ncfile" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ncfile" in self.model_configuration.water_quality.keys():
                         ncfilename = self.model_configuration.water_quality[
-                            var + "_ncfile"
+                            f"{var}_ncfile"
                         ]
                     else:
                         ncfilename = "0.0"
@@ -940,7 +940,7 @@ class qualloc_model(object):
         for source_name in self.water_management.source_names:
             constituent_shortterm_quality[source_name] = {}
             for constituent_name in self.water_quality.constituent_names:
-                key = "%s_%s" % (source_name, constituent_name)
+                key = f"{source_name}_{constituent_name}"
 
                 # value if the dataset is available
                 if self.model_flags["water_quality_flag"]:
@@ -1023,12 +1023,12 @@ class qualloc_model(object):
 
             setattr(self, file_name, var_out)
 
-            logger.debug("information on %s read for %s" % (file_name, date))
+            logger.debug(f"information on {file_name} read for {date}")
 
         # regional pumping capacity (if activated)
         for source_name in self.water_management.source_names:
-            flag_name = "%s_pumping_capacity_flag" % source_name
-            file_name = "%s_regional_pumping_capacity" % source_name
+            flag_name = f"{source_name}_pumping_capacity_flag"
+            file_name = f"{source_name}_regional_pumping_capacity"
 
             if self.model_flags[flag_name]:
                 # on 1 January, as values are yearly totals; TODO: also handle the first time step if the run
@@ -1063,7 +1063,7 @@ class qualloc_model(object):
 
                     setattr(
                         self,
-                        "%s_pumping_capacity" % source_name,
+                        f"{source_name}_pumping_capacity",
                         regional_pumping_capacity,
                     )
 
@@ -1078,7 +1078,7 @@ class qualloc_model(object):
 
             # update the withdrawal capacity from the regional pumping capacity (if activated)
             for source_name in self.water_management.source_names:
-                flag_name = "%s_pumping_capacity_flag" % source_name
+                flag_name = f"{source_name}_pumping_capacity_flag"
 
                 if self.model_flags[flag_name]:
                     # on 1 January, as values are yearly totals; TODO: also handle the first time step if the run
@@ -1086,7 +1086,7 @@ class qualloc_model(object):
                     if date.day == 1 and date.month == 1:
 
                         regional_pumping_capacity = getattr(
-                            self, "%s_pumping_capacity" % source_name
+                            self, f"{source_name}_pumping_capacity"
                         )
 
                         # withdrawal capacity (m3/day)
@@ -1167,7 +1167,7 @@ class qualloc_model(object):
                 * self.cellarea
             )
 
-        logger.debug("Water demand read for %s" % self.model_time.date)
+        logger.debug(f"Water demand read for {self.model_time.date}")
 
         # pass the water demand to the water management module (m3/day)
         self.water_management.update_water_demand_for_date(
@@ -1373,7 +1373,7 @@ class qualloc_model(object):
         )
 
         # write the final states as the new initial conditions
-        logger.info("last day of year %d: writing states" % self.model_time.year)
+        logger.info(f"last day of year {self.model_time.year}: writing states")
 
         self.update_initial_conditions(self.model_time.date)
         self.report_initial_conditions(self.model_time.date)
@@ -1409,7 +1409,7 @@ class qualloc_model(object):
             for key, value in state_info.items():
                 self.initial_conditions[module_name][key] = value
 
-        logger.info("Initial conditions updated for %s" % date)
+        logger.info(f"Initial conditions updated for {date}")
 
         return None
 

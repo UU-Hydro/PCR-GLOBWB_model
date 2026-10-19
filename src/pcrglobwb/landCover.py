@@ -317,7 +317,7 @@ class LandCover(object):
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
                     # accumulator
-                    vars(self)[var + "Tot"] = None
+                    vars(self)[f"{var}Tot"] = None
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir)
                         + "/"
@@ -332,9 +332,9 @@ class LandCover(object):
             # averages
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
-                    vars(self)[var + "Avg"] = None
+                    vars(self)[f"{var}Avg"] = None
                     # accumulator
-                    vars(self)[var + "Tot"] = None
+                    vars(self)[f"{var}Tot"] = None
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir)
                         + "/"
@@ -429,9 +429,7 @@ class LandCover(object):
             # option 1 (top priority): a PCRaster file
             if self.iniItemsLC["arnoBeta"] != "None" and not get_only_fracVegCover:
 
-                logger.debug(
-                    "The parameter arnoBeta: " + str(self.iniItemsLC["arnoBeta"])
-                )
+                logger.debug(f"The parameter arnoBeta: {self.iniItemsLC['arnoBeta']}")
                 lc_parameters["arnoBeta"] = vos.readPCRmapClone(
                     self.iniItemsLC["arnoBeta"],
                     self.tmpDir,
@@ -495,7 +493,7 @@ class LandCover(object):
             for var in landCovParams:
 
                 # read the parameter from the netCDF file in the ini file
-                ini_option = self.iniItemsLC[var + "NC"]
+                ini_option = self.iniItemsLC[f"{var}NC"]
 
                 if ini_option.endswith(vos.netcdf_suffixes):
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
@@ -906,7 +904,7 @@ class LandCover(object):
             ]
             for var in initialVars:
                 if iniConditions is None:
-                    input = self.iniItemsLC[str(var) + "Ini"]
+                    input = self.iniItemsLC[f"{var}Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.tmpDir, self.inputDir
                     )
@@ -930,7 +928,7 @@ class LandCover(object):
             ]
             for var in initialVars:
                 if iniConditions is None:
-                    input = self.iniItemsLC[str(var) + "Ini"]
+                    input = self.iniItemsLC[f"{var}Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.tmpDir, self.inputDir, cover=0.0
                     )
@@ -1134,11 +1132,11 @@ class LandCover(object):
                 for var in self.outMonthTotNC:
                     # initialize at the start of the simulation
                     if currTimeStep.timeStepPCR == 1:
-                        vars(self)[var + "Tot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
                     # reset at the start of the month
                     if currTimeStep.day == 1:
-                        vars(self)[var + "Tot"] = pcr.scalar(0.0)
-                    vars(self)[var + "Tot"] += vars(self)[var]
+                        vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
+                    vars(self)[f"{var}Tot"] += vars(self)[var]
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
@@ -1149,7 +1147,7 @@ class LandCover(object):
                             + "_"
                             + "monthTot.nc",
                             var,
-                            pcr.pcr2numpy(self.__getattribute__(var + "Tot"), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(f"{var}Tot"), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -1160,14 +1158,14 @@ class LandCover(object):
                     if var not in self.outMonthTotNC:
                         # initialize at the start of the simulation
                         if currTimeStep.timeStepPCR == 1:
-                            vars(self)[var + "Tot"] = pcr.scalar(0.0)
+                            vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
                         # reset at the start of the month
                         if currTimeStep.day == 1:
-                            vars(self)[var + "Tot"] = pcr.scalar(0.0)
-                        vars(self)[var + "Tot"] += vars(self)[var]
+                            vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}Tot"] += vars(self)[var]
                     if currTimeStep.endMonth:
-                        vars(self)[var + "Avg"] = (
-                            vars(self)[var + "Tot"] / currTimeStep.day
+                        vars(self)[f"{var}Avg"] = (
+                            vars(self)[f"{var}Tot"] / currTimeStep.day
                         )
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
@@ -1178,7 +1176,7 @@ class LandCover(object):
                             + "_"
                             + "monthAvg.nc",
                             var,
-                            pcr.pcr2numpy(self.__getattribute__(var + "Avg"), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(f"{var}Avg"), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )

@@ -172,7 +172,7 @@ class Configuration(object):
             + str(self._timestamp.isoformat()).replace(":", ".")
             + "_pcrcalc_output.txt"
         )
-        cmd = "pcrcalc &> " + (pcraster_check_filename)
+        cmd = f"pcrcalc &> {pcraster_check_filename}"
         os.system(cmd)
         logger.info(
             "PCRaster version (output from pcrcalc): see the file %s",

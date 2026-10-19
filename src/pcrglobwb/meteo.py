@@ -121,9 +121,7 @@ class Meteo(object):
         self.tmpFileNC = iniItems.meteoOptions["temperatureNC"]
 
         self.refETPotMethod = iniItems.meteoOptions["referenceETPotMethod"]
-        msg = "Method for the reference potential evaporation: " + str(
-            self.refETPotMethod
-        )
+        msg = f"Method for the reference potential evaporation: {self.refETPotMethod}"
         logger.info(msg)
 
         # Penman-Monteith class
@@ -263,7 +261,7 @@ class Meteo(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         "undefined",
                     )
@@ -271,9 +269,9 @@ class Meteo(object):
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
+                    vars(self)[f"{var}MonthTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                        f"{self.outNCDir}/{var}_monthTot.nc",
                         var,
                         "undefined",
                     )
@@ -281,10 +279,10 @@ class Meteo(object):
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
-                    vars(self)[var + "MonthAvg"] = None
+                    vars(self)[f"{var}MonthTot"] = None
+                    vars(self)[f"{var}MonthAvg"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                        f"{self.outNCDir}/{var}_monthAvg.nc",
                         var,
                         "undefined",
                     )
@@ -292,7 +290,7 @@ class Meteo(object):
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                        f"{self.outNCDir}/{var}_monthEnd.nc",
                         var,
                         "undefined",
                     )
@@ -300,20 +298,20 @@ class Meteo(object):
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                        f"{self.outNCDir}/{var}_annuaTot.nc",
                         var,
                         "undefined",
                     )
             # averages
             if self.outAnnuaAvgNC[0] != "None":
                 for var in self.outAnnuaAvgNC:
-                    vars(self)[var + "AnnuaAvg"] = None
+                    vars(self)[f"{var}AnnuaAvg"] = None
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                        f"{self.outNCDir}/{var}_annuaAvg.nc",
                         var,
                         "undefined",
                     )
@@ -321,7 +319,7 @@ class Meteo(object):
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                        f"{self.outNCDir}/{var}_annuaEnd.nc",
                         var,
                         "undefined",
                     )
@@ -386,7 +384,7 @@ class Meteo(object):
 
         # conversion constants and factors for the extra meteo variables
         for meteo_var_name in self.extra_meteo_var_names:
-            consta_var_name = "consta_for_" + meteo_var_name
+            consta_var_name = f"consta_for_{meteo_var_name}"
             vars(self)[consta_var_name] = pcr.spatial(pcr.scalar(0.0))
             if consta_var_name in meteoOptions:
                 vars(self)[consta_var_name] = pcr.cover(
@@ -397,7 +395,7 @@ class Meteo(object):
                     ),
                     0.0,
                 )
-            factor_var_name = "factor_for_" + meteo_var_name
+            factor_var_name = f"factor_for_{meteo_var_name}"
             vars(self)[factor_var_name] = pcr.spatial(pcr.scalar(1.0))
             if factor_var_name in meteoOptions:
                 vars(self)[factor_var_name] = pcr.cover(
@@ -878,7 +876,7 @@ class Meteo(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.data2NetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                         timeStamp,
@@ -891,16 +889,16 @@ class Meteo(object):
 
                     # initialize at the start of the simulation or reset at the start of the month
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                        vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "MonthTot"] += vars(self)[var]
+                    vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                            f"{self.outNCDir}/{var}_monthTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthTot"), vos.MV
+                                self.__getattribute__(f"{var}MonthTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -913,18 +911,18 @@ class Meteo(object):
 
                         # initialize at the start of the simulation or reset at the start of the month
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                            vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "MonthTot"] += vars(self)[var]
+                            vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
-                        vars(self)[var + "MonthAvg"] = (
-                            vars(self)[var + "MonthTot"] / currTimeStep.day
+                        vars(self)[f"{var}MonthAvg"] = (
+                            vars(self)[f"{var}MonthTot"] / currTimeStep.day
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                            f"{self.outNCDir}/{var}_monthAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthAvg"), vos.MV
+                                self.__getattribute__(f"{var}MonthAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -934,7 +932,7 @@ class Meteo(object):
                 for var in self.outMonthEndNC:
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                            f"{self.outNCDir}/{var}_monthEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
@@ -947,16 +945,16 @@ class Meteo(object):
 
                     # initialize at the start of the simulation or reset at the start of the year
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                        vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                    vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
 
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                            f"{self.outNCDir}/{var}_annuaTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaTot"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -968,17 +966,17 @@ class Meteo(object):
                     if var not in self.outAnnuaTotNC:
                         # initialize at the start of the simulation or reset at the start of the year
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                            vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                            vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
                     if currTimeStep.endYear:
-                        vars(self)[var + "AnnuaAvg"] = (
-                            vars(self)[var + "AnnuaTot"] / currTimeStep.doy
+                        vars(self)[f"{var}AnnuaAvg"] = (
+                            vars(self)[f"{var}AnnuaTot"] / currTimeStep.doy
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                            f"{self.outNCDir}/{var}_annuaAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaAvg"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -988,7 +986,7 @@ class Meteo(object):
                 for var in self.outAnnuaEndNC:
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                            f"{self.outNCDir}/{var}_annuaEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
@@ -1443,7 +1441,7 @@ class Meteo(object):
 
                 # apply the conversion factor and constant
                 vars(self)[meteo_var_name] = (
-                    vars(self)["consta_for_" + meteo_var_name]
-                    + vars(self)["factor_for_" + meteo_var_name]
+                    vars(self)[f"consta_for_{meteo_var_name}"]
+                    + vars(self)[f"factor_for_{meteo_var_name}"]
                     * vars(self)[meteo_var_name]
                 )

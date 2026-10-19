@@ -277,7 +277,7 @@ date is generated.
             try:
                 value = pcr.spatial(pcr_data_func(value))
             except Exception:
-                sys.exit("ERROR: %s cannot be converted to a PCRaster field" % value)
+                sys.exit(f"ERROR: {value} cannot be converted to a PCRaster field")
 
             message_str = str.join(
                 "\n",

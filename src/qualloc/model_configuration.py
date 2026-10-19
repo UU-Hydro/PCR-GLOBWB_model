@@ -25,7 +25,7 @@ substitutable_tokens = [
     "END_YEAR",
 ]
 
-token_pattern = re.compile(r"\b(%s)\b" % str.join("|", substitutable_tokens))
+token_pattern = re.compile(rf"\b({str.join('|', substitutable_tokens)})\b")
 
 
 def remove_readonly(func, path, _):
@@ -103,9 +103,9 @@ the CALEROS model.
         logger.info(
             "\n%s\nInitializing the QUAlloc model run\n%s\n", "=" * 80, "=" * 80
         )
-        logger.info("Model run started at %s" % self._timestamp)
-        logger.info("Logging output to %s" % self.logfilename)
-        logger.info("Debugging output to %s" % self.dbgfilename)
+        logger.info(f"Model run started at {self._timestamp}")
+        logger.info(f"Logging output to {self.logfilename}")
+        logger.info(f"Debugging output to {self.dbgfilename}")
         for deferred_message in self.deferred_messages:
             logger.info(deferred_message)
 
@@ -190,7 +190,7 @@ the unreplaced token would otherwise surface much later as a missing file.
                 setattr(self, group, {})
             except Exception:
                 message_str = (
-                    "processing information on the group [%s] raised an error" % (group)
+                    f"processing information on the group [{group}] raised an error"
                 )
                 sys.exit(message_str)
         for section in sections_present:
@@ -221,8 +221,7 @@ the unreplaced token would otherwise surface much later as a missing file.
 
             except Exception:
                 message_str = (
-                    "processing information on the section [%s] raised an error"
-                    % (section)
+                    f"processing information on the section [{section}] raised an error"
                 )
                 sys.exit(message_str)
 
@@ -308,7 +307,7 @@ directories using information from the model configuration.
         if not os.path.isabs(self.general["inputpath"]):
             self.general["inputpath"] = os.path.abspath(self.general["inputpath"])
         if not os.path.isdir(self.general["inputpath"]):
-            message_str = "input path %s does not exist" % (self.general["inputpath"])
+            message_str = f"input path {self.general['inputpath']} does not exist"
             sys.exit(message_str)
 
         if not os.path.isabs(self.general["outputpath"]):
@@ -380,7 +379,7 @@ directories using information from the model configuration.
 
         # create the subdirectories and add them to the object
         for subdirectory in subdirectories:
-            subdirname = "%spath" % os.path.split(subdirectory)[1]
+            subdirname = f"{os.path.split(subdirectory)[1]}path"
             # create or empty
             if os.path.isdir(subdirectory):
                 shutil.rmtree(subdirectory, onerror=remove_readonly)
@@ -409,7 +408,7 @@ directories using information from the model configuration.
         separators = [","]
 
         if not isinstance(ftype, type):
-            msg = "data type %s is not a data type" % ftype
+            msg = f"data type {ftype} is not a data type"
             logger.error(msg)
             raise TypeError(msg)
 
@@ -451,5 +450,5 @@ directories using information from the model configuration.
                 try:
                     value = ftype(val_str)
                 except Exception:
-                    logger.error("%s cannot be converted to %s" % (val_str, ftype))
+                    logger.error(f"{val_str} cannot be converted to {ftype}")
         return value

@@ -207,7 +207,7 @@ class SoilAndTopoParameters(object):
         if optionDict["soilPropertiesNC"] == str(None):
             for var in soilStorages:
                 input = optionDict[str(var)]
-                temp = str(var) + "Inp"
+                temp = f"{var}Inp"
                 vars(self)[temp] = vos.readPCRmapClone(
                     input, self.tmpDir, self.inputDir
                 )
@@ -233,7 +233,7 @@ class SoilAndTopoParameters(object):
                 optionDict["soilPropertiesNC"], self.inputDir
             )
             for var in soilStorages:
-                temp = str(var) + "Inp"
+                temp = f"{var}Inp"
                 vars(self)[temp] = vos.netcdf2PCRobjCloneWithoutTime(
                     soilPropertiesNC, var
                 )

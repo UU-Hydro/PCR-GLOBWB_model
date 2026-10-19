@@ -137,9 +137,7 @@ def readDownscalingMeteo(
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
     if varName != "automatic":
-        logger.debug(
-            "reading variable: " + str(varName) + " from the file: " + str(ncFile)
-        )
+        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
@@ -168,9 +166,7 @@ def readDownscalingMeteo(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(
-            "reading variable: " + str(varName) + " from the file: " + str(ncFile)
-        )
+        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if dateInput is None:
         logger.debug("Using the first time step in the netcdf file.")
@@ -236,16 +232,8 @@ def readDownscalingMeteo(
                         + " !!!!!!"
                         + "\n"
                     )
-                    msg += "The date " + str(dateInput) + " is NOT available. "
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " is used."
-                    )
+                    msg += f"The date {dateInput} is NOT available. "
+                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
                     msg += "\n"
                     logger.warning(msg)
                 if date.year > last_year_in_nc_file:
@@ -269,16 +257,8 @@ def readDownscalingMeteo(
                         + " !!!!!!"
                         + "\n"
                     )
-                    msg += "The date " + str(dateInput) + " is NOT available. "
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " is used."
-                    )
+                    msg += f"The date {dateInput} is NOT available. "
+                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
                     msg += "\n"
                     logger.warning(msg)
             try:
@@ -394,18 +374,18 @@ def readDownscalingMeteo(
                     f.variables["time"].units,
                     f.variables["time"].calendar,
                 )
-                logger.warning("Using the datetime " + str(date_string))
+                logger.warning(f"Using the datetime {date_string}")
                 logger.warning(msg)
 
     idx = int(idx)
-    logger.debug("Using the date index " + str(idx))
+    logger.debug(f"Using the date index {idx}")
 
     date_string = nc.num2date(
         f.variables["time"][int(idx)],
         f.variables["time"].units,
         f.variables["time"].calendar,
     )
-    logger.debug("Using the datetime " + str(date_string))
+    logger.debug(f"Using the datetime {date_string}")
 
     attributeClone = getCloneAttributes()
     cellsizeClone = attributeClone["cellsize"]
@@ -514,10 +494,7 @@ def readDownscalingMeteo(
 def checkVariableInNC(ncFile, varName):
 
     logger.debug(
-        "Check whether the variable: "
-        + str(varName)
-        + " is defined in the file: "
-        + str(ncFile)
+        f"Check whether the variable: {varName} is defined in the file: {ncFile}"
     )
 
     if ncFile in list(filecache.keys()):
@@ -548,10 +525,10 @@ def netcdf2PCRobjCloneWithoutTime(
             )
         except Exception:
             iter_try = iter_try + 1
-            logger.warning("Re-try to read file: " + str(ncFile))
+            logger.warning(f"Re-try to read file: {ncFile}")
 
     if iter_try >= max_num_of_tries:
-        logger.error("CANNOT READ file: " + str(ncFile))
+        logger.error(f"CANNOT READ file: {ncFile}")
         return singleTryNetcdf2PCRobjCloneWithoutTime(
             ncFile, varName, LatitudeLongitude, specificFillValue
         )
@@ -568,7 +545,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
     if absolutePath is not None:
         ncFile = getFullPath(ncFile, absolutePath)
 
-    logger.debug("reading variable: " + str(varName) + " from the file: " + str(ncFile))
+    logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
@@ -587,9 +564,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(
-            "reading variable: " + str(varName) + " from the file: " + str(ncFile)
-        )
+        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if LatitudeLongitude:
         try:
@@ -686,10 +661,10 @@ def netcdf2PCRobjClone(
             )
         except Exception:
             iter_try = iter_try + 1
-            logger.warning("Re-try to read file: " + str(ncFile))
+            logger.warning(f"Re-try to read file: {ncFile}")
 
     if iter_try >= max_num_of_tries:
-        logger.error("CANNOT READ file: " + str(ncFile))
+        logger.error(f"CANNOT READ file: {ncFile}")
         return singleTryNetcdf2PCRobjClone(
             ncFile,
             varName,
@@ -712,9 +687,7 @@ def singleTryNetcdf2PCRobjClone(
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
     if varName != "automatic":
-        logger.debug(
-            "reading variable: " + str(varName) + " from the file: " + str(ncFile)
-        )
+        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
@@ -743,9 +716,7 @@ def singleTryNetcdf2PCRobjClone(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(
-            "reading variable: " + str(varName) + " from the file: " + str(ncFile)
-        )
+        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if varName == "evapotranspiration":
         try:
@@ -861,16 +832,8 @@ def singleTryNetcdf2PCRobjClone(
                         + " !!!!!!"
                         + "\n"
                     )
-                    msg += "The date " + str(dateInput) + " is NOT available. "
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " is used."
-                    )
+                    msg += f"The date {dateInput} is NOT available. "
+                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
                     msg += "\n"
                     logger.warning(msg)
                 if date.year > last_year_in_nc_file:
@@ -894,16 +857,8 @@ def singleTryNetcdf2PCRobjClone(
                         + " !!!!!!"
                         + "\n"
                     )
-                    msg += "The date " + str(dateInput) + " is NOT available. "
-                    msg += (
-                        "The date "
-                        + str(date.year)
-                        + "-"
-                        + str(date.month)
-                        + "-"
-                        + str(date.day)
-                        + " is used."
-                    )
+                    msg += f"The date {dateInput} is NOT available. "
+                    msg += f"The date {date.year}-{date.month}-{date.day} is used."
                     msg += "\n"
                     logger.warning(msg)
             try:
@@ -1019,18 +974,18 @@ def singleTryNetcdf2PCRobjClone(
                     f.variables["time"].units,
                     f.variables["time"].calendar,
                 )
-                logger.warning("Using the datetime " + str(date_string))
+                logger.warning(f"Using the datetime {date_string}")
                 logger.warning(msg)
 
     idx = int(idx)
-    logger.debug("Using the date index " + str(idx))
+    logger.debug(f"Using the date index {idx}")
 
     date_string = nc.num2date(
         f.variables["time"][int(idx)],
         f.variables["time"].units,
         f.variables["time"].calendar,
     )
-    logger.debug("Using the datetime " + str(date_string))
+    logger.debug(f"Using the datetime {date_string}")
 
     attributeClone = getCloneAttributes()
     cellsizeClone = attributeClone["cellsize"]
@@ -1117,7 +1072,7 @@ def writePCRmapToDir(v, outFileName, outDir):
     # v: input map file name or value; if the input map and the clone have different
     # grids, the map is resampled
     fullFileName = getFullPath(outFileName, outDir)
-    logger.debug("Writing a pcraster map to : " + str(fullFileName))
+    logger.debug(f"Writing a pcraster map to : {fullFileName}")
     pcr.report(v, fullFileName)
 
 
@@ -1138,10 +1093,10 @@ def readPCRmapClone(
             )
         except Exception:
             iter_try = iter_try + 1
-            logger.warning("Re-try to read file/value: " + str(v))
+            logger.warning(f"Re-try to read file/value: {v}")
 
     if iter_try >= max_num_of_tries:
-        logger.error("CANNOT READ file: " + str(v))
+        logger.error(f"CANNOT READ file: {v}")
         return singleTryReadPCRmapClone(
             v, tmpDir, absolutePath, isLddMap, cover, isNomMap
         )
@@ -1157,7 +1112,7 @@ def singleTryReadPCRmapClone(
 ):
     # v: input map file name or value; if the input map and the clone have different
     # grids, the map is resampled
-    logger.debug("read file/value: " + str(v))
+    logger.debug(f"read file/value: {v}")
 
     if v == "None":
 
@@ -1173,7 +1128,7 @@ def singleTryReadPCRmapClone(
 
         if this_is_a_netcdf_file:
 
-            logger.debug("read netcdf file: " + str(v))
+            logger.debug(f"read netcdf file: {v}")
 
             try:
                 # netCDF file without time
@@ -1196,7 +1151,7 @@ def singleTryReadPCRmapClone(
                 PCRmap = pcr.readmap(v)
             else:
                 # resample using GDAL
-                output = tmpDir + "temp.map"
+                output = f"{tmpDir}temp.map"
                 _ = gdalwarpPCR(v, output, tmpDir, isLddMap, isNomMap)
                 # read and delete the temporary file
                 PCRmap = pcr.readmap(output)
@@ -1272,20 +1227,16 @@ def getPCRasterGridAttributes(mapFile):
 def gdalwarpPCR(input, output, tmpDir, isLddMap=False, isNominalMap=False):
     # 19 Mar 2013, Edwin H. Sutanudjaja; all input maps must be PCRaster maps
     # remove temporary files
-    co = "rm " + str(tmpDir) + "*.*"
+    co = f"rm {tmpDir}*.*"
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
     # convert files to tif
-    co = "gdal_translate -ot Float64 " + str(input) + " " + str(tmpDir) + "tmp_inp.tif"
+    co = f"gdal_translate -ot Float64 {input} {tmpDir}tmp_inp.tif"
     if isLddMap:
-        co = (
-            "gdal_translate -ot Int32 " + str(input) + " " + str(tmpDir) + "tmp_inp.tif"
-        )
+        co = f"gdal_translate -ot Int32 {input} {tmpDir}tmp_inp.tif"
     if isNominalMap:
-        co = (
-            "gdal_translate -ot Int32 " + str(input) + " " + str(tmpDir) + "tmp_inp.tif"
-        )
+        co = f"gdal_translate -ot Int32 {input} {tmpDir}tmp_inp.tif"
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
@@ -1296,8 +1247,8 @@ def gdalwarpPCR(input, output, tmpDir, isLddMap=False, isNominalMap=False):
     ymax = cloneAtt["yUL"]
     xres = cloneAtt["cellsize"]
     yres = cloneAtt["cellsize"]
-    te = "-te " + str(xmin) + " " + str(ymin) + " " + str(xmax) + " " + str(ymax) + " "
-    tr = "-tr " + str(xres) + " " + str(yres) + " "
+    te = f"-te {xmin} {ymin} {xmax} {ymax} "
+    tr = f"-tr {xres} {yres} "
     co = (
         "gdalwarp "
         + te
@@ -1311,12 +1262,12 @@ def gdalwarpPCR(input, output, tmpDir, isLddMap=False, isNominalMap=False):
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
-    co = "gdal_translate -of PCRaster " + str(tmpDir) + "tmp_out.tif " + str(output)
+    co = f"gdal_translate -of PCRaster {tmpDir}tmp_out.tif {output}"
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
 
-    co = "rm " + str(tmpDir) + "tmp*.*"
+    co = f"rm {tmpDir}tmp*.*"
     cOut, err = subprocess.Popen(
         co, stdout=subprocess.PIPE, stderr=open(os.devnull), shell=True
     ).communicate()
@@ -1364,14 +1315,14 @@ def getFullPath(inputPath, absolutePath, completeFileName=True):
         if absolutePath.endswith("/"):
             absolutePath = str(absolutePath)
         else:
-            absolutePath = str(absolutePath) + "/"
+            absolutePath = f"{absolutePath}/"
         fullPath = str(absolutePath) + str(inputPath)
 
     if completeFileName:
         if fullPath.endswith(suffix):
             fullPath = str(fullPath)
         else:
-            fullPath = str(fullPath) + "/"
+            fullPath = f"{fullPath}/"
 
     return fullPath
 
@@ -1396,7 +1347,7 @@ def set_clone(cloneMapFileName=None):
         if cloneMapFileName is None:
             raise RuntimeError("no clone has been set to inherit; give a clone map")
         pcr.setclone(cloneMapFileName)
-        logger.info("clone set from " + cloneMapFileName)
+        logger.info(f"clone set from {cloneMapFileName}")
     elif cloneMapFileName is not None:
         pcr.setclone(cloneMapFileName)
         if grid() != current_grid:

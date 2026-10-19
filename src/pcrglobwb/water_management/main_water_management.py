@@ -103,12 +103,12 @@ class WaterManagement(object):
                 source in iniItems.waterManagementOptions.keys()
                 and iniItems.waterManagementOptions[source] not in ["False", "None"]
             ):
-                vars(self)["using_" + source] = True
-                vars(self)[source], vars(self)[source + "Areas"] = (
+                vars(self)[f"using_{source}"] = True
+                vars(self)[source], vars(self)[f"{source}Areas"] = (
                     self.get_allocation_zone(iniItems.waterManagementOptions[source])
                 )
             else:
-                vars(self)[source], vars(self)[source + "Areas"] = None, None
+                vars(self)[source], vars(self)[f"{source}Areas"] = None, None
 
         # water sources and sectors to evaluate
         self.source_names = [

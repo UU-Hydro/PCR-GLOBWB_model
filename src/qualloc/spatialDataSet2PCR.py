@@ -41,7 +41,7 @@ def compareSpatialAttributes(
     sameCoordinates = {}
     fitsExtent = True
     for coordKey in ["xLL", "xUR", "yLL", "yUR"]:
-        resolutionKey = "%sResolution" % coordKey[:1]
+        resolutionKey = f"{coordKey[:1]}Resolution"
         sameCoordinates[coordKey] = checkCoordinate(
             getattr(sourceSpatialDataSet, coordKey),
             getattr(targetSpatialDataSet, coordKey),
@@ -82,7 +82,7 @@ class spatialAttributes:
         mapInformation["noDataValue"] = "NoData Value=", 0, float
         mapAttributes = {}
         # get information with gdalinfo
-        command = 'gdalinfo "%s"' % inputFileName
+        command = f'gdalinfo "{inputFileName}"'
         cOut, err = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         ).communicate()
@@ -175,12 +175,12 @@ stores data as numpy array in memory under the variable name specified"""
         burnValue=None,
     ):
 
-        tempFileRoot = "temp_%s" % variableName
+        tempFileRoot = f"temp_{variableName}"
         if isinstance(outputFileName, NoneType):
-            outputFileName = "%s.map" % tempFileRoot
+            outputFileName = f"{tempFileRoot}.map"
         if len(sqlStr) > 0 and not isinstance(burnValue, types.NoneType):
-            sqlStr = "-where \"%s%s'%s'\"" % (attribute, compareStr, sqlStr)
-            sqlStr += " -burn %f" % burnValue
+            sqlStr = f"-where \"{attribute}{compareStr}'{sqlStr}'\""
+            sqlStr += f" -burn {burnValue:f}"
         else:
             sqlStr = ""
         if not isinstance(valueScale, str):
@@ -222,7 +222,7 @@ stores data as numpy array in memory under the variable name specified"""
                     "Error: no information could be retrieved from the spatial dataset %s"
                     % inputFileName
                 )
-            inputFileName = "%s.tif" % tempFileRoot
+            inputFileName = f"{tempFileRoot}.tif"
         elif band != 0 and not isinstance(band, NoneType):
             command = (
                 'gdal_translate -ot %s -of PCRaster -b %d -mo VALUESCALE=VS_%s "%s" "%s_%d.map" -q'
@@ -237,13 +237,13 @@ stores data as numpy array in memory under the variable name specified"""
             if (
                 err != ""
                 and b"warning" not in err.lower()
-                and not os.path.isfile("%s_%d.map" % (tempFileRoot, band))
+                and not os.path.isfile(f"{tempFileRoot}_{band}.map")
             ):
                 sys.exit(
                     "Error: no information could be retrieved from the spatial dataset %s"
                     % inputFileName
                 )
-            inputFileName = "%s_%d.map" % (tempFileRoot, band)
+            inputFileName = f"{tempFileRoot}_{band}.map"
 
         if warp:
             # warp the dataset and reset the resolution
@@ -272,7 +272,7 @@ stores data as numpy array in memory under the variable name specified"""
                     "Error: no information could be retrieved from the spatial dataset %s"
                     % inputFileName
                 )
-            inputFileName = "%s2.tif" % tempFileRoot
+            inputFileName = f"{tempFileRoot}2.tif"
             xResampleRatio = 1.0
             yResampleRatio = 1.0
 

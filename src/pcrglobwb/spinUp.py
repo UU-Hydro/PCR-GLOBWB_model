@@ -30,7 +30,7 @@ class SpinUp(object):
                     iniItems.globalOptions["spinUpOutputDir"], self.outNCDir
                 )
             if iniItems.globalOptions["spinUpOutputDir"] == "True":
-                self.spinUpOutputDir = self.outNCDir + "/spin-up/"
+                self.spinUpOutputDir = f"{self.outNCDir}/spin-up/"
 
         self.setupConvergence(iniItems)
 
@@ -111,21 +111,21 @@ class SpinUp(object):
 
         convGwatSto = math.fabs(100 * (endGwatSto - beginGwatSto) / beginGwatSto)
 
-        logger.info("Delta GwatStorage = %.2f percent" % (convGwatSto))
+        logger.info(f"Delta GwatStorage = {convGwatSto:.2f} percent")
 
         beginChanSto = max(1e-20, self.channelStorageVolume(beginState, cellAreaMap))
         endChanSto = self.channelStorageVolume(endState, cellAreaMap)
 
         convChanSto = math.fabs(100 * (endChanSto - beginChanSto) / beginChanSto)
 
-        logger.info("Delta ChanStorage = %.2f percent" % (convChanSto))
+        logger.info(f"Delta ChanStorage = {convChanSto:.2f} percent")
 
         beginTotlSto = max(1e-20, self.totalStorageVolume(beginState, cellAreaMap))
         endTotlSto = self.totalStorageVolume(endState, cellAreaMap)
 
         convTotlSto = math.fabs(100 * (endTotlSto - beginTotlSto) / beginTotlSto)
 
-        logger.info("Delta TotlStorage = %.2f percent" % (convTotlSto))
+        logger.info(f"Delta TotlStorage = {convTotlSto:.2f} percent")
 
         if self.spinUpOutputDir is not None:
             logger.info(

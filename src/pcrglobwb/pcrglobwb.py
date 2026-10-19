@@ -84,7 +84,7 @@ class PCRGlobWB(object):
         for variable, map in list(meteoState.items()):
             vos.writePCRmapToDir(
                 map,
-                str(variable) + "_" + specific_date_string + ".map",
+                f"{variable}_{specific_date_string}.map",
                 outputDirectory,
             )
 
@@ -93,12 +93,7 @@ class PCRGlobWB(object):
             for variable, map in list(coverTypeState.items()):
                 vos.writePCRmapToDir(
                     map,
-                    str(variable)
-                    + "_"
-                    + coverType
-                    + "_"
-                    + specific_date_string
-                    + ".map",
+                    f"{variable}_{coverType}_{specific_date_string}.map",
                     outputDirectory,
                 )
 
@@ -106,7 +101,7 @@ class PCRGlobWB(object):
         for variable, map in list(groundWaterState.items()):
             vos.writePCRmapToDir(
                 map,
-                str(variable) + "_" + specific_date_string + ".map",
+                f"{variable}_{specific_date_string}.map",
                 outputDirectory,
             )
 
@@ -114,7 +109,7 @@ class PCRGlobWB(object):
         for variable, map in list(routingState.items()):
             vos.writePCRmapToDir(
                 map,
-                str(variable) + "_" + specific_date_string + ".map",
+                f"{variable}_{specific_date_string}.map",
                 outputDirectory,
             )
 
@@ -150,7 +145,7 @@ class PCRGlobWB(object):
             ]
 
             for var in self.list_of_land_surface_variables:
-                vars(self)[var + "Acc"] = pcr.ifthen(
+                vars(self)[f"{var}Acc"] = pcr.ifthen(
                     self.landmask, pcr.spatial(pcr.scalar(0.0))
                 )
 
@@ -205,7 +200,7 @@ class PCRGlobWB(object):
         # accumulate until the last day of the year
         self.precipitationAcc += self.meteo.precipitation
         for var in self.list_of_land_surface_variables:
-            vars(self)[var + "Acc"] += vars(self.landSurface)[var]
+            vars(self)[f"{var}Acc"] += vars(self.landSurface)[var]
 
         self.baseflowAcc += self.groundwater.baseflow
 
@@ -248,7 +243,7 @@ class PCRGlobWB(object):
             totalCellArea = vos.getMapTotal(
                 pcr.ifthen(self.landmask, self.routing.cellArea)
             )
-            msg = "Total area = %e km2" % (totalCellArea / 1e6)
+            msg = f"Total area = {totalCellArea / 1000000.0:e} km2"
             logger.info(msg)
 
             deltaStorageOneYear = vos.getMapVolume(
@@ -277,7 +272,7 @@ class PCRGlobWB(object):
 
             for var in variableList:
                 volume = vos.getMapVolume(
-                    self.__getattribute__(var + "Acc"), self.routing.cellArea
+                    self.__getattribute__(f"{var}Acc"), self.routing.cellArea
                 )
 
                 # TODO: the calculation does not always start on day 1
@@ -309,7 +304,7 @@ class PCRGlobWB(object):
             variableList = ["waterBodyEvaporation"]
             for var in variableList:
                 volume = vos.getMapVolume(
-                    self.__getattribute__(var + "Acc"), self.routing.cellArea
+                    self.__getattribute__(f"{var}Acc"), self.routing.cellArea
                 )
                 msg = "Accumulated %s days 1 to %i in %i = %e km3 = %e mm" % (
                     var,

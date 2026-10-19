@@ -252,14 +252,14 @@ given date. This may concern spatial information or single entries.
             var_out = getattr(pcr, datatype_str.lower())(var_out)
 
         # output available: log the message
-        message_str = "value of %s read from %s" % (variablename, filename)
+        message_str = f"value of {variablename} read from {filename}"
         message_str = str.join(
             " ",
             (message_str, "in PCRaster format which does not contain variable info"),
         )
         if not isinstance(date, NoneType):
             message_str = str.join(
-                " ", (message_str, "and is unaware of the actual date %s" % date)
+                " ", (message_str, f"and is unaware of the actual date {date}")
             )
 
         logger.debug(message_str)

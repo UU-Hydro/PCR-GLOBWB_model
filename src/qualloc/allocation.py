@@ -551,7 +551,7 @@ def _allocate_demand_to_availability(
 
         # Reporting
         if verbose:
-            message_iteration = "allocation iteration %d\n" % iteration
+            message_iteration = f"allocation iteration {iteration}\n"
             message_iteration += "cells with unmet demand: %6d / %6d in total\n" % (
                 n_unmet_current,
                 n_unmet_start,
@@ -798,7 +798,7 @@ def allocate_demand_to_availability_with_options(
 
             s_str = str.join("", other_sources)
             s_str = str.join(
-                "", ("- processing %s with any surplus for " % source, s_str)
+                "", (f"- processing {source} with any surplus for ", s_str)
             )
             message = str.join("\n", (message, s_str))
 
@@ -1115,9 +1115,9 @@ def allocate_withdrawals_to_demand(
                 (
                     message,
                     "",
-                    "=" * len("statistics - %s demand:" % sector),
-                    "statistics - %s demand:" % sector,
-                    "=" * len("statistics - %s demand:" % sector),
+                    "=" * len(f"statistics - {sector} demand:"),
+                    f"statistics - {sector} demand:",
+                    "=" * len(f"statistics - {sector} demand:"),
                     "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
                     % (
                         "initial demand",
@@ -1290,7 +1290,7 @@ def allocate_withdrawals_to_demand_with_options(
 
             message = str.join(
                 "\n",
-                (message, "- allocating demand to %s withdrawal" % kind),
+                (message, f"- allocating demand to {kind} withdrawal"),
             )
 
             unmet_local = {
@@ -1357,7 +1357,7 @@ def allocate_withdrawals_to_demand_with_options(
 
         message = str.join(
             "\n",
-            (message, "- allocating demand to %s withdrawal" % kind),
+            (message, f"- allocating demand to {kind} withdrawal"),
         )
 
         (
