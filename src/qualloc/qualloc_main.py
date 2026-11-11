@@ -275,15 +275,8 @@ class qualloc_model(object):
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Scalar,
         )
-        channel_length = read_file_entry(
-            filename=self.model_configuration.surfacewater["channel_length"],
-            variablename=ncvariable_name(
-                self.model_configuration.surfacewater, "channel_length"
-            ),
-            inputpath=self.model_configuration.general["inputpath"],
-            clone_attributes=self.model_configuration.clone_attributes,
-            datatype=pcr.Scalar,
-        )
+        # channel_length [m] = tortuosity * sqrt(cell_area [m2]), tortuosity = 1.3
+        channel_length = 1.3 * pcr.sqrt(self.cellarea)
         mannings_n = read_file_entry(
             filename=self.model_configuration.surfacewater["mannings_n"],
             variablename=ncvariable_name(
