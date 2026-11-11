@@ -461,10 +461,6 @@ class qualloc_reporting(object):
 
     def update_reportable_variables(self, model):
 
-        # groundwater
-        self.groundwater_recharge = model.groundwater.total_recharge
-        self.groundwater_storage = model.groundwater.storage
-
         # surface water
         self.discharge = model.surfacewater.discharge
         self.surfacewater_storage = model.surfacewater.storage

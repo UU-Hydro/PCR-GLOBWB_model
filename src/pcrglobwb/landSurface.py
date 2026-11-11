@@ -355,7 +355,6 @@ class LandSurface(object):
             sections = [
                 "general",
                 "time",
-                "groundwater",
                 "surfacewater",
                 "water_management",
                 "water_quality",
@@ -1210,7 +1209,6 @@ class LandSurface(object):
                 surfacewater_discharge=routing.discharge,
                 surfacewater_totalrunoff=routing.runoff,
                 groundwater_recharge=groundwater.gwRecharge,
-                groundwater_baseflow=groundwater.baseflow,
                 groundwater_storage=groundwater.storGroundwater,
                 online_coupling_to_quality=self.using_dynqual,
                 surfacewater_temperature=surfacewater_temperature,

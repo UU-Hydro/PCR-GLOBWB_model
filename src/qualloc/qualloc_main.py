@@ -11,7 +11,6 @@ from qualloc.basic_functions import (
     sum_list,
 )
 from qualloc.file_handler import close_nc_cache, read_file_entry
-from qualloc.groundwater import groundwater
 from qualloc.initial_conditions_handler import (
     get_initial_condition_as_timed_dict,
     get_initial_conditions,
@@ -123,7 +122,6 @@ class qualloc_model(object):
         # modules with initial conditions
         self.modules = [
             "surfacewater",
-            "groundwater",
             "water_management",
             "water_quality",
         ]
@@ -213,28 +211,6 @@ class qualloc_model(object):
         self.report_initial_conditions_to_file = qualloc_report_initial_conditions(
             self.model_configuration, self.initial_conditions, self.model_flags
         )
-
-        # groundwater
-        self.initial_conditions["groundwater"]["groundwater_storage"] = pcr.ifthen(
-            self.landmask,
-            pcr.cover(self.initial_conditions["groundwater"]["groundwater_storage"], 0),
-        )
-
-        # initial total base flow and groundwater storage
-        total_base_flow_ini = self.initial_conditions["groundwater"]["total_base_flow"]
-        groundwater_storage_ini = self.initial_conditions["groundwater"][
-            "groundwater_storage"
-        ]
-
-        self.groundwater = groundwater(
-            landmask=self.landmask,
-            total_base_flow_ini=total_base_flow_ini,
-            storage_ini=groundwater_storage_ini,
-        )
-
-        total_base_flow_ini = None
-        groundwater_storage_ini = None
-        del total_base_flow_ini, groundwater_storage_ini
 
         # surface water: ldd, channel properties and initial storage; the initial
         # storage is the starting water depth of the Manning iteration in the
@@ -952,7 +928,6 @@ class qualloc_model(object):
         surfacewater_discharge=None,
         surfacewater_totalrunoff=None,
         groundwater_recharge=None,
-        groundwater_baseflow=None,
         groundwater_storage=None,
         online_coupling_to_quality=False,
         surfacewater_temperature=None,
@@ -1313,9 +1288,7 @@ class qualloc_model(object):
             date=self.model_time.date,
         )
 
-        # groundwater withdrawal: base flow is the total over the time step, used to compute the water
-        # availability; it is passed directly from the groundwater to the surface water module, as it
-        # lags by one time step
+        # groundwater withdrawal
         source_name = "groundwater"
         source_names_to_be_processed.remove(source_name)
 
@@ -1327,10 +1300,6 @@ class qualloc_model(object):
         # groundwater availability is the groundwater storage (m/day)
         storage = deepcopy(groundwater_storage)
         groundwater_available = deepcopy(storage)
-
-        # total recharge and total base flow (m/day)
-        self.groundwater.total_recharge = deepcopy(self.groundwater_recharge)
-        self.groundwater.total_base_flow = deepcopy(groundwater_baseflow)
 
         # actual withdrawals: short-term potential groundwater withdrawal per sector, based on water
         # quality and the actual groundwater availability (m3/period)
@@ -1353,9 +1322,6 @@ class qualloc_model(object):
 
         renewable_withdrawal /= self.model_time.time_step_length
         nonrenewable_withdrawal /= self.model_time.time_step_length
-
-        # groundwater storage for the current date
-        self.groundwater.storage = deepcopy(groundwater_storage)
 
         # redistribute the renewable withdrawals by sector (m3/day)
         renewable_withdrawal_per_sector = dict(
