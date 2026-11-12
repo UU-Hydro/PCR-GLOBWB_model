@@ -100,10 +100,7 @@ class SpinUp(object):
         convSoilSto = math.fabs(100 * (endSoilSto - beginSoilSto) / beginSoilSto)
 
         logger.info(
-            "Delta SoilStorage = %.2f percent ; SpinUp No. %i of %i",
-            convSoilSto,
-            spinUpRun,
-            self.noSpinUps,
+            f"Delta SoilStorage = {convSoilSto:.2f} percent ; SpinUp No. {spinUpRun} of {self.noSpinUps}"
         )
 
         beginGwatSto = max(

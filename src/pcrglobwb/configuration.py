@@ -154,17 +154,17 @@ class Configuration(object):
 
         disclaimer.print_disclaimer(with_logger=True)
 
-        logger.info("Model run started at %s", self._timestamp)
-        logger.info("Logging output to %s", log_filename)
-        logger.info("Debugging output to %s", dbg_filename)
+        logger.info(f"Model run started at {self._timestamp}")
+        logger.info(f"Logging output to {log_filename}")
+        logger.info(f"Debugging output to {dbg_filename}")
         for key, value in self.missing_ini_files:
-            logger.warning("%s: initial condition file %s does not exist", key, value)
+            logger.warning(f"{key}: initial condition file {value} does not exist")
 
         # log the platform, Python and PCRaster versions, paths, etc.
-        logger.info("OS platform: %s", str(platform.system()))
-        logger.info("OS relesase: %s", str(platform.release()))
+        logger.info(f"OS platform: {platform.system()}")
+        logger.info(f"OS release: {platform.release()}")
         python_version = str(sys.version)
-        logger.info("Python version:\n%s", python_version)
+        logger.info(f"Python version:\n{python_version}")
         pcraster_check_filename = (
             self.logFileDir
             + os.path.basename(self.iniFileName)
@@ -175,20 +175,19 @@ class Configuration(object):
         cmd = f"pcrcalc &> {pcraster_check_filename}"
         os.system(cmd)
         logger.info(
-            "PCRaster version (output from pcrcalc): see the file %s",
-            pcraster_check_filename,
+            f"PCRaster version (output from pcrcalc): see the file {pcraster_check_filename}"
         )
-        logger.info("PATH=%s", os.environ["PATH"])
-        logger.info("PYTHONPATH=%s", os.environ.get("PYTHONPATH", "N/A"))
-        logger.info("HOSTNAME: %s", os.environ.get("HOSTNAME", "N/A"))
+        logger.info(f'PATH={os.environ["PATH"]}')
+        logger.info(f'PYTHONPATH={os.environ.get("PYTHONPATH", "N/A")}')
+        logger.info(f'HOSTNAME: {os.environ.get("HOSTNAME", "N/A")}')
         logger.info(
-            "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
-            os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A"),
+            "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): "
+            f'{os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A")}'
         )
 
         if system_arguments is not None:
             logger.info(
-                "The system arguments given to execute this run: %s", system_arguments
+                f"The system arguments given to execute this run: {system_arguments}"
             )
 
     def backup_configuration(self):

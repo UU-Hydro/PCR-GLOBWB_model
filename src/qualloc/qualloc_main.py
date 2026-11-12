@@ -145,12 +145,8 @@ class qualloc_model(object):
         )
 
         logger.info(
-            "run started at %s for %s over %s - %s using %s time increments",
-            self.model_configuration._timestamp_str,
-            self.model_configuration.general["scenarioname"],
-            self.model_time.date,
-            self.model_time.enddate,
-            self.model_time.time_increment,
+            f'run started at {self.model_configuration._timestamp_str} for {self.model_configuration.general["scenarioname"]} '
+            f"over {self.model_time.date} - {self.model_time.enddate} using {self.model_time.time_increment} time increments"
         )
 
         return None
@@ -721,9 +717,7 @@ class qualloc_model(object):
                 else:
                     limit = None
                     logger.info(
-                        "A threshold value for %s was not specified, an unattainable value of %s is assigned.",
-                        constituent_name,
-                        unattainable_threshold,
+                        f"A threshold value for {constituent_name} was not specified, an unattainable value of {unattainable_threshold} is assigned."
                     )
 
                 # replace None with an unreachable threshold
@@ -761,8 +755,7 @@ class qualloc_model(object):
                             for date in water_management_dates
                         )
                         logger.info(
-                            "Long-term %s was not specified, a value of zero is assigned.",
-                            constituent_name,
+                            f"Long-term {constituent_name} was not specified, a value of zero is assigned."
                         )
 
                 # zero concentrations if water quality is not evaluated
@@ -929,9 +922,7 @@ class qualloc_model(object):
             setattr(self, forcing_variable, var_out)
 
             logger.debug(
-                "information on %s imported from PCR-GLOBWB2 for %s",
-                forcing_variable,
-                date,
+                f"information on {forcing_variable} imported from PCR-GLOBWB2 for {date}"
             )
 
         # forcing: water quality
@@ -960,10 +951,7 @@ class qualloc_model(object):
                             allow_year_substitution=False,
                         )
                         logger.debug(
-                            "information on %s %s short-term quality read for %s",
-                            source_name,
-                            constituent_name,
-                            date,
+                            f"information on {source_name} {constituent_name} short-term quality read for {date}"
                         )
 
                     # coupled QUAlloc (DynQual)
@@ -988,10 +976,7 @@ class qualloc_model(object):
                 else:
                     var_out = pcr.spatial(pcr.scalar(0))
                     logger.debug(
-                        "no %s %s short-term quality is given for %s; a value of zero is considered",
-                        source_name,
-                        constituent_name,
-                        date,
+                        f"no {source_name} {constituent_name} short-term quality is given for {date}; a value of zero is considered"
                     )
 
                 # cover NaN with zero concentration and clip to the land mask
@@ -1072,9 +1057,7 @@ class qualloc_model(object):
                     )
 
                     logger.debug(
-                        "information on %s regional pumping capacity read for %s",
-                        source_name,
-                        date,
+                        f"information on {source_name} regional pumping capacity read for {date}"
                     )
 
         # long-term
@@ -1106,9 +1089,7 @@ class qualloc_model(object):
                             date=date,
                         )
                     logger.info(
-                        "Pumping capacity is considered to limit %s withdrawals for %s.",
-                        date,
-                        source_name,
+                        f"Pumping capacity is considered to limit {source_name} withdrawals for {date}."
                     )
 
             # long-term availability for the date (m3/day)
@@ -1368,8 +1349,7 @@ class qualloc_model(object):
     def finalize_year(self):
 
         logger.info(
-            "last day of year %d: updating water availability, demand and quality",
-            self.model_time.year,
+            f"last day of year {self.model_time.year}: updating water availability, demand and quality"
         )
 
         self.water_management.update_annual_water_availability()

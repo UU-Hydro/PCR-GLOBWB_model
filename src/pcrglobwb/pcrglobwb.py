@@ -250,11 +250,8 @@ class PCRGlobWB(object):
                 self.routing.cellArea,
             )
             logger.info(
-                "Delta total storage days 1 to %i in %i = %e km3 = %e mm",
-                int(self._modelTime.doy),
-                int(self._modelTime.year),
-                deltaStorageOneYear / 1e9,
-                deltaStorageOneYear * 1000 / totalCellArea,
+                f"Delta total storage days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                f"= {deltaStorageOneYear / 1e9:e} km3 = {deltaStorageOneYear * 1000 / totalCellArea:e} mm"
             )
 
             variableList = [
@@ -275,12 +272,8 @@ class PCRGlobWB(object):
 
                 # TODO: the calculation does not always start on day 1
                 logger.info(
-                    "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
-                    var,
-                    int(self._modelTime.doy),
-                    int(self._modelTime.year),
-                    volume / 1e9,
-                    volume * 1000 / totalCellArea,
+                    f"Accumulated {var} days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                    f"= {volume / 1e9:e} km3 = {volume * 1000 / totalCellArea:e} mm"
                 )
 
             logger.info("")
@@ -291,11 +284,8 @@ class PCRGlobWB(object):
                 - pcr.ifthen(self.landmask, self.channelVolumeAtFirstDay)
             )
             logger.info(
-                "Delta surface water storage days 1 to %i in %i = %e km3 = %e mm",
-                int(self._modelTime.doy),
-                int(self._modelTime.year),
-                deltaChannelStorageOneYear / 1e9,
-                deltaChannelStorageOneYear * 1000 / totalCellArea,
+                f"Delta surface water storage days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                f"= {deltaChannelStorageOneYear / 1e9:e} km3 = {deltaChannelStorageOneYear * 1000 / totalCellArea:e} mm"
             )
 
             variableList = ["waterBodyEvaporation"]
@@ -304,32 +294,20 @@ class PCRGlobWB(object):
                     self.__getattribute__(f"{var}Acc"), self.routing.cellArea
                 )
                 logger.info(
-                    "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
-                    var,
-                    int(self._modelTime.doy),
-                    int(self._modelTime.year),
-                    volume / 1e9,
-                    volume * 1000 / totalCellArea,
+                    f"Accumulated {var} days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                    f"= {volume / 1e9:e} km3 = {volume * 1000 / totalCellArea:e} mm"
                 )
 
             surfaceWaterInputTotal = vos.getMapTotal(self.surfaceWaterInputAcc)
             logger.info(
-                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
-                "surfaceWaterInput",
-                int(self._modelTime.doy),
-                int(self._modelTime.year),
-                surfaceWaterInputTotal / 1e9,
-                surfaceWaterInputTotal * 1000 / totalCellArea,
+                f"Accumulated surfaceWaterInput days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                f"= {surfaceWaterInputTotal / 1e9:e} km3 = {surfaceWaterInputTotal * 1000 / totalCellArea:e} mm"
             )
 
             dischargeAtPitTotal = vos.getMapTotal(self.dischargeAtPitAcc)
             logger.info(
-                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
-                "dischargeAtPitTotal",
-                int(self._modelTime.doy),
-                int(self._modelTime.year),
-                dischargeAtPitTotal / 1e9,
-                dischargeAtPitTotal * 1000 / totalCellArea,
+                f"Accumulated dischargeAtPitTotal days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                f"= {dischargeAtPitTotal / 1e9:e} km3 = {dischargeAtPitTotal * 1000 / totalCellArea:e} mm"
             )
 
             surfaceWaterBalance = (
@@ -338,12 +316,8 @@ class PCRGlobWB(object):
                 + dischargeAtPitTotal
             )
             logger.info(
-                "Accumulated %s days 1 to %i in %i = %e km3 = %e mm",
-                "surfaceWaterBalance",
-                int(self._modelTime.doy),
-                int(self._modelTime.year),
-                surfaceWaterBalance / 1e9,
-                surfaceWaterBalance * 1000 / totalCellArea,
+                f"Accumulated surfaceWaterBalance days 1 to {int(self._modelTime.doy)} in {int(self._modelTime.year)} "
+                f"= {surfaceWaterBalance / 1e9:e} km3 = {surfaceWaterBalance * 1000 / totalCellArea:e} mm"
             )
 
     def getState(self):
@@ -466,11 +440,11 @@ class PCRGlobWB(object):
         )
 
     def read_forcings(self):
-        logger.info("Reading forcings for time %s", self._modelTime)
+        logger.info(f"Reading forcings for time {self._modelTime}")
         self.meteo.read_forcings(self._modelTime)
 
     def update(self, report_water_balance=False):
-        logger.info("Updating model for time %s", self._modelTime)
+        logger.info(f"Updating model for time {self._modelTime}")
 
         if report_water_balance:
             # excluding surface water bodies
@@ -494,9 +468,7 @@ class PCRGlobWB(object):
             or (self._modelTime.isLastDayOfMonth() and save_monthly_end_states)
         ):
             logger.info(
-                "Saving/dumping states to pcraster maps for time %s to the directory %s",
-                self._modelTime,
-                self._configuration.endStateDir,
+                f"Saving/dumping states to pcraster maps for time {self._modelTime} to the directory {self._configuration.endStateDir}"
             )
             self.dumpState(self._configuration.endStateDir)
 

@@ -185,7 +185,7 @@ class Reporting(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
 
-                    logger.info("Creating daily netcdf for %s", var)
+                    logger.info(f"Creating daily netcdf for {var}")
 
                     short_name = varDicts.netcdf_short_name[var]
                     unit = varDicts.netcdf_unit[var]
@@ -217,7 +217,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}WeekTot"] = None
 
-                logger.info("Creating weekly accumulation netcdf for %s", var)
+                logger.info(f"Creating weekly accumulation netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_weekly_total_unit[var]
@@ -247,7 +247,7 @@ class Reporting(object):
 
                 vars(self)[f"{var}WeekAvg"] = None
 
-                logger.info("Creating weekly average netcdf for %s", var)
+                logger.info(f"Creating weekly average netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -275,7 +275,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}MonthTot"] = None
 
-                logger.info("Creating monthly accumulation netcdf for %s", var)
+                logger.info(f"Creating monthly accumulation netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_monthly_total_unit[var]
@@ -309,7 +309,7 @@ class Reporting(object):
 
                 vars(self)[f"{var}MonthAvg"] = None
 
-                logger.info("Creating monthly average netcdf for %s", var)
+                logger.info(f"Creating monthly average netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -338,7 +338,7 @@ class Reporting(object):
             pass
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
-                logger.info("Creating monthly end netcdf for %s", var)
+                logger.info(f"Creating monthly end netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -367,7 +367,7 @@ class Reporting(object):
             pass
         if self.outMonthMaxNC[0] != "None":
             for var in self.outMonthMaxNC:
-                logger.info("Creating monthly maximum netcdf for %s", var)
+                logger.info(f"Creating monthly maximum netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -399,7 +399,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}AnnuaTot"] = None
 
-                logger.info("Creating annual accumulation netcdf for %s", var)
+                logger.info(f"Creating annual accumulation netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_yearly_total_unit[var]
@@ -433,7 +433,7 @@ class Reporting(object):
                 # accumulator
                 vars(self)[f"{var}AnnuaTot"] = None
 
-                logger.info("Creating annual average netcdf for %s", var)
+                logger.info(f"Creating annual average netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -462,7 +462,7 @@ class Reporting(object):
             pass
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
-                logger.info("Creating annual end netcdf for %s", var)
+                logger.info(f"Creating annual end netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -491,7 +491,7 @@ class Reporting(object):
             pass
         if self.outAnnuaMaxNC[0] != "None":
             for var in self.outAnnuaMaxNC:
-                logger.info("Creating annual maximum netcdf for %s", var)
+                logger.info(f"Creating annual maximum netcdf for {var}")
 
                 short_name = varDicts.netcdf_short_name[var]
                 unit = varDicts.netcdf_unit[var]
@@ -524,7 +524,7 @@ class Reporting(object):
             pass
         if self.outDailyTotUpsAvgNC[0] != "None":
             for var in self.outDailyTotUpsAvgNC:
-                logger.info("Creating daily upstream average (LDD) netcdf for %s", var)
+                logger.info(f"Creating daily upstream average (LDD) netcdf for {var}")
 
                 short_name = f"upstream_average_{varDicts.netcdf_short_name[var]}"
                 unit = varDicts.netcdf_unit[var]
@@ -1261,7 +1261,7 @@ class Reporting(object):
             self._modelTime.year, self._modelTime.month, self._modelTime.day, 0
         )
 
-        logger.info("reporting for time %s", self._modelTime.currTime)
+        logger.info(f"reporting for time {self._modelTime.currTime}")
 
         # daily netCDF output
         if self.outDailyTotNC[0] != "None":

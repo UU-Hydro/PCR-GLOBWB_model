@@ -749,7 +749,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(check_map)
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error("Natural area total != 1.0: Min %f Max %f Mean %f", a, b, c)
+            logger.error(f"Natural area total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
 
     def scaleModifiedLandCoverFractions(self):
         """rescales the land cover fractions with irrigation areas"""
@@ -802,7 +802,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(totalArea - pcr.scalar(1.0))
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error("Land cover total != 1.0: Min %f Max %f Mean %f", a, b, c)
+            logger.error(f"Land cover total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
 
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
         # cell fraction influenced by capillary rise, from the relative groundwater head (m) above the
@@ -1819,9 +1819,13 @@ class LandSurface(object):
                 a, b, c = vos.getMinMaxMean(check_map)
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
-                    logger.warning("Bad state transfer: Min %f Max %f Mean %f", a, b, c)
+                    logger.warning(
+                        f"Bad state transfer: Min {a:f} Max {b:f} Mean {c:f}"
+                    )
                 else:
-                    logger.info("States transferred OK: Min %f Max %f Mean %f", a, b, c)
+                    logger.info(
+                        f"States transferred OK: Min {a:f} Max {b:f} Mean {c:f}"
+                    )
 
         # on the last day of the year, save the land cover fractions (used in the next time step)
         if (

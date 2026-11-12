@@ -170,9 +170,7 @@ appropriate key and value pairs.
                             initial_conditions[section_name][variablename], dict
                         ):
                             logger.info(
-                                "initial conditions for %s on %s successfully read",
-                                variablename,
-                                date,
+                                f"initial conditions for {variablename} on {date} successfully read"
                             )
                         elif isinstance(
                             initial_conditions[section_name][variablename], NoneType

@@ -306,7 +306,7 @@ def readDownscalingMeteo(
 
     # correction for files with an additional level dimension (e.g. WFDEI forcing: time, height/level, lat, lon)
     if f.variables[varName].ndim == 4:
-        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
+        logger.warning(f"{ncFile} ({varName}) is 4D; last two dims read as lat/lon")
         # file with an additional layer/dimension (original data)
         cropData = f.variables[varName][int(idx), 0, :, :]
     else:
@@ -348,7 +348,7 @@ def readDownscalingMeteo(
     # retrieve the data slice from the netCDF file
 
     if f.variables[varName].ndim == 4:
-        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
+        logger.warning(f"{ncFile} ({varName}) is 4D; last two dims read as lat/lon")
         # file with an additional layer
         cropData = f.variables[varName][int(idx), 0, yIdxSta:yIdxEnd, xIdxSta:xIdxEnd]
     else:
@@ -819,7 +819,7 @@ def singleTryNetcdf2PCRobjClone(
 
     # retrieve the data slice from the netCDF file
     if f.variables[varName].ndim == 4:
-        logger.warning("%s (%s) is 4D; last two dims read as lat/lon", ncFile, varName)
+        logger.warning(f"{ncFile} ({varName}) is 4D; last two dims read as lat/lon")
         # file with an additional layer
         cropData = f.variables[varName][int(idx), 0, yslice, xslice]
     else:

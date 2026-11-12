@@ -91,8 +91,7 @@ the file exists. Returns the resulting the filename.
                 filename = filename % (args)
             except Exception:
                 logger.warning(
-                    "additional arguments could not be converted into the file name %s",
-                    filename,
+                    f"additional arguments could not be converted into the file name {filename}"
                 )
 
     return filename, os.path.isfile(filename)
@@ -274,9 +273,9 @@ given date. This may concern spatial information or single entries.
             else:
                 conversion_method = getattr(pcr, datatype_str.lower())
             var_out = conversion_method(var_out)
-            logger.debug("%s is a value; converted to %s", val_str, conversion_method)
+            logger.debug(f"{val_str} is a value; converted to {conversion_method}")
         except Exception:
-            logger.error("%s: not a netCDF/PCRaster file, cannot convert", filename)
+            logger.error(f"{filename}: not a netCDF/PCRaster file, cannot convert")
 
     return var_out
 

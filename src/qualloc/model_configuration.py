@@ -100,9 +100,7 @@ the CALEROS model.
         logfileroot = os.path.splitext(logfileroot)[0]
         self.initialize_logger(logfileroot)
 
-        logger.info(
-            "\n%s\nInitializing the QUAlloc model run\n%s\n", "=" * 80, "=" * 80
-        )
+        logger.info(f'\n{"=" * 80}\nInitializing the QUAlloc model run\n{"=" * 80}\n')
         logger.info(f"Model run started at {self._timestamp}")
         logger.info(f"Logging output to {self.logfilename}")
         logger.info(f"Debugging output to {self.dbgfilename}")
