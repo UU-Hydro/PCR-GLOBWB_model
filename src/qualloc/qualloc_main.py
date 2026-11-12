@@ -17,7 +17,6 @@ from qualloc.initial_conditions_handler import (
 )
 from qualloc.qualloc_reporting import qualloc_report_initial_conditions
 from qualloc.spatialDataSet2PCR import cloneAttributes
-from qualloc.surfacewater import surfacewater
 from qualloc.water_management import (
     very_small_number,
     water_management,
@@ -121,7 +120,6 @@ class qualloc_model(object):
 
         # modules with initial conditions
         self.modules = [
-            "surfacewater",
             "water_management",
             "water_quality",
         ]
@@ -212,28 +210,17 @@ class qualloc_model(object):
             self.model_configuration, self.initial_conditions, self.model_flags
         )
 
-        # surface water: ldd, channel properties and initial storage; the initial
-        # storage is the starting water depth of the Manning iteration in the
-        # long-term availability when the run starts on the 1st of a month, before
-        # update() has copied in PCR-GLOBWB's channel storage
-        self.initial_conditions["surfacewater"]["surfacewater_storage"] = pcr.ifthen(
-            self.landmask,
-            pcr.cover(
-                self.initial_conditions["surfacewater"]["surfacewater_storage"], 0
-            ),
-        )
-        surfacewater_storage_ini = self.initial_conditions["surfacewater"][
-            "surfacewater_storage"
-        ]
-
-        ldd = read_file_entry(
+        # surface water channel properties for the long-term availability; these differ from PCR-GLOBWB
+        # clamps and derives the channel length differently
+        self.ldd = read_file_entry(
             filename=self.model_configuration.surfacewater["ldd"],
             variablename=ncvariable_name(self.model_configuration.surfacewater, "ldd"),
             inputpath=self.model_configuration.general["inputpath"],
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Ldd,
         )
-        channel_gradient = read_file_entry(
+        self.ldd = pcr.lddrepair(self.ldd)
+        self.channel_gradient = read_file_entry(
             filename=self.model_configuration.surfacewater["channel_gradient"],
             variablename=ncvariable_name(
                 self.model_configuration.surfacewater, "channel_gradient"
@@ -242,7 +229,8 @@ class qualloc_model(object):
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Scalar,
         )
-        channel_width = read_file_entry(
+        self.channel_gradient = pcr.max(1.0e-6, self.channel_gradient)
+        self.channel_width = read_file_entry(
             filename=self.model_configuration.surfacewater["channel_width"],
             variablename=ncvariable_name(
                 self.model_configuration.surfacewater, "channel_width"
@@ -251,9 +239,10 @@ class qualloc_model(object):
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Scalar,
         )
+        self.channel_width = pcr.max(5.0, self.channel_width)
         # channel_length [m] = tortuosity * sqrt(cell_area [m2]), tortuosity = 1.3
-        channel_length = 1.3 * pcr.sqrt(self.cellarea)
-        mannings_n = read_file_entry(
+        self.channel_length = 1.3 * pcr.sqrt(self.cellarea)
+        self.mannings_n = read_file_entry(
             filename=self.model_configuration.surfacewater["mannings_n"],
             variablename=ncvariable_name(
                 self.model_configuration.surfacewater, "mannings_n"
@@ -261,30 +250,6 @@ class qualloc_model(object):
             inputpath=self.model_configuration.general["inputpath"],
             clone_attributes=self.model_configuration.clone_attributes,
             datatype=pcr.Scalar,
-        )
-
-        self.surfacewater = surfacewater(
-            ldd=ldd,
-            channel_gradient=channel_gradient,
-            channel_width=channel_width,
-            channel_length=channel_length,
-            mannings_n=mannings_n,
-            storage_ini=surfacewater_storage_ini,
-        )
-
-        ldd = None
-        channel_gradient = None
-        channel_width = None
-        channel_length = None
-        mannings_n = None
-        surfacewater_storage_ini = None
-        del (
-            ldd,
-            channel_gradient,
-            channel_width,
-            channel_length,
-            mannings_n,
-            surfacewater_storage_ini,
         )
 
         # water management: sectors, sources and withdrawals
@@ -1144,12 +1109,14 @@ class qualloc_model(object):
             surfacewater_availability, groundwater_availability = (
                 self.water_management.get_longterm_availability_for_date(
                     date=date,
-                    ldd=self.surfacewater.ldd,
-                    waterdepth=self.surfacewater.storage,
-                    mannings_n=self.surfacewater.mannings_n,
-                    channel_gradient=self.surfacewater.channel_gradient,
-                    channel_width=self.surfacewater.channel_width,
-                    channel_length=self.surfacewater.channel_length,
+                    ldd=self.ldd,
+                    waterdepth=pcr.ifthen(
+                        self.landmask, pcr.cover(surfacewater_storage, 0)
+                    ),
+                    mannings_n=self.mannings_n,
+                    channel_gradient=self.channel_gradient,
+                    channel_width=self.channel_width,
+                    channel_length=self.channel_length,
                     time_step_seconds=self.model_time.seconds_per_day,
                 )
             )
@@ -1230,9 +1197,6 @@ class qualloc_model(object):
         # surface water availability is the channel storage (m/day)
         surfacewater_available = deepcopy(surfacewater_storage)
 
-        # total runoff (m/day)
-        self.surfacewater.total_runoff = deepcopy(surfacewater_totalrunoff)
-
         # actual withdrawals: short-term potential surface water withdrawal per sector, based on water
         # quality and the actual surface water availability (m3/day)
         potential_withdrawal_per_sector = self.water_management.update_surfacewater_potential_withdrawals(
@@ -1244,16 +1208,12 @@ class qualloc_model(object):
 
         # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
         actual_withdrawal = pcr.ifthen(
-            pcr.defined(self.surfacewater.ldd),
+            pcr.defined(self.ldd),
             pcr.max(
                 0,
                 pcr.min(potential_withdrawal, surfacewater_available * self.cellarea),
             ),
         )
-
-        # discharge (m3/s) and surface water storage (m) of the surface water module
-        self.surfacewater.storage = deepcopy(surfacewater_storage)
-        self.surfacewater.discharge = deepcopy(surfacewater_discharge)
 
         # redistribute the renewable withdrawal by sector (m3/day)
         renewable_withdrawal = deepcopy(actual_withdrawal)
@@ -1380,8 +1340,8 @@ class qualloc_model(object):
         # and surface water runoff (m/day)
         self.water_management.update_longterm_availability(
             groundwater_storage=storage,
-            surfacewater_discharge=self.surfacewater.discharge,
-            surfacewater_runoff=self.surfacewater.total_runoff,
+            surfacewater_discharge=surfacewater_discharge,
+            surfacewater_runoff=surfacewater_totalrunoff,
             date=date,
         )
 

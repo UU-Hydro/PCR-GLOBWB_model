@@ -340,32 +340,6 @@ latex_symbol[netcdf_variable_name] = None
 pcr_short_name[netcdf_variable_name] = "gw_fc"
 pcr_datatype[netcdf_variable_name] = "Scalar"
 
-# surface water module: runoff (m water slice per time step), discharge (m3/s), storage (m water slice)
-
-netcdf_variable_name = "discharge"
-netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
-netcdf_units[netcdf_variable_name] = "m3/s"
-netcdf_is_timed[netcdf_variable_name] = True
-netcdf_is_spatial[netcdf_variable_name] = True
-description[netcdf_variable_name] = None
-comment[netcdf_variable_name] = None
-latex_symbol[netcdf_variable_name] = None
-pcr_short_name[netcdf_variable_name] = "swm_qch"
-pcr_datatype[netcdf_variable_name] = "Scalar"
-
-netcdf_variable_name = "surfacewater_storage"
-netcdf_standard_name[netcdf_variable_name] = netcdf_variable_name
-netcdf_long_name[netcdf_variable_name] = netcdf_variable_name
-netcdf_units[netcdf_variable_name] = "m"
-netcdf_is_timed[netcdf_variable_name] = True
-netcdf_is_spatial[netcdf_variable_name] = True
-description[netcdf_variable_name] = None
-comment[netcdf_variable_name] = None
-latex_symbol[netcdf_variable_name] = None
-pcr_short_name[netcdf_variable_name] = "swm_stor"
-pcr_datatype[netcdf_variable_name] = "Scalar"
-
 # water quality module: long-term temperature (degC), biochemical oxygen demand (mg/L),
 # total dissolved solids (mg/L) and fecal coliforms (cfu/100mL) of surface water and groundwater
 
