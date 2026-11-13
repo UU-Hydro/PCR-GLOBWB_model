@@ -218,7 +218,7 @@ def readDownscalingMeteo(
                         )
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
-                        f"using {date.year}-{date.month}-{date.day} instead."
+                        f"using {date:%Y-%m-%d} instead."
                     )
                 if date.year > last_year_in_nc_file:
                     if (
@@ -234,7 +234,7 @@ def readDownscalingMeteo(
                         )
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
-                        f"using {date.year}-{date.month}-{date.day} instead."
+                        f"using {date:%Y-%m-%d} instead."
                     )
             try:
                 idx = nc.date2index(
@@ -277,7 +277,7 @@ def readDownscalingMeteo(
                     f.variables["time"].calendar,
                 )
                 logger.warning(
-                    f"Date {date.year}-{date.month}-{date.day} 00:00:00 NOT available in {ncFile} "
+                    f"Date {date:%Y-%m-%d} 00:00:00 NOT available in {ncFile} "
                     f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
                 )
 
@@ -707,7 +707,7 @@ def singleTryNetcdf2PCRobjClone(
                         )
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
-                        f"using {date.year}-{date.month}-{date.day} instead."
+                        f"using {date:%Y-%m-%d} instead."
                     )
                 if date.year > last_year_in_nc_file:
                     if (
@@ -723,7 +723,7 @@ def singleTryNetcdf2PCRobjClone(
                         )
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
-                        f"using {date.year}-{date.month}-{date.day} instead."
+                        f"using {date:%Y-%m-%d} instead."
                     )
             try:
                 idx = nc.date2index(
@@ -766,7 +766,7 @@ def singleTryNetcdf2PCRobjClone(
                     f.variables["time"].calendar,
                 )
                 logger.warning(
-                    f"Date {date.year}-{date.month}-{date.day} 00:00:00 NOT available in {ncFile} "
+                    f"Date {date:%Y-%m-%d} 00:00:00 NOT available in {ncFile} "
                     f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
                 )
 
