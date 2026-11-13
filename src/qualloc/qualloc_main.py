@@ -450,8 +450,7 @@ class qualloc_model(object):
                     self.initial_conditions["water_management"][var],
                     water_management_dates,
                     missing_value=water_management_missing_value,
-                    message_str="Setting initial long-term %s gross water demand"
-                    % sector_name,
+                    message_str=f"Setting initial long-term {sector_name} gross water demand",
                 )
             )
 
@@ -676,23 +675,14 @@ class qualloc_model(object):
                     self.net_demand_forcing_vars[sector_name]
                 )
 
-        message_str = (
+        lines = [
             "Water demand per sector is associated to the following forcing variables:"
-        )
-        for sector_name in self.water_management.sector_names:
-            message_str = str.join(
-                "\n",
-                (
-                    message_str,
-                    "Gross: %20s; Net: %20s"
-                    % (
-                        self.gross_demand_forcing_vars[sector_name],
-                        self.net_demand_forcing_vars[sector_name],
-                    ),
-                ),
-            )
-
-        logger.info(message_str)
+        ]
+        lines += [
+            f"Gross: {self.gross_demand_forcing_vars[s]!s:>20}; Net: {self.net_demand_forcing_vars[s]!s:>20}"
+            for s in self.water_management.sector_names
+        ]
+        logger.info("\n".join(lines))
 
         self.forcing_variables = ["groundwater_recharge"] + list(
             dict.fromkeys(
@@ -771,8 +761,7 @@ class qualloc_model(object):
                         initial_condition=constituent_longterm_quality,
                         dates=water_management_dates,
                         missing_value=water_management_missing_value,
-                        message_str="Setting initial long-term %s state for %s source"
-                        % (constituent_name, source_name),
+                        message_str=f"Setting initial long-term {constituent_name} state for {source_name} source",
                     )
                 )
 
@@ -792,14 +781,7 @@ class qualloc_model(object):
                     else:
                         ncfilename = "0.0"
                         logger.info(
-                            str.join(
-                                "\n",
-                                (
-                                    "Concentration values of %s for %s source"
-                                    % (constituent_name, source_name),
-                                    "were not specified, a value of zero is assigned.",
-                                ),
-                            )
+                            f"Concentration values of {constituent_name} for {source_name} source were not specified, a value of zero is assigned."
                         )
 
                 # zero concentrations if water quality is not evaluated
@@ -957,20 +939,17 @@ class qualloc_model(object):
                     # coupled QUAlloc (DynQual)
                     else:
                         var_out = eval(key)
-                        msg_str = (
-                            "information on %s %s short-term quality imported from DynQual for %s"
-                            % (source_name, constituent_name, date)
-                        )
 
                         # zeros if the variable is None
-                        if isinstance(var_out, NoneType):
+                        if var_out is None:
                             var_out = pcr.spatial(pcr.scalar(0))
-                            msg_str = (
-                                "no %s %s short-term quality is given for %s; a value of zero is considered"
-                                % (source_name, constituent_name, date)
+                            logger.debug(
+                                f"no {source_name} {constituent_name} short-term quality is given for {date}; a value of zero is considered"
                             )
-
-                        logger.debug(msg_str)
+                        else:
+                            logger.debug(
+                                f"information on {source_name} {constituent_name} short-term quality imported from DynQual for {date}"
+                            )
 
                 # zero if the dataset is not available
                 else:

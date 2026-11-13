@@ -112,7 +112,7 @@ class Configuration(object):
 
         console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_console)
+            raise ValueError(f"Invalid log level: {log_level_console}")
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
@@ -131,7 +131,7 @@ class Configuration(object):
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_file)
+            raise ValueError(f"Invalid log level: {log_level_file}")
 
         file_handler = logging.FileHandler(log_filename)
         file_handler.setFormatter(formatter)

@@ -181,10 +181,7 @@ class model_time(object):
         self.last_time_step = False
 
     def __repr__(self):
-        return (
-            "this is an instance of the Caleros time class object with date %s"
-            % self.__str__
-        )
+        return f"this is an instance of the Caleros time class object with date {self.__str__}"
 
     def __str__(self):
         return self.date

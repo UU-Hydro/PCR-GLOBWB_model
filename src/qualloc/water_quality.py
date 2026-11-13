@@ -144,9 +144,8 @@ class water_quality(object):
         date,
     ):
 
-        message_str = "long-term water quality for %s at %s level." % (
-            date,
-            self.time_increment,
+        message_str = (
+            f"long-term water quality for {date} at {self.time_increment} level."
         )
 
         # initialize the monthly average water quality states
@@ -179,7 +178,7 @@ class water_quality(object):
                         longterm_constituent_quality = getattr(self, var_str)
                         constituent_state = longterm_constituent_quality[matched_date]
 
-                        message_str = str.join("\n", (message_str, sub_message_str))
+                        message_str = f"{message_str}\n{sub_message_str}"
 
                     elif self.time_increment == "yearly":
                         var_str = f"{source_name}_annual_{constituent_name}"
@@ -190,12 +189,9 @@ class water_quality(object):
                     ] = constituent_state
 
         else:
-            msg = (
-                "the option %s for the time increment in the water quality module is not allowed!"
-                % self.time_increment
+            raise ValueError(
+                f"the option {self.time_increment} for the time increment in the water quality module is not allowed!"
             )
-            logger.error(msg)
-            raise ValueError(msg)
 
         logger.info(message_str)
 
@@ -256,14 +252,7 @@ class water_quality(object):
                     getattr(self, var)[update_date] = constituent_longterm_quality
 
                     logger.debug(
-                        str.join(
-                            " ",
-                            (
-                                "%s from %s availability updated for"
-                                % (constituent_name, source_name),
-                                message_str,
-                            ),
-                        )
+                        f"{constituent_name} from {source_name} availability updated for {message_str}"
                     )
 
         return None

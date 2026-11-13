@@ -92,8 +92,7 @@ class spatialAttributes:
 
         if len(err) > 0 and not err[:7].lower() == "warning":
             sys.exit(
-                "Error: no information could be retrieved for the spatial dataset %s"
-                % inputFileName
+                f"Error: no information could be retrieved for the spatial dataset {inputFileName}"
             )
 
         for mapAttribute, info in mapInformation.items():
@@ -122,16 +121,14 @@ class spatialAttributes:
                                 mapAttributes[mapAttribute] = int(rawStr)
                             except Exception:
                                 sys.exit(
-                                    "Error: map attributes could not be processed for %s"
-                                    % mapAttribute
+                                    f"Error: map attributes could not be processed for {mapAttribute}"
                                 )
                         elif typeInfo == float:
                             try:
                                 mapAttributes[mapAttribute] = float(rawStr)
                             except Exception:
                                 sys.exit(
-                                    "Error: map attributes could not be processed for %s"
-                                    % mapAttribute
+                                    f"Error: map attributes could not be processed for {mapAttribute}"
                                 )
                         else:
                             mapAttributes[mapAttribute] = rawStr
@@ -193,20 +190,9 @@ stores data as numpy array in memory under the variable name specified"""
         # handle special cases such as shape files and bands
         if os.path.splitext(inputFileName)[1] == ".shp":
             command = (
-                'gdal_rasterize -a %s %s -ot %s -tr %f %f -te %f %f %f %f  "%s" "%s.tif" -q'
-                % (
-                    attribute,
-                    sqlStr,
-                    typeStr,
-                    xResolution,
-                    yResolution,
-                    xLL,
-                    yLL,
-                    xUR,
-                    yUR,
-                    inputFileName,
-                    tempFileRoot,
-                )
+                f"gdal_rasterize -a {attribute} {sqlStr} -ot {typeStr}"
+                f" -tr {xResolution:f} {yResolution:f} -te {xLL:f} {yLL:f} {xUR:f} {yUR:f}"
+                f'  "{inputFileName}" "{tempFileRoot}.tif" -q'
             )
             if test:
                 print(command)
@@ -219,14 +205,13 @@ stores data as numpy array in memory under the variable name specified"""
 
             if err != "" and not err[:7].lower() == "warning":
                 sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                    f"Error: no information could be retrieved from the spatial dataset {inputFileName}"
                 )
             inputFileName = f"{tempFileRoot}.tif"
         elif band != 0 and not isinstance(band, NoneType):
             command = (
-                'gdal_translate -ot %s -of PCRaster -b %d -mo VALUESCALE=VS_%s "%s" "%s_%d.map" -q'
-                % (typeStr, band, valueScale, inputFileName, tempFileRoot, band)
+                f"gdal_translate -ot {typeStr} -of PCRaster -b {band} -mo VALUESCALE=VS_{valueScale}"
+                f' "{inputFileName}" "{tempFileRoot}_{band}.map" -q'
             )
             if test:
                 print(command)
@@ -240,27 +225,16 @@ stores data as numpy array in memory under the variable name specified"""
                 and not os.path.isfile(f"{tempFileRoot}_{band}.map")
             ):
                 sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                    f"Error: no information could be retrieved from the spatial dataset {inputFileName}"
                 )
             inputFileName = f"{tempFileRoot}_{band}.map"
 
         if warp:
             # warp the dataset and reset the resolution
             command = (
-                'gdalwarp -of GTiff -ot %s -te %f %f %f %f -tr %f %f -r %s "%s" "%s2.tif" -q -overwrite -nomd'
-                % (
-                    typeStr,
-                    xLL,
-                    yLL,
-                    xUR,
-                    yUR,
-                    xResolution,
-                    yResolution,
-                    resampleMethod,
-                    inputFileName,
-                    tempFileRoot,
-                )
+                f"gdalwarp -of GTiff -ot {typeStr} -te {xLL:f} {yLL:f} {xUR:f} {yUR:f}"
+                f" -tr {xResolution:f} {yResolution:f} -r {resampleMethod}"
+                f' "{inputFileName}" "{tempFileRoot}2.tif" -q -overwrite -nomd'
             )
             if test:
                 print(command)
@@ -269,8 +243,7 @@ stores data as numpy array in memory under the variable name specified"""
             ).communicate()
             if err != "" and not err[:7].lower() == "warning":
                 sys.exit(
-                    "Error: no information could be retrieved from the spatial dataset %s"
-                    % inputFileName
+                    f"Error: no information could be retrieved from the spatial dataset {inputFileName}"
                 )
             inputFileName = f"{tempFileRoot}2.tif"
             xResampleRatio = 1.0
@@ -279,37 +252,18 @@ stores data as numpy array in memory under the variable name specified"""
         # convert to a PCRaster map of the chosen extent
         if not isinstance(pixels, NoneType) and not isinstance(lines, NoneType):
             command = (
-                'gdal_translate -ot %s -of PCRaster -mo VALUESCALE=VS_%s -projwin %f %f %f %f -outsize %s %s "%s" "%s" -q'
-                % (
-                    typeStr,
-                    valueScale,
-                    xLL,
-                    yUR,
-                    xUR,
-                    yLL,
-                    "%d" % pixels,
-                    "%d" % lines,
-                    inputFileName,
-                    outputFileName,
-                )
+                f"gdal_translate -ot {typeStr} -of PCRaster -mo VALUESCALE=VS_{valueScale}"
+                f" -projwin {xLL:f} {yUR:f} {xUR:f} {yLL:f} -outsize {int(pixels)} {int(lines)}"
+                f' "{inputFileName}" "{outputFileName}" -q'
             )
         elif not isinstance(xResampleRatio, NoneType) and not isinstance(
             xResampleRatio, NoneType
         ):
             command = (
-                'gdal_translate -ot %s -of PCRaster -mo VALUESCALE=VS_%s -projwin %f %f %f %f -outsize %s %s "%s" "%s" -q'
-                % (
-                    typeStr,
-                    valueScale,
-                    xLL,
-                    yUR,
-                    xUR,
-                    yLL,
-                    "%.3f%s" % (100.0 * xResampleRatio, "%"),
-                    "%.3f%s" % (100.0 * yResampleRatio, "%"),
-                    inputFileName,
-                    outputFileName,
-                )
+                f"gdal_translate -ot {typeStr} -of PCRaster -mo VALUESCALE=VS_{valueScale}"
+                f" -projwin {xLL:f} {yUR:f} {xUR:f} {yLL:f}"
+                f" -outsize {100.0 * xResampleRatio:.3f}% {100.0 * yResampleRatio:.3f}%"
+                f' "{inputFileName}" "{outputFileName}" -q'
             )
         else:
             sys.exit(
@@ -323,8 +277,7 @@ stores data as numpy array in memory under the variable name specified"""
 
         if len(err) > 0 and b"warning" not in err.lower():
             sys.exit(
-                "Error: no information could be retrieved from the spatial dataset %s"
-                % inputFileName
+                f"Error: no information could be retrieved from the spatial dataset {inputFileName}"
             )
         setattr(self, variableName, pcr.readmap(outputFileName))
         for tempFileName in os.listdir(os.getcwd()):

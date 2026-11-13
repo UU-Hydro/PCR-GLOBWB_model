@@ -1,6 +1,5 @@
 import datetime
 import math
-import sys
 from calendar import isleap
 from copy import deepcopy
 
@@ -33,8 +32,7 @@ def get_julian_day_number(date):
     if isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
         d = datetime.date(date.year, date.month, date.day)
     else:
-        message_str = "ERROR: date needs to have datetime date or datetime format."
-        sys.exit(message_str)
+        raise TypeError("date needs to have datetime date or datetime format.")
 
     d0 = datetime.date(d.year, 1, 1)
     td = d - d0

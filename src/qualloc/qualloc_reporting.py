@@ -83,7 +83,6 @@ class qualloc_reporting(object):
         ======
         None                 : returns None
         """
-        message_str = "Reporting variables are updated for the following intervals:"
         interval_list = []
 
         variablename_info = {}
@@ -133,9 +132,10 @@ class qualloc_reporting(object):
             else:
                 vars(self)[key] = pcr.spatial(pcr.scalar(0))
 
-        for interval in interval_list:
-            message_str = str.join("", (message_str, " ", interval, ","))
-        logger.debug(message_str)
+        logger.debug(
+            "Reporting variables are updated for the following intervals:"
+            + "".join(f" {interval}," for interval in interval_list)
+        )
 
         return None
 
@@ -642,8 +642,7 @@ dictionaries with the dates provided.
 
                     else:
                         sys.exit(
-                            "initial conditions of type %s cannot be used"
-                            % str(type(initial_conditions[module][variablename]))
+                            f"initial conditions of type {type(initial_conditions[module][variablename])} cannot be used"
                         )
 
                     # write the information to the netCDF file

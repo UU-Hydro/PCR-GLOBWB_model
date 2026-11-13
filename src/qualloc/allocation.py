@@ -552,10 +552,7 @@ def _allocate_demand_to_availability(
         # Reporting
         if verbose:
             message_iteration = f"allocation iteration {iteration}\n"
-            message_iteration += "cells with unmet demand: %6d / %6d in total\n" % (
-                n_unmet_current,
-                n_unmet_start,
-            )
+            message_iteration += f"cells with unmet demand: {int(n_unmet_current):6d} / {int(n_unmet_start):6d} in total\n"
             print(message_iteration)
 
         # Stop if there is no more unmet demand
@@ -584,61 +581,25 @@ def _allocate_demand_to_availability(
         withdrawn_stats = pcr_get_statistics(sum_list(list(withdrawn.values())))
         untapped_stats = pcr_get_statistics(sum_list(list(untapped.values())))
 
-        message = str.join(
-            "\n",
-            (
+        stats = {
+            "initial demand": demand_stats,
+            "met demand": met_stats,
+            "unmet demand": unmet_stats,
+            "initial availability": availability_stats,
+            "withdrawn availability": withdrawn_stats,
+            "untapped availability": untapped_stats,
+        }
+        message = "\n".join(
+            [
                 message,
                 "statistics:",
                 "=" * len("statistics:"),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "initial demand",
-                    demand_stats["count"],
-                    demand_stats["average"],
-                    demand_stats["min"],
-                    demand_stats["max"],
+                *(
+                    f"{label:>20} - count: {s['count']:6d} - avg.: {s['average']:10g}"
+                    f" - min: {s['min']:10g} - max: {s['max']:10g}"
+                    for label, s in stats.items()
                 ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "met demand",
-                    met_stats["count"],
-                    met_stats["average"],
-                    met_stats["min"],
-                    met_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "unmet demand",
-                    unmet_stats["count"],
-                    unmet_stats["average"],
-                    unmet_stats["min"],
-                    unmet_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "initial availability",
-                    availability_stats["count"],
-                    availability_stats["average"],
-                    availability_stats["min"],
-                    availability_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "withdrawn availability",
-                    withdrawn_stats["count"],
-                    withdrawn_stats["average"],
-                    withdrawn_stats["min"],
-                    withdrawn_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "untapped availability",
-                    untapped_stats["count"],
-                    untapped_stats["average"],
-                    untapped_stats["min"],
-                    untapped_stats["max"],
-                ),
-            ),
+            ]
         )
 
     return unmet, untapped, allocated, message
@@ -925,61 +886,25 @@ def allocate_demand_to_availability_with_options(
         withdrawn_stats = pcr_get_statistics(sum_list(list(withdrawn.values())))
         untapped_stats = pcr_get_statistics(sum_list(list(untapped.values())))
 
-        message = str.join(
-            "\n",
-            (
+        stats = {
+            "initial demand": demand_stats,
+            "met demand": met_stats,
+            "unmet demand": unmet_stats,
+            "initial availability": availability_stats,
+            "withdrawn availability": withdrawn_stats,
+            "untapped availability": untapped_stats,
+        }
+        message = "\n".join(
+            [
                 message,
                 "statistics:",
                 "=" * len("statistics:"),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "initial demand",
-                    demand_stats["count"],
-                    demand_stats["average"],
-                    demand_stats["min"],
-                    demand_stats["max"],
+                *(
+                    f"{label:>20} - count: {s['count']:6d} - avg.: {s['average']:10g}"
+                    f" - min: {s['min']:10g} - max: {s['max']:10g}"
+                    for label, s in stats.items()
                 ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "met demand",
-                    met_stats["count"],
-                    met_stats["average"],
-                    met_stats["min"],
-                    met_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "unmet demand",
-                    unmet_stats["count"],
-                    unmet_stats["average"],
-                    unmet_stats["min"],
-                    unmet_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "initial availability",
-                    availability_stats["count"],
-                    availability_stats["average"],
-                    availability_stats["min"],
-                    availability_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "withdrawn availability",
-                    withdrawn_stats["count"],
-                    withdrawn_stats["average"],
-                    withdrawn_stats["min"],
-                    withdrawn_stats["max"],
-                ),
-                "%20s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                % (
-                    "untapped availability",
-                    untapped_stats["count"],
-                    untapped_stats["average"],
-                    untapped_stats["min"],
-                    untapped_stats["max"],
-                ),
-            ),
+            ]
         )
 
     return unmet, untapped, allocated, message
@@ -1110,39 +1035,24 @@ def allocate_withdrawals_to_demand(
             met_stats = pcr_get_statistics(met[sector])
             unmet_stats = pcr_get_statistics(unmet[sector])
 
-            message = str.join(
-                "\n",
-                (
+            stats = {
+                "initial demand": demand_stats,
+                "met demand": met_stats,
+                "unmet demand": unmet_stats,
+            }
+            message = "\n".join(
+                [
                     message,
                     "",
                     "=" * len(f"statistics - {sector} demand:"),
                     f"statistics - {sector} demand:",
                     "=" * len(f"statistics - {sector} demand:"),
-                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                    % (
-                        "initial demand",
-                        demand_stats["count"],
-                        demand_stats["average"],
-                        demand_stats["min"],
-                        demand_stats["max"],
+                    *(
+                        f"-{label:>60} - count: {s['count']:6d} - avg.: {s['average']:10g}"
+                        f" - min: {s['min']:10g} - max: {s['max']:10g}"
+                        for label, s in stats.items()
                     ),
-                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                    % (
-                        "met demand",
-                        met_stats["count"],
-                        met_stats["average"],
-                        met_stats["min"],
-                        met_stats["max"],
-                    ),
-                    "-%60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                    % (
-                        "unmet demand",
-                        unmet_stats["count"],
-                        unmet_stats["average"],
-                        unmet_stats["min"],
-                        unmet_stats["max"],
-                    ),
-                ),
+                ]
             )
 
             for source in source_names:
@@ -1152,35 +1062,20 @@ def allocate_withdrawals_to_demand(
                 used_stats = pcr_get_statistics(used[source][sector])
                 unused_stats = pcr_get_statistics(unused[source][sector])
 
-                message = str.join(
-                    "\n",
-                    (
+                stats = {
+                    "initial withdrawal": withdrawal_stats,
+                    "used withdrawal": used_stats,
+                    "unused withdrawal": unused_stats,
+                }
+                message = "\n".join(
+                    [
                         message,
-                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                        % (
-                            "%s - %s" % ("initial withdrawal", source),
-                            withdrawal_stats["count"],
-                            withdrawal_stats["average"],
-                            withdrawal_stats["min"],
-                            withdrawal_stats["max"],
+                        *(
+                            f"{f'{label} - {source}':<60} - count: {s['count']:6d}"
+                            f" - avg.: {s['average']:10g} - min: {s['min']:10g} - max: {s['max']:10g}"
+                            for label, s in stats.items()
                         ),
-                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                        % (
-                            "%s - %s" % ("used withdrawal", source),
-                            used_stats["count"],
-                            used_stats["average"],
-                            used_stats["min"],
-                            used_stats["max"],
-                        ),
-                        "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                        % (
-                            "%s - %s" % ("unused withdrawal", source),
-                            unused_stats["count"],
-                            unused_stats["average"],
-                            unused_stats["min"],
-                            unused_stats["max"],
-                        ),
-                    ),
+                    ]
                 )
 
     return unmet, unused, allocated, message
@@ -1420,38 +1315,21 @@ def allocate_withdrawals_to_demand_with_options(
                     used_stats = pcr_get_statistics(used[kind][source][sector])
                     unused_stats = pcr_get_statistics(unused[kind][source][sector])
 
-                    message = str.join(
-                        "\n",
-                        (
+                    stats = {
+                        "initial withdrawal": withdrawal_stats,
+                        "used withdrawal": used_stats,
+                        "unused withdrawal": unused_stats,
+                    }
+                    message = "\n".join(
+                        [
                             message,
-                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                            % (
-                                "%s - %s - %s - %s"
-                                % ("initial withdrawal", kind, source, sector),
-                                withdrawal_stats["count"],
-                                withdrawal_stats["average"],
-                                withdrawal_stats["min"],
-                                withdrawal_stats["max"],
+                            *(
+                                f"{f'{label} - {kind} - {source} - {sector}':<60}"
+                                f" - count: {s['count']:6d} - avg.: {s['average']:10g}"
+                                f" - min: {s['min']:10g} - max: {s['max']:10g}"
+                                for label, s in stats.items()
                             ),
-                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                            % (
-                                "%s - %s - %s - %s"
-                                % ("used withdrawal", kind, source, sector),
-                                used_stats["count"],
-                                used_stats["average"],
-                                used_stats["min"],
-                                used_stats["max"],
-                            ),
-                            "%-60s - count: %6d - avg.: %10g - min: %10g - max: %10g"
-                            % (
-                                "%s - %s - %s - %s"
-                                % ("unused withdrawal", kind, source, sector),
-                                unused_stats["count"],
-                                unused_stats["average"],
-                                unused_stats["min"],
-                                unused_stats["max"],
-                            ),
-                        ),
+                        ]
                     )
 
     return unmet, unused, allocated, message

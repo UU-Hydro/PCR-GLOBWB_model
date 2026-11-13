@@ -2,7 +2,6 @@
 # TODO: make sure non-included components are not updated and initial settings remain consistent
 
 import logging
-import sys
 from copy import deepcopy
 
 import pcraster as pcr
@@ -164,28 +163,18 @@ appropriate key and value pairs.
                             # add the value under the reduced key
                             initial_conditions[section_name][variablename] = value
 
-                        if isinstance(
-                            initial_conditions[section_name][variablename], pcrFieldType
-                        ) or isinstance(
-                            initial_conditions[section_name][variablename], dict
-                        ):
-                            logger.info(
-                                f"initial conditions for {variablename} on {date} successfully read"
-                            )
-                        elif isinstance(
-                            initial_conditions[section_name][variablename], NoneType
-                        ):
-                            msg = (
-                                "initial conditions for %s on %s unsuccessfully read and set to None"
-                                % (variablename, date)
-                            )
-                            logger.warning(msg)
-                            raise RuntimeError(msg)
-                        else:
+                        value = initial_conditions[section_name][variablename]
+                        if isinstance(value, NoneType):
                             raise RuntimeError(
-                                "initial condition %s of %s cannot be read"
-                                % (variablename, section_name)
+                                f"failed to read initial conditions for {variablename} on {date}"
                             )
+                        if not isinstance(value, (pcrFieldType, dict)):
+                            raise RuntimeError(
+                                f"initial condition {variablename} of {section_name} cannot be read"
+                            )
+                        logger.info(
+                            f"initial conditions for {variablename} on {date} successfully read"
+                        )
 
     return initial_conditions
 
@@ -239,58 +228,43 @@ date is generated.
         value = deepcopy(initial_condition)
         initial_condition = {dates[0]: value}
 
-    available_dates = list(initial_condition.keys())
-    available_dates.sort()
+    available_dates = sorted(initial_condition)
 
-    initial_condition_dict = dict((date, None) for date in dates)
+    initial_condition_dict = {}
 
-    # iterate over the dates and get the matching date
+    if message_str:
+        logger.info(message_str)
+
     for date in dates:
 
-        date_index, matched_date, matched_str = match_date_by_julian_number(
+        _, matched_date, matched_str = match_date_by_julian_number(
             date, available_dates
         )
-
-        message_str = str.join("\n", (message_str, matched_str))
+        logger.info(matched_str)
 
         value = initial_condition[matched_date]
 
         if isinstance(value, NoneType):
-
-            message_str = str.join(
-                "\n", (message_str, "initial condition contains a NoneType")
-            )
-
-            # no value: use the missing value
+            logger.info("initial condition contains a NoneType")
             if isinstance(missing_value, NoneType):
                 missing_value = 0
-
-                message_str = str.join(
-                    "\n", (message_str, "missing value is not defined, reset to zero")
-                )
-
+                logger.info("missing value is not defined, reset to zero")
             value = pcr.spatial(pcr_data_func(missing_value))
 
-        # convert values that are not a PCRaster field
         if not isinstance(value, pcrFieldType):
             try:
                 value = pcr.spatial(pcr_data_func(value))
-            except Exception:
-                sys.exit(f"ERROR: {value} cannot be converted to a PCRaster field")
+            except Exception as err:
+                raise TypeError(
+                    f"{value} cannot be converted to a PCRaster field"
+                ) from err
+            logger.info("initial condition is set from non-spatial information")
 
-            message_str = str.join(
-                "\n",
-                (message_str, "initial condition is set from non-spatial information"),
-            )
-
-        # make non-spatial values spatial
         if not value.isSpatial():
             value = pcr.spatial(value)
 
-        # always cast to the right type
         value = pcr_data_func(value)
 
-        # cover missing values
         if not isinstance(missing_value, NoneType):
             value = pcr.ifthen(value != pcr_data_func(missing_value), value)
 
@@ -298,9 +272,6 @@ date is generated.
             value = pcr.cover(value, pcr_data_func(cover_value))
 
         initial_condition[matched_date] = value
-
         initial_condition_dict[date] = value
-
-    logger.info(message_str)
 
     return initial_condition_dict

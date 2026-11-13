@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 import pcraster as pcr
 
@@ -207,9 +206,9 @@ given date. This may concern spatial information or single entries.
         if isinstance(clone_attributes, NoneType):
 
             # PCRaster maps can only be processed if clone attributes are passed
-            message_str = "no clone attributes are provided to process the PCRaster map"
-            logger.error(message_str)
-            sys.exit(message_str)
+            raise ValueError(
+                "no clone attributes are provided to process the PCRaster map"
+            )
 
         data_attributes = spatialAttributes(filename)
         fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
@@ -250,18 +249,15 @@ given date. This may concern spatial information or single entries.
             )
             var_out = getattr(pcr, datatype_str.lower())(var_out)
 
-        # output available: log the message
-        message_str = f"value of {variablename} read from {filename}"
-        message_str = str.join(
-            " ",
-            (message_str, "in PCRaster format which does not contain variable info"),
-        )
-        if not isinstance(date, NoneType):
-            message_str = str.join(
-                " ", (message_str, f"and is unaware of the actual date {date}")
+        if isinstance(date, NoneType):
+            logger.debug(
+                f"{variablename} read from {filename} in PCRaster format which does not contain variable info"
             )
-
-        logger.debug(message_str)
+        else:
+            logger.debug(
+                f"value of {variablename} read from {filename} in PCRaster format which does not contain variable info"
+                f" and is unaware of the actual date {date}"
+            )
 
     else:
 

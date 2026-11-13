@@ -185,8 +185,7 @@ def get_date_index(date, dates, date_selection_method, substituted_dates=False):
 
     else:
         sys.exit(
-            "index date_selection_method %s is not allowed or does not yield a result"
-            % date_selection_method
+            f"index date_selection_method {date_selection_method} is not allowed or does not yield a result"
         )
 
 
@@ -958,75 +957,38 @@ depending on the type of match specified.
             # date index, possibly from the substituted dates
             dates = self.dimensions[ncfilename][time_dimension]["values"].copy()
 
-            message_str = ""
-
-            # first check whether an exact match can be found
             if not allow_year_substitution:
-
-                true_date = False
-
                 if date in dates:
-
-                    true_date = True
                     date_selection_method = "exact"
-
-                else:
-
-                    message_str = (
-                        "for variable %s, date %s is not encountered in %s"
-                        % (variablename, date, ncfilename)
+                elif date_selection_method == "exact":
+                    raise ValueError(
+                        f"for variable {variablename}, date {date} is not encountered in {ncfilename}"
                     )
-
-                    if date_selection_method == "exact":
-
-                        logger.error(message_str)
-                        sys.exit(message_str)
-
                 date_index = nc.date2index(
                     date,
                     self.cache[ncfilename].variables[time_dimension],
                     self.variables[ncfilename][time_dimension]["calendar"],
                     select=date_selection_method,
                 )
-
                 true_date = True
-
-            # year substitution is allowed: find the corresponding match
             else:
-
                 date_index = get_date_index(date, dates, date_selection_method)
-
-                # no match found: substitute the date
                 if isinstance(date_index, NoneType):
-
-                    # replacement year, depending on the selection method
-                    if date_selection_method == "exact":
-                        replacement_year = date.year
-                    elif date_selection_method == "before":
-                        replacement_year = date.year - 1
-                    elif date_selection_method == "after":
-                        replacement_year = date.year + 1
-                    else:
-                        pass
-
+                    year_offset = {"exact": 0, "before": -1, "after": 1}[
+                        date_selection_method
+                    ]
+                    replacement_year = date.year + year_offset
                     logger.warning(
                         f"{variablename}: dummy year {replacement_year} for {date.year}"
                         f" ({date_selection_method} match)"
                     )
-
-                    # use the nearest date if the selection method is exact
                     if date_selection_method == "exact":
                         date_selection_method = "nearest"
-
                     replacement_date = update_year_of_date(date, replacement_year, date)
-
-                    # replace the year of the dates
                     dates = substitute_years_of_dates(dates, replacement_date)
-
                     date_index = get_date_index(
                         date, dates, date_selection_method, substituted_dates=True
                     )
-
                 true_date = False
 
             # matched date and band
@@ -1135,16 +1097,9 @@ depending on the type of match specified.
 
         message_str = f"value of {variablename} read from {ncfilename}"
         if self.variables[ncfilename][variablename]["timed_variable"]:
-            message_str = str.join(" ", (message_str, f"for {date}"))
+            message_str += f" for {date}"
             if not true_date or matched_date != date:
-                message_str = str.join(
-                    " ",
-                    (
-                        message_str,
-                        "which was matched by %s using a %s match"
-                        % (matched_date, date_selection_method),
-                    ),
-                )
+                message_str += f" which was matched by {matched_date} using a {date_selection_method} match"
 
         logger.debug(message_str)
 
