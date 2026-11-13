@@ -110,19 +110,20 @@ def water_balance_check(
         if vmin < 0:
             msg += f" (max mismatch of {vmin:.2e} m)"
         logger.debug(msg)
+        return
 
-    else:
-        bar = "#" * 161
-        logger.error(
-            f"\n{bar}\nWARNING !!!!!!!! [ Water Balance Error ] {process_name} ({var_name}): "
-            f"max mismatch of {vmin:.10f} m [ {date} ]\n{bar}\n"
-        )
+    msg = (
+        f"[ {date!s:.10} Water Balance Error ] {process_name} ({var_name}): "
+        f"max mismatch of {vmin:.10f} m"
+    )
+    bar = "#" * 161
+    logger.error(f"\n{bar}\n{msg}\n{bar}")
 
-        if flag_debug:
-            pcr.aguila(diff, diff * zonal_cellarea)
+    if flag_debug:
+        pcr.aguila(diff, diff * zonal_cellarea)
 
-        if not flag_warning:
-            raise RuntimeError(msg)
+    if not flag_warning:
+        raise RuntimeError(msg)
 
 
 def estimate_waterdepth_from_discharge(
