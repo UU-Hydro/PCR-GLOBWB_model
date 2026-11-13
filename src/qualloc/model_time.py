@@ -107,7 +107,7 @@ module.
         mask = months != 13
         if within_same_month:
             message_str = (
-                "; Warning: month %d is not present in the provided dates" % month
+                f"; Warning: month {month} is not present in the provided dates"
             )
 
     if year in years:
@@ -126,7 +126,7 @@ module.
     message_str = str.join(
         "",
         (
-            "date %s is matched with %s in the available dates" % (date, matched_date),
+            f"date {date} is matched with {matched_date} in the available dates",
             message_str,
         ),
     )
@@ -166,7 +166,7 @@ class model_time(object):
         self.date = self.startdate
 
         if self.time_increment != "daily":
-            sys.exit("%s cannot be used" % self.time_increment)
+            sys.exit(f"{self.time_increment} cannot be used")
 
         # length of the simulation
         self.number_time_steps = (
@@ -181,10 +181,7 @@ class model_time(object):
         self.last_time_step = False
 
     def __repr__(self):
-        return (
-            "this is an instance of the Caleros time class object with date %s"
-            % self.__str__
-        )
+        return f"this is an instance of the Caleros time class object with date {self.__str__}"
 
     def __str__(self):
         return self.date
@@ -214,5 +211,4 @@ class model_time(object):
 
         self.last_time_step = increment == self.number_time_steps
 
-        message_str = "processing %s" % self.date
-        logger.info(message_str)
+        logger.info(f"processing {self.date}")

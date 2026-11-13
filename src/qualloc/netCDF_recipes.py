@@ -185,8 +185,7 @@ def get_date_index(date, dates, date_selection_method, substituted_dates=False):
 
     else:
         sys.exit(
-            "index date_selection_method %s is not allowed or does not yield a result"
-            % date_selection_method
+            f"index date_selection_method {date_selection_method} is not allowed or does not yield a result"
         )
 
 
@@ -785,13 +784,12 @@ holding netCDF information to facilitate access."""
                         try:
 
                             data_attributes = spatialAttributes(
-                                'NETCDF:"%s":%s' % (ncfilename, variablename)
+                                f'NETCDF:"{ncfilename}":{variablename}'
                             )
                         except Exception:
 
                             logger.debug(
-                                "%s in %s is treated as a non-spatial dataset"
-                                % (variablename, ncfilename)
+                                f"{variablename} in {ncfilename} is treated as a non-spatial dataset"
                             )
 
                         if not isinstance(data_attributes, NoneType):
@@ -834,15 +832,13 @@ holding netCDF information to facilitate access."""
 
                             # appears to be non-spatial
                             logger.debug(
-                                "%s in %s is treated as a spatial dataset"
-                                % (variablename, ncfilename)
+                                f"{variablename} in {ncfilename} is treated as a spatial dataset"
                             )
 
                     else:
                         # definitely non-spatial
                         logger.debug(
-                            "%s in %s is defined as a non-spatial dataset"
-                            % (variablename, ncfilename)
+                            f"{variablename} in {ncfilename} is defined as a non-spatial dataset"
                         )
 
                     # the variable is timed if the first dimension is time
@@ -853,14 +849,12 @@ holding netCDF information to facilitate access."""
                         )
 
                         logger.debug(
-                            "%s in %s is defined as a temporal dataset"
-                            % (variablename, ncfilename)
+                            f"{variablename} in {ncfilename} is defined as a temporal dataset"
                         )
 
                     else:
                         logger.debug(
-                            "%s in %s is defined as a non-temporal dataset"
-                            % (variablename, ncfilename)
+                            f"{variablename} in {ncfilename} is defined as a non-temporal dataset"
                         )
 
                     # add the missing value information (attribute nc_mv_id_str, '_FillValue') of all
@@ -875,7 +869,7 @@ holding netCDF information to facilitate access."""
 
                         self.variables[ncfilename][variablename][nc_mv_id_str] = mv
 
-            logger.info("neCDF file %s added to cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} added to cache")
 
     def remove_ncfile_from_cache(self, ncfilename):
         """closes the netCDF file and remove all information from the \
@@ -891,7 +885,7 @@ specified netCDF file."""
             del self.dimensions[ncfilename]
             del self.variables[ncfilename]
 
-            logger.info("neCDF file %s removed from cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} removed from cache")
 
     def obtain_dimensions(self, ncfilename, variablename):
         """gets the dimensions as a tuple from a netCDF file if the variable is matched"""
@@ -931,7 +925,7 @@ depending on the type of match specified.
 
         if date_selection_method not in date_selection_methods:
             logger.error(
-                "date selection method %s is not available" % date_selection_method
+                f"date selection method {date_selection_method} is not available"
             )
 
         # add the netCDF file to the cache if not included yet
@@ -946,20 +940,14 @@ depending on the type of match specified.
             and not self.spatialattributes[ncfilename][variablename]
         ):
 
-            logger.error(
-                "No clone attributes are specified to extract spatial information for variable %s from %s"
-                % (variablename, ncfilename)
-            )
+            logger.error(f"No clone attributes for {variablename} in {ncfilename}")
 
         # dimensions, to decide how the data are processed
         nc_dims = self.obtain_dimensions(ncfilename, variablename)
 
         # halt if the variable is not found
         if nc_dims == ():
-            logger.error(
-                "neCDF file %s does not contain information on the requested variable %s"
-                % (ncfilename, variablename)
-            )
+            logger.error(f"{ncfilename} does not contain variable {variablename}")
 
         # timed variable: get the position and band
         if self.variables[ncfilename][variablename]["timed_variable"]:
@@ -969,86 +957,38 @@ depending on the type of match specified.
             # date index, possibly from the substituted dates
             dates = self.dimensions[ncfilename][time_dimension]["values"].copy()
 
-            message_str = ""
-
-            # first check whether an exact match can be found
             if not allow_year_substitution:
-
-                true_date = False
-
                 if date in dates:
-
-                    true_date = True
                     date_selection_method = "exact"
-
-                else:
-
-                    message_str = (
-                        "for variable %s, date %s is not encountered in %s"
-                        % (variablename, date, ncfilename)
+                elif date_selection_method == "exact":
+                    raise ValueError(
+                        f"for variable {variablename}, date {date} is not encountered in {ncfilename}"
                     )
-
-                    if date_selection_method == "exact":
-
-                        logger.error(message_str)
-                        sys.exit(message_str)
-
                 date_index = nc.date2index(
                     date,
                     self.cache[ncfilename].variables[time_dimension],
                     self.variables[ncfilename][time_dimension]["calendar"],
                     select=date_selection_method,
                 )
-
                 true_date = True
-
-            # year substitution is allowed: find the corresponding match
             else:
-
                 date_index = get_date_index(date, dates, date_selection_method)
-
-                # no match found: substitute the date
                 if isinstance(date_index, NoneType):
-
-                    # replacement year, depending on the selection method
-                    if date_selection_method == "exact":
-                        replacement_year = date.year
-                    elif date_selection_method == "before":
-                        replacement_year = date.year - 1
-                    elif date_selection_method == "after":
-                        replacement_year = date.year + 1
-                    else:
-                        pass
-
-                    message_str = str.join(
-                        " ",
-                        (
-                            "for variable %s",
-                            "date substitution is allowed to find the %s match",
-                            "for year %d for which the dummy year %d is used",
-                        ),
+                    year_offset = {"exact": 0, "before": -1, "after": 1}[
+                        date_selection_method
+                    ]
+                    replacement_year = date.year + year_offset
+                    logger.warning(
+                        f"{variablename}: dummy year {replacement_year} for {date.year}"
+                        f" ({date_selection_method} match)"
                     )
-                    message_str = message_str % (
-                        variablename,
-                        date_selection_method,
-                        date.year,
-                        replacement_year,
-                    )
-                    logger.warning(message_str)
-
-                    # use the nearest date if the selection method is exact
                     if date_selection_method == "exact":
                         date_selection_method = "nearest"
-
                     replacement_date = update_year_of_date(date, replacement_year, date)
-
-                    # replace the year of the dates
                     dates = substitute_years_of_dates(dates, replacement_date)
-
                     date_index = get_date_index(
                         date, dates, date_selection_method, substituted_dates=True
                     )
-
                 true_date = False
 
             # matched date and band
@@ -1080,7 +1020,7 @@ depending on the type of match specified.
                 if datatype == pcr.Ldd or datatype == str(pcr.Ldd):
 
                     data_attributes = spatialAttributes(
-                        'NETCDF:"%s":%s' % (ncfilename, variablename)
+                        f'NETCDF:"{ncfilename}":{variablename}'
                     )
 
                     fits_extent, same_resolution, x_resample_ratio, y_resample_ratio = (
@@ -1091,15 +1031,14 @@ depending on the type of match specified.
                     if not same_resolution:
 
                         logger.error(
-                            "data of type LDD as read from %s for %s can not be resampled"
-                            % (ncfilename, variablename)
+                            f"data of type LDD as read from {ncfilename} for {variablename} can not be resampled"
                         )
 
                 # different areas: get the actual area using gdal_translate
                 var_out = getattr(
                     spatialDataSet(
                         variablename,
-                        'NETCDF:"%s":%s' % (ncfilename, variablename),
+                        f'NETCDF:"{ncfilename}":{variablename}',
                         datatypes[datatype_str],
                         datatype,
                         clone_attributes.xLL,
@@ -1156,18 +1095,11 @@ depending on the type of match specified.
                 # all values
                 var_out = self.variables[ncfilename][variablename][:]
 
-        message_str = "value of %s read from %s" % (variablename, ncfilename)
+        message_str = f"value of {variablename} read from {ncfilename}"
         if self.variables[ncfilename][variablename]["timed_variable"]:
-            message_str = str.join(" ", (message_str, "for %s" % date))
+            message_str += f" for {date}"
             if not true_date or matched_date != date:
-                message_str = str.join(
-                    " ",
-                    (
-                        message_str,
-                        "which was matched by %s using a %s match"
-                        % (matched_date, date_selection_method),
-                    ),
-                )
+                message_str += f" which was matched by {matched_date} using a {date_selection_method} match"
 
         logger.debug(message_str)
 
@@ -1264,8 +1196,8 @@ output netCDF files.
     def get_general_netcdf_attributes(self, model_configuration):
 
         nc_default_attributes = {
-            "title": "QUAlloc run for %s" % model_configuration.general["scenarioname"],
-            "history": "Created on %s" % model_configuration._timestamp_str,
+            "title": f"QUAlloc run for {model_configuration.general['scenarioname']}",
+            "history": f"Created on {model_configuration._timestamp_str}",
             "institution": "Dept. Physical Geography, Utrecht University (r.vanbeek@uu.nl)",
         }
         nc_global_attributes = {}
@@ -1300,7 +1232,7 @@ holding netCDF information to facilitate access."""
 
             self.cache[ncfilename] = nc.Dataset(ncfilename, "w", format=self.nc_format)
 
-            logger.info("neCDF file %s added to cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} added to cache")
 
     def remove_ncfile_from_cache(self, ncfilename):
         """closes the netCDF file and remove all information from the \
@@ -1312,7 +1244,7 @@ specified netCDF file."""
             self.cache[ncfilename].close()
             del self.cache[ncfilename]
 
-            logger.info("neCDF file %s removed from cache" % ncfilename)
+            logger.info(f"neCDF file {ncfilename} removed from cache")
 
     def initialize_ncfile(self, ncfilename):
         """
@@ -1368,7 +1300,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
         for dim_key in var_dim_keys:
             if dim_key not in nc_dim_keys:
 
-                logger.debug("dimension %s added to %s" % (dim_key, ncfilename))
+                logger.debug(f"dimension {dim_key} added to {ncfilename}")
 
                 dim_info = self.dimension_info[dim_key]
 
@@ -1413,7 +1345,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
         if ncfilename not in self.dimensions.keys():
             self.dimensions[ncfilename] = {variablename: var_dim_keys}
 
-        logger.debug("variable %s added to %s" % (variablename, ncfilename))
+        logger.debug(f"variable {variablename} added to {ncfilename}")
 
         add_variable_to_netCDF(
             ncfilename=ncfilename,

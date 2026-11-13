@@ -55,7 +55,7 @@ class qualloc_reporting(object):
         self.report_intervals = []
         for interval in intervals.keys():
             for statistic in statistics:
-                report_interval = "%s_%s" % (interval, statistic)
+                report_interval = f"{interval}_{statistic}"
                 self.report_intervals.append(report_interval)
 
         self.statistics = {
@@ -83,7 +83,6 @@ class qualloc_reporting(object):
         ======
         None                 : returns None
         """
-        message_str = "Reporting variables are updated for the following intervals:"
         interval_list = []
 
         variablename_info = {}
@@ -133,9 +132,10 @@ class qualloc_reporting(object):
             else:
                 vars(self)[key] = pcr.spatial(pcr.scalar(0))
 
-        for interval in interval_list:
-            message_str = str.join("", (message_str, " ", interval, ","))
-        logger.debug(message_str)
+        logger.debug(
+            "Reporting variables are updated for the following intervals:"
+            + "".join(f" {interval}," for interval in interval_list)
+        )
 
         return None
 
@@ -175,7 +175,7 @@ class qualloc_reporting(object):
                 for statistic in self.statistics[statistic_key]:
 
                     # key of the variable for the current interval
-                    key = "%s_%s_%s" % (variablename, interval, statistic)
+                    key = f"{variablename}_{interval}_{statistic}"
 
                     if key not in vars(self).keys():
 
@@ -184,7 +184,7 @@ class qualloc_reporting(object):
 
                     # key of the variable for the monthly interval, needed to initialize the values
                     # and make the updates work
-                    key = "%s_%s_%s" % (variablename, "monthly", statistic)
+                    key = f"{variablename}_monthly_{statistic}"
 
                     if key not in vars(self).keys():
 
@@ -203,7 +203,7 @@ class qualloc_reporting(object):
 
             for variablename in getattr(self, report_interval):
 
-                report_key = "%s_%s_%s" % (variablename, interval, statistic_key)
+                report_key = f"{variablename}_{interval}_{statistic_key}"
                 ncfilename = os.path.join(
                     self.model_configuration.netcdfpath,
                     str.join("", (report_key, ".nc")),
@@ -294,7 +294,7 @@ class qualloc_reporting(object):
                     monthly_key = key[:ix]
                     ix = monthly_key.rfind("_")
                     monthly_key = monthly_key[:ix]
-                    monthly_key = "%s_%s_%s" % (monthly_key, "monthly", statistic)
+                    monthly_key = f"{monthly_key}_monthly_{statistic}"
                     if "count" in key:
                         vars(self)[key] = vars(self)[key] + vars(self)[monthly_key]
 
@@ -319,9 +319,7 @@ class qualloc_reporting(object):
 
             if model_time.report_flags[time_flag]:
 
-                logger.info(
-                    "reporting any %s output for %s" % (time_flag, model_time.date)
-                )
+                logger.info(f"reporting any {time_flag} output for {model_time.date}")
 
                 for report_interval in self.report_intervals:
                     if time_flag in report_interval:
@@ -330,11 +328,7 @@ class qualloc_reporting(object):
 
                         for variablename in getattr(self, report_interval):
 
-                            report_key = "%s_%s_%s" % (
-                                variablename,
-                                interval,
-                                statistic_key,
-                            )
+                            report_key = f"{variablename}_{interval}_{statistic_key}"
 
                             # min, max and total need no post-processing; average and standard deviation do
                             if statistic_key == "min":
@@ -356,63 +350,35 @@ class qualloc_reporting(object):
                                 value_field = vars(self)[process_key]
 
                             elif statistic_key == "tot":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "sum",
-                                )
+                                process_key = f"{variablename}_{interval}_sum"
 
                                 value_field = vars(self)[process_key]
 
                             elif statistic_key == "avg":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "sum",
-                                )
+                                process_key = f"{variablename}_{interval}_sum"
 
                                 value_field = vars(self)[process_key]
 
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "count",
-                                )
+                                process_key = f"{variablename}_{interval}_count"
 
                                 value_field = value_field / vars(self)[process_key]
 
                             elif statistic_key == "std":
                                 # standard deviation
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "sum",
-                                )
+                                process_key = f"{variablename}_{interval}_sum"
 
                                 value_field = vars(self)[process_key] ** 2
 
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "count",
-                                )
+                                process_key = f"{variablename}_{interval}_count"
 
                                 value_field = value_field / vars(self)[process_key]
 
                                 # sum of squares
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "ssq",
-                                )
+                                process_key = f"{variablename}_{interval}_ssq"
 
                                 value_field = vars(self)[process_key] - value_field
 
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    "count",
-                                )
+                                process_key = f"{variablename}_{interval}_count"
 
                                 value_field = value_field / vars(self)[process_key]
 
@@ -473,12 +439,12 @@ class qualloc_reporting(object):
         for sector_name in model.water_management.sector_names:
             setattr(
                 self,
-                sector_name + "_gross_demand",
+                f"{sector_name}_gross_demand",
                 getattr(model.water_management, "gross_demand")[sector_name],
             )
             setattr(
                 self,
-                sector_name + "_net_demand",
+                f"{sector_name}_net_demand",
                 getattr(model.water_management, "net_demand")[sector_name],
             )
 
@@ -568,7 +534,7 @@ class qualloc_reporting(object):
                     [rep_root, sector_name, "allocated", "to", "desalinated", "water"]
                 )
 
-                var_name = "%s_desalwater" % var_name
+                var_name = f"{var_name}_desalwater"
                 setattr(
                     self,
                     rep_name,
@@ -621,7 +587,7 @@ dictionaries with the dates provided.
             # recreate the netCDF files
             self.initialize_netcdfs = True
 
-        date_str = "_%s-%02d-%02d" % (date.year, date.month, date.day)
+        date_str = f"_{date.year}-{date.month:02d}-{date.day:02d}"
 
         if self.initialize_netcdfs:
 
@@ -629,8 +595,7 @@ dictionaries with the dates provided.
 
                 for variablename in variablenames:
                     logger.debug(
-                        "Creating netCDF output file for initial condition %s for %s"
-                        % (variablename, module)
+                        f"Creating netCDF output file for initial condition {variablename} for {module}"
                     )
 
                     ncfilename = os.path.join(
@@ -677,8 +642,7 @@ dictionaries with the dates provided.
 
                     else:
                         sys.exit(
-                            "initial conditions of type %s cannot be used"
-                            % str(type(initial_conditions[module][variablename]))
+                            f"initial conditions of type {type(initial_conditions[module][variablename])} cannot be used"
                         )
 
                     # write the information to the netCDF file
@@ -696,11 +660,10 @@ dictionaries with the dates provided.
                         )
 
                     logger.debug(
-                        "Information written for initial condition %s for %s"
-                        % (variablename, module)
+                        f"Information written for initial condition {variablename} for {module}"
                     )
 
-        logger.info("Reported initial conditions for %s" % date)
+        logger.info(f"Reported initial conditions for {date}")
 
         return None
 

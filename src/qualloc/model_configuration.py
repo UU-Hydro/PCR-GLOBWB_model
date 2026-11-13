@@ -25,7 +25,7 @@ substitutable_tokens = [
     "END_YEAR",
 ]
 
-token_pattern = re.compile(r"\b(%s)\b" % str.join("|", substitutable_tokens))
+token_pattern = re.compile(rf"\b({str.join('|', substitutable_tokens)})\b")
 
 
 def remove_readonly(func, path, _):
@@ -100,12 +100,10 @@ the CALEROS model.
         logfileroot = os.path.splitext(logfileroot)[0]
         self.initialize_logger(logfileroot)
 
-        logger.info(
-            "\n%s\nInitializing the QUAlloc model run\n%s\n", "=" * 80, "=" * 80
-        )
-        logger.info("Model run started at %s" % self._timestamp)
-        logger.info("Logging output to %s" % self.logfilename)
-        logger.info("Debugging output to %s" % self.dbgfilename)
+        logger.info(f'\n{"=" * 80}\nInitializing the QUAlloc model run\n{"=" * 80}\n')
+        logger.info(f"Model run started at {self._timestamp}")
+        logger.info(f"Logging output to {self.logfilename}")
+        logger.info(f"Debugging output to {self.dbgfilename}")
         for deferred_message in self.deferred_messages:
             logger.info(deferred_message)
 
@@ -139,12 +137,11 @@ the unreplaced token would otherwise surface much later as a missing file.
             set(token_pattern.findall(cfg_content)) - set(replacements.keys())
         )
 
-        if len(missing_tokens) > 0:
-            message_str = (
-                "configuration file %s uses the placeholder(s) %s, for which no value was passed"
-                % (cfgfilename, str.join(", ", missing_tokens))
+        if missing_tokens:
+            sys.exit(
+                f"configuration file {cfgfilename} uses the placeholder(s) "
+                f"{', '.join(missing_tokens)}, for which no value was passed"
             )
-            sys.exit(message_str)
 
         return token_pattern.sub(
             lambda match: replacements[match.group(1)], cfg_content
@@ -173,26 +170,21 @@ the unreplaced token would otherwise surface much later as a missing file.
                             section_info[key] = value
                     setattr(self, section, section_info)
                 except Exception:
-                    message_str = (
-                        "processing information on the compulsory section [%s] raised an error"
-                        % (section)
+                    sys.exit(
+                        f"processing information on the compulsory section [{section}] raised an error"
                     )
-                    sys.exit(message_str)
             else:
-                message_str = (
-                    "configuration file does not contain information for the compulsory section [%s] "
-                    % (section)
+                sys.exit(
+                    f"configuration file does not contain information for the compulsory section [{section}]"
                 )
-                sys.exit(message_str)
         # process groups and miscellaneous sections
         for group in groups:
             try:
                 setattr(self, group, {})
             except Exception:
-                message_str = (
-                    "processing information on the group [%s] raised an error" % (group)
+                sys.exit(
+                    f"processing information on the group [{group}] raised an error"
                 )
-                sys.exit(message_str)
         for section in sections_present:
             try:
                 # name and group name (if present)
@@ -211,29 +203,24 @@ the unreplaced token would otherwise surface much later as a missing file.
                     if "$" in value:
                         try:
                             value = subst_args[int(value.lstrip("$")) - 1]
-                        except Exception:
-                            message_str = (
-                                "argument substitution failed on %s in optional section %s"
-                                % (key, section)
+                        except (ValueError, IndexError):
+                            sys.exit(
+                                f"argument substitution failed on {key} in optional section {section}"
                             )
                         section_info[key] = value
                 setattr(self, section, section_info)
 
             except Exception:
-                message_str = (
-                    "processing information on the section [%s] raised an error"
-                    % (section)
+                sys.exit(
+                    f"processing information on the section [{section}] raised an error"
                 )
-                sys.exit(message_str)
 
         # check that the required entries of every group are present
         for group in groups:
             if len(getattr(self, group).keys()) == 0:
-                message_str = (
-                    "configuration file does not contain the necessary information on %s "
-                    % (group)
+                sys.exit(
+                    f"configuration file does not contain the necessary information on {group}"
                 )
-                sys.exit(message_str)
 
         return None
 
@@ -268,7 +255,7 @@ to a log file and to the screen at configurable levels.
 
         console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_console)
+            raise ValueError(f"Invalid log level: {log_level_console}")
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
@@ -279,7 +266,7 @@ to a log file and to the screen at configurable levels.
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_file)
+            raise ValueError(f"Invalid log level: {log_level_file}")
 
         file_handler = logging.FileHandler(self.logfilename)
         file_handler.setFormatter(formatter)
@@ -308,8 +295,7 @@ directories using information from the model configuration.
         if not os.path.isabs(self.general["inputpath"]):
             self.general["inputpath"] = os.path.abspath(self.general["inputpath"])
         if not os.path.isdir(self.general["inputpath"]):
-            message_str = "input path %s does not exist" % (self.general["inputpath"])
-            sys.exit(message_str)
+            sys.exit(f"input path {self.general['inputpath']} does not exist")
 
         if not os.path.isabs(self.general["outputpath"]):
             self.general["outputpath"] = os.path.abspath(self.general["outputpath"])
@@ -317,8 +303,7 @@ directories using information from the model configuration.
         if not os.path.isdir(self.general["outputpath"]):
             os.makedirs(self.general["outputpath"])
             self.deferred_messages.append(
-                "output path %s did not exist and was created"
-                % self.general["outputpath"]
+                f"output path {self.general['outputpath']} did not exist and was created"
             )
 
         # short names for the input and output directories
@@ -380,7 +365,7 @@ directories using information from the model configuration.
 
         # create the subdirectories and add them to the object
         for subdirectory in subdirectories:
-            subdirname = "%spath" % os.path.split(subdirectory)[1]
+            subdirname = f"{os.path.split(subdirectory)[1]}path"
             # create or empty
             if os.path.isdir(subdirectory):
                 shutil.rmtree(subdirectory, onerror=remove_readonly)
@@ -409,9 +394,7 @@ directories using information from the model configuration.
         separators = [","]
 
         if not isinstance(ftype, type):
-            msg = "data type %s is not a data type" % ftype
-            logger.error(msg)
-            raise TypeError(msg)
+            raise TypeError(f"data type {ftype} is not a data type")
 
         value = None
 
@@ -451,5 +434,5 @@ directories using information from the model configuration.
                 try:
                     value = ftype(val_str)
                 except Exception:
-                    logger.error("%s cannot be converted to %s" % (val_str, ftype))
+                    logger.error(f"{val_str} cannot be converted to {ftype}")
         return value

@@ -44,9 +44,7 @@ class WaterBodies(object):
             "onlyNaturalWaterBodies" in list(iniItems.routingOptions.keys())
             and iniItems.routingOptions["onlyNaturalWaterBodies"] == "True"
         ):
-            logger.info(
-                "Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes."
-            )
+            logger.info("Only 1900 natural water bodies; reservoirs treated as lakes")
             self.onlyNaturalWaterBodies = True
             # a natural run only uses this date
             self.dateForNaturalCondition = "1900-01-01"
@@ -122,7 +120,7 @@ class WaterBodies(object):
         else:
             if self.fracWaterInp != "None":
                 self.fracWat = vos.readPCRmapClone(
-                    self.fracWaterInp + str(year_used) + ".map",
+                    f"{self.fracWaterInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                 )
@@ -145,7 +143,7 @@ class WaterBodies(object):
         else:
             if self.waterBodyIdsInp != "None":
                 self.waterBodyIds = vos.readPCRmapClone(
-                    self.waterBodyIdsInp + str(year_used) + ".map",
+                    f"{self.waterBodyIdsInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -201,7 +199,7 @@ class WaterBodies(object):
                     1000.0
                     * 1000.0
                     * vos.readPCRmapClone(
-                        self.resSfAreaInp + str(year_used) + ".map",
+                        f"{self.resSfAreaInp}{year_used}.map",
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -240,7 +238,7 @@ class WaterBodies(object):
         else:
             if self.waterBodyTypInp != "None":
                 self.waterBodyTyp = vos.readPCRmapClone(
-                    self.waterBodyTypInp + str(year_used) + ".map",
+                    f"{self.waterBodyTypInp}{year_used}.map",
                     self.tmpDir,
                     self.inputDir,
                     False,
@@ -293,7 +291,7 @@ class WaterBodies(object):
                     1000.0
                     * 1000.0
                     * vos.readPCRmapClone(
-                        self.resMaxCapInp + str(year_used) + ".map",
+                        f"{self.resMaxCapInp}{year_used}.map",
                         self.tmpDir,
                         self.inputDir,
                     )
@@ -337,9 +335,7 @@ class WaterBodies(object):
 
         # a natural run (onlyNaturalWaterBodies) only uses the year 1900: all reservoirs are lakes
         if self.onlyNaturalWaterBodies and date_used == self.dateForNaturalCondition:
-            logger.info(
-                "Using only natural water bodies identified in the year 1900. All reservoirs in 1900 are assumed as lakes."
-            )
+            logger.info("Only 1900 natural water bodies; reservoirs treated as lakes")
             self.waterBodyTyp = pcr.ifthen(
                 pcr.scalar(self.waterBodyTyp) > 0.0, pcr.nominal(1)
             )

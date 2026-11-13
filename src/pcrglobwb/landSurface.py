@@ -224,7 +224,7 @@ class LandSurface(object):
         self.soil_topo_parameters["default"].read(iniItems)
         # soil and topography parameters per land cover type
         for coverType in self.coverTypes:
-            name_of_section_given_in_ini_file = str(coverType) + "Options"
+            name_of_section_given_in_ini_file = f"{coverType}Options"
             dictionary_of_land_cover_settings = iniItems.__getattribute__(
                 name_of_section_given_in_ini_file
             )
@@ -234,14 +234,9 @@ class LandSurface(object):
             ):
                 dictionary_of_land_cover_settings["usingSpecificSoilTopo"] = "False"
             if dictionary_of_land_cover_settings["usingSpecificSoilTopo"] == "True":
-
-                msg = "Using a specific set of soil and topo parameters "
-                msg += (
-                    "as defined in the "
-                    + name_of_section_given_in_ini_file
-                    + " of the ini/configuration file."
+                logger.info(
+                    f"Using a specific set of soil and topo parameters as defined in the {name_of_section_given_in_ini_file} of the ini/configuration file."
                 )
-
                 self.soil_topo_parameters[coverType] = (
                     parSoilAndTopo.SoilAndTopoParameters(iniItems, self.landmask)
                 )
@@ -249,20 +244,18 @@ class LandSurface(object):
                     iniItems, dictionary_of_land_cover_settings
                 )
             else:
-
-                msg = "Using the default set of soil and topo parameters "
-                msg += "as defined in the landSurfaceOptions of the ini/configuration file."
-
+                logger.info(
+                    "Using the default set of soil and topo parameters as defined in the landSurfaceOptions of the ini/configuration file."
+                )
                 self.soil_topo_parameters[coverType] = self.soil_topo_parameters[
                     "default"
                 ]
-            logger.info(msg)
 
         self.landCoverObj = {}
         for coverType in self.coverTypes:
             self.landCoverObj[coverType] = lc.LandCover(
                 iniItems,
-                str(coverType) + "Options",
+                f"{coverType}Options",
                 self.soil_topo_parameters[coverType],
                 self.landmask,
             )
@@ -298,12 +291,9 @@ class LandSurface(object):
             and not self.noLandCoverFractionCorrection
         ):
             self.noLandCoverFractionCorrection = True
-            msg = "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
-            logger.warning(msg)
+            logger.warning(
+                "WARNING! No land cover fraction correction will be performed. Please make sure that the 'total' of all fracVegCover adds to one."
+            )
 
         self.using_qualloc = False
         if "using_qualloc" in iniItems.waterManagementOptions.keys():
@@ -429,7 +419,7 @@ class LandSurface(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         "undefined",
                     )
@@ -437,9 +427,9 @@ class LandSurface(object):
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
+                    vars(self)[f"{var}MonthTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                        f"{self.outNCDir}/{var}_monthTot.nc",
                         var,
                         "undefined",
                     )
@@ -447,10 +437,10 @@ class LandSurface(object):
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
-                    vars(self)[var + "MonthAvg"] = None
+                    vars(self)[f"{var}MonthTot"] = None
+                    vars(self)[f"{var}MonthAvg"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                        f"{self.outNCDir}/{var}_monthAvg.nc",
                         var,
                         "undefined",
                     )
@@ -458,7 +448,7 @@ class LandSurface(object):
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                        f"{self.outNCDir}/{var}_monthEnd.nc",
                         var,
                         "undefined",
                     )
@@ -466,20 +456,20 @@ class LandSurface(object):
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                        f"{self.outNCDir}/{var}_annuaTot.nc",
                         var,
                         "undefined",
                     )
             # averages
             if self.outAnnuaAvgNC[0] != "None":
                 for var in self.outAnnuaAvgNC:
-                    vars(self)[var + "AnnuaAvg"] = None
+                    vars(self)[f"{var}AnnuaAvg"] = None
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                        f"{self.outNCDir}/{var}_annuaAvg.nc",
                         var,
                         "undefined",
                     )
@@ -487,7 +477,7 @@ class LandSurface(object):
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                        f"{self.outNCDir}/{var}_annuaEnd.nc",
                         var,
                         "undefined",
                     )
@@ -533,7 +523,7 @@ class LandSurface(object):
         ):
             # land cover fractions of the previous year
             previous_year = starting_year - 1
-            one_january_prev_year = str(previous_year) + "-01-01"
+            one_january_prev_year = f"{previous_year}-01-01"
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[
                     coverType
@@ -580,7 +570,7 @@ class LandSurface(object):
             and not self.noAnnualChangesInLandCoverParameter
         ):
             # land cover fractions of the current year
-            one_january_this_year = str(starting_year) + "-01-01"
+            one_january_this_year = f"{starting_year}-01-01"
             for coverType in self.coverTypes:
                 self.landCoverObj[coverType].previousFracVegCover = self.landCoverObj[
                     coverType
@@ -644,9 +634,7 @@ class LandSurface(object):
         # historical irrigation area (ha)
         self.dynamicIrrigationArea = False
         if iniItems.landSurfaceOptions["historicalIrrigationArea"] != "None":
-            logger.info(
-                "Using the dynamicIrrigationArea option. Extent of irrigation areas is based on the file provided in the 'historicalIrrigationArea'."
-            )
+            logger.info("Dynamic irrigation area from historicalIrrigationArea file")
             self.dynamicIrrigationArea = True
 
         if self.dynamicIrrigationArea:
@@ -761,10 +749,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(check_map)
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(
-                "total of 'Natural Area' fractions is not equal to 1.0 ... Min %f Max %f Mean %f"
-                % (a, b, c)
-            )
+            logger.error(f"Natural area total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
 
     def scaleModifiedLandCoverFractions(self):
         """rescales the land cover fractions with irrigation areas"""
@@ -817,10 +802,7 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(totalArea - pcr.scalar(1.0))
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(
-                "fraction total (from all land cover types) is not equal to 1.0 ... Min %f Max %f Mean %f"
-                % (a, b, c)
-            )
+            logger.error(f"Land cover total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
 
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
         # cell fraction influenced by capillary rise, from the relative groundwater head (m) above the
@@ -1032,7 +1014,7 @@ class LandSurface(object):
         yearInString = str(yearInInteger)
 
         if self.dynamicIrrigationAreaFile.endswith((".nc4", ".nc")):
-            fulldateInString = yearInString + "-01" + "-01"
+            fulldateInString = f"{yearInString}-01-01"
             # (m2; the input file is in hectare)
             self.irrigationArea = 10000.0 * pcr.cover(
                 vos.netcdf2PCRobjClone(
@@ -1045,10 +1027,10 @@ class LandSurface(object):
             )
         else:
             irrigation_pcraster_file = (
-                self.dynamicIrrigationAreaFile + yearInString + ".map"
+                f"{self.dynamicIrrigationAreaFile}{yearInString}.map"
             )
             logger.debug(
-                "reading irrigation area map from : " + irrigation_pcraster_file
+                f"reading irrigation area map from : {irrigation_pcraster_file}"
             )
             # (m2; the input file is in hectare)
             self.irrigationArea = 10000.0 * pcr.cover(
@@ -1092,7 +1074,7 @@ class LandSurface(object):
         # cropKc, coverFraction and interceptCap
 
         for coverType in self.coverTypes:
-            logger.info("Setting land cover parameters: " + str(coverType))
+            logger.info(f"Setting land cover parameters: {coverType}")
             self.landCoverObj[coverType].set_land_cover_parameters(currTimeStep)
 
         # transfer states between land cover types due to dynamic irrigation areas (expansion/reduction);
@@ -1102,22 +1084,19 @@ class LandSurface(object):
         # total potential evaporation per land cover type, partitioned into bare soil evaporation and
         # transpiration (totalPotET, potBareSoilEvap, potTranspiration)
         for coverType in self.coverTypes:
-            logger.info(
-                "Calculate potential evaporation and partition this to bare soil evaporation and transpiration: "
-                + str(coverType)
-            )
+            logger.info(f"Calculating and partitioning potential ET: {coverType}")
             self.landCoverObj[coverType].getPotET(meteo, currTimeStep)
 
         # interception module per land cover type (throughfall, interceptStor, snowfall, liquidPrecip,
         # potInterceptionFlux, interceptEvap, potBareSoilEvap, potTranspiration, actualET)
         for coverType in self.coverTypes:
-            logger.info("Running the inteception module: " + str(coverType))
+            logger.info(f"Running the inteception module: {coverType}")
             self.landCoverObj[coverType].interceptionUpdate(meteo, currTimeStep)
 
         # snow module per land cover type (snowCoverSWE, snowMelt, snowFreeWater, netLqWaterToSoil,
         # actSnowFreeWaterEvap, potBareSoilEvap, actualET)
         for coverType in self.coverTypes:
-            logger.info("Running the snow module: " + str(coverType))
+            logger.info(f"Running the snow module: {coverType}")
             self.landCoverObj[coverType].snow_module_update(meteo, currTimeStep)
 
         # water demand (m), based on the states after the above processes (soil moisture and
@@ -1458,7 +1437,7 @@ class LandSurface(object):
                         for (
                             source_name
                         ) in self.qualloc_model.water_management.source_names:
-                            key = "%s_%s" % (withdrawal_name, source_name)
+                            key = f"{withdrawal_name}_{source_name}"
 
                             # return flows from surface and groundwater
                             nonIrrReturnFlowVolume += self.qualloc_model.water_management.return_flow_demand_per_sector[
@@ -1782,7 +1761,7 @@ class LandSurface(object):
             or not self.noAnnualChangesInLandCoverParameter
         ) and currTimeStep.doy == 1:
             for var in self.mainStates:
-                logger.info("Transfering states for the variable " + str(var))
+                logger.info(f"Transfering states for the variable {var}")
 
                 # total land cover fraction to transfer
                 moving_fraction = pcr.scalar(0.0)
@@ -1841,13 +1820,11 @@ class LandSurface(object):
                 threshold = 1e-5
                 if abs(a) > threshold or abs(b) > threshold:
                     logger.warning(
-                        "Error in transfering states (due to dynamic in land cover fractions) ... Min %f Max %f Mean %f"
-                        % (a, b, c)
+                        f"Bad state transfer: Min {a:f} Max {b:f} Mean {c:f}"
                     )
                 else:
                     logger.info(
-                        "Successful in transfering states (after change in land cover fractions) ... Min %f Max %f Mean %f"
-                        % (a, b, c)
+                        f"States transferred OK: Min {a:f} Max {b:f} Mean {c:f}"
                     )
 
         # on the last day of the year, save the land cover fractions (used in the next time step)
@@ -1869,7 +1846,7 @@ class LandSurface(object):
         # update per land cover type (excluding potential evaporation, interception and snow)
         for coverType in self.coverTypes:
 
-            logger.info("Updating land cover: " + str(coverType))
+            logger.info(f"Updating land cover: {coverType}")
 
             # irrigation losses require the irrigation efficiency
             if coverType.startswith("irr") and self.includeIrrigation:
@@ -1933,7 +1910,7 @@ class LandSurface(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.data2NetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                         timeStamp,
@@ -1946,16 +1923,16 @@ class LandSurface(object):
 
                     # initialize at the start of the simulation or reset at the start of the month
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                        vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "MonthTot"] += vars(self)[var]
+                    vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                            f"{self.outNCDir}/{var}_monthTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthTot"), vos.MV
+                                self.__getattribute__(f"{var}MonthTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -1968,18 +1945,18 @@ class LandSurface(object):
 
                         # initialize at the start of the simulation or reset at the start of the month
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                            vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "MonthTot"] += vars(self)[var]
+                            vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
-                        vars(self)[var + "MonthAvg"] = (
-                            vars(self)[var + "MonthTot"] / currTimeStep.day
+                        vars(self)[f"{var}MonthAvg"] = (
+                            vars(self)[f"{var}MonthTot"] / currTimeStep.day
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                            f"{self.outNCDir}/{var}_monthAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthAvg"), vos.MV
+                                self.__getattribute__(f"{var}MonthAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -1989,7 +1966,7 @@ class LandSurface(object):
                 for var in self.outMonthEndNC:
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                            f"{self.outNCDir}/{var}_monthEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
@@ -2002,16 +1979,16 @@ class LandSurface(object):
 
                     # initialize at the start of the simulation or reset at the start of the year
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                        vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                    vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
 
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                            f"{self.outNCDir}/{var}_annuaTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaTot"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -2023,17 +2000,17 @@ class LandSurface(object):
                     if var not in self.outAnnuaTotNC:
                         # initialize at the start of the simulation or reset at the start of the year
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                            vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                            vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
                     if currTimeStep.endYear:
-                        vars(self)[var + "AnnuaAvg"] = (
-                            vars(self)[var + "AnnuaTot"] / currTimeStep.doy
+                        vars(self)[f"{var}AnnuaAvg"] = (
+                            vars(self)[f"{var}AnnuaTot"] / currTimeStep.doy
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                            f"{self.outNCDir}/{var}_annuaAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaAvg"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -2043,7 +2020,7 @@ class LandSurface(object):
                 for var in self.outAnnuaEndNC:
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                            f"{self.outNCDir}/{var}_annuaEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,

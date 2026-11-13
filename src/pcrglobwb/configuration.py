@@ -112,7 +112,7 @@ class Configuration(object):
 
         console_level = getattr(logging, log_level_console.upper(), logging.INFO)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_console)
+            raise ValueError(f"Invalid log level: {log_level_console}")
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
@@ -131,7 +131,7 @@ class Configuration(object):
 
         file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
         if not isinstance(console_level, int):
-            raise ValueError("Invalid log level: %s", log_level_file)
+            raise ValueError(f"Invalid log level: {log_level_file}")
 
         file_handler = logging.FileHandler(log_filename)
         file_handler.setFormatter(formatter)
@@ -154,17 +154,17 @@ class Configuration(object):
 
         disclaimer.print_disclaimer(with_logger=True)
 
-        logger.info("Model run started at %s", self._timestamp)
-        logger.info("Logging output to %s", log_filename)
-        logger.info("Debugging output to %s", dbg_filename)
+        logger.info(f"Model run started at {self._timestamp}")
+        logger.info(f"Logging output to {log_filename}")
+        logger.info(f"Debugging output to {dbg_filename}")
         for key, value in self.missing_ini_files:
-            logger.warning("%s: initial condition file %s does not exist", key, value)
+            logger.warning(f"{key}: initial condition file {value} does not exist")
 
         # log the platform, Python and PCRaster versions, paths, etc.
-        logger.info("OS platform: %s", str(platform.system()))
-        logger.info("OS relesase: %s", str(platform.release()))
+        logger.info(f"OS platform: {platform.system()}")
+        logger.info(f"OS release: {platform.release()}")
         python_version = str(sys.version)
-        logger.info("Python version:\n%s", python_version)
+        logger.info(f"Python version:\n{python_version}")
         pcraster_check_filename = (
             self.logFileDir
             + os.path.basename(self.iniFileName)
@@ -172,35 +172,22 @@ class Configuration(object):
             + str(self._timestamp.isoformat()).replace(":", ".")
             + "_pcrcalc_output.txt"
         )
-        cmd = "pcrcalc &> " + (pcraster_check_filename)
+        cmd = f"pcrcalc &> {pcraster_check_filename}"
         os.system(cmd)
         logger.info(
-            "PCRaster version (output from pcrcalc): see the file %s",
-            pcraster_check_filename,
+            f"PCRaster version (output from pcrcalc): see the file {pcraster_check_filename}"
         )
-        logger.info("PATH=%s", os.environ["PATH"])
-        if "PYTHONPATH" in os.environ.keys():
-            logger.info("PYTHONPATH=%s", os.environ["PYTHONPATH"])
-        else:
-            logger.info("PYTHONPATH=%s", "N/A")
-        if "HOSTNAME" in os.environ.keys():
-            logger.info("HOSTNAME: %s", os.environ["HOSTNAME"])
-        else:
-            logger.info("HOSTNAME: %s", "N/A")
-        if "PCRASTER_NR_WORKER_THREADS" in os.environ.keys():
-            logger.info(
-                "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
-                os.environ["PCRASTER_NR_WORKER_THREADS"],
-            )
-        else:
-            logger.info(
-                "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): %s",
-                "N/A",
-            )
+        logger.info(f'PATH={os.environ["PATH"]}')
+        logger.info(f'PYTHONPATH={os.environ.get("PYTHONPATH", "N/A")}')
+        logger.info(f'HOSTNAME: {os.environ.get("HOSTNAME", "N/A")}')
+        logger.info(
+            "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): "
+            f'{os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A")}'
+        )
 
         if system_arguments is not None:
             logger.info(
-                "The system arguments given to execute this run: %s", system_arguments
+                f"The system arguments given to execute this run: {system_arguments}"
             )
 
     def backup_configuration(self):
@@ -364,29 +351,25 @@ class Configuration(object):
                 float(self.globalOptions["timeStep"]) != 1.0
                 or self.globalOptions["timeStepUnit"] != "day"
             ):
-                logger.error(
-                    "The model runs only on daily time step. Please check your ini/configuration file"
-                )
+                logger.error("Only a daily time step is supported; check the ini file")
                 self.timeStep = None
                 self.timeStepUnit = None
 
         # defaults for missing options
         if "routingMethod" not in list(self.routingOptions.keys()):
-            logger.warning(
-                'The "routingMethod" is not defined in the "routingOptions" of the configuration file. "accuTravelTime" is used in this run.'
-            )
+            logger.warning('No routingMethod in routingOptions; using "accuTravelTime"')
             self.routingOptions["routingMethod"] = "accuTravelTime"
 
         if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
-            msg = 'The option "dynamicFloodPlain" is not defined in the "routingOptions" of the configuration file. '
-            msg += 'We assume "False" for this option. Hence, the flood plain extent is constant for the entire simulation.'
-            logger.warning(msg)
+            logger.warning(
+                'No dynamicFloodPlain; using "False": flood plain extent is constant'
+            )
             self.routingOptions["dynamicFloodPlain"] = "False"
 
         if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
-            msg = 'The option "historicalIrrigationArea" is not defined in the "landSurfaceOptions" of the configuration file. '
-            msg += 'This run assumes "None" for this option.'
-            logger.warning(msg)
+            logger.warning(
+                'No historicalIrrigationArea in landSurfaceOptions; using "None"'
+            )
             self.landSurfaceOptions["historicalIrrigationArea"] = "None"
 
         # options to read a different forcing file for each year

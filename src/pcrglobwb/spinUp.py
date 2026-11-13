@@ -30,7 +30,7 @@ class SpinUp(object):
                     iniItems.globalOptions["spinUpOutputDir"], self.outNCDir
                 )
             if iniItems.globalOptions["spinUpOutputDir"] == "True":
-                self.spinUpOutputDir = self.outNCDir + "/spin-up/"
+                self.spinUpOutputDir = f"{self.outNCDir}/spin-up/"
 
         self.setupConvergence(iniItems)
 
@@ -100,8 +100,7 @@ class SpinUp(object):
         convSoilSto = math.fabs(100 * (endSoilSto - beginSoilSto) / beginSoilSto)
 
         logger.info(
-            "Delta SoilStorage = %.2f percent ; SpinUp No. %i of %i"
-            % (convSoilSto, spinUpRun, self.noSpinUps)
+            f"Delta SoilStorage = {convSoilSto:.2f} percent ; SpinUp No. {spinUpRun} of {self.noSpinUps}"
         )
 
         beginGwatSto = max(
@@ -111,27 +110,24 @@ class SpinUp(object):
 
         convGwatSto = math.fabs(100 * (endGwatSto - beginGwatSto) / beginGwatSto)
 
-        logger.info("Delta GwatStorage = %.2f percent" % (convGwatSto))
+        logger.info(f"Delta GwatStorage = {convGwatSto:.2f} percent")
 
         beginChanSto = max(1e-20, self.channelStorageVolume(beginState, cellAreaMap))
         endChanSto = self.channelStorageVolume(endState, cellAreaMap)
 
         convChanSto = math.fabs(100 * (endChanSto - beginChanSto) / beginChanSto)
 
-        logger.info("Delta ChanStorage = %.2f percent" % (convChanSto))
+        logger.info(f"Delta ChanStorage = {convChanSto:.2f} percent")
 
         beginTotlSto = max(1e-20, self.totalStorageVolume(beginState, cellAreaMap))
         endTotlSto = self.totalStorageVolume(endState, cellAreaMap)
 
         convTotlSto = math.fabs(100 * (endTotlSto - beginTotlSto) / beginTotlSto)
 
-        logger.info("Delta TotlStorage = %.2f percent" % (convTotlSto))
+        logger.info(f"Delta TotlStorage = {convTotlSto:.2f} percent")
 
         if self.spinUpOutputDir is not None:
-            logger.info(
-                "Move all netcdf files resulted from the spin-up run to the spin-up directory: "
-                + self.spinUpOutputDir
-            )
+            logger.info(f"Moving spin-up netcdf files to {self.spinUpOutputDir}")
 
             # clean up the spin-up directory
             if os.path.exists(self.spinUpOutputDir):
