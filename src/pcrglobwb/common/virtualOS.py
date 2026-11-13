@@ -136,9 +136,6 @@ def readDownscalingMeteo(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if varName != "automatic":
-        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
-
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
 
@@ -166,7 +163,7 @@ def readDownscalingMeteo(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
+    logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if dateInput is None:
         logger.debug("Using the first time step in the netcdf file.")
@@ -444,8 +441,6 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
     if absolutePath is not None:
         ncFile = getFullPath(ncFile, absolutePath)
 
-    logger.debug(f"reading variable: {varName} from the file: {ncFile}")
-
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
@@ -463,7 +458,7 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
+    logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if LatitudeLongitude:
         try:
@@ -580,9 +575,6 @@ def singleTryNetcdf2PCRobjClone(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if varName != "automatic":
-        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
-
     if ncFile in list(filecache.keys()):
         f = filecache[ncFile]
 
@@ -610,7 +602,7 @@ def singleTryNetcdf2PCRobjClone(
                 "longitude",
             ]:
                 varName = var
-        logger.debug(f"reading variable: {varName} from the file: {ncFile}")
+    logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
     if varName == "evapotranspiration":
         try:
