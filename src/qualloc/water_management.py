@@ -1502,7 +1502,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         unmet_avg = pcr_get_statistics(unmet_demand)["average"]
         nonrenewable_avg = pcr_get_statistics(
-            sum(self.potential_nonrenewable_withdrawal.values())
+            sum_list(list(self.potential_nonrenewable_withdrawal.values()))
         )["average"]
         logger.info(
             f"Potential water withdrawals estimated for {date} based on the "
