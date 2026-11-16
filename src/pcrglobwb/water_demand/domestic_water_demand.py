@@ -74,9 +74,7 @@ class DomesticWaterDemand(object):
                     )
 
                 else:
-                    string_month = str(currTimeStep.month)
-                    if currTimeStep.month < 10:
-                        string_month = f"0{currTimeStep.month}"
+                    string_month = f"{currTimeStep.month:02d}"
 
                     grossFileName = (
                         self.domesticWaterDemandFile

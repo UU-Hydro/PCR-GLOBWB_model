@@ -102,11 +102,7 @@ class ModelTime(object):
             days=1 * (timeStepPCR - 1)
         )
 
-        self._fulldate = "%04i-%02i-%02i" % (
-            self._currTime.year,
-            self._currTime.month,
-            self._currTime.day,
-        )
+        self._fulldate = f"{self._currTime.year:04d}-{self._currTime.month:02d}-{self._currTime.day:02d}"
 
         if self.spinUpStatus:
             logger.info(f"Spin-Up {self._noSpinUp} of {self._maxSpinUps}")

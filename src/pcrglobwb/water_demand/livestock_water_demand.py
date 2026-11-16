@@ -73,7 +73,7 @@ class LivestockWaterDemand(object):
                     )
 
                 else:
-                    string_month = str(currTimeStep.month).zfill(2)
+                    string_month = f"{currTimeStep.month:02d}"
 
                     grossFileName = (
                         self.livestockWaterDemandFile
