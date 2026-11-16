@@ -313,17 +313,6 @@ def modify_ini_file(original_ini_file, system_argument):
 
     # folder for the original and modified ini files
     folder_for_ini_files = os.path.join(main_output_dir, "ini_files")
-    # for a run that is part of a set of parallel (clone) runs
-    if (
-        system_argument[2] == "parallel"
-        or system_argument[2] == "debug_parallel"
-        or system_argument[2] == "debug-parallel"
-    ):
-        clone_code = str(system_argument[3])
-        output_folder_with_clone_code = f"M{int(clone_code):02}"
-        folder_for_ini_files = os.path.join(
-            main_output_dir, output_folder_with_clone_code, "ini_files"
-        )
 
     if os.path.exists(folder_for_ini_files):
         shutil.rmtree(folder_for_ini_files)
@@ -358,42 +347,11 @@ def main():
             original_ini_file=iniFileName, system_argument=sys.argv
         )
 
-    debug_mode = False
-    if len(sys.argv) > 2:
-        if (
-            sys.argv[2] == "debug"
-            or sys.argv[2] == "debug_parallel"
-            or sys.argv[2] == "debug-parallel"
-        ):
-            debug_mode = True
-
-    this_run_is_part_of_a_set_of_parallel_run = False
-    if len(sys.argv) > 2:
-        if (
-            sys.argv[2] == "parallel"
-            or sys.argv[2] == "debug_parallel"
-            or sys.argv[2] == "debug-parallel"
-        ):
-            this_run_is_part_of_a_set_of_parallel_run = True
+    debug_mode = len(sys.argv) > 2 and sys.argv[2] == "debug"
 
     configuration = Configuration(
         iniFileName=iniFileName, debug_mode=debug_mode, no_modification=False
     )
-
-    # a parallel run (e.g. 5 and 6 arcmin runs) gets a specific directory based on the clone code:
-    if this_run_is_part_of_a_set_of_parallel_run:
-        # modify outputDir, clone map, landmask, etc. based on the command-line arguments
-        clone_code = str(sys.argv[3])
-        output_folder_with_clone_code = f"M{int(clone_code):02}"
-        configuration.globalOptions["outputDir"] += f"/{output_folder_with_clone_code}"
-        configuration.globalOptions["cloneMap"] = configuration.globalOptions[
-            "cloneMap"
-        ] % (int(clone_code))
-        # landmask for the model calculation
-        if configuration.globalOptions["landmask"] != "None":
-            configuration.globalOptions["landmask"] = configuration.globalOptions[
-                "landmask"
-            ] % (int(clone_code))
 
     configuration.set_configuration(system_arguments=sys.argv)
 
@@ -439,8 +397,6 @@ def main():
             )
 
             initial_state = deterministic_runner.model.getState()
-
-        # TODO: for a parallel run, merge when the spin-up is done and keep the states in a separate folder
 
     # run the model (excluding the DA scheme)
     currTimeStep.getStartEndTimeSteps(
