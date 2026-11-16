@@ -434,7 +434,6 @@ class PCRGlobWB(object):
             [storesAtBeginning],
             [storesAtEnd],
             "all stores (snow + interception + soil + groundwater), but except river/routing",
-            True,
             self._modelTime.fulldate,
             threshold=1e-3,
         )

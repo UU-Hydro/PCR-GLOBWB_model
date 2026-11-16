@@ -351,9 +351,9 @@ class Configuration(object):
                 float(self.globalOptions["timeStep"]) != 1.0
                 or self.globalOptions["timeStepUnit"] != "day"
             ):
-                logger.error("Only a daily time step is supported; check the ini file")
-                self.timeStep = None
-                self.timeStepUnit = None
+                raise ValueError(
+                    "Only a daily time step is supported; check the ini file"
+                )
 
         # defaults for missing options
         if "routingMethod" not in list(self.routingOptions.keys()):

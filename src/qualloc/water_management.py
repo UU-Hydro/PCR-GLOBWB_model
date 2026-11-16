@@ -116,14 +116,13 @@ def water_balance_check(
         f"[ {date!s:.10} Water Balance Error ] {process_name} ({var_name}): "
         f"max mismatch of {vmin:.10f} m"
     )
-    bar = "#" * 161
-    logger.error(f"\n{bar}\n{msg}\n{bar}")
-
     if flag_debug:
         pcr.aguila(diff, diff * zonal_cellarea)
 
     if not flag_warning:
         raise RuntimeError(msg)
+
+    logger.warning(msg)
 
 
 def estimate_waterdepth_from_discharge(
@@ -2255,8 +2254,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )[0]
                 < -1
             ):
-                logger.error(
-                    "WARNING !!!!!!!! Sum of potential surface water renewable and non-renewable withdrawals are larger than surface water withdrawal capacity"
+                logger.warning(
+                    "Sum of potential surface water renewable and non-renewable withdrawals is larger than surface water withdrawal capacity"
                 )
 
         if not isinstance(self.groundwater_withdrawal_capacity, NoneType):
@@ -2273,8 +2272,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )[0]
                 < -1
             ):
-                logger.error(
-                    "WARNING !!!!!!!! Sum of potential groundwater renewable and non-renewable withdrawals are larger than groundwater withdrawal capacity"
+                logger.warning(
+                    "Sum of potential groundwater renewable and non-renewable withdrawals is larger than groundwater withdrawal capacity"
                 )
 
         # total long-term potential renewable and non-renewable withdrawals per sector (m3/day)

@@ -1196,7 +1196,6 @@ class LandCover(object):
                 [],
                 [],
                 "partitioning potential evaporation",
-                True,
                 currTimeStep.fulldate,
                 threshold=5e-4,
             )
@@ -1306,7 +1305,6 @@ class LandCover(object):
                 [],
                 [],
                 "rain-snow-partitioning",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-5,
             )
@@ -1316,7 +1314,6 @@ class LandCover(object):
                 prevStates,
                 [self.interceptStor],
                 "interceptStor",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -1414,7 +1411,6 @@ class LandCover(object):
             prevStates,
             [self.snowCoverSWE, self.snowFreeWater],
             "snow module",
-            True,
             currTimeStep.fulldate,
             threshold=1e-4,
         )
@@ -1424,7 +1420,6 @@ class LandCover(object):
             [prevSnowCoverSWE],
             [self.snowCoverSWE],
             "snowCoverSWE",
-            True,
             currTimeStep.fulldate,
             threshold=5e-4,
         )
@@ -1434,7 +1429,6 @@ class LandCover(object):
             [prevSnowFreeWater],
             [self.snowFreeWater],
             "snowFreeWater",
-            True,
             currTimeStep.fulldate,
             threshold=5e-4,
         )
@@ -2717,7 +2711,6 @@ class LandCover(object):
                 [preTopWaterLayer],
                 [self.topWaterLayer],
                 "topWaterLayer",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -2734,7 +2727,6 @@ class LandCover(object):
                     [preStorUpp],
                     [self.storUpp],
                     "storUpp",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2749,7 +2741,6 @@ class LandCover(object):
                     [preStorLow],
                     [self.storLow],
                     "storLow",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2766,7 +2757,6 @@ class LandCover(object):
                     [preStorUpp, preStorLow],
                     [self.storUpp, self.storLow],
                     "entireSoilLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )
@@ -2788,7 +2778,6 @@ class LandCover(object):
                     [preTopWaterLayer, preStorUpp, preStorLow],
                     [self.topWaterLayer, self.storUpp, self.storLow],
                     "allLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=5e-4,
                 )
@@ -2805,7 +2794,6 @@ class LandCover(object):
                     [preStorUpp000005],
                     [self.storUpp000005],
                     "storUpp000005",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2821,7 +2809,6 @@ class LandCover(object):
                     [preStorUpp005030],
                     [self.storUpp005030],
                     "storUpp005030",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2836,7 +2823,6 @@ class LandCover(object):
                     [preStorLow030150],
                     [self.storLow030150],
                     "storLow030150",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2855,7 +2841,6 @@ class LandCover(object):
                     [preStorUpp000005, preStorUpp005030, preStorLow030150],
                     [self.storUpp000005, self.storUpp005030, self.storLow030150],
                     "entireSoilLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )
@@ -2889,7 +2874,6 @@ class LandCover(object):
                         self.storLow030150,
                     ],
                     "allLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )

@@ -793,7 +793,6 @@ class Groundwater(object):
                 [preStorGroundwater],
                 [self.storGroundwater],
                 "storGroundwater",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -805,7 +804,6 @@ class Groundwater(object):
                 [preStorGroundwaterFossil],
                 [self.storGroundwaterFossil],
                 "storGroundwaterFossil",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-3,
             )

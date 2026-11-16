@@ -261,17 +261,18 @@ given date. This may concern spatial information or single entries.
 
     else:
 
-        # the file type cannot be read
         try:
             var_out = float(val_str)
-            if forced_non_spatial:
-                conversion_method = conversion_methods[datatype_str.title()]
-            else:
-                conversion_method = getattr(pcr, datatype_str.lower())
-            var_out = conversion_method(var_out)
-            logger.debug(f"{val_str} is a value; converted to {conversion_method}")
-        except Exception:
-            logger.error(f"{filename}: not a netCDF/PCRaster file, cannot convert")
+        except ValueError:
+            raise ValueError(
+                f"{filename}: no such netCDF/PCRaster file, and not a number"
+            ) from None
+        if forced_non_spatial:
+            conversion_method = conversion_methods[datatype_str.title()]
+        else:
+            conversion_method = getattr(pcr, datatype_str.lower())
+        var_out = conversion_method(var_out)
+        logger.debug(f"{val_str} is a value; converted to {conversion_method}")
 
     return var_out
 

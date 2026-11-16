@@ -433,6 +433,8 @@ directories using information from the model configuration.
                 # single entry
                 try:
                     value = ftype(val_str)
-                except Exception:
-                    logger.error(f"{val_str} cannot be converted to {ftype}")
+                except ValueError:
+                    raise ValueError(
+                        f"{val_str!r} cannot be converted to {ftype.__name__}"
+                    ) from None
         return value

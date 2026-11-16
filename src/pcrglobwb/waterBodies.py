@@ -458,7 +458,6 @@ class WaterBodies(object):
                 [pcr.cover(preStorage / self.waterBodyArea, 0.0)],
                 [pcr.cover(self.waterBodyStorage / self.waterBodyArea, 0.0)],
                 "WaterBodyStorage (unit: m)",
-                True,
                 currTimeStep.fulldate,
                 threshold=5e-3,
             )

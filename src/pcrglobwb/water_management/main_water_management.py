@@ -513,7 +513,6 @@ class WaterManagement(object):
                 [pcr.scalar(0.0)],
                 [pcr.scalar(0.0)],
                 "abstraction - allocation per zone/segment (PS: Error here may be caused by rounding error.)",
-                True,
                 extra_info_for_water_balance_reporting,
                 threshold=1e-4,
             )

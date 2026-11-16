@@ -749,7 +749,9 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(check_map)
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(f"Natural area total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
+            raise RuntimeError(
+                f"Natural area total != 1.0: Min {a:f} Max {b:f} Mean {c:f}"
+            )
 
     def scaleModifiedLandCoverFractions(self):
         """rescales the land cover fractions with irrigation areas"""
@@ -802,7 +804,9 @@ class LandSurface(object):
         a, b, c = vos.getMinMaxMean(totalArea - pcr.scalar(1.0))
         threshold = 1e-4
         if abs(a) > threshold or abs(b) > threshold:
-            logger.error(f"Land cover total != 1.0: Min {a:f} Max {b:f} Mean {c:f}")
+            raise RuntimeError(
+                f"Land cover total != 1.0: Min {a:f} Max {b:f} Mean {c:f}"
+            )
 
     def calculateCapRiseFrac(self, groundwater, routing, currTimeStep):
         # cell fraction influenced by capillary rise, from the relative groundwater head (m) above the
@@ -1739,7 +1743,6 @@ class LandSurface(object):
                 [pcr.scalar(0.0)],
                 [pcr.scalar(0.0)],
                 "satisfied demand allocation from different water sources: desalination, surface water, groundwater & unmetDemand. Error here may be due to rounding error.",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-3,
             )

@@ -413,21 +413,17 @@ def netcdf2PCRobjCloneWithoutTime(
     absolutePath=None,
 ):
 
-    iter_try = 0
-    while iter_try < max_num_of_tries:
+    for _ in range(max_num_of_tries - 1):
         try:
             return singleTryNetcdf2PCRobjCloneWithoutTime(
-                ncFile, varName, LatitudeLongitude, specificFillValue
+                ncFile, varName, LatitudeLongitude, specificFillValue, absolutePath
             )
-        except Exception:
-            iter_try = iter_try + 1
-            logger.warning(f"Re-try to read file: {ncFile}")
+        except Exception as e:
+            logger.warning(f"Re-try to read file {ncFile}: {e}")
 
-    if iter_try >= max_num_of_tries:
-        logger.error(f"CANNOT READ file: {ncFile}")
-        return singleTryNetcdf2PCRobjCloneWithoutTime(
-            ncFile, varName, LatitudeLongitude, specificFillValue
-        )
+    return singleTryNetcdf2PCRobjCloneWithoutTime(
+        ncFile, varName, LatitudeLongitude, specificFillValue, absolutePath
+    )
 
 
 def singleTryNetcdf2PCRobjCloneWithoutTime(
@@ -537,8 +533,7 @@ def netcdf2PCRobjClone(
     specificFillValue=None,
 ):
 
-    iter_try = 0
-    while iter_try < max_num_of_tries:
+    for _ in range(max_num_of_tries - 1):
         try:
             return singleTryNetcdf2PCRobjClone(
                 ncFile,
@@ -548,20 +543,17 @@ def netcdf2PCRobjClone(
                 LatitudeLongitude,
                 specificFillValue,
             )
-        except Exception:
-            iter_try = iter_try + 1
-            logger.warning(f"Re-try to read file: {ncFile}")
+        except Exception as e:
+            logger.warning(f"Re-try to read file {ncFile}: {e}")
 
-    if iter_try >= max_num_of_tries:
-        logger.error(f"CANNOT READ file: {ncFile}")
-        return singleTryNetcdf2PCRobjClone(
-            ncFile,
-            varName,
-            dateInput,
-            useDoy,
-            LatitudeLongitude,
-            specificFillValue,
-        )
+    return singleTryNetcdf2PCRobjClone(
+        ncFile,
+        varName,
+        dateInput,
+        useDoy,
+        LatitudeLongitude,
+        specificFillValue,
+    )
 
 
 def singleTryNetcdf2PCRobjClone(
@@ -870,21 +862,15 @@ def readPCRmapClone(
     isNomMap=False,
 ):
 
-    iter_try = 0
-    while iter_try < max_num_of_tries:
+    for _ in range(max_num_of_tries - 1):
         try:
             return singleTryReadPCRmapClone(
                 v, tmpDir, absolutePath, isLddMap, cover, isNomMap
             )
-        except Exception:
-            iter_try = iter_try + 1
-            logger.warning(f"Re-try to read file/value: {v}")
+        except Exception as e:
+            logger.warning(f"Re-try to read file/value {v}: {e}")
 
-    if iter_try >= max_num_of_tries:
-        logger.error(f"CANNOT READ file: {v}")
-        return singleTryReadPCRmapClone(
-            v, tmpDir, absolutePath, isLddMap, cover, isNomMap
-        )
+    return singleTryReadPCRmapClone(v, tmpDir, absolutePath, isLddMap, cover, isNomMap)
 
 
 def singleTryReadPCRmapClone(
@@ -1237,7 +1223,6 @@ def waterBalanceCheck(
     preStorages,
     endStorages,
     processName,
-    PrintOnlyErrors,
     dateStr,
     threshold=1e-5,
     landmask=None,
@@ -1259,13 +1244,10 @@ def waterBalanceCheck(
 
     a, b, c = getMinMaxMean(inMap + dsMap - outMap)
     if abs(a) > threshold or abs(b) > threshold:
-        if PrintOnlyErrors:
-
-            bar = "#" * 142
-            logger.error(
-                f"\n\n{bar}\nWARNING !!!!!!!! Water Balance Error {processName} "
-                f"Min {a:f} Max {b:f} Mean {c:f}\n{bar}\n\n\n\n"
-            )
+        logger.warning(
+            f"Water balance error {processName} on {dateStr}: "
+            f"Min {a:f} Max {b:f} Mean {c:f}"
+        )
 
 
 def findLastYearInNCTime(ncTimeVariable):

@@ -2045,7 +2045,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage after surface water infiltration",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -2189,7 +2188,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage (unit: m) before lake/reservoir outflow",
-                True,
                 currTimeStep.fulldate,
                 threshold=5e-3,
             )
@@ -2264,7 +2262,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage (unit: m) after lake reservoir/outflow fluxes (errors here are most likely due to pcraster implementation in float_32)",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-3,
             )
@@ -2602,7 +2599,6 @@ class Routing(object):
                     [preStorage / self.cellArea],
                     [channelStorageForRouting / self.cellArea],
                     "channelStorageForRouting (local fluxes)",
-                    True,
                     currTimeStep.fulldate,
                     threshold=5e-5,
                 )

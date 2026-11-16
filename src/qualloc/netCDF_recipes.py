@@ -924,8 +924,9 @@ depending on the type of match specified.
         date_selection_method = date_selection_method.lower()
 
         if date_selection_method not in date_selection_methods:
-            logger.error(
-                f"date selection method {date_selection_method} is not available"
+            raise ValueError(
+                f"date selection method {date_selection_method} is not available;"
+                f" use one of {', '.join(date_selection_methods)}"
             )
 
         # add the netCDF file to the cache if not included yet
@@ -940,14 +941,13 @@ depending on the type of match specified.
             and not self.spatialattributes[ncfilename][variablename]
         ):
 
-            logger.error(f"No clone attributes for {variablename} in {ncfilename}")
+            raise ValueError(f"No clone attributes for {variablename} in {ncfilename}")
 
         # dimensions, to decide how the data are processed
         nc_dims = self.obtain_dimensions(ncfilename, variablename)
 
-        # halt if the variable is not found
         if nc_dims == ():
-            logger.error(f"{ncfilename} does not contain variable {variablename}")
+            raise ValueError(f"{ncfilename} does not contain variable {variablename}")
 
         # timed variable: get the position and band
         if self.variables[ncfilename][variablename]["timed_variable"]:
@@ -1027,11 +1027,10 @@ depending on the type of match specified.
                         compareSpatialAttributes(data_attributes, clone_attributes)
                     )
 
-                    # halt if the resolution differs
                     if not same_resolution:
-
-                        logger.error(
-                            f"data of type LDD as read from {ncfilename} for {variablename} can not be resampled"
+                        raise ValueError(
+                            f"{ncfilename}: LDD {variablename} has a different resolution"
+                            " from the clone and cannot be resampled"
                         )
 
                 # different areas: get the actual area using gdal_translate
