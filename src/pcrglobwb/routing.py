@@ -389,21 +389,21 @@ class Routing(object):
                 )
 
             else:
-                msg = "The bankfull channel storage capacity is NOT defined in the configuration file. "
-
                 if (
                     self.predefinedChannelWidth is None
                     or self.predefinedChannelDepth is None
                 ):
-                    msg += "The bankfull capacity is estimated from average discharge (5 year long term average)."
+                    logger.info(
+                        "Bankfull channel storage capacity NOT in config; estimating from 5-year avg. discharge."
+                    )
                 else:
-                    msg += "The bankfull capacity is estimated from the given channel depth and channel width."
                     self.usingFixedBankfullCapacity = True
                     self.predefinedBankfullCapacity = self.estimateBankfullCapacity(
                         self.predefinedChannelWidth, self.predefinedChannelDepth
                     )
-
-                logger.info(msg)
+                    logger.info(
+                        "Bankfull channel storage NOT in config; estimating from channel width and depth."
+                    )
 
         # option to limit the flood depth (to avoid unrealistic flood depths)
         self.maxFloodDepth = None
@@ -492,9 +492,10 @@ class Routing(object):
                 self.sunFracTBL = vos.getFullPath(
                     "sunhoursfrac.tbl", os.path.abspath(os.path.dirname(__file__))
                 )
-                msg = "Using the default sunhoursfrac.tbl stored on " + self.sunFracTBL
                 # sunshine fraction table
-                logger.info(msg)
+                logger.info(
+                    f"Using the default sunhoursfrac.tbl stored on {self.sunFracTBL}"
+                )
 
             # paths to additional meteorological variables
             self.cloudFileNC = vos.getFullPath(
@@ -1179,12 +1180,12 @@ class Routing(object):
                         self.landmask, pcr.cover(self.routedIrrTDS, 0.0)
                     )
 
-        # make sure timestepsToAvgDischarge is the same for the entire map
-        try:
+        # make sure timestepsToAvgDischarge is the same for the entire map; a non-spatial value already is
+        if (
+            isinstance(self.timestepsToAvgDischarge, pcr.Field)
+            and self.timestepsToAvgDischarge.isSpatial()
+        ):
             self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
-        except Exception:
-            # try/except because pcr.mapmaximum cannot handle scalar values
-            pass
 
         # for netCDF reporting, timestepsToAvgDischarge must be spatial and scalar (e.g. for pcr2numpy)
         self.timestepsToAvgDischarge = pcr.spatial(
@@ -1249,8 +1250,7 @@ class Routing(object):
         # elevation above the floodplain; floodVolume (m3): flood volume above the bankfull capacity;
         # kSlope (-): slope used in the interpolation; mInterval (m3): smoothing interval of the interpolation
 
-        msg = "Get the profile of relative elevation (relZ, unit: m) !!!"
-        logger.info(msg)
+        logger.info("Get the profile of relative elevation (relZ, unit: m) !!!")
 
         relativeElevationFileNC = (
             # TODO: define the relative elevation files in a netCDF file
@@ -2045,7 +2045,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage after surface water infiltration",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -2189,7 +2188,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage (unit: m) before lake/reservoir outflow",
-                True,
                 currTimeStep.fulldate,
                 threshold=5e-3,
             )
@@ -2264,7 +2262,6 @@ class Routing(object):
                 [preStorage / self.cellArea],
                 [self.channelStorage / self.cellArea],
                 "channelStorage (unit: m) after lake reservoir/outflow fluxes (errors here are most likely due to pcraster implementation in float_32)",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-3,
             )
@@ -2537,13 +2534,7 @@ class Routing(object):
 
         for i_loop in range(number_of_loops):
 
-            msg = (
-                "sub-daily time step "
-                + str(i_loop + 1)
-                + " from "
-                + str(number_of_loops)
-            )
-            logger.info(msg)
+            logger.info(f"sub-daily time step {i_loop + 1} from {number_of_loops}")
 
             if self.debugWaterBalance:
                 preStorage = pcr.ifthen(self.landmask, channelStorageForRouting)
@@ -2608,7 +2599,6 @@ class Routing(object):
                     [preStorage / self.cellArea],
                     [channelStorageForRouting / self.cellArea],
                     "channelStorageForRouting (local fluxes)",
-                    True,
                     currTimeStep.fulldate,
                     threshold=5e-5,
                 )
@@ -2973,25 +2963,34 @@ class Routing(object):
 
     def initiate_old_style_routing_reporting(self, iniItems):
 
-        self.report = True
-        try:
-            self.outDailyTotNC = iniItems.routingOptions["outDailyTotNC"].split(",")
-            self.outMonthTotNC = iniItems.routingOptions["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = iniItems.routingOptions["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = iniItems.routingOptions["outMonthEndNC"].split(",")
-            self.outAnnuaTotNC = iniItems.routingOptions["outAnnuaTotNC"].split(",")
-            self.outAnnuaAvgNC = iniItems.routingOptions["outAnnuaAvgNC"].split(",")
-            self.outAnnuaEndNC = iniItems.routingOptions["outAnnuaEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = iniItems.routingOptions
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+                "outAnnuaTotNC",
+                "outAnnuaAvgNC",
+                "outAnnuaEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
+            self.outAnnuaTotNC = options["outAnnuaTotNC"].split(",")
+            self.outAnnuaAvgNC = options["outAnnuaAvgNC"].split(",")
+            self.outAnnuaEndNC = options["outAnnuaEndNC"].split(",")
             # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         "undefined",
                     )
@@ -2999,9 +2998,9 @@ class Routing(object):
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
+                    vars(self)[f"{var}MonthTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                        f"{self.outNCDir}/{var}_monthTot.nc",
                         var,
                         "undefined",
                     )
@@ -3009,10 +3008,10 @@ class Routing(object):
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
                     # accumulator
-                    vars(self)[var + "MonthTot"] = None
-                    vars(self)[var + "MonthAvg"] = None
+                    vars(self)[f"{var}MonthTot"] = None
+                    vars(self)[f"{var}MonthAvg"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                        f"{self.outNCDir}/{var}_monthAvg.nc",
                         var,
                         "undefined",
                     )
@@ -3020,7 +3019,7 @@ class Routing(object):
             if self.outMonthEndNC[0] != "None":
                 for var in self.outMonthEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                        f"{self.outNCDir}/{var}_monthEnd.nc",
                         var,
                         "undefined",
                     )
@@ -3028,20 +3027,20 @@ class Routing(object):
             if self.outAnnuaTotNC[0] != "None":
                 for var in self.outAnnuaTotNC:
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                        f"{self.outNCDir}/{var}_annuaTot.nc",
                         var,
                         "undefined",
                     )
             # averages
             if self.outAnnuaAvgNC[0] != "None":
                 for var in self.outAnnuaAvgNC:
-                    vars(self)[var + "AnnuaAvg"] = None
+                    vars(self)[f"{var}AnnuaAvg"] = None
                     # accumulator
-                    vars(self)[var + "AnnuaTot"] = None
+                    vars(self)[f"{var}AnnuaTot"] = None
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                        f"{self.outNCDir}/{var}_annuaAvg.nc",
                         var,
                         "undefined",
                     )
@@ -3049,7 +3048,7 @@ class Routing(object):
             if self.outAnnuaEndNC[0] != "None":
                 for var in self.outAnnuaEndNC:
                     self.netcdfObj.createNetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                        f"{self.outNCDir}/{var}_annuaEnd.nc",
                         var,
                         "undefined",
                     )
@@ -3065,7 +3064,7 @@ class Routing(object):
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
                     self.netcdfObj.data2NetCDF(
-                        str(self.outNCDir) + "/" + str(var) + "_dailyTot.nc",
+                        f"{self.outNCDir}/{var}_dailyTot.nc",
                         var,
                         pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                         timeStamp,
@@ -3078,16 +3077,16 @@ class Routing(object):
 
                     # initialize at the start of the simulation or reset at the start of the month
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                        vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "MonthTot"] += vars(self)[var]
+                    vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthTot.nc",
+                            f"{self.outNCDir}/{var}_monthTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthTot"), vos.MV
+                                self.__getattribute__(f"{var}MonthTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -3100,18 +3099,18 @@ class Routing(object):
 
                         # initialize at the start of the simulation or reset at the start of the month
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.day == 1:
-                            vars(self)[var + "MonthTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "MonthTot"] += vars(self)[var]
+                            vars(self)[f"{var}MonthTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}MonthTot"] += vars(self)[var]
 
                     if currTimeStep.endMonth:
-                        vars(self)[var + "MonthAvg"] = (
-                            vars(self)[var + "MonthTot"] / currTimeStep.day
+                        vars(self)[f"{var}MonthAvg"] = (
+                            vars(self)[f"{var}MonthTot"] / currTimeStep.day
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthAvg.nc",
+                            f"{self.outNCDir}/{var}_monthAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "MonthAvg"), vos.MV
+                                self.__getattribute__(f"{var}MonthAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
@@ -3121,7 +3120,7 @@ class Routing(object):
                 for var in self.outMonthEndNC:
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_monthEnd.nc",
+                            f"{self.outNCDir}/{var}_monthEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,
@@ -3134,16 +3133,16 @@ class Routing(object):
 
                     # initialize at the start of the simulation or reset at the start of the year
                     if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                        vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
 
-                    vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                    vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
 
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaTot.nc",
+                            f"{self.outNCDir}/{var}_annuaTot.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaTot"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaTot"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -3155,17 +3154,17 @@ class Routing(object):
                     if var not in self.outAnnuaTotNC:
                         # initialize at the start of the simulation or reset at the start of the year
                         if currTimeStep.timeStepPCR == 1 or currTimeStep.doy == 1:
-                            vars(self)[var + "AnnuaTot"] = pcr.scalar(0.0)
-                        vars(self)[var + "AnnuaTot"] += vars(self)[var]
+                            vars(self)[f"{var}AnnuaTot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}AnnuaTot"] += vars(self)[var]
                     if currTimeStep.endYear:
-                        vars(self)[var + "AnnuaAvg"] = (
-                            vars(self)[var + "AnnuaTot"] / currTimeStep.doy
+                        vars(self)[f"{var}AnnuaAvg"] = (
+                            vars(self)[f"{var}AnnuaTot"] / currTimeStep.doy
                         )
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaAvg.nc",
+                            f"{self.outNCDir}/{var}_annuaAvg.nc",
                             var,
                             pcr.pcr2numpy(
-                                self.__getattribute__(var + "AnnuaAvg"), vos.MV
+                                self.__getattribute__(f"{var}AnnuaAvg"), vos.MV
                             ),
                             timeStamp,
                             currTimeStep.annuaIdx - 1,
@@ -3175,7 +3174,7 @@ class Routing(object):
                 for var in self.outAnnuaEndNC:
                     if currTimeStep.endYear:
                         self.netcdfObj.data2NetCDF(
-                            str(self.outNCDir) + "/" + str(var) + "_annuaEnd.nc",
+                            f"{self.outNCDir}/{var}_annuaEnd.nc",
                             var,
                             pcr.pcr2numpy(self.__getattribute__(var), vos.MV),
                             timeStamp,

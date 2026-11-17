@@ -50,27 +50,25 @@ class LandCover(object):
         self.interceptionModuleType = "Original"
         if "interceptionModuleType" in list(self.iniItemsLC.keys()):
             if self.iniItemsLC["interceptionModuleType"] == "Modified":
-                msg = 'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
-                logger.info(msg)
+                logger.info(
+                    'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
+                )
                 self.interceptionModuleType = "Modified"
             else:
                 if self.iniItemsLC["interceptionModuleType"] != "Original":
-                    msg = (
+                    logger.info(
                         "The interceptionModuleType "
                         + self.iniItemsLC["interceptionModuleType"]
                         + " is NOT known."
                     )
-                    logger.info(msg)
-                msg = 'The "Original" interceptionModuleType is used.'
-                logger.info(msg)
+                logger.info('The "Original" interceptionModuleType is used.')
 
         # minimum interception capacity (only for the "Modified" interception module)
         self.minInterceptCap = 0.0
         if self.interceptionModuleType == "Original" and "minInterceptCap" in list(
             self.iniItemsLC.keys()
         ):
-            msg = 'As the "Original" interceptionModuleType is used, the "minInterceptCap" value is ignored. The interception scope is only "canopy".'
-            logger.warning(msg)
+            logger.warning("Original interception ignores minInterceptCap; canopy only")
         if self.interceptionModuleType == "Modified":
             self.minInterceptCap = vos.readPCRmapClone(
                 self.iniItemsLC["minInterceptCap"],
@@ -95,9 +93,7 @@ class LandCover(object):
                 "improvedArnoSchemeMethod"
             ]
             if self.improvedArnoSchemeMethod == "Original":
-                logger.warning(
-                    "Using the old/original approach of Improved Arno Scheme. No reduction for directRunoff."
-                )
+                logger.warning("Old Improved Arno Scheme: no directRunoff reduction")
 
         # in Rens's original oldcalc script (2-layer model), the percolation percUpp (P1) can be negative;
         # Edwin changed a few lines to avoid this (see updateSoilStates)
@@ -106,11 +102,10 @@ class LandCover(object):
             "allowNegativePercolation" in list(self.iniItemsLC.keys())
             and self.iniItemsLC["allowNegativePercolation"] == "True"
         ):
-            msg = "Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n"
-            msg += (
+            logger.warning(
+                "Allowing negative values of percolation percUpp (P1), as done in the oldcalc script of PCR-GLOBWB 1.0. \n"
                 "Note that this option is only relevant for the two layer soil model."
             )
-            logger.warning(msg)
             self.allowNegativePercolation = True
 
         # in Rens's original oldcalc script, roots/transpiration may only be defined in the bottom layer
@@ -125,9 +120,10 @@ class LandCover(object):
             ]
             == "True"
         ):
-            msg = "Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n"
-            msg += "There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s)."
-            logger.warning(msg)
+            logger.warning(
+                "Using the original rootFraction/transpiration as defined in the oldcalc script of PCR-GLOBWB 1.0. \n"
+                "There is a possibility that rootFraction/transpiration is only defined in the bottom layer, while no root in upper layer(s)."
+            )
             self.usingOriginalOldCalcRootTranspirationPartitioningMethod = True
 
         # snow module type and parameters
@@ -262,16 +258,10 @@ class LandCover(object):
                 self.iniItemsLC["coverFractionNC"], self.inputDir
             )
         else:
-            msg = (
-                "The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: "
-                + self.name
-                + "\n"
+            logger.warning(
+                f"The netcdf files for interceptCapNC (interception capacity) and/or coverFraction (canopy cover fraction) are NOT defined for the landCover type: {self.name}\n"
+                "This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero.\n"
             )
-            msg = (
-                "This run assumes zero canopy interception capacity for this run, UNLESS minInterceptCap (minimum interception capacity) is bigger than zero."
-                + "\n"
-            )
-            logger.warning(msg)
             self.coverFractionNC = None
             self.interceptCapNC = None
 
@@ -287,15 +277,21 @@ class LandCover(object):
             self.interceptCapNC = None
 
         # netCDF output
-        self.report = True
-        try:
-            self.outDailyTotNC = self.iniItemsLC["outDailyTotNC"].split(",")
-            self.outMonthTotNC = self.iniItemsLC["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = self.iniItemsLC["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = self.iniItemsLC["outMonthEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = self.iniItemsLC
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # prepare the netCDF objects and files
@@ -317,7 +313,7 @@ class LandCover(object):
             if self.outMonthTotNC[0] != "None":
                 for var in self.outMonthTotNC:
                     # accumulator
-                    vars(self)[var + "Tot"] = None
+                    vars(self)[f"{var}Tot"] = None
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir)
                         + "/"
@@ -332,9 +328,9 @@ class LandCover(object):
             # averages
             if self.outMonthAvgNC[0] != "None":
                 for var in self.outMonthAvgNC:
-                    vars(self)[var + "Avg"] = None
+                    vars(self)[f"{var}Avg"] = None
                     # accumulator
-                    vars(self)[var + "Tot"] = None
+                    vars(self)[f"{var}Tot"] = None
                     self.netcdfObj.createNetCDF(
                         str(self.outNCDir)
                         + "/"
@@ -390,8 +386,7 @@ class LandCover(object):
         # parameters that are fixed for the entire simulation
         if date_in_string is None:
 
-            msg = "Obtaining the land cover parameters that are fixed for the entire simulation."
-            logger.debug(msg)
+            logger.debug("Obtaining land cover parameters fixed for the whole run")
 
             if self.iniItemsLC["landCoverMapsNC"] == str(None):
                 # PCRaster maps
@@ -429,9 +424,7 @@ class LandCover(object):
             # option 1 (top priority): a PCRaster file
             if self.iniItemsLC["arnoBeta"] != "None" and not get_only_fracVegCover:
 
-                logger.debug(
-                    "The parameter arnoBeta: " + str(self.iniItemsLC["arnoBeta"])
-                )
+                logger.debug(f"The parameter arnoBeta: {self.iniItemsLC['arnoBeta']}")
                 lc_parameters["arnoBeta"] = vos.readPCRmapClone(
                     self.iniItemsLC["arnoBeta"],
                     self.tmpDir,
@@ -447,10 +440,7 @@ class LandCover(object):
 
                 if vos.checkVariableInNC(landCoverPropertiesNC, "arnoBeta"):
 
-                    logger.debug(
-                        "The parameter arnoBeta is defined in the netcdf file "
-                        + str(self.iniItemsLC["arnoBeta"])
-                    )
+                    logger.debug(f"arnoBeta read from {landCoverPropertiesNC}")
                     lc_parameters["arnoBeta"] = vos.netcdf2PCRobjCloneWithoutTime(
                         landCoverPropertiesNC, "arnoBeta"
                     )
@@ -458,9 +448,7 @@ class LandCover(object):
             # option 3: approximated from minSoilDepthFrac and maxSoilDepthFrac
             if lc_parameters["arnoBeta"] is None and not get_only_fracVegCover:
 
-                logger.debug(
-                    "The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values."
-                )
+                logger.debug("Approximating arnoBeta from min/maxSoilDepthFrac")
 
                 # make sure maxSoilDepthFrac >= minSoilDepthFrac; maxSoilDepthFrac is only needed for arnoBeta,
                 # minSoilDepthFrac also for rootZoneWaterStorageMin
@@ -481,11 +469,7 @@ class LandCover(object):
         # land cover parameters that change annually (netCDF files)
         if date_in_string is not None:
 
-            msg = (
-                "Obtaining the land cover parameters (from netcdf files) for the year/date: "
-                + str(date_in_string)
-            )
-            logger.debug(msg)
+            logger.debug(f"Obtaining netcdf land cover parameters for {date_in_string}")
 
             if get_only_fracVegCover:
                 landCovParams = ["fracVegCover"]
@@ -495,7 +479,7 @@ class LandCover(object):
             for var in landCovParams:
 
                 # read the parameter from the netCDF file in the ini file
-                ini_option = self.iniItemsLC[var + "NC"]
+                ini_option = self.iniItemsLC[f"{var}NC"]
 
                 if ini_option.endswith(vos.netcdf_suffixes):
                     netcdf_file = vos.getFullPath(ini_option, self.inputDir)
@@ -510,28 +494,18 @@ class LandCover(object):
                     )
                 else:
                     # read the parameter from PCRaster maps or scalar values
-                    try:
+                    lc_parameters[var] = vos.readPCRmapClone(
+                        ini_option, self.tmpDir, self.inputDir
+                    )
+                    if lc_parameters[var] is not None:
                         lc_parameters[var] = pcr.cover(
-                            pcr.spatial(
-                                vos.readPCRmapClone(
-                                    ini_option,
-                                    self.tmpDir,
-                                    self.inputDir,
-                                )
-                            ),
-                            0.0,
-                        )
-                    except Exception:
-                        lc_parameters[var] = vos.readPCRmapClone(
-                            ini_option, self.tmpDir, self.inputDir
+                            pcr.spatial(lc_parameters[var]), 0.0
                         )
 
             # if not defined, approximate arnoBeta from minSoilDepthFrac and maxSoilDepthFrac
             if not get_only_fracVegCover and lc_parameters["arnoBeta"] is None:
 
-                logger.debug(
-                    "The parameter arnoBeta is approximated from the minSoilDepthFrac and maxSoilDepthFrac values."
-                )
+                logger.debug("Approximating arnoBeta from min/maxSoilDepthFrac")
 
                 # make sure maxSoilDepthFrac >= minSoilDepthFrac; maxSoilDepthFrac is only needed for arnoBeta,
                 # minSoilDepthFrac also for rootZoneWaterStorageMin
@@ -906,7 +880,7 @@ class LandCover(object):
             ]
             for var in initialVars:
                 if iniConditions is None:
-                    input = self.iniItemsLC[str(var) + "Ini"]
+                    input = self.iniItemsLC[f"{var}Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.tmpDir, self.inputDir
                     )
@@ -930,7 +904,7 @@ class LandCover(object):
             ]
             for var in initialVars:
                 if iniConditions is None:
-                    input = self.iniItemsLC[str(var) + "Ini"]
+                    input = self.iniItemsLC[f"{var}Ini"]
                     vars(self)[var] = vos.readPCRmapClone(
                         input, self.tmpDir, self.inputDir, cover=0.0
                     )
@@ -1134,11 +1108,11 @@ class LandCover(object):
                 for var in self.outMonthTotNC:
                     # initialize at the start of the simulation
                     if currTimeStep.timeStepPCR == 1:
-                        vars(self)[var + "Tot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
                     # reset at the start of the month
                     if currTimeStep.day == 1:
-                        vars(self)[var + "Tot"] = pcr.scalar(0.0)
-                    vars(self)[var + "Tot"] += vars(self)[var]
+                        vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
+                    vars(self)[f"{var}Tot"] += vars(self)[var]
                     if currTimeStep.endMonth:
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
@@ -1149,7 +1123,7 @@ class LandCover(object):
                             + "_"
                             + "monthTot.nc",
                             var,
-                            pcr.pcr2numpy(self.__getattribute__(var + "Tot"), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(f"{var}Tot"), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -1160,14 +1134,14 @@ class LandCover(object):
                     if var not in self.outMonthTotNC:
                         # initialize at the start of the simulation
                         if currTimeStep.timeStepPCR == 1:
-                            vars(self)[var + "Tot"] = pcr.scalar(0.0)
+                            vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
                         # reset at the start of the month
                         if currTimeStep.day == 1:
-                            vars(self)[var + "Tot"] = pcr.scalar(0.0)
-                        vars(self)[var + "Tot"] += vars(self)[var]
+                            vars(self)[f"{var}Tot"] = pcr.scalar(0.0)
+                        vars(self)[f"{var}Tot"] += vars(self)[var]
                     if currTimeStep.endMonth:
-                        vars(self)[var + "Avg"] = (
-                            vars(self)[var + "Tot"] / currTimeStep.day
+                        vars(self)[f"{var}Avg"] = (
+                            vars(self)[f"{var}Tot"] / currTimeStep.day
                         )
                         self.netcdfObj.data2NetCDF(
                             str(self.outNCDir)
@@ -1178,7 +1152,7 @@ class LandCover(object):
                             + "_"
                             + "monthAvg.nc",
                             var,
-                            pcr.pcr2numpy(self.__getattribute__(var + "Avg"), vos.MV),
+                            pcr.pcr2numpy(self.__getattribute__(f"{var}Avg"), vos.MV),
                             timeStamp,
                             currTimeStep.monthIdx - 1,
                         )
@@ -1220,7 +1194,6 @@ class LandCover(object):
                 [],
                 [],
                 "partitioning potential evaporation",
-                True,
                 currTimeStep.fulldate,
                 threshold=5e-4,
             )
@@ -1330,7 +1303,6 @@ class LandCover(object):
                 [],
                 [],
                 "rain-snow-partitioning",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-5,
             )
@@ -1340,7 +1312,6 @@ class LandCover(object):
                 prevStates,
                 [self.interceptStor],
                 "interceptStor",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -1438,7 +1409,6 @@ class LandCover(object):
             prevStates,
             [self.snowCoverSWE, self.snowFreeWater],
             "snow module",
-            True,
             currTimeStep.fulldate,
             threshold=1e-4,
         )
@@ -1448,7 +1418,6 @@ class LandCover(object):
             [prevSnowCoverSWE],
             [self.snowCoverSWE],
             "snowCoverSWE",
-            True,
             currTimeStep.fulldate,
             threshold=5e-4,
         )
@@ -1458,7 +1427,6 @@ class LandCover(object):
             [prevSnowFreeWater],
             [self.snowFreeWater],
             "snowFreeWater",
-            True,
             currTimeStep.fulldate,
             threshold=5e-4,
         )
@@ -2741,7 +2709,6 @@ class LandCover(object):
                 [preTopWaterLayer],
                 [self.topWaterLayer],
                 "topWaterLayer",
-                True,
                 currTimeStep.fulldate,
                 threshold=1e-4,
             )
@@ -2758,7 +2725,6 @@ class LandCover(object):
                     [preStorUpp],
                     [self.storUpp],
                     "storUpp",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2773,7 +2739,6 @@ class LandCover(object):
                     [preStorLow],
                     [self.storLow],
                     "storLow",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2790,7 +2755,6 @@ class LandCover(object):
                     [preStorUpp, preStorLow],
                     [self.storUpp, self.storLow],
                     "entireSoilLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )
@@ -2812,7 +2776,6 @@ class LandCover(object):
                     [preTopWaterLayer, preStorUpp, preStorLow],
                     [self.topWaterLayer, self.storUpp, self.storLow],
                     "allLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=5e-4,
                 )
@@ -2829,7 +2792,6 @@ class LandCover(object):
                     [preStorUpp000005],
                     [self.storUpp000005],
                     "storUpp000005",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2845,7 +2807,6 @@ class LandCover(object):
                     [preStorUpp005030],
                     [self.storUpp005030],
                     "storUpp005030",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2860,7 +2821,6 @@ class LandCover(object):
                     [preStorLow030150],
                     [self.storLow030150],
                     "storLow030150",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-5,
                 )
@@ -2879,7 +2839,6 @@ class LandCover(object):
                     [preStorUpp000005, preStorUpp005030, preStorLow030150],
                     [self.storUpp000005, self.storUpp005030, self.storLow030150],
                     "entireSoilLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )
@@ -2913,7 +2872,6 @@ class LandCover(object):
                         self.storLow030150,
                     ],
                     "allLayers",
-                    True,
                     currTimeStep.fulldate,
                     threshold=1e-4,
                 )

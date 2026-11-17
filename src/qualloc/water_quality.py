@@ -69,7 +69,7 @@ class water_quality(object):
 
         for source_name in source_names:
             for constituent_name in self.constituent_names:
-                var_str = "%s_longterm_%s" % (source_name, constituent_name)
+                var_str = f"{source_name}_longterm_{constituent_name}"
                 var_out = eval(var_str)
 
                 # cover NaN with zero concentration and clip to the land mask
@@ -79,7 +79,7 @@ class water_quality(object):
 
                 # store the variable and its sorted dates
                 setattr(self, var_str, var_out)
-                setattr(self, var_str + "_dates", sorted(list(var_out.keys())))
+                setattr(self, f"{var_str}_dates", sorted(list(var_out.keys())))
 
         # annual average water quality
         self.surfacewater_annual_temperature = pcr.scalar(0)
@@ -118,10 +118,10 @@ class water_quality(object):
         for source_name in source_names:
             for constituent_name in self.constituent_names:
 
-                var_in = "%s_longterm_%s" % (source_name, constituent_name)
+                var_in = f"{source_name}_longterm_{constituent_name}"
 
                 # dates (months) and their weights
-                dates = getattr(self, var_in + "_dates")
+                dates = getattr(self, f"{var_in}_dates")
                 weights = get_weights_from_dates(dates)
 
                 # update the long-term total per constituent and source
@@ -133,7 +133,7 @@ class water_quality(object):
                     )
                 )
 
-                var_out = "%s_annual_%s" % (source_name, constituent_name)
+                var_out = f"{source_name}_annual_{constituent_name}"
                 setattr(self, var_out, values)
 
         return None
@@ -144,9 +144,8 @@ class water_quality(object):
         date,
     ):
 
-        message_str = "long-term water quality for %s at %s level." % (
-            date,
-            self.time_increment,
+        message_str = (
+            f"long-term water quality for {date} at {self.time_increment} level."
         )
 
         # initialize the monthly average water quality states
@@ -154,7 +153,7 @@ class water_quality(object):
             for constituent_name in self.constituent_names:
                 setattr(
                     self,
-                    "average_%s_%s" % (source_name, constituent_name),
+                    f"average_{source_name}_{constituent_name}",
                     pcr.spatial(pcr.scalar(0)),
                 )
 
@@ -169,9 +168,9 @@ class water_quality(object):
                     if self.time_increment == "monthly":
                         # get the constituent state for the matching date
 
-                        var_str = "%s_longterm_%s" % (source_name, constituent_name)
+                        var_str = f"{source_name}_longterm_{constituent_name}"
 
-                        dates = getattr(self, var_str + "_dates")
+                        dates = getattr(self, f"{var_str}_dates")
                         date_index, matched_date, sub_message_str = (
                             match_date_by_julian_number(date, dates)
                         )
@@ -179,10 +178,10 @@ class water_quality(object):
                         longterm_constituent_quality = getattr(self, var_str)
                         constituent_state = longterm_constituent_quality[matched_date]
 
-                        message_str = str.join("\n", (message_str, sub_message_str))
+                        message_str = f"{message_str}\n{sub_message_str}"
 
                     elif self.time_increment == "yearly":
-                        var_str = "%s_annual_%s" % (source_name, constituent_name)
+                        var_str = f"{source_name}_annual_{constituent_name}"
                         constituent_state = getattr(self, var_str)
 
                     constituent_longterm_states[source_name][
@@ -190,12 +189,9 @@ class water_quality(object):
                     ] = constituent_state
 
         else:
-            msg = (
-                "the option %s for the time increment in the water quality module is not allowed!"
-                % self.time_increment
+            raise ValueError(
+                f"the option {self.time_increment} for the time increment in the water quality module is not allowed!"
             )
-            logger.error(msg)
-            raise ValueError(msg)
 
         logger.info(message_str)
 
@@ -212,7 +208,7 @@ class water_quality(object):
         # (mg/L, degC, cfu/100mL)
         for source_name in source_names:
             for constituent_name in self.constituent_names:
-                key = "average_%s_%s" % (source_name, constituent_name)
+                key = f"average_{source_name}_{constituent_name}"
                 average = getattr(self, key)
                 average += self.constituent_shortterm_quality[source_name][
                     constituent_name
@@ -228,14 +224,14 @@ class water_quality(object):
             for source_name in source_names:
                 for constituent_name in self.constituent_names:
                     # monthly average: accumulated values divided by the number of steps
-                    key = "average_%s_%s" % (source_name, constituent_name)
+                    key = f"average_{source_name}_{constituent_name}"
                     average_constituent_quality = getattr(self, key) / steps
 
-                    var = "%s_longterm_%s" % (source_name, constituent_name)
+                    var = f"{source_name}_longterm_{constituent_name}"
 
                     # time step to update the long-term quality (monthly)
                     update_date = datetime.datetime(date.year, date.month, 1)
-                    var_dates = getattr(self, var + "_dates")
+                    var_dates = getattr(self, f"{var}_dates")
                     date_index, matched_date, message_str = match_date_by_julian_number(
                         update_date, var_dates
                     )
@@ -251,19 +247,13 @@ class water_quality(object):
                         average_constituent_quality,
                     )
 
-                    getattr(self, var + "_dates")[date_index] = update_date
+                    getattr(self, f"{var}_dates")[date_index] = update_date
 
                     getattr(self, var)[update_date] = constituent_longterm_quality
 
-                    message_str = str.join(
-                        " ",
-                        (
-                            "%s from %s availability updated for"
-                            % (constituent_name, source_name),
-                            message_str,
-                        ),
+                    logger.debug(
+                        f"{constituent_name} from {source_name} availability updated for {message_str}"
                     )
-                    logger.debug(message_str)
 
         return None
 

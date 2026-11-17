@@ -60,7 +60,7 @@ class PCR2netCDF:
 
                 if key == "history" and self.attributeDictionary[key] == "Default":
                     self.attributeDictionary[key] = (
-                        "created on " + datetime.datetime.today().isoformat(" ")
+                        f"created on {datetime.datetime.today().isoformat(' ')}"
                     )
                 if self.attributeDictionary[key] == "Default" and (
                     key == "date_created" or key == "date_issued"

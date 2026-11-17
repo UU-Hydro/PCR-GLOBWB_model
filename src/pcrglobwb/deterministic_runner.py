@@ -75,7 +75,7 @@ def main():
     initial_state = None
     if noSpinUps > 0:
 
-        logger.info("Spin-Up #Total Years: " + str(noSpinUps))
+        logger.info(f"Spin-Up #Total Years: {noSpinUps}")
 
         spinUpRun = 0
         has_converged = False
@@ -84,7 +84,7 @@ def main():
             currTimeStep.getStartEndTimeStepsForSpinUp(
                 configuration.globalOptions["startTime"], spinUpRun, noSpinUps
             )
-            logger.info("Spin-Up Run No. " + str(spinUpRun))
+            logger.info(f"Spin-Up Run No. {spinUpRun}")
             deterministic_runner = DeterministicRunner(
                 configuration, currTimeStep, initial_state
             )

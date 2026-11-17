@@ -81,32 +81,21 @@ class IrrigationWaterDemand(object):
             )
         # netCDF file
         elif "nc" in os.path.splitext(self.ini_items_for_irrigation_efficiency)[1]:
-            try:
-                # netCDF file with a time dimension
-                ncFileIn = vos.getFullPath(
-                    self.ini_items_for_irrigation_efficiency, self.inputDir
-                )
+            ncFileIn = vos.getFullPath(
+                self.ini_items_for_irrigation_efficiency, self.inputDir
+            )
+            if vos.checkVariableInNC(ncFileIn, "time"):
                 self.irrigationEfficiency = vos.netcdf2PCRobjClone(
                     ncFileIn,
                     "automatic",
                     currTimeStep,
                     useDoy="yearly",
                 )
-
-            except Exception:
-                # netCDF file without a time dimension
-                msg = (
-                    "The file "
-                    + (ncFileIn)
-                    + " has no time dimension. Constant values will be used."
+            else:
+                logger.info(f"{ncFileIn}: no time dimension, using constant values")
+                self.irrigationEfficiency = vos.netcdf2PCRobjCloneWithoutTime(
+                    ncFileIn, "automatic"
                 )
-                logger.warning(msg)
-                self.irrigationEfficiency = vos.readPCRmapClone(
-                    self.ini_items_for_irrigation_efficiency,
-                    self.tmpDir,
-                    self.inputDir,
-                )
-            # TODO: remove try/except
         else:
             # constant value
             self.irrigationEfficiency = float(self.ini_items_for_irrigation_efficiency)
@@ -126,14 +115,15 @@ class IrrigationWaterDemand(object):
                 min(pcr.clone().nrRows(), pcr.clone().nrCols())
                 * pcr.clone().cellSize(),
             )
-            try:
+            if (
+                isinstance(self.irrigationEfficiency, pcr.Field)
+                and self.irrigationEfficiency.isSpatial()
+            ):
                 self.irrigationEfficiency = vos.fillWithWindowAverage(
                     self.irrigationEfficiency,
                     [window_size] * 5 + [0.75, 1.00, 1.50],
                     self.landmask,
                 )
-            except Exception:
-                pass
 
         self.irrigationEfficiency = pcr.cover(self.irrigationEfficiency, 1.0)
         self.irrigationEfficiency = pcr.max(0.1, self.irrigationEfficiency)

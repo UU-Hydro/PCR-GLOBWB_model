@@ -74,10 +74,7 @@ class IndustryWaterDemand(object):
 
                 else:
                     grossFileName = (
-                        self.industryWaterDemandFile
-                        + "w"
-                        + str(currTimeStep.year)
-                        + ".map"
+                        f"{self.industryWaterDemandFile}w{currTimeStep.year}.map"
                     )
                     self.industryGrossDemand = pcr.max(
                         0.0,
@@ -91,10 +88,7 @@ class IndustryWaterDemand(object):
                     )
 
                     nettoFileName = (
-                        self.industryWaterDemandFile
-                        + "n"
-                        + str(currTimeStep.year)
-                        + ".map"
+                        f"{self.industryWaterDemandFile}n{currTimeStep.year}.map"
                     )
                     self.industryNettoDemand = pcr.max(
                         0.0,

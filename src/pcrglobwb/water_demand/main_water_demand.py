@@ -30,12 +30,12 @@ class WaterDemand(object):
             and iniItems.waterDemandOptions["includeThermoelectricWaterDemand"]
             == "True"
         ):
-
-            msg = "\nIndustry, Manufacturing and Thermoelectric water use sectors are included in the calculations.\n"
-            msg += "Industrial demands already account for Manufacturing and Thermoelectric, thus water demands will be double counted.\n"
-            msg += 'Set either "includeIndustryWaterDemand" to "False" or\n'
-            msg += '           "includeManufactureWaterDemand" and "includeThermoelectricWaterDemand" to "False".'
-            raise ValueError(msg)
+            raise ValueError(
+                "\nIndustry, Manufacturing and Thermoelectric water use sectors are included in the calculations.\n"
+                "Industrial demands already account for Manufacturing and Thermoelectric, thus water demands will be double counted.\n"
+                'Set either "includeIndustryWaterDemand" to "False" or\n'
+                '           "includeManufactureWaterDemand" and "includeThermoelectricWaterDemand" to "False".'
+            )
 
         self.water_demand_domestic = domestic_water_demand.DomesticWaterDemand(
             iniItems, self.landmask

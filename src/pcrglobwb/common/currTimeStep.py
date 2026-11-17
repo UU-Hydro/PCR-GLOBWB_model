@@ -21,7 +21,7 @@ class ModelTime(object):
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
         self._spinUpStatus = False
         if showNumberOfTimeSteps:
-            logger.info("number of time steps: " + str(self._nrOfTimeSteps))
+            logger.info(f"number of time steps: {self._nrOfTimeSteps}")
         # monthly index since the start of the simulation
         self._monthIdx = 0
         # yearly index since the start of the simulation
@@ -102,16 +102,10 @@ class ModelTime(object):
             days=1 * (timeStepPCR - 1)
         )
 
-        self._fulldate = "%04i-%02i-%02i" % (
-            self._currTime.year,
-            self._currTime.month,
-            self._currTime.day,
-        )
+        self._fulldate = f"{self._currTime.year:04d}-{self._currTime.month:02d}-{self._currTime.day:02d}"
 
         if self.spinUpStatus:
-            logger.info(
-                "Spin-Up " + str(self._noSpinUp) + " of " + str(self._maxSpinUps)
-            )
+            logger.info(f"Spin-Up {self._noSpinUp} of {self._maxSpinUps}")
 
         # including hours, minutes, seconds
         self._currTimeFull = datetime.datetime(self.year, self.month, self.day)
