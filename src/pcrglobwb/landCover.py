@@ -277,15 +277,21 @@ class LandCover(object):
             self.interceptCapNC = None
 
         # netCDF output
-        self.report = True
-        try:
-            self.outDailyTotNC = self.iniItemsLC["outDailyTotNC"].split(",")
-            self.outMonthTotNC = self.iniItemsLC["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = self.iniItemsLC["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = self.iniItemsLC["outMonthEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = self.iniItemsLC
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # prepare the netCDF objects and files
@@ -488,20 +494,12 @@ class LandCover(object):
                     )
                 else:
                     # read the parameter from PCRaster maps or scalar values
-                    try:
+                    lc_parameters[var] = vos.readPCRmapClone(
+                        ini_option, self.tmpDir, self.inputDir
+                    )
+                    if lc_parameters[var] is not None:
                         lc_parameters[var] = pcr.cover(
-                            pcr.spatial(
-                                vos.readPCRmapClone(
-                                    ini_option,
-                                    self.tmpDir,
-                                    self.inputDir,
-                                )
-                            ),
-                            0.0,
-                        )
-                    except Exception:
-                        lc_parameters[var] = vos.readPCRmapClone(
-                            ini_option, self.tmpDir, self.inputDir
+                            pcr.spatial(lc_parameters[var]), 0.0
                         )
 
             # if not defined, approximate arnoBeta from minSoilDepthFrac and maxSoilDepthFrac

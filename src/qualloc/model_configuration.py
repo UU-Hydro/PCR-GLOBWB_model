@@ -158,62 +158,51 @@ the unreplaced token would otherwise surface much later as a missing file.
             # check whether the section exists (compulsory for the model parameterization)
             if config.has_section(section):
                 sections_present.remove(section)
-                try:
-                    section_info = self.get_items(config, section)
-                    for key, value in section_info.items():
-                        if "$" in value:
-                            argposcnt = value.find("$")
+                section_info = self.get_items(config, section)
+                for key, value in section_info.items():
+                    if "$" in value:
+                        argposcnt = value.find("$")
+                        try:
                             argpos = int(value[argposcnt + 1 :]) - 1
-                            value = str.join(
+                            section_info[key] = str.join(
                                 "", (value[:argposcnt], subst_args[argpos])
                             )
-                            section_info[key] = value
-                    setattr(self, section, section_info)
-                except Exception:
-                    sys.exit(
-                        f"processing information on the compulsory section [{section}] raised an error"
-                    )
+                        except (ValueError, IndexError) as error:
+                            raise ValueError(
+                                f"argument substitution failed on {key} = {value} "
+                                f"in compulsory section [{section}]"
+                            ) from error
+                setattr(self, section, section_info)
             else:
                 sys.exit(
                     f"configuration file does not contain information for the compulsory section [{section}]"
                 )
         # process groups and miscellaneous sections
         for group in groups:
-            try:
-                setattr(self, group, {})
-            except Exception:
-                sys.exit(
-                    f"processing information on the group [{group}] raised an error"
-                )
+            setattr(self, group, {})
         for section in sections_present:
-            try:
-                # name and group name (if present)
-                namelist = section.split(None, 1)
-                for icnt in range(len(namelist)):
-                    namelist[icnt] = namelist[icnt].strip()
-                group = namelist[0]
-                if group in groups:
-                    entryname = namelist[1]
-                    section_info = getattr(self, group)[entryname] = {}
-                else:
-                    section = section.replace(" ", "")
-                    # miscellaneous section
-                    section_info = self.get_items(config, section)
-                for key, value in section_info.items():
-                    if "$" in value:
-                        try:
-                            value = subst_args[int(value.lstrip("$")) - 1]
-                        except (ValueError, IndexError):
-                            sys.exit(
-                                f"argument substitution failed on {key} in optional section {section}"
-                            )
-                        section_info[key] = value
-                setattr(self, section, section_info)
-
-            except Exception:
-                sys.exit(
-                    f"processing information on the section [{section}] raised an error"
-                )
+            # name and group name (if present)
+            namelist = section.split(None, 1)
+            for icnt in range(len(namelist)):
+                namelist[icnt] = namelist[icnt].strip()
+            group = namelist[0]
+            if group in groups:
+                entryname = namelist[1]
+                section_info = getattr(self, group)[entryname] = {}
+            else:
+                section = section.replace(" ", "")
+                # miscellaneous section
+                section_info = self.get_items(config, section)
+            for key, value in section_info.items():
+                if "$" in value:
+                    try:
+                        section_info[key] = subst_args[int(value.lstrip("$")) - 1]
+                    except (ValueError, IndexError) as error:
+                        raise ValueError(
+                            f"argument substitution failed on {key} = {value} "
+                            f"in optional section [{section}]"
+                        ) from error
+            setattr(self, section, section_info)
 
         # check that the required entries of every group are present
         for group in groups:

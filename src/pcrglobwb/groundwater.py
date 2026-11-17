@@ -161,20 +161,16 @@ class Groundwater(object):
         self.kSatAquifer = pcr.cover(self.kSatAquifer, 0.0)
         self.kSatAquifer = pcr.max(0.010, self.kSatAquifer)
 
-        # try to read the recession coefficient (day-1) from groundwaterPropertiesNC
-        try:
-            if groundwaterPropertiesNC == "None":
-                self.recessionCoeff = None
-            else:
-                logger.info(f"Reading recessionCoeff from {groundwaterPropertiesNC}")
-                self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(
-                    groundwaterPropertiesNC,
-                    "recessionCoeff",
-                )
-        except Exception:
-            self.recessionCoeff = None
-            logger.warning(f"Cannot read recessionCoeff from {groundwaterPropertiesNC}")
-        # TODO: remove try/except
+        # recession coefficient (day-1) from groundwaterPropertiesNC, if present
+        self.recessionCoeff = None
+        if groundwaterPropertiesNC != "None" and vos.checkVariableInNC(
+            groundwaterPropertiesNC, "recessionCoeff"
+        ):
+            logger.info(f"Reading recessionCoeff from {groundwaterPropertiesNC}")
+            self.recessionCoeff = vos.netcdf2PCRobjCloneWithoutTime(
+                groundwaterPropertiesNC,
+                "recessionCoeff",
+            )
 
         # recession coefficient from the given PCRaster file
         if "recessionCoeff" in list(iniItems.groundwaterOptions.keys()):
@@ -398,18 +394,27 @@ class Groundwater(object):
 
     def initiate_old_style_groundwater_reporting(self, iniItems):
 
-        self.report = True
-        try:
-            self.outDailyTotNC = iniItems.groundwaterOptions["outDailyTotNC"].split(",")
-            self.outMonthTotNC = iniItems.groundwaterOptions["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = iniItems.groundwaterOptions["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = iniItems.groundwaterOptions["outMonthEndNC"].split(",")
-            self.outAnnuaTotNC = iniItems.groundwaterOptions["outAnnuaTotNC"].split(",")
-            self.outAnnuaAvgNC = iniItems.groundwaterOptions["outAnnuaAvgNC"].split(",")
-            self.outAnnuaEndNC = iniItems.groundwaterOptions["outAnnuaEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = iniItems.groundwaterOptions
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+                "outAnnuaTotNC",
+                "outAnnuaAvgNC",
+                "outAnnuaEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
+            self.outAnnuaTotNC = options["outAnnuaTotNC"].split(",")
+            self.outAnnuaAvgNC = options["outAnnuaAvgNC"].split(",")
+            self.outAnnuaEndNC = options["outAnnuaEndNC"].split(",")
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # daily netCDF output

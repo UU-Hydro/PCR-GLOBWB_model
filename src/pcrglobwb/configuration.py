@@ -271,18 +271,7 @@ class Configuration(object):
                 )
 
             # root/parent of the output directory
-            cleanOutputDir = False
-            if cleanOutputDir:
-                try:
-                    shutil.rmtree(self.globalOptions["outputDir"])
-                except Exception:
-                    # new outputDir (does not exist yet)
-                    pass
-            try:
-                os.makedirs(self.globalOptions["outputDir"])
-            except Exception:
-                # new outputDir (does not exist yet)
-                pass
+            os.makedirs(self.globalOptions["outputDir"], exist_ok=True)
 
             self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
 

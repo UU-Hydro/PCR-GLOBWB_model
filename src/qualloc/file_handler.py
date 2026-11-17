@@ -80,18 +80,8 @@ the file exists. Returns the resulting the filename.
     filename = os.path.normpath(filename)
 
     # substitute any additional arguments
-    if args != ():
-
-        if not isinstance(args, tuple):
-            args = tuple(args)
-
-        if "%" in filename:
-            try:
-                filename = filename % (args)
-            except Exception:
-                logger.warning(
-                    f"additional arguments could not be converted into the file name {filename}"
-                )
+    if args and "%" in filename:
+        filename = filename % args
 
     return filename, os.path.isfile(filename)
 
@@ -183,7 +173,7 @@ given date. This may concern spatial information or single entries.
         datatype_str = datatype_str.replace("VALUESCALE.", "")
 
     # compose the file name and check that it exists
-    filename, existing_file = compose_filename(filename, inputpath, file_subst_args)
+    filename, existing_file = compose_filename(filename, inputpath, *file_subst_args)
 
     if existing_file and file_is_nc(filename):
 
@@ -260,6 +250,9 @@ given date. This may concern spatial information or single entries.
             )
 
     else:
+
+        if val_str == "None":
+            return None
 
         try:
             var_out = float(val_str)

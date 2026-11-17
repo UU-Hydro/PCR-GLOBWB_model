@@ -2,6 +2,7 @@ import calendar
 import datetime
 import logging
 import math
+import os
 
 import numpy as np
 import pcraster as pcr
@@ -13,6 +14,30 @@ from pcrglobwb.evaporation import shortwave_radiation as sw_rad
 from pcrglobwb.ncConverter import PCR2netCDF
 
 logger = logging.getLogger(__name__)
+
+
+def monthly_file_name(template, year, month):
+    # positional fields cannot say which one is the year, so the order is taken from the file that exists
+    n_fields = template.count("%") - 2 * template.count("%%")
+    if n_fields == 2:
+        orders = [(year, month), (month, year)]
+    elif n_fields == 4:
+        orders = [(year, month, month, year), (month, year, year, month)]
+    else:
+        raise ValueError(
+            f"{template}: a monthly file name needs 2 or 4 fields (year and month), found {n_fields}"
+        )
+    candidates = list(dict.fromkeys(template % order for order in orders))
+    existing = [name for name in candidates if os.path.exists(name)]
+    if not existing:
+        raise FileNotFoundError(
+            f"no monthly file for {year}-{month:02d}; tried: {', '.join(candidates)}"
+        )
+    if len(existing) > 1:
+        raise ValueError(
+            f"ambiguous monthly file for {year}-{month:02d}: {', '.join(existing)}"
+        )
+    return existing[0]
 
 
 class Meteo(object):
@@ -240,18 +265,27 @@ class Meteo(object):
 
         self.getICs(iniItems, spinUp)
 
-        self.report = True
-        try:
-            self.outDailyTotNC = iniItems.meteoOptions["outDailyTotNC"].split(",")
-            self.outMonthTotNC = iniItems.meteoOptions["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = iniItems.meteoOptions["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = iniItems.meteoOptions["outMonthEndNC"].split(",")
-            self.outAnnuaTotNC = iniItems.meteoOptions["outAnnuaTotNC"].split(",")
-            self.outAnnuaAvgNC = iniItems.meteoOptions["outAnnuaAvgNC"].split(",")
-            self.outAnnuaEndNC = iniItems.meteoOptions["outAnnuaEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = iniItems.meteoOptions
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+                "outAnnuaTotNC",
+                "outAnnuaAvgNC",
+                "outAnnuaEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
+            self.outAnnuaTotNC = options["outAnnuaTotNC"].split(",")
+            self.outAnnuaAvgNC = options["outAnnuaAvgNC"].split(",")
+            self.outAnnuaEndNC = options["outAnnuaEndNC"].split(",")
             # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
@@ -1227,16 +1261,9 @@ class Meteo(object):
         if (
             "precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())
         ) and (self.iniItems.meteoOptions["precipitation_file_per_month"] == "True"):
-            try:
-                netcdf_file_name = self.preFileNC % (
-                    int(currTimeStep.year),
-                    int(currTimeStep.month),
-                )
-            except Exception:
-                netcdf_file_name = self.preFileNC % (
-                    int(currTimeStep.month),
-                    int(currTimeStep.year),
-                )
+            netcdf_file_name = monthly_file_name(
+                self.preFileNC, int(currTimeStep.year), int(currTimeStep.month)
+            )
             method_for_time_index = "daily_per_monthly_file"
 
         if self.precipitation_set_per_year:
@@ -1294,18 +1321,9 @@ class Meteo(object):
         if (
             "temperature_file_per_month" in list(self.iniItems.meteoOptions.keys())
         ) and (self.iniItems.meteoOptions["temperature_file_per_month"] == "True"):
-            try:
-                netcdf_file_name = self.tmpFileNC % (
-                    int(currTimeStep.year),
-                    int(currTimeStep.month),
-                    int(currTimeStep.month),
-                    int(currTimeStep.year),
-                )
-            except Exception:
-                netcdf_file_name = self.tmpFileNC % (
-                    int(currTimeStep.month),
-                    int(currTimeStep.year),
-                )
+            netcdf_file_name = monthly_file_name(
+                self.tmpFileNC, int(currTimeStep.year), int(currTimeStep.month)
+            )
             method_for_time_index = "daily_per_monthly_file"
 
         if self.temperature_set_per_year:
@@ -1360,18 +1378,9 @@ class Meteo(object):
             ) and (
                 self.iniItems.meteoOptions["refETPotFileNC_file_per_month"] == "True"
             ):
-                try:
-                    netcdf_file_name = self.etpFileNC % (
-                        int(currTimeStep.year),
-                        int(currTimeStep.month),
-                        int(currTimeStep.month),
-                        int(currTimeStep.year),
-                    )
-                except Exception:
-                    netcdf_file_name = self.etpFileNC % (
-                        int(currTimeStep.month),
-                        int(currTimeStep.year),
-                    )
+                netcdf_file_name = monthly_file_name(
+                    self.etpFileNC, int(currTimeStep.year), int(currTimeStep.month)
+                )
                 method_for_time_index = "daily_per_monthly_file"
 
             if self.temperature_set_per_year:

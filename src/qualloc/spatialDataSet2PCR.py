@@ -119,17 +119,19 @@ class spatialAttributes:
                         if typeInfo == int:
                             try:
                                 mapAttributes[mapAttribute] = int(rawStr)
-                            except Exception:
-                                sys.exit(
-                                    f"Error: map attributes could not be processed for {mapAttribute}"
-                                )
+                            except ValueError as error:
+                                raise ValueError(
+                                    f"{inputFileName}: could not read {mapAttribute} "
+                                    f"from gdalinfo output '{rawStr}'"
+                                ) from error
                         elif typeInfo == float:
                             try:
                                 mapAttributes[mapAttribute] = float(rawStr)
-                            except Exception:
-                                sys.exit(
-                                    f"Error: map attributes could not be processed for {mapAttribute}"
-                                )
+                            except ValueError as error:
+                                raise ValueError(
+                                    f"{inputFileName}: could not read {mapAttribute} "
+                                    f"from gdalinfo output '{rawStr}'"
+                                ) from error
                         else:
                             mapAttributes[mapAttribute] = rawStr
             if mapAttribute in ["xResolution", "yResolution"]:
@@ -181,11 +183,7 @@ stores data as numpy array in memory under the variable name specified"""
         else:
             sqlStr = ""
         if not isinstance(valueScale, str):
-            try:
-                valueScale = str(valueScale)
-            except Exception:
-                valueScale = "SCALAR"
-            valueScale = valueScale.upper()
+            valueScale = str(valueScale).upper()
 
         # handle special cases such as shape files and bands
         if os.path.splitext(inputFileName)[1] == ".shp":
@@ -283,7 +281,4 @@ stores data as numpy array in memory under the variable name specified"""
         for tempFileName in os.listdir(os.getcwd()):
             if os.path.splitext(tempFileName)[1] in [".map", ".tif", ".xml"]:
                 if tempFileRoot in tempFileName:
-                    try:
-                        os.remove(tempFileName)
-                    except Exception:
-                        pass
+                    os.remove(tempFileName)

@@ -117,12 +117,23 @@ def readDownscalingZarr(
     if specificFillValue is not None:
         outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(specificFillValue))
     else:
-        try:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(f[varName].fill_value))
-        except Exception:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(MV))
+        fill_value = f[varName].fill_value
+        if fill_value is None:
+            fill_value = MV
+        outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(fill_value))
 
     return outPCR
+
+
+def _with_year(date, year):
+    if (
+        date.day == 29
+        and date.month == 2
+        and calendar.isleap(date.year)
+        and not calendar.isleap(year)
+    ):
+        return datetime.datetime(year, date.month, 28)
+    return datetime.datetime(year, date.month, date.day)
 
 
 def readDownscalingMeteo(
@@ -145,12 +156,9 @@ def readDownscalingMeteo(
 
     varName = str(varName)
 
-    if LatitudeLongitude:
-        try:
-            f.variables["lat"] = f.variables["latitude"]
-            f.variables["lon"] = f.variables["longitude"]
-        except Exception:
-            pass
+    if LatitudeLongitude and "latitude" in f.variables:
+        f.variables["lat"] = f.variables["latitude"]
+        f.variables["lon"] = f.variables["longitude"]
 
     if varName == "automatic":
         nc_dims = [dim for dim in f.dimensions]
@@ -173,112 +181,75 @@ def readDownscalingMeteo(
                 "NOTE that there are more than one time steps in the netcdf file."
             )
 
+    elif useDoy == "Yes":
+        logger.debug("Finding the date from climatology doy index (1 to 366)")
+        idx = int(dateInput) - 1
+
     else:
         date = dateInput
-        if useDoy == "Yes":
-            logger.debug("Finding the date from climatology doy index (1 to 366)")
-            idx = int(dateInput) - 1
+
         # needed for netCDF files that contain only 12 monthly values (e.g. cropCoefficientWaterNC)
-        elif useDoy == "month":
+        if useDoy == "month":
             logger.debug("Finding the date from climatology month index (1 to 12)")
-            # make sure the date has the correct format
             if isinstance(date, str):
-                date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
+                date = datetime.datetime.strptime(date, "%Y-%m-%d")
             idx = int(date.month) - 1
+
         else:
-            # make sure the date has the correct format
             if isinstance(date, str):
-                date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
-            date = datetime.datetime(date.year, date.month, date.day)
+                date = datetime.datetime.strptime(date, "%Y-%m-%d")
             if useDoy == "yearly":
-                date = datetime.datetime(date.year, int(1), int(1))
-            if useDoy == "monthly":
-                date = datetime.datetime(date.year, date.month, int(1))
-            if (
-                useDoy == "yearly"
-                or useDoy == "monthly"
-                or useDoy == "daily_seasonal"
-                or useDoy == "daily"
-                or useDoy == "daily_per_monthly_file"
+                date = datetime.datetime(date.year, 1, 1)
+            elif useDoy == "monthly":
+                date = datetime.datetime(date.year, date.month, 1)
+            else:
+                date = datetime.datetime(date.year, date.month, date.day)
+
+            nctime = f.variables["time"]
+
+            if useDoy in (
+                "yearly",
+                "monthly",
+                "daily_seasonal",
+                "daily",
+                "daily_per_monthly_file",
             ):
                 # if the desired year is not available, use the first or last available year
-                first_year_in_nc_file = findFirstYearInNCTime(f.variables["time"])
-                last_year_in_nc_file = findLastYearInNCTime(f.variables["time"])
+                first_year_in_nc_file = findFirstYearInNCTime(nctime)
+                last_year_in_nc_file = findLastYearInNCTime(nctime)
                 if date.year < first_year_in_nc_file:
-                    if (
-                        date.day == 29
-                        and date.month == 2
-                        and calendar.isleap(date.year)
-                        and not calendar.isleap(first_year_in_nc_file)
-                    ):
-                        date = datetime.datetime(first_year_in_nc_file, date.month, 28)
-                    else:
-                        date = datetime.datetime(
-                            first_year_in_nc_file, date.month, date.day
-                        )
+                    date = _with_year(date, first_year_in_nc_file)
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
                         f"using {date:%Y-%m-%d} instead."
                     )
                 if date.year > last_year_in_nc_file:
-                    if (
-                        date.day == 29
-                        and date.month == 2
-                        and calendar.isleap(date.year)
-                        and not calendar.isleap(last_year_in_nc_file)
-                    ):
-                        date = datetime.datetime(last_year_in_nc_file, date.month, 28)
-                    else:
-                        date = datetime.datetime(
-                            last_year_in_nc_file, date.month, date.day
-                        )
+                    date = _with_year(date, last_year_in_nc_file)
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
                         f"using {date:%Y-%m-%d} instead."
                     )
-            try:
-                idx = nc.date2index(
-                    date,
-                    f.variables["time"],
-                    calendar=f.variables["time"].calendar,
-                    select="exact",
-                )
+
+            times = nctime[:]
+            date_num = nc.date2num(date, nctime.units, nctime.calendar)
+            if np.any(times == date_num):
+                select = "exact"
+            elif useDoy == "daily" or date_num < times[0]:
+                select = "after"
+            else:
+                select = "before"
+
+            idx = nc.date2index(date, nctime, calendar=nctime.calendar, select=select)
+
+            if select == "exact":
                 logger.debug(f"{date:%Y-%m-%d} found in netcdf; using select='exact'")
-            except Exception:
-                logger.debug(f"{date:%Y-%m-%d} not found; select='exact' not possible")
-                if useDoy == "daily":
-                    idx = nc.date2index(
-                        date,
-                        f.variables["time"],
-                        calendar=f.variables["time"].calendar,
-                        select="after",
-                    )
-                    select = "after"
-                else:
-                    try:
-                        idx = nc.date2index(
-                            date,
-                            f.variables["time"],
-                            calendar=f.variables["time"].calendar,
-                            select="before",
-                        )
-                        select = "before"
-                    except Exception:
-                        idx = nc.date2index(
-                            date,
-                            f.variables["time"],
-                            calendar=f.variables["time"].calendar,
-                            select="after",
-                        )
-                        select = "after"
+            else:
                 date_string = nc.num2date(
-                    f.variables["time"][int(idx)],
-                    f.variables["time"].units,
-                    f.variables["time"].calendar,
+                    nctime[int(idx)], nctime.units, nctime.calendar
                 )
                 logger.warning(
-                    f"Date {date:%Y-%m-%d} 00:00:00 NOT available in {ncFile} "
-                    f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
+                    f"{ncFile} (variable: {varName}) has no time step for {date:%Y-%m-%d}; "
+                    f"using the one {select} it instead: {date_string}"
                 )
 
     idx = int(idx)
@@ -380,12 +351,8 @@ def readDownscalingMeteo(
     if specificFillValue is not None:
         outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(specificFillValue))
     else:
-        try:
-            outPCR = pcr.numpy2pcr(
-                pcr.Scalar, cropData, float(f.variables[varName]._FillValue)
-            )
-        except Exception:
-            outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(MV))
+        fill_value = getattr(f.variables[varName], "_FillValue", MV)
+        outPCR = pcr.numpy2pcr(pcr.Scalar, cropData, float(fill_value))
     return outPCR
 
 
@@ -413,17 +380,17 @@ def netcdf2PCRobjCloneWithoutTime(
     absolutePath=None,
 ):
 
-    for _ in range(max_num_of_tries - 1):
+    for attempt in range(1, max_num_of_tries + 1):
         try:
             return singleTryNetcdf2PCRobjCloneWithoutTime(
                 ncFile, varName, LatitudeLongitude, specificFillValue, absolutePath
             )
         except Exception as e:
-            logger.warning(f"Re-try to read file {ncFile}: {e}")
-
-    return singleTryNetcdf2PCRobjCloneWithoutTime(
-        ncFile, varName, LatitudeLongitude, specificFillValue, absolutePath
-    )
+            if attempt == max_num_of_tries:
+                raise
+            logger.warning(
+                f"Re-try {attempt}/{max_num_of_tries} to read file {ncFile}: {e}"
+            )
 
 
 def singleTryNetcdf2PCRobjCloneWithoutTime(
@@ -456,12 +423,9 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
                 varName = var
     logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
-    if LatitudeLongitude:
-        try:
-            f.variables["lat"] = f.variables["latitude"]
-            f.variables["lon"] = f.variables["longitude"]
-        except Exception:
-            pass
+    if LatitudeLongitude and "latitude" in f.variables:
+        f.variables["lat"] = f.variables["latitude"]
+        f.variables["lon"] = f.variables["longitude"]
 
     attributeClone = getCloneAttributes()
     cellsizeClone = attributeClone["cellsize"]
@@ -502,22 +466,15 @@ def singleTryNetcdf2PCRobjCloneWithoutTime(
             float(specificFillValue),
         )
     else:
-        try:
-            outPCR = pcr.numpy2pcr(
-                pcr.Scalar,
-                regridData2FinerGrid(
-                    factor, cropData, float(f.variables[varName]._FillValue)
-                ),
-                float(f.variables[varName]._FillValue),
-            )
-        except Exception:
-            outPCR = pcr.numpy2pcr(
-                pcr.Scalar,
-                regridData2FinerGrid(
-                    factor, cropData, float(f.variables[varName].missing_value)
-                ),
-                float(f.variables[varName].missing_value),
-            )
+        var = f.variables[varName]
+        fill_value = float(
+            var._FillValue if hasattr(var, "_FillValue") else var.missing_value
+        )
+        outPCR = pcr.numpy2pcr(
+            pcr.Scalar,
+            regridData2FinerGrid(factor, cropData, fill_value),
+            fill_value,
+        )
 
     f.close()
 
@@ -533,7 +490,7 @@ def netcdf2PCRobjClone(
     specificFillValue=None,
 ):
 
-    for _ in range(max_num_of_tries - 1):
+    for attempt in range(1, max_num_of_tries + 1):
         try:
             return singleTryNetcdf2PCRobjClone(
                 ncFile,
@@ -544,16 +501,11 @@ def netcdf2PCRobjClone(
                 specificFillValue,
             )
         except Exception as e:
-            logger.warning(f"Re-try to read file {ncFile}: {e}")
-
-    return singleTryNetcdf2PCRobjClone(
-        ncFile,
-        varName,
-        dateInput,
-        useDoy,
-        LatitudeLongitude,
-        specificFillValue,
-    )
+            if attempt == max_num_of_tries:
+                raise
+            logger.warning(
+                f"Re-try {attempt}/{max_num_of_tries} to read file {ncFile}: {e}"
+            )
 
 
 def singleTryNetcdf2PCRobjClone(
@@ -576,12 +528,9 @@ def singleTryNetcdf2PCRobjClone(
 
     varName = str(varName)
 
-    if LatitudeLongitude:
-        try:
-            f.variables["lat"] = f.variables["latitude"]
-            f.variables["lon"] = f.variables["longitude"]
-        except Exception:
-            pass
+    if LatitudeLongitude and "latitude" in f.variables:
+        f.variables["lat"] = f.variables["latitude"]
+        f.variables["lon"] = f.variables["longitude"]
 
     if varName == "automatic":
         nc_dims = [dim for dim in f.dimensions]
@@ -596,54 +545,19 @@ def singleTryNetcdf2PCRobjClone(
                 varName = var
     logger.debug(f"reading variable: {varName} from the file: {ncFile}")
 
-    if varName == "evapotranspiration":
-        try:
-            f.variables["evapotranspiration"] = f.variables["referencePotET"]
-        except Exception:
-            pass
-
     # map PCR-GLOBWB variable names to the names in the netCDF file
-    if varName == "kc":
-        try:
-            f.variables["kc"] = f.variables["Cropcoefficient"]
-        except Exception:
-            pass
-
-    if varName == "interceptCapInput":
-        try:
-            f.variables["interceptCapInput"] = f.variables["Interceptioncapacity"]
-        except Exception:
-            pass
-
-    if varName == "coverFractionInput":
-        try:
-            f.variables["coverFractionInput"] = f.variables["Coverfraction"]
-        except Exception:
-            pass
-
-    if varName == "fracVegCover":
-        try:
-            f.variables["fracVegCover"] = f.variables["vegetation_fraction"]
-        except Exception:
-            pass
-
-    if varName == "minSoilDepthFrac":
-        try:
-            f.variables["minSoilDepthFrac"] = f.variables["minRootDepthFraction"]
-        except Exception:
-            pass
-
-    if varName == "maxSoilDepthFrac":
-        try:
-            f.variables["maxSoilDepthFrac"] = f.variables["maxRootDepthFraction"]
-        except Exception:
-            pass
-
-    if varName == "arnoBeta":
-        try:
-            f.variables["arnoBeta"] = f.variables["arnoSchemeBeta"]
-        except Exception:
-            pass
+    alternative_names = {
+        "evapotranspiration": "referencePotET",
+        "kc": "Cropcoefficient",
+        "interceptCapInput": "Interceptioncapacity",
+        "coverFractionInput": "Coverfraction",
+        "fracVegCover": "vegetation_fraction",
+        "minSoilDepthFrac": "minRootDepthFraction",
+        "maxSoilDepthFrac": "maxRootDepthFraction",
+        "arnoBeta": "arnoSchemeBeta",
+    }
+    if alternative_names.get(varName) in f.variables:
+        f.variables[varName] = f.variables[alternative_names[varName]]
 
     if dateInput is None:
         logger.debug("Using the first time step in the netcdf file.")
@@ -653,113 +567,75 @@ def singleTryNetcdf2PCRobjClone(
                 "NOTE that there are more than one time steps in the netcdf file."
             )
 
-    else:
+    elif useDoy == "Yes":
+        logger.debug("Finding the date from climatology doy index (1 to 366)")
+        idx = int(dateInput) - 1
 
+    else:
         date = dateInput
-        if useDoy == "Yes":
-            logger.debug("Finding the date from climatology doy index (1 to 366)")
-            idx = int(dateInput) - 1
+
         # needed for netCDF files that contain only 12 monthly values (e.g. cropCoefficientWaterNC)
-        elif useDoy == "month":
+        if useDoy == "month":
             logger.debug("Finding the date from climatology month index (1 to 12)")
-            # make sure the date has the correct format
             if isinstance(date, str):
-                date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
+                date = datetime.datetime.strptime(date, "%Y-%m-%d")
             idx = int(date.month) - 1
+
         else:
-            # make sure the date has the correct format
             if isinstance(date, str):
-                date = datetime.datetime.strptime(str(date), "%Y-%m-%d")
-            date = datetime.datetime(date.year, date.month, date.day)
+                date = datetime.datetime.strptime(date, "%Y-%m-%d")
             if useDoy == "yearly":
-                date = datetime.datetime(date.year, int(1), int(1))
-            if useDoy == "monthly":
-                date = datetime.datetime(date.year, date.month, int(1))
-            if (
-                useDoy == "yearly"
-                or useDoy == "monthly"
-                or useDoy == "daily_seasonal"
-                or useDoy == "daily"
-                or useDoy == "daily_per_monthly_file"
+                date = datetime.datetime(date.year, 1, 1)
+            elif useDoy == "monthly":
+                date = datetime.datetime(date.year, date.month, 1)
+            else:
+                date = datetime.datetime(date.year, date.month, date.day)
+
+            nctime = f.variables["time"]
+
+            if useDoy in (
+                "yearly",
+                "monthly",
+                "daily_seasonal",
+                "daily",
+                "daily_per_monthly_file",
             ):
                 # if the desired year is not available, use the first or last available year
-                first_year_in_nc_file = findFirstYearInNCTime(f.variables["time"])
-                last_year_in_nc_file = findLastYearInNCTime(f.variables["time"])
+                first_year_in_nc_file = findFirstYearInNCTime(nctime)
+                last_year_in_nc_file = findLastYearInNCTime(nctime)
                 if date.year < first_year_in_nc_file:
-                    if (
-                        date.day == 29
-                        and date.month == 2
-                        and calendar.isleap(date.year)
-                        and not calendar.isleap(first_year_in_nc_file)
-                    ):
-                        date = datetime.datetime(first_year_in_nc_file, date.month, 28)
-                    else:
-                        date = datetime.datetime(
-                            first_year_in_nc_file, date.month, date.day
-                        )
+                    date = _with_year(date, first_year_in_nc_file)
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
                         f"using {date:%Y-%m-%d} instead."
                     )
                 if date.year > last_year_in_nc_file:
-                    if (
-                        date.day == 29
-                        and date.month == 2
-                        and calendar.isleap(date.year)
-                        and not calendar.isleap(last_year_in_nc_file)
-                    ):
-                        date = datetime.datetime(last_year_in_nc_file, date.month, 28)
-                    else:
-                        date = datetime.datetime(
-                            last_year_in_nc_file, date.month, date.day
-                        )
+                    date = _with_year(date, last_year_in_nc_file)
                     logger.warning(
                         f"Date {dateInput} NOT available in {ncFile} (variable: {varName}); "
                         f"using {date:%Y-%m-%d} instead."
                     )
-            try:
-                idx = nc.date2index(
-                    date,
-                    f.variables["time"],
-                    calendar=f.variables["time"].calendar,
-                    select="exact",
-                )
+
+            times = nctime[:]
+            date_num = nc.date2num(date, nctime.units, nctime.calendar)
+            if np.any(times == date_num):
+                select = "exact"
+            elif useDoy == "daily" or date_num < times[0]:
+                select = "after"
+            else:
+                select = "before"
+
+            idx = nc.date2index(date, nctime, calendar=nctime.calendar, select=select)
+
+            if select == "exact":
                 logger.debug(f"{date:%Y-%m-%d} found in netcdf; using select='exact'")
-            except Exception:
-                logger.debug(f"{date:%Y-%m-%d} not found; select='exact' not possible")
-                if useDoy == "daily":
-                    idx = nc.date2index(
-                        date,
-                        f.variables["time"],
-                        calendar=f.variables["time"].calendar,
-                        select="after",
-                    )
-                    select = "after"
-                else:
-                    try:
-                        idx = nc.date2index(
-                            date,
-                            f.variables["time"],
-                            calendar=f.variables["time"].calendar,
-                            select="before",
-                        )
-                        select = "before"
-                    except Exception:
-                        idx = nc.date2index(
-                            date,
-                            f.variables["time"],
-                            calendar=f.variables["time"].calendar,
-                            select="after",
-                        )
-                        select = "after"
+            else:
                 date_string = nc.num2date(
-                    f.variables["time"][int(idx)],
-                    f.variables["time"].units,
-                    f.variables["time"].calendar,
+                    nctime[int(idx)], nctime.units, nctime.calendar
                 )
                 logger.warning(
-                    f"Date {date:%Y-%m-%d} 00:00:00 NOT available in {ncFile} "
-                    f"(variable: {varName}); the '{select}' option is used, giving {date_string}."
+                    f"{ncFile} (variable: {varName}) has no time step for {date:%Y-%m-%d}; "
+                    f"using the one {select} it instead: {date_string}"
                 )
 
     idx = int(idx)
@@ -818,22 +694,15 @@ def singleTryNetcdf2PCRobjClone(
             float(specificFillValue),
         )
     else:
-        try:
-            outPCR = pcr.numpy2pcr(
-                pcr.Scalar,
-                regridData2FinerGrid(
-                    factor, cropData, float(f.variables[varName]._FillValue)
-                ),
-                float(f.variables[varName]._FillValue),
-            )
-        except Exception:
-            outPCR = pcr.numpy2pcr(
-                pcr.Scalar,
-                regridData2FinerGrid(
-                    factor, cropData, float(f.variables[varName].missing_value)
-                ),
-                float(f.variables[varName].missing_value),
-            )
+        var = f.variables[varName]
+        fill_value = float(
+            var._FillValue if hasattr(var, "_FillValue") else var.missing_value
+        )
+        outPCR = pcr.numpy2pcr(
+            pcr.Scalar,
+            regridData2FinerGrid(factor, cropData, fill_value),
+            fill_value,
+        )
 
     if useDoy == "daily_per_monthly_file":
         # close the file on the last day of the month and remove it from the cache
@@ -862,15 +731,17 @@ def readPCRmapClone(
     isNomMap=False,
 ):
 
-    for _ in range(max_num_of_tries - 1):
+    for attempt in range(1, max_num_of_tries + 1):
         try:
             return singleTryReadPCRmapClone(
                 v, tmpDir, absolutePath, isLddMap, cover, isNomMap
             )
         except Exception as e:
-            logger.warning(f"Re-try to read file/value {v}: {e}")
-
-    return singleTryReadPCRmapClone(v, tmpDir, absolutePath, isLddMap, cover, isNomMap)
+            if attempt == max_num_of_tries:
+                raise
+            logger.warning(
+                f"Re-try {attempt}/{max_num_of_tries} to read file/value {v}: {e}"
+            )
 
 
 def singleTryReadPCRmapClone(
@@ -901,17 +772,15 @@ def singleTryReadPCRmapClone(
 
             logger.debug(f"read netcdf file: {v}")
 
-            try:
-                # netCDF file without time
-                PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile=v, varName="automatic")
-            except Exception:
-                # netCDF file with time
+            if checkVariableInNC(v, "time"):
                 PCRmap = netcdf2PCRobjClone(
                     ncFile=v,
                     varName="automatic",
                     dateInput=None,
                     useDoy=None,
                 )
+            else:
+                PCRmap = netcdf2PCRobjCloneWithoutTime(ncFile=v, varName="automatic")
 
         else:
 

@@ -1180,12 +1180,12 @@ class Routing(object):
                         self.landmask, pcr.cover(self.routedIrrTDS, 0.0)
                     )
 
-        # make sure timestepsToAvgDischarge is the same for the entire map
-        try:
+        # make sure timestepsToAvgDischarge is the same for the entire map; a non-spatial value already is
+        if (
+            isinstance(self.timestepsToAvgDischarge, pcr.Field)
+            and self.timestepsToAvgDischarge.isSpatial()
+        ):
             self.timestepsToAvgDischarge = pcr.mapmaximum(self.timestepsToAvgDischarge)
-        except Exception:
-            # try/except because pcr.mapmaximum cannot handle scalar values
-            pass
 
         # for netCDF reporting, timestepsToAvgDischarge must be spatial and scalar (e.g. for pcr2numpy)
         self.timestepsToAvgDischarge = pcr.spatial(
@@ -2963,18 +2963,27 @@ class Routing(object):
 
     def initiate_old_style_routing_reporting(self, iniItems):
 
-        self.report = True
-        try:
-            self.outDailyTotNC = iniItems.routingOptions["outDailyTotNC"].split(",")
-            self.outMonthTotNC = iniItems.routingOptions["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = iniItems.routingOptions["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = iniItems.routingOptions["outMonthEndNC"].split(",")
-            self.outAnnuaTotNC = iniItems.routingOptions["outAnnuaTotNC"].split(",")
-            self.outAnnuaAvgNC = iniItems.routingOptions["outAnnuaAvgNC"].split(",")
-            self.outAnnuaEndNC = iniItems.routingOptions["outAnnuaEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = iniItems.routingOptions
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+                "outAnnuaTotNC",
+                "outAnnuaAvgNC",
+                "outAnnuaEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
+            self.outAnnuaTotNC = options["outAnnuaTotNC"].split(",")
+            self.outAnnuaAvgNC = options["outAnnuaAvgNC"].split(",")
+            self.outAnnuaEndNC = options["outAnnuaEndNC"].split(",")
             # daily netCDF output
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)

@@ -33,6 +33,11 @@ class Reporting(object):
                 configuration.globalOptions["inputDir"],
             )
 
+    def _output_vars(self, option):
+        return list(
+            set(self.configuration.reportingOptions.get(option, "None").split(","))
+        )
+
     def initiate_reporting(self):
 
         if (
@@ -53,98 +58,34 @@ class Reporting(object):
             self.netcdfObj = PCR2netCDF(self.configuration, specificAttributeDictionary)
 
             # netCDF output: daily
-            self.outDailyTotNC = ["None"]
-            try:
-                self.outDailyTotNC = list(
-                    set(self.configuration.reportingOptions["outDailyTotNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outDailyTotNC = self._output_vars("outDailyTotNC")
 
             # monthly totals
-            self.outMonthTotNC = ["None"]
-            try:
-                self.outMonthTotNC = list(
-                    set(self.configuration.reportingOptions["outMonthTotNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outMonthTotNC = self._output_vars("outMonthTotNC")
 
             # monthly averages
-            self.outMonthAvgNC = ["None"]
-            try:
-                self.outMonthAvgNC = list(
-                    set(self.configuration.reportingOptions["outMonthAvgNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outMonthAvgNC = self._output_vars("outMonthAvgNC")
 
             # end of month
-            self.outMonthEndNC = ["None"]
-            try:
-                self.outMonthEndNC = list(
-                    set(self.configuration.reportingOptions["outMonthEndNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outMonthEndNC = self._output_vars("outMonthEndNC")
 
             # monthly maximum
-            self.outMonthMaxNC = ["None"]
-            try:
-                self.outMonthMaxNC = list(
-                    set(self.configuration.reportingOptions["outMonthMaxNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outMonthMaxNC = self._output_vars("outMonthMaxNC")
 
             # yearly totals
-            self.outAnnuaTotNC = ["None"]
-            try:
-                self.outAnnuaTotNC = list(
-                    set(self.configuration.reportingOptions["outAnnuaTotNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outAnnuaTotNC = self._output_vars("outAnnuaTotNC")
 
             # yearly averages
-            self.outAnnuaAvgNC = ["None"]
-            try:
-                self.outAnnuaAvgNC = list(
-                    set(self.configuration.reportingOptions["outAnnuaAvgNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outAnnuaAvgNC = self._output_vars("outAnnuaAvgNC")
 
             # end of year
-            self.outAnnuaEndNC = ["None"]
-            try:
-                self.outAnnuaEndNC = list(
-                    set(self.configuration.reportingOptions["outAnnuaEndNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outAnnuaEndNC = self._output_vars("outAnnuaEndNC")
 
             # yearly maximum
-            self.outAnnuaMaxNC = ["None"]
-            try:
-                self.outAnnuaMaxNC = list(
-                    set(self.configuration.reportingOptions["outAnnuaMaxNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outAnnuaMaxNC = self._output_vars("outAnnuaMaxNC")
 
             # daily upstream average (through the LDD)
-            self.outDailyTotUpsAvgNC = ["None"]
-            try:
-                self.outDailyTotUpsAvgNC = list(
-                    set(
-                        self.configuration.reportingOptions[
-                            "outDailyTotUpsAvgNC"
-                        ].split(",")
-                    )
-                )
-            except Exception:
-                pass
+            self.outDailyTotUpsAvgNC = self._output_vars("outDailyTotUpsAvgNC")
 
             # variables to report
             self.variables_for_report = (
@@ -175,13 +116,7 @@ class Reporting(object):
             self.netcdfObj = PCR2netCDF(self.configuration, specificAttributeDictionary)
 
             # netCDF output: daily
-            self.outDailyTotNC = ["None"]
-            try:
-                self.outDailyTotNC = list(
-                    set(self.configuration.reportingOptions["outDailyTotNC"].split(","))
-                )
-            except Exception:
-                pass
+            self.outDailyTotNC = self._output_vars("outDailyTotNC")
             if self.outDailyTotNC[0] != "None":
                 for var in self.outDailyTotNC:
 
@@ -205,13 +140,7 @@ class Reporting(object):
                     )
 
         # weekly totals
-        self.outWeekTotNC = ["None"]
-        try:
-            self.outWeekTotNC = self.configuration.reportingOptions[
-                "outWeekTotNC"
-            ].split(",")
-        except Exception:
-            pass
+        self.outWeekTotNC = self._output_vars("outWeekTotNC")
         if self.outWeekTotNC[0] != "None":
             for var in self.outWeekTotNC:
                 # accumulator
@@ -232,13 +161,7 @@ class Reporting(object):
                     long_name,
                 )
 
-        self.outWeekAvgNC = ["None"]
-        try:
-            self.outWeekAvgNC = list(
-                set(self.configuration.reportingOptions["outWeekAvgNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outWeekAvgNC = self._output_vars("outWeekAvgNC")
 
         if self.outWeekAvgNC[0] != "None":
             for var in self.outWeekAvgNC:
@@ -263,13 +186,7 @@ class Reporting(object):
                 )
 
         # monthly totals
-        self.outMonthTotNC = ["None"]
-        try:
-            self.outMonthTotNC = list(
-                set(self.configuration.reportingOptions["outMonthTotNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outMonthTotNC = self._output_vars("outMonthTotNC")
         if self.outMonthTotNC[0] != "None":
             for var in self.outMonthTotNC:
                 # accumulator
@@ -295,13 +212,7 @@ class Reporting(object):
                 )
 
         # monthly averages
-        self.outMonthAvgNC = ["None"]
-        try:
-            self.outMonthAvgNC = list(
-                set(self.configuration.reportingOptions["outMonthAvgNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outMonthAvgNC = self._output_vars("outMonthAvgNC")
         if self.outMonthAvgNC[0] != "None":
             for var in self.outMonthAvgNC:
                 # accumulator
@@ -329,13 +240,7 @@ class Reporting(object):
                 )
 
             # end of month
-        self.outMonthEndNC = ["None"]
-        try:
-            self.outMonthEndNC = list(
-                set(self.configuration.reportingOptions["outMonthEndNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outMonthEndNC = self._output_vars("outMonthEndNC")
         if self.outMonthEndNC[0] != "None":
             for var in self.outMonthEndNC:
                 logger.info(f"Creating monthly end netcdf for {var}")
@@ -358,13 +263,7 @@ class Reporting(object):
                 )
 
         # monthly maximum
-        self.outMonthMaxNC = ["None"]
-        try:
-            self.outMonthMaxNC = list(
-                set(self.configuration.reportingOptions["outMonthMaxNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outMonthMaxNC = self._output_vars("outMonthMaxNC")
         if self.outMonthMaxNC[0] != "None":
             for var in self.outMonthMaxNC:
                 logger.info(f"Creating monthly maximum netcdf for {var}")
@@ -387,13 +286,7 @@ class Reporting(object):
                 )
 
             # yearly totals
-        self.outAnnuaTotNC = ["None"]
-        try:
-            self.outAnnuaTotNC = list(
-                set(self.configuration.reportingOptions["outAnnuaTotNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outAnnuaTotNC = self._output_vars("outAnnuaTotNC")
         if self.outAnnuaTotNC[0] != "None":
             for var in self.outAnnuaTotNC:
                 # accumulator
@@ -419,13 +312,7 @@ class Reporting(object):
                 )
 
         # yearly averages
-        self.outAnnuaAvgNC = ["None"]
-        try:
-            self.outAnnuaAvgNC = list(
-                set(self.configuration.reportingOptions["outAnnuaAvgNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outAnnuaAvgNC = self._output_vars("outAnnuaAvgNC")
         if self.outAnnuaAvgNC[0] != "None":
             for var in self.outAnnuaAvgNC:
                 vars(self)[f"{var}AnnuaAvg"] = None
@@ -453,13 +340,7 @@ class Reporting(object):
                 )
 
         # end of year
-        self.outAnnuaEndNC = ["None"]
-        try:
-            self.outAnnuaEndNC = list(
-                set(self.configuration.reportingOptions["outAnnuaEndNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outAnnuaEndNC = self._output_vars("outAnnuaEndNC")
         if self.outAnnuaEndNC[0] != "None":
             for var in self.outAnnuaEndNC:
                 logger.info(f"Creating annual end netcdf for {var}")
@@ -482,13 +363,7 @@ class Reporting(object):
                 )
 
         # yearly maximum
-        self.outAnnuaMaxNC = ["None"]
-        try:
-            self.outAnnuaMaxNC = list(
-                set(self.configuration.reportingOptions["outAnnuaMaxNC"].split(","))
-            )
-        except Exception:
-            pass
+        self.outAnnuaMaxNC = self._output_vars("outAnnuaMaxNC")
         if self.outAnnuaMaxNC[0] != "None":
             for var in self.outAnnuaMaxNC:
                 logger.info(f"Creating annual maximum netcdf for {var}")
@@ -511,17 +386,7 @@ class Reporting(object):
                 )
 
         # daily upstream average (through the LDD)
-        self.outDailyTotUpsAvgNC = ["None"]
-        try:
-            self.outDailyTotUpsAvgNC = list(
-                set(
-                    self.configuration.reportingOptions["outDailyTotUpsAvgNC"].split(
-                        ","
-                    )
-                )
-            )
-        except Exception:
-            pass
+        self.outDailyTotUpsAvgNC = self._output_vars("outDailyTotUpsAvgNC")
         if self.outDailyTotUpsAvgNC[0] != "None":
             for var in self.outDailyTotUpsAvgNC:
                 logger.info(f"Creating daily upstream average (LDD) netcdf for {var}")

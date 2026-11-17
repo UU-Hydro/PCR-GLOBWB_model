@@ -189,7 +189,7 @@ def get_date_index(date, dates, date_selection_method, substituted_dates=False):
         )
 
 
-def get_nc_object_attributes(obj, exclude_list=[], exclude_class_objects=True):
+def get_nc_object_attributes(obj, exclude_list=[]):
     """Reads all information from the netCDF dataset object specified and returns a dictionary
     of key, value pairs; should only be applied on copies of netCDF dataset objects
     to avoid unwanted changes in the dataset"""
@@ -203,15 +203,8 @@ def get_nc_object_attributes(obj, exclude_list=[], exclude_class_objects=True):
             if item[:len_str] == check_item:
                 include_entry = include_entry and False
 
-        if include_entry:
-            if isinstance(getattr(obj, item), BuiltinMethodType):
-                if not exclude_class_objects:
-                    try:
-                        dobj[item] = getattr(obj, item)()
-                    except Exception:
-                        pass
-            else:
-                dobj[item] = getattr(obj, item)
+        if include_entry and not isinstance(getattr(obj, item), BuiltinMethodType):
+            dobj[item] = getattr(obj, item)
     return dobj
 
 
@@ -573,13 +566,17 @@ def add_data_to_netCDF(
 
         # temporal information: add the dates
         nc_time = rootgrp.variables[time_dimension]
-        if len(nc_time[:]) > 0:
-            try:
-                date_ixs = np.array(nc.date2index(dates, nc_time)).ravel()
-            except Exception:
-                date_ixs = np.arange(len(dates)) + len(nc_time[:])
+        times = nc_time[:]
+        # no calendar on purpose: dates are converted with their own calendar, as before, so on a
+        # non-standard calendar (e.g. noleap) dates already in the file are not found and appended again
+        dates_in_file = (
+            len(times) > 0 and np.isin(nc.date2num(dates, nc_time.units), times).all()
+        )
+        if dates_in_file:
+            date_ixs = np.array(nc.date2index(dates, nc_time)).ravel()
         else:
-            date_ixs = np.arange(len(dates)) + len(nc_time[:])
+            # dates not yet in the file are appended to the time axis
+            date_ixs = np.arange(len(dates)) + len(times)
 
         date_ixs = date_ixs.tolist()
         for date_ix in date_ixs:
@@ -786,7 +783,7 @@ holding netCDF information to facilitate access."""
                             data_attributes = spatialAttributes(
                                 f'NETCDF:"{ncfilename}":{variablename}'
                             )
-                        except Exception:
+                        except KeyError:
 
                             logger.debug(
                                 f"{variablename} in {ncfilename} is treated as a non-spatial dataset"

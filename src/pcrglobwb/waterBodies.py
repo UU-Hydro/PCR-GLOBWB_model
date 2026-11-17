@@ -360,16 +360,12 @@ class WaterBodies(object):
 
         # initialize storage and average inflow and outflow for new reservoirs (introduced at the
         # beginning of the year)
-        try:
-            self.waterBodyStorage = pcr.cover(self.waterBodyStorage, 0.0)
-            self.avgInflow = pcr.cover(self.avgInflow, 0.0)
-            self.avgOutflow = pcr.cover(self.avgOutflow, 0.0)
-            self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
-            self.avgInflow = pcr.ifthen(self.landmask, self.avgInflow)
-            self.avgOutflow = pcr.ifthen(self.landmask, self.avgOutflow)
-        except Exception:
-            pass
-        # TODO: remove try/except
+        self.waterBodyStorage = pcr.cover(self.waterBodyStorage, 0.0)
+        self.avgInflow = pcr.cover(self.avgInflow, 0.0)
+        self.avgOutflow = pcr.cover(self.avgOutflow, 0.0)
+        self.waterBodyStorage = pcr.ifthen(self.landmask, self.waterBodyStorage)
+        self.avgInflow = pcr.ifthen(self.landmask, self.avgInflow)
+        self.avgOutflow = pcr.ifthen(self.landmask, self.avgOutflow)
 
         # crop to the landmask
         self.fracWat = pcr.ifthen(self.landmask, self.fracWat)

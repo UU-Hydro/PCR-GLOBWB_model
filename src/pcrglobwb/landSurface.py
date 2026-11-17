@@ -401,18 +401,27 @@ class LandSurface(object):
         self.initiate_old_style_land_surface_reporting(iniItems)
 
     def initiate_old_style_land_surface_reporting(self, iniItems):
-        self.report = True
-        try:
-            self.outDailyTotNC = iniItems.landSurfaceOptions["outDailyTotNC"].split(",")
-            self.outMonthTotNC = iniItems.landSurfaceOptions["outMonthTotNC"].split(",")
-            self.outMonthAvgNC = iniItems.landSurfaceOptions["outMonthAvgNC"].split(",")
-            self.outMonthEndNC = iniItems.landSurfaceOptions["outMonthEndNC"].split(",")
-            self.outAnnuaTotNC = iniItems.landSurfaceOptions["outAnnuaTotNC"].split(",")
-            self.outAnnuaAvgNC = iniItems.landSurfaceOptions["outAnnuaAvgNC"].split(",")
-            self.outAnnuaEndNC = iniItems.landSurfaceOptions["outAnnuaEndNC"].split(",")
-        except Exception:
-            self.report = False
+        options = iniItems.landSurfaceOptions
+        self.report = all(
+            option in options
+            for option in (
+                "outDailyTotNC",
+                "outMonthTotNC",
+                "outMonthAvgNC",
+                "outMonthEndNC",
+                "outAnnuaTotNC",
+                "outAnnuaAvgNC",
+                "outAnnuaEndNC",
+            )
+        )
         if self.report:
+            self.outDailyTotNC = options["outDailyTotNC"].split(",")
+            self.outMonthTotNC = options["outMonthTotNC"].split(",")
+            self.outMonthAvgNC = options["outMonthAvgNC"].split(",")
+            self.outMonthEndNC = options["outMonthEndNC"].split(",")
+            self.outAnnuaTotNC = options["outAnnuaTotNC"].split(",")
+            self.outAnnuaAvgNC = options["outAnnuaAvgNC"].split(",")
+            self.outAnnuaEndNC = options["outAnnuaEndNC"].split(",")
             self.outNCDir = iniItems.outNCDir
             self.netcdfObj = PCR2netCDF(iniItems)
             # daily netCDF output
@@ -705,18 +714,17 @@ class LandSurface(object):
                 numb_of_lc_types += 1.0
 
         # fill cells with pristineAreaFrac = 0; TODO: this only works for certain land cover names
-        try:
+        if "forest" in self.landCoverObj:
             self.landCoverObj["forest"].fracVegCover = pcr.ifthenelse(
                 pristineAreaFrac > 0.0, self.landCoverObj["forest"].fracVegCover, 0.0
             )
             self.landCoverObj["forest"].fracVegCover = pcr.min(
                 1.0, self.landCoverObj["forest"].fracVegCover
             )
-            self.landCoverObj["grassland"].fracVegCover = (
-                1.0 - self.landCoverObj["forest"].fracVegCover
-            )
-        except Exception:
-            pass
+            if "grassland" in self.landCoverObj:
+                self.landCoverObj["grassland"].fracVegCover = (
+                    1.0 - self.landCoverObj["forest"].fracVegCover
+                )
 
         # recalculate the total land cover fraction
         pristineAreaFrac = 0.0
@@ -1072,6 +1080,23 @@ class LandSurface(object):
         # rescale the land cover fractions (for all land cover types)
         self.scaleModifiedLandCoverFractions()
 
+    def _total_allocated_water(self, sector):
+        water_management = self.qualloc_model.water_management
+        if sector not in water_management.sector_names:
+            return pcr.spatial(pcr.scalar(0.0))
+        return (
+            water_management.allocated_demand_per_sector["renewable_surfacewater"][
+                sector
+            ]
+            + water_management.allocated_demand_per_sector["renewable_groundwater"][
+                sector
+            ]
+            + water_management.allocated_demand_per_sector["nonrenewable_groundwater"][
+                sector
+            ]
+            + water_management.allocated_demand_per_sector_desalwater[sector]
+        )
+
     def update(self, meteo, groundwater, routing, currTimeStep):
         # set the land cover parameters per land cover type: fracVegCover, arnoBeta, rootZoneWaterStorageMin,
         # rootZoneWaterStorageRange, maxRootDepth, adjRootFrUpp, adjRootFrLow, effSatAt50, effPoreSizeBetaAt50,
@@ -1219,119 +1244,14 @@ class LandSurface(object):
             # variables passed to other modules:
             # sectoral water allocation from all sources (despite the 'withdrawal' in the names)
 
-            # domestic: total allocated water (m3)
-            try:
-                self.domesticWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["domestic"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["domestic"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["domestic"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "domestic"
-                    ]
-                )
-            except Exception:
-                self.domesticWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
-
-            # industry: total allocated water (m3)
-            try:
-                self.industryWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["industry"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["industry"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["industry"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "industry"
-                    ]
-                )
-            except Exception:
-                self.industryWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
-
-            # livestock: total allocated water (m3)
-            try:
-                self.livestockWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["livestock"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["livestock"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["livestock"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "livestock"
-                    ]
-                )
-            except Exception:
-                self.livestockWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
-
-            # manufacture: total allocated water (m3)
-            try:
-                self.manufactureWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["manufacture"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["manufacture"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["manufacture"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "manufacture"
-                    ]
-                )
-            except Exception:
-                self.manufactureWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
-
-            # thermoelectric: total allocated water (m3)
-            try:
-                self.thermoelectricWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["thermoelectric"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["thermoelectric"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["thermoelectric"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "thermoelectric"
-                    ]
-                )
-            except Exception:
-                self.thermoelectricWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
-
-            # irrigation: total allocated water (m3)
-            try:
-                self.irrigationWaterWithdrawal = (
-                    self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_surfacewater"
-                    ]["irrigation"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "renewable_groundwater"
-                    ]["irrigation"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector[
-                        "nonrenewable_groundwater"
-                    ]["irrigation"]
-                    + self.qualloc_model.water_management.allocated_demand_per_sector_desalwater[
-                        "irrigation"
-                    ]
-                )
-            except Exception:
-                self.irrigationWaterWithdrawal = pcr.spatial(pcr.scalar(0.0))
+            self.domesticWaterWithdrawal = self._total_allocated_water("domestic")
+            self.industryWaterWithdrawal = self._total_allocated_water("industry")
+            self.livestockWaterWithdrawal = self._total_allocated_water("livestock")
+            self.manufactureWaterWithdrawal = self._total_allocated_water("manufacture")
+            self.thermoelectricWaterWithdrawal = self._total_allocated_water(
+                "thermoelectric"
+            )
+            self.irrigationWaterWithdrawal = self._total_allocated_water("irrigation")
 
             # desalinated water abstraction and allocation, total of all sectors (m)
             self.desalinationAbstraction = (
