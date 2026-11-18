@@ -34,9 +34,6 @@ class PCRGlobWB(object):
         else:
             self.landmask = pcr.defined(self.lddMap)
 
-        # catchment areas
-        self.catchment_class = 1.0
-
         # number of upper soil layers
         self.numberOfSoilLayers = int(
             configuration.landSurfaceOptions["numberOfUpperSoilLayers"]
@@ -68,9 +65,6 @@ class PCRGlobWB(object):
             self._configuration, self.landmask, initialState
         )
         self.routing = routing.Routing(self._configuration, initialState, self.lddMap)
-
-        # short name for every land cover type (used in file names)
-        self.shortNames = ["f", "g", "p", "n"]
 
     def dumpState(self, outputDirectory, specific_date_string=None):
         # write all states to disk to allow restarting
