@@ -214,8 +214,8 @@ def split_sources(
             )
 
     # in the original order of the sources
-    untapped = {s: untapped[s] for s in availability.keys()}
-    allocated = {s: allocated[s] for s in availability.keys()}
+    untapped = {s: untapped[s] for s in availability}
+    allocated = {s: allocated[s] for s in availability}
 
     return untapped, allocated
 
@@ -380,7 +380,7 @@ def allocate_demand_to_availability(
     unmet, group_untapped, group_allocated, message = _allocate_demand_to_availability(
         demand=demand,
         availability=group_availability,
-        source_names=list(groups.keys()),
+        source_names=list(groups),
         zones=group_zones,
         max_iterations=max_iterations,
         relative_tolerance=relative_tolerance,

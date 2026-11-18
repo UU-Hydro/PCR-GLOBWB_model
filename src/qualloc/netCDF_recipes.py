@@ -258,17 +258,17 @@ def get_nc_attributes(ncfilename):
 
     # attributes and values of the dimensions, as dictionaries for reuse
     nc_dimattrs = {}
-    for key in nc_dimensions.keys():
+    for key in nc_dimensions:
         nc_dimattrs[key] = get_nc_object_attributes(
             nc_dimensions[key], exclude_list=exclude_list
         )
-        if key in nc_variables.keys():
+        if key in nc_variables:
             nc_dimattrs[key]["values"] = nc_variables[key][:]
             nc_dimattrs[key]["size"] = nc_variables[key].size
 
     # attributes of each variable, for reuse
     nc_varattrs = {}
-    for key in nc_variables.keys():
+    for key in nc_variables:
         nc_varattrs[key] = get_nc_object_attributes(
             nc_variables[key], exclude_list=exclude_list
         )
@@ -367,7 +367,7 @@ the netCDF4 createVariable function.
     nc_defaults["least_significant_digit"] = default_least_significant_digit
 
     # optional nc_var_attrs
-    if "nc_var_atttrs" in nc_optional_info.keys() and isinstance(
+    if "nc_var_atttrs" in nc_optional_info and isinstance(
         nc_optional_info["nc_var_attrs"], DictType
     ):
         nc_var_attrs = nc_optional_info["nc_var_attrs"].copy()
@@ -379,15 +379,15 @@ the netCDF4 createVariable function.
 
         if key != "nc_var_attrs":
 
-            if key not in nc_var_attrs.keys():
+            if key not in nc_var_attrs:
 
                 nc_var_attrs[key] = value
 
     # update the defaults
-    nc_var_keys = list(nc_var_attrs.keys())
+    nc_var_keys = list(nc_var_attrs)
     for key in nc_var_keys:
 
-        if key in nc_defaults.keys():
+        if key in nc_defaults:
 
             nc_var_attrs[key] = nc_var_attrs[key]
 
@@ -402,7 +402,7 @@ the netCDF4 createVariable function.
     # create the variable, first with the defaults, then with the remaining keys of nc_var_attrs
     nc_variable = rootgrp.createVariable(**nc_defaults)
 
-    if "ncattrs" in nc_var_attrs.keys():
+    if "ncattrs" in nc_var_attrs:
 
         for key, value in nc_var_attrs["nc_attrs"].items():
 
@@ -559,7 +559,7 @@ def add_data_to_netCDF(
     dim_keys = list(rootgrp.variables[name].dimensions)
 
     time_dimension = ""
-    if "time_dimension" in additional_info.keys() and "dates" in additional_info.keys():
+    if "time_dimension" in additional_info and "dates" in additional_info:
 
         time_dimension = additional_info["time_dimension"]
         dates = additional_info["dates"]
@@ -675,7 +675,7 @@ def get_nc_dates(ncfilename):
     nc_format, nc_attributes, nc_dimattrs, nc_varattrs = get_nc_attributes(ncfilename)
 
     time_dimension = None
-    for variablename in nc_dimattrs.keys():
+    for variablename in nc_dimattrs:
         if "calendar" in nc_varattrs[variablename]:
             time_dimension = variablename
 
@@ -710,7 +710,7 @@ class netCDF_file_info:
     def test_ncfile_in_cache(self, ncfilename):
         """tests if the specified nc file name is present in the cache"""
 
-        return ncfilename in self.cache.keys()
+        return ncfilename in self.cache
 
     def add_ncfile_to_cache(
         self, ncfilename, clone_attributes=None, forced_non_spatial=False
@@ -719,7 +719,7 @@ class netCDF_file_info:
 holding netCDF information to facilitate access."""
 
         # add the netCDF file to the cache if not present yet
-        if ncfilename not in self.cache.keys():
+        if ncfilename not in self.cache:
 
             nc_format, nc_attributes, nc_dimattrs, nc_varattrs = get_nc_attributes(
                 ncfilename
@@ -730,7 +730,7 @@ holding netCDF information to facilitate access."""
             self.variables[ncfilename] = nc_varattrs.copy()
 
             # global fill value, if possible
-            if nc_mv_id_str in self.attributes[ncfilename].keys():
+            if nc_mv_id_str in self.attributes[ncfilename]:
                 global_mv = self.attributes[ncfilename][nc_mv_id_str]
             else:
                 global_mv = default_fill_value
@@ -738,7 +738,7 @@ holding netCDF information to facilitate access."""
             self.cache[ncfilename] = nc.Dataset(ncfilename)
 
             time_dimension = None
-            for variablename in self.dimensions[ncfilename].keys():
+            for variablename in self.dimensions[ncfilename]:
                 if "calendar" in self.variables[ncfilename][variablename]:
                     time_dimension = variablename
 
@@ -754,7 +754,7 @@ holding netCDF information to facilitate access."""
 
             # check the dimensions, determine whether the data set is spatial and temporal, and add the
             # missing value information of the variable if not included yet
-            for variablename in self.variables[ncfilename].keys():
+            for variablename in self.variables[ncfilename]:
 
                 # default missing value identifier
                 mv = None
@@ -806,13 +806,10 @@ holding netCDF information to facilitate access."""
                                 "spatial_variable"
                             ] = True
 
-                            if ncfilename not in self.spatialattributes.keys():
+                            if ncfilename not in self.spatialattributes:
                                 self.spatialattributes[ncfilename] = {}
 
-                            if (
-                                variablename
-                                not in self.spatialattributes[ncfilename].keys()
-                            ):
+                            if variablename not in self.spatialattributes[ncfilename]:
 
                                 self.spatialattributes[ncfilename][
                                     variablename
@@ -854,10 +851,7 @@ holding netCDF information to facilitate access."""
 
                     # add the missing value information (attribute nc_mv_id_str, '_FillValue') of all
                     # non-dimensional variables, if necessary
-                    if (
-                        nc_mv_id_str
-                        not in self.variables[ncfilename][variablename].keys()
-                    ):
+                    if nc_mv_id_str not in self.variables[ncfilename][variablename]:
 
                         if isinstance(mv, NoneType):
                             mv = global_mv
@@ -871,7 +865,7 @@ holding netCDF information to facilitate access."""
 specified netCDF file."""
 
         # remove the netCDF file from the cache if present
-        if ncfilename in self.cache.keys():
+        if ncfilename in self.cache:
 
             self.cache[ncfilename].close()
             del self.cache[ncfilename]
@@ -888,7 +882,7 @@ specified netCDF file."""
         nc_dims = ()
 
         # dimensions of the variable if present, otherwise remove the file from the cache
-        if variablename in self.variables[ncfilename].keys():
+        if variablename in self.variables[ncfilename]:
             nc_dims = self.variables[ncfilename][variablename]["dimensions"]
 
         else:
@@ -1101,7 +1095,7 @@ depending on the type of match specified.
 
     def close_cache(self):
 
-        for ncfilename in list(self.cache.keys()):
+        for ncfilename in list(self.cache):
 
             self.remove_ncfile_from_cache(ncfilename)
 
@@ -1134,11 +1128,11 @@ output netCDF files.
         self.default_fill_value = default_fill_value
         self.nc_format = default_nc_format
         self.zlib = default_zlib
-        if "nc_format" in model_configuration.reporting.keys():
+        if "nc_format" in model_configuration.reporting:
             self.format = model_configuration.convert_string_to_input(
                 model_configuration.reporting["nc_format"], str
             )
-        if "zlib" in model_configuration.reporting.keys():
+        if "zlib" in model_configuration.reporting:
             self.format = model_configuration.convert_string_to_input(
                 model_configuration.reporting["zlib"], bool
             )
@@ -1202,7 +1196,7 @@ output netCDF files.
         # add defaults if necessary
         for key, attribute in nc_default_attributes.items():
 
-            if key not in nc_global_attributes.keys():
+            if key not in nc_global_attributes:
                 nc_global_attributes[key] = attribute
 
         return nc_global_attributes
@@ -1210,7 +1204,7 @@ output netCDF files.
     def test_ncfile_in_cache(self, ncfilename):
         """tests if the specified nc file name is present in the cache"""
 
-        return ncfilename in self.cache.keys()
+        return ncfilename in self.cache
 
     def add_ncfile_to_cache(
         self,
@@ -1231,7 +1225,7 @@ holding netCDF information to facilitate access."""
 specified netCDF file."""
 
         # remove the netCDF file from the cache if present
-        if ncfilename in self.cache.keys():
+        if ncfilename in self.cache:
 
             self.cache[ncfilename].close()
             del self.cache[ncfilename]
@@ -1287,7 +1281,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
             if dim_info["is_temporal"] and is_temporal:
                 var_dim_keys.insert(dim_pos, dim_key)
 
-        nc_dim_keys = list(self.cache[ncfilename].dimensions.keys())
+        nc_dim_keys = list(self.cache[ncfilename].dimensions)
 
         for dim_key in var_dim_keys:
             if dim_key not in nc_dim_keys:
@@ -1334,7 +1328,7 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
                     pass
 
         # dimensions of the current variable
-        if ncfilename not in self.dimensions.keys():
+        if ncfilename not in self.dimensions:
             self.dimensions[ncfilename] = {variablename: var_dim_keys}
 
         logger.debug(f"variable {variablename} added to {ncfilename}")
@@ -1367,11 +1361,11 @@ of the dimensions to be written.
         # time variable and date of temporal variables
         is_timed = False
 
-        if "is_timed" in additional_info.keys():
+        if "is_timed" in additional_info:
             is_timed = additional_info["is_timed"]
 
         if is_timed:
-            if "time_dimension" not in additional_info.keys():
+            if "time_dimension" not in additional_info:
                 additional_info["time_dimension"] = self.time_dimension[ncfilename]
 
         dim_slices = dict(
@@ -1391,7 +1385,7 @@ of the dimensions to be written.
 
     def close_cache(self):
 
-        for ncfilename in list(self.cache.keys()):
+        for ncfilename in list(self.cache):
 
             self.remove_ncfile_from_cache(ncfilename)
 

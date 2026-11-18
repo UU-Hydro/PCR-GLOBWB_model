@@ -80,7 +80,7 @@ class qualloc_model:
         self.model_flags = model_flags
 
         self.model_flags["water_quality_flag"] = False
-        if "water_quality" in vars(self.model_configuration).keys():
+        if "water_quality" in vars(self.model_configuration):
             self.model_flags["water_quality_flag"] = eval(
                 self.model_configuration.water_quality["water_quality_flag"]
             )
@@ -88,7 +88,7 @@ class qualloc_model:
         self.model_flags["groundwater_pumping_capacity_flag"] = False
         if (
             "groundwater_regional_pumping_capacity"
-            in self.model_configuration.water_management.keys()
+            in self.model_configuration.water_management
             and self.model_configuration.water_management[
                 "groundwater_regional_pumping_capacity"
             ]
@@ -99,7 +99,7 @@ class qualloc_model:
         self.model_flags["surfacewater_pumping_capacity_flag"] = False
         if (
             "surfacewater_regional_pumping_capacity"
-            in self.model_configuration.water_management.keys()
+            in self.model_configuration.water_management
             and self.model_configuration.water_management[
                 "surfacewater_regional_pumping_capacity"
             ]
@@ -108,10 +108,7 @@ class qualloc_model:
             self.model_flags["surfacewater_pumping_capacity_flag"] = True
 
         self.model_flags["desalinated_water_use_flag"] = False
-        if (
-            "desalinated_water_use_flag"
-            in self.model_configuration.water_management.keys()
-        ):
+        if "desalinated_water_use_flag" in self.model_configuration.water_management:
             self.model_flags["desalinated_water_use_flag"] = eval(
                 self.model_configuration.water_management["desalinated_water_use_flag"]
             )
@@ -246,19 +243,19 @@ class qualloc_model:
 
         # water management: sectors, sources and withdrawals
         sector_names = ["irrigation", "domestic", "industry", "livestock"]
-        if "sector_names" in self.model_configuration.water_management.keys():
+        if "sector_names" in self.model_configuration.water_management:
             sector_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["sector_names"], str
             )
 
         source_names = ["groundwater", "surfacewater"]
-        if "source_names" in self.model_configuration.water_management.keys():
+        if "source_names" in self.model_configuration.water_management:
             source_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["source_names"], str
             )
 
         withdrawal_names = ["renewable", "nonrenewable"]
-        if "withdrawal_names" in self.model_configuration.water_management.keys():
+        if "withdrawal_names" in self.model_configuration.water_management:
             withdrawal_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["withdrawal_names"], str
             )
@@ -548,7 +545,7 @@ class qualloc_model:
 
                 key = f"prioritization_{source_name}_{sector_name}"
 
-                if key in self.model_configuration.water_management.keys():
+                if key in self.model_configuration.water_management:
 
                     values = read_file_entry(
                         filename=self.model_configuration.water_management[key],
@@ -661,14 +658,14 @@ class qualloc_model:
                 self.net_demand_forcing_vars[sector_name] = net_demand_name
 
         # check for missing sectors
-        for sector_name in self.gross_demand_forcing_vars.keys():
-            if sector_name not in self.net_demand_forcing_vars.keys():
+        for sector_name in self.gross_demand_forcing_vars:
+            if sector_name not in self.net_demand_forcing_vars:
                 self.net_demand_forcing_vars[sector_name] = (
                     self.gross_demand_forcing_vars[sector_name]
                 )
 
-        for sector_name in self.net_demand_forcing_vars.keys():
-            if sector_name not in self.gross_demand_forcing_vars.keys():
+        for sector_name in self.net_demand_forcing_vars:
+            if sector_name not in self.gross_demand_forcing_vars:
                 self.gross_demand_forcing_vars[sector_name] = (
                     self.net_demand_forcing_vars[sector_name]
                 )
@@ -700,7 +697,7 @@ class qualloc_model:
             for constituent_name in constituent_names:
                 var = f"limit_{constituent_name}_{sector_name}"
 
-                if var in self.model_configuration.water_quality.keys():
+                if var in self.model_configuration.water_quality:
                     limit = self.model_configuration.water_quality[var]
                 else:
                     limit = None
@@ -733,7 +730,7 @@ class qualloc_model:
 
                 if self.model_flags["water_quality_flag"]:
                     # whether the constituent has long-term water quality data
-                    if f"{var}_ini" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ini" in self.model_configuration.water_quality:
                         constituent_longterm_quality = self.initial_conditions[
                             "water_quality"
                         ][var]
@@ -772,7 +769,7 @@ class qualloc_model:
 
                 # whether the constituent has short-term water quality data
                 if self.model_flags["water_quality_flag"]:
-                    if f"{var}_ncfile" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ncfile" in self.model_configuration.water_quality:
                         ncfilename = self.model_configuration.water_quality[
                             f"{var}_ncfile"
                         ]
@@ -1366,7 +1363,7 @@ class qualloc_model:
             else:
                 state_info = self.water_management.water_quality.get_final_conditions()
 
-            if module_name not in self.initial_conditions.keys():
+            if module_name not in self.initial_conditions:
                 self.initial_conditions[module_name] = {}
 
             for key, value in state_info.items():

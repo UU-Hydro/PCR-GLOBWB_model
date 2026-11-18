@@ -22,7 +22,7 @@ class SpinUp:
 
         # option to save the netCDF files of the latest spin-up cycle
         self.spinUpOutputDir = None
-        if "spinUpOutputDir" in list(iniItems.globalOptions.keys()):
+        if "spinUpOutputDir" in iniItems.globalOptions:
             self.outNCDir = str(iniItems.outNCDir)
             if iniItems.globalOptions["spinUpOutputDir"] not in ["None", "False"]:
                 self.spinUpOutputDir = vos.getFullPath(

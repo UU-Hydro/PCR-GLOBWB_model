@@ -51,7 +51,7 @@ class qualloc_reporting:
 
         # report intervals, all None initially
         self.report_intervals = []
-        for interval in intervals.keys():
+        for interval in intervals:
             for statistic in statistics:
                 report_interval = f"{interval}_{statistic}"
                 self.report_intervals.append(report_interval)
@@ -85,7 +85,7 @@ class qualloc_reporting:
 
         variablename_info = {}
 
-        for interval in intervals.keys():
+        for interval in intervals:
             for process_variable in self.process_variables:
                 if interval in process_variable:
 
@@ -108,7 +108,7 @@ class qualloc_reporting:
                         update_status = True
 
                     if update_status:
-                        if process_variable not in variablename_info.keys():
+                        if process_variable not in variablename_info:
                             variablename_info[process_variable] = (
                                 variablename,
                                 statistic,
@@ -147,7 +147,7 @@ class qualloc_reporting:
 
         for report_interval in self.report_intervals:
 
-            if report_interval in self.model_configuration.reporting.keys():
+            if report_interval in self.model_configuration.reporting:
 
                 value = self.model_configuration.convert_string_to_input(
                     self.model_configuration.reporting[report_interval], str
@@ -175,7 +175,7 @@ class qualloc_reporting:
                     # key of the variable for the current interval
                     key = f"{variablename}_{interval}_{statistic}"
 
-                    if key not in vars(self).keys():
+                    if key not in vars(self):
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -184,7 +184,7 @@ class qualloc_reporting:
                     # and make the updates work
                     key = f"{variablename}_monthly_{statistic}"
 
-                    if key not in vars(self).keys():
+                    if key not in vars(self):
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -313,7 +313,7 @@ class qualloc_reporting:
                         )
 
         # report the intervals
-        for time_flag in model_time.report_flags.keys():
+        for time_flag in model_time.report_flags:
 
             if model_time.report_flags[time_flag]:
 
@@ -558,9 +558,9 @@ dictionaries with the dates provided.
 
         self.nc_handler = netCDF_output_handler(model_configuration)
 
-        modules = list(initial_conditions.keys())
+        modules = list(initial_conditions)
         self.variablenames = dict(
-            (module, list(initial_conditions[module].keys())) for module in modules
+            (module, list(initial_conditions[module])) for module in modules
         )
 
         return None
@@ -619,7 +619,7 @@ dictionaries with the dates provided.
 
                     if isinstance(initial_conditions[module][variablename], dict):
 
-                        dates = list(initial_conditions[module][variablename].keys())
+                        dates = list(initial_conditions[module][variablename])
                         dates.sort()
                         values = []
                         for dt in dates:

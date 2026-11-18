@@ -1113,14 +1113,14 @@ total_return_flow_ini                      : total return flow [m3/day]
         for sector_name in self.sector_names:
 
             # gross demand (m3/day)
-            if sector_name in gross_demand.keys():
+            if sector_name in gross_demand:
 
                 logger.debug(f"{sector_name} gross water demand set for {date}")
 
                 self.gross_demand[sector_name] = gross_demand[sector_name]
 
             # net demand (m3/day)
-            if sector_name in net_demand.keys():
+            if sector_name in net_demand:
 
                 logger.debug(f"{sector_name} net water demand set for {date}")
 
@@ -2706,7 +2706,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                 net_demand=self.net_demand[sector_name],
             )
 
-            for key in self.allocated_demand_per_sector.keys():
+            for key in self.allocated_demand_per_sector:
 
                 # consumption and return flow per sector (m3/day)
                 self.return_flow_demand_per_sector[key][sector_name] = (

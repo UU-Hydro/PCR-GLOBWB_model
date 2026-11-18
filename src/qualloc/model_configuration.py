@@ -230,9 +230,9 @@ to a log file and to the screen at configurable levels.
         # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
         # log level from the configuration file
-        if "log_level_console" in list(self.general.keys()):
+        if "log_level_console" in self.general:
             log_level_console = self.general["log_level_console"]
-        if "log_level_file" in list(self.general.keys()):
+        if "log_level_file" in self.general:
             log_level_file = self.general["log_level_file"]
 
         # log level for debug mode

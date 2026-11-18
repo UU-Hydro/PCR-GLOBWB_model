@@ -205,7 +205,7 @@ class LandSurface:
             logger.info("Irrigation is NOT included/considered in this run.")
 
         # land cover types defined by the user
-        if "landCoverTypes" in list(iniItems.landSurfaceOptions.keys()):
+        if "landCoverTypes" in iniItems.landSurfaceOptions:
             self.coverTypes = iniItems.landSurfaceOptions["landCoverTypes"].split(",")
 
         # water demand options: irrigation efficiency, non-irrigation water demand and desalination supply;
@@ -228,9 +228,7 @@ class LandSurface:
                 name_of_section_given_in_ini_file
             )
 
-            if "usingSpecificSoilTopo" not in list(
-                dictionary_of_land_cover_settings.keys()
-            ):
+            if "usingSpecificSoilTopo" not in dictionary_of_land_cover_settings:
                 dictionary_of_land_cover_settings["usingSpecificSoilTopo"] = "False"
             if dictionary_of_land_cover_settings["usingSpecificSoilTopo"] == "True":
                 logger.info(
@@ -261,7 +259,7 @@ class LandSurface:
 
         # rescale the land cover fractions; by default they are always corrected (total of all fractions = 1)
         self.noLandCoverFractionCorrection = False
-        if "noLandCoverFractionCorrection" in list(iniItems.landSurfaceOptions.keys()):
+        if "noLandCoverFractionCorrection" in iniItems.landSurfaceOptions:
             if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True":
                 self.noLandCoverFractionCorrection = True
         if not self.noLandCoverFractionCorrection:
@@ -271,9 +269,7 @@ class LandSurface:
 
         # option to change the land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if "annualChangesInLandCoverParameters" in list(
-            iniItems.landSurfaceOptions.keys()
-        ):
+        if "annualChangesInLandCoverParameters" in iniItems.landSurfaceOptions:
             if (
                 iniItems.landSurfaceOptions["annualChangesInLandCoverParameters"]
                 == "True"
@@ -295,12 +291,12 @@ class LandSurface:
             )
 
         self.using_qualloc = False
-        if "using_qualloc" in iniItems.waterManagementOptions.keys():
+        if "using_qualloc" in iniItems.waterManagementOptions:
             if iniItems.waterManagementOptions["using_qualloc"] == "True":
                 self.using_qualloc = True
 
         self.using_dynqual = False
-        if "quality" in iniItems.routingOptions.keys():
+        if "quality" in iniItems.routingOptions:
             if iniItems.routingOptions["quality"] == "True":
                 self.using_dynqual = True
 
@@ -544,14 +540,14 @@ class LandSurface:
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover
 
-            if "grassland" in list(self.landCoverObj.keys()):
+            if "grassland" in self.landCoverObj:
                 self.landCoverObj["grassland"].previousFracVegCover = pcr.ifthenelse(
                     total_fractions > 0.1,
                     self.landCoverObj["grassland"].previousFracVegCover,
                     1.0,
                 )
 
-            if "short_natural" in list(self.landCoverObj.keys()):
+            if "short_natural" in self.landCoverObj:
                 self.landCoverObj["short_natural"].previousFracVegCover = (
                     pcr.ifthenelse(
                         total_fractions > 0.1,
@@ -591,14 +587,14 @@ class LandSurface:
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover
 
-            if "grassland" in list(self.landCoverObj.keys()):
+            if "grassland" in self.landCoverObj:
                 self.landCoverObj["grassland"].previousFracVegCover = pcr.ifthenelse(
                     total_fractions > 0.1,
                     self.landCoverObj["grassland"].previousFracVegCover,
                     1.0,
                 )
 
-            if "short_natural" in list(self.landCoverObj.keys()):
+            if "short_natural" in self.landCoverObj:
                 self.landCoverObj["short_natural"].previousFracVegCover = (
                     pcr.ifthenelse(
                         total_fractions > 0.1,
@@ -671,8 +667,7 @@ class LandSurface:
             if not coverType.startswith("irr"):
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation"
-                    in self.iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in self.iniItems.landSurfaceOptions
                     and self.iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):

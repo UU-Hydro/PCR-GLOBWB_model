@@ -113,7 +113,7 @@ class SoilAndTopoParameters:
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -141,7 +141,7 @@ class SoilAndTopoParameters:
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -213,7 +213,7 @@ class SoilAndTopoParameters:
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -239,7 +239,7 @@ class SoilAndTopoParameters:
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -309,7 +309,7 @@ class SoilAndTopoParameters:
             "maxGWCapRise",
         ]
         for var in soilParameterConstants:
-            if var in list(iniItems.landSurfaceOptions.keys()):
+            if var in iniItems.landSurfaceOptions:
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
 

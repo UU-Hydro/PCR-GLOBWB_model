@@ -43,7 +43,7 @@ class PCRGlobWB:
 
         # option to save monthly end states
         self.save_monthly_end_states = False
-        if "save_monthly_end_states" in list(configuration.reportingOptions.keys()):
+        if "save_monthly_end_states" in configuration.reportingOptions:
             self.save_monthly_end_states = (
                 configuration.reportingOptions["save_monthly_end_states"] == "True"
             )

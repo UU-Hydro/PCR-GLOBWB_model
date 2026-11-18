@@ -32,7 +32,7 @@ class WaterBodies:
         # option to activate the water balance check
         self.debugWaterBalance = True
         if (
-            "debugWaterBalance" in list(iniItems.routingOptions.keys())
+            "debugWaterBalance" in iniItems.routingOptions
             and iniItems.routingOptions["debugWaterBalance"] == "False"
         ):
             self.debugWaterBalance = False
@@ -40,7 +40,7 @@ class WaterBodies:
         # option to run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
         if (
-            "onlyNaturalWaterBodies" in list(iniItems.routingOptions.keys())
+            "onlyNaturalWaterBodies" in iniItems.routingOptions
             and iniItems.routingOptions["onlyNaturalWaterBodies"] == "True"
         ):
             logger.info("Only 1900 natural water bodies; reservoirs treated as lakes")
@@ -70,12 +70,12 @@ class WaterBodies:
         # the long-term average outflow (defaults)
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
-        if "minResvrFrac" in list(iniItems.routingOptions.keys()):
+        if "minResvrFrac" in iniItems.routingOptions:
             minResvrFrac = iniItems.routingOptions["minResvrFrac"]
             self.minResvrFrac = vos.readPCRmapClone(
                 minResvrFrac, self.tmpDir, self.inputDir
             )
-        if "maxResvrFrac" in list(iniItems.routingOptions.keys()):
+        if "maxResvrFrac" in iniItems.routingOptions:
             maxResvrFrac = iniItems.routingOptions["maxResvrFrac"]
             self.maxResvrFrac = vos.readPCRmapClone(
                 maxResvrFrac, self.tmpDir, self.inputDir

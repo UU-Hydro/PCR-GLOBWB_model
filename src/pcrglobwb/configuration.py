@@ -65,9 +65,9 @@ class Configuration:
         # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
         # log level from the ini file
-        if "log_level_console" in list(self.globalOptions.keys()):
+        if "log_level_console" in self.globalOptions:
             log_level_console = self.globalOptions["log_level_console"]
-        if "log_level_file" in list(self.globalOptions.keys()):
+        if "log_level_file" in self.globalOptions:
             log_level_file = self.globalOptions["log_level_file"]
 
         # log level for debug mode
@@ -193,7 +193,7 @@ class Configuration:
     def create_output_directories(self):
 
         if (
-            "is_sub_run" in list(self.reportingOptions.keys())
+            "is_sub_run" in self.reportingOptions
             and self.reportingOptions["is_sub_run"] == "True"
         ):
             self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
@@ -283,9 +283,7 @@ class Configuration:
         # model time step (days)
         self.timeStep = 1.0
         self.timeStepUnit = "day"
-        if "timeStep" in list(self.globalOptions.keys()) and "timeStepUnit" in list(
-            self.globalOptions.keys()
-        ):
+        if "timeStep" in self.globalOptions and "timeStepUnit" in self.globalOptions:
 
             if (
                 float(self.globalOptions["timeStep"]) != 1.0
@@ -296,28 +294,28 @@ class Configuration:
                 )
 
         # defaults for missing options
-        if "routingMethod" not in list(self.routingOptions.keys()):
+        if "routingMethod" not in self.routingOptions:
             logger.warning('No routingMethod in routingOptions; using "accuTravelTime"')
             self.routingOptions["routingMethod"] = "accuTravelTime"
 
-        if "dynamicFloodPlain" not in list(self.routingOptions.keys()):
+        if "dynamicFloodPlain" not in self.routingOptions:
             logger.warning(
                 'No dynamicFloodPlain; using "False": flood plain extent is constant'
             )
             self.routingOptions["dynamicFloodPlain"] = "False"
 
-        if "historicalIrrigationArea" not in list(self.landSurfaceOptions.keys()):
+        if "historicalIrrigationArea" not in self.landSurfaceOptions:
             logger.warning(
                 'No historicalIrrigationArea in landSurfaceOptions; using "None"'
             )
             self.landSurfaceOptions["historicalIrrigationArea"] = "None"
 
         # options to read a different forcing file for each year
-        if "precipitation_set_per_year" not in list(self.meteoOptions.keys()):
+        if "precipitation_set_per_year" not in self.meteoOptions:
             self.meteoOptions["precipitation_set_per_year"] = "False"
-        if "temperature_set_per_year" not in list(self.meteoOptions.keys()):
+        if "temperature_set_per_year" not in self.meteoOptions:
             self.meteoOptions["temperature_set_per_year"] = "False"
-        if "refETPotFileNC_set_per_year" not in list(self.meteoOptions.keys()):
+        if "refETPotFileNC_set_per_year" not in self.meteoOptions:
             self.meteoOptions["refETPotFileNC_set_per_year"] = "False"
 
         # TODO: repair key names when running a 3-layer model with 2-layer initial conditions (and vice versa)

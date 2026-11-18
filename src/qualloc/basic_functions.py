@@ -57,7 +57,7 @@ def get_decision(question_str, possible_outcomes):
 
     """
 
-    options = list(possible_outcomes.keys())
+    options = list(possible_outcomes)
     option_str = "("
     for option in options:
         option_str = str.join("", (option_str, option, ", "))

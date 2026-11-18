@@ -52,12 +52,12 @@ class IrrigationWaterDemand:
         # irrigation efficiency input (value or file name)
         self.ini_items_for_irrigation_efficiency = None
         # by default, use the one in waterDemandOptions
-        if "irrigationEfficiency" in self.iniItems.waterDemandOptions.keys():
+        if "irrigationEfficiency" in self.iniItems.waterDemandOptions:
             self.ini_items_for_irrigation_efficiency = self.iniItems.waterDemandOptions[
                 "irrigationEfficiency"
             ]
         # a specific one in the landCoverOptions takes precedence
-        if "irrigationEfficiency" in self.iniItemsIrrLC.keys():
+        if "irrigationEfficiency" in self.iniItemsIrrLC:
             self.ini_items_for_irrigation_efficiency = self.iniItemsIrrLCOptions[
                 "irrigationEfficiency"
             ]
@@ -101,7 +101,7 @@ class IrrigationWaterDemand:
 
         extrapolate = True
         if (
-            "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys()
+            "noParameterExtrapolation" in self.iniItems.landSurfaceOptions
             and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True"
         ):
             extrapolate = False

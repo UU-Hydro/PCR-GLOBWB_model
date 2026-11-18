@@ -24,7 +24,7 @@ class Reporting:
 
         self.landmask_for_reporting = None
         if (
-            "landmask_for_reporting" in list(configuration.reportingOptions.keys())
+            "landmask_for_reporting" in configuration.reportingOptions
             and self.configuration.reportingOptions["landmask_for_reporting"] != "None"
         ):
             self.landmask_for_reporting = vos.readPCRmapClone(
@@ -41,14 +41,14 @@ class Reporting:
     def initiate_reporting(self):
 
         if (
-            "is_sub_run" in list(self.configuration.reportingOptions.keys())
+            "is_sub_run" in self.configuration.reportingOptions
             and self.configuration.reportingOptions["is_sub_run"] == "True"
         ):
             # output directory for netCDF files
             self.outNCDir = str(self.configuration.outNCDir)
 
             # RvB (23 Feb 2017): specific attributes to allow for multiple netcdfAttributes
-            if "netcdfAttributesOptions" in list(vars(self.configuration).keys()):
+            if "netcdfAttributesOptions" in vars(self.configuration):
                 logger.info(
                     "Passing specific netcdf attributes to the output files created"
                 )
@@ -106,7 +106,7 @@ class Reporting:
             self.outNCDir = str(self.configuration.outNCDir)
 
             # RvB (23 Feb 2017): specific attributes to allow for multiple netcdfAttributes
-            if "netcdfAttributesOptions" in list(vars(self.configuration).keys()):
+            if "netcdfAttributesOptions" in vars(self.configuration):
                 logger.info(
                     "Passing specific netcdf attributes to the output files created"
                 )
@@ -128,7 +128,7 @@ class Reporting:
                     if long_name is None:
                         long_name = short_name
                     standard_name = short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
+                    if var in varDicts.netcdf_standard_name:
                         standard_name = varDicts.netcdf_standard_name[var]
 
                     self.netcdfObj.createNetCDF(
@@ -200,7 +200,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -228,7 +228,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -251,7 +251,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -274,7 +274,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -300,7 +300,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -328,7 +328,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -351,7 +351,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -374,7 +374,7 @@ class Reporting:
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -398,7 +398,7 @@ class Reporting:
                     long_name = short_name
                 long_name = f"upstream_average_{long_name}"
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(

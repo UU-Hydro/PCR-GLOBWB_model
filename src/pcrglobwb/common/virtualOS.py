@@ -147,7 +147,7 @@ def readDownscalingMeteo(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:
@@ -360,7 +360,7 @@ def checkVariableInNC(ncFile, varName):
 
     logger.debug(f"Checking whether {varName} is defined in {ncFile}")
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:
@@ -369,7 +369,7 @@ def checkVariableInNC(ncFile, varName):
 
     varName = str(varName)
 
-    return varName in list(f.variables.keys())
+    return varName in f.variables
 
 
 def netcdf2PCRobjCloneWithoutTime(
@@ -519,7 +519,7 @@ def singleTryNetcdf2PCRobjClone(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:

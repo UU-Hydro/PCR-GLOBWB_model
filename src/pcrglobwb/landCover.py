@@ -47,7 +47,7 @@ class LandCover:
         # "Modified" is Edwin Sutanudjaja's extension of the interception definition, using totalPotET
         # as the available energy
         self.interceptionModuleType = "Original"
-        if "interceptionModuleType" in list(self.iniItemsLC.keys()):
+        if "interceptionModuleType" in self.iniItemsLC:
             if self.iniItemsLC["interceptionModuleType"] == "Modified":
                 logger.info(
                     'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
@@ -64,8 +64,9 @@ class LandCover:
 
         # minimum interception capacity (only for the "Modified" interception module)
         self.minInterceptCap = 0.0
-        if self.interceptionModuleType == "Original" and "minInterceptCap" in list(
-            self.iniItemsLC.keys()
+        if (
+            self.interceptionModuleType == "Original"
+            and "minInterceptCap" in self.iniItemsLC
         ):
             logger.warning("Original interception ignores minInterceptCap; canopy only")
         if self.interceptionModuleType == "Modified":
@@ -87,7 +88,7 @@ class LandCover:
         # Rens van Beek introduced it later (20 April 2011) to maintain soil saturation; this is the
         # current "Default" method
         self.improvedArnoSchemeMethod = "Default"
-        if "improvedArnoSchemeMethod" in list(iniItems.landSurfaceOptions.keys()):
+        if "improvedArnoSchemeMethod" in iniItems.landSurfaceOptions:
             self.improvedArnoSchemeMethod = iniItems.landSurfaceOptions[
                 "improvedArnoSchemeMethod"
             ]
@@ -98,7 +99,7 @@ class LandCover:
         # Edwin changed a few lines to avoid this (see updateSoilStates)
         self.allowNegativePercolation = False
         if (
-            "allowNegativePercolation" in list(self.iniItemsLC.keys())
+            "allowNegativePercolation" in self.iniItemsLC
             and self.iniItemsLC["allowNegativePercolation"] == "True"
         ):
             logger.warning(
@@ -112,8 +113,7 @@ class LandCover:
         # scaleRootFractionsFromTwoLayerSoilParameters and estimateTranspirationAndBareSoilEvap)
         self.usingOriginalOldCalcRootTranspirationPartitioningMethod = False
         if (
-            "usingOriginalOldCalcRootTranspirationPartitioningMethod"
-            in list(self.iniItemsLC.keys())
+            "usingOriginalOldCalcRootTranspirationPartitioningMethod" in self.iniItemsLC
             and self.iniItemsLC[
                 "usingOriginalOldCalcRootTranspirationPartitioningMethod"
             ]
@@ -146,7 +146,7 @@ class LandCover:
         # added by Joren
         self.snowTransport = False
         if (
-            "snowTransport" in list(self.iniItemsLC.keys())
+            "snowTransport" in self.iniItemsLC
             and self.iniItemsLC["snowTransport"] != "None"
         ):
             self.snowTransport = self.iniItemsLC["snowTransport"]
@@ -184,9 +184,7 @@ class LandCover:
 
         # option to change the land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if "annualChangesInLandCoverParameters" in list(
-            iniItems.landSurfaceOptions.keys()
-        ):
+        if "annualChangesInLandCoverParameters" in iniItems.landSurfaceOptions:
             if (
                 iniItems.landSurfaceOptions["annualChangesInLandCoverParameters"]
                 == "True"
@@ -247,9 +245,7 @@ class LandCover:
         )
 
         # interception capacity and cover fraction files
-        if "interceptCapNC" in list(
-            self.iniItemsLC.keys()
-        ) and "coverFractionNC" in list(self.iniItemsLC.keys()):
+        if "interceptCapNC" in self.iniItemsLC and "coverFractionNC" in self.iniItemsLC:
             self.interceptCapNC = vos.getFullPath(
                 self.iniItemsLC["interceptCapNC"], self.inputDir
             )
@@ -265,12 +261,12 @@ class LandCover:
             self.interceptCapNC = None
 
         if (
-            "coverFractionNC" in list(self.iniItemsLC.keys())
+            "coverFractionNC" in self.iniItemsLC
             and self.iniItemsLC["coverFractionNC"] == "None"
         ):
             self.coverFractionNC = None
         if (
-            "interceptCapNC" in list(self.iniItemsLC.keys())
+            "interceptCapNC" in self.iniItemsLC
             and self.iniItemsLC["interceptCapNC"] == "None"
         ):
             self.interceptCapNC = None
@@ -414,10 +410,7 @@ class LandCover:
             # 3. approximated from minSoilDepthFrac and maxSoilDepthFrac
 
             lc_parameters["arnoBeta"] = None
-            if (
-                "arnoBeta" not in list(self.iniItemsLC.keys())
-                and not get_only_fracVegCover
-            ):
+            if "arnoBeta" not in self.iniItemsLC and not get_only_fracVegCover:
                 self.iniItemsLC["arnoBeta"] = "None"
 
             # option 1 (top priority): a PCRaster file
@@ -610,7 +603,7 @@ class LandCover:
         max_percolation_loss = 0.008
         # minimum and maximum percolation loss from the ini file
         if (
-            "minPercolationLoss" in list(iniPaddyOptions.keys())
+            "minPercolationLoss" in iniPaddyOptions
             and iniPaddyOptions["minPercolationLoss"] != "None"
         ):
             min_percolation_loss = vos.readPCRmapClone(
@@ -619,7 +612,7 @@ class LandCover:
                 self.inputDir,
             )
         if (
-            "maxPercolationLoss" in list(iniPaddyOptions.keys())
+            "maxPercolationLoss" in iniPaddyOptions
             and iniPaddyOptions["maxPercolationLoss"] != "None"
         ):
             min_percolation_loss = vos.readPCRmapClone(
