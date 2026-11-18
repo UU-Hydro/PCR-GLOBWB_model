@@ -77,9 +77,7 @@ class PCR2netCDF:
                 "description"
             ]
         else:
-            for ncAttributeKey, ncAttribute in list(
-                specificAttributeDictionary.items()
-            ):
+            for ncAttributeKey, ncAttribute in specificAttributeDictionary.items():
                 self.attributeDictionary[ncAttributeKey] = ncAttribute
 
     def createNetCDF(
@@ -139,7 +137,7 @@ class PCR2netCDF:
         var.units = varUnits
 
         attributeDictionary = self.attributeDictionary
-        for k, v in list(attributeDictionary.items()):
+        for k, v in attributeDictionary.items():
             setattr(rootgrp, k, v)
 
         rootgrp.sync()
