@@ -170,7 +170,7 @@ class model_time(object):
 
         # length of the simulation
         self.number_time_steps = (
-            int(((self.enddate - self.date).days) / self.time_step_length) + 1
+            int((self.enddate - self.date).days / self.time_step_length) + 1
         )
 
         self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)

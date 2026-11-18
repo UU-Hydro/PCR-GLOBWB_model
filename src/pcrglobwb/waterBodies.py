@@ -595,7 +595,7 @@ class WaterBodies(object):
             pcr.max(avgChannelDischarge, self.avgInflow, 0.001),
         )
         avgOutflow = pcr.areamaximum(avgOutflow, self.waterBodyIds)
-        bankfullWidth = pcr.cover(pcr.scalar(4.8) * ((avgOutflow) ** (0.5)), 0.0)
+        bankfullWidth = pcr.cover(pcr.scalar(4.8) * (avgOutflow**0.5), 0.0)
         weirWidthUsed = bankfullWidth
         # TODO: base minWeirWidth on the GRanD database
         weirWidthUsed = pcr.max(weirWidthUsed, self.minWeirWidth)

@@ -658,9 +658,9 @@ class LandCover(object):
             rootFracUpp = (0.30 / 0.30) * rootFraction1
             rootFracLow = (1.20 / 1.20) * rootFraction2
             # Rens: RFW1[TYPE]= RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])
-            adjRootFrUpp = vos.getValDivZero(rootFracUpp, (rootFracUpp + rootFracLow))
+            adjRootFrUpp = vos.getValDivZero(rootFracUpp, rootFracUpp + rootFracLow)
             # Rens: RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])
-            adjRootFrLow = vos.getValDivZero(rootFracLow, (rootFracUpp + rootFracLow))
+            adjRootFrLow = vos.getValDivZero(rootFracLow, rootFracUpp + rootFracLow)
             # if not defined, put everything in the first layer
             if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
                 adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp, 1.0)))
@@ -675,15 +675,15 @@ class LandCover(object):
             rootFracLow030150 = 1.20 / 1.20 * rootFraction2
             adjRootFrUpp000005 = vos.getValDivZero(
                 rootFracUpp000005,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             adjRootFrUpp005030 = vos.getValDivZero(
                 rootFracUpp005030,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             adjRootFrLow030150 = vos.getValDivZero(
                 rootFracLow030150,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             # if not defined, put everything in the first layer
             if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
@@ -759,10 +759,8 @@ class LandCover(object):
                     * self.parameters.poreSizeBetaLow
                 )
                 / (
-                    (
-                        self.parameters.storCapUpp * self.adjRootFrUpp
-                        + self.parameters.storCapLow * self.adjRootFrLow
-                    )
+                    self.parameters.storCapUpp * self.adjRootFrUpp
+                    + self.parameters.storCapLow * self.adjRootFrLow
                 ),
                 0.5
                 * (self.parameters.poreSizeBetaUpp + self.parameters.poreSizeBetaLow),
@@ -778,33 +776,31 @@ class LandCover(object):
 
             self.effSatAt50 = pcr.ifthenelse(
                 denominator > 0.0,
-                (
-                    self.parameters.storCapUpp000005
-                    * self.adjRootFrUpp000005
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueUpp000005
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
-                    + self.parameters.storCapUpp005030
-                    * self.adjRootFrUpp005030
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueUpp000005
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
-                    + self.parameters.storCapLow030150
-                    * self.adjRootFrLow030150
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueLow030150
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaLow030150)
-                    / (
-                        self.parameters.storCapUpp000005 * self.adjRootFrUpp000005
-                        + self.parameters.storCapUpp005030 * self.adjRootFrUpp005030
-                        + self.parameters.storCapLow030150 * self.adjRootFrLow030150
-                    )
+                self.parameters.storCapUpp000005
+                * self.adjRootFrUpp000005
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueUpp000005
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
+                + self.parameters.storCapUpp005030
+                * self.adjRootFrUpp005030
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueUpp000005
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
+                + self.parameters.storCapLow030150
+                * self.adjRootFrLow030150
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueLow030150
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaLow030150)
+                / (
+                    self.parameters.storCapUpp000005 * self.adjRootFrUpp000005
+                    + self.parameters.storCapUpp005030 * self.adjRootFrUpp005030
+                    + self.parameters.storCapLow030150 * self.adjRootFrLow030150
                 ),
                 0.5,
             )
@@ -1652,24 +1648,18 @@ class LandCover(object):
 
             # readily available water in the root zone (upper soil layers)
             self.readAvlWater = (
-                (
-                    pcr.max(
-                        0.0,
-                        self.effSatUpp000005
-                        - self.parameters.effSatAtWiltPointUpp000005,
-                    )
+                pcr.max(
+                    0.0,
+                    self.effSatUpp000005 - self.parameters.effSatAtWiltPointUpp000005,
                 )
                 * (
                     self.parameters.satVolMoistContUpp000005
                     - self.parameters.resVolMoistContUpp000005
                 )
                 * pcr.min(self.parameters.thickUpp000005, self.maxRootDepth)
-                + (
-                    pcr.max(
-                        0.0,
-                        self.effSatUpp005030
-                        - self.parameters.effSatAtWiltPointUpp005030,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.effSatUpp005030 - self.parameters.effSatAtWiltPointUpp005030,
                 )
                 * (
                     self.parameters.satVolMoistContUpp005030
@@ -1679,12 +1669,9 @@ class LandCover(object):
                     self.parameters.thickUpp005030,
                     pcr.max(self.maxRootDepth - self.parameters.thickUpp000005),
                 )
-                + (
-                    pcr.max(
-                        0.0,
-                        self.effSatLow030150
-                        - self.parameters.effSatAtWiltPointLow030150,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.effSatLow030150 - self.parameters.effSatAtWiltPointLow030150,
                 )
                 * (
                     self.parameters.satVolMoistContLow030150

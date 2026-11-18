@@ -1555,7 +1555,7 @@ class Reporting(object):
         self.ulyssesP = self._model.meteo.precipitation / 86.4
 
         # total evaporation and transpiration (kg m-2 s-1), land only
-        self.ulyssesET = -(self._model.landSurface.actualET) / 86.4
+        self.ulyssesET = -self._model.landSurface.actualET / 86.4
         # including water bodies
         self.ulyssesETall = (
             -(
@@ -1566,9 +1566,9 @@ class Reporting(object):
         )
 
         # reference potential evaporation
-        self.ulyssessRefPET = -(self.referencePotET) / 86.4
+        self.ulyssessRefPET = -self.referencePotET / 86.4
         # with crop coefficient, land only (excluding water)
-        self.ulyssessCropPET = -(self._model.landSurface.totalPotET) / 86.4
+        self.ulyssessCropPET = -self._model.landSurface.totalPotET / 86.4
         # with crop coefficient, land and water
         self.ulyssessCropPETall = (
             -(self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap)

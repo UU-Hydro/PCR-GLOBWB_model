@@ -298,7 +298,7 @@ def readDownscalingMeteo(
     if xIdxSta == -1:
         xIdxSta = 0
 
-    xIdxEnd = int(math.ceil((xIdxSta + 1) + colsClone / (factor))) + 1
+    xIdxEnd = int(math.ceil((xIdxSta + 1) + colsClone / factor)) + 1
 
     minY = min(abs(f.variables["lat"][:] - (yULClone - 0.5 * cellsizeInput)))
 
@@ -311,7 +311,7 @@ def readDownscalingMeteo(
         - 1
     )
 
-    yIdxEnd = int(math.ceil((yIdxSta + 1) + rowsClone / (factor))) + 1
+    yIdxEnd = int(math.ceil((yIdxSta + 1) + rowsClone / factor)) + 1
 
     # retrieve the data slice from the netCDF file
 
@@ -1029,7 +1029,7 @@ def getMinMaxMean(mapFile, ignoreEmptyMap=False):
         logger.warning("map is empty")
         return 0.0, 0.0, 0.0
     else:
-        return mn, mx, (getMapTotal(mapFile) / nrValues)
+        return mn, mx, getMapTotal(mapFile) / nrValues
 
 
 def getMapVolume(mapFile, cellareaFile):

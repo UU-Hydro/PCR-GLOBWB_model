@@ -871,7 +871,7 @@ class WaterManagement(object):
             - (1.0 - self.swAbstractionFractionDict["irrigation"])
             * remainingIrrigationLivestock
             - (1.0 - swAbstractionFraction_industrial_domestic)
-            * (remainingIndustrialDomestic),
+            * remainingIndustrialDomestic,
         )
 
         # total demand to allocate from surface water, limited by swAbstractionFractionDict and the

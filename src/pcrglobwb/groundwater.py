@@ -755,7 +755,7 @@ class Groundwater(object):
             self.recessionCoeff
             * self.avgStorGroundwater
             * (
-                (vos.getValDivZero(self.storGroundwater, self.avgStorGroundwater))
+                vos.getValDivZero(self.storGroundwater, self.avgStorGroundwater)
                 ** self.baseflow_exponent
             )
         )

@@ -630,7 +630,7 @@ class Meteo(object):
                 logger.info("Calculating wind speed based on their u and v components")
                 self.wind_speed_10m = (
                     self.wind_speed_10m_u_comp**2.0 + self.wind_speed_10m_v_comp**2.0
-                ) ** (0.5)
+                ) ** 0.5
 
             # extraterrestrial radiation
 

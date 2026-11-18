@@ -70,7 +70,7 @@ according to FAO guidelines.
         sigma
         * (temperature + 273.15) ** 4
         * pcr.max(0, ea0 - eaFactor * eAct**0.5)
-        * pcr.max(0, (pcr.min(1 + radDif, radCor * radFrac) - radDif))
+        * pcr.max(0, pcr.min(1 + radDif, radCor * radFrac) - radDif)
     )
 
 
@@ -219,9 +219,9 @@ must be provided; the latter takes precedence):
         Z0m = 0.123 * self.vegetationHeight
         Z0h = 0.1 * Z0m
         raTerm = (
-            pcr.ln((self.windHeight - Zd) / (Z0m))
-            * pcr.ln((self.temperatureHeight - Zd) / (Z0h))
-            * (self.karmanConst) ** -2
+            pcr.ln((self.windHeight - Zd) / Z0m)
+            * pcr.ln((self.temperatureHeight - Zd) / Z0h)
+            * self.karmanConst**-2
         )
 
         # atmospheric resistance (s.m-1)
