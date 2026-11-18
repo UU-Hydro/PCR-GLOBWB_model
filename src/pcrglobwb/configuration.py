@@ -48,13 +48,13 @@ class Configuration(object):
         self.set_input_files()
         self.create_output_directories()
 
-        self.initialize_logging("Default", system_arguments)
+        self.initialize_logging(system_arguments)
 
         self.backup_configuration()
 
         self.repair_ini_key_names()
 
-    def initialize_logging(self, log_file_location="Default", system_arguments=None):
+    def initialize_logging(self, system_arguments=None):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
@@ -87,8 +87,6 @@ class Configuration(object):
         console_handler.setLevel(console_level)
         logging.getLogger().addHandler(console_handler)
 
-        if log_file_location != "Default":
-            self.logFileDir = log_file_location
         log_filename = (
             self.logFileDir
             + os.path.basename(self.iniFileName)
