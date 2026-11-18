@@ -718,28 +718,22 @@ total_return_flow_ini                      : total return flow [m3/day]
         # long-term total groundwater availability (storage, m at the end of the time step)
         weights = get_weights_from_dates(self.groundwater_longterm_storage_dates)
         self.groundwater_total_storage = sum(
-            list(
-                weights[date] * self.groundwater_longterm_storage[date]
-                for date in self.groundwater_longterm_storage_dates
-            )
+            weights[date] * self.groundwater_longterm_storage[date]
+            for date in self.groundwater_longterm_storage_dates
         )
 
         # long-term total surface water availability (discharge, m3/s)
         weights = get_weights_from_dates(self.surfacewater_longterm_discharge_dates)
         self.surfacewater_total_discharge = sum(
-            list(
-                weights[date] * self.surfacewater_longterm_discharge[date]
-                for date in self.surfacewater_longterm_discharge_dates
-            )
+            weights[date] * self.surfacewater_longterm_discharge[date]
+            for date in self.surfacewater_longterm_discharge_dates
         )
 
         # long-term total surface water availability (runoff, m/day)
         weights = get_weights_from_dates(self.surfacewater_longterm_runoff_dates)
         self.surfacewater_total_runoff = sum(
-            list(
-                weights[date] * self.surfacewater_longterm_runoff[date]
-                for date in self.surfacewater_longterm_runoff_dates
-            )
+            weights[date] * self.surfacewater_longterm_runoff[date]
+            for date in self.surfacewater_longterm_runoff_dates
         )
 
         return None
@@ -759,7 +753,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             setattr(
                 self,
                 f"gross_demand_total_{sector_name}",
-                sum(list(weights[date] * var_value[date] for date in var_dates)),
+                sum(weights[date] * var_value[date] for date in var_dates),
             )
 
         return None
@@ -1127,8 +1121,8 @@ total_return_flow_ini                      : total return flow [m3/day]
                 self.net_demand[sector_name] = net_demand[sector_name]
 
         # total gross and net demand (m3/day)
-        self.total_gross_demand = sum_list(list(self.gross_demand.values()))
-        self.total_net_demand = sum_list(list(self.net_demand.values()))
+        self.total_gross_demand = sum_list(self.gross_demand.values())
+        self.total_net_demand = sum_list(self.net_demand.values())
 
         # updatable gross demand (m3/day)
         self.gross_demand_remaining = deepcopy(self.gross_demand)
@@ -1202,7 +1196,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # initial zonal demand and supply (m3/day)
         totz_demand_old = get_zonal_total(
-            local_values=pcr.max(0, sum_list(list(unmet_demand_per_sector.values()))),
+            local_values=pcr.max(0, sum_list(unmet_demand_per_sector.values())),
             zones=zones,
         )
         totz_supply_old = get_zonal_total(
@@ -1274,13 +1268,13 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
 
             # aggregate withdrawals and allocations
-            withdrawal = sum_list(list(withdrawal_per_sector.values()))
+            withdrawal = sum_list(withdrawal_per_sector.values())
 
             remaining_availability = pcr.max(0, availability - withdrawal)
 
             # update the iteration number and exit condition
             total_zonal_demand = get_zonal_total(
-                local_values=sum_list(list(unmet_demand_per_sector.values())),
+                local_values=sum_list(unmet_demand_per_sector.values()),
                 zones=zones,
             )
             total_zonal_supply = get_zonal_total(
@@ -1309,10 +1303,10 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         self.allocated_withdrawal_desalwater = sum_list(
-            list(self.allocated_withdrawal_per_sector_desalwater.values())
+            self.allocated_withdrawal_per_sector_desalwater.values()
         )
         self.allocated_demand_desalwater = sum_list(
-            list(self.allocated_demand_per_sector_desalwater.values())
+            self.allocated_demand_per_sector_desalwater.values()
         )
 
         # subtract the demand met by desalinated water from the gross sectoral demands; the met demands
@@ -1471,16 +1465,12 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         # aggregate the potential renewable withdrawals and met and unmet demands
-        unmet_demand = sum_list(list(unmet_demand_per_sector.values()))
+        unmet_demand = sum_list(unmet_demand_per_sector.values())
         self.potential_renewable_withdrawal = dict(
             (
                 source_name,
                 sum_list(
-                    list(
-                        self.potential_renewable_withdrawal_per_sector[
-                            source_name
-                        ].values()
-                    )
+                    self.potential_renewable_withdrawal_per_sector[source_name].values()
                 ),
             )
             for source_name in self.source_names
@@ -1499,7 +1489,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         unmet_avg = pcr_get_statistics(unmet_demand)["average"]
         nonrenewable_avg = pcr_get_statistics(
-            sum_list(list(self.potential_nonrenewable_withdrawal.values()))
+            sum_list(self.potential_nonrenewable_withdrawal.values())
         )["average"]
         logger.info(
             f"Potential water withdrawals estimated for {date} based on the "
@@ -1517,7 +1507,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
         self.groundwater_potential_estimated_withdrawal = (
             self.potential_renewable_withdrawal["groundwater"]
-            + sum_list(list(unmet_demand_per_sector.values()))
+            + sum_list(unmet_demand_per_sector.values())
         )
 
         # water balance check
@@ -1689,9 +1679,7 @@ total_return_flow_ini                      : total return flow [m3/day]
         totz_supply_old = {}
         for source_name in self.source_names:
             totz_demand_old[source_name] = get_zonal_total(
-                local_values=pcr.max(
-                    0, sum_list(list(unmet_demand_per_sector.values()))
-                ),
+                local_values=pcr.max(0, sum_list(unmet_demand_per_sector.values())),
                 zones=zones[source_name],
             )
             totz_supply_old[source_name] = get_zonal_total(
@@ -1811,7 +1799,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             withdrawal = dict(
                 (
                     source_name,
-                    sum_list(list(withdrawal_per_sector[source_name].values())),
+                    sum_list(withdrawal_per_sector[source_name].values()),
                 )
                 for source_name in self.source_names
             )
@@ -1826,7 +1814,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             total_zonal_supply = {}
             for source_name in self.source_names:
                 total_zonal_demand[source_name] = get_zonal_total(
-                    local_values=sum_list(list(unmet_demand_per_sector.values())),
+                    local_values=sum_list(unmet_demand_per_sector.values()),
                     zones=zones[source_name],
                 )
                 total_zonal_supply[source_name] = get_zonal_total(
@@ -1912,7 +1900,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                         unmet_demand_per_sector[sector_name], zones[sector_name]
                     ),
                     get_zonal_total(
-                        sum_list(list(unmet_demand_per_sector.values())),
+                        sum_list(unmet_demand_per_sector.values()),
                         zones[sector_name],
                     ),
                     very_small_number,
@@ -1978,9 +1966,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # aggregate the potential non-renewable withdrawal of all sectors (m3/day)
         self.potential_nonrenewable_withdrawal[source_name] = sum_list(
-            list(
-                self.potential_nonrenewable_withdrawal_per_sector[source_name].values()
-            )
+            self.potential_nonrenewable_withdrawal_per_sector[source_name].values()
         )
 
         logger.debug(f"{message_str}: {source_name}")
@@ -2151,16 +2137,10 @@ total_return_flow_ini                      : total return flow [m3/day]
         # update the total potential withdrawal (m3/day)
         for source_name in self.source_names:
             self.potential_renewable_withdrawal[source_name] = sum_list(
-                list(
-                    self.potential_renewable_withdrawal_per_sector[source_name].values()
-                )
+                self.potential_renewable_withdrawal_per_sector[source_name].values()
             )
             self.potential_nonrenewable_withdrawal[source_name] = sum_list(
-                list(
-                    self.potential_nonrenewable_withdrawal_per_sector[
-                        source_name
-                    ].values()
-                )
+                self.potential_nonrenewable_withdrawal_per_sector[source_name].values()
             )
 
         logger.info(f"Long-term withdrawals updated with short-term demands: {date}")
@@ -2345,7 +2325,7 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # aggregate the potential withdrawals of all sectors (m3/day)
         shortterm_potential_withdrawal = sum_list(
-            list(shortterm_potential_withdrawal_per_sector.values())
+            shortterm_potential_withdrawal_per_sector.values()
         )
 
         # current potential surface water withdrawals from the suitability per sector; needed due to the
@@ -2595,11 +2575,11 @@ total_return_flow_ini                      : total return flow [m3/day]
         """
 
         self.actual_renewable_withdrawal[source_name] = sum_list(
-            list(renewable_withdrawal_per_sector.values())
+            renewable_withdrawal_per_sector.values()
         )
 
         self.actual_nonrenewable_withdrawal[source_name] = sum_list(
-            list(nonrenewable_withdrawal_per_sector.values())
+            nonrenewable_withdrawal_per_sector.values()
         )
 
         self.actual_renewable_withdrawal_per_sector[source_name] = dict(
@@ -2670,8 +2650,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             for s in unused[w]
         }
         unused_withdrawal = {
-            w: {s: sum_list(list(unused[w][s].values())) for s in unused[w]}
-            for w in unused
+            w: {s: sum_list(unused[w][s].values()) for s in unused[w]} for w in unused
         }
 
         # note: add the unused and actual withdrawals per withdrawal type and source (m3/day)
@@ -2690,8 +2669,8 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # total withdrawal, including unused withdrawals (m3/day)
         self.total_withdrawal = sum_list(
-            list(self.actual_renewable_withdrawal.values())
-        ) + sum_list(list(self.actual_nonrenewable_withdrawal.values()))
+            self.actual_renewable_withdrawal.values()
+        ) + sum_list(self.actual_nonrenewable_withdrawal.values())
 
         # total allocated water, consumption and return flow, updated per sector
         self.total_allocation = pcr.spatial(pcr.scalar(0))
@@ -2765,8 +2744,8 @@ total_return_flow_ini                      : total return flow [m3/day]
         # the total return flow also contains the unused withdrawals (m3/day)
         self.total_return_flow = (
             self.total_return_flow
-            + sum_list(list(self.unused_renewable_withdrawal.values()))
-            + sum_list(list(self.unused_nonrenewable_withdrawal.values()))
+            + sum_list(self.unused_renewable_withdrawal.values())
+            + sum_list(self.unused_nonrenewable_withdrawal.values())
         )
 
         logger.info(f"Actual water withdrawals allocated to the demand for {date}.")

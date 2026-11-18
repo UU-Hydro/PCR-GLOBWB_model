@@ -1260,21 +1260,17 @@ class LandSurface:
             # surface water abstraction and allocation, total of all sectors (m/day)
             self.actSurfaceWaterAbstract = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "renewable_surfacewater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "renewable_surfacewater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.allocSurfaceWaterAbstract = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "renewable_surfacewater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "renewable_surfacewater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1282,21 +1278,17 @@ class LandSurface:
             # renewable groundwater abstraction and allocation, total of all sectors (m/day)
             self.nonFossilGroundwaterAbs = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "renewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "renewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.allocNonFossilGroundwater = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "renewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "renewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1304,21 +1296,17 @@ class LandSurface:
             # non-renewable groundwater abstraction and allocation, total of all sectors (m/day)
             self.fossilGroundwaterAbstr = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "nonrenewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "nonrenewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.fossilGroundwaterAlloc = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "nonrenewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "nonrenewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1403,10 +1391,10 @@ class LandSurface:
                 )
 
             self.nonIrrReturnFlowVolume = sum(
-                list(self.nonIrrReturnFlowVolumePerSector.values())
+                self.nonIrrReturnFlowVolumePerSector.values()
             )
             self.nonIrrWaterConsumptionVolume = sum(
-                list(self.nonIrrWaterConsumptionVolumePerSector.values())
+                self.nonIrrWaterConsumptionVolumePerSector.values()
             )
 
             # water slice (m/day): return flows
@@ -1534,7 +1522,7 @@ class LandSurface:
             )
 
             self.nonIrrReturnFlowVolume = sum(
-                list(self.nonIrrReturnFlowVolumePerSector.values())
+                self.nonIrrReturnFlowVolumePerSector.values()
             )
 
             # (m)
@@ -1575,7 +1563,7 @@ class LandSurface:
             )
 
             self.nonIrrWaterConsumptionVolume = sum(
-                list(self.nonIrrWaterConsumptionVolumePerSector.values())
+                self.nonIrrWaterConsumptionVolumePerSector.values()
             )
 
             # (m)

@@ -1165,7 +1165,7 @@ class qualloc_model:
             longterm_potential_withdrawal_per_sector=potential_withdrawal_per_sector,
         )
 
-        potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
+        potential_withdrawal = sum_list(potential_withdrawal_per_sector.values())
 
         # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
         actual_withdrawal = pcr.ifthen(
@@ -1232,7 +1232,7 @@ class qualloc_model:
             )
         )
 
-        potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
+        potential_withdrawal = sum_list(potential_withdrawal_per_sector.values())
 
         # actual renewable and non-renewable withdrawals (m3/day)
         renewable_withdrawal = pcr.min(groundwater_availability, potential_withdrawal)

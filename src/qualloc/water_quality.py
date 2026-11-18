@@ -125,10 +125,7 @@ class water_quality:
                 # update the long-term total per constituent and source
                 longterm_constituent_quality = getattr(self, var_in)
                 values = sum(
-                    list(
-                        weights[date] * longterm_constituent_quality[date]
-                        for date in dates
-                    )
+                    weights[date] * longterm_constituent_quality[date] for date in dates
                 )
 
                 var_out = f"{source_name}_annual_{constituent_name}"
@@ -380,7 +377,7 @@ class water_quality:
             )
 
             demand_total_area = get_zonal_total(
-                sum_list(list(demand_per_sector.values())),
+                sum_list(demand_per_sector.values()),
                 zones_per_sector[sector_name],
             )
 
@@ -420,7 +417,7 @@ class water_quality:
             weight_per_sector[sector_name] = weight
 
         # normalize the quality weights
-        weight_total = sum_list(list(weight_per_sector.values()))
+        weight_total = sum_list(weight_per_sector.values())
         for sector_name in sector_names:
             weight_per_sector[sector_name] = pcr_return_val_div_zero(
                 weight_per_sector[sector_name], weight_total, very_small_number
