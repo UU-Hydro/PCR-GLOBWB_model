@@ -85,34 +85,6 @@ and assigns it to every cell in the zone.
     return pcr.areaminimum(local_values, zones)
 
 
-def get_zonal_fraction(local_values: pcr.Field, zones: pcr.Field | None) -> pcr.Field:
-    """
-get_zonal_fraction: function that computes the fractional value per cell over \
-the total of the provided zones.
-
-    Input:
-    ======
-    local values:            local cell values as a scalar PCRaster field;
-    zones:                   zones over which the fractional values for the
-                             cells are computed as a nominal PCRaster field,
-                             or None if every cell is its own zone (the
-                             fraction is then 1 where the local value is
-                             positive).
-
-    Output:
-    =======
-    fractional_values:       fractional values, summing to unity over the ap-
-                             propriate zone, as a scalar PCRaster field.
-
-"""
-
-    totals = get_zonal_total(local_values, zones)
-
-    fractional_values = pcr_return_val_div_zero(local_values, totals, very_small_number)
-
-    return fractional_values
-
-
 def group_sources_by_zones(
     zones: dict[str, pcr.Field | None],
     sources: list[str],
