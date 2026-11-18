@@ -30,7 +30,7 @@ class SoilAndTopoParameters(object):
 
         # elevation attributes
         topoParams = ["tanslope", "slopeLength", "orographyBeta"]
-        if optionDict["topographyNC"] == str(None):
+        if optionDict["topographyNC"] == "None":
             for var in topoParams:
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
@@ -65,7 +65,7 @@ class SoilAndTopoParameters(object):
             "dzRel0090",
             "dzRel0100",
         ]
-        if optionDict["topographyNC"] == str(None):
+        if optionDict["topographyNC"] == "None":
             for i in range(0, len(dzRel)):
                 var = dzRel[i]
                 input = optionDict[str(var)]
@@ -103,7 +103,7 @@ class SoilAndTopoParameters(object):
             "KSat2",
             "percolationImp",
         ]
-        if optionDict["soilPropertiesNC"] == str(None):
+        if optionDict["soilPropertiesNC"] == "None":
             for var in soilParameters:
                 input = optionDict[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
@@ -204,7 +204,7 @@ class SoilAndTopoParameters(object):
             "soilWaterStorageCap1",
             "soilWaterStorageCap2",
         ]
-        if optionDict["soilPropertiesNC"] == str(None):
+        if optionDict["soilPropertiesNC"] == "None":
             for var in soilStorages:
                 input = optionDict[str(var)]
                 temp = f"{var}Inp"

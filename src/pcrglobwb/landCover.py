@@ -388,7 +388,7 @@ class LandCover(object):
 
             logger.debug("Obtaining land cover parameters fixed for the whole run")
 
-            if self.iniItemsLC["landCoverMapsNC"] == str(None):
+            if self.iniItemsLC["landCoverMapsNC"] == "None":
                 # PCRaster maps
                 landCoverPropertiesNC = None
                 for var in landCovParams:

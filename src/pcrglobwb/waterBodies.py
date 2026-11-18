@@ -51,7 +51,7 @@ class WaterBodies(object):
 
         # files with water body parameters
         self.useNetCDF = True
-        if iniItems.routingOptions["waterBodyInputNC"] == str(None):
+        if iniItems.routingOptions["waterBodyInputNC"] == "None":
             self.useNetCDF = False
             self.fracWaterInp = iniItems.routingOptions["fracWaterInp"]
             self.waterBodyIdsInp = iniItems.routingOptions["waterBodyIds"]

@@ -63,7 +63,7 @@ class WaterDemand(object):
                 self.water_demand_irrigation[coverType] = (
                     irrigation_water_demand.IrrigationWaterDemand(
                         iniItems,
-                        coverType + str("Options"),
+                        coverType + "Options",
                         self.landmask,
                         landCoverObjects[coverType],
                     )

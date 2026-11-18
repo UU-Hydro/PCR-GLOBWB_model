@@ -127,7 +127,7 @@ class qualloc_reporting(object):
                 vars(self)[key] = pcr.spatial(pcr.scalar(-1.0e12))
 
             elif statistic == "count":
-                vars(self)[key] = int(0)
+                vars(self)[key] = 0
 
             else:
                 vars(self)[key] = pcr.spatial(pcr.scalar(0))

@@ -33,7 +33,7 @@ class ModelTime(object):
         self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
 
         # always end on 31 December of the starting year
-        self._endTime = datetime.date(int(sd[0]), int(12), int(31))
+        self._endTime = datetime.date(int(sd[0]), 12, 31)
 
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
         self._spinUpStatus = True
