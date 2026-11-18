@@ -482,13 +482,13 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # sorted dates of the long-term water availability
         self.groundwater_longterm_storage_dates = sorted(
-            list(self.groundwater_longterm_storage.keys())
+            self.groundwater_longterm_storage
         )
         self.surfacewater_longterm_discharge_dates = sorted(
-            list(self.surfacewater_longterm_discharge.keys())
+            self.surfacewater_longterm_discharge
         )
         self.surfacewater_longterm_runoff_dates = sorted(
-            list(self.surfacewater_longterm_runoff.keys())
+            self.surfacewater_longterm_runoff
         )
 
         # long-term sectoral gross water demands (m/day) and their sorted dates
@@ -502,7 +502,7 @@ total_return_flow_ini                      : total return flow [m3/day]
             setattr(
                 self,
                 f"gross_demand_longterm_{sector_name}_dates",
-                sorted(list(gross_demand_longterm[sector_name].keys())),
+                sorted(gross_demand_longterm[sector_name]),
             )
 
         # initial long-term potential surface water and groundwater withdrawal, to distribute the pumping
@@ -516,7 +516,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     )
 
                     self.groundwater_longterm_pot_withdrawal_dates = sorted(
-                        list(self.groundwater_longterm_potential_withdrawal.keys())
+                        self.groundwater_longterm_potential_withdrawal
                     )
 
                 if source_name == "surfacewater":
@@ -526,7 +526,7 @@ total_return_flow_ini                      : total return flow [m3/day]
                     )
 
                     self.surfacewater_longterm_pot_withdrawal_dates = sorted(
-                        list(self.surfacewater_longterm_potential_withdrawal.keys())
+                        self.surfacewater_longterm_potential_withdrawal
                     )
 
         # weights to update the long-term water availability

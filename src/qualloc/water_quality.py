@@ -77,7 +77,7 @@ class water_quality:
 
                 # store the variable and its sorted dates
                 setattr(self, var_str, var_out)
-                setattr(self, f"{var_str}_dates", sorted(list(var_out.keys())))
+                setattr(self, f"{var_str}_dates", sorted(var_out))
 
         # annual average water quality
         self.surfacewater_annual_temperature = pcr.scalar(0)
