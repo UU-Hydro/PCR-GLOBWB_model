@@ -332,19 +332,15 @@ class qualloc_reporting(object):
 
                             # min, max and total need no post-processing; average and standard deviation do
                             if statistic_key == "min":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    statistic_key,
+                                process_key = (
+                                    f"{variablename}_{interval}_{statistic_key}"
                                 )
 
                                 value_field = vars(self)[process_key]
 
                             elif statistic_key == "max":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    statistic_key,
+                                process_key = (
+                                    f"{variablename}_{interval}_{statistic_key}"
                                 )
 
                                 value_field = vars(self)[process_key]
