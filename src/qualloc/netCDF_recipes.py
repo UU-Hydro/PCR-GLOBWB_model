@@ -1368,9 +1368,9 @@ of the dimensions to be written.
             if "time_dimension" not in additional_info:
                 additional_info["time_dimension"] = self.time_dimension[ncfilename]
 
-        dim_slices = dict(
-            [(dim_key, None) for dim_key in self.dimensions[ncfilename][variablename]]
-        )
+        dim_slices = {
+            dim_key: None for dim_key in self.dimensions[ncfilename][variablename]
+        }
 
         add_data_to_netCDF(
             ncfilename=ncfilename,

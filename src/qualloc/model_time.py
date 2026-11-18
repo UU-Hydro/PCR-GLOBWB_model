@@ -41,7 +41,7 @@ def get_weights_from_dates(dates):
     if seq_type == list:
         w = w.tolist()
 
-    return dict((d[ix], w[ix]) for ix in range(len(w)))
+    return {d[ix]: w[ix] for ix in range(len(w))}
 
 
 def get_julian_daynumber(date):

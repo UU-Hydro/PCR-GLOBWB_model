@@ -559,9 +559,9 @@ dictionaries with the dates provided.
         self.nc_handler = netCDF_output_handler(model_configuration)
 
         modules = list(initial_conditions)
-        self.variablenames = dict(
-            (module, list(initial_conditions[module])) for module in modules
-        )
+        self.variablenames = {
+            module: list(initial_conditions[module]) for module in modules
+        }
 
         return None
 

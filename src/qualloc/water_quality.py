@@ -278,9 +278,9 @@ class water_quality:
                             and 1 is perfectly suitable
         """
 
-        suitability_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(1.0))) for sector_name in sector_names
-        )
+        suitability_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(1.0)) for sector_name in sector_names
+        }
 
         for sector_name in sector_names:
             suitability_per_constituent = {}
@@ -359,9 +359,9 @@ class water_quality:
         weight_per_sector      : dictionary with sector names (keys) and the weight of a sector (values)
                                  over a variable (e.g., availability) considering the water quality
         """
-        weight_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(1.0))) for sector_name in sector_names
-        )
+        weight_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(1.0)) for sector_name in sector_names
+        }
 
         for sector_name in sector_names:
 

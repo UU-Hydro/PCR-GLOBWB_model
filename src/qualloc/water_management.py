@@ -393,15 +393,15 @@ total_return_flow_ini                      : total return flow [m3/day]
         # ids, scalar capacity); a withdrawal capacity of None means unlimited withdrawal
 
         # allocation zones per sector, or None if every cell is its own zone
-        self.groundwater_allocation_zones: dict[str, pcr.Field | None] = dict(
-            (sector_name, groundwater_allocation_zones) for sector_name in sector_names
-        )
-        self.surfacewater_allocation_zones: dict[str, pcr.Field | None] = dict(
-            (sector_name, surfacewater_allocation_zones) for sector_name in sector_names
-        )
-        self.desalwater_allocation_zones: dict[str, pcr.Field | None] = dict(
-            (sector_name, desalwater_allocation_zones) for sector_name in sector_names
-        )
+        self.groundwater_allocation_zones: dict[str, pcr.Field | None] = {
+            sector_name: groundwater_allocation_zones for sector_name in sector_names
+        }
+        self.surfacewater_allocation_zones: dict[str, pcr.Field | None] = {
+            sector_name: surfacewater_allocation_zones for sector_name in sector_names
+        }
+        self.desalwater_allocation_zones: dict[str, pcr.Field | None] = {
+            sector_name: desalwater_allocation_zones for sector_name in sector_names
+        }
 
         # sectors that can use desalinated water
         self.sector_names_desalwater = ["domestic", "industry", "manufacture"]
@@ -443,16 +443,13 @@ total_return_flow_ini                      : total return flow [m3/day]
         if desalinated_water_use_flag and "desalwater" not in source_names:
             source_names_prioritization.append("desalwater")
 
-        self.prioritization = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(1))))
-                    for sector_name in self.sector_names
-                ),
-            )
+        self.prioritization = {
+            source_name: {
+                sector_name: pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(1)))
+                for sector_name in self.sector_names
+            }
             for source_name in source_names_prioritization
-        )
+        }
 
         if isinstance(prioritization, dict):
             for source_name in source_names_prioritization:
@@ -553,14 +550,12 @@ total_return_flow_ini                      : total return flow [m3/day]
         self.update_annual_water_demand()
 
         # sectoral gross and net water demand per cell (volume)
-        self.gross_demand = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
-        self.net_demand = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
+        self.gross_demand = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
+        self.net_demand = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
 
         # total gross and net demand, consumption, return flow, total withdrawal and total allocated
         # demand per cell
@@ -578,34 +573,28 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
 
         # potential renewable and non-renewable withdrawal per source
-        self.potential_renewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
-        self.potential_nonrenewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
+        self.potential_renewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
+        self.potential_nonrenewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
 
         # actual renewable and non-renewable withdrawal per source
-        self.actual_renewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
-        self.actual_nonrenewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
+        self.actual_renewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
+        self.actual_nonrenewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
 
         # unused renewable and non-renewable withdrawal per source
-        self.unused_renewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
-        self.unused_nonrenewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
-            for source_name in self.source_names
-        )
+        self.unused_renewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
+        self.unused_nonrenewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
 
         # allocated withdrawal and demand as nested dictionaries (combined withdrawal/source name, then
         # sector name), and the consumption and return flow per cell from the allocation
@@ -619,42 +608,42 @@ total_return_flow_ini                      : total return flow [m3/day]
 
                 key = get_key([withdrawal_name, source_name])
 
-                self.allocated_withdrawal_per_sector[key] = dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
+                self.allocated_withdrawal_per_sector[key] = {
+                    sector_name: pcr.spatial(pcr.scalar(0))
                     for sector_name in sector_names
-                )
+                }
 
-                self.allocated_demand_per_sector[key] = dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
+                self.allocated_demand_per_sector[key] = {
+                    sector_name: pcr.spatial(pcr.scalar(0))
                     for sector_name in sector_names
-                )
+                }
 
-                self.consumed_demand_per_sector[key] = dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
+                self.consumed_demand_per_sector[key] = {
+                    sector_name: pcr.spatial(pcr.scalar(0))
                     for sector_name in sector_names
-                )
+                }
 
-                self.return_flow_demand_per_sector[key] = dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
+                self.return_flow_demand_per_sector[key] = {
+                    sector_name: pcr.spatial(pcr.scalar(0))
                     for sector_name in sector_names
-                )
+                }
 
         # idem for desalinated water use
-        self.allocated_withdrawal_per_sector_desalwater = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0))) for sector_name in sector_names
-        )
+        self.allocated_withdrawal_per_sector_desalwater = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in sector_names
+        }
 
-        self.allocated_demand_per_sector_desalwater = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0))) for sector_name in sector_names
-        )
+        self.allocated_demand_per_sector_desalwater = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in sector_names
+        }
 
-        self.consumed_demand_per_sector_desalwater = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0))) for sector_name in sector_names
-        )
+        self.consumed_demand_per_sector_desalwater = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in sector_names
+        }
 
-        self.return_flow_demand_per_sector_desalwater = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0))) for sector_name in sector_names
-        )
+        self.return_flow_demand_per_sector_desalwater = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in sector_names
+        }
 
         # state names: availability
         self.report_state_info = {
@@ -1029,15 +1018,13 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         message_str = f"Long-term sectoral gross water demand for {date} base on {self.time_increment} time increment"
 
-        gross_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
+        gross_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
 
-        self.average_gross_demand = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
+        self.average_gross_demand = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
 
         # long-term sectoral gross water demand (m/day)
         if self.time_increment == "monthly":
@@ -1095,14 +1082,12 @@ total_return_flow_ini                      : total return flow [m3/day]
         date          : date of the update.
         """
 
-        self.gross_demand = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
-        self.net_demand = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
-            for sector_name in self.sector_names
-        )
+        self.gross_demand = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
+        self.net_demand = {
+            sector_name: pcr.spatial(pcr.scalar(0)) for sector_name in self.sector_names
+        }
 
         for sector_name in self.sector_names:
 
@@ -1163,32 +1148,28 @@ total_return_flow_ini                      : total return flow [m3/day]
         for sector_name in sector_names_no_desalwater:
             unmet_demand_per_sector[sector_name] = pcr.spatial(pcr.scalar(0))
 
-        met_demand_per_sector = dict(
-            (
-                sector_name,
-                pcr.spatial(pcr.scalar(0.0)),
-            )
+        met_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0.0))
             for sector_name in self.sector_names
-        )
+        }
 
-        withdrawal_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0.0)))
+        withdrawal_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0.0))
             for sector_name in self.sector_names
-        )
+        }
 
-        allocated_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0.0)))
+        allocated_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0.0))
             for sector_name in self.sector_names
-        )
+        }
 
         zones_per_sector = self.desalwater_allocation_zones
         zones = self.desalwater_allocation_zones["domestic"]
 
         # desalinated water is perfectly suitable for all sectors (suitability = 1)
-        suitability_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(1)))
-            for sector_name in self.sector_names
-        )
+        suitability_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(1)) for sector_name in self.sector_names
+        }
 
         iter_allocation = 1
         exit_condition = False
@@ -1293,14 +1274,14 @@ total_return_flow_ini                      : total return flow [m3/day]
             ) | (iter_allocation > max_iter_allocation)
 
         # desalinated withdrawals and allocation per sector and total (m3/day)
-        self.allocated_withdrawal_per_sector_desalwater = dict(
-            (sector_name, withdrawal_per_sector[sector_name])
+        self.allocated_withdrawal_per_sector_desalwater = {
+            sector_name: withdrawal_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
-        self.allocated_demand_per_sector_desalwater = dict(
-            (sector_name, allocated_demand_per_sector[sector_name])
+        }
+        self.allocated_demand_per_sector_desalwater = {
+            sector_name: allocated_demand_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
+        }
 
         self.allocated_withdrawal_desalwater = sum_list(
             self.allocated_withdrawal_per_sector_desalwater.values()
@@ -1351,64 +1332,50 @@ total_return_flow_ini                      : total return flow [m3/day]
         """
 
         # potential renewable and non-renewable withdrawal per source
-        self.potential_renewable_withdrawal = dict(
-            (source_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0))))
+        self.potential_renewable_withdrawal = {
+            source_name: pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
-        )
-        self.potential_nonrenewable_withdrawal = dict(
-            (source_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0))))
+        }
+        self.potential_nonrenewable_withdrawal = {
+            source_name: pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0)))
             for source_name in self.source_names
-        )
-        self.potential_renewable_withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0))))
-                    for sector_name in self.sector_names
-                ),
-            )
+        }
+        self.potential_renewable_withdrawal_per_sector = {
+            source_name: {
+                sector_name: pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0)))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
-        self.potential_nonrenewable_withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0))))
-                    for sector_name in self.sector_names
-                ),
-            )
+        }
+        self.potential_nonrenewable_withdrawal_per_sector = {
+            source_name: {
+                sector_name: pcr.ifthen(self.landmask, pcr.spatial(pcr.scalar(0)))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
+        }
 
         # actual renewable and non-renewable withdrawal per source
-        self.actual_renewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
+        self.actual_renewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
+        self.actual_nonrenewable_withdrawal = {
+            source_name: pcr.spatial(pcr.scalar(0)) for source_name in self.source_names
+        }
+        self.actual_renewable_withdrawal_per_sector = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(0))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
-        self.actual_nonrenewable_withdrawal = dict(
-            (source_name, pcr.spatial(pcr.scalar(0)))
+        }
+        self.actual_nonrenewable_withdrawal_per_sector = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(0))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
-        self.actual_renewable_withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
-                    for sector_name in self.sector_names
-                ),
-            )
-            for source_name in self.source_names
-        )
-        self.actual_nonrenewable_withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0)))
-                    for sector_name in self.sector_names
-                ),
-            )
-            for source_name in self.source_names
-        )
+        }
 
         # dictionaries of the allocation zones, withdrawal capacities and withdrawal points
         withdrawal_capacity = {
@@ -1440,41 +1407,34 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         # potential renewable withdrawals and met demands per sector
-        self.potential_renewable_withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, withdrawal_per_sector[source_name][sector_name])
-                    for sector_name in self.sector_names
-                ),
-            )
+        self.potential_renewable_withdrawal_per_sector = {
+            source_name: {
+                sector_name: withdrawal_per_sector[source_name][sector_name]
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
+        }
 
-        met_demand_per_sector = dict(
-            (sector_name, met_demand_per_sector[sector_name])
+        met_demand_per_sector = {
+            sector_name: met_demand_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
+        }
 
-        unmet_demand_per_sector = dict(
-            (
-                sector_name,
-                pcr.max(0.0, demand[sector_name] - met_demand_per_sector[sector_name]),
+        unmet_demand_per_sector = {
+            sector_name: pcr.max(
+                0.0, demand[sector_name] - met_demand_per_sector[sector_name]
             )
             for sector_name in self.sector_names
-        )
+        }
 
         # aggregate the potential renewable withdrawals and met and unmet demands
         unmet_demand = sum_list(unmet_demand_per_sector.values())
-        self.potential_renewable_withdrawal = dict(
-            (
-                source_name,
-                sum_list(
-                    self.potential_renewable_withdrawal_per_sector[source_name].values()
-                ),
+        self.potential_renewable_withdrawal = {
+            source_name: sum_list(
+                self.potential_renewable_withdrawal_per_sector[source_name].values()
             )
             for source_name in self.source_names
-        )
+        }
 
         # potential non-renewable withdrawal: add the unmet demand from groundwater only, following
         # sources_unmet_demand; if no source for unsustainable abstraction is chosen, only sustainable
@@ -1619,35 +1579,28 @@ total_return_flow_ini                      : total return flow [m3/day]
         remaining_availability = deepcopy(availability)
         unmet_demand_per_sector = deepcopy(demand_per_sector)
 
-        met_demand_per_sector = dict(
-            (
-                sector_name,
-                pcr.ifthen(demand_per_sector[sector_name] >= 0.0, pcr.scalar(0.0)),
+        met_demand_per_sector = {
+            sector_name: pcr.ifthen(
+                demand_per_sector[sector_name] >= 0.0, pcr.scalar(0.0)
             )
             for sector_name in self.sector_names
-        )
+        }
 
-        withdrawal_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0.0)))
-                    for sector_name in self.sector_names
-                ),
-            )
+        withdrawal_per_sector = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(0.0))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
+        }
 
-        allocated_demand_per_sector = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(0.0)))
-                    for sector_name in self.sector_names
-                ),
-            )
+        allocated_demand_per_sector = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(0.0))
+                for sector_name in self.sector_names
+            }
             for source_name in self.source_names
-        )
+        }
 
         # allocation zones (the domestic sector typically has the largest zone)
         zones = {
@@ -1796,13 +1749,10 @@ total_return_flow_ini                      : total return flow [m3/day]
                     )
 
             # aggregate withdrawals and allocations per source
-            withdrawal = dict(
-                (
-                    source_name,
-                    sum_list(withdrawal_per_sector[source_name].values()),
-                )
+            withdrawal = {
+                source_name: sum_list(withdrawal_per_sector[source_name].values())
                 for source_name in self.source_names
-            )
+            }
 
             for source_name in self.source_names:
                 remaining_availability[source_name] = pcr.max(
@@ -1996,18 +1946,15 @@ total_return_flow_ini                      : total return flow [m3/day]
         for sector_name in self.sector_names:
 
             # total potential withdrawal (renewable + non-renewable) and allocation zones per source
-            potential_withdrawal = dict(
-                (
-                    source_name,
-                    self.longterm_potential_withdrawals_per_sector["renewable"][
-                        source_name
-                    ][sector_name]
-                    + self.longterm_potential_withdrawals_per_sector["nonrenewable"][
-                        source_name
-                    ][sector_name],
-                )
+            potential_withdrawal = {
+                source_name: self.longterm_potential_withdrawals_per_sector[
+                    "renewable"
+                ][source_name][sector_name]
+                + self.longterm_potential_withdrawals_per_sector["nonrenewable"][
+                    source_name
+                ][sector_name]
                 for source_name in self.source_names
-            )
+            }
 
             zones = {
                 "surfacewater": self.surfacewater_allocation_zones[sector_name],
@@ -2025,45 +1972,34 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
 
             # split the gross demands per water source (m3/day)
-            demands_per_source = dict(
-                (
-                    source_name,
-                    self.gross_demand_remaining[sector_name]
-                    * allocation_ratio[source_name],
-                )
+            demands_per_source = {
+                source_name: self.gross_demand_remaining[sector_name]
+                * allocation_ratio[source_name]
                 for source_name in self.source_names
-            )
+            }
 
             # redistribute the gross demands over the long-term potential renewable withdrawals first (m3/day)
-            distribution_ratio = dict(
-                (
-                    source_name,
-                    pcr_return_val_div_zero(
+            distribution_ratio = {
+                source_name: pcr_return_val_div_zero(
+                    self.longterm_potential_withdrawals_per_sector["renewable"][
+                        source_name
+                    ][sector_name],
+                    get_zonal_total(
                         self.longterm_potential_withdrawals_per_sector["renewable"][
                             source_name
                         ][sector_name],
-                        get_zonal_total(
-                            self.longterm_potential_withdrawals_per_sector["renewable"][
-                                source_name
-                            ][sector_name],
-                            zones[source_name],
-                        ),
-                        very_small_number,
+                        zones[source_name],
                     ),
+                    very_small_number,
                 )
                 for source_name in self.source_names
-            )
+            }
 
-            potential_withdrawal = dict(
-                (
-                    source_name,
-                    distribution_ratio[source_name]
-                    * get_zonal_total(
-                        demands_per_source[source_name], zones[source_name]
-                    ),
-                )
+            potential_withdrawal = {
+                source_name: distribution_ratio[source_name]
+                * get_zonal_total(demands_per_source[source_name], zones[source_name])
                 for source_name in self.source_names
-            )
+            }
 
             # update the potential non-renewable withdrawal (m3/day)
             for source_name in self.source_names:
@@ -2077,51 +2013,40 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
 
             # outstanding gross water demand (m3/day)
-            outstanding_demand = dict(
-                (
-                    source_name,
-                    pcr.max(
-                        0,
-                        demands_per_source[source_name]
-                        - self.potential_renewable_withdrawal_per_sector[source_name][
-                            sector_name
-                        ],
-                    ),
+            outstanding_demand = {
+                source_name: pcr.max(
+                    0,
+                    demands_per_source[source_name]
+                    - self.potential_renewable_withdrawal_per_sector[source_name][
+                        sector_name
+                    ],
                 )
                 for source_name in self.source_names
-            )
+            }
 
             # then redistribute the outstanding gross demands over the long-term potential non-renewable
             # withdrawals (m3/day)
-            distribution_ratio = dict(
-                (
-                    source_name,
-                    pcr_return_val_div_zero(
+            distribution_ratio = {
+                source_name: pcr_return_val_div_zero(
+                    self.longterm_potential_withdrawals_per_sector["nonrenewable"][
+                        source_name
+                    ][sector_name],
+                    get_zonal_total(
                         self.longterm_potential_withdrawals_per_sector["nonrenewable"][
                             source_name
                         ][sector_name],
-                        get_zonal_total(
-                            self.longterm_potential_withdrawals_per_sector[
-                                "nonrenewable"
-                            ][source_name][sector_name],
-                            zones[source_name],
-                        ),
-                        very_small_number,
+                        zones[source_name],
                     ),
+                    very_small_number,
                 )
                 for source_name in self.source_names
-            )
+            }
 
-            potential_withdrawal = dict(
-                (
-                    source_name,
-                    distribution_ratio[source_name]
-                    * get_zonal_total(
-                        outstanding_demand[source_name], zones[source_name]
-                    ),
-                )
+            potential_withdrawal = {
+                source_name: distribution_ratio[source_name]
+                * get_zonal_total(outstanding_demand[source_name], zones[source_name])
                 for source_name in self.source_names
-            )
+            }
 
             # update the potential withdrawal per sector (m3/day)
             for source_name in self.source_names:
@@ -2255,16 +2180,15 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
 
         # total long-term potential renewable and non-renewable withdrawals per sector (m3/day)
-        total_potential_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                self.potential_renewable_withdrawal_per_sector[source_name][sector_name]
-                + self.potential_nonrenewable_withdrawal_per_sector[source_name][
-                    sector_name
-                ],
-            )
+        total_potential_withdrawal_per_sector = {
+            sector_name: self.potential_renewable_withdrawal_per_sector[source_name][
+                sector_name
+            ]
+            + self.potential_nonrenewable_withdrawal_per_sector[source_name][
+                sector_name
+            ]
             for sector_name in self.sector_names
-        )
+        }
 
         return total_potential_withdrawal_per_sector
 
@@ -2314,14 +2238,11 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # short-term potential surface water withdrawals: the long-term potential withdrawals updated with
         # the short-term water quality suitability (m3/day)
-        shortterm_potential_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                longterm_potential_withdrawal_per_sector[sector_name]
-                * suitability_per_sector[sector_name],
-            )
+        shortterm_potential_withdrawal_per_sector = {
+            sector_name: longterm_potential_withdrawal_per_sector[sector_name]
+            * suitability_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
+        }
 
         # aggregate the potential withdrawals of all sectors (m3/day)
         shortterm_potential_withdrawal = sum_list(
@@ -2330,22 +2251,19 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # current potential surface water withdrawals from the suitability per sector; needed due to the
         # accuthresholdstate/flux routing (m3/day)
-        potential_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                pcr.min(
+        potential_withdrawal_per_sector = {
+            sector_name: pcr.min(
+                shortterm_potential_withdrawal_per_sector[sector_name],
+                potential_surfacewater_availability
+                * suitability_per_sector[sector_name]
+                * pcr_return_val_div_zero(
                     shortterm_potential_withdrawal_per_sector[sector_name],
-                    potential_surfacewater_availability
-                    * suitability_per_sector[sector_name]
-                    * pcr_return_val_div_zero(
-                        shortterm_potential_withdrawal_per_sector[sector_name],
-                        shortterm_potential_withdrawal,
-                        very_small_number,
-                    ),
+                    shortterm_potential_withdrawal,
+                    very_small_number,
                 ),
             )
             for sector_name in self.sector_names
-        )
+        }
 
         # potential surface water withdrawals per sector for the current time step (m3/day)
         return potential_withdrawal_per_sector
@@ -2396,15 +2314,12 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         # short-term potential groundwater withdrawals: the long-term potential withdrawals updated with
         # the short-term water quality suitability (m3/period)
-        potential_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                longterm_potential_withdrawal_per_sector[sector_name]
-                * suitability_per_sector[sector_name]
-                * time_step_length,
-            )
+        potential_withdrawal_per_sector = {
+            sector_name: longterm_potential_withdrawal_per_sector[sector_name]
+            * suitability_per_sector[sector_name]
+            * time_step_length
             for sector_name in self.sector_names
-        )
+        }
 
         # potential groundwater withdrawals per sector and groundwater availability for the current time
         # step (m3/period)
@@ -2456,31 +2371,28 @@ total_return_flow_ini                      : total return flow [m3/day]
         )
 
         # unmet demand per sector: potential minus actual withdrawal
-        unmet_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                pcr.max(
-                    0,
-                    (
-                        self.potential_renewable_withdrawal_per_sector[source_name][
-                            sector_name
-                        ]
-                        + self.potential_nonrenewable_withdrawal_per_sector[
-                            source_name
-                        ][sector_name]
-                    )
-                    - (
-                        self.actual_renewable_withdrawal_per_sector[source_name][
-                            sector_name
-                        ]
-                        + self.actual_nonrenewable_withdrawal_per_sector[source_name][
-                            sector_name
-                        ]
-                    ),
+        unmet_withdrawal_per_sector = {
+            sector_name: pcr.max(
+                0,
+                (
+                    self.potential_renewable_withdrawal_per_sector[source_name][
+                        sector_name
+                    ]
+                    + self.potential_nonrenewable_withdrawal_per_sector[source_name][
+                        sector_name
+                    ]
+                )
+                - (
+                    self.actual_renewable_withdrawal_per_sector[source_name][
+                        sector_name
+                    ]
+                    + self.actual_nonrenewable_withdrawal_per_sector[source_name][
+                        sector_name
+                    ]
                 ),
             )
             for sector_name in self.sector_names
-        )
+        }
 
         # selectable source names
         source_names = []
@@ -2582,15 +2494,15 @@ total_return_flow_ini                      : total return flow [m3/day]
             nonrenewable_withdrawal_per_sector.values()
         )
 
-        self.actual_renewable_withdrawal_per_sector[source_name] = dict(
-            (sector_name, renewable_withdrawal_per_sector[sector_name])
+        self.actual_renewable_withdrawal_per_sector[source_name] = {
+            sector_name: renewable_withdrawal_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
+        }
 
-        self.actual_nonrenewable_withdrawal_per_sector[source_name] = dict(
-            (sector_name, nonrenewable_withdrawal_per_sector[sector_name])
+        self.actual_nonrenewable_withdrawal_per_sector[source_name] = {
+            sector_name: nonrenewable_withdrawal_per_sector[sector_name]
             for sector_name in self.sector_names
-        )
+        }
 
         return None
 
@@ -2661,10 +2573,10 @@ total_return_flow_ini                      : total return flow [m3/day]
             setattr(
                 self,
                 var_str,
-                dict(
-                    (source_name, unused_withdrawal[withdrawal_name][source_name])
+                {
+                    source_name: unused_withdrawal[withdrawal_name][source_name]
                     for source_name in self.source_names
-                ),
+                },
             )
 
         # total withdrawal, including unused withdrawals (m3/day)

@@ -124,9 +124,9 @@ Returns a dictionary with the name of the numpy functions as keys and the count
     a = a[a != mv]
 
     if a.size > 0:
-        stat_val = dict((str(f.__name__), f(a)) for f in np_stat_funcs)
+        stat_val = {str(f.__name__): f(a) for f in np_stat_funcs}
     else:
-        stat_val = dict((str(f.__name__), mv) for f in np_stat_funcs)
+        stat_val = {str(f.__name__): mv for f in np_stat_funcs}
     stat_val["count"] = a.size
 
     return stat_val

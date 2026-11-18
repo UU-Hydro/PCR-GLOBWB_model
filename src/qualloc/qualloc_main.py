@@ -528,16 +528,13 @@ class qualloc_model:
             source_names_prioritization.append("desalwater")
 
         # by default, all sectors are prioritized per source
-        prioritization = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(1.00)))
-                    for sector_name in sector_names
-                ),
-            )
+        prioritization = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(1.00))
+                for sector_name in sector_names
+            }
             for source_name in source_names_prioritization
-        )
+        }
 
         # prioritization from the configuration file (if specified)
         for source_name in source_names_prioritization:
@@ -735,20 +732,20 @@ class qualloc_model:
                             "water_quality"
                         ][var]
                     else:
-                        constituent_longterm_quality = dict(
-                            (date, pcr.spatial(pcr.scalar(0)))
+                        constituent_longterm_quality = {
+                            date: pcr.spatial(pcr.scalar(0))
                             for date in water_management_dates
-                        )
+                        }
                         logger.info(
                             f"Long-term {constituent_name} was not specified, a value of zero is assigned."
                         )
 
                 # zero concentrations if water quality is not evaluated
                 else:
-                    constituent_longterm_quality = dict(
-                        (date, pcr.spatial(pcr.scalar(0)))
+                    constituent_longterm_quality = {
+                        date: pcr.spatial(pcr.scalar(0))
                         for date in water_management_dates
-                    )
+                    }
 
                 # update the format of the initial conditions
                 self.initial_conditions["water_quality"][var] = (
@@ -1106,14 +1103,14 @@ class qualloc_model:
         # short-term
 
         # gross and net demand per sector for the current date
-        gross_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
+        gross_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0))
             for sector_name in self.water_management.sector_names
-        )
-        net_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
+        }
+        net_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0))
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         for sector_name in self.water_management.sector_names:
             # add the demand per sector to the gross and net demand (m3/day)
@@ -1178,25 +1175,22 @@ class qualloc_model:
 
         # redistribute the renewable withdrawal by sector (m3/day)
         renewable_withdrawal = deepcopy(actual_withdrawal)
-        renewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                actual_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        renewable_withdrawal_per_sector = {
+            sector_name: actual_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # no non-renewable withdrawal: all surface water withdrawals are currently renewable
         nonrenewable_withdrawal = pcr.ifthen(self.landmask, pcr.scalar(0))
-        nonrenewable_withdrawal_per_sector = dict(
-            (sector_name, nonrenewable_withdrawal)
+        nonrenewable_withdrawal_per_sector = {
+            sector_name: nonrenewable_withdrawal
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # set the actual surface water withdrawal and add any unmet demand to the potential
         # non-renewable withdrawal of the remaining allowable sources
@@ -1245,32 +1239,26 @@ class qualloc_model:
         nonrenewable_withdrawal /= self.model_time.time_step_length
 
         # redistribute the renewable withdrawals by sector (m3/day)
-        renewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                renewable_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        renewable_withdrawal_per_sector = {
+            sector_name: renewable_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # redistribute the non-renewable withdrawals by sector (m3/day)
-        nonrenewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                nonrenewable_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        nonrenewable_withdrawal_per_sector = {
+            sector_name: nonrenewable_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # set the actual groundwater withdrawal and add any unmet demand to the potential
         # non-renewable withdrawal of the remaining allowable sources
