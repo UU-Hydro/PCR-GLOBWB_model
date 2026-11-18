@@ -40,7 +40,7 @@ def monthly_file_name(template, year, month):
     return existing[0]
 
 
-class Meteo(object):
+class Meteo:
 
     def getState(self):
 
@@ -119,7 +119,6 @@ class Meteo(object):
         self.avgAnnualTemperature = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
 
     def __init__(self, iniItems, landmask, spinUp):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

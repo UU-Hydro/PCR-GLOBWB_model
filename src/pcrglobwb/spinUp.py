@@ -9,10 +9,9 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class SpinUp(object):
+class SpinUp:
 
     def __init__(self, iniItems):
-        object.__init__(self)
 
         self.noSpinUps = None
 

@@ -13,7 +13,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class Routing(object):
+class Routing:
 
     def getPseudoState(self):
         result = {}
@@ -127,7 +127,6 @@ class Routing(object):
         return result
 
     def __init__(self, iniItems, initialConditions, lddMap):
-        object.__init__(self)
 
         self.lddMap = lddMap
 

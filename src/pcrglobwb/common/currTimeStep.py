@@ -4,10 +4,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ModelTime(object):
+class ModelTime:
 
     def __init__(self):
-        object.__init__(self)
         self._spinUpStatus = False
 
     # TODO: use __init__

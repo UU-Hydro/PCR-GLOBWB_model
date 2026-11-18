@@ -13,7 +13,7 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class Configuration(object):
+class Configuration:
 
     def __init__(
         self,
@@ -22,7 +22,6 @@ class Configuration(object):
         no_modification=True,
         system_arguments=None,
     ):
-        object.__init__(self)
 
         if iniFileName is None:
             raise Exception("Error: No configuration file specified")

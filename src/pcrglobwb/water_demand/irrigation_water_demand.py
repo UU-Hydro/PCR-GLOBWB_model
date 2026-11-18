@@ -8,7 +8,7 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class IrrigationWaterDemand(object):
+class IrrigationWaterDemand:
 
     def __init__(
         self,
@@ -17,7 +17,6 @@ class IrrigationWaterDemand(object):
         landmask,
         landCoverObject,
     ):
-        object.__init__(self)
 
         self.iniItems = iniItems
 

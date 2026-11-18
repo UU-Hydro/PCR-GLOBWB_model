@@ -36,7 +36,7 @@ NoneType = type(None)
 logger = logging.getLogger(__name__)
 
 
-class water_quality(object):
+class water_quality:
 
     def __init__(
         self,
@@ -55,8 +55,6 @@ class water_quality(object):
         groundwater_longterm_salinity,
         groundwater_longterm_pathogen,
     ):
-
-        object.__init__(self)
 
         self.landmask = landmask
         self.time_increment = time_increment

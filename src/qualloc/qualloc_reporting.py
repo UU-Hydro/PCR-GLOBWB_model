@@ -36,14 +36,12 @@ intervals = {
 }
 
 
-class qualloc_reporting(object):
+class qualloc_reporting:
 
     def __init__(self, model_configuration):
 
         # reporting keeps track of the elapsed time (days) and of all variables based on
         # the monthly totals
-
-        object.__init__(self)
 
         self.model_configuration = model_configuration
         statistics = [
@@ -539,7 +537,7 @@ class qualloc_reporting(object):
         return None
 
 
-class qualloc_report_initial_conditions(object):
+class qualloc_report_initial_conditions:
     """
 qualloc_report_initial_conditions: class that can be used to report the initial \
 conditions as netCDF dependent whether they are single PCRaster fields or \
@@ -549,8 +547,6 @@ dictionaries with the dates provided.
     def __init__(self, model_configuration, initial_conditions, model_flags):
 
         # reporting of the initial conditions, combining reports in different formats
-
-        object.__init__(self)
 
         logger.info("Initializing reporting of initial conditions.")
 

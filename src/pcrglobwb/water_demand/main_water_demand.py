@@ -14,10 +14,9 @@ from pcrglobwb.water_demand import (
 logger = logging.getLogger(__name__)
 
 
-class WaterDemand(object):
+class WaterDemand:
 
     def __init__(self, iniItems, landmask, landCoverTypeNames, landCoverObjects):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

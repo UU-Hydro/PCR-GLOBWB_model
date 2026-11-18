@@ -8,7 +8,7 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class PCRGlobWB(object):
+class PCRGlobWB:
 
     def __init__(self, configuration, currTimeStep, initialState=None, spinUpRun=None):
         self._configuration = configuration

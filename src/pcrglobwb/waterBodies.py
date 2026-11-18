@@ -7,10 +7,9 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class WaterBodies(object):
+class WaterBodies:
 
     def __init__(self, iniItems, landmask, onlyNaturalWaterBodies=False, lddMap=None):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

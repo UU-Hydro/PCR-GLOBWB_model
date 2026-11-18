@@ -446,7 +446,7 @@ solar_constant specified.
     return radsw_ext
 
 
-class ShortwaveRadiation(object):
+class ShortwaveRadiation:
     """
 
 shortwave_radiation: class that updates on a daily timestep the incoming \
@@ -516,8 +516,6 @@ Shortwave radiation computed in this class has the same unit as the solar
 constant (default MJ/m2/day).
 
 """
-
-        object.__init__(self)
 
         # reduction of the transmittance (-) by water vapour in the atmospheric column on a
         # wet day (Winslow et al., 2001), i.e. with precipitation above the threshold

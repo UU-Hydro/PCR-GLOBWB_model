@@ -65,7 +65,7 @@ PCRaster input ignores the name and is unaffected.
     return section.get(f"{key}_ncvariable", default)
 
 
-class qualloc_model(object):
+class qualloc_model:
 
     def __init__(
         self,
@@ -74,8 +74,6 @@ class qualloc_model(object):
         model_flags={},
         initial_conditions=None,
     ):
-
-        object.__init__(self)
 
         self.model_configuration = model_configuration
 

@@ -693,13 +693,11 @@ def get_nc_dates(ncfilename):
     return nc_dates
 
 
-class netCDF_file_info(object):
+class netCDF_file_info:
 
     def __init__(
         self,
     ):
-
-        object.__init__(self)
 
         # cache of open files and information
         self.cache = dict()
@@ -1110,7 +1108,7 @@ depending on the type of match specified.
         return None
 
 
-class netCDF_output_handler(object):
+class netCDF_output_handler:
     """
 
 netCDF_output_handler: class that holds all information to create and update \
@@ -1119,8 +1117,6 @@ output netCDF files.
 """
 
     def __init__(self, model_configuration):
-
-        object.__init__(self)
 
         # cache of open files, dimensions per variable and the timed variable
         self.cache = dict()

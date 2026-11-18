@@ -3,10 +3,9 @@ import pcraster as pcr
 from pcrglobwb.common import virtualOS as vos
 
 
-class SoilAndTopoParameters(object):
+class SoilAndTopoParameters:
 
     def __init__(self, iniItems, landmask):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

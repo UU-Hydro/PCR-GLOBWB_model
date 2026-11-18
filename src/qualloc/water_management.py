@@ -203,7 +203,7 @@ and the base flow.
 """
 
 
-class water_management(object):
+class water_management:
     """
 water management module: class that holds the water management module of \
 the QUAlloc model and manages water use through allocation and withdrawal.
@@ -340,8 +340,6 @@ total_return_flow_ini                      : total return flow [m3/day]
         See doc string of class for detailed info.
 
         """
-
-        object.__init__(self)
 
         self.landmask = landmask
 

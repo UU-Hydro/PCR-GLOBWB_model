@@ -10,7 +10,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class Reporting(object):
+class Reporting:
 
     def __init__(self, configuration, model, modelTime):
 

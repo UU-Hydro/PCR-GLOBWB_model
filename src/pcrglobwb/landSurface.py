@@ -18,7 +18,7 @@ from qualloc.qualloc_reporting import qualloc_reporting
 logger = logging.getLogger(__name__)
 
 
-class LandSurface(object):
+class LandSurface:
 
     def getState(self):
         result = {}
@@ -93,7 +93,6 @@ class LandSurface(object):
         return result
 
     def __init__(self, iniItems, landmask, initialState=None):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

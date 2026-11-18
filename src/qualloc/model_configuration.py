@@ -41,7 +41,7 @@ def remove_readonly(func, path, _):
     func(path)
 
 
-class configuration_parser(object):
+class configuration_parser:
     """
 
 configuration_parser:
@@ -60,8 +60,6 @@ the CALEROS model.
         replacements={},
         **optional_arguments,
     ):
-
-        object.__init__(self)
 
         # configuration file, groups and sections
         self.cfgfilename = cfgfilename

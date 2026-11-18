@@ -10,7 +10,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class Groundwater(object):
+class Groundwater:
 
     def getState(self):
         result = {}
@@ -51,7 +51,6 @@ class Groundwater(object):
         return result
 
     def __init__(self, iniItems, landmask, spinUp):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]

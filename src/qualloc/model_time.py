@@ -141,7 +141,7 @@ def is_last_day_month(date):
     return today == last_day
 
 
-class model_time(object):
+class model_time:
     # timer of the model: initializes and updates the continuous timer and
     # julian day number
 
@@ -152,8 +152,6 @@ class model_time(object):
         time_increment,
         time_step_length=1.00,
     ):
-
-        object.__init__(self)
 
         self.seconds_per_day = 86400
 

@@ -9,7 +9,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class LandCover(object):
+class LandCover:
 
     def __init__(
         self,
@@ -20,7 +20,6 @@ class LandCover(object):
         irrigationEfficiency=None,
         usingAllocSegments=False,
     ):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
