@@ -135,8 +135,6 @@ class qualloc_reporting:
             + "".join(f" {interval}," for interval in interval_list)
         )
 
-        return None
-
     def initialize(self):
         """
         initialize: function that reads the reporting options from the configuration \
@@ -228,8 +226,6 @@ class qualloc_reporting:
                     standard_name=variable_attr.netcdf_standard_name[variablename],
                     datatype=datatype,
                 )
-
-        return None
 
     def report(self, model_time, model):
         """
@@ -411,13 +407,9 @@ class qualloc_reporting:
             if time_flag_condition:
                 self.reset_values_at_time(time_flag, time_flag_condition)
 
-        return None
-
     def close(self):
 
         self.nc_handler.close_cache()
-
-        return None
 
     def update_reportable_variables(self, model):
 
@@ -534,7 +526,6 @@ class qualloc_reporting:
                     rep_name,
                     getattr(model.water_management, var_name)[sector_name],
                 )
-        return None
 
 
 class qualloc_report_initial_conditions:
@@ -562,8 +553,6 @@ dictionaries with the dates provided.
         self.variablenames = {
             module: list(initial_conditions[module]) for module in modules
         }
-
-        return None
 
     def report(self, date, initial_conditions):
         """
@@ -657,10 +646,6 @@ dictionaries with the dates provided.
 
         logger.info(f"Reported initial conditions for {date}")
 
-        return None
-
     def close(self):
 
         self.nc_handler.close_cache()
-
-        return None

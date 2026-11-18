@@ -693,8 +693,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 "\tWater quality is considered to determine the actual water availability."
             )
 
-        return None
-
     def update_annual_water_availability(self):
         """
         update the total water availability over the year.
@@ -725,8 +723,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             for date in self.surfacewater_longterm_runoff_dates
         )
 
-        return None
-
     def update_annual_water_demand(self):
         """
         update the total water availability over the year.
@@ -744,8 +740,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 f"gross_demand_total_{sector_name}",
                 sum(weights[date] * var_value[date] for date in var_dates),
             )
-
-        return None
 
     def update_withdrawal_capacity(
         self,
@@ -814,8 +808,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             self.surfacewater_withdrawal_capacity = pcr.ifthen(
                 self.landmask, pcr.cover(withdrawal_capacity, 0.0)
             )
-
-        return None
 
     def get_longterm_availability_for_date(
         self,
@@ -1114,8 +1106,6 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         logger.debug(f"total gross and net demand set for {date}")
 
-        return None
-
     def allocate_desalinated_water_for_date(self, availability, date):
         """
         desalinated_water_allocation_for_date:
@@ -1298,8 +1288,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             )
 
         logger.debug(f"{message_str}\n{sub_message_str}")
-
-        return None
 
     def update_longterm_potential_withdrawals_for_date(
         self, availability, demand, date
@@ -1537,8 +1525,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         process_name="Long-term - pumping capacity  vs potential withdrawal",
                         date=date,
                     )
-
-        return None
 
     def allocate_demand_to_renewable_sources(
         self,
@@ -1921,8 +1907,6 @@ total_return_flow_ini                      : total return flow [m3/day]
 
         logger.debug(f"{message_str}: {source_name}")
 
-        return None
-
     def update_shortterm_potential_withdrawals_for_date(self, date):
         """
         update_shortterm_potential_withdrawals_for_date:
@@ -2117,8 +2101,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         process_name="Short-term - pumping capacity vs potential withdrawal",
                         date=date,
                     )
-
-        return None
 
     def get_total_potential_withdrawal(self, source_name):
         """
@@ -2461,8 +2443,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        return None
-
     def set_actual_withdrawals(
         self,
         source_name,
@@ -2503,8 +2483,6 @@ total_return_flow_ini                      : total return flow [m3/day]
             sector_name: nonrenewable_withdrawal_per_sector[sector_name]
             for sector_name in self.sector_names
         }
-
-        return None
 
     def allocate_withdrawal_to_demand_for_date(self, date, availability):
         """
@@ -2756,8 +2734,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         date=date,
                     )
 
-        return None
-
     def get_return_flow_ratio(self, gross_demand, net_demand):
         """
         get_return_flow_ratio:
@@ -2902,8 +2878,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                 )
             )
 
-        return None
-
     def update_longterm_demand(self, date):
         """
         update_longterm_demand: function that updates the gross sectoral water demands
@@ -2963,8 +2937,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         ),
                     )
                 )
-
-        return None
 
     def update_longterm_potential_withdrawals(self, date):
         """
@@ -3062,8 +3034,6 @@ total_return_flow_ini                      : total return flow [m3/day]
                         ),
                     )
                 )
-
-        return None
 
     def get_final_conditions(self):
         """

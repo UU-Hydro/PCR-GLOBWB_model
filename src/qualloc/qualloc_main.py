@@ -144,8 +144,6 @@ class qualloc_model:
             f"over {self.model_time.date} - {self.model_time.enddate} using {self.model_time.time_increment} time increments"
         )
 
-        return None
-
     def initialize(self):
 
         # stand-alone QUAlloc: read the land mask
@@ -839,8 +837,6 @@ class qualloc_model:
 
         setattr(self.water_management, "water_quality", self.water_quality)
 
-        return None
-
     def update(
         self,
         irrigationGrossDemand=None,
@@ -1306,8 +1302,6 @@ class qualloc_model:
             date=date,
         )
 
-        return None
-
     def finalize_year(self):
 
         logger.info(
@@ -1334,8 +1328,6 @@ class qualloc_model:
         self.report_initial_conditions_to_file.close()
         close_nc_cache()
 
-        return None
-
     def update_initial_conditions(self, date):
         """
         update_initial_conditions: function that updates the initial conditions from \
@@ -1359,8 +1351,6 @@ class qualloc_model:
 
         logger.info(f"Initial conditions updated for {date}")
 
-        return None
-
     def report_initial_conditions(self, date):
         """
         report_initial_conditions: functions that report the initial conditions to file.
@@ -1368,5 +1358,3 @@ class qualloc_model:
         """
 
         self.report_initial_conditions_to_file.report(date, self.initial_conditions)
-
-        return None

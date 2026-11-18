@@ -101,8 +101,6 @@ class water_quality:
             "groundwater_longterm_pathogen": "groundwater_longterm_pathogen",
         }
 
-        return None
-
     def update_annual_water_quality(self, source_names):
         """
         update_annual_water_quality :
@@ -130,8 +128,6 @@ class water_quality:
 
                 var_out = f"{source_name}_annual_{constituent_name}"
                 setattr(self, var_out, values)
-
-        return None
 
     def get_longterm_quality_for_date(
         self,
@@ -249,8 +245,6 @@ class water_quality:
                     logger.debug(
                         f"{constituent_name} from {source_name} availability updated for {message_str}"
                     )
-
-        return None
 
     def get_suitability_per_sector(
         self,

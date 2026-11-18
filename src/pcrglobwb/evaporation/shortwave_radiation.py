@@ -550,8 +550,6 @@ constant (default MJ/m2/day).
 
         # TODO: make temp_annual dynamic, based on the last 365 days
 
-        return None
-
     def parameter_initialization(
         self, latitude, elevation, temp_annual, delta_temp_mean
     ):
@@ -706,5 +704,3 @@ precipitation, minimum and maximum daily temperature.
         )
 
         self.radsw_act = red_radsw_ext * self.radsw_ext
-
-        return None

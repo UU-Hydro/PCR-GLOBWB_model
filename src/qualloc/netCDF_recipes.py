@@ -303,8 +303,6 @@ initialize_netCD: initializes the netCDF file with the name and format specified
     if ncfilename not in cache:
         rootgrp.close()
 
-    return None
-
 
 def add_variable_to_netCDF(
     ncfilename,
@@ -418,8 +416,6 @@ the netCDF4 createVariable function.
     if ncfilename not in cache:
         rootgrp.close()
 
-    return None
-
 
 def add_dimension_to_netCDF(
     ncfilename,
@@ -507,8 +503,6 @@ variable information to the netCDF file.
         # close the file if it is not in the cache
         if ncfilename not in cache:
             rootgrp.close()
-
-    return None
 
 
 def add_data_to_netCDF(
@@ -658,8 +652,6 @@ def add_data_to_netCDF(
     # close the file if it is not in the cache
     if ncfilename not in cache:
         rootgrp.close()
-
-    return None
 
 
 def get_nc_dates(ncfilename):
@@ -1096,8 +1088,6 @@ depending on the type of match specified.
 
             self.remove_ncfile_from_cache(ncfilename)
 
-        return None
-
 
 class netCDF_output_handler:
     """
@@ -1173,8 +1163,6 @@ output netCDF files.
             "standard_name": "longitude",
             "units": "degrees_east",
         }
-
-        return None
 
     def get_general_netcdf_attributes(self, model_configuration):
 
@@ -1336,8 +1324,6 @@ Function wraps around the functions add_dimension_to_netCDF and add_variable_to_
             units=variable_units,
         )
 
-        return None
-
     def add_data_to_netCDF(
         self, ncfilename, variablename, variable_array, **additional_info
     ):
@@ -1373,12 +1359,8 @@ of the dimensions to be written.
             **additional_info,
         )
 
-        return None
-
     def close_cache(self):
 
         for ncfilename in list(self.cache):
 
             self.remove_ncfile_from_cache(ncfilename)
-
-        return None

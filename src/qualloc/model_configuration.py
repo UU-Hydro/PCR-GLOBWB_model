@@ -206,8 +206,6 @@ the unreplaced token would otherwise surface much later as a missing file.
                     f"configuration file does not contain the necessary information on {group}"
                 )
 
-        return None
-
     def initialize_logger(self, logfileroot):
         """
 
@@ -266,8 +264,6 @@ to a log file and to the screen at configurable levels.
         logging.getLogger().addHandler(debug_handler)
 
         self.log_file_handlers = [debug_handler, file_handler]
-
-        return None
 
     def create_output_directories(self):
         """
@@ -355,8 +351,6 @@ directories using information from the model configuration.
                 shutil.rmtree(subdirectory, onerror=remove_readonly)
             os.makedirs(subdirectory)
             setattr(self, subdirname, subdirectory)
-
-        return None
 
     def backup_configuration_file(self, cfgfilename, outputpath, replacement_str=""):
 
