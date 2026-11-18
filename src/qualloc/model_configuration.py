@@ -113,10 +113,7 @@ the CALEROS model.
 
     def get_items(self, config, section):
         # dictionary of all key-value pairs in the current section
-        options = {}
-        for key, value in config.items(section):
-            options[key] = value
-        return options
+        return dict(config.items(section))
 
     def substitute_tokens(self, cfgfilename, replacements):
         """

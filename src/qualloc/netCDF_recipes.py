@@ -251,10 +251,7 @@ def get_nc_attributes(ncfilename):
     # exclude high-level entries; class objects are ignored by default
     exclude_list = ["_"]
 
-    nc_attributes = {}
-
-    for key, value in rootgrp.__dict__.items():
-        nc_attributes[key] = value
+    nc_attributes = dict(rootgrp.__dict__)
 
     # attributes and values of the dimensions, as dictionaries for reuse
     nc_dimattrs = {}
@@ -1186,12 +1183,7 @@ output netCDF files.
             "history": f"Created on {model_configuration._timestamp_str}",
             "institution": "Dept. Physical Geography, Utrecht University (r.vanbeek@uu.nl)",
         }
-        nc_global_attributes = {}
-
-        # add all attributes from the dictionary
-        for key, attribute in model_configuration.netcdfattrs.items():
-
-            nc_global_attributes[key] = attribute
+        nc_global_attributes = dict(model_configuration.netcdfattrs)
 
         # add defaults if necessary
         for key, attribute in nc_default_attributes.items():
