@@ -17,7 +17,7 @@ import zarr
 logger = logging.getLogger(__name__)
 
 # file cache to reduce opening and closing files
-filecache = dict()
+filecache = {}
 
 # global variables
 MV = 1e20

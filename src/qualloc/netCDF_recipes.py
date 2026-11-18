@@ -700,12 +700,12 @@ class netCDF_file_info:
     ):
 
         # cache of open files and information
-        self.cache = dict()
-        self.attributes = dict()
-        self.dimensions = dict()
-        self.variables = dict()
-        self.spatialattributes = dict()
-        self.time_dimension = dict()
+        self.cache = {}
+        self.attributes = {}
+        self.dimensions = {}
+        self.variables = {}
+        self.spatialattributes = {}
+        self.time_dimension = {}
 
     def test_ncfile_in_cache(self, ncfilename):
         """tests if the specified nc file name is present in the cache"""
@@ -1113,9 +1113,9 @@ output netCDF files.
     def __init__(self, model_configuration):
 
         # cache of open files, dimensions per variable and the timed variable
-        self.cache = dict()
-        self.dimensions = dict()
-        self.time_dimension = dict()
+        self.cache = {}
+        self.dimensions = {}
+        self.time_dimension = {}
 
         self.latitude = pcr.pcr2numpy(
             pcr.ycoordinate(pcr.spatial(pcr.boolean(1))), default_fill_value
