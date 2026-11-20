@@ -3,10 +3,9 @@ import pcraster as pcr
 from pcrglobwb.common import virtualOS as vos
 
 
-class SoilAndTopoParameters(object):
+class SoilAndTopoParameters:
 
     def __init__(self, iniItems, landmask):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
@@ -30,7 +29,7 @@ class SoilAndTopoParameters(object):
 
         # elevation attributes
         topoParams = ["tanslope", "slopeLength", "orographyBeta"]
-        if optionDict["topographyNC"] == str(None):
+        if optionDict["topographyNC"] == "None":
             for var in topoParams:
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
@@ -65,7 +64,7 @@ class SoilAndTopoParameters(object):
             "dzRel0090",
             "dzRel0100",
         ]
-        if optionDict["topographyNC"] == str(None):
+        if optionDict["topographyNC"] == "None":
             for i in range(0, len(dzRel)):
                 var = dzRel[i]
                 input = optionDict[str(var)]
@@ -103,7 +102,7 @@ class SoilAndTopoParameters(object):
             "KSat2",
             "percolationImp",
         ]
-        if optionDict["soilPropertiesNC"] == str(None):
+        if optionDict["soilPropertiesNC"] == "None":
             for var in soilParameters:
                 input = optionDict[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
@@ -114,7 +113,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -142,7 +141,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -204,7 +203,7 @@ class SoilAndTopoParameters(object):
             "soilWaterStorageCap1",
             "soilWaterStorageCap2",
         ]
-        if optionDict["soilPropertiesNC"] == str(None):
+        if optionDict["soilPropertiesNC"] == "None":
             for var in soilStorages:
                 input = optionDict[str(var)]
                 temp = f"{var}Inp"
@@ -214,7 +213,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -240,7 +239,7 @@ class SoilAndTopoParameters(object):
 
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation" in iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in iniItems.landSurfaceOptions
                     and iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -310,7 +309,7 @@ class SoilAndTopoParameters(object):
             "maxGWCapRise",
         ]
         for var in soilParameterConstants:
-            if var in list(iniItems.landSurfaceOptions.keys()):
+            if var in iniItems.landSurfaceOptions:
                 input = iniItems.landSurfaceOptions[str(var)]
                 vars(self)[var] = vos.readPCRmapClone(input, self.tmpDir, self.inputDir)
 

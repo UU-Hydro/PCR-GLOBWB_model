@@ -108,7 +108,7 @@ appropriate key and value pairs.
                         variablename = key[:-4]
 
                         # add the section as an empty dictionary if not yet present
-                        if section_name not in initial_conditions.keys():
+                        if section_name not in initial_conditions:
                             initial_conditions[section_name] = {}
 
                         # decide how to process the data

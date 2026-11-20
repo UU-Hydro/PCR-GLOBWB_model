@@ -40,7 +40,7 @@ def monthly_file_name(template, year, month):
     return existing[0]
 
 
-class Meteo(object):
+class Meteo:
 
     def getState(self):
 
@@ -69,7 +69,7 @@ class Meteo(object):
         # initial conditions (m) at the start of the model (read from file)
         if iniConditions is None:
 
-            if "avgAnnualPrecipitationIni" in list(iniItems.meteoOptions.keys()):
+            if "avgAnnualPrecipitationIni" in iniItems.meteoOptions:
                 self.avgAnnualPrecipitation = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualPrecipitationIni"],
                     self.tmpDir,
@@ -78,7 +78,7 @@ class Meteo(object):
             else:
                 self.avgAnnualPrecipitation = pcr.scalar(0.0)
 
-            if "avgAnnualTemperatureIni" in list(iniItems.meteoOptions.keys()):
+            if "avgAnnualTemperatureIni" in iniItems.meteoOptions:
                 self.avgAnnualTemperature = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualTemperatureIni"],
                     self.tmpDir,
@@ -87,7 +87,7 @@ class Meteo(object):
             else:
                 self.avgAnnualTemperature = pcr.scalar(0.0)
 
-            if "avgAnnualDiurnalDeltaTempIni" in list(iniItems.meteoOptions.keys()):
+            if "avgAnnualDiurnalDeltaTempIni" in iniItems.meteoOptions:
                 self.avgAnnualDiurnalDeltaTemp = vos.readPCRmapClone(
                     iniItems.meteoOptions["avgAnnualDiurnalDeltaTempIni"],
                     self.tmpDir,
@@ -119,7 +119,6 @@ class Meteo(object):
         self.avgAnnualTemperature = pcr.ifthen(self.landmask, self.avgAnnualTemperature)
 
     def __init__(self, iniItems, landmask, spinUp):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
@@ -136,7 +135,7 @@ class Meteo(object):
         # option to ignore snow (temperature is set to 25 degC)
         self.ignore_snow = False
         if (
-            "ignoreSnow" in list(iniItems.meteoOptions.keys())
+            "ignoreSnow" in iniItems.meteoOptions
             and iniItems.meteoOptions["ignoreSnow"] == "True"
         ):
             self.ignore_snow = True
@@ -238,8 +237,7 @@ class Meteo(object):
         # option to downscale meteo with a daily climatological factor
         self.using_daily_factor_for_downscaling = False
         if (
-            "using_daily_factor_for_downscaling"
-            in list(iniItems.meteoDownscalingOptions.keys())
+            "using_daily_factor_for_downscaling" in iniItems.meteoDownscalingOptions
             and iniItems.meteoDownscalingOptions["using_daily_factor_for_downscaling"]
             == "True"
         ):
@@ -533,8 +531,7 @@ class Meteo(object):
         self.forcingSmoothing = False
         if (
             "meteoDownscalingOptions" in iniItems.allSections
-            and "smoothingWindowsLength"
-            in list(iniItems.meteoDownscalingOptions.keys())
+            and "smoothingWindowsLength" in iniItems.meteoDownscalingOptions
         ):
 
             if float(iniItems.meteoDownscalingOptions["smoothingWindowsLength"]) > 0.0:
@@ -624,20 +621,19 @@ class Meteo(object):
                 # TODO: if dewpoint_temperature_avg is unavailable, should we use air_temperature_min?
 
             # wind speed (m.s-1)
-            if ("wind_speed_10m" not in list(self.iniItems.meteoOptions.keys())) or (
+            if ("wind_speed_10m" not in self.iniItems.meteoOptions) or (
                 self.iniItems.meteoOptions["wind_speed_10m"] == "None"
             ):
                 logger.info("Calculating wind speed based on their u and v components")
                 self.wind_speed_10m = (
                     self.wind_speed_10m_u_comp**2.0 + self.wind_speed_10m_v_comp**2.0
-                ) ** (0.5)
+                ) ** 0.5
 
             # extraterrestrial radiation
 
-            if (
-                "extraterestrial_radiation"
-                not in list(self.iniItems.meteoOptions.keys())
-            ) or (self.iniItems.meteoOptions["extraterestrial_radiation"] == "None"):
+            if ("extraterestrial_radiation" not in self.iniItems.meteoOptions) or (
+                self.iniItems.meteoOptions["extraterestrial_radiation"] == "None"
+            ):
 
                 logger.info("Estimating extraterrestrial radiation (Dingman, 2015)")
 
@@ -682,13 +678,15 @@ class Meteo(object):
             # TODO: extraterrestrial shortwave radiation is not always needed (e.g. if shortwave and longwave radiation are given)
 
             # convert the extraterrestrial radiation to W.m-2
-            if "extraterestrial_radiation_input_in_w_per_m2" in list(
-                self.iniItems.meteoOptions.keys()
-            ) and (
-                self.iniItems.meteoOptions[
-                    "extraterestrial_radiation_input_in_w_per_m2"
-                ]
-                == "True"
+            if (
+                "extraterestrial_radiation_input_in_w_per_m2"
+                in self.iniItems.meteoOptions
+                and (
+                    self.iniItems.meteoOptions[
+                        "extraterestrial_radiation_input_in_w_per_m2"
+                    ]
+                    == "True"
+                )
             ):
                 self.extraterestrial_radiation = pcr.max(
                     0.0, self.extraterestrial_radiation
@@ -750,11 +748,12 @@ class Meteo(object):
                 self.shortwave_radiation = self.sw_rad_model.radsw_act * 1e6
 
             # convert the shortwave radiation to W.m-2
-            if "shortwave_radiation_input_in_w_per_m2" in list(
-                self.iniItems.meteoOptions.keys()
-            ) and (
-                self.iniItems.meteoOptions["shortwave_radiation_input_in_w_per_m2"]
-                == "True"
+            if (
+                "shortwave_radiation_input_in_w_per_m2" in self.iniItems.meteoOptions
+                and (
+                    self.iniItems.meteoOptions["shortwave_radiation_input_in_w_per_m2"]
+                    == "True"
+                )
             ):
                 self.shortwave_radiation = pcr.max(0.0, self.shortwave_radiation)
             else:
@@ -762,20 +761,24 @@ class Meteo(object):
                     pcr.max(0.0, self.shortwave_radiation / 1e6) / 0.0864
                 )
 
-            if "longwave_radiation" in list(
-                self.iniItems.meteoOptions.keys()
-            ) and self.iniItems.meteoOptions["longwave_radiation"].endswith(
-                (".nc", ".nc4", ".nc3")
+            if (
+                "longwave_radiation" in self.iniItems.meteoOptions
+                and self.iniItems.meteoOptions["longwave_radiation"].endswith(
+                    (".nc", ".nc4", ".nc3")
+                )
             ):
 
                 logger.info("Longwave radiation is obtained from the input file.")
 
                 # convert the longwave radiation to W.m-2 (the default input unit is J.m-2.day-1)
-                if "longwave_radiation_input_in_w_per_m2" in list(
-                    self.iniItems.meteoOptions.keys()
-                ) and (
-                    self.iniItems.meteoOptions["longwave_radiation_input_in_w_per_m2"]
-                    == "True"
+                if (
+                    "longwave_radiation_input_in_w_per_m2" in self.iniItems.meteoOptions
+                    and (
+                        self.iniItems.meteoOptions[
+                            "longwave_radiation_input_in_w_per_m2"
+                        ]
+                        == "True"
+                    )
                 ):
                     self.longwave_radiation = pcr.max(0.0, self.longwave_radiation)
                 else:
@@ -1247,8 +1250,7 @@ class Meteo(object):
         method_for_time_index = None
         method_for_time_index = "daily"
         if (
-            "time_index_method_for_precipitation_netcdf"
-            in list(self.iniItems.meteoOptions.keys())
+            "time_index_method_for_precipitation_netcdf" in self.iniItems.meteoOptions
             and self.iniItems.meteoOptions["time_index_method_for_precipitation_netcdf"]
             != "None"
         ):
@@ -1258,9 +1260,9 @@ class Meteo(object):
 
         netcdf_file_name = self.preFileNC
 
-        if (
-            "precipitation_file_per_month" in list(self.iniItems.meteoOptions.keys())
-        ) and (self.iniItems.meteoOptions["precipitation_file_per_month"] == "True"):
+        if ("precipitation_file_per_month" in self.iniItems.meteoOptions) and (
+            self.iniItems.meteoOptions["precipitation_file_per_month"] == "True"
+        ):
             netcdf_file_name = monthly_file_name(
                 self.preFileNC, int(currTimeStep.year), int(currTimeStep.month)
             )
@@ -1307,8 +1309,7 @@ class Meteo(object):
         method_for_time_index = None
         method_for_time_index = "daily"
         if (
-            "time_index_method_for_temperature_netcdf"
-            in list(self.iniItems.meteoOptions.keys())
+            "time_index_method_for_temperature_netcdf" in self.iniItems.meteoOptions
             and self.iniItems.meteoOptions["time_index_method_for_temperature_netcdf"]
             != "None"
         ):
@@ -1318,9 +1319,9 @@ class Meteo(object):
 
         netcdf_file_name = self.tmpFileNC
 
-        if (
-            "temperature_file_per_month" in list(self.iniItems.meteoOptions.keys())
-        ) and (self.iniItems.meteoOptions["temperature_file_per_month"] == "True"):
+        if ("temperature_file_per_month" in self.iniItems.meteoOptions) and (
+            self.iniItems.meteoOptions["temperature_file_per_month"] == "True"
+        ):
             netcdf_file_name = monthly_file_name(
                 self.tmpFileNC, int(currTimeStep.year), int(currTimeStep.month)
             )
@@ -1359,8 +1360,7 @@ class Meteo(object):
             method_for_time_index = None
             method_for_time_index = "daily"
             if (
-                "time_index_method_for_ref_pot_et_netcdf"
-                in list(self.iniItems.meteoOptions.keys())
+                "time_index_method_for_ref_pot_et_netcdf" in self.iniItems.meteoOptions
                 and self.iniItems.meteoOptions[
                     "time_index_method_for_ref_pot_et_netcdf"
                 ]
@@ -1372,10 +1372,7 @@ class Meteo(object):
 
             netcdf_file_name = self.etpFileNC
 
-            if (
-                "refETPotFileNC_file_per_month"
-                in list(self.iniItems.meteoOptions.keys())
-            ) and (
+            if ("refETPotFileNC_file_per_month" in self.iniItems.meteoOptions) and (
                 self.iniItems.meteoOptions["refETPotFileNC_file_per_month"] == "True"
             ):
                 netcdf_file_name = monthly_file_name(
@@ -1418,10 +1415,11 @@ class Meteo(object):
         # extra meteo variables (needed for the Penman-Monteith method)
         for meteo_var_name in self.extra_meteo_var_names:
             vars(self)[meteo_var_name] = None
-            if meteo_var_name in list(
-                self.iniItems.meteoOptions.keys()
-            ) and self.iniItems.meteoOptions[meteo_var_name].endswith(
-                (".nc", ".nc4", ".nc3")
+            if (
+                meteo_var_name in self.iniItems.meteoOptions
+                and self.iniItems.meteoOptions[meteo_var_name].endswith(
+                    (".nc", ".nc4", ".nc3")
+                )
             ):
 
                 method_for_time_index = None

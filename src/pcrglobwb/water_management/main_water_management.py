@@ -7,10 +7,9 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class WaterManagement(object):
+class WaterManagement:
 
     def __init__(self, iniItems, landmask):
-        object.__init__(self)
 
         self.iniItems = iniItems
 
@@ -19,14 +18,14 @@ class WaterManagement(object):
         self.landmask = landmask
 
         # groundwater abstraction options: if limitAbstraction, only renewable groundwater is used
-        if "limitAbstraction" not in list(iniItems.waterManagementOptions.keys()):
+        if "limitAbstraction" not in iniItems.waterManagementOptions:
             iniItems.waterManagementOptions["limitAbstraction"] = False
         self.limitAbstraction = False
         if iniItems.waterManagementOptions["limitAbstraction"] == "True":
             self.limitAbstraction = True
 
         # option for the groundwater pumping capacity (limitRegionalAnnualGroundwaterAbstraction)
-        if "pumpingCapacityNC" not in list(iniItems.waterManagementOptions.keys()):
+        if "pumpingCapacityNC" not in iniItems.waterManagementOptions:
             logger.warning(
                 "No pumpingCapacityNC: no pumping limit; abstraction may be too high"
             )
@@ -50,8 +49,7 @@ class WaterManagement(object):
         # option to prioritize local sources before abstracting water from neighbouring cells
         self.prioritizeLocalSourceToMeetWaterDemand = True
         if (
-            "prioritizeLocalSourceToMeetWaterDemand"
-            in list(iniItems.waterManagementOptions.keys())
+            "prioritizeLocalSourceToMeetWaterDemand" in iniItems.waterManagementOptions
             and iniItems.waterManagementOptions["pumpingCapacityNC"] == "False"
         ):
             self.prioritizeLocalSourceToMeetWaterDemand = False
@@ -98,7 +96,7 @@ class WaterManagement(object):
 
         for source in sources:
             if (
-                source in iniItems.waterManagementOptions.keys()
+                source in iniItems.waterManagementOptions
                 and iniItems.waterManagementOptions[source] not in ["False", "None"]
             ):
                 vars(self)[f"using_{source}"] = True
@@ -153,10 +151,11 @@ class WaterManagement(object):
         # predefined surface water fraction to satisfy the irrigation and livestock demand
         self.swAbstractionFractionData = None
         self.swAbstractionFractionDataQuality = None
-        if "irrigationSurfaceWaterAbstractionFractionData" in list(
-            iniItems.waterManagementOptions.keys()
-        ) and "irrigationSurfaceWaterAbstractionFractionDataQuality" in list(
-            iniItems.waterManagementOptions.keys()
+        if (
+            "irrigationSurfaceWaterAbstractionFractionData"
+            in iniItems.waterManagementOptions
+            and "irrigationSurfaceWaterAbstractionFractionDataQuality"
+            in iniItems.waterManagementOptions
         ):
 
             if iniItems.waterManagementOptions[
@@ -201,8 +200,9 @@ class WaterManagement(object):
 
         # thresholds (fractions) defining the preference for the irrigation water source:
         # threshold_to_maximize_irrigation_surface_water
-        if "threshold_to_maximize_irrigation_surface_water" not in list(
-            iniItems.waterManagementOptions.keys()
+        if (
+            "threshold_to_maximize_irrigation_surface_water"
+            not in iniItems.waterManagementOptions
         ):
             logger.warning(
                 'The option "threshold_to_maximize_irrigation_surface_water" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "1.0" for this option.'
@@ -220,8 +220,9 @@ class WaterManagement(object):
         )
 
         # threshold_to_minimize_fossil_groundwater_irrigation
-        if "threshold_to_minimize_fossil_groundwater_irrigation" not in list(
-            iniItems.waterManagementOptions.keys()
+        if (
+            "threshold_to_minimize_fossil_groundwater_irrigation"
+            not in iniItems.waterManagementOptions
         ):
             logger.warning(
                 'The option "threshold_to_minimize_fossil_groundwater_irrigation" is not defined in the "waterManagementOptions" of configuration file. This run assumes "1.0" for this option.'
@@ -239,9 +240,7 @@ class WaterManagement(object):
         )
 
         # maximum daily rate of groundwater abstraction (m/day)
-        if "maximumDailyGroundwaterAbstraction" not in list(
-            iniItems.waterManagementOptions.keys()
-        ):
+        if "maximumDailyGroundwaterAbstraction" not in iniItems.waterManagementOptions:
             logger.warning(
                 'The option "maximumDailyGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "0.050 m/day" for this option.'
             )
@@ -255,8 +254,9 @@ class WaterManagement(object):
         )
 
         # maximum daily rate of fossil groundwater abstraction (m/day)
-        if "maximumDailyFossilGroundwaterAbstraction" not in list(
-            iniItems.waterManagementOptions.keys()
+        if (
+            "maximumDailyFossilGroundwaterAbstraction"
+            not in iniItems.waterManagementOptions
         ):
             logger.warning(
                 'The option "maximumDailyFossilGroundwaterAbstraction" is not defined in the "waterManagementOptions" of the configuration file. This run assumes "0.020 m/day" for this option.'
@@ -273,8 +273,9 @@ class WaterManagement(object):
         # maximum predefined surface water fraction to satisfy the industrial and domestic demand
         # (default: the maximum)
         self.maximumNonIrrigationSurfaceWaterAbstractionFractionData = pcr.scalar(1.0)
-        if "maximumNonIrrigationSurfaceWaterAbstractionFractionData" in list(
-            iniItems.waterManagementOptions.keys()
+        if (
+            "maximumNonIrrigationSurfaceWaterAbstractionFractionData"
+            in iniItems.waterManagementOptions
         ):
             if (
                 iniItems.waterManagementOptions[
@@ -304,17 +305,19 @@ class WaterManagement(object):
 
         # predefined surface water fraction to satisfy the industrial and domestic demand
         self.predefinedNonIrrigationSurfaceWaterAbstractionFractionData = None
-        if "predefinedNonIrrigationSurfaceWaterAbstractionFractionData" in list(
-            iniItems.waterManagementOptions.keys()
-        ) and (
-            iniItems.waterManagementOptions[
-                "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
-            ]
-            != "None"
-            or iniItems.waterManagementOptions[
-                "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
-            ]
-            != "False"
+        if (
+            "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
+            in iniItems.waterManagementOptions
+            and (
+                iniItems.waterManagementOptions[
+                    "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
+                ]
+                != "None"
+                or iniItems.waterManagementOptions[
+                    "predefinedNonIrrigationSurfaceWaterAbstractionFractionData"
+                ]
+                != "False"
+            )
         ):
 
             logger.info("Setting predefined sw source fraction for domestic/industrial")
@@ -353,7 +356,7 @@ class WaterManagement(object):
 
         extrapolate = True
         if (
-            "noParameterExtrapolation" in self.iniItems.waterManagementOptions.keys()
+            "noParameterExtrapolation" in self.iniItems.waterManagementOptions
             and self.iniItems.waterManagementOptions["noParameterExtrapolation"]
             == "True"
         ):
@@ -690,7 +693,7 @@ class WaterManagement(object):
 
         # total remaining demand (m3)
         volTotalRemainingDemand = pcr.scalar(0.0)
-        for sector_name in remaining_gross_sectoral_water_demands.keys():
+        for sector_name in remaining_gross_sectoral_water_demands:
             volTotalRemainingDemand = (
                 volTotalRemainingDemand
                 + remaining_gross_sectoral_water_demands[sector_name]
@@ -811,7 +814,7 @@ class WaterManagement(object):
         remainingIndustrialDomestic = pcr.scalar(0.0)
         remainingIrrigationLivestock = pcr.scalar(0.0)
 
-        for sector_name in remaining_gross_sectoral_water_demands.keys():
+        for sector_name in remaining_gross_sectoral_water_demands:
             if sector_name not in ["irrigation", "livestock"]:
                 remainingIndustrialDomestic += remaining_gross_sectoral_water_demands[
                     sector_name
@@ -871,7 +874,7 @@ class WaterManagement(object):
             - (1.0 - self.swAbstractionFractionDict["irrigation"])
             * remainingIrrigationLivestock
             - (1.0 - swAbstractionFraction_industrial_domestic)
-            * (remainingIndustrialDomestic),
+            * remainingIndustrialDomestic,
         )
 
         # total demand to allocate from surface water, limited by swAbstractionFractionDict and the
@@ -957,7 +960,7 @@ class WaterManagement(object):
         remainingIndustrialDomestic = pcr.scalar(0.0)
         remainingIrrigationLivestock = pcr.scalar(0.0)
 
-        for sector_name in remaining_gross_sectoral_water_demands.keys():
+        for sector_name in remaining_gross_sectoral_water_demands:
             if sector_name not in ["irrigation", "livestock"]:
                 remainingIndustrialDomestic += remaining_gross_sectoral_water_demands[
                     sector_name
@@ -1202,7 +1205,7 @@ class WaterManagement(object):
         )
 
         # update the remaining demands after renewable groundwater allocation
-        for sector_name in remaining_gross_sectoral_water_demands.keys():
+        for sector_name in remaining_gross_sectoral_water_demands:
             remaining_gross_sectoral_water_demands[sector_name] = pcr.max(
                 0.0,
                 remaining_gross_sectoral_water_demands[sector_name]
@@ -1523,7 +1526,7 @@ class WaterManagement(object):
         )
 
         # update the remaining demands after non-renewable groundwater allocation (m3)
-        for sector_name in remaining_gross_sectoral_water_demands.keys():
+        for sector_name in remaining_gross_sectoral_water_demands:
             remaining_gross_sectoral_water_demands[sector_name] = pcr.max(
                 0.0,
                 remaining_gross_sectoral_water_demands[sector_name]

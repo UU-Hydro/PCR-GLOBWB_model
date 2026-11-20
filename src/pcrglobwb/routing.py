@@ -13,7 +13,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class Routing(object):
+class Routing:
 
     def getPseudoState(self):
         result = {}
@@ -127,7 +127,6 @@ class Routing(object):
         return result
 
     def __init__(self, iniItems, initialConditions, lddMap):
-        object.__init__(self)
 
         self.lddMap = lddMap
 
@@ -143,7 +142,7 @@ class Routing(object):
 
         # option to include lakes and reservoirs
         self.includeWaterBodies = True
-        if "includeWaterBodies" in list(iniItems.routingOptions.keys()):
+        if "includeWaterBodies" in iniItems.routingOptions:
             if (
                 iniItems.routingOptions["includeWaterBodies"] == "False"
                 or iniItems.routingOptions["includeWaterBodies"] == "None"
@@ -214,7 +213,7 @@ class Routing(object):
 
         # option to use a minimum channel width (m)
         self.minChannelWidth = pcr.scalar(0.0)
-        if "minimumChannelWidth" in list(iniItems.routingOptions.keys()):
+        if "minimumChannelWidth" in iniItems.routingOptions:
             if iniItems.routingOptions["minimumChannelWidth"] != "None":
                 self.minChannelWidth = pcr.cover(
                     vos.readPCRmapClone(
@@ -227,7 +226,7 @@ class Routing(object):
 
         # option to use a predefined channel width (m)
         self.predefinedChannelWidth = None
-        if "constantChannelWidth" in list(iniItems.routingOptions.keys()):
+        if "constantChannelWidth" in iniItems.routingOptions:
             if iniItems.routingOptions["constantChannelWidth"] != "None":
                 self.predefinedChannelWidth = pcr.cover(
                     vos.readPCRmapClone(
@@ -240,7 +239,7 @@ class Routing(object):
 
         # option to use a predefined channel depth (m)
         self.predefinedChannelDepth = None
-        if "constantChannelDepth" in list(iniItems.routingOptions.keys()):
+        if "constantChannelDepth" in iniItems.routingOptions:
             if iniItems.routingOptions["constantChannelDepth"] != "None":
                 self.predefinedChannelDepth = pcr.cover(
                     vos.readPCRmapClone(
@@ -258,11 +257,11 @@ class Routing(object):
         cellSizeInArcMin = self.cellSizeInArcDeg * 60.0
         verticalSizeInMeter = cellSizeInArcMin * 1852.0
         self.cellLengthFD = (
-            (self.cellArea / verticalSizeInMeter) ** (2) + (verticalSizeInMeter) ** (2)
-        ) ** (0.5)
+            (self.cellArea / verticalSizeInMeter) ** 2 + verticalSizeInMeter**2
+        ) ** 0.5
         self.channelLength = self.cellLengthFD
         # channel length (m)
-        if "channelLength" in list(iniItems.routingOptions.keys()):
+        if "channelLength" in iniItems.routingOptions:
             if iniItems.routingOptions["channelLength"] != "None":
                 self.channelLength = pcr.cover(
                     vos.readPCRmapClone(
@@ -320,7 +319,7 @@ class Routing(object):
         self.limit_num_of_sub_time_steps = max(24.0, self.limit_num_of_sub_time_steps)
 
         # minimum number of sub-time steps from the ini file
-        if "maxiumLengthOfSubTimeStep" in list(iniItems.routingOptions.keys()):
+        if "maxiumLengthOfSubTimeStep" in iniItems.routingOptions:
             maxiumLengthOfSubTimeStep = float(
                 iniItems.routingOptions["maxiumLengthOfSubTimeStep"]
             )
@@ -342,7 +341,7 @@ class Routing(object):
 
         # minimum crop coefficient of surface water bodies
         self.minCropWaterKC = 0.00
-        if "minCropWaterKC" in list(iniItems.routingOptions.keys()):
+        if "minCropWaterKC" in iniItems.routingOptions:
             self.minCropWaterKC = float(iniItems.routingOptions["minCropWaterKC"])
 
         # floodplain options
@@ -357,10 +356,10 @@ class Routing(object):
 
             # reduction parameter of the smoothing interval and error threshold
             self.reductionKK = 0.5
-            if "reductionKK" in list(iniItems.routingOptions.keys()):
+            if "reductionKK" in iniItems.routingOptions:
                 self.reductionKK = float(iniItems.routingOptions["reductionKK"])
             self.criterionKK = 40.0
-            if "criterionKK" in list(iniItems.routingOptions.keys()):
+            if "criterionKK" in iniItems.routingOptions:
                 self.criterionKK = float(iniItems.routingOptions["criterionKK"])
 
             # profile of relative elevation above the floodplain per cell (including smoothing parameters)
@@ -407,7 +406,7 @@ class Routing(object):
 
         # option to limit the flood depth (to avoid unrealistic flood depths)
         self.maxFloodDepth = None
-        if "maxFloodDepth" in list(iniItems.routingOptions.keys()):
+        if "maxFloodDepth" in iniItems.routingOptions:
             self.maxFloodDepth = vos.readPCRmapClone(
                 iniItems.routingOptions["maxFloodDepth"],
                 self.tmpDir,
@@ -417,7 +416,7 @@ class Routing(object):
         # input file for upstream discharge (from upstream basins)
         self.upstream_discharge_input_files = None
         if (
-            "upstream_discharge_input_files" in list(iniItems.routingOptions.keys())
+            "upstream_discharge_input_files" in iniItems.routingOptions
             and iniItems.routingOptions["upstream_discharge_input_files"] != "None"
         ):
             self.upstream_discharge_input_files = iniItems.routingOptions[
@@ -427,7 +426,7 @@ class Routing(object):
         # DynQual
         self.quality = False
         if (
-            "quality" in iniItems.routingOptions.keys()
+            "quality" in iniItems.routingOptions
             and iniItems.routingOptions["quality"] == "True"
         ):
             self.quality = True
@@ -436,7 +435,7 @@ class Routing(object):
             logger.info("Water quality modelling not initiated.")
 
         self.WWtPlants = False
-        if "WWtPlantsNC" in list(iniItems.routingOptions.keys()):
+        if "WWtPlantsNC" in iniItems.routingOptions:
             self.WWtPlants = True
             # wastewater pathways and removal efficiencies (treatment: tertiary, secondary, primary; collected but untreated; basic sanitation; open defecation; direct)
             self.WWtPlantsNC = vos.getFullPath(
@@ -447,7 +446,7 @@ class Routing(object):
 
             # discharge threshold for estimating concentrations (default: 0.1 m3/s)
             self.WQ_discharge_threshold = 0.1
-            if "WQ_discharge_threshold" in iniItems.routingOptions.keys():
+            if "WQ_discharge_threshold" in iniItems.routingOptions:
                 self.WQ_discharge_threshold = float(
                     iniItems.routingOptions["WQ_discharge_threshold"]
                 )
@@ -1110,10 +1109,10 @@ class Routing(object):
             )
             self.dissolved_oxygen = (1 - 0.0001148 * self.elevation) * pcr.exp(
                 -139.34411
-                + (157570.1) / (self.waterTemp)
-                - (66423080.0) / (self.waterTemp**2)
-                + (12438000000.0) / (self.waterTemp**3)
-                - (862194900000.0) / (self.waterTemp**4)
+                + 157570.1 / self.waterTemp
+                - 66423080.0 / (self.waterTemp**2)
+                + 12438000000.0 / (self.waterTemp**3)
+                - 862194900000.0 / (self.waterTemp**4)
             )
             self.channelStorageTimeBefore = self.channelStorage
             self.totEW = (
@@ -1334,11 +1333,11 @@ class Routing(object):
 
         # slope and smoothing interval between dy = y(i+1)-y(i) and dx = x(i+1)-x(i), based on volume;
         # volume (m3)
-        floodVolume = [0.0] * (nrZLevels)
+        floodVolume = [0.0] * nrZLevels
         # smoothing interval (m3)
-        mInterval = [0.0] * (nrZLevels)
+        mInterval = [0.0] * nrZLevels
         # slope (-)
-        kSlope = [0.0] * (nrZLevels)
+        kSlope = [0.0] * nrZLevels
         for iCnt in range(1, nrZLevels):
             floodVolume[iCnt] = (
                 floodVolume[iCnt - 1]
@@ -1391,14 +1390,14 @@ class Routing(object):
         # (m/day)
         characteristicDistance = (
             ((yMean * wMean) / (wMean + 2 * yMean)) ** (2.0 / 3.0)
-            * ((self.gradient) ** (0.5))
+            * (self.gradient**0.5)
             / self.manningsN
             * vos.secondsPerDay()
         )
 
         # (arcDeg/day)
         characteristicDistance = pcr.max(
-            (self.cellSizeInArcDeg) * 0.000000001,
+            self.cellSizeInArcDeg * 0.000000001,
             characteristicDistance / dist2celllength,
         )
 
@@ -1449,7 +1448,7 @@ class Routing(object):
         if self.floodPlain:
 
             # wetted perimeter
-            flood_only_wetted_perimeter = self.floodDepth * (2.0) + pcr.max(
+            flood_only_wetted_perimeter = self.floodDepth * 2.0 + pcr.max(
                 0.0,
                 self.innundatedFraction * self.cellArea / self.channelLength
                 - self.channelWidth,
@@ -1473,9 +1472,9 @@ class Routing(object):
 
             usedManningsN = (
                 (channel_only_wetted_perimeter / channel_wetted_perimeter)
-                * self.manningsN ** (1.5)
+                * self.manningsN**1.5
                 + (flood_only_wetted_perimeter / channel_wetted_perimeter)
-                * self.floodplainManN ** (1.5)
+                * self.floodplainManN**1.5
             ) ** (2.0 / 3.0)
 
         # characteristicDistance (-), used for accutraveltimeflux (discharge: the total material flowing
@@ -1483,14 +1482,14 @@ class Routing(object):
         # (m/day)
         characteristicDistance = (
             ((yMean * wMean) / (wMean + 2 * yMean)) ** (2.0 / 3.0)
-            * ((self.gradient) ** (0.5))
+            * (self.gradient**0.5)
             / usedManningsN
             * vos.secondsPerDay()
         )
 
         # (arcDeg/day)
         characteristicDistance = pcr.max(
-            (self.cellSizeInArcDeg) * 0.000000001,
+            self.cellSizeInArcDeg * 0.000000001,
             characteristicDistance / self.dist2celllength,
         )
 
@@ -1841,7 +1840,7 @@ class Routing(object):
         self.channelWidth = self.wMean
         self.channelDepth = pcr.max(0.0, self.yMean)
         self.channelFraction = pcr.max(
-            0.0, pcr.min(1.0, self.channelWidth * self.channelLength / (self.cellArea))
+            0.0, pcr.min(1.0, self.channelWidth * self.channelLength / self.cellArea)
         )
 
         # water height for the first time step
@@ -2341,7 +2340,7 @@ class Routing(object):
         )
 
         # wetted perimeter
-        flood_only_wetted_perimeter = floodDepth * (2.0) + pcr.max(
+        flood_only_wetted_perimeter = floodDepth * 2.0 + pcr.max(
             0.0,
             innundatedFraction * self.cellArea / self.channelLength - self.channelWidth,
         )
@@ -2366,9 +2365,9 @@ class Routing(object):
         if self.floodPlain:
             usedManningsN = (
                 (channel_only_wetted_perimeter / channel_wetted_perimeter)
-                * self.manningsN ** (1.5)
+                * self.manningsN**1.5
                 + (flood_only_wetted_perimeter / channel_wetted_perimeter)
-                * self.floodplainManN ** (1.5)
+                * self.floodplainManN**1.5
             ) ** (2.0 / 3.0)
         else:
             usedManningsN = self.manningsN
@@ -3547,7 +3546,7 @@ class Routing(object):
         # defecation and extensive livestock
         self.frac_surfaceRunoff = vos.getValDivZero(
             landSurface.directRunoff,
-            (landSurface.landSurfaceRunoff + groundwater.baseflow),
+            landSurface.landSurfaceRunoff + groundwater.baseflow,
         )
 
         # pollution from municipal wastewater (domestic, manufacturing and urban surface runoff)
@@ -3998,15 +3997,15 @@ class Routing(object):
         # follow from direct runoff, interflow and baseflow
         self.irr_rf_from_direct_runoff = landSurface.directRunoff * vos.getValDivZero(
             self.avg_irrGrossDemand,
-            (self.avg_irrGrossDemand + self.avg_netLqWaterToSoil),
+            self.avg_irrGrossDemand + self.avg_netLqWaterToSoil,
         )
         self.irr_rf_from_interflow = landSurface.interflowTotal * vos.getValDivZero(
             self.avg_irrGrossDemand,
-            (self.avg_irrGrossDemand + self.avg_netLqWaterToSoil),
+            self.avg_irrGrossDemand + self.avg_netLqWaterToSoil,
         )
         self.irr_rf_from_baseflow = groundwater.baseflow * vos.getValDivZero(
             self.avg_irrGrossDemand,
-            (self.avg_irrGrossDemand + self.avg_netLqWaterToSoil),
+            self.avg_irrGrossDemand + self.avg_netLqWaterToSoil,
         )
 
         # total irrigation return flow (m3/day)
@@ -4189,7 +4188,7 @@ class Routing(object):
         deltaIceThickness_melt = pcr.max(0, -self.deltaIceThickness)
         verticalGain = (
             watQ
-            + (landRunoff - landSurface.actSurfaceWaterAbstract) / (self.dynamicFracWat)
+            + (landRunoff - landSurface.actSurfaceWaterAbstract) / self.dynamicFracWat
             + deltaIceThickness_melt
         )
 
@@ -4298,7 +4297,7 @@ class Routing(object):
         self.FCdecay_solarradiation = pcr.cover(
             self.sunlightinactivation_FC
             * (self.rsw / (self.attenuation_FC * self.water_height_pathogen))
-            * (1 - (pcr.exp(-(self.attenuation_FC * self.water_height_pathogen)))),
+            * (1 - pcr.exp(-(self.attenuation_FC * self.water_height_pathogen))),
             0.0,
         )
 
@@ -4374,7 +4373,7 @@ class Routing(object):
         )
         dBODLat = channelTransFrac * self.routedBOD
         self.BODdecay = pcr.exp(
-            -(self.BODdecay_temperature) * (timeSec / vos.secondsPerDay())
+            -self.BODdecay_temperature * (timeSec / vos.secondsPerDay())
         )
         self.routedBOD = (
             self.routedBOD + pcr.upstream(self.lddMap, dBODLat) - dBODLat
@@ -4489,7 +4488,7 @@ class Routing(object):
 
         lakeTransFrac = pcr.max(
             pcr.min(
-                (self.WaterBodies.waterBodyOutflow) / (self.waterBodyStorageTimeBefore),
+                self.WaterBodies.waterBodyOutflow / self.waterBodyStorageTimeBefore,
                 1.0,
             ),
             0.0,
@@ -5428,10 +5427,10 @@ class Routing(object):
         # oxygen saturation (mg/L)
         self.DOsat = (1 - 0.0001148 * self.elevation) * pcr.exp(
             -139.34411
-            + (157570.1) / (self.waterTemp)
-            - (66423080.0) / (self.waterTemp**2)
-            + (12438000000.0) / (self.waterTemp**3)
-            - (862194900000.0) / (self.waterTemp**4)
+            + 157570.1 / self.waterTemp
+            - 66423080.0 / (self.waterTemp**2)
+            + 12438000000.0 / (self.waterTemp**3)
+            - 862194900000.0 / (self.waterTemp**4)
         )
         # velocity assuming a rectangular channel (m/s)
         self.velocity = self.avgDischarge / (self.yMean * self.wMean)

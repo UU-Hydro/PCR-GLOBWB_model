@@ -7,10 +7,9 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class WaterBodies(object):
+class WaterBodies:
 
     def __init__(self, iniItems, landmask, onlyNaturalWaterBodies=False, lddMap=None):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
@@ -33,7 +32,7 @@ class WaterBodies(object):
         # option to activate the water balance check
         self.debugWaterBalance = True
         if (
-            "debugWaterBalance" in list(iniItems.routingOptions.keys())
+            "debugWaterBalance" in iniItems.routingOptions
             and iniItems.routingOptions["debugWaterBalance"] == "False"
         ):
             self.debugWaterBalance = False
@@ -41,7 +40,7 @@ class WaterBodies(object):
         # option to run with only natural lakes (without reservoirs)
         self.onlyNaturalWaterBodies = onlyNaturalWaterBodies
         if (
-            "onlyNaturalWaterBodies" in list(iniItems.routingOptions.keys())
+            "onlyNaturalWaterBodies" in iniItems.routingOptions
             and iniItems.routingOptions["onlyNaturalWaterBodies"] == "True"
         ):
             logger.info("Only 1900 natural water bodies; reservoirs treated as lakes")
@@ -51,7 +50,7 @@ class WaterBodies(object):
 
         # files with water body parameters
         self.useNetCDF = True
-        if iniItems.routingOptions["waterBodyInputNC"] == str(None):
+        if iniItems.routingOptions["waterBodyInputNC"] == "None":
             self.useNetCDF = False
             self.fracWaterInp = iniItems.routingOptions["fracWaterInp"]
             self.waterBodyIdsInp = iniItems.routingOptions["waterBodyIds"]
@@ -71,12 +70,12 @@ class WaterBodies(object):
         # the long-term average outflow (defaults)
         self.minResvrFrac = 0.10
         self.maxResvrFrac = 0.75
-        if "minResvrFrac" in list(iniItems.routingOptions.keys()):
+        if "minResvrFrac" in iniItems.routingOptions:
             minResvrFrac = iniItems.routingOptions["minResvrFrac"]
             self.minResvrFrac = vos.readPCRmapClone(
                 minResvrFrac, self.tmpDir, self.inputDir
             )
-        if "maxResvrFrac" in list(iniItems.routingOptions.keys()):
+        if "maxResvrFrac" in iniItems.routingOptions:
             maxResvrFrac = iniItems.routingOptions["maxResvrFrac"]
             self.maxResvrFrac = vos.readPCRmapClone(
                 maxResvrFrac, self.tmpDir, self.inputDir
@@ -595,7 +594,7 @@ class WaterBodies(object):
             pcr.max(avgChannelDischarge, self.avgInflow, 0.001),
         )
         avgOutflow = pcr.areamaximum(avgOutflow, self.waterBodyIds)
-        bankfullWidth = pcr.cover(pcr.scalar(4.8) * ((avgOutflow) ** (0.5)), 0.0)
+        bankfullWidth = pcr.cover(pcr.scalar(4.8) * (avgOutflow**0.5), 0.0)
         weirWidthUsed = bankfullWidth
         # TODO: base minWeirWidth on the GRanD database
         weirWidthUsed = pcr.max(weirWidthUsed, self.minWeirWidth)

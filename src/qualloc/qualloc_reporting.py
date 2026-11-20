@@ -36,14 +36,12 @@ intervals = {
 }
 
 
-class qualloc_reporting(object):
+class qualloc_reporting:
 
     def __init__(self, model_configuration):
 
         # reporting keeps track of the elapsed time (days) and of all variables based on
         # the monthly totals
-
-        object.__init__(self)
 
         self.model_configuration = model_configuration
         statistics = [
@@ -53,7 +51,7 @@ class qualloc_reporting(object):
 
         # report intervals, all None initially
         self.report_intervals = []
-        for interval in intervals.keys():
+        for interval in intervals:
             for statistic in statistics:
                 report_interval = f"{interval}_{statistic}"
                 self.report_intervals.append(report_interval)
@@ -87,7 +85,7 @@ class qualloc_reporting(object):
 
         variablename_info = {}
 
-        for interval in intervals.keys():
+        for interval in intervals:
             for process_variable in self.process_variables:
                 if interval in process_variable:
 
@@ -110,7 +108,7 @@ class qualloc_reporting(object):
                         update_status = True
 
                     if update_status:
-                        if process_variable not in variablename_info.keys():
+                        if process_variable not in variablename_info:
                             variablename_info[process_variable] = (
                                 variablename,
                                 statistic,
@@ -127,7 +125,7 @@ class qualloc_reporting(object):
                 vars(self)[key] = pcr.spatial(pcr.scalar(-1.0e12))
 
             elif statistic == "count":
-                vars(self)[key] = int(0)
+                vars(self)[key] = 0
 
             else:
                 vars(self)[key] = pcr.spatial(pcr.scalar(0))
@@ -136,8 +134,6 @@ class qualloc_reporting(object):
             "Reporting variables are updated for the following intervals:"
             + "".join(f" {interval}," for interval in interval_list)
         )
-
-        return None
 
     def initialize(self):
         """
@@ -149,7 +145,7 @@ class qualloc_reporting(object):
 
         for report_interval in self.report_intervals:
 
-            if report_interval in self.model_configuration.reporting.keys():
+            if report_interval in self.model_configuration.reporting:
 
                 value = self.model_configuration.convert_string_to_input(
                     self.model_configuration.reporting[report_interval], str
@@ -177,7 +173,7 @@ class qualloc_reporting(object):
                     # key of the variable for the current interval
                     key = f"{variablename}_{interval}_{statistic}"
 
-                    if key not in vars(self).keys():
+                    if key not in vars(self):
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -186,7 +182,7 @@ class qualloc_reporting(object):
                     # and make the updates work
                     key = f"{variablename}_monthly_{statistic}"
 
-                    if key not in vars(self).keys():
+                    if key not in vars(self):
 
                         if key not in self.process_variables:
                             self.process_variables.append(key)
@@ -230,8 +226,6 @@ class qualloc_reporting(object):
                     standard_name=variable_attr.netcdf_standard_name[variablename],
                     datatype=datatype,
                 )
-
-        return None
 
     def report(self, model_time, model):
         """
@@ -315,7 +309,7 @@ class qualloc_reporting(object):
                         )
 
         # report the intervals
-        for time_flag in model_time.report_flags.keys():
+        for time_flag in model_time.report_flags:
 
             if model_time.report_flags[time_flag]:
 
@@ -332,19 +326,15 @@ class qualloc_reporting(object):
 
                             # min, max and total need no post-processing; average and standard deviation do
                             if statistic_key == "min":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    statistic_key,
+                                process_key = (
+                                    f"{variablename}_{interval}_{statistic_key}"
                                 )
 
                                 value_field = vars(self)[process_key]
 
                             elif statistic_key == "max":
-                                process_key = "%s_%s_%s" % (
-                                    variablename,
-                                    interval,
-                                    statistic_key,
+                                process_key = (
+                                    f"{variablename}_{interval}_{statistic_key}"
                                 )
 
                                 value_field = vars(self)[process_key]
@@ -417,13 +407,9 @@ class qualloc_reporting(object):
             if time_flag_condition:
                 self.reset_values_at_time(time_flag, time_flag_condition)
 
-        return None
-
     def close(self):
 
         self.nc_handler.close_cache()
-
-        return None
 
     def update_reportable_variables(self, model):
 
@@ -540,10 +526,9 @@ class qualloc_reporting(object):
                     rep_name,
                     getattr(model.water_management, var_name)[sector_name],
                 )
-        return None
 
 
-class qualloc_report_initial_conditions(object):
+class qualloc_report_initial_conditions:
     """
 qualloc_report_initial_conditions: class that can be used to report the initial \
 conditions as netCDF dependent whether they are single PCRaster fields or \
@@ -553,8 +538,6 @@ dictionaries with the dates provided.
     def __init__(self, model_configuration, initial_conditions, model_flags):
 
         # reporting of the initial conditions, combining reports in different formats
-
-        object.__init__(self)
 
         logger.info("Initializing reporting of initial conditions.")
 
@@ -566,12 +549,10 @@ dictionaries with the dates provided.
 
         self.nc_handler = netCDF_output_handler(model_configuration)
 
-        modules = list(initial_conditions.keys())
-        self.variablenames = dict(
-            (module, list(initial_conditions[module].keys())) for module in modules
-        )
-
-        return None
+        modules = list(initial_conditions)
+        self.variablenames = {
+            module: list(initial_conditions[module]) for module in modules
+        }
 
     def report(self, date, initial_conditions):
         """
@@ -627,7 +608,7 @@ dictionaries with the dates provided.
 
                     if isinstance(initial_conditions[module][variablename], dict):
 
-                        dates = list(initial_conditions[module][variablename].keys())
+                        dates = list(initial_conditions[module][variablename])
                         dates.sort()
                         values = []
                         for dt in dates:
@@ -665,10 +646,6 @@ dictionaries with the dates provided.
 
         logger.info(f"Reported initial conditions for {date}")
 
-        return None
-
     def close(self):
 
         self.nc_handler.close_cache()
-
-        return None

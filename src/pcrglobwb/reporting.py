@@ -10,7 +10,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class Reporting(object):
+class Reporting:
 
     def __init__(self, configuration, model, modelTime):
 
@@ -24,7 +24,7 @@ class Reporting(object):
 
         self.landmask_for_reporting = None
         if (
-            "landmask_for_reporting" in list(configuration.reportingOptions.keys())
+            "landmask_for_reporting" in configuration.reportingOptions
             and self.configuration.reportingOptions["landmask_for_reporting"] != "None"
         ):
             self.landmask_for_reporting = vos.readPCRmapClone(
@@ -41,14 +41,14 @@ class Reporting(object):
     def initiate_reporting(self):
 
         if (
-            "is_sub_run" in list(self.configuration.reportingOptions.keys())
+            "is_sub_run" in self.configuration.reportingOptions
             and self.configuration.reportingOptions["is_sub_run"] == "True"
         ):
             # output directory for netCDF files
             self.outNCDir = str(self.configuration.outNCDir)
 
             # RvB (23 Feb 2017): specific attributes to allow for multiple netcdfAttributes
-            if "netcdfAttributesOptions" in list(vars(self.configuration).keys()):
+            if "netcdfAttributesOptions" in vars(self.configuration):
                 logger.info(
                     "Passing specific netcdf attributes to the output files created"
                 )
@@ -106,7 +106,7 @@ class Reporting(object):
             self.outNCDir = str(self.configuration.outNCDir)
 
             # RvB (23 Feb 2017): specific attributes to allow for multiple netcdfAttributes
-            if "netcdfAttributesOptions" in list(vars(self.configuration).keys()):
+            if "netcdfAttributesOptions" in vars(self.configuration):
                 logger.info(
                     "Passing specific netcdf attributes to the output files created"
                 )
@@ -128,7 +128,7 @@ class Reporting(object):
                     if long_name is None:
                         long_name = short_name
                     standard_name = short_name
-                    if var in list(varDicts.netcdf_standard_name.keys()):
+                    if var in varDicts.netcdf_standard_name:
                         standard_name = varDicts.netcdf_standard_name[var]
 
                     self.netcdfObj.createNetCDF(
@@ -200,7 +200,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -228,7 +228,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -251,7 +251,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -274,7 +274,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -300,7 +300,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -328,7 +328,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -351,7 +351,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -374,7 +374,7 @@ class Reporting(object):
                 if long_name is None:
                     long_name = short_name
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -398,7 +398,7 @@ class Reporting(object):
                     long_name = short_name
                 long_name = f"upstream_average_{long_name}"
                 standard_name = short_name
-                if var in list(varDicts.netcdf_standard_name.keys()):
+                if var in varDicts.netcdf_standard_name:
                     standard_name = varDicts.netcdf_standard_name[var]
 
                 self.netcdfObj.createNetCDF(
@@ -1555,7 +1555,7 @@ class Reporting(object):
         self.ulyssesP = self._model.meteo.precipitation / 86.4
 
         # total evaporation and transpiration (kg m-2 s-1), land only
-        self.ulyssesET = -(self._model.landSurface.actualET) / 86.4
+        self.ulyssesET = -self._model.landSurface.actualET / 86.4
         # including water bodies
         self.ulyssesETall = (
             -(
@@ -1566,9 +1566,9 @@ class Reporting(object):
         )
 
         # reference potential evaporation
-        self.ulyssessRefPET = -(self.referencePotET) / 86.4
+        self.ulyssessRefPET = -self.referencePotET / 86.4
         # with crop coefficient, land only (excluding water)
-        self.ulyssessCropPET = -(self._model.landSurface.totalPotET) / 86.4
+        self.ulyssessCropPET = -self._model.landSurface.totalPotET / 86.4
         # with crop coefficient, land and water
         self.ulyssessCropPETall = (
             -(self._model.landSurface.totalPotET + self._model.routing.waterBodyPotEvap)
