@@ -23,7 +23,6 @@ class Configuration(object):
         debug_mode=False,
         no_modification=True,
         system_arguments=None,
-        relative_ini_meteo_paths=False,
     ):
         object.__init__(self)
 
@@ -37,18 +36,7 @@ class Configuration(object):
 
         self.debug_mode = debug_mode
 
-        # save the cwd; it may be changed later by some utility functions
-        self._cwd = os.getcwd()
-
         self.parse_configuration_file(self.iniFileName)
-
-        # option to run in a sandbox with meteo files and initial conditions
-        self.using_relative_path_for_output_directory = False
-        # reported in initialize_logging, as the logger does not exist yet
-        self.missing_ini_files = []
-        if relative_ini_meteo_paths:
-            self.using_relative_path_for_output_directory = True
-            self.make_ini_meteo_paths_absolute()
 
         # if no_modification, set the configuration directly (creates the output, tmp, etc.
         # directories); otherwise set_configuration must be called separately
@@ -65,26 +53,6 @@ class Configuration(object):
         self.backup_configuration()
 
         self.repair_ini_key_names()
-
-    def make_ini_meteo_paths_absolute(self):
-        for section in self.allSections:
-            sec = getattr(self, section)
-
-            for key, value in list(sec.items()):
-                if key.endswith("Ini") and value is not None and value != "None":
-                    sec[key] = os.path.abspath(value)
-
-                if key == "precipitationNC" or key == "temperatureNC":
-                    sec[key] = os.path.abspath(value)
-
-            for key, value in list(sec.items()):
-                if key.endswith("Ini") and value is not None and value != "None":
-                    if not os.path.exists(value):
-                        self.missing_ini_files.append((key, value))
-
-    # make paths absolute to the cwd at the time the configuration was created
-    def make_absolute_path(self, path):
-        return os.path.normpath(os.path.join(self._cwd, path))
 
     def initialize_logging(self, log_file_location="Default", system_arguments=None):
         """
@@ -157,8 +125,6 @@ class Configuration(object):
         logger.info(f"Model run started at {self._timestamp}")
         logger.info(f"Logging output to {log_filename}")
         logger.info(f"Debugging output to {dbg_filename}")
-        for key, value in self.missing_ini_files:
-            logger.warning(f"{key}: initial condition file {value} does not exist")
 
         # log the platform, Python and PCRaster versions, paths, etc.
         logger.info(f"OS platform: {platform.system()}")
@@ -235,11 +201,6 @@ class Configuration(object):
             "is_sub_run" in list(self.reportingOptions.keys())
             and self.reportingOptions["is_sub_run"] == "True"
         ):
-            if self.using_relative_path_for_output_directory:
-                self.globalOptions["outputDir"] = self.make_absolute_path(
-                    self.globalOptions["outputDir"]
-                )
-
             self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
 
             self.outNCDir = vos.getFullPath("netcdf/", self.globalOptions["outputDir"])
@@ -265,11 +226,6 @@ class Configuration(object):
             os.chdir(self.mapsDir)
 
         else:
-            if self.using_relative_path_for_output_directory:
-                self.globalOptions["outputDir"] = self.make_absolute_path(
-                    self.globalOptions["outputDir"]
-                )
-
             # root/parent of the output directory
             os.makedirs(self.globalOptions["outputDir"], exist_ok=True)
 
