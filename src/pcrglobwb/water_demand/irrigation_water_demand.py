@@ -8,7 +8,7 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class IrrigationWaterDemand(object):
+class IrrigationWaterDemand:
 
     def __init__(
         self,
@@ -17,7 +17,6 @@ class IrrigationWaterDemand(object):
         landmask,
         landCoverObject,
     ):
-        object.__init__(self)
 
         self.iniItems = iniItems
 
@@ -53,12 +52,12 @@ class IrrigationWaterDemand(object):
         # irrigation efficiency input (value or file name)
         self.ini_items_for_irrigation_efficiency = None
         # by default, use the one in waterDemandOptions
-        if "irrigationEfficiency" in self.iniItems.waterDemandOptions.keys():
+        if "irrigationEfficiency" in self.iniItems.waterDemandOptions:
             self.ini_items_for_irrigation_efficiency = self.iniItems.waterDemandOptions[
                 "irrigationEfficiency"
             ]
         # a specific one in the landCoverOptions takes precedence
-        if "irrigationEfficiency" in self.iniItemsIrrLC.keys():
+        if "irrigationEfficiency" in self.iniItemsIrrLC:
             self.ini_items_for_irrigation_efficiency = self.iniItemsIrrLCOptions[
                 "irrigationEfficiency"
             ]
@@ -102,7 +101,7 @@ class IrrigationWaterDemand(object):
 
         extrapolate = True
         if (
-            "noParameterExtrapolation" in self.iniItems.landSurfaceOptions.keys()
+            "noParameterExtrapolation" in self.iniItems.landSurfaceOptions
             and self.iniItems.landSurfaceOptions["noParameterExtrapolation"] == "True"
         ):
             extrapolate = False
@@ -164,24 +163,20 @@ class IrrigationWaterDemand(object):
 
         if self.numberOfLayers == 3:
             self.totAvlWater = (
-                (
-                    pcr.max(
-                        0.0,
-                        self.parameters.effSatAtFieldCapUpp000005
-                        - self.parameters.effSatAtWiltPointUpp000005,
-                    )
+                pcr.max(
+                    0.0,
+                    self.parameters.effSatAtFieldCapUpp000005
+                    - self.parameters.effSatAtWiltPointUpp000005,
                 )
                 * (
                     self.parameters.satVolMoistContUpp000005
                     - self.parameters.resVolMoistContUpp000005
                 )
                 * pcr.min(self.parameters.thickUpp000005, self.maxRootDepth)
-                + (
-                    pcr.max(
-                        0.0,
-                        self.parameters.effSatAtFieldCapUpp005030
-                        - self.parameters.effSatAtWiltPointUpp005030,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.parameters.effSatAtFieldCapUpp005030
+                    - self.parameters.effSatAtWiltPointUpp005030,
                 )
                 * (
                     self.parameters.satVolMoistContUpp005030
@@ -191,12 +186,10 @@ class IrrigationWaterDemand(object):
                     self.parameters.thickUpp005030,
                     pcr.max(self.maxRootDepth - self.parameters.thickUpp000005),
                 )
-                + (
-                    pcr.max(
-                        0.0,
-                        self.parameters.effSatAtFieldCapLow030150
-                        - self.parameters.effSatAtWiltPointLow030150,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.parameters.effSatAtFieldCapLow030150
+                    - self.parameters.effSatAtWiltPointLow030150,
                 )
                 * (
                     self.parameters.satVolMoistContLow030150
@@ -255,22 +248,18 @@ class IrrigationWaterDemand(object):
 
             # readily available water in the root zone (upper soil layers)
             readAvlWater = (
-                (
-                    pcr.max(
-                        0.0,
-                        effSatUpp000005 - self.parameters.effSatAtWiltPointUpp000005,
-                    )
+                pcr.max(
+                    0.0,
+                    effSatUpp000005 - self.parameters.effSatAtWiltPointUpp000005,
                 )
                 * (
                     self.parameters.satVolMoistContUpp000005
                     - self.parameters.resVolMoistContUpp000005
                 )
                 * pcr.min(self.parameters.thickUpp000005, self.maxRootDepth)
-                + (
-                    pcr.max(
-                        0.0,
-                        effSatUpp005030 - self.parameters.effSatAtWiltPointUpp005030,
-                    )
+                + pcr.max(
+                    0.0,
+                    effSatUpp005030 - self.parameters.effSatAtWiltPointUpp005030,
                 )
                 * (
                     self.parameters.satVolMoistContUpp005030
@@ -280,11 +269,9 @@ class IrrigationWaterDemand(object):
                     self.parameters.thickUpp005030,
                     pcr.max(self.maxRootDepth - self.parameters.thickUpp000005),
                 )
-                + (
-                    pcr.max(
-                        0.0,
-                        effSatLow030150 - self.parameters.effSatAtWiltPointLow030150,
-                    )
+                + pcr.max(
+                    0.0,
+                    effSatLow030150 - self.parameters.effSatAtWiltPointLow030150,
                 )
                 * (
                     self.parameters.satVolMoistContLow030150
@@ -353,7 +340,7 @@ class IrrigationWaterDemand(object):
             # function of cropKC (evaporation and transpiration) and topWaterLayer (water in the field)
             self.irrGrossDemand = pcr.ifthenelse(
                 self.cropKC > 0.75,
-                pcr.max(0.0, self.minTopWaterLayer - (self.topWaterLayer)),
+                pcr.max(0.0, self.minTopWaterLayer - self.topWaterLayer),
                 0.0,
             )
 
@@ -366,7 +353,7 @@ class IrrigationWaterDemand(object):
             adjDeplFactor = pcr.max(
                 0.1,
                 pcr.min(
-                    0.8, (self.cropDeplFactor + 0.04 * (5.0 - self.totalPotET * 1000.0))
+                    0.8, self.cropDeplFactor + 0.04 * (5.0 - self.totalPotET * 1000.0)
                 ),
             )
 

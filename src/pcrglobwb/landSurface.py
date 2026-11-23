@@ -18,7 +18,7 @@ from qualloc.qualloc_reporting import qualloc_reporting
 logger = logging.getLogger(__name__)
 
 
-class LandSurface(object):
+class LandSurface:
 
     def getState(self):
         result = {}
@@ -93,7 +93,6 @@ class LandSurface(object):
         return result
 
     def __init__(self, iniItems, landmask, initialState=None):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
@@ -206,7 +205,7 @@ class LandSurface(object):
             logger.info("Irrigation is NOT included/considered in this run.")
 
         # land cover types defined by the user
-        if "landCoverTypes" in list(iniItems.landSurfaceOptions.keys()):
+        if "landCoverTypes" in iniItems.landSurfaceOptions:
             self.coverTypes = iniItems.landSurfaceOptions["landCoverTypes"].split(",")
 
         # water demand options: irrigation efficiency, non-irrigation water demand and desalination supply;
@@ -229,9 +228,7 @@ class LandSurface(object):
                 name_of_section_given_in_ini_file
             )
 
-            if "usingSpecificSoilTopo" not in list(
-                dictionary_of_land_cover_settings.keys()
-            ):
+            if "usingSpecificSoilTopo" not in dictionary_of_land_cover_settings:
                 dictionary_of_land_cover_settings["usingSpecificSoilTopo"] = "False"
             if dictionary_of_land_cover_settings["usingSpecificSoilTopo"] == "True":
                 logger.info(
@@ -262,7 +259,7 @@ class LandSurface(object):
 
         # rescale the land cover fractions; by default they are always corrected (total of all fractions = 1)
         self.noLandCoverFractionCorrection = False
-        if "noLandCoverFractionCorrection" in list(iniItems.landSurfaceOptions.keys()):
+        if "noLandCoverFractionCorrection" in iniItems.landSurfaceOptions:
             if iniItems.landSurfaceOptions["noLandCoverFractionCorrection"] == "True":
                 self.noLandCoverFractionCorrection = True
         if not self.noLandCoverFractionCorrection:
@@ -272,9 +269,7 @@ class LandSurface(object):
 
         # option to change the land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if "annualChangesInLandCoverParameters" in list(
-            iniItems.landSurfaceOptions.keys()
-        ):
+        if "annualChangesInLandCoverParameters" in iniItems.landSurfaceOptions:
             if (
                 iniItems.landSurfaceOptions["annualChangesInLandCoverParameters"]
                 == "True"
@@ -296,12 +291,12 @@ class LandSurface(object):
             )
 
         self.using_qualloc = False
-        if "using_qualloc" in iniItems.waterManagementOptions.keys():
+        if "using_qualloc" in iniItems.waterManagementOptions:
             if iniItems.waterManagementOptions["using_qualloc"] == "True":
                 self.using_qualloc = True
 
         self.using_dynqual = False
-        if "quality" in iniItems.routingOptions.keys():
+        if "quality" in iniItems.routingOptions:
             if iniItems.routingOptions["quality"] == "True":
                 self.using_dynqual = True
 
@@ -545,14 +540,14 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover
 
-            if "grassland" in list(self.landCoverObj.keys()):
+            if "grassland" in self.landCoverObj:
                 self.landCoverObj["grassland"].previousFracVegCover = pcr.ifthenelse(
                     total_fractions > 0.1,
                     self.landCoverObj["grassland"].previousFracVegCover,
                     1.0,
                 )
 
-            if "short_natural" in list(self.landCoverObj.keys()):
+            if "short_natural" in self.landCoverObj:
                 self.landCoverObj["short_natural"].previousFracVegCover = (
                     pcr.ifthenelse(
                         total_fractions > 0.1,
@@ -592,14 +587,14 @@ class LandSurface(object):
             for coverType in self.coverTypes:
                 total_fractions += self.landCoverObj[coverType].previousFracVegCover
 
-            if "grassland" in list(self.landCoverObj.keys()):
+            if "grassland" in self.landCoverObj:
                 self.landCoverObj["grassland"].previousFracVegCover = pcr.ifthenelse(
                     total_fractions > 0.1,
                     self.landCoverObj["grassland"].previousFracVegCover,
                     1.0,
                 )
 
-            if "short_natural" in list(self.landCoverObj.keys()):
+            if "short_natural" in self.landCoverObj:
                 self.landCoverObj["short_natural"].previousFracVegCover = (
                     pcr.ifthenelse(
                         total_fractions > 0.1,
@@ -672,8 +667,7 @@ class LandSurface(object):
             if not coverType.startswith("irr"):
                 extrapolate = True
                 if (
-                    "noParameterExtrapolation"
-                    in self.iniItems.landSurfaceOptions.keys()
+                    "noParameterExtrapolation" in self.iniItems.landSurfaceOptions
                     and self.iniItems.landSurfaceOptions["noParameterExtrapolation"]
                     == "True"
                 ):
@@ -1266,21 +1260,17 @@ class LandSurface(object):
             # surface water abstraction and allocation, total of all sectors (m/day)
             self.actSurfaceWaterAbstract = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "renewable_surfacewater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "renewable_surfacewater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.allocSurfaceWaterAbstract = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "renewable_surfacewater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "renewable_surfacewater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1288,21 +1278,17 @@ class LandSurface(object):
             # renewable groundwater abstraction and allocation, total of all sectors (m/day)
             self.nonFossilGroundwaterAbs = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "renewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "renewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.allocNonFossilGroundwater = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "renewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "renewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1310,21 +1296,17 @@ class LandSurface(object):
             # non-renewable groundwater abstraction and allocation, total of all sectors (m/day)
             self.fossilGroundwaterAbstr = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_withdrawal_per_sector[
-                            "nonrenewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_withdrawal_per_sector[
+                        "nonrenewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
             self.fossilGroundwaterAlloc = (
                 sum(
-                    list(
-                        self.qualloc_model.water_management.allocated_demand_per_sector[
-                            "nonrenewable_groundwater"
-                        ].values()
-                    )
+                    self.qualloc_model.water_management.allocated_demand_per_sector[
+                        "nonrenewable_groundwater"
+                    ].values()
                 )
                 / self.cellArea
             )
@@ -1409,10 +1391,10 @@ class LandSurface(object):
                 )
 
             self.nonIrrReturnFlowVolume = sum(
-                list(self.nonIrrReturnFlowVolumePerSector.values())
+                self.nonIrrReturnFlowVolumePerSector.values()
             )
             self.nonIrrWaterConsumptionVolume = sum(
-                list(self.nonIrrWaterConsumptionVolumePerSector.values())
+                self.nonIrrWaterConsumptionVolumePerSector.values()
             )
 
             # water slice (m/day): return flows
@@ -1540,7 +1522,7 @@ class LandSurface(object):
             )
 
             self.nonIrrReturnFlowVolume = sum(
-                list(self.nonIrrReturnFlowVolumePerSector.values())
+                self.nonIrrReturnFlowVolumePerSector.values()
             )
 
             # (m)
@@ -1581,7 +1563,7 @@ class LandSurface(object):
             )
 
             self.nonIrrWaterConsumptionVolume = sum(
-                list(self.nonIrrWaterConsumptionVolumePerSector.values())
+                self.nonIrrWaterConsumptionVolumePerSector.values()
             )
 
             # (m)

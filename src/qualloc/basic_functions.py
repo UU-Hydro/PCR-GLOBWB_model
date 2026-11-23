@@ -8,19 +8,6 @@ convergence_limit = 1.0e-12
 max_number_iterations = 100
 
 
-# generic functions to process lists
-
-
-def sum_list(list_in):
-    """
-sum_list: generic function that returns the sum of a list of which \
-the entries can be summed (integers, floats, arrays etc.).
-
-"""
-    # sum all entries of a list-like object
-    return sum(list_in)
-
-
 def max_dicts(dict_in):
     """
 max_dicts: generic function that returns the maximum pcr map from a collection \
@@ -57,7 +44,7 @@ def get_decision(question_str, possible_outcomes):
 
     """
 
-    options = list(possible_outcomes.keys())
+    options = list(possible_outcomes)
     option_str = "("
     for option in options:
         option_str = str.join("", (option_str, option, ", "))
@@ -124,9 +111,9 @@ Returns a dictionary with the name of the numpy functions as keys and the count
     a = a[a != mv]
 
     if a.size > 0:
-        stat_val = dict((str(f.__name__), f(a)) for f in np_stat_funcs)
+        stat_val = {str(f.__name__): f(a) for f in np_stat_funcs}
     else:
-        stat_val = dict((str(f.__name__), mv) for f in np_stat_funcs)
+        stat_val = {str(f.__name__): mv for f in np_stat_funcs}
     stat_val["count"] = a.size
 
     return stat_val

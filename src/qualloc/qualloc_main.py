@@ -8,7 +8,6 @@ import pcraster as pcr
 from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     pcr_share_identical_maps,
-    sum_list,
 )
 from qualloc.file_handler import close_nc_cache, read_file_entry
 from qualloc.initial_conditions_handler import (
@@ -65,7 +64,7 @@ PCRaster input ignores the name and is unaffected.
     return section.get(f"{key}_ncvariable", default)
 
 
-class qualloc_model(object):
+class qualloc_model:
 
     def __init__(
         self,
@@ -75,14 +74,12 @@ class qualloc_model(object):
         initial_conditions=None,
     ):
 
-        object.__init__(self)
-
         self.model_configuration = model_configuration
 
         self.model_flags = model_flags
 
         self.model_flags["water_quality_flag"] = False
-        if "water_quality" in vars(self.model_configuration).keys():
+        if "water_quality" in vars(self.model_configuration):
             self.model_flags["water_quality_flag"] = eval(
                 self.model_configuration.water_quality["water_quality_flag"]
             )
@@ -90,7 +87,7 @@ class qualloc_model(object):
         self.model_flags["groundwater_pumping_capacity_flag"] = False
         if (
             "groundwater_regional_pumping_capacity"
-            in self.model_configuration.water_management.keys()
+            in self.model_configuration.water_management
             and self.model_configuration.water_management[
                 "groundwater_regional_pumping_capacity"
             ]
@@ -101,7 +98,7 @@ class qualloc_model(object):
         self.model_flags["surfacewater_pumping_capacity_flag"] = False
         if (
             "surfacewater_regional_pumping_capacity"
-            in self.model_configuration.water_management.keys()
+            in self.model_configuration.water_management
             and self.model_configuration.water_management[
                 "surfacewater_regional_pumping_capacity"
             ]
@@ -110,10 +107,7 @@ class qualloc_model(object):
             self.model_flags["surfacewater_pumping_capacity_flag"] = True
 
         self.model_flags["desalinated_water_use_flag"] = False
-        if (
-            "desalinated_water_use_flag"
-            in self.model_configuration.water_management.keys()
-        ):
+        if "desalinated_water_use_flag" in self.model_configuration.water_management:
             self.model_flags["desalinated_water_use_flag"] = eval(
                 self.model_configuration.water_management["desalinated_water_use_flag"]
             )
@@ -148,8 +142,6 @@ class qualloc_model(object):
             f'run started at {self.model_configuration._timestamp_str} for {self.model_configuration.general["scenarioname"]} '
             f"over {self.model_time.date} - {self.model_time.enddate} using {self.model_time.time_increment} time increments"
         )
-
-        return None
 
     def initialize(self):
 
@@ -248,19 +240,19 @@ class qualloc_model(object):
 
         # water management: sectors, sources and withdrawals
         sector_names = ["irrigation", "domestic", "industry", "livestock"]
-        if "sector_names" in self.model_configuration.water_management.keys():
+        if "sector_names" in self.model_configuration.water_management:
             sector_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["sector_names"], str
             )
 
         source_names = ["groundwater", "surfacewater"]
-        if "source_names" in self.model_configuration.water_management.keys():
+        if "source_names" in self.model_configuration.water_management:
             source_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["source_names"], str
             )
 
         withdrawal_names = ["renewable", "nonrenewable"]
-        if "withdrawal_names" in self.model_configuration.water_management.keys():
+        if "withdrawal_names" in self.model_configuration.water_management:
             withdrawal_names = self.model_configuration.convert_string_to_input(
                 self.model_configuration.water_management["withdrawal_names"], str
             )
@@ -533,16 +525,13 @@ class qualloc_model(object):
             source_names_prioritization.append("desalwater")
 
         # by default, all sectors are prioritized per source
-        prioritization = dict(
-            (
-                source_name,
-                dict(
-                    (sector_name, pcr.spatial(pcr.scalar(1.00)))
-                    for sector_name in sector_names
-                ),
-            )
+        prioritization = {
+            source_name: {
+                sector_name: pcr.spatial(pcr.scalar(1.00))
+                for sector_name in sector_names
+            }
             for source_name in source_names_prioritization
-        )
+        }
 
         # prioritization from the configuration file (if specified)
         for source_name in source_names_prioritization:
@@ -550,7 +539,7 @@ class qualloc_model(object):
 
                 key = f"prioritization_{source_name}_{sector_name}"
 
-                if key in self.model_configuration.water_management.keys():
+                if key in self.model_configuration.water_management:
 
                     values = read_file_entry(
                         filename=self.model_configuration.water_management[key],
@@ -663,14 +652,14 @@ class qualloc_model(object):
                 self.net_demand_forcing_vars[sector_name] = net_demand_name
 
         # check for missing sectors
-        for sector_name in self.gross_demand_forcing_vars.keys():
-            if sector_name not in self.net_demand_forcing_vars.keys():
+        for sector_name in self.gross_demand_forcing_vars:
+            if sector_name not in self.net_demand_forcing_vars:
                 self.net_demand_forcing_vars[sector_name] = (
                     self.gross_demand_forcing_vars[sector_name]
                 )
 
-        for sector_name in self.net_demand_forcing_vars.keys():
-            if sector_name not in self.gross_demand_forcing_vars.keys():
+        for sector_name in self.net_demand_forcing_vars:
+            if sector_name not in self.gross_demand_forcing_vars:
                 self.gross_demand_forcing_vars[sector_name] = (
                     self.net_demand_forcing_vars[sector_name]
                 )
@@ -702,7 +691,7 @@ class qualloc_model(object):
             for constituent_name in constituent_names:
                 var = f"limit_{constituent_name}_{sector_name}"
 
-                if var in self.model_configuration.water_quality.keys():
+                if var in self.model_configuration.water_quality:
                     limit = self.model_configuration.water_quality[var]
                 else:
                     limit = None
@@ -735,25 +724,25 @@ class qualloc_model(object):
 
                 if self.model_flags["water_quality_flag"]:
                     # whether the constituent has long-term water quality data
-                    if f"{var}_ini" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ini" in self.model_configuration.water_quality:
                         constituent_longterm_quality = self.initial_conditions[
                             "water_quality"
                         ][var]
                     else:
-                        constituent_longterm_quality = dict(
-                            (date, pcr.spatial(pcr.scalar(0)))
+                        constituent_longterm_quality = {
+                            date: pcr.spatial(pcr.scalar(0))
                             for date in water_management_dates
-                        )
+                        }
                         logger.info(
                             f"Long-term {constituent_name} was not specified, a value of zero is assigned."
                         )
 
                 # zero concentrations if water quality is not evaluated
                 else:
-                    constituent_longterm_quality = dict(
-                        (date, pcr.spatial(pcr.scalar(0)))
+                    constituent_longterm_quality = {
+                        date: pcr.spatial(pcr.scalar(0))
                         for date in water_management_dates
-                    )
+                    }
 
                 # update the format of the initial conditions
                 self.initial_conditions["water_quality"][var] = (
@@ -774,7 +763,7 @@ class qualloc_model(object):
 
                 # whether the constituent has short-term water quality data
                 if self.model_flags["water_quality_flag"]:
-                    if f"{var}_ncfile" in self.model_configuration.water_quality.keys():
+                    if f"{var}_ncfile" in self.model_configuration.water_quality:
                         ncfilename = self.model_configuration.water_quality[
                             f"{var}_ncfile"
                         ]
@@ -846,8 +835,6 @@ class qualloc_model(object):
         logger.info("Water quality module is activated")
 
         setattr(self.water_management, "water_quality", self.water_quality)
-
-        return None
 
     def update(
         self,
@@ -1111,14 +1098,14 @@ class qualloc_model(object):
         # short-term
 
         # gross and net demand per sector for the current date
-        gross_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
+        gross_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0))
             for sector_name in self.water_management.sector_names
-        )
-        net_demand_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(0)))
+        }
+        net_demand_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(0))
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         for sector_name in self.water_management.sector_names:
             # add the demand per sector to the gross and net demand (m3/day)
@@ -1170,7 +1157,7 @@ class qualloc_model(object):
             longterm_potential_withdrawal_per_sector=potential_withdrawal_per_sector,
         )
 
-        potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
+        potential_withdrawal = sum(potential_withdrawal_per_sector.values())
 
         # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
         actual_withdrawal = pcr.ifthen(
@@ -1183,25 +1170,22 @@ class qualloc_model(object):
 
         # redistribute the renewable withdrawal by sector (m3/day)
         renewable_withdrawal = deepcopy(actual_withdrawal)
-        renewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                actual_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        renewable_withdrawal_per_sector = {
+            sector_name: actual_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # no non-renewable withdrawal: all surface water withdrawals are currently renewable
         nonrenewable_withdrawal = pcr.ifthen(self.landmask, pcr.scalar(0))
-        nonrenewable_withdrawal_per_sector = dict(
-            (sector_name, nonrenewable_withdrawal)
+        nonrenewable_withdrawal_per_sector = {
+            sector_name: nonrenewable_withdrawal
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # set the actual surface water withdrawal and add any unmet demand to the potential
         # non-renewable withdrawal of the remaining allowable sources
@@ -1237,7 +1221,7 @@ class qualloc_model(object):
             )
         )
 
-        potential_withdrawal = sum_list(list(potential_withdrawal_per_sector.values()))
+        potential_withdrawal = sum(potential_withdrawal_per_sector.values())
 
         # actual renewable and non-renewable withdrawals (m3/day)
         renewable_withdrawal = pcr.min(groundwater_availability, potential_withdrawal)
@@ -1250,32 +1234,26 @@ class qualloc_model(object):
         nonrenewable_withdrawal /= self.model_time.time_step_length
 
         # redistribute the renewable withdrawals by sector (m3/day)
-        renewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                renewable_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        renewable_withdrawal_per_sector = {
+            sector_name: renewable_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # redistribute the non-renewable withdrawals by sector (m3/day)
-        nonrenewable_withdrawal_per_sector = dict(
-            (
-                sector_name,
-                nonrenewable_withdrawal
-                * pcr_return_val_div_zero(
-                    potential_withdrawal_per_sector[sector_name],
-                    potential_withdrawal,
-                    very_small_number,
-                ),
+        nonrenewable_withdrawal_per_sector = {
+            sector_name: nonrenewable_withdrawal
+            * pcr_return_val_div_zero(
+                potential_withdrawal_per_sector[sector_name],
+                potential_withdrawal,
+                very_small_number,
             )
             for sector_name in self.water_management.sector_names
-        )
+        }
 
         # set the actual groundwater withdrawal and add any unmet demand to the potential
         # non-renewable withdrawal of the remaining allowable sources
@@ -1323,8 +1301,6 @@ class qualloc_model(object):
             date=date,
         )
 
-        return None
-
     def finalize_year(self):
 
         logger.info(
@@ -1351,8 +1327,6 @@ class qualloc_model(object):
         self.report_initial_conditions_to_file.close()
         close_nc_cache()
 
-        return None
-
     def update_initial_conditions(self, date):
         """
         update_initial_conditions: function that updates the initial conditions from \
@@ -1368,15 +1342,13 @@ class qualloc_model(object):
             else:
                 state_info = self.water_management.water_quality.get_final_conditions()
 
-            if module_name not in self.initial_conditions.keys():
+            if module_name not in self.initial_conditions:
                 self.initial_conditions[module_name] = {}
 
             for key, value in state_info.items():
                 self.initial_conditions[module_name][key] = value
 
         logger.info(f"Initial conditions updated for {date}")
-
-        return None
 
     def report_initial_conditions(self, date):
         """
@@ -1385,5 +1357,3 @@ class qualloc_model(object):
         """
 
         self.report_initial_conditions_to_file.report(date, self.initial_conditions)
-
-        return None

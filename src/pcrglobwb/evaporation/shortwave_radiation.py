@@ -446,7 +446,7 @@ solar_constant specified.
     return radsw_ext
 
 
-class ShortwaveRadiation(object):
+class ShortwaveRadiation:
     """
 
 shortwave_radiation: class that updates on a daily timestep the incoming \
@@ -517,8 +517,6 @@ constant (default MJ/m2/day).
 
 """
 
-        object.__init__(self)
-
         # reduction of the transmittance (-) by water vapour in the atmospheric column on a
         # wet day (Winslow et al., 2001), i.e. with precipitation above the threshold
         # (1 mm/day, in m)
@@ -551,8 +549,6 @@ constant (default MJ/m2/day).
         self.parameter_initialization(latitude, elevation, temp_annual, delta_temp_mean)
 
         # TODO: make temp_annual dynamic, based on the last 365 days
-
-        return None
 
     def parameter_initialization(
         self, latitude, elevation, temp_annual, delta_temp_mean
@@ -708,5 +704,3 @@ precipitation, minimum and maximum daily temperature.
         )
 
         self.radsw_act = red_radsw_ext * self.radsw_ext
-
-        return None

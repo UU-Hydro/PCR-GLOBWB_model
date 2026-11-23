@@ -136,7 +136,7 @@ class spatialAttributes:
                             mapAttributes[mapAttribute] = rawStr
             if mapAttribute in ["xResolution", "yResolution"]:
                 mapAttributes[mapAttribute] = abs(mapAttributes[mapAttribute])
-            if mapAttribute in mapAttributes.keys():
+            if mapAttribute in mapAttributes:
                 setattr(self, mapAttribute, mapAttributes[mapAttribute])
             else:
                 setattr(self, mapAttribute, None)

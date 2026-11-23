@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import datetime
 
 import netCDF4 as nc
@@ -26,8 +24,7 @@ class PCR2netCDF:
         # let users decide the latitude order
         self.netcdf_y_orientation_follow_cf_convention = False
         if (
-            "netcdf_y_orientation_follow_cf_convention"
-            in list(iniItems.reportingOptions.keys())
+            "netcdf_y_orientation_follow_cf_convention" in iniItems.reportingOptions
             and iniItems.reportingOptions["netcdf_y_orientation_follow_cf_convention"]
             == "True"
         ):
@@ -39,17 +36,15 @@ class PCR2netCDF:
 
         self.format = "NETCDF3_CLASSIC"
         self.zlib = False
-        if "formatNetCDF" in list(iniItems.reportingOptions.keys()):
+        if "formatNetCDF" in iniItems.reportingOptions:
             self.format = str(iniItems.reportingOptions["formatNetCDF"])
-        if "zlib" in list(iniItems.reportingOptions.keys()):
+        if "zlib" in iniItems.reportingOptions:
             if iniItems.reportingOptions["zlib"] == "True":
                 self.zlib = True
 
         # use the attributes given in the ini section 'specific_attributes_for_netcdf_output_files'
         if "specific_attributes_for_netcdf_output_files" in iniItems.allSections:
-            for key in list(
-                iniItems.specific_attributes_for_netcdf_output_files.keys()
-            ):
+            for key in iniItems.specific_attributes_for_netcdf_output_files:
 
                 self.attributeDictionary[key] = (
                     iniItems.specific_attributes_for_netcdf_output_files[key]
@@ -82,9 +77,7 @@ class PCR2netCDF:
                 "description"
             ]
         else:
-            for ncAttributeKey, ncAttribute in list(
-                specificAttributeDictionary.items()
-            ):
+            for ncAttributeKey, ncAttribute in specificAttributeDictionary.items():
                 self.attributeDictionary[ncAttributeKey] = ncAttribute
 
     def createNetCDF(
@@ -144,7 +137,7 @@ class PCR2netCDF:
         var.units = varUnits
 
         attributeDictionary = self.attributeDictionary
-        for k, v in list(attributeDictionary.items()):
+        for k, v in attributeDictionary.items():
             setattr(rootgrp, k, v)
 
         rootgrp.sync()

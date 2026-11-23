@@ -7,10 +7,9 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class ManufactureWaterDemand(object):
+class ManufactureWaterDemand:
 
     def __init__(self, iniItems, landmask):
-        object.__init__(self)
 
         self.iniItems = iniItems
 

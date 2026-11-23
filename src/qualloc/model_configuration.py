@@ -41,7 +41,7 @@ def remove_readonly(func, path, _):
     func(path)
 
 
-class configuration_parser(object):
+class configuration_parser:
     """
 
 configuration_parser:
@@ -60,8 +60,6 @@ the CALEROS model.
         replacements={},
         **optional_arguments,
     ):
-
-        object.__init__(self)
 
         # configuration file, groups and sections
         self.cfgfilename = cfgfilename
@@ -115,10 +113,7 @@ the CALEROS model.
 
     def get_items(self, config, section):
         # dictionary of all key-value pairs in the current section
-        options = {}
-        for key, value in config.items(section):
-            options[key] = value
-        return options
+        return dict(config.items(section))
 
     def substitute_tokens(self, cfgfilename, replacements):
         """
@@ -211,8 +206,6 @@ the unreplaced token would otherwise surface much later as a missing file.
                     f"configuration file does not contain the necessary information on {group}"
                 )
 
-        return None
-
     def initialize_logger(self, logfileroot):
         """
 
@@ -232,9 +225,9 @@ to a log file and to the screen at configurable levels.
         # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
         # log level from the configuration file
-        if "log_level_console" in list(self.general.keys()):
+        if "log_level_console" in self.general:
             log_level_console = self.general["log_level_console"]
-        if "log_level_file" in list(self.general.keys()):
+        if "log_level_file" in self.general:
             log_level_file = self.general["log_level_file"]
 
         # log level for debug mode
@@ -271,8 +264,6 @@ to a log file and to the screen at configurable levels.
         logging.getLogger().addHandler(debug_handler)
 
         self.log_file_handlers = [debug_handler, file_handler]
-
-        return None
 
     def create_output_directories(self):
         """
@@ -360,8 +351,6 @@ directories using information from the model configuration.
                 shutil.rmtree(subdirectory, onerror=remove_readonly)
             os.makedirs(subdirectory)
             setattr(self, subdirname, subdirectory)
-
-        return None
 
     def backup_configuration_file(self, cfgfilename, outputpath, replacement_str=""):
 

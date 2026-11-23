@@ -17,7 +17,7 @@ import zarr
 logger = logging.getLogger(__name__)
 
 # file cache to reduce opening and closing files
-filecache = dict()
+filecache = {}
 
 # global variables
 MV = 1e20
@@ -147,7 +147,7 @@ def readDownscalingMeteo(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:
@@ -298,7 +298,7 @@ def readDownscalingMeteo(
     if xIdxSta == -1:
         xIdxSta = 0
 
-    xIdxEnd = int(math.ceil((xIdxSta + 1) + colsClone / (factor))) + 1
+    xIdxEnd = int(math.ceil((xIdxSta + 1) + colsClone / factor)) + 1
 
     minY = min(abs(f.variables["lat"][:] - (yULClone - 0.5 * cellsizeInput)))
 
@@ -311,7 +311,7 @@ def readDownscalingMeteo(
         - 1
     )
 
-    yIdxEnd = int(math.ceil((yIdxSta + 1) + rowsClone / (factor))) + 1
+    yIdxEnd = int(math.ceil((yIdxSta + 1) + rowsClone / factor)) + 1
 
     # retrieve the data slice from the netCDF file
 
@@ -360,7 +360,7 @@ def checkVariableInNC(ncFile, varName):
 
     logger.debug(f"Checking whether {varName} is defined in {ncFile}")
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:
@@ -369,7 +369,7 @@ def checkVariableInNC(ncFile, varName):
 
     varName = str(varName)
 
-    return varName in list(f.variables.keys())
+    return varName in f.variables
 
 
 def netcdf2PCRobjCloneWithoutTime(
@@ -519,7 +519,7 @@ def singleTryNetcdf2PCRobjClone(
     # EHS (19 Apr 2013): convert a netCDF (tss) file to a PCRaster map with clone checking;
     # only works for square cells and if cellsizeClone <= cellsizeInput
 
-    if ncFile in list(filecache.keys()):
+    if ncFile in filecache:
         f = filecache[ncFile]
 
     else:
@@ -1029,7 +1029,7 @@ def getMinMaxMean(mapFile, ignoreEmptyMap=False):
         logger.warning("map is empty")
         return 0.0, 0.0, 0.0
     else:
-        return mn, mx, (getMapTotal(mapFile) / nrValues)
+        return mn, mx, getMapTotal(mapFile) / nrValues
 
 
 def getMapVolume(mapFile, cellareaFile):

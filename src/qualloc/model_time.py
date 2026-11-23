@@ -41,7 +41,7 @@ def get_weights_from_dates(dates):
     if seq_type == list:
         w = w.tolist()
 
-    return dict((d[ix], w[ix]) for ix in range(len(w)))
+    return {d[ix]: w[ix] for ix in range(len(w))}
 
 
 def get_julian_daynumber(date):
@@ -141,7 +141,7 @@ def is_last_day_month(date):
     return today == last_day
 
 
-class model_time(object):
+class model_time:
     # timer of the model: initializes and updates the continuous timer and
     # julian day number
 
@@ -152,8 +152,6 @@ class model_time(object):
         time_increment,
         time_step_length=1.00,
     ):
-
-        object.__init__(self)
 
         self.seconds_per_day = 86400
 
@@ -170,7 +168,7 @@ class model_time(object):
 
         # length of the simulation
         self.number_time_steps = (
-            int(((self.enddate - self.date).days) / self.time_step_length) + 1
+            int((self.enddate - self.date).days / self.time_step_length) + 1
         )
 
         self.report_flags = {}.fromkeys(["daily", "monthly", "yearly"], False)

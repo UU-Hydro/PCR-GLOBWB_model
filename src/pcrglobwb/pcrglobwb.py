@@ -8,7 +8,7 @@ from pcrglobwb.common import virtualOS as vos
 logger = logging.getLogger(__name__)
 
 
-class PCRGlobWB(object):
+class PCRGlobWB:
 
     def __init__(self, configuration, currTimeStep, initialState=None, spinUpRun=None):
         self._configuration = configuration
@@ -34,9 +34,6 @@ class PCRGlobWB(object):
         else:
             self.landmask = pcr.defined(self.lddMap)
 
-        # catchment areas
-        self.catchment_class = 1.0
-
         # number of upper soil layers
         self.numberOfSoilLayers = int(
             configuration.landSurfaceOptions["numberOfUpperSoilLayers"]
@@ -46,7 +43,7 @@ class PCRGlobWB(object):
 
         # option to save monthly end states
         self.save_monthly_end_states = False
-        if "save_monthly_end_states" in list(configuration.reportingOptions.keys()):
+        if "save_monthly_end_states" in configuration.reportingOptions:
             self.save_monthly_end_states = (
                 configuration.reportingOptions["save_monthly_end_states"] == "True"
             )
@@ -69,9 +66,6 @@ class PCRGlobWB(object):
         )
         self.routing = routing.Routing(self._configuration, initialState, self.lddMap)
 
-        # short name for every land cover type (used in file names)
-        self.shortNames = ["f", "g", "p", "n"]
-
     def dumpState(self, outputDirectory, specific_date_string=None):
         # write all states to disk to allow restarting
 
@@ -81,7 +75,7 @@ class PCRGlobWB(object):
         state = self.getState()
 
         meteoState = state["meteo"]
-        for variable, map in list(meteoState.items()):
+        for variable, map in meteoState.items():
             vos.writePCRmapToDir(
                 map,
                 f"{variable}_{specific_date_string}.map",
@@ -89,8 +83,8 @@ class PCRGlobWB(object):
             )
 
         landSurfaceState = state["landSurface"]
-        for coverType, coverTypeState in list(landSurfaceState.items()):
-            for variable, map in list(coverTypeState.items()):
+        for coverType, coverTypeState in landSurfaceState.items():
+            for variable, map in coverTypeState.items():
                 vos.writePCRmapToDir(
                     map,
                     f"{variable}_{coverType}_{specific_date_string}.map",
@@ -98,7 +92,7 @@ class PCRGlobWB(object):
                 )
 
         groundWaterState = state["groundwater"]
-        for variable, map in list(groundWaterState.items()):
+        for variable, map in groundWaterState.items():
             vos.writePCRmapToDir(
                 map,
                 f"{variable}_{specific_date_string}.map",
@@ -106,7 +100,7 @@ class PCRGlobWB(object):
             )
 
         routingState = state["routing"]
-        for variable, map in list(routingState.items()):
+        for variable, map in routingState.items():
             vos.writePCRmapToDir(
                 map,
                 f"{variable}_{specific_date_string}.map",

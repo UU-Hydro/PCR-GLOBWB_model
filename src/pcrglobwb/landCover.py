@@ -9,7 +9,7 @@ from pcrglobwb.ncConverter import PCR2netCDF
 logger = logging.getLogger(__name__)
 
 
-class LandCover(object):
+class LandCover:
 
     def __init__(
         self,
@@ -20,7 +20,6 @@ class LandCover(object):
         irrigationEfficiency=None,
         usingAllocSegments=False,
     ):
-        object.__init__(self)
 
         self.tmpDir = iniItems.tmpDir
         self.inputDir = iniItems.globalOptions["inputDir"]
@@ -48,7 +47,7 @@ class LandCover(object):
         # "Modified" is Edwin Sutanudjaja's extension of the interception definition, using totalPotET
         # as the available energy
         self.interceptionModuleType = "Original"
-        if "interceptionModuleType" in list(self.iniItemsLC.keys()):
+        if "interceptionModuleType" in self.iniItemsLC:
             if self.iniItemsLC["interceptionModuleType"] == "Modified":
                 logger.info(
                     'Using the "Modified" version of the interception module (i.e. extending interception definition, using totalPotET for the available energy for the interception process).'
@@ -65,8 +64,9 @@ class LandCover(object):
 
         # minimum interception capacity (only for the "Modified" interception module)
         self.minInterceptCap = 0.0
-        if self.interceptionModuleType == "Original" and "minInterceptCap" in list(
-            self.iniItemsLC.keys()
+        if (
+            self.interceptionModuleType == "Original"
+            and "minInterceptCap" in self.iniItemsLC
         ):
             logger.warning("Original interception ignores minInterceptCap; canopy only")
         if self.interceptionModuleType == "Modified":
@@ -88,7 +88,7 @@ class LandCover(object):
         # Rens van Beek introduced it later (20 April 2011) to maintain soil saturation; this is the
         # current "Default" method
         self.improvedArnoSchemeMethod = "Default"
-        if "improvedArnoSchemeMethod" in list(iniItems.landSurfaceOptions.keys()):
+        if "improvedArnoSchemeMethod" in iniItems.landSurfaceOptions:
             self.improvedArnoSchemeMethod = iniItems.landSurfaceOptions[
                 "improvedArnoSchemeMethod"
             ]
@@ -99,7 +99,7 @@ class LandCover(object):
         # Edwin changed a few lines to avoid this (see updateSoilStates)
         self.allowNegativePercolation = False
         if (
-            "allowNegativePercolation" in list(self.iniItemsLC.keys())
+            "allowNegativePercolation" in self.iniItemsLC
             and self.iniItemsLC["allowNegativePercolation"] == "True"
         ):
             logger.warning(
@@ -113,8 +113,7 @@ class LandCover(object):
         # scaleRootFractionsFromTwoLayerSoilParameters and estimateTranspirationAndBareSoilEvap)
         self.usingOriginalOldCalcRootTranspirationPartitioningMethod = False
         if (
-            "usingOriginalOldCalcRootTranspirationPartitioningMethod"
-            in list(self.iniItemsLC.keys())
+            "usingOriginalOldCalcRootTranspirationPartitioningMethod" in self.iniItemsLC
             and self.iniItemsLC[
                 "usingOriginalOldCalcRootTranspirationPartitioningMethod"
             ]
@@ -147,7 +146,7 @@ class LandCover(object):
         # added by Joren
         self.snowTransport = False
         if (
-            "snowTransport" in list(self.iniItemsLC.keys())
+            "snowTransport" in self.iniItemsLC
             and self.iniItemsLC["snowTransport"] != "None"
         ):
             self.snowTransport = self.iniItemsLC["snowTransport"]
@@ -185,9 +184,7 @@ class LandCover(object):
 
         # option to change the land cover parameters (not only fracVegCover)
         self.noAnnualChangesInLandCoverParameter = True
-        if "annualChangesInLandCoverParameters" in list(
-            iniItems.landSurfaceOptions.keys()
-        ):
+        if "annualChangesInLandCoverParameters" in iniItems.landSurfaceOptions:
             if (
                 iniItems.landSurfaceOptions["annualChangesInLandCoverParameters"]
                 == "True"
@@ -248,9 +245,7 @@ class LandCover(object):
         )
 
         # interception capacity and cover fraction files
-        if "interceptCapNC" in list(
-            self.iniItemsLC.keys()
-        ) and "coverFractionNC" in list(self.iniItemsLC.keys()):
+        if "interceptCapNC" in self.iniItemsLC and "coverFractionNC" in self.iniItemsLC:
             self.interceptCapNC = vos.getFullPath(
                 self.iniItemsLC["interceptCapNC"], self.inputDir
             )
@@ -266,12 +261,12 @@ class LandCover(object):
             self.interceptCapNC = None
 
         if (
-            "coverFractionNC" in list(self.iniItemsLC.keys())
+            "coverFractionNC" in self.iniItemsLC
             and self.iniItemsLC["coverFractionNC"] == "None"
         ):
             self.coverFractionNC = None
         if (
-            "interceptCapNC" in list(self.iniItemsLC.keys())
+            "interceptCapNC" in self.iniItemsLC
             and self.iniItemsLC["interceptCapNC"] == "None"
         ):
             self.interceptCapNC = None
@@ -388,7 +383,7 @@ class LandCover(object):
 
             logger.debug("Obtaining land cover parameters fixed for the whole run")
 
-            if self.iniItemsLC["landCoverMapsNC"] == str(None):
+            if self.iniItemsLC["landCoverMapsNC"] == "None":
                 # PCRaster maps
                 landCoverPropertiesNC = None
                 for var in landCovParams:
@@ -415,10 +410,7 @@ class LandCover(object):
             # 3. approximated from minSoilDepthFrac and maxSoilDepthFrac
 
             lc_parameters["arnoBeta"] = None
-            if (
-                "arnoBeta" not in list(self.iniItemsLC.keys())
-                and not get_only_fracVegCover
-            ):
+            if "arnoBeta" not in self.iniItemsLC and not get_only_fracVegCover:
                 self.iniItemsLC["arnoBeta"] = "None"
 
             # option 1 (top priority): a PCRaster file
@@ -611,7 +603,7 @@ class LandCover(object):
         max_percolation_loss = 0.008
         # minimum and maximum percolation loss from the ini file
         if (
-            "minPercolationLoss" in list(iniPaddyOptions.keys())
+            "minPercolationLoss" in iniPaddyOptions
             and iniPaddyOptions["minPercolationLoss"] != "None"
         ):
             min_percolation_loss = vos.readPCRmapClone(
@@ -620,7 +612,7 @@ class LandCover(object):
                 self.inputDir,
             )
         if (
-            "maxPercolationLoss" in list(iniPaddyOptions.keys())
+            "maxPercolationLoss" in iniPaddyOptions
             and iniPaddyOptions["maxPercolationLoss"] != "None"
         ):
             min_percolation_loss = vos.readPCRmapClone(
@@ -658,9 +650,9 @@ class LandCover(object):
             rootFracUpp = (0.30 / 0.30) * rootFraction1
             rootFracLow = (1.20 / 1.20) * rootFraction2
             # Rens: RFW1[TYPE]= RFRAC1[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])
-            adjRootFrUpp = vos.getValDivZero(rootFracUpp, (rootFracUpp + rootFracLow))
+            adjRootFrUpp = vos.getValDivZero(rootFracUpp, rootFracUpp + rootFracLow)
             # Rens: RFW2[TYPE]= RFRAC2[TYPE]/(RFRAC1[TYPE]+RFRAC2[TYPE])
-            adjRootFrLow = vos.getValDivZero(rootFracLow, (rootFracUpp + rootFracLow))
+            adjRootFrLow = vos.getValDivZero(rootFracLow, rootFracUpp + rootFracLow)
             # if not defined, put everything in the first layer
             if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
                 adjRootFrUpp = pcr.max(0.0, pcr.min(1.0, pcr.cover(adjRootFrUpp, 1.0)))
@@ -675,15 +667,15 @@ class LandCover(object):
             rootFracLow030150 = 1.20 / 1.20 * rootFraction2
             adjRootFrUpp000005 = vos.getValDivZero(
                 rootFracUpp000005,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             adjRootFrUpp005030 = vos.getValDivZero(
                 rootFracUpp005030,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             adjRootFrLow030150 = vos.getValDivZero(
                 rootFracLow030150,
-                (rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150),
+                rootFracUpp000005 + rootFracUpp005030 + rootFracLow030150,
             )
             # if not defined, put everything in the first layer
             if not self.usingOriginalOldCalcRootTranspirationPartitioningMethod:
@@ -759,10 +751,8 @@ class LandCover(object):
                     * self.parameters.poreSizeBetaLow
                 )
                 / (
-                    (
-                        self.parameters.storCapUpp * self.adjRootFrUpp
-                        + self.parameters.storCapLow * self.adjRootFrLow
-                    )
+                    self.parameters.storCapUpp * self.adjRootFrUpp
+                    + self.parameters.storCapLow * self.adjRootFrLow
                 ),
                 0.5
                 * (self.parameters.poreSizeBetaUpp + self.parameters.poreSizeBetaLow),
@@ -778,33 +768,31 @@ class LandCover(object):
 
             self.effSatAt50 = pcr.ifthenelse(
                 denominator > 0.0,
-                (
-                    self.parameters.storCapUpp000005
-                    * self.adjRootFrUpp000005
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueUpp000005
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
-                    + self.parameters.storCapUpp005030
-                    * self.adjRootFrUpp005030
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueUpp000005
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
-                    + self.parameters.storCapLow030150
-                    * self.adjRootFrLow030150
-                    * (
-                        self.parameters.matricSuction50
-                        / self.parameters.airEntryValueLow030150
-                    )
-                    ** (-1.0 / self.parameters.poreSizeBetaLow030150)
-                    / (
-                        self.parameters.storCapUpp000005 * self.adjRootFrUpp000005
-                        + self.parameters.storCapUpp005030 * self.adjRootFrUpp005030
-                        + self.parameters.storCapLow030150 * self.adjRootFrLow030150
-                    )
+                self.parameters.storCapUpp000005
+                * self.adjRootFrUpp000005
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueUpp000005
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
+                + self.parameters.storCapUpp005030
+                * self.adjRootFrUpp005030
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueUpp000005
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaUpp000005)
+                + self.parameters.storCapLow030150
+                * self.adjRootFrLow030150
+                * (
+                    self.parameters.matricSuction50
+                    / self.parameters.airEntryValueLow030150
+                )
+                ** (-1.0 / self.parameters.poreSizeBetaLow030150)
+                / (
+                    self.parameters.storCapUpp000005 * self.adjRootFrUpp000005
+                    + self.parameters.storCapUpp005030 * self.adjRootFrUpp005030
+                    + self.parameters.storCapLow030150 * self.adjRootFrLow030150
                 ),
                 0.5,
             )
@@ -1652,24 +1640,18 @@ class LandCover(object):
 
             # readily available water in the root zone (upper soil layers)
             self.readAvlWater = (
-                (
-                    pcr.max(
-                        0.0,
-                        self.effSatUpp000005
-                        - self.parameters.effSatAtWiltPointUpp000005,
-                    )
+                pcr.max(
+                    0.0,
+                    self.effSatUpp000005 - self.parameters.effSatAtWiltPointUpp000005,
                 )
                 * (
                     self.parameters.satVolMoistContUpp000005
                     - self.parameters.resVolMoistContUpp000005
                 )
                 * pcr.min(self.parameters.thickUpp000005, self.maxRootDepth)
-                + (
-                    pcr.max(
-                        0.0,
-                        self.effSatUpp005030
-                        - self.parameters.effSatAtWiltPointUpp005030,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.effSatUpp005030 - self.parameters.effSatAtWiltPointUpp005030,
                 )
                 * (
                     self.parameters.satVolMoistContUpp005030
@@ -1679,12 +1661,9 @@ class LandCover(object):
                     self.parameters.thickUpp005030,
                     pcr.max(self.maxRootDepth - self.parameters.thickUpp000005),
                 )
-                + (
-                    pcr.max(
-                        0.0,
-                        self.effSatLow030150
-                        - self.parameters.effSatAtWiltPointLow030150,
-                    )
+                + pcr.max(
+                    0.0,
+                    self.effSatLow030150 - self.parameters.effSatAtWiltPointLow030150,
                 )
                 * (
                     self.parameters.satVolMoistContLow030150

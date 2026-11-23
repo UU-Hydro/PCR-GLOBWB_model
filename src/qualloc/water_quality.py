@@ -4,7 +4,7 @@ import logging
 import pcraster as pcr
 
 from qualloc.allocation import get_zonal_total
-from qualloc.basic_functions import max_dicts, pcr_return_val_div_zero, sum_list
+from qualloc.basic_functions import max_dicts, pcr_return_val_div_zero
 from qualloc.model_time import (
     get_weights_from_dates,
     is_last_day_month,
@@ -36,7 +36,7 @@ NoneType = type(None)
 logger = logging.getLogger(__name__)
 
 
-class water_quality(object):
+class water_quality:
 
     def __init__(
         self,
@@ -55,8 +55,6 @@ class water_quality(object):
         groundwater_longterm_salinity,
         groundwater_longterm_pathogen,
     ):
-
-        object.__init__(self)
 
         self.landmask = landmask
         self.time_increment = time_increment
@@ -79,7 +77,7 @@ class water_quality(object):
 
                 # store the variable and its sorted dates
                 setattr(self, var_str, var_out)
-                setattr(self, f"{var_str}_dates", sorted(list(var_out.keys())))
+                setattr(self, f"{var_str}_dates", sorted(var_out))
 
         # annual average water quality
         self.surfacewater_annual_temperature = pcr.scalar(0)
@@ -103,8 +101,6 @@ class water_quality(object):
             "groundwater_longterm_pathogen": "groundwater_longterm_pathogen",
         }
 
-        return None
-
     def update_annual_water_quality(self, source_names):
         """
         update_annual_water_quality :
@@ -127,16 +123,11 @@ class water_quality(object):
                 # update the long-term total per constituent and source
                 longterm_constituent_quality = getattr(self, var_in)
                 values = sum(
-                    list(
-                        weights[date] * longterm_constituent_quality[date]
-                        for date in dates
-                    )
+                    weights[date] * longterm_constituent_quality[date] for date in dates
                 )
 
                 var_out = f"{source_name}_annual_{constituent_name}"
                 setattr(self, var_out, values)
-
-        return None
 
     def get_longterm_quality_for_date(
         self,
@@ -255,8 +246,6 @@ class water_quality(object):
                         f"{constituent_name} from {source_name} availability updated for {message_str}"
                     )
 
-        return None
-
     def get_suitability_per_sector(
         self,
         constituent_state,
@@ -283,9 +272,9 @@ class water_quality(object):
                             and 1 is perfectly suitable
         """
 
-        suitability_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(1.0))) for sector_name in sector_names
-        )
+        suitability_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(1.0)) for sector_name in sector_names
+        }
 
         for sector_name in sector_names:
             suitability_per_constituent = {}
@@ -364,9 +353,9 @@ class water_quality(object):
         weight_per_sector      : dictionary with sector names (keys) and the weight of a sector (values)
                                  over a variable (e.g., availability) considering the water quality
         """
-        weight_per_sector = dict(
-            (sector_name, pcr.spatial(pcr.scalar(1.0))) for sector_name in sector_names
-        )
+        weight_per_sector = {
+            sector_name: pcr.spatial(pcr.scalar(1.0)) for sector_name in sector_names
+        }
 
         for sector_name in sector_names:
 
@@ -382,7 +371,7 @@ class water_quality(object):
             )
 
             demand_total_area = get_zonal_total(
-                sum_list(list(demand_per_sector.values())),
+                sum(demand_per_sector.values()),
                 zones_per_sector[sector_name],
             )
 
@@ -422,7 +411,7 @@ class water_quality(object):
             weight_per_sector[sector_name] = weight
 
         # normalize the quality weights
-        weight_total = sum_list(list(weight_per_sector.values()))
+        weight_total = sum(weight_per_sector.values())
         for sector_name in sector_names:
             weight_per_sector[sector_name] = pcr_return_val_div_zero(
                 weight_per_sector[sector_name], weight_total, very_small_number
