@@ -5,7 +5,6 @@ import pcraster as pcr
 from qualloc.basic_functions import (
     pcr_get_statistics,
     pcr_return_val_div_zero,
-    sum_list,
 )
 
 logger = logging.getLogger(__name__)
@@ -145,7 +144,7 @@ def combine_sources(
     """
 
     group_availability = {
-        g: sum_list([availability[s] for s in members]) for g, members in groups.items()
+        g: sum(availability[s] for s in members) for g, members in groups.items()
     }
     group_zones = {g: zones[members[0]] for g, members in groups.items()}
     return group_availability, group_zones
@@ -196,7 +195,7 @@ def split_sources(
             continue
 
         # untapped supply: the group's untapped fraction of each source's supply
-        group_availability = sum_list([availability[s] for s in members])
+        group_availability = sum(availability[s] for s in members)
         untapped_fraction = pcr_return_val_div_zero(
             group_untapped[g], group_availability, very_small_number
         )
@@ -205,7 +204,7 @@ def split_sources(
         zonal_availability = {
             s: get_zonal_total(availability[s], zones[s]) for s in members
         }
-        zonal_availability_total = sum_list(zonal_availability.values())
+        zonal_availability_total = sum(zonal_availability.values())
 
         for s in members:
             untapped[s] = availability[s] * untapped_fraction
@@ -291,7 +290,7 @@ def obtain_allocation_ratio(
     # Source share:
     # The potential allocation of a source as a proportion of the total potential
     # allocation over all sources
-    potential_allocation_total = sum_list(potential_allocation.values())
+    potential_allocation_total = sum(potential_allocation.values())
     source_share = {
         s: pcr_return_val_div_zero(
             potential_allocation[s],
@@ -445,8 +444,8 @@ def _allocate_demand_to_availability(
 
     # nothing to allocate if there is no untapped supply
     # untapped supply below these tolerances count as zero
-    zonal_untapped_tolerance = relative_tolerance * sum_list(zonal_untapped.values())
-    mask = mask & (sum_list(zonal_untapped.values()) > zonal_untapped_tolerance)
+    zonal_untapped_tolerance = relative_tolerance * sum(zonal_untapped.values())
+    mask = mask & (sum(zonal_untapped.values()) > zonal_untapped_tolerance)
     n_availability = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
     if n_availability == 0:
         message = "No available supply to meet the unmet demand."
@@ -499,7 +498,7 @@ def _allocate_demand_to_availability(
         }
 
         # Update the unmet demand, the (zonal) untapped supply and the allocated demand
-        unmet = pcr.max(unmet - sum_list(allocation.values()), 0)
+        unmet = pcr.max(unmet - sum(allocation.values()), 0)
         untapped = {
             s: pcr.max(untapped[s] * (1 - withdrawal_fraction[s]), 0)
             for s in source_names
@@ -514,7 +513,7 @@ def _allocate_demand_to_availability(
         # also have untapped supply left
         mask = unmet > unmet_tolerance
         n_unmet_current = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
-        mask = mask & (sum_list(zonal_untapped.values()) > zonal_untapped_tolerance)
+        mask = mask & (sum(zonal_untapped.values()) > zonal_untapped_tolerance)
         n_availability_current = pcr.cellvalue(pcr.maptotal(pcr.scalar(mask)), 1)[0]
 
         # Reporting
@@ -543,9 +542,9 @@ def _allocate_demand_to_availability(
         demand_stats = pcr_get_statistics(demand_initial)
         met_stats = pcr_get_statistics(met)
         unmet_stats = pcr_get_statistics(unmet)
-        availability_stats = pcr_get_statistics(sum_list(availability_initial.values()))
-        withdrawn_stats = pcr_get_statistics(sum_list(withdrawn.values()))
-        untapped_stats = pcr_get_statistics(sum_list(untapped.values()))
+        availability_stats = pcr_get_statistics(sum(availability_initial.values()))
+        withdrawn_stats = pcr_get_statistics(sum(withdrawn.values()))
+        untapped_stats = pcr_get_statistics(sum(untapped.values()))
 
         stats = {
             "initial demand": demand_stats,
@@ -736,7 +735,7 @@ def allocate_demand_to_availability_with_options(
 
             # Source share:
             # The untapped supply of each other source as a proportion of the surplus
-            surplus = sum_list([untapped[s] for s in other_sources])
+            surplus = sum(untapped[s] for s in other_sources)
             source_share = {
                 s: pcr_return_val_div_zero(untapped[s], surplus, very_small_number)
                 for s in other_sources
@@ -846,9 +845,9 @@ def allocate_demand_to_availability_with_options(
         demand_stats = pcr_get_statistics(demand_initial)
         met_stats = pcr_get_statistics(met)
         unmet_stats = pcr_get_statistics(unmet)
-        availability_stats = pcr_get_statistics(sum_list(availability_initial.values()))
-        withdrawn_stats = pcr_get_statistics(sum_list(withdrawn.values()))
-        untapped_stats = pcr_get_statistics(sum_list(untapped.values()))
+        availability_stats = pcr_get_statistics(sum(availability_initial.values()))
+        withdrawn_stats = pcr_get_statistics(sum(withdrawn.values()))
+        untapped_stats = pcr_get_statistics(sum(untapped.values()))
 
         stats = {
             "initial demand": demand_stats,

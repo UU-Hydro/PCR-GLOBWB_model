@@ -8,19 +8,6 @@ convergence_limit = 1.0e-12
 max_number_iterations = 100
 
 
-# generic functions to process lists
-
-
-def sum_list(list_in):
-    """
-sum_list: generic function that returns the sum of a list of which \
-the entries can be summed (integers, floats, arrays etc.).
-
-"""
-    # sum all entries of a list-like object
-    return sum(list_in)
-
-
 def max_dicts(dict_in):
     """
 max_dicts: generic function that returns the maximum pcr map from a collection \

@@ -8,7 +8,6 @@ import pcraster as pcr
 from qualloc.basic_functions import (
     pcr_return_val_div_zero,
     pcr_share_identical_maps,
-    sum_list,
 )
 from qualloc.file_handler import close_nc_cache, read_file_entry
 from qualloc.initial_conditions_handler import (
@@ -1158,7 +1157,7 @@ class qualloc_model:
             longterm_potential_withdrawal_per_sector=potential_withdrawal_per_sector,
         )
 
-        potential_withdrawal = sum_list(potential_withdrawal_per_sector.values())
+        potential_withdrawal = sum(potential_withdrawal_per_sector.values())
 
         # actual renewable withdrawals, based on the instantaneous channel storage (m3/day)
         actual_withdrawal = pcr.ifthen(
@@ -1222,7 +1221,7 @@ class qualloc_model:
             )
         )
 
-        potential_withdrawal = sum_list(potential_withdrawal_per_sector.values())
+        potential_withdrawal = sum(potential_withdrawal_per_sector.values())
 
         # actual renewable and non-renewable withdrawals (m3/day)
         renewable_withdrawal = pcr.min(groundwater_availability, potential_withdrawal)
