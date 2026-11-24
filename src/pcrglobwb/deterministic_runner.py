@@ -340,9 +340,6 @@ def main():
 
     configuration = Configuration(iniFileName=iniFileName, debug_mode=debug_mode)
 
-    # time step info: year, month, day, doy, etc.
-    currTimeStep = ModelTime()
-
     spin_up = SpinUp(configuration)
 
     # spin-up
@@ -356,7 +353,7 @@ def main():
         has_converged = False
         while spinUpRun < noSpinUps and not has_converged:
             spinUpRun += 1
-            currTimeStep.getStartEndTimeStepsForSpinUp(
+            currTimeStep = ModelTime.forSpinUp(
                 configuration.globalOptions["startTime"], spinUpRun, noSpinUps
             )
             logger.info(f"Spin-Up Run No. {spinUpRun}")
@@ -384,11 +381,11 @@ def main():
             initial_state = deterministic_runner.model.getState()
 
     # run the model (excluding the DA scheme)
-    currTimeStep.getStartEndTimeSteps(
+    currTimeStep = ModelTime(
         configuration.globalOptions["startTime"], configuration.globalOptions["endTime"]
     )
 
-    logger.info("Transient simulation run started.")
+    logger.info(f"Transient run started: ({currTimeStep.nrOfTimeSteps} time steps).")
     deterministic_runner = DeterministicRunner(
         configuration, currTimeStep, initial_state
     )

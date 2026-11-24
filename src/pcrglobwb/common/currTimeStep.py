@@ -6,42 +6,25 @@ logger = logging.getLogger(__name__)
 
 class ModelTime:
 
-    def __init__(self):
-        self._spinUpStatus = False
-
-    # TODO: use __init__
-    def getStartEndTimeSteps(
-        self, strStartTime, strEndTime, showNumberOfTimeSteps=True
-    ):
+    def __init__(self, strStartTime, strEndTime, noSpinUp=None, maxSpinUps=None):
         sd = str(strStartTime).split("-")
         self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
         ed = str(strEndTime).split("-")
         self._endTime = datetime.date(int(ed[0]), int(ed[1]), int(ed[2]))
         self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
-        self._spinUpStatus = False
-        if showNumberOfTimeSteps:
-            logger.info(f"number of time steps: {self._nrOfTimeSteps}")
-        # monthly index since the start of the simulation
-        self._monthIdx = 0
-        # yearly index since the start of the simulation
-        self._annuaIdx = 0
-
-    # TODO: use __init__
-    def getStartEndTimeStepsForSpinUp(self, strStartTime, noSpinUp, maxSpinUps):
-        sd = str(strStartTime).split("-")
-        self._startTime = datetime.date(int(sd[0]), int(sd[1]), int(sd[2]))
-
-        # always end on 31 December of the starting year
-        self._endTime = datetime.date(int(sd[0]), 12, 31)
-
-        self._nrOfTimeSteps = 1 + (self.endTime - self.startTime).days
-        self._spinUpStatus = True
+        self._spinUpStatus = noSpinUp is not None
         self._noSpinUp = noSpinUp
         self._maxSpinUps = maxSpinUps
         # monthly index since the start of the simulation
         self._monthIdx = 0
         # yearly index since the start of the simulation
         self._annuaIdx = 0
+
+    @classmethod
+    def forSpinUp(cls, strStartTime, noSpinUp, maxSpinUps):
+        sd = str(strStartTime).split("-")
+        # always end on 31 December of the starting year
+        return cls(strStartTime, f"{sd[0]}-12-31", noSpinUp, maxSpinUps)
 
     @property
     def spinUpStatus(self):
