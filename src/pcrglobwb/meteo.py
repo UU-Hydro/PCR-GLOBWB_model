@@ -553,6 +553,7 @@ class Meteo:
                 )
 
     def update(self, routing, currTimeStep):
+        self.read_forcings(currTimeStep)
 
         self.precipitation_before_downscaling = pcr.ifthen(
             self.landmask, self.precipitation
@@ -1248,6 +1249,7 @@ class Meteo:
             self.referencePotET = pcr.max(0.0, factor * self.referencePotET)
 
     def read_forcings(self, currTimeStep):
+        logger.info(f"Reading forcings for time {currTimeStep}")
 
         # RvB (13 Jul 2016): the hard-coded variable names of precipitation, temperature and
         # evapotranspiration are replaced by the netCDF variable names from the ini file

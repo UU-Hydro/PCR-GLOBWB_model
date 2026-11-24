@@ -434,10 +434,6 @@ class PCRGlobWB:
             threshold=1e-3,
         )
 
-    def read_forcings(self):
-        logger.info(f"Reading forcings for time {self._modelTime}")
-        self.meteo.read_forcings(self._modelTime)
-
     def update(self, report_water_balance=False):
         logger.info(f"Updating model for time {self._modelTime}")
 

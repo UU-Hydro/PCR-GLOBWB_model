@@ -32,9 +32,6 @@ class DeterministicRunner(DynamicModel):
         # update the model time from the current PCRaster time step
         self.modelTime.update(self.currentTimeStep())
 
-        # read the forcing (uses the current model time)
-        self.model.read_forcings()
-
         # update the model
         self.model.update(report_water_balance=True)
 
