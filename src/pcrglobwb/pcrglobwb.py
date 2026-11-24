@@ -14,7 +14,12 @@ class PCRGlobWB:
         self._configuration = configuration
         self._modelTime = currTimeStep
 
-        vos.set_clone(configuration.cloneMap)
+        vos.set_clone(
+            vos.getFullPath(
+                configuration.globalOptions["cloneMap"],
+                configuration.globalOptions["inputDir"],
+            )
+        )
 
         self.lddMap = vos.readPCRmapClone(
             configuration.routingOptions["lddMap"],

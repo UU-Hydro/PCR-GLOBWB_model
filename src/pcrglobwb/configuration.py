@@ -37,7 +37,6 @@ class Configuration:
 
     def set_configuration(self):
 
-        self.set_input_files()
         self.create_output_directories()
 
         self.initialize_logging()
@@ -168,19 +167,6 @@ class Configuration:
             for opt in options:
                 val = config.get(sec, opt)
                 self.__getattribute__(sec)[opt] = val
-
-    def set_input_files(self):
-        self.cloneMap = vos.getFullPath(
-            self.globalOptions["cloneMap"], self.globalOptions["inputDir"]
-        )
-
-        # full paths of the input directories/files
-        dirsAndFiles = ["precipitationNC", "temperatureNC", "refETPotFileNC"]
-        for item in dirsAndFiles:
-            if self.meteoOptions[item] != "None":
-                self.meteoOptions[item] = vos.getFullPath(
-                    self.meteoOptions[item], self.globalOptions["inputDir"]
-                )
 
     def create_output_directories(self):
 

@@ -141,8 +141,12 @@ class Meteo:
             self.ignore_snow = True
 
         # only netCDF input files are supported (since 19 Feb 2014)
-        self.preFileNC = iniItems.meteoOptions["precipitationNC"]
-        self.tmpFileNC = iniItems.meteoOptions["temperatureNC"]
+        self.preFileNC = vos.getFullPath(
+            iniItems.meteoOptions["precipitationNC"], self.inputDir
+        )
+        self.tmpFileNC = vos.getFullPath(
+            iniItems.meteoOptions["temperatureNC"], self.inputDir
+        )
 
         self.refETPotMethod = iniItems.meteoOptions["referenceETPotMethod"]
         logger.info(f"Reference potential evaporation method: {self.refETPotMethod}")
@@ -154,7 +158,9 @@ class Meteo:
             # TODO: make windHeight flexible
 
         if self.refETPotMethod == "Input":
-            self.etpFileNC = iniItems.meteoOptions["refETPotFileNC"]
+            self.etpFileNC = vos.getFullPath(
+                iniItems.meteoOptions["refETPotFileNC"], self.inputDir
+            )
 
         # extra meteo variables needed for the Penman-Monteith method
         self.extra_meteo_var_names = [
