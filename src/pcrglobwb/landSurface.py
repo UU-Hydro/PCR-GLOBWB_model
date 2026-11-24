@@ -347,7 +347,7 @@ class LandSurface:
             groups = []
             subst_args = []
 
-            # the placeholders in the QUAlloc cfg are filled from this ini, which run-with-arguments has
+            # the placeholders in the QUAlloc cfg are filled from this ini, which the runner has
             # already substituted with the same values, so both models are driven by one set of arguments
             replacements = {}
             for token, option in [

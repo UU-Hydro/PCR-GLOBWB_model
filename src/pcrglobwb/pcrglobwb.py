@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class PCRGlobWB:
 
-    def __init__(self, configuration, currTimeStep, initialState=None, spinUpRun=None):
+    def __init__(self, configuration, currTimeStep, initialState=None):
         self._configuration = configuration
         self._modelTime = currTimeStep
 
@@ -47,9 +47,6 @@ class PCRGlobWB:
             self.save_monthly_end_states = (
                 configuration.reportingOptions["save_monthly_end_states"] == "True"
             )
-
-        # whether this run is a spin-up run
-        self.spinUpRun = spinUpRun
 
     @property
     def configuration(self):

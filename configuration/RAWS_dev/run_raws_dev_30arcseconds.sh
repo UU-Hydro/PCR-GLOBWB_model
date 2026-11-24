@@ -28,7 +28,7 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 # 1/2 PCR-GLOBWB on its own
 # ---------------------------------------------------------------------------
-pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcseconds.ini" \
     -mod "$DATA_DIR/output/30arcseconds/pcrglobwb" \
     -mid "$INPUT_DIR" \
@@ -39,7 +39,7 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
 # ---------------------------------------------------------------------------
 # 2/2 QUAlloc stepped from inside PCR-GLOBWB
 # ---------------------------------------------------------------------------
-pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/online_pcrglobwb_qualloc_30arcseconds.ini" \
     -mod "$DATA_DIR/output/30arcseconds/online_pcrglobwb_qualloc" \
     -mid "$INPUT_DIR" \

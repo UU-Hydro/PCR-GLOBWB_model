@@ -19,8 +19,6 @@ class Configuration:
         self,
         iniFileName,
         debug_mode=False,
-        no_modification=True,
-        system_arguments=None,
     ):
 
         if iniFileName is None:
@@ -35,23 +33,20 @@ class Configuration:
 
         self.parse_configuration_file(self.iniFileName)
 
-        # if no_modification, set the configuration directly (creates the output, tmp, etc.
-        # directories); otherwise set_configuration must be called separately
-        if no_modification:
-            self.set_configuration(system_arguments)
+        self.set_configuration()
 
-    def set_configuration(self, system_arguments=None):
+    def set_configuration(self):
 
         self.set_input_files()
         self.create_output_directories()
 
-        self.initialize_logging(system_arguments)
+        self.initialize_logging()
 
         self.backup_configuration()
 
         self.repair_ini_key_names()
 
-    def initialize_logging(self, system_arguments=None):
+    def initialize_logging(self):
         """
         Initialize logging. Prints to both the console and a log file, at configurable levels
         """
@@ -146,10 +141,7 @@ class Configuration:
             f'{os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A")}'
         )
 
-        if system_arguments is not None:
-            logger.info(
-                f"The system arguments given to execute this run: {system_arguments}"
-            )
+        logger.info(f"The system arguments given to execute this run: {sys.argv}")
 
     def backup_configuration(self):
 

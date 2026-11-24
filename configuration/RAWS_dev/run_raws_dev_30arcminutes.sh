@@ -28,7 +28,7 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 # PCR-GLOBWB on its own (no QUAlloc inputs exist at 30 arcminutes)
 # ---------------------------------------------------------------------------
-pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run-with-arguments \
+pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcminutes.ini" \
     -mod "$DATA_DIR/output/30arcminutes/pcrglobwb" \
     -mid "$INPUT_DIR" \
