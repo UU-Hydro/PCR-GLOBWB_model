@@ -1,3 +1,4 @@
+import glob
 import logging
 import logging.handlers
 import os
@@ -406,7 +407,40 @@ def main():
         )
 
     configuration = Configuration(iniFileName=iniFileName)
+
+    if configuration.reportingOptions["is_sub_run"] != "True":
+        os.makedirs(configuration.globalOptions["outputDir"], exist_ok=True)
+        for path in (
+            configuration.tmpDir,
+            configuration.outNCDir,
+            configuration.scriptDir,
+            configuration.logFileDir,
+            configuration.endStateDir,
+            configuration.mapsDir,
+        ):
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            os.makedirs(path)
+
+        # TODO: subfolders are not copied
+        for filename in glob.glob(
+            os.path.join(configuration.starting_directory, "*.py")
+        ):
+            shutil.copy(filename, configuration.scriptDir)
+
+    # all pcr.report files are written to the working directory
+    os.chdir(configuration.mapsDir)
+
     start_file_logging(configuration, buffer, debug_mode)
+
+    shutil.copy(
+        configuration.iniFileName,
+        configuration.logFileDir
+        + os.path.basename(configuration.iniFileName)
+        + "_"
+        + str(configuration._timestamp.isoformat()).replace(":", ".")
+        + ".ini",
+    )
 
     spin_up = SpinUp(configuration)
 
