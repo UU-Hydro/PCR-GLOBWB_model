@@ -43,31 +43,6 @@ class DeterministicRunner(DynamicModel):
         self.reporting.report()
 
 
-def parse_args(argv=None):
-    def parse_override(text):
-        target, sep, value = text.partition("=")
-        section, dot, key = target.partition(".")
-        if not (sep and dot and section and key):
-            raise argparse.ArgumentTypeError(
-                f"expected SECTION.KEY=VALUE, got {text!r}"
-            )
-        return section, key, value
-
-    parser = argparse.ArgumentParser(prog="deterministic_runner", allow_abbrev=False)
-    parser.add_argument("ini")
-    parser.add_argument("--debug", action="store_true")
-    parser.add_argument(
-        "--set",
-        dest="overrides",
-        action="append",
-        default=[],
-        type=parse_override,
-        metavar="SECTION.KEY=VALUE",
-        help="override an ini option; repeatable",
-    )
-    return parser.parse_args(argv)
-
-
 def start_bootstrap_logging(debug):
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
@@ -266,6 +241,31 @@ def write_effective_ini(config, filename):
 
     with open(filename, "w") as f:
         f.write("\n".join(out) + "\n")
+
+
+def parse_args(argv=None):
+    def parse_override(text):
+        target, sep, value = text.partition("=")
+        section, dot, key = target.partition(".")
+        if not (sep and dot and section and key):
+            raise argparse.ArgumentTypeError(
+                f"expected SECTION.KEY=VALUE, got {text!r}"
+            )
+        return section, key, value
+
+    parser = argparse.ArgumentParser(prog="deterministic_runner", allow_abbrev=False)
+    parser.add_argument("ini")
+    parser.add_argument("--debug", action="store_true")
+    parser.add_argument(
+        "--set",
+        dest="overrides",
+        action="append",
+        default=[],
+        type=parse_override,
+        metavar="SECTION.KEY=VALUE",
+        help="override an ini option; repeatable",
+    )
+    return parser.parse_args(argv)
 
 
 if __name__ == "__main__":
