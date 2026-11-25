@@ -12,7 +12,6 @@ license = { text = "GPL-3.0-or-later" }
 
 [project.scripts]
 pcrglobwb-run = "pcrglobwb.deterministic_runner:main"
-pcrglobwb-run-with-arguments = "pcrglobwb.deterministic_runner_with_arguments:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pcrglobwb", "src/qualloc"]

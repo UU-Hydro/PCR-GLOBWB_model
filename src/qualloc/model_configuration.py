@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 NoneType = type(None)
 
 # placeholders that the calling program replaces in the configuration file; they
-# match the tokens PCR-GLOBWB's run-with-arguments substitutes in its ini files,
+# match the tokens PCR-GLOBWB's runner substitutes in its ini files,
 # so a cfg and an ini can be driven by the same arguments
 substitutable_tokens = [
     "MAIN_INPUT_DIR",
