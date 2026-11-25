@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-from configparser import RawConfigParser as ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 
 from pcrglobwb.common import virtualOS as vos
 
@@ -28,9 +28,10 @@ class Configuration:
 
     def parse_configuration_file(self, modelFileName):
 
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         config.optionxform = str
-        config.read(modelFileName)
+        with open(modelFileName) as f:
+            config.read_file(f)
 
         self.allSections = config.sections()
 
