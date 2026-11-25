@@ -4,6 +4,7 @@ import logging
 import logging.handlers
 import os
 import platform
+import re
 import shutil
 import sys
 
@@ -131,6 +132,42 @@ def start_file_logging(config, buffer, debug):
     logger.info(f"The system arguments for this run: {sys.argv}")
 
 
+def write_effective_ini(config, filename):
+    with open(config.iniFileName) as f:
+        lines = f.read().splitlines()
+
+    out = []
+    section = None
+    written = set()
+    last_key_line = {}
+    for line in lines:
+        header = re.match(r"\[(?P<name>[^]]+)\]", line)
+        option = re.match(r"(?P<key>[^\s#;][^=:]*?)\s*[=:]\s*", line)
+        if header:
+            section = header["name"]
+            last_key_line[section] = len(out)
+        elif option and section is not None:
+            key = option["key"]
+            value = getattr(config, section)[key].replace("\n", "\n    ")
+            line = line[: option.end()] + value
+            written.add((section, key))
+            last_key_line[section] = len(out)
+        out.append(line)
+
+    # keys filled in by repair_ini_key_names are not in the file
+    for section in reversed(config.allSections):
+        missing = [
+            f"{key} = {value}"
+            for key, value in getattr(config, section).items()
+            if (section, key) not in written
+        ]
+        i = last_key_line[section] + 1
+        out[i:i] = missing
+
+    with open(filename, "w") as f:
+        f.write("\n".join(out) + "\n")
+
+
 def main():
 
     args = parse_args()
@@ -165,14 +202,14 @@ def main():
 
     start_file_logging(configuration, buffer, args.debug)
 
-    shutil.copy(
-        configuration.iniFileName,
+    stem = (
         configuration.logFileDir
         + os.path.basename(configuration.iniFileName)
         + "_"
         + str(configuration._timestamp.isoformat()).replace(":", ".")
-        + ".ini",
     )
+    shutil.copy(configuration.iniFileName, stem + ".original.ini")
+    write_effective_ini(configuration, stem + ".ini")
 
     spin_up = SpinUp(configuration)
 
