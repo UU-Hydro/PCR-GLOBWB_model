@@ -14,7 +14,12 @@ class PCRGlobWB:
         self._configuration = configuration
         self._modelTime = currTimeStep
 
-        vos.set_clone(configuration.cloneMap)
+        vos.set_clone(
+            vos.getFullPath(
+                configuration.globalOptions["cloneMap"],
+                configuration.globalOptions["inputDir"],
+            )
+        )
 
         self.lddMap = vos.readPCRmapClone(
             configuration.routingOptions["lddMap"],
@@ -428,10 +433,6 @@ class PCRGlobWB:
             self._modelTime.fulldate,
             threshold=1e-3,
         )
-
-    def read_forcings(self):
-        logger.info(f"Reading forcings for time {self._modelTime}")
-        self.meteo.read_forcings(self._modelTime)
 
     def update(self, report_water_balance=False):
         logger.info(f"Updating model for time {self._modelTime}")
