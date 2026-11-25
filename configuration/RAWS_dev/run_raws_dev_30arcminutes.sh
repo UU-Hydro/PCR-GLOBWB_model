@@ -30,8 +30,8 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcminutes.ini" \
-    -mod "$DATA_DIR/output/30arcminutes/pcrglobwb" \
-    -mid "$INPUT_DIR" \
-    -clonemap "$CLONE_MAP" \
-    -sd "$START_DATE" \
-    -ed "$END_DATE"
+    --set globalOptions.outputDir="$DATA_DIR/output/30arcminutes/pcrglobwb" \
+    --set globalOptions.inputDir="$INPUT_DIR" \
+    --set globalOptions.clone="$CLONE_MAP" \
+    --set globalOptions.startTime="$START_DATE" \
+    --set globalOptions.endTime="$END_DATE"

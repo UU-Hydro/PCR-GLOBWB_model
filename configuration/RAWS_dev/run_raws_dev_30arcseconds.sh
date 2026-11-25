@@ -30,20 +30,20 @@ pixi run --manifest-path "$REPO_ROOT/pixi.toml" \
 # ---------------------------------------------------------------------------
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/pcrglobwb/pcrglobwb_30arcseconds.ini" \
-    -mod "$DATA_DIR/output/30arcseconds/pcrglobwb" \
-    -mid "$INPUT_DIR" \
-    -clonemap "$CLONE_MAP" \
-    -sd "$START_DATE" \
-    -ed "$END_DATE"
+    --set globalOptions.outputDir="$DATA_DIR/output/30arcseconds/pcrglobwb" \
+    --set globalOptions.inputDir="$INPUT_DIR" \
+    --set globalOptions.clone="$CLONE_MAP" \
+    --set globalOptions.startTime="$START_DATE" \
+    --set globalOptions.endTime="$END_DATE"
 
 # ---------------------------------------------------------------------------
 # 2/2 QUAlloc stepped from inside PCR-GLOBWB
 # ---------------------------------------------------------------------------
 pixi run --manifest-path "$REPO_ROOT/pixi.toml" pcrglobwb-run \
     "$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/online_pcrglobwb_qualloc_30arcseconds.ini" \
-    -mod "$DATA_DIR/output/30arcseconds/online_pcrglobwb_qualloc" \
-    -mid "$INPUT_DIR" \
-    -clonemap "$CLONE_MAP" \
-    -sd "$START_DATE" \
-    -ed "$END_DATE" \
-    -qcf "$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/qualloc_30arcseconds.cfg"
+    --set globalOptions.mainOutputDir="$DATA_DIR/output/30arcseconds/online_pcrglobwb_qualloc" \
+    --set globalOptions.inputDir="$INPUT_DIR" \
+    --set globalOptions.clone="$CLONE_MAP" \
+    --set globalOptions.startTime="$START_DATE" \
+    --set globalOptions.endTime="$END_DATE" \
+    --set waterManagementOptions.configuration_file_for_qualloc="$REPO_ROOT/configuration/run_with_args/online_pcrglobwb_qualloc/qualloc_30arcseconds.cfg"
