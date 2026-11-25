@@ -1,13 +1,8 @@
 import datetime
-import glob
 import logging
 import os
-import platform
-import shutil
-import sys
 from configparser import RawConfigParser as ConfigParser
 
-from pcrglobwb.common import disclaimer
 from pcrglobwb.common import virtualOS as vos
 
 logger = logging.getLogger(__name__)
@@ -15,11 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Configuration:
 
-    def __init__(
-        self,
-        iniFileName,
-        debug_mode=False,
-    ):
+    def __init__(self, iniFileName):
 
         if iniFileName is None:
             raise Exception("Error: No configuration file specified")
@@ -27,131 +18,13 @@ class Configuration:
         # timestamp of this run, used in log file names etc.
         self._timestamp = datetime.datetime.now()
 
-        self.iniFileName = os.path.abspath(iniFileName)
-
-        self.debug_mode = debug_mode
+        self.iniFileName = iniFileName
 
         self.parse_configuration_file(self.iniFileName)
 
-        self.set_configuration()
-
-    def set_configuration(self):
-
-        self.create_output_directories()
-
-        self.initialize_logging()
-
-        self.backup_configuration()
+        self.set_output_paths()
 
         self.repair_ini_key_names()
-
-    def initialize_logging(self):
-        """
-        Initialize logging. Prints to both the console and a log file, at configurable levels
-        """
-
-        logging.getLogger().setLevel(logging.DEBUG)
-
-        formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s")
-
-        log_level_console = "INFO"
-        log_level_file = "INFO"
-        # log levels in order: DEBUG, INFO, WARNING, ERROR, CRITICAL
-
-        # log level from the ini file
-        if "log_level_console" in self.globalOptions:
-            log_level_console = self.globalOptions["log_level_console"]
-        if "log_level_file" in self.globalOptions:
-            log_level_file = self.globalOptions["log_level_file"]
-
-        # log level for debug mode
-        if self.debug_mode:
-            log_level_console = "DEBUG"
-            log_level_file = "DEBUG"
-
-        console_level = getattr(logging, log_level_console.upper(), logging.INFO)
-        if not isinstance(console_level, int):
-            raise ValueError(f"Invalid log level: {log_level_console}")
-
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        console_handler.setLevel(console_level)
-        logging.getLogger().addHandler(console_handler)
-
-        log_filename = (
-            self.logFileDir
-            + os.path.basename(self.iniFileName)
-            + "_"
-            + str(self._timestamp.isoformat()).replace(":", ".")
-            + ".log"
-        )
-
-        file_level = getattr(logging, log_level_file.upper(), logging.DEBUG)
-        if not isinstance(console_level, int):
-            raise ValueError(f"Invalid log level: {log_level_file}")
-
-        file_handler = logging.FileHandler(log_filename)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(file_level)
-        logging.getLogger().addHandler(file_handler)
-
-        # debug log file name
-        dbg_filename = (
-            self.logFileDir
-            + os.path.basename(self.iniFileName)
-            + "_"
-            + str(self._timestamp.isoformat()).replace(":", ".")
-            + ".dbg"
-        )
-
-        debug_handler = logging.FileHandler(dbg_filename)
-        debug_handler.setFormatter(formatter)
-        debug_handler.setLevel(logging.DEBUG)
-        logging.getLogger().addHandler(debug_handler)
-
-        disclaimer.print_disclaimer(with_logger=True)
-
-        logger.info(f"Model run started at {self._timestamp}")
-        logger.info(f"Logging output to {log_filename}")
-        logger.info(f"Debugging output to {dbg_filename}")
-
-        # log the platform, Python and PCRaster versions, paths, etc.
-        logger.info(f"OS platform: {platform.system()}")
-        logger.info(f"OS release: {platform.release()}")
-        python_version = str(sys.version)
-        logger.info(f"Python version:\n{python_version}")
-        pcraster_check_filename = (
-            self.logFileDir
-            + os.path.basename(self.iniFileName)
-            + "_"
-            + str(self._timestamp.isoformat()).replace(":", ".")
-            + "_pcrcalc_output.txt"
-        )
-        cmd = f"pcrcalc &> {pcraster_check_filename}"
-        os.system(cmd)
-        logger.info(
-            f"PCRaster version (output from pcrcalc): see the file {pcraster_check_filename}"
-        )
-        logger.info(f'PATH={os.environ["PATH"]}')
-        logger.info(f'PYTHONPATH={os.environ.get("PYTHONPATH", "N/A")}')
-        logger.info(f'HOSTNAME: {os.environ.get("HOSTNAME", "N/A")}')
-        logger.info(
-            "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): "
-            f'{os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A")}'
-        )
-
-        logger.info(f"The system arguments given to execute this run: {sys.argv}")
-
-    def backup_configuration(self):
-
-        shutil.copy(
-            self.iniFileName,
-            self.logFileDir
-            + os.path.basename(self.iniFileName)
-            + "_"
-            + str(self._timestamp.isoformat()).replace(":", ".")
-            + ".ini",
-        )
 
     def parse_configuration_file(self, modelFileName):
 
@@ -168,89 +41,15 @@ class Configuration:
                 val = config.get(sec, opt)
                 self.__getattribute__(sec)[opt] = val
 
-    def create_output_directories(self):
-
-        if (
-            "is_sub_run" in self.reportingOptions
-            and self.reportingOptions["is_sub_run"] == "True"
-        ):
-            self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
-
-            self.outNCDir = vos.getFullPath("netcdf/", self.globalOptions["outputDir"])
-
-            # backup of the Python scripts used
-            self.scriptDir = vos.getFullPath(
-                "scripts/", self.globalOptions["outputDir"]
-            )
-
-            # starting directory where all scripts are stored
-            path_of_this_module = os.path.abspath(os.path.dirname(__file__))
-            self.starting_directory = path_of_this_module
-
-            self.logFileDir = vos.getFullPath("log/", self.globalOptions["outputDir"])
-
-            self.endStateDir = vos.getFullPath(
-                "states/", self.globalOptions["outputDir"]
-            )
-
-            self.mapsDir = vos.getFullPath("maps/", self.globalOptions["outputDir"])
-
-            # go to the PCRaster maps directory (so all pcr.report files are saved there)
-            os.chdir(self.mapsDir)
-
-        else:
-            # root/parent of the output directory
-            os.makedirs(self.globalOptions["outputDir"], exist_ok=True)
-
-            self.tmpDir = vos.getFullPath("tmp/", self.globalOptions["outputDir"])
-
-            if os.path.exists(self.tmpDir):
-                shutil.rmtree(self.tmpDir)
-            os.makedirs(self.tmpDir)
-
-            self.outNCDir = vos.getFullPath("netcdf/", self.globalOptions["outputDir"])
-            if os.path.exists(self.outNCDir):
-                shutil.rmtree(self.outNCDir)
-            os.makedirs(self.outNCDir)
-
-            # backup of the Python scripts used
-            self.scriptDir = vos.getFullPath(
-                "scripts/", self.globalOptions["outputDir"]
-            )
-
-            if os.path.exists(self.scriptDir):
-                shutil.rmtree(self.scriptDir)
-            os.makedirs(self.scriptDir)
-
-            # starting directory where all scripts are stored
-            path_of_this_module = os.path.abspath(os.path.dirname(__file__))
-            self.starting_directory = path_of_this_module
-
-            for filename in glob.glob(os.path.join(path_of_this_module, "*.py")):
-                shutil.copy(filename, self.scriptDir)
-            # TODO: fix this copying (it does not include subfolders)
-
-            self.logFileDir = vos.getFullPath("log/", self.globalOptions["outputDir"])
-            cleanLogDir = True
-            if os.path.exists(self.logFileDir) and cleanLogDir:
-                shutil.rmtree(self.logFileDir)
-            os.makedirs(self.logFileDir)
-
-            self.endStateDir = vos.getFullPath(
-                "states/", self.globalOptions["outputDir"]
-            )
-            if os.path.exists(self.endStateDir):
-                shutil.rmtree(self.endStateDir)
-            os.makedirs(self.endStateDir)
-
-            self.mapsDir = vos.getFullPath("maps/", self.globalOptions["outputDir"])
-            cleanMapDir = True
-            if os.path.exists(self.mapsDir) and cleanMapDir:
-                shutil.rmtree(self.mapsDir)
-            os.makedirs(self.mapsDir)
-
-            # go to the PCRaster maps directory (so all pcr.report files are saved there)
-            os.chdir(self.mapsDir)
+    def set_output_paths(self):
+        outputDir = self.globalOptions["outputDir"]
+        self.tmpDir = vos.getFullPath("tmp/", outputDir)
+        self.outNCDir = vos.getFullPath("netcdf/", outputDir)
+        self.scriptDir = vos.getFullPath("scripts/", outputDir)
+        self.logFileDir = vos.getFullPath("log/", outputDir)
+        self.endStateDir = vos.getFullPath("states/", outputDir)
+        self.mapsDir = vos.getFullPath("maps/", outputDir)
+        self.starting_directory = os.path.abspath(os.path.dirname(__file__))
 
     def repair_ini_key_names(self):
         """
@@ -295,6 +94,9 @@ class Configuration:
             self.meteoOptions["temperature_set_per_year"] = "False"
         if "refETPotFileNC_set_per_year" not in self.meteoOptions:
             self.meteoOptions["refETPotFileNC_set_per_year"] = "False"
+
+        if "is_sub_run" not in self.reportingOptions:
+            self.reportingOptions["is_sub_run"] = "False"
 
         # TODO: repair key names when running a 3-layer model with 2-layer initial conditions (and vice versa)
 

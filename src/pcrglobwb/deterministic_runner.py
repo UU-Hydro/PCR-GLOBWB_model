@@ -1,5 +1,8 @@
+import glob
 import logging
+import logging.handlers
 import os
+import platform
 import shutil
 import sys
 
@@ -324,9 +327,76 @@ def modify_ini_file(original_ini_file, system_argument):
     return new_ini_file_name
 
 
+def start_bootstrap_logging(debug):
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    console = logging.StreamHandler()
+    console.setFormatter(
+        logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s")
+    )
+    console.setLevel(logging.DEBUG if debug else logging.INFO)
+    root.addHandler(console)
+
+    # holds every record for the log files, which cannot exist until the output dirs do;
+    # flushLevel above CRITICAL so it never flushes on its own
+    buffer = logging.handlers.MemoryHandler(
+        capacity=sys.maxsize, flushLevel=logging.CRITICAL + 1
+    )
+    root.addHandler(buffer)
+    return buffer
+
+
+def start_file_logging(config, buffer, debug):
+    timestamp = config._timestamp.isoformat().replace(":", ".")
+    stem = f"{config.logFileDir}{os.path.basename(config.iniFileName)}_{timestamp}"
+    log_filename = stem + ".log"
+    dbg_filename = stem + ".dbg"
+
+    log_file = logging.FileHandler(log_filename)
+    log_file.setLevel(logging.DEBUG if debug else logging.INFO)
+    dbg_file = logging.FileHandler(dbg_filename)
+    dbg_file.setLevel(logging.DEBUG)
+
+    root = logging.getLogger()
+    root.removeHandler(buffer)
+    for handler in (log_file, dbg_file):
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s")
+        )
+        root.addHandler(handler)
+        for record in buffer.buffer:
+            if record.levelno >= handler.level:
+                handler.handle(record)
+    buffer.close()
+
+    logger.info(f"Model run started at {config._timestamp}")
+    logger.info(f"Logging output to {log_filename}")
+    logger.info(f"Debugging output to {dbg_filename}")
+    logger.info(f"OS: {platform.system()} {platform.release()}")
+    logger.info(f"Python version:\n{sys.version}")
+    pcraster_check_filename = stem + "_pcrcalc_output.txt"
+    cmd = f"pcrcalc &> {pcraster_check_filename}"
+    os.system(cmd)
+    logger.info(
+        f"PCRaster version (output from pcrcalc): see the file {pcraster_check_filename}"
+    )
+    logger.info(f'PATH={os.environ["PATH"]}')
+    logger.info(f'PYTHONPATH={os.environ.get("PYTHONPATH", "N/A")}')
+    logger.info(f'HOSTNAME: {os.environ.get("HOSTNAME", "N/A")}')
+    logger.info(
+        "PCRASTER_NR_WORKER_THREADS (set by export, only for PCRaster version >= 4.2): "
+        f'{os.environ.get("PCRASTER_NR_WORKER_THREADS", "N/A")}'
+    )
+    logger.info(f"The system arguments for this run: {sys.argv}")
+
+
 def main():
 
-    disclaimer.print_disclaimer()
+    debug_mode = len(sys.argv) > 2 and sys.argv[2] == "debug"
+
+    buffer = start_bootstrap_logging(debug_mode)
+    disclaimer.print_disclaimer(with_logger=True)
 
     iniFileName = os.path.abspath(sys.argv[1])
 
@@ -336,9 +406,41 @@ def main():
             original_ini_file=iniFileName, system_argument=sys.argv
         )
 
-    debug_mode = len(sys.argv) > 2 and sys.argv[2] == "debug"
+    configuration = Configuration(iniFileName=iniFileName)
 
-    configuration = Configuration(iniFileName=iniFileName, debug_mode=debug_mode)
+    if configuration.reportingOptions["is_sub_run"] != "True":
+        os.makedirs(configuration.globalOptions["outputDir"], exist_ok=True)
+        for path in (
+            configuration.tmpDir,
+            configuration.outNCDir,
+            configuration.scriptDir,
+            configuration.logFileDir,
+            configuration.endStateDir,
+            configuration.mapsDir,
+        ):
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            os.makedirs(path)
+
+        # TODO: subfolders are not copied
+        for filename in glob.glob(
+            os.path.join(configuration.starting_directory, "*.py")
+        ):
+            shutil.copy(filename, configuration.scriptDir)
+
+    # all pcr.report files are written to the working directory
+    os.chdir(configuration.mapsDir)
+
+    start_file_logging(configuration, buffer, debug_mode)
+
+    shutil.copy(
+        configuration.iniFileName,
+        configuration.logFileDir
+        + os.path.basename(configuration.iniFileName)
+        + "_"
+        + str(configuration._timestamp.isoformat()).replace(":", ".")
+        + ".ini",
+    )
 
     spin_up = SpinUp(configuration)
 
@@ -398,5 +500,4 @@ def main():
 
 
 if __name__ == "__main__":
-    disclaimer.print_disclaimer(with_logger=True)
     sys.exit(main())
