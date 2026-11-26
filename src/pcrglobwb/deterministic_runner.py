@@ -211,32 +211,73 @@ def write_effective_ini(config, filename):
     with open(config.iniFileName) as f:
         lines = f.read().splitlines()
 
+    def is_blank_or_comment(stripped):
+        return not stripped or stripped.startswith(("#", ";"))
+
+    def indent_of(line):
+        return len(line) - len(line.lstrip())
+
     out = []
     section = None
     written = set()
-    last_key_line = {}
-    for line in lines:
-        header = re.match(r"\[(?P<name>[^]]+)\]", line)
-        option = re.match(r"(?P<key>[^\s#;][^=:]*?)\s*[=:]\s*", line)
+    default_keys = set()
+    section_end = {}
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+        i += 1
+        if is_blank_or_comment(stripped):
+            out.append(line)
+            continue
+
+        header = re.match(r"\[(?P<name>.+)\]", stripped)
         if header:
             section = header["name"]
-            last_key_line[section] = len(out)
-        elif option and section is not None:
-            key = option["key"]
-            value = getattr(config, section)[key].replace("\n", "\n    ")
-            line = line[: option.end()] + value
-            written.add((section, key))
-            last_key_line[section] = len(out)
-        out.append(line)
+            out.append(line)
+            section_end[section] = len(out)
+            continue
 
-    # keys filled in by repair_ini_key_names are not in the file
-    for section in reversed(config.allSections):
+        option = re.match(r"(?P<key>.*?)\s*[=:]\s*", stripped)
+        indent = indent_of(line)
+        # as in ConfigParser, blank and comment lines do not end a multiline value
+        block_end = i
+        for j in range(i, len(lines)):
+            s = lines[j].strip()
+            if is_blank_or_comment(s):
+                continue
+            if indent_of(lines[j]) <= indent:
+                break
+            block_end = j + 1
+        block = lines[i:block_end]
+        i = block_end
+
+        if section not in config.allSections:
+            default_keys.add(option["key"])
+            out.append(line)
+            out.extend(block)
+            continue
+
+        key = option["key"]
+        value = getattr(config, section)[key].replace("$", "$$")
+        first, *rest = value.split("\n")
+        pad = " " * (indent + 4)
+        out.append(line[:indent] + stripped[: option.end()] + first)
+        out.extend(pad + r if r else "" for r in rest)
+        out.extend(b for b in block if b.strip().startswith(("#", ";")))
+        written.add((section, key))
+        section_end[section] = len(out)
+
+    # append the keys added by repair_ini_key_names
+    for section in sorted(
+        config.allSections, key=section_end.__getitem__, reverse=True
+    ):
         missing = [
-            f"{key} = {value}"
+            f"{key} = {value.replace('$', '$$')}"
             for key, value in getattr(config, section).items()
-            if (section, key) not in written
+            if (section, key) not in written and key not in default_keys
         ]
-        i = last_key_line[section] + 1
+        i = section_end[section]
         out[i:i] = missing
 
     with open(filename, "w") as f:
