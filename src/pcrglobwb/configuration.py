@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-from configparser import RawConfigParser as ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 
 from pcrglobwb.common import virtualOS as vos
 
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Configuration:
 
-    def __init__(self, iniFileName):
+    def __init__(self, iniFileName, overrides=()):
 
         if iniFileName is None:
             raise Exception("Error: No configuration file specified")
@@ -20,17 +20,19 @@ class Configuration:
 
         self.iniFileName = iniFileName
 
-        self.parse_configuration_file(self.iniFileName)
+        self.parse_configuration_file(self.iniFileName, overrides)
 
         self.set_output_paths()
 
         self.repair_ini_key_names()
 
-    def parse_configuration_file(self, modelFileName):
+    def parse_configuration_file(self, modelFileName, overrides):
 
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         config.optionxform = str
-        config.read(modelFileName)
+        with open(modelFileName) as f:
+            config.read_file(f)
+        apply_overrides(config, overrides, modelFileName)
 
         self.allSections = config.sections()
 
@@ -101,3 +103,23 @@ class Configuration:
         # TODO: repair key names when running a 3-layer model with 2-layer initial conditions (and vice versa)
 
         # TODO: set a specific set of configuration options for a debugging run
+
+
+def apply_overrides(parser, overrides, iniFileName):
+    for section, key, value in overrides:
+        if not parser.has_option(section, key):
+            raise ValueError(f"--set {section}.{key}: no such option in the ini file")
+        parser.set(section, key, value)
+        logger.info(f"{section}.{key} set from the command line: {value}")
+
+    missing = [
+        f"{section}.{key}"
+        for section in parser.sections()
+        for key, value in parser.items(section, raw=True)
+        if value.strip() == "???"
+    ]
+    if missing:
+        raise ValueError(
+            f"{iniFileName} has no value for {missing}; "
+            "set them in the file or with --set SECTION.KEY=VALUE"
+        )
