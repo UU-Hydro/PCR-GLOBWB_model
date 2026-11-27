@@ -5,7 +5,9 @@ platforms = ["linux-64", "osx-arm64"]
 [dependencies]
 python = "=3.10.13"
 numpy = "=1.26.4"
-netCDF4 = "=1.6.4"
+netCDF4 = ">=1.7.2"
+libnetcdf = ">=4.9.3"
+hdf5 = ">=1.14.6"
 zarr = "=2.18.3"
 xarray = "=2025.6.1"
 pyinterp = "=2025.8.1"
